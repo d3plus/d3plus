@@ -2,6 +2,7 @@ import assert from "assert";
 import {applySunburstLayout} from "../../es/src/charts/Sunburst/applyLayout.js";
 import {
   sunburstClickable,
+  sunburstDefaultTbody,
   sunburstDrillable,
   sunburstHandlers,
   sunburstHoverRows,
@@ -187,7 +188,7 @@ it("Sunburst interaction: sunburstZoomOut restores the recorded view", () => {
 
 it("Sunburst interaction: sunburstHandlers: hovers the lineage of an arc and defers other marks to the base handler", () => {
   const viz = mockViz();
-  const handlers = sunburstHandlers(viz, undefined);
+  const handlers = sunburstHandlers(viz, []);
   const m1 = nodeAt(viz, ["A", "m1"]);
   handlers.mouseenter(m1.datum, 0);
   const predicate = viz.log.hover[0];
@@ -200,7 +201,7 @@ it("Sunburst interaction: sunburstHandlers: hovers the lineage of an arc and def
 
 it("Sunburst interaction: sunburstHandlers: mousemove re-hovers when the pointer lands on a new node without a mouseenter", () => {
   const viz = mockViz();
-  const handlers = sunburstHandlers(viz, undefined);
+  const handlers = sunburstHandlers(viz, []);
   const a = nodeAt(viz, ["A"]);
   handlers.mouseenter(a.datum, 0);
   handlers["mousemove.shape"](a.datum, 0, undefined, {});
@@ -219,15 +220,17 @@ it("Sunburst interaction: sunburstHandlers: mousemove re-hovers when the pointer
 it("Sunburst interaction: sunburstHandlers: skips hover dimming when hoverOpacity is 1", () => {
   const viz = mockViz();
   viz.schema.shapeConfig.hoverOpacity = 1;
-  sunburstHandlers(viz, undefined).mouseenter(nodeAt(viz, ["A"]).datum, 0);
+  sunburstHandlers(viz, []).mouseenter(nodeAt(viz, ["A"]).datum, 0);
   assert.strictEqual(viz.log.hover.length, 0);
 });
 
 it("Sunburst interaction: sunburstHandlers: labels the tooltip at the arc's level with its click hint and parent share", () => {
   const viz = mockViz();
-  const tbody = [["Share", () => ""]];
+  const shareRow = ["Share", () => ""];
+  // A config merge copies the arrays but keeps the cell functions.
+  const tbody = [[...shareRow]];
   viz.schema.tooltipConfig.tbody = tbody;
-  const handlers = sunburstHandlers(viz, tbody);
+  const handlers = sunburstHandlers(viz, shareRow);
   handlers["mousemove.shape"](nodeAt(viz, ["A", "m1"]).datum, 0, undefined, {});
   assert.deepStrictEqual(viz.log.tooltip.slice(0, 3), [
     ["title", "label@1"],
@@ -248,7 +251,7 @@ it("Sunburst interaction: sunburstHandlers: labels the tooltip at the arc's leve
 it("Sunburst interaction: sunburstHandlers: leaves a user-configured tooltip title and footer alone", () => {
   const viz = mockViz();
   viz.schema.tooltipConfig = {title: "mine", footer: "mine", tbody: []};
-  sunburstHandlers(viz, undefined)["mousemove.shape"](
+  sunburstHandlers(viz, [])["mousemove.shape"](
     nodeAt(viz, ["A"]).datum,
     0,
     undefined,
@@ -259,7 +262,7 @@ it("Sunburst interaction: sunburstHandlers: leaves a user-configured tooltip tit
 
 it("Sunburst interaction: sunburstHandlers: zooms in on an arc click and out on a center click", () => {
   const viz = mockViz();
-  const handlers = sunburstHandlers(viz, undefined);
+  const handlers = sunburstHandlers(viz, []);
   let stopped = false;
   handlers["click.shape"](nodeAt(viz, ["A"]).datum, 0, undefined, {
     stopPropagation: () => (stopped = true),
@@ -279,4 +282,32 @@ it("Sunburst interaction: sunburstHandlers: zooms in on an arc click and out on 
     {},
   );
   assert.strictEqual(viz.log.renders, 2, "a leaf click does nothing");
+});
+
+it("Sunburst interaction: sunburstDefaultTbody recognizes the chart's own Share row by its cells", () => {
+  const cell = () => "";
+  const shareRow = ["Share", cell];
+  assert.strictEqual(
+    sunburstDefaultTbody([["Share", cell]], shareRow),
+    true,
+    "a copied row",
+  );
+  assert.strictEqual(
+    sunburstDefaultTbody([["Share", () => ""]], shareRow),
+    false,
+    "a user's own cell",
+  );
+  assert.strictEqual(
+    sunburstDefaultTbody(
+      [
+        ["Share", cell],
+        ["Other", cell],
+      ],
+      shareRow,
+    ),
+    false,
+    "extra rows",
+  );
+  assert.strictEqual(sunburstDefaultTbody([], shareRow), false);
+  assert.strictEqual(sunburstDefaultTbody(undefined, shareRow), false);
 });

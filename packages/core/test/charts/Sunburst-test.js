@@ -631,3 +631,133 @@ it("Sunburst: keeps a data field named share, with d3plus's Share row beside it"
     `Share row shows d3plus's fraction: ${JSON.stringify(out.rows)}`,
   );
 });
+
+it("Sunburst: shadeConfig deep-merges and RESET restores the chart's default", async function () {
+  this.timeout(60000);
+  const out = await page(async () => {
+    const {RESET} = window.d3plus;
+    const chart = await window.build();
+    const third = () =>
+      window.arcFor(chart, ["Frontend", "Pages", "Settings"]).paint.fill;
+    const top = window.arcFor(chart, ["Frontend"]).paint.fill;
+    chart.shadeConfig({max: 0.3});
+    const merged = {...chart.shadeConfig()};
+    await new Promise(resolve => chart.render(resolve));
+    const capped = third();
+    chart.shadeConfig({step: 0.1, max: RESET});
+    const partial = {...chart.shadeConfig()};
+    chart.config({shadeConfig: RESET});
+    const reset = {...chart.shadeConfig()};
+    await new Promise(resolve => chart.render(resolve));
+    return {top, merged, capped, partial, reset, restored: third()};
+  });
+  assert.deepStrictEqual(
+    out.merged,
+    {step: 0.22, max: 0.3},
+    "setting max keeps step",
+  );
+  assert.strictEqual(
+    out.capped,
+    colorLighter(out.top, 0.3),
+    "the third ring is capped at the new max",
+  );
+  assert.deepStrictEqual(
+    out.partial,
+    {step: 0.1, max: 0.6},
+    "RESET at one key restores just that key",
+  );
+  assert.deepStrictEqual(
+    out.reset,
+    {step: 0.22, max: 0.6},
+    "RESET restores the Sunburst default",
+  );
+  assert.strictEqual(out.restored, colorLighter(out.top, 0.44));
+});
+
+it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through merges and RESET, without warnings", async function () {
+  this.timeout(60000);
+  const out = await page(async () => {
+    const {RESET} = window.d3plus;
+    const warnings = [];
+    const warn = console.warn;
+    console.warn = (...args) => warnings.push(args.join(" "));
+    const chart = await window.build();
+    const fill = () => window.arcFor(chart, ["Frontend", "Pages"]).paint.fill;
+    const top = window.arcFor(chart, ["Frontend"]).paint.fill;
+    const parentRow = async () => {
+      const node = window.arcFor(chart, ["Backend", "API", "Orders"]);
+      window.route(chart, "mouseenter", node);
+      window.route(chart, "mousemove", node);
+      await window.wait(50);
+      return [
+        ...document.querySelectorAll(".d3plus-tooltip-tbody tr td:first-child"),
+      ].map(td => td.textContent);
+    };
+
+    chart.shapeConfig({stroke: "#fff"});
+    const sc = chart.shapeConfig();
+    const kept = {
+      strokeWidth: sc.strokeWidth,
+      path: sc.Path && sc.Path.labelConfig && sc.Path.labelConfig.fontResize,
+    };
+    await new Promise(resolve => chart.render(resolve));
+    const shadedAfterStroke = fill();
+    chart.shapeConfig({fill: () => "#123456"});
+    await new Promise(resolve => chart.render(resolve));
+    const userFill = fill();
+    chart.config({shapeConfig: {fill: RESET}});
+    await new Promise(resolve => chart.render(resolve));
+    const shadedAfterReset = fill();
+
+    chart.tooltipConfig({title: () => "Custom"});
+    const rowsAfterTitle = await parentRow();
+    chart.config({tooltipConfig: RESET});
+    const rowsAfterReset = await parentRow();
+
+    // Every story's config, through the public setters.
+    for (const config of [
+      {ringSize: "area", padPixel: 2, innerRadius: 0},
+      {shadeConfig: {step: 0.3, max: 0.5}},
+      {threshold: 0.03, thresholdName: "Files"},
+    ])
+      await window.build({config});
+    console.warn = warn;
+    return {
+      top,
+      kept,
+      shadedAfterStroke,
+      userFill,
+      shadedAfterReset,
+      rowsAfterTitle,
+      rowsAfterReset,
+      warnings,
+    };
+  });
+  assert.deepStrictEqual(
+    out.kept,
+    {strokeWidth: 1, path: true},
+    "a nested override keeps the chart's other shapeConfig defaults",
+  );
+  assert.strictEqual(
+    out.shadedAfterStroke,
+    colorLighter(out.top, 0.22),
+    "shading survives a shapeConfig merge",
+  );
+  assert.strictEqual(out.userFill, "#123456", "a user fill is drawn as given");
+  assert.strictEqual(
+    out.shadedAfterReset,
+    colorLighter(out.top, 0.22),
+    "RESET brings back the default fill, and its shading",
+  );
+  assert.deepStrictEqual(
+    out.rowsAfterTitle,
+    ["Share", "Share of Parent"],
+    "a tooltipConfig merge keeps the Share rows",
+  );
+  assert.deepStrictEqual(
+    out.rowsAfterReset,
+    ["Share", "Share of Parent"],
+    "RESET restores them",
+  );
+  assert.deepStrictEqual(out.warnings, [], "no config warnings");
+});

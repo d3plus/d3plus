@@ -138,6 +138,24 @@ export function sunburstParentShareRow(
 }
 
 /**
+    Whether `tbody` is still the chart's own: just its Share row. Matched by
+    the row's cell functions, which every config merge or copy carries over by
+    reference, unlike the arrays around them.
+*/
+export function sunburstDefaultTbody(
+  tbody: unknown,
+  shareRow: unknown[],
+): boolean {
+  if (!Array.isArray(tbody) || tbody.length !== 1 || !Array.isArray(tbody[0]))
+    return false;
+  const row = tbody[0] as unknown[];
+  return (
+    row.length === shareRow.length &&
+    row.every((cell, i) => cell === shareRow[i])
+  );
+}
+
+/**
     Fills in what the shared shape tooltip can't know about an arc — its label
     at its own level, the click hint, and its share of the parent arc — leaving
     any of them the user configured through `tooltipConfig` alone.
@@ -145,7 +163,7 @@ export function sunburstParentShareRow(
 function sunburstTooltip(
   viz: VizInstance,
   node: SunburstNode,
-  defaultTbody: unknown,
+  shareRow: unknown[],
 ): void {
   const tooltip = viz._tooltipClass!;
   const config = viz.schema.tooltipConfig as Record<string, unknown>;
@@ -174,8 +192,8 @@ function sunburstTooltip(
     tooltip.footer(hint);
   }
   const extra = sunburstParentShareRow(viz, node);
-  if (extra && config.tbody === defaultTbody)
-    tooltip.tbody([...(defaultTbody as unknown[]), extra]);
+  if (extra && sunburstDefaultTbody(config.tbody, shareRow))
+    tooltip.tbody([...(config.tbody as unknown[]), extra]);
   if (config.title === undefined || config.footer === undefined || extra)
     tooltip.render();
 }
@@ -188,7 +206,7 @@ function sunburstTooltip(
 */
 export function sunburstHandlers(
   viz: VizInstance,
-  defaultTbody: unknown,
+  shareRow: unknown[],
 ): Record<string, Handler> {
   const on = viz.schema.on as Record<string, Handler>;
   const baseEnter = on.mouseenter;
@@ -222,7 +240,7 @@ export function sunburstHandlers(
         userClick || sunburstClickable(viz, node) ? "pointer" : "auto",
       );
       if (viz._tooltipClass && viz.schema.tooltip(d, i))
-        sunburstTooltip(viz, node, defaultTbody);
+        sunburstTooltip(viz, node, shareRow);
     },
     "click.shape": (d, _i, _x, event) => {
       (event as Event | undefined)?.stopPropagation?.();

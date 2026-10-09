@@ -104,7 +104,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
       viz.schema.on,
       sunburstHandlers(
         viz,
-        (viz.schema.tooltipConfig as {tbody?: unknown}).tbody,
+        ((viz.schema.tooltipConfig as {tbody?: unknown[][]}).tbody ?? [])[0] ??
+          [],
       ),
     );
   },
