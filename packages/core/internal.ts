@@ -23,6 +23,7 @@ export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
+export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 
@@ -61,6 +62,11 @@ export {
 export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
+export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
+export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
+export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
+export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
+export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -78,6 +84,7 @@ export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
 

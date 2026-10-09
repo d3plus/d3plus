@@ -259,6 +259,24 @@ it("interpolateScene fades entering nodes and drops exiting nodes at t=1", () =>
   assert.deepStrictEqual(end.root.children.map(c => c.key), ["new"], "exiting node dropped at t=1");
 });
 
+it("interpolateScene grows an entering path from its own enterArc", () => {
+  const arc = {innerRadius: 50, outerRadius: 100, startAngle: 1, endAngle: 2};
+  const enterArc = {innerRadius: 0, outerRadius: 50, startAngle: 0, endAngle: 0};
+  const next = {
+    width: 200,
+    height: 200,
+    root: {type: "group", key: "root", children: [{type: "path", key: "w", d: "M0,0", arc, enterArc, paint: {opacity: 1}}]},
+  };
+  const interp = interpolateScene(null, next);
+  const start = interp(0).root.children[0];
+  assert.strictEqual(start.paint.opacity, 1, "keeps its own opacity");
+  assert.ok(start.d.length > 0);
+  const mid = interp(0.5).root.children[0];
+  assert.notStrictEqual(mid.d, start.d, "the wedge grows");
+  const plain = interpolateScene(null, {...next, root: {...next.root, children: [{...next.root.children[0], enterArc: undefined}]}});
+  assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterArc it fades in");
+});
+
 it("interpolateScene morphs a flip-eligible entering node from an external enterFrom box", () => {
   const prev = {width: 200, height: 100, root: {type: "group", key: "root", children: []}};
   const next = {

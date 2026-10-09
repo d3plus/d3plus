@@ -1,11 +1,12 @@
 import {type BaseType, select, type Selection} from "d3-selection";
 import type {Transition} from "d3-transition";
 
-import {collapse, collapseTo, isFlipEligible} from "../animate/interpolate.js";
+import {arcEnterStart, collapse, collapseTo, isFlipEligible} from "../animate/interpolate.js";
 import type {FlipTransition} from "../animate/diff.js";
-import type {SceneNode} from "../scene.js";
+import type {SceneNode, TextNode} from "../scene.js";
 import {applyGeometry} from "./svgNodeAttrs.js";
 import {trackTransition} from "./svgClock.js";
+import {fadeSwapTween} from "./svgFade.js";
 
 /** The transition `_reconcile` threads through the reconcile recursion. */
 type RenderTransition = Transition<BaseType, unknown, null, undefined>;
@@ -14,7 +15,8 @@ type RenderTransition = Transition<BaseType, unknown, null, undefined>;
     The start geometry for an entering node: collapsed to `flip.reunionEnterFrom`
     when it's the drill-up morph's reunion node (`flip.reunionEnterKey` — see
     `DrawOptions.reunionEnterKey`), so it starts at the full size its former
-    children currently occupy and animates down to its own target; the
+    children currently occupy and animates down to its own target; a path's
+    own `enterArc` when it carries one; the
     drill-morph override (collapsed to `flip.enterFrom`) when the node is
     {@link isFlipEligible} and a drill-down morph is active for this draw;
     otherwise the node's own degenerate center — same choices for both
@@ -25,6 +27,8 @@ type RenderTransition = Transition<BaseType, unknown, null, undefined>;
 export function enterStart(node: SceneNode, flip: FlipTransition | undefined): SceneNode {
   if (flip?.reunionEnterKey !== undefined && node.key === flip.reunionEnterKey)
     return collapseTo(node, flip.reunionEnterFrom!, undefined, true);
+  const own = arcEnterStart(node);
+  if (own) return own;
   return flip?.enterFrom && isFlipEligible(node)
     ? collapseTo(node, flip.enterFrom, flip.enterFromBody, true)
     : collapse(node);
@@ -74,8 +78,12 @@ export function reconcileExit(
   const exitToBody = flip?.exitToBody;
   exit.each(function (this: Element, d: SceneNode) {
     const tsel = trackTransition(select(this).transition(t), t);
-    const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
-    applyGeometry(tsel, end, true, resolveFill);
+    const swap = d.type === "text" ? (d as TextNode).fadeSwap : undefined;
+    if (swap) fadeSwapTween(tsel, swap, "exit", d, d);
+    else {
+      const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
+      applyGeometry(tsel, end, true, resolveFill);
+    }
     tsel.remove();
   });
 }

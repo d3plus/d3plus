@@ -9,6 +9,7 @@ import type {
   ArcGeometry,
   AreaNode,
   CircleNode,
+  FadeSwap,
   GroupNode,
   LineNode,
   Paint,
@@ -327,6 +328,56 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
     the enter/exit conventions of the SVG Shape classes.
     @param node The node to collapse.
 */
+/** Whether two text nodes draw the same text at the same place and size. */
+export function sameTextLayout(a: TextNode, b: TextNode): boolean {
+  const ta = a.transform ?? {}, tb = b.transform ?? {};
+  if ((ta.x ?? 0) !== (tb.x ?? 0) || (ta.y ?? 0) !== (tb.y ?? 0)) return false;
+  if ((ta.rotate ?? 0) !== (tb.rotate ?? 0) || (ta.scale ?? 1) !== (tb.scale ?? 1)) return false;
+  if (a.x !== b.x || a.y !== b.y) return false;
+  const fa = a.font ?? {}, fb = b.font ?? {};
+  if (fa.size !== fb.size || fa.family !== fb.family || fa.weight !== fb.weight) return false;
+  const la = a.lines ?? [], lb = b.lines ?? [];
+  return la.length === lb.length &&
+    la.every((l, i) => l.text === lb[i].text && l.x === lb[i].x && l.y === lb[i].y);
+}
+
+/**
+    A `fadeSwap` node's opacity at eased progress `t`, and whether it has
+    taken its new layout yet. Updating, it fades from `from` to 0 over the
+    first `swap.out` share, sits hidden, then fades from 0 to `to` over the
+    last `swap.in` share, swapping layouts once it is hidden. Entering, it is
+    hidden until that last share; exiting, it only fades out.
+    @param t The transition's eased progress, 0–1.
+    @param swap The fade-out and fade-in windows.
+    @param from The opacity it starts at.
+    @param to The opacity it ends at.
+    @param phase Whether the node is updating, entering, or exiting.
+*/
+export function fadeSwapOpacity(
+  t: number,
+  swap: FadeSwap,
+  from: number,
+  to: number,
+  phase: "update" | "enter" | "exit",
+): {opacity: number; swapped: boolean} {
+  const out = Math.max(1e-6, swap.out), back = Math.max(1e-6, swap.in);
+  if (t >= 1) return phase === "exit" ? {opacity: 0, swapped: false} : {opacity: to, swapped: true};
+  const fading = phase === "enter" ? 0 : from * Math.max(0, 1 - t / out);
+  if (phase === "exit") return {opacity: fading, swapped: false};
+  if (t > 1 - back) return {opacity: to * Math.min(1, (t - (1 - back)) / back), swapped: true};
+  return {opacity: t < out ? fading : 0, swapped: phase === "enter" || t >= out};
+}
+
+/**
+    A path's chart-computed enter start (`PathNode.enterArc`): the wedge at
+    that geometry and its own opacity, so it grows into place. Null for any
+    node without one.
+*/
+export function arcEnterStart(node: SceneNode): SceneNode | null {
+  if (node.type !== "path" || !node.enterArc) return null;
+  return {...node, arc: node.enterArc, d: arcPath(node.enterArc)};
+}
+
 export function collapse(node: SceneNode): SceneNode {
   const paint: Paint = {...node.paint, opacity: 0};
   switch (node.type) {

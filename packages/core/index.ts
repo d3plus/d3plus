@@ -22,6 +22,7 @@ export {
   Rings,
   Sankey,
   StackedArea,
+  Sunburst,
   Tree,
   Treemap,
   Viz,

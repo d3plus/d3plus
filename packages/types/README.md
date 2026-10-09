@@ -52,6 +52,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Rings`](#rings) | Creates a ring visualization based on a defined set of nodes and edges. |
 | [`Sankey`](#sankey) | Creates a Sankey visualization based on a defined set of nodes and links. |
 | [`StackedArea`](#stackedarea) | Creates a stacked area plot based on an array of data. Each point's |
+| [`Sunburst`](#sunburst) | Draws a hierarchy as concentric rings, one per `groupBy` level, where each |
 | [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
 | [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
 
@@ -27276,6 +27277,24 @@ fraction of its stack total is available to tooltip accessors as `share`
 
 ***
 
+<a id="sunburst"></a>
+
+### Sunburst
+
+> `const` **Sunburst**: () => `any`
+
+Defined in: core/types/src/charts/Sunburst/index.d.ts:20
+
+Draws a hierarchy as concentric rings, one per `groupBy` level, where each
+node's arc angle is proportional to its summed value. Click an arc to zoom
+into it; click the center (or Back) to zoom out.
+
+#### Returns
+
+`any`
+
+***
+
 <a id="titlecaselocale"></a>
 
 ### titleCaseLocale
@@ -27294,7 +27313,7 @@ Per-language rules used by `titleCase`, keyed by two-letter language code plus a
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: locales/types/src/dictionaries/translateLocale.d.ts:48
+Defined in: locales/types/src/dictionaries/translateLocale.d.ts:50
 
 Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
 
@@ -28676,39 +28695,41 @@ Defined in: locales/types/src/dictionaries/translateLocale.d.ts:1
 | <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:8 |
 | <a id="property-click-to-show"></a> `Click to Show` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:9 |
 | <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:10 |
-| <a id="property-comparison-1"></a> `Comparison` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:11 |
-| <a id="property-count"></a> `Count` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:12 |
-| <a id="property-density"></a> `Density` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:13 |
-| <a id="property-download"></a> `Download` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:14 |
-| <a id="property-equation"></a> `Equation` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:15 |
-| <a id="property-exponential"></a> `Exponential` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:16 |
-| <a id="property-linear"></a> `Linear` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:17 |
-| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:18 |
-| <a id="property-logarithmic"></a> `Logarithmic` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:19 |
-| <a id="property-match"></a> `Match` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:20 |
-| <a id="property-matches"></a> `Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:21 |
-| <a id="property-more"></a> `more` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:22 |
-| <a id="property-no-data-available"></a> `No Data Available` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:23 |
-| <a id="property-no-matches"></a> `No Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:24 |
-| <a id="property-observations"></a> `Observations` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:25 |
-| <a id="property-percent-of-total"></a> `Percent of Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:26 |
-| <a id="property-polynomial"></a> `Polynomial` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:27 |
-| <a id="property-power"></a> `Power` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:28 |
-| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:29 |
-| <a id="property-projected"></a> `Projected` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:30 |
-| <a id="property-range-1"></a> `Range` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:31 |
-| <a id="property-relative-frequency"></a> `Relative Frequency` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:32 |
-| <a id="property-reset-zoom"></a> `Reset Zoom` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:33 |
-| <a id="property-search-1"></a> `Search` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:34 |
-| <a id="property-share"></a> `Share` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:35 |
-| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:36 |
-| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:37 |
-| <a id="property-total"></a> `Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:38 |
-| <a id="property-trend-line"></a> `Trend Line` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:39 |
-| <a id="property-value-1"></a> `Value` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:40 |
-| <a id="property-values-1"></a> `Values` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:41 |
-| <a id="property-zoom-in"></a> `Zoom In` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:42 |
-| <a id="property-zoom-out"></a> `Zoom Out` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:43 |
+| <a id="property-click-to-zoom-out"></a> `Click to Zoom Out` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:11 |
+| <a id="property-comparison-1"></a> `Comparison` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:12 |
+| <a id="property-count"></a> `Count` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:13 |
+| <a id="property-density"></a> `Density` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:14 |
+| <a id="property-download"></a> `Download` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:15 |
+| <a id="property-equation"></a> `Equation` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:16 |
+| <a id="property-exponential"></a> `Exponential` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:17 |
+| <a id="property-linear"></a> `Linear` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:18 |
+| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:19 |
+| <a id="property-logarithmic"></a> `Logarithmic` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:20 |
+| <a id="property-match"></a> `Match` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:21 |
+| <a id="property-matches"></a> `Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:22 |
+| <a id="property-more"></a> `more` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:23 |
+| <a id="property-no-data-available"></a> `No Data Available` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:24 |
+| <a id="property-no-matches"></a> `No Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:25 |
+| <a id="property-observations"></a> `Observations` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:26 |
+| <a id="property-percent-of-total"></a> `Percent of Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:27 |
+| <a id="property-polynomial"></a> `Polynomial` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:28 |
+| <a id="property-power"></a> `Power` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:29 |
+| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:30 |
+| <a id="property-projected"></a> `Projected` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:31 |
+| <a id="property-range-1"></a> `Range` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:32 |
+| <a id="property-relative-frequency"></a> `Relative Frequency` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:33 |
+| <a id="property-reset-zoom"></a> `Reset Zoom` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:34 |
+| <a id="property-search-1"></a> `Search` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:35 |
+| <a id="property-share"></a> `Share` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:36 |
+| <a id="property-share-of-parent"></a> `Share of Parent` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:37 |
+| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:38 |
+| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:39 |
+| <a id="property-total"></a> `Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:40 |
+| <a id="property-trend-line"></a> `Trend Line` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:41 |
+| <a id="property-value-1"></a> `Value` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:42 |
+| <a id="property-values-1"></a> `Values` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:43 |
+| <a id="property-zoom-in"></a> `Zoom In` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:44 |
+| <a id="property-zoom-out"></a> `Zoom Out` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:45 |
 
 ***
 

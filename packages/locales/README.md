@@ -110,7 +110,7 @@ Per-language rules used by `titleCase`, keyed by two-letter language code plus a
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: [dictionaries/translateLocale.ts:49](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L49)
+Defined in: [dictionaries/translateLocale.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L51)
 
 Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
 
@@ -198,36 +198,38 @@ Defined in: [dictionaries/translateLocale.ts:1](https://github.com/d3plus/d3plus
 | <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | [dictionaries/translateLocale.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L8) |
 | <a id="property-click-to-show"></a> `Click to Show` | `string` | [dictionaries/translateLocale.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L9) |
 | <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | [dictionaries/translateLocale.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L10) |
-| <a id="property-comparison"></a> `Comparison` | `string` | [dictionaries/translateLocale.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L11) |
-| <a id="property-count"></a> `Count` | `string` | [dictionaries/translateLocale.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L12) |
-| <a id="property-density"></a> `Density` | `string` | [dictionaries/translateLocale.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L13) |
-| <a id="property-download"></a> `Download` | `string` | [dictionaries/translateLocale.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L14) |
-| <a id="property-equation"></a> `Equation` | `string` | [dictionaries/translateLocale.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L15) |
-| <a id="property-exponential"></a> `Exponential` | `string` | [dictionaries/translateLocale.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L16) |
-| <a id="property-linear"></a> `Linear` | `string` | [dictionaries/translateLocale.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L17) |
-| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | [dictionaries/translateLocale.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L18) |
-| <a id="property-logarithmic"></a> `Logarithmic` | `string` | [dictionaries/translateLocale.ts:19](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L19) |
-| <a id="property-match"></a> `Match` | `string` | [dictionaries/translateLocale.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L20) |
-| <a id="property-matches"></a> `Matches` | `string` | [dictionaries/translateLocale.ts:21](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L21) |
-| <a id="property-more"></a> `more` | `string` | [dictionaries/translateLocale.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L22) |
-| <a id="property-no-data-available"></a> `No Data Available` | `string` | [dictionaries/translateLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L23) |
-| <a id="property-no-matches"></a> `No Matches` | `string` | [dictionaries/translateLocale.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L24) |
-| <a id="property-observations"></a> `Observations` | `string` | [dictionaries/translateLocale.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L25) |
-| <a id="property-percent-of-total"></a> `Percent of Total` | `string` | [dictionaries/translateLocale.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L26) |
-| <a id="property-polynomial"></a> `Polynomial` | `string` | [dictionaries/translateLocale.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L27) |
-| <a id="property-power"></a> `Power` | `string` | [dictionaries/translateLocale.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L28) |
-| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | [dictionaries/translateLocale.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L29) |
-| <a id="property-projected"></a> `Projected` | `string` | [dictionaries/translateLocale.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L30) |
-| <a id="property-range"></a> `Range` | `string` | [dictionaries/translateLocale.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L31) |
-| <a id="property-relative-frequency"></a> `Relative Frequency` | `string` | [dictionaries/translateLocale.ts:32](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L32) |
-| <a id="property-reset-zoom"></a> `Reset Zoom` | `string` | [dictionaries/translateLocale.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L33) |
-| <a id="property-search"></a> `Search` | `string` | [dictionaries/translateLocale.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L34) |
-| <a id="property-share"></a> `Share` | `string` | [dictionaries/translateLocale.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L35) |
-| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | [dictionaries/translateLocale.ts:36](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L36) |
-| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | [dictionaries/translateLocale.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L37) |
-| <a id="property-total"></a> `Total` | `string` | [dictionaries/translateLocale.ts:38](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L38) |
-| <a id="property-trend-line"></a> `Trend Line` | `string` | [dictionaries/translateLocale.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L39) |
-| <a id="property-value"></a> `Value` | `string` | [dictionaries/translateLocale.ts:40](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L40) |
-| <a id="property-values"></a> `Values` | `string` | [dictionaries/translateLocale.ts:41](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L41) |
-| <a id="property-zoom-in"></a> `Zoom In` | `string` | [dictionaries/translateLocale.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L42) |
-| <a id="property-zoom-out"></a> `Zoom Out` | `string` | [dictionaries/translateLocale.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L43) |
+| <a id="property-click-to-zoom-out"></a> `Click to Zoom Out` | `string` | [dictionaries/translateLocale.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L11) |
+| <a id="property-comparison"></a> `Comparison` | `string` | [dictionaries/translateLocale.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L12) |
+| <a id="property-count"></a> `Count` | `string` | [dictionaries/translateLocale.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L13) |
+| <a id="property-density"></a> `Density` | `string` | [dictionaries/translateLocale.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L14) |
+| <a id="property-download"></a> `Download` | `string` | [dictionaries/translateLocale.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L15) |
+| <a id="property-equation"></a> `Equation` | `string` | [dictionaries/translateLocale.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L16) |
+| <a id="property-exponential"></a> `Exponential` | `string` | [dictionaries/translateLocale.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L17) |
+| <a id="property-linear"></a> `Linear` | `string` | [dictionaries/translateLocale.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L18) |
+| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | [dictionaries/translateLocale.ts:19](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L19) |
+| <a id="property-logarithmic"></a> `Logarithmic` | `string` | [dictionaries/translateLocale.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L20) |
+| <a id="property-match"></a> `Match` | `string` | [dictionaries/translateLocale.ts:21](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L21) |
+| <a id="property-matches"></a> `Matches` | `string` | [dictionaries/translateLocale.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L22) |
+| <a id="property-more"></a> `more` | `string` | [dictionaries/translateLocale.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L23) |
+| <a id="property-no-data-available"></a> `No Data Available` | `string` | [dictionaries/translateLocale.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L24) |
+| <a id="property-no-matches"></a> `No Matches` | `string` | [dictionaries/translateLocale.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L25) |
+| <a id="property-observations"></a> `Observations` | `string` | [dictionaries/translateLocale.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L26) |
+| <a id="property-percent-of-total"></a> `Percent of Total` | `string` | [dictionaries/translateLocale.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L27) |
+| <a id="property-polynomial"></a> `Polynomial` | `string` | [dictionaries/translateLocale.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L28) |
+| <a id="property-power"></a> `Power` | `string` | [dictionaries/translateLocale.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L29) |
+| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | [dictionaries/translateLocale.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L30) |
+| <a id="property-projected"></a> `Projected` | `string` | [dictionaries/translateLocale.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L31) |
+| <a id="property-range"></a> `Range` | `string` | [dictionaries/translateLocale.ts:32](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L32) |
+| <a id="property-relative-frequency"></a> `Relative Frequency` | `string` | [dictionaries/translateLocale.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L33) |
+| <a id="property-reset-zoom"></a> `Reset Zoom` | `string` | [dictionaries/translateLocale.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L34) |
+| <a id="property-search"></a> `Search` | `string` | [dictionaries/translateLocale.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L35) |
+| <a id="property-share"></a> `Share` | `string` | [dictionaries/translateLocale.ts:36](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L36) |
+| <a id="property-share-of-parent"></a> `Share of Parent` | `string` | [dictionaries/translateLocale.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L37) |
+| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | [dictionaries/translateLocale.ts:38](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L38) |
+| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | [dictionaries/translateLocale.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L39) |
+| <a id="property-total"></a> `Total` | `string` | [dictionaries/translateLocale.ts:40](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L40) |
+| <a id="property-trend-line"></a> `Trend Line` | `string` | [dictionaries/translateLocale.ts:41](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L41) |
+| <a id="property-value"></a> `Value` | `string` | [dictionaries/translateLocale.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L42) |
+| <a id="property-values"></a> `Values` | `string` | [dictionaries/translateLocale.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L43) |
+| <a id="property-zoom-in"></a> `Zoom In` | `string` | [dictionaries/translateLocale.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L44) |
+| <a id="property-zoom-out"></a> `Zoom Out` | `string` | [dictionaries/translateLocale.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/translateLocale.ts#L45) |

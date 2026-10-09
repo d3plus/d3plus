@@ -342,6 +342,13 @@ export interface PathNode extends NodeBase {
       numerically against `arc`, same as `flipFromArc`.
   */
   reunionFromArc?: ArcGeometry;
+  /**
+      Where this wedge starts whenever it enters: the chart's own collapsed
+      start (e.g. a Sunburst arc sweeping back in from 0 or 2π on zoom-out).
+      It grows from there at its own opacity, interpolated numerically against
+      `arc`, instead of fading in where it lands.
+  */
+  enterArc?: ArcGeometry;
 }
 
 export interface ImageNode extends NodeBase {
@@ -397,6 +404,22 @@ export interface TextNode extends NodeBase {
       its own (angularly confined) shape actually starts.
   */
   flipFromTransform?: {x: number; y: number};
+  /**
+      Moves by fading instead of gliding: when an animated draw changes this
+      label's text, position, or size, it fades out in place over the first
+      `out` share of the transition's eased progress, takes its new layout
+      while hidden, and fades back in over the last `in` share. Entering, it
+      stays hidden until that last share; exiting, it fades out over the
+      first. A draw that leaves it unchanged leaves it alone. See
+      `fadeSwapOpacity`.
+  */
+  fadeSwap?: FadeSwap;
+}
+
+/** The fade-out and fade-in windows of a `TextNode.fadeSwap`, as shares (0–1) of a transition's eased progress. */
+export interface FadeSwap {
+  out: number;
+  in: number;
 }
 
 /**

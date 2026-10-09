@@ -24,6 +24,7 @@ import {
   Rings as RingsClass,
   Sankey as SankeyClass,
   StackedArea as StackedAreaClass,
+  Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
   Viz as VizClass,
@@ -149,6 +150,10 @@ export const Sankey = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus StackedArea visualization. */
 export const StackedArea = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={StackedAreaClass} {...props} />
+);
+/** React component for rendering a d3plus Sunburst visualization. */
+export const Sunburst = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={SunburstClass} {...props} />
 );
 /** React component for rendering a d3plus Tree visualization. */
 export const Tree = (props: D3plusComponentProps) => (
