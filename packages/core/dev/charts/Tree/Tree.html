@@ -1,0 +1,26 @@
+<meta charset="utf-8" />
+<title>Tree</title>
+<meta name="description" content="Horizontal Tree with mixed Rect and Circle nodes.">
+<script src="/umd/d3plus-core.full.js"></script>
+<script src="/dev.js"></script>
+<body>
+
+</body>
+<script>
+  const tree = new d3plus.Tree()
+    .config({
+      data: [
+       {parent: "Group 1", id: "lets", value: 29},
+       {parent: "Group 1", id: "make a", value: 10},
+       {parent: "Group 1", id: "functional", value: 2},
+       {parent: "Group 2", id: "tree", value: 29},
+       {parent: "Group 2", id: "example", value: 25}
+      ],
+      groupBy: ["parent", "id"],
+      orient: "horizontal",
+      shape: d => d.parent === "Group 1" ? "Rect" : "Circle",
+      // shapeConfig: {r: d => d.value}
+    })
+  .render()
+
+</script>

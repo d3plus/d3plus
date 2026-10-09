@@ -22,6 +22,7 @@
     "visualization"
   ],
   "scripts": {
+    "dev:index": "node scripts/dev-index.js",
     "docs": "node scripts/docs/docs.js",
     "pretest": "pnpm -r --if-present run build:esm",
     "release": "node scripts/release.js",

@@ -1,0 +1,30 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Elem</title>
+  <meta name="description" content="elem() enter and update transforms on a reused element.">
+  <script src="/umd/d3plus-dom.full.js"></script>
+
+</head>
+
+<body>
+
+  <script>
+
+    const config = {enter: {transform: "translate(0,0)"}, update: {transform: "translate(0,100)"}};
+    let svg = d3plus.elem("svg.className", config);
+    
+    console.log(svg.attr("transform"));
+  
+    svg = d3plus.elem("svg.className", config);
+
+    console.log(svg.attr("transform"));
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,234 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>FontLoading · Viz</title>
+    <meta name="description" content="Charts re-measure their text after a web font finishes loading.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        font-size: 13px;
+        margin: 0;
+        padding: 16px;
+      }
+      .controls {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+      .controls a.active {
+        font-weight: bold;
+      }
+      .charts {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+      .chart {
+        border: 1px solid #ddd;
+        flex: 1 1 420px;
+        height: 320px;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 12px 0;
+      }
+      td, th {
+        border: 1px solid #ddd;
+        padding: 4px 8px;
+        text-align: left;
+      }
+      #log {
+        background: #f6f6f6;
+        font-family: monospace;
+        max-height: 200px;
+        overflow: auto;
+        padding: 8px;
+        white-space: pre;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      <span>Scenario:</span>
+      <a href="?mode=late" id="mode-late">Font loaded later by the page</a>
+      <a href="?mode=declared" id="mode-declared">Font declared up front (throttle the network in DevTools)</a>
+    </div>
+
+    <div class="controls">
+      <label id="delay-control">Load X-Late after <input id="delay" type="number" value="3000" step="500" style="width: 70px"> ms</label>
+      <button id="load-now">Load X-Late now</button>
+      <button id="rerender">Re-render charts</button>
+      <button id="destroy">Destroy charts</button>
+      <a href="">Reset</a>
+    </div>
+
+    <p id="explain"></p>
+
+    <table>
+      <thead>
+        <tr><th>Chart</th><th>Renders</th><th>&lt;text&gt; font-family</th></tr>
+      </thead>
+      <tbody id="status"></tbody>
+    </table>
+
+    <div class="charts">
+      <div class="chart" id="bar"></div>
+      <div class="chart" id="line"></div>
+    </div>
+
+    <h4>Font events</h4>
+    <div id="log"></div>
+
+    <script>
+
+      // "X-Late" is a real web font (Pacifico, from Google Fonts) registered
+      // under a made-up family name, so it can't already be installed locally
+      // and its glyphs look nothing like the sans-serif fallback.
+      const family = "X-Late";
+      const mode = new URLSearchParams(location.search).get("mode") || "late";
+      document.getElementById(`mode-${mode}`).classList.add("active");
+      document.getElementById("explain").innerHTML = mode === "late"
+        ? "The charts render with <code>fontFamily([\"X-Late\", \"sans-serif\"])</code> before X-Late exists. After the delay (or on click), the page adds and loads the X-Late FontFace. Both charts should redraw themselves in X-Late, with their render counts going up by one and their axis/legend spacing re-measured."
+        : "X-Late is registered up front but not downloaded. d3plus asks the browser to download it the first time it measures the family. Throttle the network in DevTools (e.g. Slow 4G) and reload, or the font may arrive before the first draw. Once it loads, both charts should redraw themselves in X-Late.";
+      if (mode !== "late") document.getElementById("delay-control").style.display = "none";
+
+      const t0 = performance.now();
+      const logEl = document.getElementById("log");
+      // Sorted by time: d3plus redraws inside its own loadingdone listener, which
+      // runs before this page's, so event lines use the event's own timestamp.
+      const entries = [];
+      const log = (msg, time = performance.now()) => {
+        entries.push({msg, time});
+        entries.sort((a, b) => a.time - b.time);
+        logEl.textContent = entries
+          .map(e => `${String(Math.round(e.time - t0)).padStart(6)}ms  ${e.msg}`)
+          .join("\n");
+        logEl.scrollTop = logEl.scrollHeight;
+      };
+
+      ["loading", "loadingdone", "loadingerror"].forEach(type =>
+        document.fonts.addEventListener(type, e =>
+          log(`document.fonts ${type}: ${e.fontfaces.map(f => f.family).join(", ") || "(none)"}`, e.timeStamp),
+        ),
+      );
+
+      const charts = [];
+      const statusEl = document.getElementById("status");
+      const updateStatus = () => {
+        statusEl.innerHTML = charts.map(c => {
+          const fonts = [...new Set([...document.querySelectorAll(`#${c.id} text`)]
+            .map(t => t.getAttribute("font-family")))];
+          return `<tr><td>${c.name}${c.destroyed ? " (destroyed)" : ""}</td><td>${c.renders}</td><td>${fonts.join(", ")}</td></tr>`;
+        }).join("");
+      };
+      setInterval(updateStatus, 250);
+
+      const track = (name, id, viz) => {
+        const entry = {name, id, viz, renders: 0, destroyed: false};
+        const render = viz.render.bind(viz);
+        viz.render = cb => {
+          entry.renders++;
+          log(`${name}.render()`);
+          return render(cb);
+        };
+        charts.push(entry);
+        return viz;
+      };
+
+      /** Resolves the URL of Pacifico's latin woff2 file from the Google Fonts CSS API. */
+      const fontUrl = fetch("https://fonts.googleapis.com/css2?family=Pacifico&display=swap")
+        .then(res => res.text())
+        .then(css => {
+          const blocks = css.split("/*").filter(b => b.startsWith(" latin */"));
+          const match = (blocks[0] || css).match(/url\(([^)]+)\)/);
+          if (!match) throw new Error("no font url in Google Fonts CSS");
+          return match[1];
+        });
+
+      let face;
+      const loadFont = () => {
+        if (face) return;
+        fontUrl.then(url => {
+          face = new FontFace(family, `url(${url})`);
+          document.fonts.add(face);
+          log("page adds X-Late and calls face.load()");
+          face.load().catch(e => log(`X-Late failed to load: ${e.message}`));
+        });
+      };
+
+      const drawCharts = () => {
+        const data = [
+          {region: "North", quarter: "Q1", revenue: 10},
+          {region: "North", quarter: "Q2", revenue: 14},
+          {region: "North", quarter: "Q3", revenue: 12},
+          {region: "South", quarter: "Q1", revenue: 7},
+          {region: "South", quarter: "Q2", revenue: 9},
+          {region: "South", quarter: "Q3", revenue: 11},
+        ];
+
+        track("BarChart", "bar", new d3plus.BarChart())
+          .select("#bar")
+          .data(data)
+          .groupBy("region")
+          .x("quarter")
+          .y("revenue")
+          .title("Quarterly revenue by region")
+          .fontFamily([family, "sans-serif"])
+          .render();
+
+        track("LinePlot", "line", new d3plus.LinePlot())
+          .select("#line")
+          .data(data)
+          .groupBy("region")
+          .x("quarter")
+          .y("revenue")
+          .title("Revenue trend by region")
+          .fontFamily([family, "sans-serif"])
+          .render();
+      };
+
+      if (mode === "late") {
+        drawCharts();
+        const delay = +document.getElementById("delay").value;
+        log(`charts drawn; X-Late loads in ${delay}ms`);
+        setTimeout(loadFont, delay);
+      }
+      else {
+        fontUrl.then(url => {
+          face = new FontFace(family, `url(${url})`);
+          document.fonts.add(face);
+          log(`X-Late registered (status: ${face.status}); drawing charts`);
+          drawCharts();
+        });
+      }
+
+      fontUrl.catch(e => log(`could not reach Google Fonts: ${e.message}`));
+
+      document.getElementById("load-now").addEventListener("click", loadFont);
+      document.getElementById("rerender").addEventListener("click", () =>
+        charts.filter(c => !c.destroyed).forEach(c => c.viz.render()),
+      );
+      document.getElementById("destroy").addEventListener("click", () => {
+        charts.forEach(c => {
+          if (!c.destroyed) c.viz.destroy();
+          c.destroyed = true;
+        });
+        log("charts destroyed; loading X-Late now should not redraw them");
+      });
+
+    </script>
+
+  </body>
+
+</html>
