@@ -215,7 +215,6 @@ export const ringsDef: ChartDefinition = {
           duration: 0,
           fontMin: 1,
           fontResize: true,
-          labelPadding: 0,
           textAnchor: "middle",
           verticalAlign: "middle",
         },
