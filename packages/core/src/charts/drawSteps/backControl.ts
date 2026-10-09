@@ -52,7 +52,9 @@ function goBack(viz: Viz): void {
     // .render() is about to produce.
     if (entry.groupId !== undefined && entry.groupDepth !== undefined)
       viz._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: viz._bodyRect};
-    viz.config(entry).render();
+    // Only the entry's view keys are config; groupId/groupDepth are the
+    // reunion lookup's.
+    viz.config({depth: entry.depth, filter: entry.filter}).render();
   } else {
     viz.depth(viz._drawDepth - 1).filter(false).render();
   }
