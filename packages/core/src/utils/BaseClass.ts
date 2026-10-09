@@ -9,6 +9,7 @@ import {
 
 import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
+import {RESOLVES_RESET} from "../fluent.js";
 import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
 /**
@@ -41,6 +42,8 @@ function nestedReset(
     }
   }
 }
+
+type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
 
 /**
     finds all prototype methods of a class and it's parent classes
@@ -131,35 +134,23 @@ export default class BaseClass {
   config(): D3plusConfig;
   config(_: D3plusConfig): this;
   config(_?: D3plusConfig): D3plusConfig | this {
-    if (!this._configDefault) {
-      const config: D3plusConfig = {};
-      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
-        const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
-      });
-      this._configDefault = config;
-    }
+    const defaults = this._defaultConfig();
 
     if (arguments.length) {
       for (const k in _) {
         if ({}.hasOwnProperty.call(_, k)) {
           if (k in this) {
             const v = _![k];
-            if (v === RESET) {
-              if (k === "on")
-                this.schema.on = this._configDefault![k];
-              else
-                (this as unknown as Record<string, (v: unknown) => unknown>)[k](
-                  this._configDefault![k],
-                );
-            } else {
+            const setter = (this as unknown as Record<string, Setter>)[k];
+            if (v === RESET && k === "on") this.schema.on = defaults[k];
+            else if (setter[RESOLVES_RESET]) setter.call(this, v);
+            else if (v === RESET) setter.call(this, defaults[k]);
+            else {
               nestedReset(
                 v as Record<string, unknown>,
-                this._configDefault![k] as Record<string, unknown>,
+                defaults[k] as Record<string, unknown>,
               );
-              (this as unknown as Record<string, (v: unknown) => unknown>)[k](
-                v,
-              );
+              setter.call(this, v);
             }
           } else if (!isSharedConfig(_)) {
             warnUnknownConfig(`${this.constructor.name}.config()`, k);
@@ -174,6 +165,23 @@ export default class BaseClass {
       });
       return config;
     }
+  }
+
+  /**
+      The snapshot of every getter's value that `RESET` restores from, taken
+      the first time it is needed.
+      @private
+  */
+  _defaultConfig(): D3plusConfig {
+    if (!this._configDefault) {
+      const config: D3plusConfig = {};
+      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
+        const v = (this as unknown as Record<string, () => unknown>)[k]();
+        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
+      });
+      this._configDefault = config;
+    }
+    return this._configDefault;
   }
 
   /**
