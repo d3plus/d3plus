@@ -14,6 +14,7 @@ import {
   resolveAccessor,
   shapeConfigFor,
 } from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface SankeyLink {
@@ -91,6 +92,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
     for (const [shapeKind, values] of c.nodeGroups) {
       if (!values.length) continue;
       const cfg = shapeConfigFor(viz, shapeKind);
+      const start = out.length;
       for (let i = 0; i < values.length; i++) {
         const d = values[i];
         const datum = (d.data ?? d) as DataPoint;
@@ -123,6 +125,10 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         }
         // Other shape kinds: skipped (Sankey's default is Rect).
       }
+      out.push(...backgroundImageNodes(cfg, out.slice(start), k => {
+        const d = values[k];
+        return [(d.data ?? d) as DataPoint, d.i ?? k];
+      }));
     }
   }
 

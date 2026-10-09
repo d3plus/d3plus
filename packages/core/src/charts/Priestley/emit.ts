@@ -10,6 +10,7 @@ import type {SceneNode} from "@d3plus/render";
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
 
@@ -96,5 +97,7 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
     },
   });
 
-  return [...rectNodes, ...labelNodes];
+  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [data[k].data, k]);
+
+  return [...rectNodes, ...imageNodes, ...labelNodes];
 };

@@ -17,6 +17,7 @@ import {
   shapeConfigFor,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
@@ -65,10 +66,13 @@ export const chordEmit: ChartEmit = ({viz}) => {
   }
 
   // Arcs (groups).
-  for (const node of c.nodes) {
-    if (!node.group) continue;
+  const arcNodes: SceneNode[] = [];
+  const arcData = c.nodes.filter(
+    (nd): nd is ChordNode & {group: NonNullable<ChordNode["group"]>} => Boolean(nd.group),
+  );
+  for (const node of arcData) {
     const paint = paintFromShapeConfig(pathCfg, node.data, node.i);
-    out.push({
+    arcNodes.push({
       type: "path",
       key: `chord-arc-${node.id}`,
       d: c.arcFn(node.group),
@@ -81,11 +85,12 @@ export const chordEmit: ChartEmit = ({viz}) => {
     } as SceneNode);
   }
 
+  out.push(...arcNodes, ...backgroundImageNodes(pathCfg, arcNodes, k => [arcData[k].data, arcData[k].i]));
+
   // Group labels, positioned + rotated by the layout stage.
-  const labelData = c.nodes.filter(nd => nd.group);
-  if (labelData.length) {
+  if (arcData.length) {
     const labelNodes = emitLabels({
-      data: labelData as unknown as DataPoint[],
+      data: arcData as unknown as DataPoint[],
       label: d => {
         const nd = d as unknown as ChordNode;
         return viz._drawLabel(nd.data, nd.i);

@@ -1357,7 +1357,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -1369,7 +1369,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -1391,7 +1391,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -1412,7 +1412,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -1443,7 +1443,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -1464,7 +1464,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -1601,7 +1601,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1613,7 +1613,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1635,7 +1635,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -1647,7 +1647,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -1669,7 +1669,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1681,7 +1681,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1773,7 +1773,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -1931,7 +1931,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -1943,7 +1943,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -1963,7 +1963,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2025,7 +2025,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:95
 
 Renders the current Axis to the page.
 
@@ -2047,7 +2047,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2065,7 +2065,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2093,7 +2093,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -2109,7 +2109,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -2135,7 +2135,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -2147,7 +2147,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -2167,7 +2167,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:90
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2266,7 +2266,7 @@ Axis preset whose ticks are drawn below the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -2282,7 +2282,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -2308,7 +2308,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -2333,7 +2333,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -2368,7 +2368,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -2393,7 +2393,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -2534,7 +2534,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2550,7 +2550,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2576,7 +2576,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -2592,7 +2592,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -2618,7 +2618,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2634,7 +2634,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2730,7 +2730,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -2892,7 +2892,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -2908,7 +2908,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -2932,7 +2932,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2998,7 +2998,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:95
 
 Renders the current Axis to the page.
 
@@ -3024,7 +3024,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3046,7 +3046,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3078,7 +3078,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -3094,7 +3094,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -3120,7 +3120,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -3136,7 +3136,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -3160,7 +3160,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:90
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3263,7 +3263,7 @@ Axis preset whose ticks are drawn to the left of the vertical domain path. Accep
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -3279,7 +3279,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -3305,7 +3305,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -3330,7 +3330,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -3365,7 +3365,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -3390,7 +3390,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -3531,7 +3531,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3547,7 +3547,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3573,7 +3573,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -3589,7 +3589,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -3615,7 +3615,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3631,7 +3631,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3727,7 +3727,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -3889,7 +3889,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -3905,7 +3905,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -3929,7 +3929,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3995,7 +3995,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:95
 
 Renders the current Axis to the page.
 
@@ -4021,7 +4021,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4043,7 +4043,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4075,7 +4075,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -4091,7 +4091,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -4117,7 +4117,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -4133,7 +4133,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -4157,7 +4157,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:90
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4260,7 +4260,7 @@ Axis preset whose ticks are drawn to the right of the vertical domain path. Acce
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -4276,7 +4276,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -4302,7 +4302,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -4327,7 +4327,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -4362,7 +4362,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -4387,7 +4387,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -4528,7 +4528,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4544,7 +4544,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4570,7 +4570,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -4586,7 +4586,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -4612,7 +4612,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4628,7 +4628,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4724,7 +4724,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4886,7 +4886,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -4902,7 +4902,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -4926,7 +4926,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4992,7 +4992,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:95
 
 Renders the current Axis to the page.
 
@@ -5018,7 +5018,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5040,7 +5040,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5072,7 +5072,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -5088,7 +5088,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -5114,7 +5114,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -5130,7 +5130,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -5154,7 +5154,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:90
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -5257,7 +5257,7 @@ Axis preset whose ticks are drawn above the horizontal domain path. Accepts ever
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -5273,7 +5273,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -5299,7 +5299,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -5324,7 +5324,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -5359,7 +5359,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -5384,7 +5384,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -5525,7 +5525,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -5541,7 +5541,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -5567,7 +5567,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -5583,7 +5583,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -5609,7 +5609,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5625,7 +5625,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -5721,7 +5721,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -5883,7 +5883,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -5899,7 +5899,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -5923,7 +5923,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5989,7 +5989,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:95
 
 Renders the current Axis to the page.
 
@@ -6015,7 +6015,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6037,7 +6037,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -6069,7 +6069,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -6085,7 +6085,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -6111,7 +6111,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -6127,7 +6127,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -6151,7 +6151,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:90
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -19396,7 +19396,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:99
 
 Axis line style.
 
@@ -19412,7 +19412,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:100
 
 Axis line style.
 
@@ -19438,7 +19438,7 @@ Axis line style.
 
 > **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:127
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -19463,7 +19463,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:126
+Defined in: core/types/src/components/Axis/Axis.d.ts:128
 
 Style of the break drawn when `baselineBreak` is on and the domain stops
 short of `baseline`: `space` (pixels of axis between the baseline tick
@@ -19498,7 +19498,7 @@ plus `stroke`/`stroke-width` and other line styles for the marks.
 
 > **breakConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:111
+Defined in: core/types/src/components/Axis/Axis.d.ts:113
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -19523,7 +19523,7 @@ and other line styles for the marks.
 
 > **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:112
+Defined in: core/types/src/components/Axis/Axis.d.ts:114
 
 Style of the breaks set with `break`: `space` (pixels of axis each break
 occupies), `gap` (pixels between its two marks, where the axis line is
@@ -19664,7 +19664,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:130
+Defined in: core/types/src/components/Axis/Axis.d.ts:132
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -19680,7 +19680,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:131
+Defined in: core/types/src/components/Axis/Axis.d.ts:133
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -19706,7 +19706,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:137
 
 Grid config of the axis.
 
@@ -19722,7 +19722,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:138
 
 Grid config of the axis.
 
@@ -19782,7 +19782,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:142
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19798,7 +19798,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:143
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -19894,7 +19894,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:163
+Defined in: core/types/src/components/Axis/Axis.d.ts:165
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -20008,7 +20008,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:147
 
 The orientation of the shape.
 
@@ -20024,7 +20024,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:148
 
 The orientation of the shape.
 
@@ -20048,7 +20048,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:152
+Defined in: core/types/src/components/Axis/Axis.d.ts:154
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -20174,7 +20174,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:173
+Defined in: core/types/src/components/Axis/Axis.d.ts:175
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -20196,7 +20196,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:174
+Defined in: core/types/src/components/Axis/Axis.d.ts:176
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -20262,7 +20262,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:178
+Defined in: core/types/src/components/Axis/Axis.d.ts:180
 
 Tick style of the axis.
 
@@ -20278,7 +20278,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:179
+Defined in: core/types/src/components/Axis/Axis.d.ts:181
 
 Tick style of the axis.
 
@@ -20304,7 +20304,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:183
+Defined in: core/types/src/components/Axis/Axis.d.ts:185
 
 Title configuration of the axis.
 
@@ -20320,7 +20320,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:184
+Defined in: core/types/src/components/Axis/Axis.d.ts:186
 
 Title configuration of the axis.
 
@@ -27315,7 +27315,7 @@ Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
 ### AreaConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:159
+Defined in: core/types/src/shapes/shapeConfig.d.ts:167
 
 Area-specific config (curve, defined, dual-edge x/y).
 
@@ -27335,51 +27335,51 @@ Area-specific config (curve, defined, dual-edge x/y).
 | <a id="property-activeopacity"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:61 |
-| <a id="property-curve"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:160 |
+| <a id="property-backgroundimage"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
+| <a id="property-curve"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:168 |
 | <a id="property-data"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-defined"></a> `defined?` | (`d`: [`DataPoint`](#datapoint)) => `boolean` | Determines whether a data point is defined (a gap in the area when false). | - | core/types/src/shapes/shapeConfig.d.ts:162 |
-| <a id="property-discrete"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-hitarea"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-vectoreffect"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-x0"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:163 |
-| <a id="property-x1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:164 |
-| <a id="property-y"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
-| <a id="property-y0"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:165 |
-| <a id="property-y1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:166 |
+| <a id="property-defined"></a> `defined?` | (`d`: [`DataPoint`](#datapoint)) => `boolean` | Determines whether a data point is defined (a gap in the area when false). | - | core/types/src/shapes/shapeConfig.d.ts:170 |
+| <a id="property-discrete"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-hitarea"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-vectoreffect"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-x"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-x0"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:171 |
+| <a id="property-x1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:172 |
+| <a id="property-y"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:139 |
+| <a id="property-y0"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:173 |
+| <a id="property-y1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:174 |
 
 ***
 
@@ -27423,7 +27423,7 @@ Defined in: core/types/src/utils/D3plusConfig.d.ts:13
 
 ### BarConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:173
+Defined in: core/types/src/shapes/shapeConfig.d.ts:181
 
 Bar-specific config (Rect + start/end coords).
 
@@ -27443,53 +27443,53 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-activeopacity-1"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`RectConfig`](#rectconfig-3).[`activeOpacity`](#property-activeopacity-6) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-1"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`RectConfig`](#rectconfig-3).[`activeStyle`](#property-activestyle-6) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-1"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`ariaLabel`](#property-arialabel-6) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-1"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`RectConfig`](#rectconfig-3).[`backgroundImage`](#property-backgroundimage-6) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-1"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`RectConfig`](#rectconfig-3).[`backgroundImageFit`](#property-backgroundimagefit-6) | core/types/src/shapes/shapeConfig.d.ts:61 |
+| <a id="property-backgroundimage-1"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`RectConfig`](#rectconfig-3).[`backgroundImage`](#property-backgroundimage-6) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-1"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`RectConfig`](#rectconfig-3).[`backgroundImageFit`](#property-backgroundimagefit-6) | core/types/src/shapes/shapeConfig.d.ts:69 |
 | <a id="property-data-1"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`RectConfig`](#rectconfig-3).[`data`](#property-data-9) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-discrete-1"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`RectConfig`](#rectconfig-3).[`discrete`](#property-discrete-7) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-4) | core/types/src/shapes/shapeConfig.d.ts:139 |
-| <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-1"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-9) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-1"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverStyle`](#property-hoverstyle-6) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-1"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`RectConfig`](#rectconfig-3).[`id`](#property-id-7) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-2"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`RectConfig`](#rectconfig-3).[`label`](#property-label-8) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-1"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`RectConfig`](#rectconfig-3).[`labelBounds`](#property-labelbounds-6) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-1"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`RectConfig`](#rectconfig-3).[`labelConfig`](#property-labelconfig-6) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-1"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`RectConfig`](#rectconfig-3).[`on`](#property-on-8) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-1"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`RectConfig`](#rectconfig-3).[`opacity`](#property-opacity-7) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-1"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`RectConfig`](#rectconfig-3).[`pointerEvents`](#property-pointerevents-7) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode-1"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`RectConfig`](#rectconfig-3).[`renderMode`](#property-rendermode-6) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-1"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`role`](#property-role-6) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-1"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`RectConfig`](#rectconfig-3).[`rotate`](#property-rotate-6) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-1"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`rx`](#property-rx-6) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-1"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`ry`](#property-ry-6) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-2"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`RectConfig`](#rectconfig-3).[`scale`](#property-scale-8) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-1"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`RectConfig`](#rectconfig-3).[`select`](#property-select-8) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-1"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`RectConfig`](#rectconfig-3).[`shapeRendering`](#property-shaperendering-6) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-1"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`RectConfig`](#rectconfig-3).[`sort`](#property-sort-6) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-1"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`RectConfig`](#rectconfig-3).[`stroke`](#property-stroke-6) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-1"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`RectConfig`](#rectconfig-3).[`strokeDasharray`](#property-strokedasharray-6) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-1"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`RectConfig`](#rectconfig-3).[`strokeLinecap`](#property-strokelinecap-6) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-1"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`RectConfig`](#rectconfig-3).[`strokeOpacity`](#property-strokeopacity-6) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-1"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`RectConfig`](#rectconfig-3).[`strokeWidth`](#property-strokewidth-6) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-1"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`RectConfig`](#rectconfig-3).[`textAnchor`](#property-textanchor-6) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-1"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`RectConfig`](#rectconfig-3).[`texture`](#property-texture-6) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-1"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`RectConfig`](#rectconfig-3).[`textureDefault`](#property-texturedefault-6) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-trail"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | [`RectConfig`](#rectconfig-3).[`trail`](#property-trail-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
-| <a id="property-trailpersist"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | [`RectConfig`](#rectconfig-3).[`trailPersist`](#property-trailpersist-2) | core/types/src/shapes/shapeConfig.d.ts:143 |
-| <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-4) | core/types/src/shapes/shapeConfig.d.ts:138 |
-| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-10) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:174 |
-| <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:175 |
-| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-10) | core/types/src/shapes/shapeConfig.d.ts:131 |
-| <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:176 |
-| <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:177 |
+| <a id="property-discrete-1"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`RectConfig`](#rectconfig-3).[`discrete`](#property-discrete-7) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-4) | core/types/src/shapes/shapeConfig.d.ts:147 |
+| <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-1"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-9) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-1"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverStyle`](#property-hoverstyle-6) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-1"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`RectConfig`](#rectconfig-3).[`id`](#property-id-7) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-2"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`RectConfig`](#rectconfig-3).[`label`](#property-label-8) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-1"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`RectConfig`](#rectconfig-3).[`labelBounds`](#property-labelbounds-6) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-1"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`RectConfig`](#rectconfig-3).[`labelConfig`](#property-labelconfig-6) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-1"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`RectConfig`](#rectconfig-3).[`on`](#property-on-8) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-1"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`RectConfig`](#rectconfig-3).[`opacity`](#property-opacity-7) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-1"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`RectConfig`](#rectconfig-3).[`pointerEvents`](#property-pointerevents-7) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode-1"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`RectConfig`](#rectconfig-3).[`renderMode`](#property-rendermode-6) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-1"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`role`](#property-role-6) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-1"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`RectConfig`](#rectconfig-3).[`rotate`](#property-rotate-6) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-1"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`rx`](#property-rx-6) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-1"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`RectConfig`](#rectconfig-3).[`ry`](#property-ry-6) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-2"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`RectConfig`](#rectconfig-3).[`scale`](#property-scale-8) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-1"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`RectConfig`](#rectconfig-3).[`select`](#property-select-8) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-1"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`RectConfig`](#rectconfig-3).[`shapeRendering`](#property-shaperendering-6) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-1"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`RectConfig`](#rectconfig-3).[`sort`](#property-sort-6) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-1"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`RectConfig`](#rectconfig-3).[`stroke`](#property-stroke-6) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-1"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`RectConfig`](#rectconfig-3).[`strokeDasharray`](#property-strokedasharray-6) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-1"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`RectConfig`](#rectconfig-3).[`strokeLinecap`](#property-strokelinecap-6) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-1"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`RectConfig`](#rectconfig-3).[`strokeOpacity`](#property-strokeopacity-6) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-1"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`RectConfig`](#rectconfig-3).[`strokeWidth`](#property-strokewidth-6) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-1"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`RectConfig`](#rectconfig-3).[`textAnchor`](#property-textanchor-6) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-1"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`RectConfig`](#rectconfig-3).[`texture`](#property-texture-6) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-1"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`RectConfig`](#rectconfig-3).[`textureDefault`](#property-texturedefault-6) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-trail"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | [`RectConfig`](#rectconfig-3).[`trail`](#property-trail-2) | core/types/src/shapes/shapeConfig.d.ts:149 |
+| <a id="property-trailpersist"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | [`RectConfig`](#rectconfig-3).[`trailPersist`](#property-trailpersist-2) | core/types/src/shapes/shapeConfig.d.ts:151 |
+| <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-4) | core/types/src/shapes/shapeConfig.d.ts:146 |
+| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-10) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:182 |
+| <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:183 |
+| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-10) | core/types/src/shapes/shapeConfig.d.ts:139 |
+| <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:184 |
+| <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:185 |
 
 ***
 
@@ -27522,45 +27522,45 @@ these via `.config(...)` regardless of geometry.
 | <a id="property-activeopacity-2"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-2"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-2"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-2"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-2"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | core/types/src/shapes/shapeConfig.d.ts:61 |
+| <a id="property-backgroundimage-2"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-2"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | core/types/src/shapes/shapeConfig.d.ts:69 |
 | <a id="property-data-2"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-discrete-2"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-2"></a> `duration?` | `number` | Animation duration in ms. | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-2"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-2"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-hitarea-2"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-2"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-2"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-2"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-2"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-3"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-2"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-2"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-2"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-2"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-2"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode-2"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-2"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-2"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-2"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-2"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-3"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-2"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-2"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-2"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-2"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-2"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-2"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-2"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-2"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-2"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-2"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-2"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-vectoreffect-2"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-2"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-2"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-2"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-discrete-2"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-2"></a> `duration?` | `number` | Animation duration in ms. | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-2"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-2"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-hitarea-2"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-2"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-2"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-2"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-2"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-3"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-2"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-2"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-2"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-2"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-2"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode-2"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-2"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-2"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-2"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-2"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-3"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-2"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-2"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-2"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-2"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-2"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-2"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-2"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-2"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-2"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-2"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-2"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-vectoreffect-2"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-2"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-x-2"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-y-2"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | core/types/src/shapes/shapeConfig.d.ts:139 |
 
 ***
 
@@ -27587,7 +27587,7 @@ An axis-aligned box: top-left corner plus size.
 
 ### BoxConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:195
+Defined in: core/types/src/shapes/shapeConfig.d.ts:203
 
 Box-specific config (whisker + median + outliers; subset of Shape).
 
@@ -27599,18 +27599,18 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-3"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:196 |
-| <a id="property-medianconfig"></a> `medianConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:197 |
-| <a id="property-orient"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Orientation: "vertical" or "horizontal". | core/types/src/shapes/shapeConfig.d.ts:199 |
-| <a id="property-outlier"></a> `outlier?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Outlier accessor (per-datum predicate). | core/types/src/shapes/shapeConfig.d.ts:201 |
-| <a id="property-outlierconfig"></a> `outlierConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:202 |
-| <a id="property-rectconfig"></a> `rectConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:203 |
-| <a id="property-rectwidth"></a> `rectWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:204 |
-| <a id="property-select-3"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:205 |
-| <a id="property-whiskerconfig"></a> `whiskerConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:206 |
-| <a id="property-whiskermode"></a> `whiskerMode?` | `string` \| `number` \| (`string` \| `number`)[] | Whisker mode: single mode string/number or [low, high] pair. | core/types/src/shapes/shapeConfig.d.ts:208 |
-| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:209 |
-| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:210 |
+| <a id="property-data-3"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:204 |
+| <a id="property-medianconfig"></a> `medianConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:205 |
+| <a id="property-orient"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Orientation: "vertical" or "horizontal". | core/types/src/shapes/shapeConfig.d.ts:207 |
+| <a id="property-outlier"></a> `outlier?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Outlier accessor (per-datum predicate). | core/types/src/shapes/shapeConfig.d.ts:209 |
+| <a id="property-outlierconfig"></a> `outlierConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:210 |
+| <a id="property-rectconfig"></a> `rectConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:211 |
+| <a id="property-rectwidth"></a> `rectWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:212 |
+| <a id="property-select-3"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:213 |
+| <a id="property-whiskerconfig"></a> `whiskerConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:214 |
+| <a id="property-whiskermode"></a> `whiskerMode?` | `string` \| `number` \| (`string` \| `number`)[] | Whisker mode: single mode string/number or [low, high] pair. | core/types/src/shapes/shapeConfig.d.ts:216 |
+| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:217 |
+| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:218 |
 
 ***
 
@@ -27618,7 +27618,7 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 
 ### CircleConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:146
+Defined in: core/types/src/shapes/shapeConfig.d.ts:154
 
 Circle-specific config (radius).
 
@@ -27638,48 +27638,48 @@ Circle-specific config (radius).
 | <a id="property-activeopacity-3"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-3"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-3"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-3"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-3"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:61 |
+| <a id="property-backgroundimage-3"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-3"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
 | <a id="property-data-4"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-discrete-3"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-3"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-3"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-3"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-hitarea-3"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-3"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-3"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-3"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-3"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-4"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-3"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-3"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-3"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-3"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-3"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-r"></a> `r?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:147 |
-| <a id="property-rendermode-3"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-3"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-3"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-3"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-3"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-4"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-4"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-3"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-3"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-3"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-3"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-3"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-3"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-3"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-3"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-3"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-3"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-trail-1"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the point as it moves between frames. | - | core/types/src/shapes/shapeConfig.d.ts:149 |
-| <a id="property-trailpersist-1"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:151 |
-| <a id="property-vectoreffect-3"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-3"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-5"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-5"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-discrete-3"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-3"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-3"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-3"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-hitarea-3"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-3"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-3"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-3"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-3"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-4"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-3"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-3"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-3"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-3"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-3"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-r"></a> `r?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:155 |
+| <a id="property-rendermode-3"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-3"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-3"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-3"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-3"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-4"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-4"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-3"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-3"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-3"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-3"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-3"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-3"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-3"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-3"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-3"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-3"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-trail-1"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the point as it moves between frames. | - | core/types/src/shapes/shapeConfig.d.ts:157 |
+| <a id="property-trailpersist-1"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:159 |
+| <a id="property-vectoreffect-3"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-3"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-x-5"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-y-5"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:139 |
 
 ***
 
@@ -28112,7 +28112,7 @@ A colored zone along the dial, e.g. `{min: 80, color: "red"}`.
 
 ### ImageConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:180
+Defined in: core/types/src/shapes/shapeConfig.d.ts:188
 
 Image-specific config (url + dimensions).
 
@@ -28120,17 +28120,17 @@ Image-specific config (url + dimensions).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-6"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:181 |
-| <a id="property-duration-5"></a> `duration?` | `number` | - | core/types/src/shapes/shapeConfig.d.ts:182 |
-| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:183 |
-| <a id="property-id-4"></a> `id?` | `AccessorFn` | - | core/types/src/shapes/shapeConfig.d.ts:184 |
-| <a id="property-opacity-4"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:185 |
-| <a id="property-pointerevents-4"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:186 |
-| <a id="property-select-5"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:187 |
-| <a id="property-url"></a> `url?` | `AccessorFn` | URL accessor returning the image src. | core/types/src/shapes/shapeConfig.d.ts:189 |
-| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:190 |
-| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:191 |
-| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:192 |
+| <a id="property-data-6"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:189 |
+| <a id="property-duration-5"></a> `duration?` | `number` | - | core/types/src/shapes/shapeConfig.d.ts:190 |
+| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:191 |
+| <a id="property-id-4"></a> `id?` | `AccessorFn` | - | core/types/src/shapes/shapeConfig.d.ts:192 |
+| <a id="property-opacity-4"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:193 |
+| <a id="property-pointerevents-4"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:194 |
+| <a id="property-select-5"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:195 |
+| <a id="property-url"></a> `url?` | `AccessorFn` | URL accessor returning the image src. | core/types/src/shapes/shapeConfig.d.ts:197 |
+| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:198 |
+| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:199 |
+| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:200 |
 
 ***
 
@@ -28154,7 +28154,7 @@ Defined in: core/types/src/utils/D3plusConfig.d.ts:252
 
 ### LineConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:154
+Defined in: core/types/src/shapes/shapeConfig.d.ts:162
 
 Line-specific config (curve + defined).
 
@@ -28174,47 +28174,47 @@ Line-specific config (curve + defined).
 | <a id="property-activeopacity-4"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-4"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-4"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-4"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-4"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:61 |
-| <a id="property-curve-1"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:155 |
+| <a id="property-backgroundimage-4"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-4"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
+| <a id="property-curve-1"></a> `curve?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:163 |
 | <a id="property-data-7"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-defined-1"></a> `defined?` | `AccessorFn` | - | - | core/types/src/shapes/shapeConfig.d.ts:156 |
-| <a id="property-discrete-5"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-6"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-4"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-4"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-hitarea-4"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-6"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-4"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-4"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-5"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-6"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-4"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-4"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-6"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-5"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-5"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode-4"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-4"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-4"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-4"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-4"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-6"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-6"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-4"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-4"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-4"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-4"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-4"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-4"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-4"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-4"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-4"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-4"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-vectoreffect-4"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-4"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-defined-1"></a> `defined?` | `AccessorFn` | - | - | core/types/src/shapes/shapeConfig.d.ts:164 |
+| <a id="property-discrete-5"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-6"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-4"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-4"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-hitarea-4"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-6"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-4"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-4"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-5"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-6"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-4"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-4"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-6"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-5"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-5"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode-4"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-4"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-4"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-4"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-4"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-6"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-6"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-4"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-4"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-4"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-4"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-4"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-4"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-4"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-4"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-4"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-4"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-vectoreffect-4"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-4"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:139 |
 
 ***
 
@@ -28314,7 +28314,7 @@ Padding object with all four sides.
 
 ### PathConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:169
+Defined in: core/types/src/shapes/shapeConfig.d.ts:177
 
 Path-specific config (raw SVG path d string or generator).
 
@@ -28334,46 +28334,46 @@ Path-specific config (raw SVG path d string or generator).
 | <a id="property-activeopacity-5"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-5"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-5"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-5"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-5"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:61 |
-| <a id="property-d"></a> `d?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:170 |
+| <a id="property-backgroundimage-5"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-5"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
+| <a id="property-d"></a> `d?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:178 |
 | <a id="property-data-8"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-discrete-6"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-7"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-5"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-5"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-hitarea-5"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-8"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-5"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-5"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-6"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-7"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-5"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-5"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-7"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-6"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-6"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode-5"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-5"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-5"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-5"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-5"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-7"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-7"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-5"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-5"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-5"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-5"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-5"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-5"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-5"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-5"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-5"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-5"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-vectoreffect-5"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-5"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-discrete-6"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-7"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-5"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-5"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-hitarea-5"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-8"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-5"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-5"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-6"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-7"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-5"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-5"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-7"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-6"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-6"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode-5"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-5"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-5"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-5"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-5"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-7"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-7"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-5"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-5"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-5"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-5"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-5"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-5"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-5"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-5"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-5"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-5"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-vectoreffect-5"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-5"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:139 |
 
 ***
 
@@ -28381,7 +28381,7 @@ Path-specific config (raw SVG path d string or generator).
 
 ### RectConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:137
+Defined in: core/types/src/shapes/shapeConfig.d.ts:145
 
 Rect-specific config (width + height on top of base).
 
@@ -28405,49 +28405,49 @@ Rect-specific config (width + height on top of base).
 | <a id="property-activeopacity-6"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-6"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-6"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
-| <a id="property-backgroundimage-6"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Optional background image per datum (url or accessor returning a url). | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:54 |
-| <a id="property-backgroundimagefit-6"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:61 |
+| <a id="property-backgroundimage-6"></a> `backgroundImage?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | An image drawn inside each shape: a URL (or `data:` URI), or an accessor returning one per datum (a falsy value draws none). Every chart's data shapes support it except links, Chord ribbons, and Gauge needles. Set it for all shapes in `shapeConfig`, or for one shape kind under its name (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the shape's outline, sized by `backgroundImageFit`, and drawn over the shape's fill and under its label. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImage`](#property-backgroundimage-2) | core/types/src/shapes/shapeConfig.d.ts:62 |
+| <a id="property-backgroundimagefit-6"></a> `backgroundImageFit?` | [`ConstOrAccessor`](#constoraccessor)\<`"cover"` \| `"contain"`\> | How a `backgroundImage` fits its shape: `"cover"` (default) fills the shape's bounding box, cropping the overflow and clipping to the outline; `"contain"` fits the whole image, centered and fully visible, inside the shape's largest inscribed rectangle. | [`BaseShapeConfig`](#baseshapeconfig).[`backgroundImageFit`](#property-backgroundimagefit-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
 | <a id="property-data-9"></a> `data?` | [`DataPoint`](#datapoint)[] | Data array driving the shape. | [`BaseShapeConfig`](#baseshapeconfig).[`data`](#property-data-2) | core/types/src/shapes/shapeConfig.d.ts:44 |
-| <a id="property-discrete-7"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:63 |
-| <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
-| <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
-| <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-height-4"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:139 |
-| <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-9"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
-| <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
-| <a id="property-hoverstyle-6"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
-| <a id="property-id-7"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
-| <a id="property-label-8"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:81 |
-| <a id="property-labelbounds-6"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
-| <a id="property-labelconfig-6"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
-| <a id="property-on-8"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
-| <a id="property-opacity-7"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
-| <a id="property-pointerevents-7"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:89 |
-| <a id="property-rendermode-6"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
-| <a id="property-role-6"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
-| <a id="property-rotate-6"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
-| <a id="property-rx-6"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
-| <a id="property-ry-6"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
-| <a id="property-scale-8"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:99 |
-| <a id="property-select-8"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
-| <a id="property-shaperendering-6"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
-| <a id="property-sort-6"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:107 |
-| <a id="property-stroke-6"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
-| <a id="property-strokedasharray-6"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
-| <a id="property-strokelinecap-6"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
-| <a id="property-strokeopacity-6"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
-| <a id="property-strokewidth-6"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
-| <a id="property-textanchor-6"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
-| <a id="property-texture-6"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
-| <a id="property-texturedefault-6"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
-| <a id="property-trail-2"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | - | core/types/src/shapes/shapeConfig.d.ts:141 |
-| <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:143 |
-| <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
-| <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-width-4"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:138 |
-| <a id="property-x-10"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-10"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-discrete-7"></a> `discrete?` | `"x"` \| `"y"` | Discrete-axis key ("x" | "y") for charts that flip layout per axis. | [`BaseShapeConfig`](#baseshapeconfig).[`discrete`](#property-discrete-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
+| <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
+| <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
+| <a id="property-height-4"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:147 |
+| <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:85 |
+| <a id="property-hover-9"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
+| <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:81 |
+| <a id="property-hoverstyle-6"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:83 |
+| <a id="property-id-7"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:87 |
+| <a id="property-label-8"></a> `label?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `false` \| `string`[]\> | Label text(s) per datum. False/undefined skips. | [`BaseShapeConfig`](#baseshapeconfig).[`label`](#property-label-3) | core/types/src/shapes/shapeConfig.d.ts:89 |
+| <a id="property-labelbounds-6"></a> `labelBounds?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\> \| `Record`\<`string`, `unknown`\>[]) | Label-bounds accessor (where to mount the label). | [`BaseShapeConfig`](#baseshapeconfig).[`labelBounds`](#property-labelbounds-2) | core/types/src/shapes/shapeConfig.d.ts:91 |
+| <a id="property-labelconfig-6"></a> `labelConfig?` | `Record`\<`string`, `unknown`\> | Label TextBox config (font, padding, etc.). | [`BaseShapeConfig`](#baseshapeconfig).[`labelConfig`](#property-labelconfig-2) | core/types/src/shapes/shapeConfig.d.ts:93 |
+| <a id="property-on-8"></a> `on?` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> | Event handlers (Object.<event, handler>). | [`BaseShapeConfig`](#baseshapeconfig).[`on`](#property-on-2) | core/types/src/shapes/shapeConfig.d.ts:141 |
+| <a id="property-opacity-7"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Overall opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`opacity`](#property-opacity-2) | core/types/src/shapes/shapeConfig.d.ts:95 |
+| <a id="property-pointerevents-7"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `pointer-events` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`pointerEvents`](#property-pointerevents-2) | core/types/src/shapes/shapeConfig.d.ts:97 |
+| <a id="property-rendermode-6"></a> `renderMode?` | `"full"` \| `"compute"` | "full" runs the DOM enter/update/exit; "compute" skips DOM. | [`BaseShapeConfig`](#baseshapeconfig).[`renderMode`](#property-rendermode-2) | core/types/src/shapes/shapeConfig.d.ts:109 |
+| <a id="property-role-6"></a> `role?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA role per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`role`](#property-role-2) | core/types/src/shapes/shapeConfig.d.ts:99 |
+| <a id="property-rotate-6"></a> `rotate?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Rotation in degrees per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`rotate`](#property-rotate-2) | core/types/src/shapes/shapeConfig.d.ts:101 |
+| <a id="property-rx-6"></a> `rx?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `rx` (rect rounded-corner x) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`rx`](#property-rx-2) | core/types/src/shapes/shapeConfig.d.ts:103 |
+| <a id="property-ry-6"></a> `ry?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `ry` (rect rounded-corner y) — applies to Rect/Bar. | [`BaseShapeConfig`](#baseshapeconfig).[`ry`](#property-ry-2) | core/types/src/shapes/shapeConfig.d.ts:105 |
+| <a id="property-scale-8"></a> `scale?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Scale factor (1 = identity). | [`BaseShapeConfig`](#baseshapeconfig).[`scale`](#property-scale-3) | core/types/src/shapes/shapeConfig.d.ts:107 |
+| <a id="property-select-8"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | Where to mount the shape's DOM (CSS selector, element, or null). | [`BaseShapeConfig`](#baseshapeconfig).[`select`](#property-select-2) | core/types/src/shapes/shapeConfig.d.ts:111 |
+| <a id="property-shaperendering-6"></a> `shapeRendering?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `shape-rendering` attribute per datum. | [`BaseShapeConfig`](#baseshapeconfig).[`shapeRendering`](#property-shaperendering-2) | core/types/src/shapes/shapeConfig.d.ts:113 |
+| <a id="property-sort-6"></a> `sort?` | ((`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number`) \| `null` | d3-style sort comparator. | [`BaseShapeConfig`](#baseshapeconfig).[`sort`](#property-sort-2) | core/types/src/shapes/shapeConfig.d.ts:115 |
+| <a id="property-stroke-6"></a> `stroke?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Stroke color. | [`BaseShapeConfig`](#baseshapeconfig).[`stroke`](#property-stroke-2) | core/types/src/shapes/shapeConfig.d.ts:117 |
+| <a id="property-strokedasharray-6"></a> `strokeDasharray?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-dasharray`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeDasharray`](#property-strokedasharray-2) | core/types/src/shapes/shapeConfig.d.ts:119 |
+| <a id="property-strokelinecap-6"></a> `strokeLinecap?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `stroke-linecap`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeLinecap`](#property-strokelinecap-2) | core/types/src/shapes/shapeConfig.d.ts:121 |
+| <a id="property-strokeopacity-6"></a> `strokeOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | SVG `stroke-opacity`. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeOpacity`](#property-strokeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
+| <a id="property-strokewidth-6"></a> `strokeWidth?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Stroke width in pixels. | [`BaseShapeConfig`](#baseshapeconfig).[`strokeWidth`](#property-strokewidth-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
+| <a id="property-textanchor-6"></a> `textAnchor?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `text-anchor` for labels. | [`BaseShapeConfig`](#baseshapeconfig).[`textAnchor`](#property-textanchor-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
+| <a id="property-texture-6"></a> `texture?` | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) — name string or full config. | [`BaseShapeConfig`](#baseshapeconfig).[`texture`](#property-texture-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-texturedefault-6"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-trail-2"></a> `trail?` | `boolean` | Sweep a tapering motion trail behind the rect as it moves between frames. | - | core/types/src/shapes/shapeConfig.d.ts:149 |
+| <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:151 |
+| <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:133 |
+| <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:135 |
+| <a id="property-width-4"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:146 |
+| <a id="property-x-10"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:137 |
+| <a id="property-y-10"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:139 |
 
 ***
 
@@ -28721,7 +28721,7 @@ Other Line shape config.
 
 ### WhiskerConfig
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:214
+Defined in: core/types/src/shapes/shapeConfig.d.ts:222
 
 Whisker-specific config.
 
@@ -28733,15 +28733,15 @@ Whisker-specific config.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-data-10"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:215 |
-| <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | core/types/src/shapes/shapeConfig.d.ts:217 |
-| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:218 |
-| <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | core/types/src/shapes/shapeConfig.d.ts:220 |
-| <a id="property-lineconfig-1"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:221 |
-| <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:222 |
-| <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:223 |
-| <a id="property-x-12"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:224 |
-| <a id="property-y-12"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:225 |
+| <a id="property-data-10"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:223 |
+| <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | core/types/src/shapes/shapeConfig.d.ts:225 |
+| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:226 |
+| <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | core/types/src/shapes/shapeConfig.d.ts:228 |
+| <a id="property-lineconfig-1"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:229 |
+| <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:230 |
+| <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:231 |
+| <a id="property-x-12"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:232 |
+| <a id="property-y-12"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:233 |
 
 ## Type Aliases
 
@@ -28751,7 +28751,7 @@ Whisker-specific config.
 
 > **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-3) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
 
-Defined in: core/types/src/shapes/shapeConfig.d.ts:233
+Defined in: core/types/src/shapes/shapeConfig.d.ts:241
 
 Union of every shape config — useful for code that composes
 transient configs at runtime without knowing the shape ahead of

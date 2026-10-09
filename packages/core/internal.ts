@@ -182,6 +182,7 @@ export {
 export type {SizeLegendLayout, SizeLegendScale, SizeLegendSize} from "./src/components/SizeLegend/sizeLegendLayout.js";
 export {drawWithInset, fitInset, sceneInsetRegion} from "./src/charts/pipeline/insetPlacement.js";
 export {markBoxes} from "./src/charts/features/sceneBounds.js";
+export {backgroundImageNode, backgroundImageNodes} from "./src/charts/features/backgroundImageEmit.js";
 export {
   INSET_PRIORITY,
   insetBackground,
