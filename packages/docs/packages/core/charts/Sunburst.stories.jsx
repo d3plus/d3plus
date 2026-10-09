@@ -89,14 +89,6 @@ MultiLevel.parameters = {
     },
   },
 };
-  controls: {include: ["groupBy", "depth"]},
-  docs: {
-    description: {
-      story:
-        "A three-level `groupBy` draws three rings. Labels appear only where they fit, running along the arc on wide arcs and along the radius on thin ones. Hover an arc to highlight it with its ancestors.",
-    },
-  },
-};
 
 export const DrillDown = Template.bind({});
 DrillDown.args = {
