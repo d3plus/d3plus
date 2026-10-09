@@ -9,7 +9,7 @@ import {fontExists, textWidth} from "@d3plus/dom";
 import {fontFamily} from "@d3plus/text";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
-import type {ArcGeometry, SceneNode} from "@d3plus/render";
+import type {ArcGeometry, FadeSwap, SceneNode, TextNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {
@@ -175,6 +175,14 @@ function ghostNodes(
   });
 }
 
+/**
+    The label fade windows, as shares of a transition's eased progress: under
+    the default cubic easing, 6% of the motion takes the first ~25% of the
+    time, so labels are gone before their arcs visibly move, and return over
+    the last ~25%, once the arcs have all but settled.
+*/
+export const SUNBURST_LABEL_FADE: FadeSwap = {out: 0.06, in: 0.06};
+
 export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as unknown as SunburstNode[];
   if (!nodes.length) return [];
@@ -233,8 +241,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     padAngle,
     padPixel,
   });
-  const held = (viz.ctx.sunburstHeldLabels ?? new Set()) as Set<string>;
-  const labeled = nodes.filter(n => boxes.has(n) && !held.has(n.id));
+  const labeled = nodes.filter(n => boxes.has(n));
 
   const labelNodes = emitLabels({
     data: labeled as unknown as DataPoint[],
@@ -273,6 +280,11 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
       ...labelConfig,
     },
   });
+
+  // A label never glides along with its arc: when an animated draw moves,
+  // retexts, or resizes it, it fades out where it was and back in where it
+  // lands (see SUNBURST_LABEL_FADE). A label whose arc stays put stays put.
+  for (const n of labelNodes) (n as TextNode).fadeSwap = SUNBURST_LABEL_FADE;
 
   return [...ghosts, ...pathNodes, ...labelNodes];
 };

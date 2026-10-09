@@ -3,9 +3,10 @@ import type {Transition} from "d3-transition";
 
 import {arcEnterStart, collapse, collapseTo, isFlipEligible} from "../animate/interpolate.js";
 import type {FlipTransition} from "../animate/diff.js";
-import type {SceneNode} from "../scene.js";
+import type {SceneNode, TextNode} from "../scene.js";
 import {applyGeometry} from "./svgNodeAttrs.js";
 import {trackTransition} from "./svgClock.js";
+import {fadeSwapTween} from "./svgFade.js";
 
 /** The transition `_reconcile` threads through the reconcile recursion. */
 type RenderTransition = Transition<BaseType, unknown, null, undefined>;
@@ -77,8 +78,12 @@ export function reconcileExit(
   const exitToBody = flip?.exitToBody;
   exit.each(function (this: Element, d: SceneNode) {
     const tsel = trackTransition(select(this).transition(t), t);
-    const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
-    applyGeometry(tsel, end, true, resolveFill);
+    const swap = d.type === "text" ? (d as TextNode).fadeSwap : undefined;
+    if (swap) fadeSwapTween(tsel, swap, "exit", d, d);
+    else {
+      const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
+      applyGeometry(tsel, end, true, resolveFill);
+    }
     tsel.remove();
   });
 }

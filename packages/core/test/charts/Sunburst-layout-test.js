@@ -1,7 +1,6 @@
 import assert from "assert";
 import {
   applySunburstLayout,
-  holdLabels,
   renderBase,
   sunburstFocus,
   sunburstReturning,
@@ -319,38 +318,6 @@ it("Sunburst layout stage: renderBase takes the base once per render and reuses 
   const next = renderBase(viz);
   assert.notStrictEqual(next, first, "a new render takes a new base");
   assert.deepStrictEqual(next.laid, []);
-});
-
-it("Sunburst layout stage: holdLabels holds labels only when animated, then repaints them in", async () => {
-  const painted = [];
-  const viz = {
-    schema: {duration: 5},
-    ctx: {sunburstLaid: []},
-    _drawSceneToTarget: d => painted.push(d),
-  };
-  holdLabels(viz, ["A"]);
-  assert.deepStrictEqual([...viz.ctx.sunburstHeldLabels], ["A"]);
-  await new Promise(resolve => setTimeout(resolve, 40));
-  assert.deepStrictEqual(painted, [5], "repainted with the chart's duration");
-  assert.strictEqual(viz.ctx.sunburstHeldLabels.size, 0, "released");
-  assert.deepStrictEqual(viz._chartScene, []);
-
-  holdLabels(viz, ["A"]);
-  holdLabels(viz, []);
-  await new Promise(resolve => setTimeout(resolve, 40));
-  assert.deepStrictEqual(
-    painted,
-    [5],
-    "a later layout cancels a pending release",
-  );
-
-  viz.schema.duration = 0;
-  holdLabels(viz, ["A"]);
-  assert.strictEqual(
-    viz.ctx.sunburstHeldLabels.size,
-    0,
-    "nothing held without animation",
-  );
 });
 
 it("Sunburst layout stage: sunburstZoomOutFocus finds the old center among the new rings", () => {

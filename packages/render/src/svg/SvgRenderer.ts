@@ -9,6 +9,7 @@ import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from ".
 import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
 import {enterStart, reconcileExit} from "./svgFlip.js";
 import {clockedTransition, trackTransition} from "./svgClock.js";
+import {fadeSwapText} from "./svgFade.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {configureTexture} from "../textureConfig.js";
@@ -18,6 +19,7 @@ import {
   walkOverlays,
 } from "../overlay.js";
 import {
+  type SvgSelection,
   applyGeometry,
   applyStatic,
   buildIndex,
@@ -380,17 +382,19 @@ export default class SvgRenderer implements Renderer {
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       const trailPrev =
         duration && canTrail && !persistTrail ? stash.__d3plusTrailPrev__ : undefined;
-      applyStatic(s, d);
-      if (duration) {
+      const draw = (el: SvgSelection) => {
+        applyStatic(el, d);
+        applyGeometry(el, d, false, resolveFill);
+      };
+      // A fade-swap label (TextNode.fadeSwap) fades instead of gliding.
+      if (duration && fadeSwapText(s, d, prevText, () => trackTransition(s.transition(t), t), draw)) {
+        // Its tween does the rest.
+      } else if (duration) {
+        applyStatic(s, d);
         const tsel = trackTransition(s.transition(t), t);
         applyGeometry(tsel, d, true, resolveFill);
-        if (
-          d.type === "text" &&
-          prevText &&
-          prevText.font &&
-          (d as TextNode).font &&
-          prevText.font.size !== (d as TextNode).font.size
-        ) {
+        const font = d.type === "text" ? (d as TextNode).font : undefined;
+        if (prevText?.font && font && prevText.font.size !== font.size) {
           // Override the transform tween: glide position/rotation and ease the
           // scale (old/new → 1) about the box center.
           tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
@@ -401,7 +405,7 @@ export default class SvgRenderer implements Renderer {
         if (persistTrail) attachPersistTrail(this, tsel, self._trailLog, d, f => self._trailGrads.apply(d.key, f));
         else if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
       } else {
-        applyGeometry(s, d, false, resolveFill);
+        draw(s);
         // Redraw the persistent trail on non-animated repaints (e.g. hover) so
         // it doesn't vanish; static geometry, no tween.
         if (persistTrail) attachPersistTrail(this, null, self._trailLog, d, f => self._trailGrads.apply(d.key, f));

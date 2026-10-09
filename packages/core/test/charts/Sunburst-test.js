@@ -485,7 +485,7 @@ it("Sunburst: buckets the leaves under the threshold into one arc per parent", a
   );
 });
 
-it("Sunburst: zooming out plays the zoom-in in reverse, holding labels until the sweep ends", async function () {
+it("Sunburst: zooming out plays the zoom-in in reverse", async function () {
   this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
@@ -546,12 +546,10 @@ it("Sunburst: zooming out plays the zoom-in in reverse, holding labels until the
       `${k} hasn't reached its final shape mid-animation`,
     );
   }
-  assert.strictEqual(
-    out.scene.texts,
-    0,
-    "no label slides across the rings mid zoom-out",
+  assert.ok(
+    out.scene.texts > 0 && out.end.texts > 0,
+    "labels are drawn throughout",
   );
-  assert.ok(out.end.texts > 0, "labels appear once the sweep ends");
 });
 
 it("Sunburst: zooming out one of two levels returns the outer level's siblings, on Canvas too", async function () {
@@ -788,3 +786,165 @@ it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through me
   );
   assert.deepStrictEqual(out.warnings, [], "no config warnings");
 });
+
+/**
+    Records every Sunburst label through one transition: on SVG by sampling
+    the DOM, on Canvas by recording each painted frame. Each sample carries
+    the transition's progress `t` (0–1, by time) and each label's place,
+    text, and opacity.
+*/
+const recordLabels = `
+  window.recordLabels = (chart, duration, action) => new Promise(async resolve => {
+    const canvas = chart._renderer === "canvas";
+    const samples = [];
+    let start;
+    const renderer = chart._sceneRenderer;
+    const drawScene = renderer.drawScene.bind(renderer);
+    renderer.drawScene = (scene, opts) => {
+      if (start === undefined && opts && opts.duration) start = performance.now();
+      return drawScene(scene, opts);
+    };
+    const fromFrame = frame => {
+      const labels = {};
+      const walk = n => {
+        if (n.type === "text" && String(n.key).startsWith("sunburst-"))
+          labels[n.key] = {
+            place: JSON.stringify(n.transform || {}),
+            text: (n.lines || []).map(l => l.text).join(" "),
+            opacity: n.paint && n.paint.opacity !== undefined ? n.paint.opacity : 1,
+          };
+        (n.children || []).forEach(walk);
+      };
+      walk(frame.root);
+      return labels;
+    };
+    const fromDom = () => {
+      const labels = {};
+      for (const el of document.querySelectorAll("#viz text[data-key^='sunburst-']")) {
+        const op = el.getAttribute("opacity");
+        labels[el.getAttribute("data-key")] = {
+          place: el.getAttribute("transform"),
+          text: el.textContent,
+          opacity: op === null ? 1 : Number(op),
+        };
+      }
+      return labels;
+    };
+    const paint = renderer._paint && renderer._paint.bind(renderer);
+    if (canvas) renderer._paint = frame => {
+      if (start !== undefined) samples.push({t: (performance.now() - start) / duration, labels: fromFrame(frame)});
+      return paint(frame);
+    };
+    const before = canvas ? fromFrame(renderer._scene) : fromDom();
+    action();
+    const timer = canvas ? null : setInterval(() => {
+      if (start !== undefined) samples.push({t: (performance.now() - start) / duration, labels: fromDom()});
+    }, 25);
+    await new Promise(r => setTimeout(r, duration + 400));
+    if (timer) clearInterval(timer);
+    renderer.drawScene = drawScene;
+    if (canvas) renderer._paint = paint;
+    resolve({before, after: canvas ? fromFrame(renderer._scene) : fromDom(), samples});
+  });
+`;
+
+/** Checks one recorded transition against the fade-swap rules. */
+function assertLabelsFade({before, after, samples}, name) {
+  const moved = Object.keys(before).filter(
+    k =>
+      after[k] &&
+      (after[k].place !== before[k].place || after[k].text !== before[k].text),
+  );
+  const still = Object.keys(before).filter(k => after[k] && !moved.includes(k));
+  assert.ok(moved.length > 0, `${name}: some labels move`);
+  assert.ok(
+    samples.length > 5,
+    `${name}: sampled the transition (${samples.length})`,
+  );
+  const inner = samples.filter(s => s.t > 0.02 && s.t < 0.98);
+  for (const k of moved) {
+    const seen = inner
+      .filter(s => s.labels[k])
+      .map(s => ({t: s.t, ...s.labels[k]}));
+    for (const s of seen)
+      assert.ok(
+        s.place === before[k].place || s.place === after[k].place,
+        `${name}: ${k} drawn in between at t=${s.t.toFixed(2)}`,
+      );
+    const early = seen.filter(s => s.t < 0.2);
+    assert.ok(early.length, `${name}: ${k} sampled early`);
+    for (const s of early)
+      assert.strictEqual(
+        s.place,
+        before[k].place,
+        `${name}: ${k} stays put while fading out`,
+      );
+    assert.ok(
+      early.some(s => s.opacity < 1),
+      `${name}: ${k} fades out early`,
+    );
+    early.forEach(
+      (s, i) =>
+        i &&
+        assert.ok(
+          s.opacity <= early[i - 1].opacity + 1e-9,
+          `${name}: ${k} fading out`,
+        ),
+    );
+    const late = seen.filter(s => s.t > 0.8 && s.opacity > 0);
+    assert.ok(late.length, `${name}: ${k} fades back in`);
+    for (const s of late)
+      assert.strictEqual(
+        s.place,
+        after[k].place,
+        `${name}: ${k} reappears at its new place`,
+      );
+    late.forEach(
+      (s, i) =>
+        i &&
+        assert.ok(
+          s.opacity >= late[i - 1].opacity - 1e-9,
+          `${name}: ${k} fading in`,
+        ),
+    );
+  }
+  for (const k of still)
+    for (const s of inner)
+      if (s.labels[k])
+        assert.strictEqual(
+          s.labels[k].opacity,
+          1,
+          `${name}: unmoved ${k} stays opaque`,
+        );
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Sunburst: labels fade out in place and back in at their new place on zoom in, out, and Back (${renderer})`, async function () {
+    this.timeout(120000);
+    const out = await page(
+      async ({renderer, recorder}) => {
+        new Function(recorder)();
+        const chart = await window.build({renderer});
+        const duration = 1000;
+        chart.duration(duration);
+        const zoomIn = await window.recordLabels(chart, duration, () =>
+          window.route(chart, "click", window.arcFor(chart, ["Backend"])),
+        );
+        const zoomOut = await window.recordLabels(chart, duration, () =>
+          window.route(chart, "click", window.arcFor(chart, ["Backend"])),
+        );
+        await window.recordLabels(chart, duration, () =>
+          window.route(chart, "click", window.arcFor(chart, ["Frontend"])),
+        );
+        const back = await window.recordLabels(chart, duration, () =>
+          document.querySelector("#viz .back-control").click(),
+        );
+        return {zoomIn, zoomOut, back};
+      },
+      {renderer, recorder: recordLabels},
+    );
+    assertLabelsFade(out.zoomIn, "zoom in");
+    assertLabelsFade(out.zoomOut, "zoom out");
+    assertLabelsFade(out.back, "Back");
+  });
+}

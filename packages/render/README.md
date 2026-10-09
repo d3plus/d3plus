@@ -46,6 +46,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`curveFor`](#curvefor) | Resolves a curve name to a d3-shape curve factory, defaulting to linear. |
 | [`diffChildren`](#diffchildren) | Matches two sibling node lists by their stable `key`, classifying each into |
 | [`domToScene`](#domtoscene) | Converts a rendered SVG subtree into a scene graph. This is a migration bridge: |
+| [`fadeSwapOpacity`](#fadeswapopacity) | A `fadeSwap` node's opacity at eased progress `t`, and whether it has |
 | [`getCanvasBackend`](#getcanvasbackend) | The currently-active canvas backend. |
 | [`gradientToken`](#gradienttoken) | Encodes a SceneGradient as a `gradient:<json>` `Paint.fill` token. |
 | [`interpolateNode`](#interpolatenode) | Builds an interpolator between two nodes of the same type. When the types differ |
@@ -57,6 +58,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`parseGradient`](#parsegradient) | Decodes a `gradient:<json>` token, or returns null if `fill` is not one. |
 | [`patternTileSvg`](#patterntilesvg) | Builds standalone SVG markup for one tile of a `pattern:<json>` texture |
 | [`persistTrailNode`](#persisttrailnode) | Builds a mark's persistent-trail scene node (Canvas backend) at progress `t`. |
+| [`sameTextLayout`](#sametextlayout) | Whether two text nodes draw the same text at the same place and size. |
 | [`setCanvasBackend`](#setcanvasbackend) | Install the canvas backend `CanvasRenderer` uses. Pass `null` to restore the |
 
 | Interfaces | Description |
@@ -67,6 +69,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`CanvasBackend`](#canvasbackend) | The canvas surface `CanvasRenderer` paints into. A browser `HTMLCanvasElement` |
 | [`CircleNode`](#circlenode) | NodeBase |
 | [`DrawOptions`](#drawoptions) | DrawOptions |
+| [`FadeSwap`](#fadeswap) | The fade-out and fade-in windows of a `TextNode.fadeSwap`, as shares (0–1) of a transition's eased progress. |
 | [`FlipTransition`](#fliptransition) | FlipTransition |
 | [`FontSpec`](#fontspec) | FontSpec |
 | [`GroupDiff`](#groupdiff) | GroupDiff |
@@ -363,7 +366,7 @@ repaints live and never needs it. See CanvasResources.
 
 ### SvgRenderer
 
-Defined in: [svg/SvgRenderer.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L73)
+Defined in: [svg/SvgRenderer.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L75)
 
 Renderer
 The pluggable backend contract. Chart logic emits a Scene; a Renderer realizes
@@ -394,7 +397,7 @@ across backends — that equivalence is the parity guarantee of the architecture
 
 > **destroy**(): `void`
 
-Defined in: [svg/SvgRenderer.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L639)
+Defined in: [svg/SvgRenderer.ts:643](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L643)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -412,7 +415,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [svg/SvgRenderer.ts:156](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L156)
+Defined in: [svg/SvgRenderer.ts:158](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L158)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -438,7 +441,7 @@ scene when `opts.duration` is positive. The single method that matters.
 
 > **mount**(`target`: [`RenderTarget`](#rendertarget)): `void`
 
-Defined in: [svg/SvgRenderer.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L112)
+Defined in: [svg/SvgRenderer.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L114)
 
 Attach to a target element and prepare the drawing surface.
 
@@ -462,7 +465,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [svg/SvgRenderer.ts:566](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L566)
+Defined in: [svg/SvgRenderer.ts:570](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L570)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -486,7 +489,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [svg/SvgRenderer.ts:538](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L538)
+Defined in: [svg/SvgRenderer.ts:542](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L542)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -510,7 +513,7 @@ Hit-test a point in surface-local coordinates. Returns the topmost interactive n
 
 > **resize**(`width`: `number`, `height`: `number`): `void`
 
-Defined in: [svg/SvgRenderer.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L139)
+Defined in: [svg/SvgRenderer.ts:141](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L141)
 
 Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
@@ -535,7 +538,7 @@ Update the surface dimensions (and re-scale for HiDPI on Canvas).
 
 > **target**(): [`RenderTarget`](#rendertarget) \| `undefined`
 
-Defined in: [svg/SvgRenderer.ts:152](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L152)
+Defined in: [svg/SvgRenderer.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L154)
 
 Public view onto the mount target. v4: callers (e.g. `Viz._drawSceneToTarget`)
 use this to compare the current target's container against their
@@ -555,7 +558,7 @@ desired one without reaching into the private `_target` field.
 
 > **toSVGString**(): `string`
 
-Defined in: [svg/SvgRenderer.ts:635](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L635)
+Defined in: [svg/SvgRenderer.ts:639](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L639)
 
 Serialize the current scene to an SVG string (Canvas backends re-render via SVG).
 
@@ -571,7 +574,7 @@ Serialize the current scene to an SVG string (Canvas backends re-render via SVG)
 
 | Property | Modifier | Type | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L74) |
+| <a id="property-kind-1"></a> `kind` | `readonly` | `"svg"` | [svg/SvgRenderer.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L76) |
 
 ***
 
@@ -731,7 +734,7 @@ x positions by index (as d3plus areas do); the area is filled between them.
 
 > **collapse**(`node`: [`SceneNode`](#scenenode)): [`SceneNode`](#scenenode)
 
-Defined in: [animate/interpolate.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L340)
+Defined in: [animate/interpolate.ts:381](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L381)
 
 #### Parameters
 
@@ -751,7 +754,7 @@ Defined in: [animate/interpolate.ts:340](https://github.com/d3plus/d3plus/blob/m
 
 > **collapseTo**(`node`: [`SceneNode`](#scenenode), `rect`: [`TransitionRect`](#transitionrect), `body?`: [`TransitionRect`](#transitionrect), `entering?`: `boolean`): [`SceneNode`](#scenenode)
 
-Defined in: [animate/interpolate.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L481)
+Defined in: [animate/interpolate.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L522)
 
 Produces the start form of an entering node (or end form of an exiting
 node) for the drill-morph transition: the node's paint fades from/to 0
@@ -840,7 +843,7 @@ time: forward grows it, backward rewinds it.
 
 > **cubicInOut**(`t`: `number`): `number`
 
-Defined in: [animate/interpolate.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L72)
+Defined in: [animate/interpolate.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L73)
 
 The default easing curve, identical to d3-transition's default (cubic in-out),
 so Canvas frame interpolation matches SVG transition motion.
@@ -886,7 +889,7 @@ Both the SVG and Canvas backends share this so a curve looks identical on each.
 
 > **diffChildren**(`prev`: [`SceneNode`](#scenenode)[], `next`: [`SceneNode`](#scenenode)[]): [`GroupDiff`](#groupdiff)
 
-Defined in: [animate/diff.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L48)
+Defined in: [animate/diff.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L56)
 
 Matches two sibling node lists by their stable `key`, classifying each into
 enter/update/exit. This is the shared classification both backends rely on —
@@ -930,6 +933,41 @@ faithful copy. Natively-ported shapes should emit their own precise toScene().
 #### Returns
 
 [`GroupNode`](#groupnode)
+
+***
+
+<a id="fadeswapopacity"></a>
+
+### fadeSwapOpacity()
+
+> **fadeSwapOpacity**(`t`: `number`, `swap`: [`FadeSwap`](#fadeswap), `from`: `number`, `to`: `number`, `phase`: `"update"` \| `"enter"` \| `"exit"`): `object`
+
+Defined in: [animate/interpolate.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L356)
+
+A `fadeSwap` node's opacity at eased progress `t`, and whether it has
+taken its new layout yet. Updating, it fades from `from` to 0 over the
+first `swap.out` share, sits hidden, then fades from 0 to `to` over the
+last `swap.in` share, swapping layouts once it is hidden. Entering, it is
+hidden until that last share; exiting, it only fades out.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `t` | `number` | The transition's eased progress, 0–1. |
+| `swap` | [`FadeSwap`](#fadeswap) | The fade-out and fade-in windows. |
+| `from` | `number` | The opacity it starts at. |
+| `to` | `number` | The opacity it ends at. |
+| `phase` | `"update"` \| `"enter"` \| `"exit"` | Whether the node is updating, entering, or exiting. |
+
+#### Returns
+
+`object`
+
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `opacity` | `number` | [animate/interpolate.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L362) |
+| `swapped` | `boolean` | [animate/interpolate.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L362) |
 
 ***
 
@@ -977,7 +1015,7 @@ Encodes a [SceneGradient](#scenegradient) as a `gradient:<json>` `Paint.fill` to
 
 > **interpolateNode**(`from`: [`SceneNode`](#scenenode), `to`: [`SceneNode`](#scenenode)): [`Interp`](#interp)\<[`SceneNode`](#scenenode)\>
 
-Defined in: [animate/interpolate.ts:241](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L241)
+Defined in: [animate/interpolate.ts:242](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L242)
 
 Builds an interpolator between two nodes of the same type. When the types differ
 (a rare key reuse across shape kinds) it snaps to the target. Group children are
@@ -1002,7 +1040,7 @@ not recursed here — interpolateScene handles nested groups.
 
 > **interpolateScene**(`prev`: [`Scene`](#scene) \| `null`, `next`: [`Scene`](#scene), `log?`: [`TrailLog`](#traillog), `flip?`: [`FlipTransition`](#fliptransition)): [`Interp`](#interp)\<[`Scene`](#scene)\>
 
-Defined in: [animate/diff.ts:185](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L185)
+Defined in: [animate/diff.ts:229](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L229)
 
 Builds a function that returns the interpolated scene at a given time, driving
 the Canvas backend's requestAnimationFrame loop. Entering nodes grow/fade in,
@@ -1029,7 +1067,7 @@ exiting nodes shrink/fade out and are dropped at t === 1.
 
 > **isFlipEligible**(`node`: [`SceneNode`](#scenenode)): `boolean`
 
-Defined in: [animate/interpolate.ts:437](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L437)
+Defined in: [animate/interpolate.ts:478](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L478)
 
 Whether a node is eligible to collapse to/from an explicit
 `DrawOptions.enterFrom`/`exitTo` box (the drill-morph transition) instead
@@ -1211,6 +1249,29 @@ Builds a mark's persistent-trail scene node (Canvas backend) at progress `t`.
 #### Returns
 
 [`SceneNode`](#scenenode) \| `null`
+
+***
+
+<a id="sametextlayout"></a>
+
+### sameTextLayout()
+
+> **sameTextLayout**(`a`: [`TextNode`](#textnode), `b`: [`TextNode`](#textnode)): `boolean`
+
+Defined in: [animate/interpolate.ts:332](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L332)
+
+Whether two text nodes draw the same text at the same place and size.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `a` | [`TextNode`](#textnode) |
+| `b` | [`TextNode`](#textnode) |
+
+#### Returns
+
+`boolean`
 
 ***
 
@@ -1474,11 +1535,28 @@ immediately; a positive duration animates from the previous scene.
 
 ***
 
+<a id="fadeswap"></a>
+
+### FadeSwap
+
+Defined in: [scene.ts:420](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L420)
+
+The fade-out and fade-in windows of a `TextNode.fadeSwap`, as shares (0–1) of a transition's eased progress.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-in"></a> `in` | `number` | [scene.ts:422](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L422) |
+| <a id="property-out"></a> `out` | `number` | [scene.ts:421](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L421) |
+
+***
+
 <a id="fliptransition"></a>
 
 ### FlipTransition
 
-Defined in: [animate/diff.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L68)
+Defined in: [animate/diff.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L76)
 
 FlipTransition
 The drill-morph override for one draw: the box entering nodes collapse
@@ -1489,14 +1567,14 @@ center. See `DrawOptions.enterFrom`/`exitTo`.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-enterfrom-1"></a> `enterFrom?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L69) |
-| <a id="property-enterfrombody-1"></a> `enterFromBody?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:70](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L70) |
-| <a id="property-exitto-1"></a> `exitTo?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:71](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L71) |
-| <a id="property-exittobody-1"></a> `exitToBody?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L72) |
-| <a id="property-instantexitall-1"></a> `instantExitAll?` | `boolean` | See `DrawOptions.instantExitAll`. | [animate/diff.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L80) |
-| <a id="property-instantexitkey-1"></a> `instantExitKey?` | `string` \| `number` | See `DrawOptions.instantExitKey`. | [animate/diff.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L74) |
-| <a id="property-reunionenterfrom-1"></a> `reunionEnterFrom?` | [`TransitionRect`](#transitionrect) | See `DrawOptions.reunionEnterFrom`. | [animate/diff.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L78) |
-| <a id="property-reunionenterkey-1"></a> `reunionEnterKey?` | `string` \| `number` | See `DrawOptions.reunionEnterKey`. | [animate/diff.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L76) |
+| <a id="property-enterfrom-1"></a> `enterFrom?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L77) |
+| <a id="property-enterfrombody-1"></a> `enterFromBody?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L78) |
+| <a id="property-exitto-1"></a> `exitTo?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L79) |
+| <a id="property-exittobody-1"></a> `exitToBody?` | [`TransitionRect`](#transitionrect) | - | [animate/diff.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L80) |
+| <a id="property-instantexitall-1"></a> `instantExitAll?` | `boolean` | See `DrawOptions.instantExitAll`. | [animate/diff.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L88) |
+| <a id="property-instantexitkey-1"></a> `instantExitKey?` | `string` \| `number` | See `DrawOptions.instantExitKey`. | [animate/diff.ts:82](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L82) |
+| <a id="property-reunionenterfrom-1"></a> `reunionEnterFrom?` | [`TransitionRect`](#transitionrect) | See `DrawOptions.reunionEnterFrom`. | [animate/diff.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L86) |
+| <a id="property-reunionenterkey-1"></a> `reunionEnterKey?` | `string` \| `number` | See `DrawOptions.reunionEnterKey`. | [animate/diff.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L84) |
 
 ***
 
@@ -1528,7 +1606,7 @@ during scene construction, so backends only paint pre-computed lines.
 
 ### GroupDiff
 
-Defined in: [animate/diff.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L34)
+Defined in: [animate/diff.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L42)
 
 GroupDiff
 The result of matching two child lists by key: nodes to add (enter), nodes
@@ -1538,9 +1616,9 @@ present in both (update, as [previous, next] pairs), and nodes to remove (exit).
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-enter"></a> `enter` | [`SceneNode`](#scenenode)[] | [animate/diff.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L35) |
-| <a id="property-exit"></a> `exit` | [`SceneNode`](#scenenode)[] | [animate/diff.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L37) |
-| <a id="property-update"></a> `update` | \[[`SceneNode`](#scenenode), [`SceneNode`](#scenenode)\][] | [animate/diff.ts:36](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L36) |
+| <a id="property-enter"></a> `enter` | [`SceneNode`](#scenenode)[] | [animate/diff.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L43) |
+| <a id="property-exit"></a> `exit` | [`SceneNode`](#scenenode)[] | [animate/diff.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L45) |
+| <a id="property-update"></a> `update` | \[[`SceneNode`](#scenenode), [`SceneNode`](#scenenode)\][] | [animate/diff.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/diff.ts#L44) |
 
 ***
 
@@ -1548,7 +1626,7 @@ present in both (update, as [previous, next] pairs), and nodes to remove (exit).
 
 ### GroupNode
 
-Defined in: [scene.ts:439](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L439)
+Defined in: [scene.ts:455](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L455)
 
 A transform/clip container; mirrors the nested <g> structure of the SVG output.
 
@@ -1561,8 +1639,8 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-aria-2"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:228](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L228) |
-| <a id="property-children"></a> `children` | [`SceneNode`](#scenenode)[] | - | - | [scene.ts:441](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L441) |
-| <a id="property-clip"></a> `clip?` | [`ClipShape`](#clipshape) | - | - | [scene.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L442) |
+| <a id="property-children"></a> `children` | [`SceneNode`](#scenenode)[] | - | - | [scene.ts:457](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L457) |
+| <a id="property-clip"></a> `clip?` | [`ClipShape`](#clipshape) | - | - | [scene.ts:458](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L458) |
 | <a id="property-datum-2"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-7) | [scene.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L199) |
 | <a id="property-endangle-3"></a> `endAngle?` | `number` | - | [`NodeBase`](#nodebase).[`endAngle`](#property-endangle-7) | [scene.ts:264](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L264) |
 | <a id="property-gradientbounds-2"></a> `gradientBounds?` | `object` | Explicit bounding box for an objectBoundingBox gradient fill on a node the Canvas backend can't measure geometrically (a `path`). The SVG backend derives the box from the element automatically; Canvas reads this instead of parsing `d`. Used by motion-trail cones. | [`NodeBase`](#nodebase).[`gradientBounds`](#property-gradientbounds-6) | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
@@ -1583,7 +1661,7 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 | <a id="property-trail-2"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L237) |
 | <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:246](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L246) |
 | <a id="property-transform-2"></a> `transform?` | [`Transform`](#transform) | - | [`NodeBase`](#nodebase).[`transform`](#property-transform-6) | [scene.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L224) |
-| <a id="property-type-2"></a> `type` | `"group"` | - | - | [scene.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L440) |
+| <a id="property-type-2"></a> `type` | `"group"` | - | - | [scene.ts:456](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L456) |
 | <a id="property-z-2"></a> `z?` | `number` | Z-order within the parent group; stable sort key replacing DOM append order. | [`NodeBase`](#nodebase).[`z`](#property-z-6) | [scene.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L230) |
 
 ***
@@ -1592,7 +1670,7 @@ A transform/clip container; mirrors the nested <g> structure of the SVG output.
 
 ### HtmlOverlayNode
 
-Defined in: [scene.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L464)
+Defined in: [scene.ts:480](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L480)
 
 Embedded HTML at an absolute pixel position over the scene. The renderer
 mounts the HTML in a sibling `<div>` (NOT inside the SVG) positioned via
@@ -1621,37 +1699,37 @@ are responsible for idempotent wiring (remove old listeners first).
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
 | <a id="property-aria-3"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:228](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L228) |
-| <a id="property-classname"></a> `className?` | `string` | Optional CSS class names applied to the host <div>. | - | [scene.ts:477](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L477) |
+| <a id="property-classname"></a> `className?` | `string` | Optional CSS class names applied to the host <div>. | - | [scene.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L493) |
 | <a id="property-datum-3"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-7) | [scene.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L199) |
 | <a id="property-endangle-4"></a> `endAngle?` | `number` | - | [`NodeBase`](#nodebase).[`endAngle`](#property-endangle-7) | [scene.ts:264](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L264) |
-| <a id="property-events"></a> `events?` | `Record`\<`string`, `Partial`\<`Record`\<`string`, (`e`: `Event`) => `void`\>\>\> | Declarative event wiring — a record of CSS-selector → event-name → handler. The renderer attaches one listener per (selector, event) pair and dispatches by `event.target.closest(selector)` matching. Prefer this over `onMount` for click/hover/keyboard wiring: the declarative form is serializable, survives scene snapshots, and keeps closures off the scene primitive. Example: events: { ".zoom-in": {click: e => viz.zoomIn()}, ".zoom-out": {click: e => viz.zoomOut()}, } | - | [scene.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L494) |
+| <a id="property-events"></a> `events?` | `Record`\<`string`, `Partial`\<`Record`\<`string`, (`e`: `Event`) => `void`\>\>\> | Declarative event wiring — a record of CSS-selector → event-name → handler. The renderer attaches one listener per (selector, event) pair and dispatches by `event.target.closest(selector)` matching. Prefer this over `onMount` for click/hover/keyboard wiring: the declarative form is serializable, survives scene snapshots, and keeps closures off the scene primitive. Example: events: { ".zoom-in": {click: e => viz.zoomIn()}, ".zoom-out": {click: e => viz.zoomOut()}, } | - | [scene.ts:510](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L510) |
 | <a id="property-gradientbounds-3"></a> `gradientBounds?` | `object` | Explicit bounding box for an objectBoundingBox gradient fill on a node the Canvas backend can't measure geometrically (a `path`). The SVG backend derives the box from the element automatically; Canvas reads this instead of parsing `d`. Used by motion-trail cones. | [`NodeBase`](#nodebase).[`gradientBounds`](#property-gradientbounds-6) | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
 | `gradientBounds.h` | `number` | - | - | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
 | `gradientBounds.w` | `number` | - | - | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
 | `gradientBounds.x` | `number` | - | - | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
 | `gradientBounds.y` | `number` | - | - | [scene.ts:253](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L253) |
-| <a id="property-height"></a> `height?` | `number` | Optional explicit height (defaults to content-driven). | - | [scene.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L473) |
+| <a id="property-height"></a> `height?` | `number` | Optional explicit height (defaults to content-driven). | - | [scene.ts:489](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L489) |
 | <a id="property-hit-3"></a> `hit?` | [`HitShape`](#hitshape) | - | [`NodeBase`](#nodebase).[`hit`](#property-hit-6) | [scene.ts:227](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L227) |
-| <a id="property-html"></a> `html` | `string` | Raw HTML (innerHTML) for the overlay. Caller is responsible for sanitization. | - | [scene.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L475) |
+| <a id="property-html"></a> `html` | `string` | Raw HTML (innerHTML) for the overlay. Caller is responsible for sanitization. | - | [scene.ts:491](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L491) |
 | <a id="property-id-3"></a> `id?` | `string` | An explicit DOM id, emitted as the SVG element's `id` attribute. Distinct from `key` (a renderer-only identity for diffing) so callers can address a mounted element from outside the scene graph. | [`NodeBase`](#nodebase).[`id`](#property-id-6) | [scene.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L197) |
 | <a id="property-index-3"></a> `index?` | `number` | - | [`NodeBase`](#nodebase).[`index`](#property-index-7) | [scene.ts:200](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L200) |
 | <a id="property-interactiongroup-3"></a> `interactionGroup?` | `string` | The chart-level interactive component this node belongs to ("legend"), stamped by Viz.toScene so the pointer bridge can route component-scoped handlers on every backend — including Canvas, where there is no per-shape DOM to walk. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`interactionGroup`](#property-interactiongroup-6) | [scene.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L222) |
 | <a id="property-interactionpoints-3"></a> `interactionPoints?` | [`InteractionPoint`](#interactionpoint)[] | For a multi-point shape (Line/Area), the per-point positions in pre-zoom content space paired with each point's source datum. Lets the pointer bridge resolve which point is nearest the cursor (e.g. for a series tooltip) instead of always reporting the whole-series aggregate. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`interactionPoints`](#property-interactionpoints-6) | [scene.ts:208](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L208) |
 | <a id="property-interactive-3"></a> `interactive?` | `boolean` | When false, the node is ignored by hit-testing (= SVG pointer-events: none). | [`NodeBase`](#nodebase).[`interactive`](#property-interactive-6) | [scene.ts:226](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L226) |
 | <a id="property-key-3"></a> `key` | `string` \| `number` | Stable identity for enter/update/exit diffing and tween pairing (= Shape._id). | [`NodeBase`](#nodebase).[`key`](#property-key-6) | [scene.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L191) |
-| <a id="property-onmount"></a> `onMount?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired ONCE after the overlay's host `<div>` is first created — AFTER `innerHTML` / `style` / `dimensions` are written so the consumer can `host.querySelector(...)` inside the callback. Prefer `events` over `onMount` when possible; this is the escape hatch for non-event setup (e.g. instantiating a third-party widget on the host element). | - | [scene.ts:506](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L506) |
-| <a id="property-onupdate"></a> `onUpdate?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired on EVERY draw (including the first). Mirror of `onMount` for state that must reflect each render's data — typically reading `node.html` is enough and you don't need this. Use when listeners must rebind because their closures captured stale-by-design state. | - | [scene.ts:515](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L515) |
+| <a id="property-onmount"></a> `onMount?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired ONCE after the overlay's host `<div>` is first created — AFTER `innerHTML` / `style` / `dimensions` are written so the consumer can `host.querySelector(...)` inside the callback. Prefer `events` over `onMount` when possible; this is the escape hatch for non-event setup (e.g. instantiating a third-party widget on the host element). | - | [scene.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L522) |
+| <a id="property-onupdate"></a> `onUpdate?` | (`el`: `HTMLDivElement`) => `void` | Optional callback fired on EVERY draw (including the first). Mirror of `onMount` for state that must reflect each render's data — typically reading `node.html` is enough and you don't need this. Use when listeners must rebind because their closures captured stale-by-design state. | - | [scene.ts:531](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L531) |
 | <a id="property-paint-3"></a> `paint?` | [`Paint`](#paint) | - | [`NodeBase`](#nodebase).[`paint`](#property-paint-6) | [scene.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L223) |
 | <a id="property-shapetype-3"></a> `shapeType?` | `string` | The emitting shape's type (`Shape._name`: "Bar", "Line", "Circle", …), carried so pointer handlers can route shape-class-scoped events (`"click.Bar"`) without reconstructing the source shape. Interaction metadata only — backends never read it for drawing. | [`NodeBase`](#nodebase).[`shapeType`](#property-shapetype-6) | [scene.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L215) |
 | <a id="property-startangle-4"></a> `startAngle?` | `number` | A radial node's angular range in radians (currently only Pie/Donut wedges). Interaction metadata only — backends never read it for drawing. Lets the drill-down morph's click capture (chart-agnostic) carry the clicked node's angular position through to the next draw, where the same chart that emitted it (the only place with an arc generator) can build a geometrically real entering-wedge start shape confined within it (see `PathNode.flipFromArc`). | [`NodeBase`](#nodebase).[`startAngle`](#property-startangle-7) | [scene.ts:263](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L263) |
-| <a id="property-style-1"></a> `style?` | `Record`\<`string`, `string` \| `number`\> | Optional inline-style key/value record applied to the host <div>. | - | [scene.ts:479](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L479) |
+| <a id="property-style-1"></a> `style?` | `Record`\<`string`, `string` \| `number`\> | Optional inline-style key/value record applied to the host <div>. | - | [scene.ts:495](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L495) |
 | <a id="property-trail-3"></a> `trail?` | `boolean` | Hint for the animate layer to draw a motion trail (a tapering cone that fades from the mark's color at its current position to transparent at its previous one) as it moves between frames — e.g. points sliding year-to-year on Timeline play. Honored for point (circle) and rect marks. | [`NodeBase`](#nodebase).[`trail`](#property-trail-6) | [scene.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L237) |
 | <a id="property-trailpersist-3"></a> `trailPersist?` | `number` \| `boolean` | How many past moves the trail keeps visible (a persistent trail). `0`/unset is the default ephemeral trail (only the current move, fading out on arrival). A number keeps that many step-segments, fading older ones to transparent; `true` keeps a long slowly-fading tail. The animate layer chains each segment's cone geometry and gradient so the path curves and fades continuously through the mark's history. | [`NodeBase`](#nodebase).[`trailPersist`](#property-trailpersist-6) | [scene.ts:246](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L246) |
 | <a id="property-transform-3"></a> `transform?` | [`Transform`](#transform) | - | [`NodeBase`](#nodebase).[`transform`](#property-transform-6) | [scene.ts:224](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L224) |
-| <a id="property-type-3"></a> `type` | `"htmlOverlay"` | - | - | [scene.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L465) |
-| <a id="property-width"></a> `width?` | `number` | Optional explicit width (defaults to content-driven). | - | [scene.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L471) |
-| <a id="property-x"></a> `x` | `number` | Top-left x position in scene coordinates. | - | [scene.ts:467](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L467) |
-| <a id="property-y"></a> `y` | `number` | Top-left y position in scene coordinates. | - | [scene.ts:469](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L469) |
+| <a id="property-type-3"></a> `type` | `"htmlOverlay"` | - | - | [scene.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L481) |
+| <a id="property-width"></a> `width?` | `number` | Optional explicit width (defaults to content-driven). | - | [scene.ts:487](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L487) |
+| <a id="property-x"></a> `x` | `number` | Top-left x position in scene coordinates. | - | [scene.ts:483](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L483) |
+| <a id="property-y"></a> `y` | `number` | Top-left y position in scene coordinates. | - | [scene.ts:485](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L485) |
 | <a id="property-z-3"></a> `z?` | `number` | Z-order within the parent group; stable sort key replacing DOM append order. | [`NodeBase`](#nodebase).[`z`](#property-z-6) | [scene.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L230) |
 
 ***
@@ -2226,7 +2304,7 @@ Describes where a renderer should mount. The container is renderer-agnostic
 
 ### Scene
 
-Defined in: [scene.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L539)
+Defined in: [scene.ts:555](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L555)
 
 Scene
 A complete, backend-agnostic description of one frame of a visualization.
@@ -2235,12 +2313,12 @@ A complete, backend-agnostic description of one frame of a visualization.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-height-4"></a> `height` | `number` | - | [scene.ts:542](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L542) |
-| <a id="property-meta"></a> `meta?` | `object` | - | [scene.ts:543](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L543) |
-| `meta.background?` | `string` | - | [scene.ts:544](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L544) |
-| `meta.pixelRatio?` | `number` | Device pixel ratio hint for HiDPI canvas rendering. | [scene.ts:546](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L546) |
-| <a id="property-root"></a> `root` | [`GroupNode`](#groupnode) | - | [scene.ts:540](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L540) |
-| <a id="property-width-4"></a> `width` | `number` | - | [scene.ts:541](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L541) |
+| <a id="property-height-4"></a> `height` | `number` | - | [scene.ts:558](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L558) |
+| <a id="property-meta"></a> `meta?` | `object` | - | [scene.ts:559](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L559) |
+| `meta.background?` | `string` | - | [scene.ts:560](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L560) |
+| `meta.pixelRatio?` | `number` | Device pixel ratio hint for HiDPI canvas rendering. | [scene.ts:562](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L562) |
+| <a id="property-root"></a> `root` | [`GroupNode`](#groupnode) | - | [scene.ts:556](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L556) |
+| <a id="property-width-4"></a> `width` | `number` | - | [scene.ts:557](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L557) |
 
 ***
 
@@ -2332,6 +2410,7 @@ Fields shared by every scene node.
 | <a id="property-aria-9"></a> `aria?` | [`AriaSpec`](#ariaspec) | - | [`NodeBase`](#nodebase).[`aria`](#property-aria-6) | [scene.ts:228](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L228) |
 | <a id="property-datum-11"></a> `datum?` | `DataPoint` | The original (unwrapped) datum, carried for interaction callbacks — not for drawing. | [`NodeBase`](#nodebase).[`datum`](#property-datum-7) | [scene.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L199) |
 | <a id="property-endangle-10"></a> `endAngle?` | `number` | - | [`NodeBase`](#nodebase).[`endAngle`](#property-endangle-7) | [scene.ts:264](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L264) |
+| <a id="property-fadeswap"></a> `fadeSwap?` | [`FadeSwap`](#fadeswap) | Moves by fading instead of gliding: when an animated draw changes this label's text, position, or size, it fades out in place over the first `out` share of the transition's eased progress, takes its new layout while hidden, and fades back in over the last `in` share. Entering, it stays hidden until that last share; exiting, it fades out over the first. A draw that leaves it unchanged leaves it alone. See `fadeSwapOpacity`. | - | [scene.ts:416](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L416) |
 | <a id="property-flipfromtransform"></a> `flipFromTransform?` | `object` | A chart-computed override for the drill-morph enter start (see `collapseTo`'s `shapeType: "Label"` case): this label's own real position (`transform.x/y`), remapped the same geometric way its shape is — e.g. a Pie/Donut label keeps its own radius but has its ANGLE confined within the clicked parent's old angular range, mirroring `PathNode.flipFromArc` — instead of `collapseTo`'s generic Cartesian body→target point mapping (`proportionalPoint`), which has no notion of a circular layout and puts the label somewhere unrelated to where its own (angularly confined) shape actually starts. | - | [scene.ts:406](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L406) |
 | `flipFromTransform.x` | `number` | - | - | [scene.ts:406](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L406) |
 | `flipFromTransform.y` | `number` | - | - | [scene.ts:406](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L406) |
@@ -2493,7 +2572,7 @@ Defined in: [scene.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/r
 
 > **Interp**\<`T`\> = (`t`: `number`) => `T`
 
-Defined in: [animate/interpolate.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L65)
+Defined in: [animate/interpolate.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L66)
 
 #### Type Parameters
 
@@ -2539,4 +2618,4 @@ Defined in: [Renderer.ts:137](https://github.com/d3plus/d3plus/blob/main/package
 
 > **SceneNode** = [`RectNode`](#rectnode) \| [`CircleNode`](#circlenode) \| [`LineNode`](#linenode) \| [`AreaNode`](#areanode) \| [`PathNode`](#pathnode) \| [`ImageNode`](#imagenode) \| [`TextNode`](#textnode) \| [`GroupNode`](#groupnode) \| [`HtmlOverlayNode`](#htmloverlaynode)
 
-Defined in: [scene.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L524)
+Defined in: [scene.ts:540](https://github.com/d3plus/d3plus/blob/main/packages/render/src/scene.ts#L540)

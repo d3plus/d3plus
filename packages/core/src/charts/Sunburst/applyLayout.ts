@@ -12,7 +12,6 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {stampShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {sunburstEmit} from "./emit.js";
 import {sunburstCollapse, sunburstRadii} from "./geometry.js";
 import type {SunburstArc, SunburstRingSize} from "./geometry.js";
 import {sunburstLayout} from "./partition.js";
@@ -132,41 +131,6 @@ export function sunburstReturning(
   return enter;
 }
 
-/**
-    Keeps the given arcs' labels off this draw, then repaints with them once
-    the transition ends so they fade in. A zoom-out holds every label: the
-    returning ones would appear over arcs still sweeping into place, and the
-    zoomed view's own would slide across the middle on their way to their new
-    arcs. The release is timed from the paint, which follows this stage within
-    the same synchronous pipeline, and any later layout cancels it.
-*/
-export function holdLabels(viz: VizInstance, ids: Iterable<string>): void {
-  const duration = Number(viz.schema.duration) || 0;
-  const held = duration > 0 ? new Set(ids) : new Set<string>();
-  viz.ctx.sunburstHeldLabels = held;
-  viz.ctx.sunburstLabelRelease = undefined;
-  if (!held.size) return;
-  const release = {};
-  viz.ctx.sunburstLabelRelease = release;
-  setTimeout(
-    () =>
-      setTimeout(() => {
-        if (viz.ctx.sunburstLabelRelease !== release) return;
-        viz.ctx.sunburstLabelRelease = undefined;
-        viz.ctx.sunburstHeldLabels = new Set<string>();
-        viz.ctx.sunburstEnterArcs = new Map<string, SunburstArc>();
-        viz.ctx.sunburstGhosts = [];
-        const shapeData = (viz.ctx.sunburstLaid ??
-          []) as unknown as DataPoint[];
-        viz._chartScene = sunburstEmit({viz, shapeData} as Parameters<
-          typeof sunburstEmit
-        >[0]);
-        viz._drawSceneToTarget(duration);
-      }, duration),
-    0,
-  );
-}
-
 /** The layout a render animates from: the last one drawn before it, plus a pending zoom-in origin. */
 interface SunburstRenderBase {
   laid?: SunburstNode[];
@@ -265,10 +229,6 @@ export const applySunburstLayout: TransformStage = ({viz}) => {
       : new Map<string, SunburstArc>();
   viz.ctx.sunburstLaid = nodes;
   viz.ctx.sunburstRadii = radii;
-  const zoomedOut = previous
-    ? sunburstZoomOutFocus(previous, nodes)
-    : undefined;
-  holdLabels(viz, zoomedOut ? nodes.map(n => n.id) : []);
 
   const lookup = viz.ctx.sunburstNodes as Map<DataPoint, SunburstNode>;
   for (const node of nodes) {

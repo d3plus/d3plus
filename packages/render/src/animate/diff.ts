@@ -1,5 +1,13 @@
-import type {GroupNode, Scene, SceneNode, TransitionRect} from "../scene.js";
-import {arcEnterStart, collapse, collapseTo, interpolateNode, isFlipEligible} from "./interpolate.js";
+import type {GroupNode, Scene, SceneNode, TextNode, TransitionRect} from "../scene.js";
+import {
+  arcEnterStart,
+  collapse,
+  collapseTo,
+  fadeSwapOpacity,
+  interpolateNode,
+  isFlipEligible,
+  sameTextLayout,
+} from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
 import {trailNode, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "./trail.js";
 import type {TrailSpec} from "./trail.js";
@@ -80,6 +88,36 @@ export interface FlipTransition {
   instantExitAll?: boolean;
 }
 
+/** A node's painted opacity. */
+const opacityOf = (n: SceneNode): number => n.paint?.opacity ?? 1;
+
+/**
+    The interpolator for a `fadeSwap` text node (see `TextNode.fadeSwap`),
+    or null when the node doesn't swap this draw: it has no `fadeSwap`, or
+    an update leaves its layout unchanged.
+*/
+function fadeSwapInterp(
+  from: SceneNode | undefined,
+  to: SceneNode | undefined,
+): Interp<SceneNode> | null {
+  const node = (to ?? from) as TextNode | undefined;
+  if (!node || node.type !== "text" || !node.fadeSwap) return null;
+  const swap = node.fadeSwap;
+  if (from && to) {
+    if (from.type !== "text" || sameTextLayout(from as TextNode, to as TextNode)) return null;
+    return t => {
+      const {opacity, swapped} = fadeSwapOpacity(t, swap, opacityOf(from), opacityOf(to), "update");
+      const base = swapped ? to : from;
+      return {...base, paint: {...base.paint, opacity}} as SceneNode;
+    };
+  }
+  const phase = to ? "enter" : "exit";
+  return t => {
+    const {opacity} = fadeSwapOpacity(t, swap, opacityOf(node), opacityOf(node), phase);
+    return {...node, paint: {...node.paint, opacity}} as SceneNode;
+  };
+}
+
 /** Recursively interpolates a list of sibling nodes between two frames. */
 function interpolateChildren(
   prev: SceneNode[],
@@ -98,6 +136,8 @@ function interpolateChildren(
   const trailSpecs: TrailSpec[] = [];
   const persist: {key: string | number; persist: number | boolean}[] = [];
   const updaters: Interp<SceneNode>[] = update.map(([a, b]) => {
+    const swap = fadeSwapInterp(a, b);
+    if (swap) return swap;
     if (a.type === "group" && b.type === "group") {
       return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children, log, flip));
     }
@@ -114,6 +154,8 @@ function interpolateChildren(
   });
 
   const enters: Interp<SceneNode>[] = enter.map(n => {
+    const swap = fadeSwapInterp(undefined, n);
+    if (swap) return swap;
     // The drill-up reunion node starts at the full size its former children
     // currently occupy and animates down to its own real target — see
     // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
@@ -143,6 +185,8 @@ function interpolateChildren(
       : exit.filter(n => n.key !== flip.instantExitKey);
 
   const exits: Interp<SceneNode>[] = animatedExit.map(n => {
+    const swap = fadeSwapInterp(n, undefined);
+    if (swap) return swap;
     const end = flip?.exitTo && isFlipEligible(n)
       ? collapseTo(n, flip.exitTo, flip.exitToBody)
       : collapse(n);
