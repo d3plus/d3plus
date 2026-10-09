@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <script src="../../umd/d3plus-core.full.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .controls {
+        padding: 8px 16px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
+        padding: 0 16px 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+      #dark {
+        background: #212529;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="controls">
+      Renderer:
+      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
+      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+    </div>
+    <div class="grid">
+      <section>
+        <h3>Default level labels</h3>
+        <div class="viz" id="default"></div>
+      </section>
+      <section>
+        <h3>levels([0, 25, 50, 75, 100]) + levelFormat percent</h3>
+        <div class="viz" id="explicit"></div>
+      </section>
+      <section>
+        <h3>levelLabelAngle(22.5) + levelLabelConfig</h3>
+        <div class="viz" id="angle"></div>
+      </section>
+      <section>
+        <h3>levelLabels(false)</h3>
+        <div class="viz" id="hidden"></div>
+      </section>
+      <section>
+        <h3>Dark background (#212529)</h3>
+        <div class="viz" id="dark"></div>
+      </section>
+    </div>
+
+    <script>
+
+      const metrics = ["Speed", "Power", "Range", "Comfort", "Safety", "Price", "Design", "Support"];
+      const scores = ["2024", "2025"].flatMap((group, g) =>
+        metrics.map((metric, m) => ({group, metric, value: 30 + ((m * 23 + g * 37) % 65)})));
+
+      const skills = [
+        {group: "Ana", metric: "Frontend", value: 140},
+        {group: "Ana", metric: "Backend", value: 85},
+        {group: "Ana", metric: "Design", value: 160},
+        {group: "Ana", metric: "Testing", value: 60},
+        {group: "Ana", metric: "Ops", value: 45},
+        {group: "Ana", metric: "Writing", value: 120},
+        {group: "Ben", metric: "Frontend", value: 70},
+        {group: "Ben", metric: "Backend", value: 175},
+        {group: "Ben", metric: "Design", value: 40},
+        {group: "Ben", metric: "Testing", value: 130},
+        {group: "Ben", metric: "Ops", value: 150},
+        {group: "Ben", metric: "Writing", value: 65},
+      ];
+
+      const radar = (id, data) => new d3plus.Radar()
+        .select(`#${id}`)
+        .data(data)
+        .groupBy("group")
+        .metric("metric")
+        .value("value")
+        .shapeConfig({Path: {opacity: 0.7}});
+
+      const charts = [
+        radar("default", skills),
+        radar("explicit", scores)
+          .levels([0, 25, 50, 75, 100])
+          .levelFormat(d => `${d}%`),
+        radar("angle", skills)
+          .levels(4)
+          .levelLabelAngle(22.5)
+          .levelLabelConfig({fontSize: 11, fontWeight: 600}),
+        radar("hidden", skills)
+          .levelLabels(false),
+        radar("dark", scores)
+          .levels([0, 25, 50, 75, 100])
+          .levelFormat(d => `${d}%`),
+      ];
+
+      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      draw("svg");
+
+      document.querySelectorAll("input[name=renderer]").forEach(input =>
+        input.addEventListener("change", () => draw(input.value)));
+
+    </script>
+
+  </body>
+
+</html>

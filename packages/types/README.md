@@ -326,7 +326,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -353,7 +353,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -604,7 +604,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -635,7 +635,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -676,7 +676,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -704,7 +704,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -738,7 +738,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -773,7 +773,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -811,7 +811,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -827,7 +827,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -917,7 +917,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -933,7 +933,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -1063,7 +1063,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -1087,7 +1087,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -1494,7 +1494,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -1521,7 +1521,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -1702,7 +1702,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -1733,7 +1733,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -1795,7 +1795,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1823,7 +1823,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1857,7 +1857,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1892,7 +1892,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1984,7 +1984,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -2000,7 +2000,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -2184,7 +2184,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -2208,7 +2208,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -2427,7 +2427,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -2454,7 +2454,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -2659,7 +2659,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -2690,7 +2690,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -2756,7 +2756,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2784,7 +2784,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2818,7 +2818,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2853,7 +2853,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2957,7 +2957,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -2973,7 +2973,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -3181,7 +3181,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -3205,7 +3205,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -3424,7 +3424,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -3451,7 +3451,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -3656,7 +3656,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -3687,7 +3687,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -3753,7 +3753,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3781,7 +3781,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3815,7 +3815,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3850,7 +3850,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3954,7 +3954,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -3970,7 +3970,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -4178,7 +4178,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -4202,7 +4202,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -4421,7 +4421,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -4448,7 +4448,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -4653,7 +4653,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -4684,7 +4684,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -4750,7 +4750,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4778,7 +4778,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4812,7 +4812,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4847,7 +4847,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4951,7 +4951,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -4967,7 +4967,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -5175,7 +5175,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -5199,7 +5199,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -5418,7 +5418,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -5445,7 +5445,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -5650,7 +5650,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -5681,7 +5681,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -5747,7 +5747,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5775,7 +5775,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5809,7 +5809,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5844,7 +5844,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5948,7 +5948,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -5964,7 +5964,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -6172,7 +6172,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6196,7 +6196,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6337,7 +6337,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -6364,7 +6364,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -6615,7 +6615,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -6646,7 +6646,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -6687,7 +6687,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6715,7 +6715,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6749,7 +6749,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6784,7 +6784,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6822,7 +6822,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -6838,7 +6838,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -6928,7 +6928,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -6944,7 +6944,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -7074,7 +7074,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7098,7 +7098,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7299,7 +7299,7 @@ Provides shared configuration, event handling, and locale management inherited b
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -7322,7 +7322,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -7389,7 +7389,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7416,7 +7416,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7453,7 +7453,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7477,7 +7477,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7507,7 +7507,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7538,7 +7538,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7572,7 +7572,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -7584,7 +7584,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -7606,7 +7606,7 @@ Parent config used by the wrapper.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -7618,7 +7618,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -7640,7 +7640,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7660,7 +7660,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7733,7 +7733,7 @@ The active highlight state for all sub-shapes in this Box.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -7760,7 +7760,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -7897,7 +7897,7 @@ The hover highlight state for all sub-shapes in this Box.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7928,7 +7928,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -8003,7 +8003,7 @@ Configuration object for the median line.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8031,7 +8031,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8065,7 +8065,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8100,7 +8100,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8172,7 +8172,7 @@ Configuration object for each outlier point.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -8188,7 +8188,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -8296,7 +8296,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -8312,7 +8312,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -8356,7 +8356,7 @@ group so collectComputed(boxInstance) yields the union.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -8380,7 +8380,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -8555,7 +8555,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -8582,7 +8582,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -8833,7 +8833,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -8864,7 +8864,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -8905,7 +8905,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8933,7 +8933,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8967,7 +8967,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9002,7 +9002,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9040,7 +9040,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -9056,7 +9056,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -9146,7 +9146,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -9162,7 +9162,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -9292,7 +9292,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9316,7 +9316,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9407,7 +9407,7 @@ The ColorScale is constructed by combining an Axis for the ticks/labels and a Re
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -9434,7 +9434,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -9683,7 +9683,7 @@ Configuration passed to the Legend that draws the scale when its values are rend
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -9714,7 +9714,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -9755,7 +9755,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9783,7 +9783,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9817,7 +9817,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9852,7 +9852,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9910,7 +9910,7 @@ Returns the outer bounds of the ColorScale content. Must be called after renderi
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -9926,7 +9926,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -10040,7 +10040,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -10056,7 +10056,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -10106,7 +10106,7 @@ and the discrete variant use concrete per-bucket fills.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -10130,7 +10130,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -10392,7 +10392,7 @@ The active method for all shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -10419,7 +10419,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -10552,7 +10552,7 @@ The hover method for all shapes.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -10583,7 +10583,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -10624,7 +10624,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10652,7 +10652,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10686,7 +10686,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10721,7 +10721,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10779,7 +10779,7 @@ Returns the outer bounds of the legend content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -10795,7 +10795,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -10968,7 +10968,7 @@ the x/y accessors against this._lineData / this._outerBounds).
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -10992,7 +10992,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -11133,7 +11133,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -11160,7 +11160,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -11411,7 +11411,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -11442,7 +11442,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -11483,7 +11483,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11511,7 +11511,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11545,7 +11545,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11580,7 +11580,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11618,7 +11618,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -11634,7 +11634,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -11724,7 +11724,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -11740,7 +11740,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -11870,7 +11870,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -11894,7 +11894,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -12035,7 +12035,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -12062,7 +12062,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -12313,7 +12313,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -12344,7 +12344,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -12385,7 +12385,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -12413,7 +12413,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -12447,7 +12447,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -12482,7 +12482,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -12520,7 +12520,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -12536,7 +12536,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -12626,7 +12626,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -12642,7 +12642,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -12772,7 +12772,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -12796,7 +12796,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -13155,7 +13155,7 @@ Defines the main color to be used for each data point in a visualization. Can be
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -13182,7 +13182,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -14160,7 +14160,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -14191,7 +14191,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -14448,7 +14448,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -14476,7 +14476,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -14510,7 +14510,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -14545,7 +14545,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -14583,7 +14583,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -14599,7 +14599,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -15826,7 +15826,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -15850,7 +15850,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -16420,7 +16420,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -16447,7 +16447,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -16698,7 +16698,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -16729,7 +16729,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -16770,7 +16770,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16798,7 +16798,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16832,7 +16832,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16867,7 +16867,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16905,7 +16905,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -16921,7 +16921,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -17011,7 +17011,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -17027,7 +17027,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -17157,7 +17157,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -17181,7 +17181,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -17315,7 +17315,7 @@ The style to apply to active shapes.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -17342,7 +17342,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -17561,7 +17561,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -17592,7 +17592,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -17633,7 +17633,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -17661,7 +17661,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -17695,7 +17695,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -17730,7 +17730,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -17768,7 +17768,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -17784,7 +17784,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -17862,7 +17862,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -17878,7 +17878,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -17988,7 +17988,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18012,7 +18012,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18085,7 +18085,7 @@ new SizeLegend()
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -18112,7 +18112,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -18275,7 +18275,7 @@ Paint for the leader lines: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDas
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -18306,7 +18306,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -18347,7 +18347,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18375,7 +18375,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18409,7 +18409,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18444,7 +18444,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18501,7 +18501,7 @@ The width and height of the last layout, in pixels.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -18517,7 +18517,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -18697,7 +18697,7 @@ optional transform.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18721,7 +18721,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18778,7 +18778,7 @@ Creates a wrapped text box for each point in an array of data.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -18805,7 +18805,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -18952,7 +18952,7 @@ Configures the ability to render simple HTML tags. Defaults to supporting `<b>`,
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -18983,7 +18983,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -19024,7 +19024,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19052,7 +19052,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19086,7 +19086,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19121,7 +19121,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19159,7 +19159,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -19175,7 +19175,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -19255,7 +19255,7 @@ The SVG container element as a d3 selector or DOM element. If not specified, an 
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -19271,7 +19271,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -19312,7 +19312,7 @@ layout (_textData) and per-line positioning render() applies to the DOM.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -19336,7 +19336,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -19555,7 +19555,7 @@ and other line styles for the marks.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -19582,7 +19582,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -19821,7 +19821,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -19852,7 +19852,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -20071,7 +20071,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -20087,7 +20087,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -20370,7 +20370,7 @@ lined up with the timeline.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -20394,7 +20394,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -20519,7 +20519,7 @@ CSS styles applied to the body element.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -20546,7 +20546,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -20693,7 +20693,7 @@ CSS styles applied to the footer element.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -20724,7 +20724,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -20765,7 +20765,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -20793,7 +20793,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -20827,7 +20827,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -20862,7 +20862,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -21004,7 +21004,7 @@ return [d.x, d.y];
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -21020,7 +21020,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -21316,7 +21316,7 @@ Overall CSS styles applied to the tooltip container.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -21340,7 +21340,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -21671,7 +21671,7 @@ Defines the main color to be used for each data point in a visualization. Can be
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -21698,7 +21698,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -22478,7 +22478,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -22509,7 +22509,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -22766,7 +22766,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -22794,7 +22794,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -22828,7 +22828,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -22863,7 +22863,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -22901,7 +22901,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -22917,7 +22917,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -24037,7 +24037,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -24061,7 +24061,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -24354,7 +24354,7 @@ The active highlight state for all sub-shapes in this Whisker.
 
 > **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:64
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -24381,7 +24381,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:65
 
 Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
 
@@ -24586,7 +24586,7 @@ Configuration object for the line shape.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -24617,7 +24617,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:46
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -24658,7 +24658,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:72
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -24686,7 +24686,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:73
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -24720,7 +24720,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:74
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -24755,7 +24755,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -24793,7 +24793,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:79
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -24809,7 +24809,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -24889,7 +24889,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:94
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -24905,7 +24905,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:95
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -24947,7 +24947,7 @@ endpoint shape's scene children.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:89
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -24971,7 +24971,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:90
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -27140,7 +27140,7 @@ Creates a Priestley timeline based on an array of data.
 
 > `const` **Radar**: () => `any`
 
-Defined in: core/types/src/charts/Radar/index.d.ts:13
+Defined in: core/types/src/charts/Radar/index.d.ts:17
 
 Creates a radar visualization based on an array of data.
 
@@ -27782,154 +27782,169 @@ Allows additional custom properties.
 | <a id="property-active-4"></a> `active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The active callback function for highlighting shapes. | core/types/src/utils/D3plusConfig.d.ts:342 |
 | <a id="property-aggs"></a> `aggs?` | `object` | Custom aggregation functions keyed by data property. | core/types/src/utils/D3plusConfig.d.ts:344 |
 | <a id="property-ariahidden"></a> `ariaHidden?` | `boolean` | Hides the SVG from assistive technology when true (`aria-hidden`). | core/types/src/utils/D3plusConfig.d.ts:348 |
-| <a id="property-attribution"></a> `attribution?` | `string` \| `boolean` | Text (rendered as HTML — any valid HTML string works, including anchor links) shown in the chart's bottom-right corner, most often a map tile credit. `false` (the default) shows nothing. A credit wider than half the chart area collapses to a small "ⓘ" badge that expands on hover, focus, or click. | core/types/src/utils/D3plusConfig.d.ts:356 |
-| <a id="property-attributionicon"></a> `attributionIcon?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) | Overrides the "ⓘ" badge a long attribution collapses to, which otherwise renders as an inline SVG. A string is used as the badge's raw HTML content; a mount function, `(el: HTMLElement) => void | (() => void)`, is called once with the badge's reserved element so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:366 |
-| <a id="property-attributionstyle"></a> `attributionStyle?` | `Record`\<`string`, `unknown`\> | CSS key/value pairs used to style the attribution text. | core/types/src/utils/D3plusConfig.d.ts:368 |
-| <a id="property-backcontrolclassname"></a> `backControlClassName?` | `string` | Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. | core/types/src/utils/D3plusConfig.d.ts:370 |
-| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:372 |
-| <a id="property-baseline-1"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | core/types/src/utils/D3plusConfig.d.ts:377 |
-| <a id="property-baselinebreak-1"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | core/types/src/utils/D3plusConfig.d.ts:391 |
-| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | core/types/src/utils/D3plusConfig.d.ts:393 |
-| <a id="property-colordefaults"></a> `colorDefaults?` | [`ColorDefaultsConfig`](#colordefaultsconfig) | Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). | core/types/src/utils/D3plusConfig.d.ts:395 |
-| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | core/types/src/utils/D3plusConfig.d.ts:397 |
-| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | core/types/src/utils/D3plusConfig.d.ts:399 |
-| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | core/types/src/utils/D3plusConfig.d.ts:401 |
-| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | core/types/src/utils/D3plusConfig.d.ts:402 |
-| `colorScaleConfig.centered?` | `boolean` | - | core/types/src/utils/D3plusConfig.d.ts:403 |
-| `colorScaleConfig.colorMax?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:407 |
-| `colorScaleConfig.colorMid?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:406 |
-| `colorScaleConfig.colorMin?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:405 |
-| `colorScaleConfig.colors?` | `string`[] | - | core/types/src/utils/D3plusConfig.d.ts:404 |
-| `colorScaleConfig.scale?` | `AxisScale` | - | core/types/src/utils/D3plusConfig.d.ts:408 |
-| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:411 |
-| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | core/types/src/utils/D3plusConfig.d.ts:413 |
-| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:415 |
-| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`), `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | core/types/src/utils/D3plusConfig.d.ts:421 |
-| <a id="property-crosshairconfig"></a> `crosshairConfig?` | `Record`\<`string`, `unknown`\> | Paint for the shared tooltip's crosshair guide line (`stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). | core/types/src/utils/D3plusConfig.d.ts:429 |
+| <a id="property-attribution"></a> `attribution?` | `string` \| `boolean` | Text (rendered as HTML — any valid HTML string works, including anchor links) shown in the chart's bottom-right corner, most often a map tile credit. `false` (the default) shows nothing. A credit wider than half the chart area collapses to a small "ⓘ" badge that expands on hover, focus, or click. | core/types/src/utils/D3plusConfig.d.ts:371 |
+| <a id="property-attributionicon"></a> `attributionIcon?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) | Overrides the "ⓘ" badge a long attribution collapses to, which otherwise renders as an inline SVG. A string is used as the badge's raw HTML content; a mount function, `(el: HTMLElement) => void | (() => void)`, is called once with the badge's reserved element so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:381 |
+| <a id="property-attributionstyle"></a> `attributionStyle?` | `Record`\<`string`, `unknown`\> | CSS key/value pairs used to style the attribution text. | core/types/src/utils/D3plusConfig.d.ts:383 |
+| <a id="property-axisconfig"></a> `axisConfig?` | `object` | The Radar's axis styles, named after the parts of a Plot axis: the inner level rings are its gridlines (`gridConfig`, a faint stroke like Plot's gridlines), the outer ring is its axis line (`barConfig`, the chart's background ink), and the spokes and metric labels are its ticks (`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring styles take `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, and `opacity` (or Plot's `"stroke-width"` spelling), each a value or a `(ring, i) => value` accessor. | core/types/src/utils/D3plusConfig.d.ts:359 |
+| `axisConfig.barConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:360 |
+| `axisConfig.gridConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:361 |
+| `axisConfig.shapeConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:362 |
+| <a id="property-backcontrolclassname"></a> `backControlClassName?` | `string` | Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. | core/types/src/utils/D3plusConfig.d.ts:385 |
+| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:387 |
+| <a id="property-baseline-1"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | core/types/src/utils/D3plusConfig.d.ts:392 |
+| <a id="property-baselinebreak-1"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | core/types/src/utils/D3plusConfig.d.ts:406 |
+| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | core/types/src/utils/D3plusConfig.d.ts:408 |
+| <a id="property-colordefaults"></a> `colorDefaults?` | [`ColorDefaultsConfig`](#colordefaultsconfig) | Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). | core/types/src/utils/D3plusConfig.d.ts:410 |
+| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | core/types/src/utils/D3plusConfig.d.ts:412 |
+| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | core/types/src/utils/D3plusConfig.d.ts:414 |
+| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | core/types/src/utils/D3plusConfig.d.ts:416 |
+| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | core/types/src/utils/D3plusConfig.d.ts:417 |
+| `colorScaleConfig.centered?` | `boolean` | - | core/types/src/utils/D3plusConfig.d.ts:418 |
+| `colorScaleConfig.colorMax?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:422 |
+| `colorScaleConfig.colorMid?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:421 |
+| `colorScaleConfig.colorMin?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:420 |
+| `colorScaleConfig.colors?` | `string`[] | - | core/types/src/utils/D3plusConfig.d.ts:419 |
+| `colorScaleConfig.scale?` | `AxisScale` | - | core/types/src/utils/D3plusConfig.d.ts:423 |
+| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:426 |
+| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | core/types/src/utils/D3plusConfig.d.ts:428 |
+| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:430 |
+| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`), `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | core/types/src/utils/D3plusConfig.d.ts:436 |
+| <a id="property-crosshairconfig"></a> `crosshairConfig?` | `Record`\<`string`, `unknown`\> | Paint for the shared tooltip's crosshair guide line (`stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). | core/types/src/utils/D3plusConfig.d.ts:444 |
 | <a id="property-data-5"></a> `data?` | `string` \| [`DataPoint`](#datapoint)[] | Data array or URL string to load data from. | core/types/src/utils/D3plusConfig.d.ts:338 |
-| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | core/types/src/utils/D3plusConfig.d.ts:431 |
-| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | core/types/src/utils/D3plusConfig.d.ts:433 |
-| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | core/types/src/utils/D3plusConfig.d.ts:435 |
-| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | core/types/src/utils/D3plusConfig.d.ts:437 |
-| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:439 |
-| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | core/types/src/utils/D3plusConfig.d.ts:441 |
-| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) \| (`d`: [`DataPoint`](#datapoint)) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | core/types/src/utils/D3plusConfig.d.ts:443 |
-| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:445 |
-| <a id="property-height-2"></a> `height?` | `number` | Overall height of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:447 |
-| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:449 |
-| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:451 |
-| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | core/types/src/utils/D3plusConfig.d.ts:455 |
-| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | core/types/src/utils/D3plusConfig.d.ts:453 |
-| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | core/types/src/utils/D3plusConfig.d.ts:457 |
-| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: [`DataPoint`](#datapoint)[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant. | core/types/src/utils/D3plusConfig.d.ts:464 |
-| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | core/types/src/utils/D3plusConfig.d.ts:466 |
-| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | core/types/src/utils/D3plusConfig.d.ts:467 |
-| `legendConfig.shape?` | `DataPointAccessor`\<`string`\> | Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"` (a dot with a short stroke through it). Defaults to the shape of the series it stands for: a dot for Circles, the line glyph for Lines, and a square for everything else. | core/types/src/utils/D3plusConfig.d.ts:474 |
-| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:475 |
-| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:478 |
-| <a id="property-legendinset"></a> `legendInset?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig)) => `boolean`) | Whether one legend may be drawn inside the empty space around the chart's marks instead of in a margin (size legend first, then legend, then colorScale), or an accessor receiving the resolved config. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:484 |
-| <a id="property-legendinsetconfig"></a> `legendInsetConfig?` | `object` | Style of the semi-transparent box behind a legend drawn inside the chart. | core/types/src/utils/D3plusConfig.d.ts:486 |
-| `legendInsetConfig.fill?` | `string` | Box fill; defaults to the chart's background color. | core/types/src/utils/D3plusConfig.d.ts:488 |
-| `legendInsetConfig.fillOpacity?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:489 |
-| `legendInsetConfig.margin?` | `number` | Space between the box's edge and the legend inside it. | core/types/src/utils/D3plusConfig.d.ts:495 |
-| `legendInsetConfig.padding?` | `number` | Space kept between the box and the chart's marks and edges. | core/types/src/utils/D3plusConfig.d.ts:497 |
-| `legendInsetConfig.rx?` | `number` | Corner radius. | core/types/src/utils/D3plusConfig.d.ts:493 |
-| `legendInsetConfig.stroke?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:490 |
-| `legendInsetConfig.strokeWidth?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:491 |
-| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:500 |
-| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:502 |
-| <a id="property-legendsort"></a> `legendSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort comparator for legend items. | core/types/src/utils/D3plusConfig.d.ts:504 |
-| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | core/types/src/utils/D3plusConfig.d.ts:506 |
-| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | core/types/src/utils/D3plusConfig.d.ts:508 |
-| <a id="property-link"></a> `link?` | [`LinkOption`](#linkoption) | Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. | core/types/src/utils/D3plusConfig.d.ts:510 |
-| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:514 |
-| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | core/types/src/utils/D3plusConfig.d.ts:512 |
+| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | core/types/src/utils/D3plusConfig.d.ts:446 |
+| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | core/types/src/utils/D3plusConfig.d.ts:448 |
+| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | core/types/src/utils/D3plusConfig.d.ts:450 |
+| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | core/types/src/utils/D3plusConfig.d.ts:452 |
+| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:454 |
+| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | core/types/src/utils/D3plusConfig.d.ts:456 |
+| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) \| (`d`: [`DataPoint`](#datapoint)) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | core/types/src/utils/D3plusConfig.d.ts:458 |
+| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:460 |
+| <a id="property-height-2"></a> `height?` | `number` | Overall height of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:462 |
+| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:464 |
+| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:466 |
+| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | core/types/src/utils/D3plusConfig.d.ts:470 |
+| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | core/types/src/utils/D3plusConfig.d.ts:468 |
+| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | core/types/src/utils/D3plusConfig.d.ts:472 |
+| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: [`DataPoint`](#datapoint)[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant. | core/types/src/utils/D3plusConfig.d.ts:479 |
+| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | core/types/src/utils/D3plusConfig.d.ts:481 |
+| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | core/types/src/utils/D3plusConfig.d.ts:482 |
+| `legendConfig.shape?` | `DataPointAccessor`\<`string`\> | Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"` (a dot with a short stroke through it). Defaults to the shape of the series it stands for: a dot for Circles, the line glyph for Lines, and a square for everything else. | core/types/src/utils/D3plusConfig.d.ts:489 |
+| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:490 |
+| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:493 |
+| <a id="property-legendinset"></a> `legendInset?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig)) => `boolean`) | Whether one legend may be drawn inside the empty space around the chart's marks instead of in a margin (size legend first, then legend, then colorScale), or an accessor receiving the resolved config. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:499 |
+| <a id="property-legendinsetconfig"></a> `legendInsetConfig?` | `object` | Style of the semi-transparent box behind a legend drawn inside the chart. | core/types/src/utils/D3plusConfig.d.ts:501 |
+| `legendInsetConfig.fill?` | `string` | Box fill; defaults to the chart's background color. | core/types/src/utils/D3plusConfig.d.ts:503 |
+| `legendInsetConfig.fillOpacity?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:504 |
+| `legendInsetConfig.margin?` | `number` | Space between the box's edge and the legend inside it. | core/types/src/utils/D3plusConfig.d.ts:510 |
+| `legendInsetConfig.padding?` | `number` | Space kept between the box and the chart's marks and edges. | core/types/src/utils/D3plusConfig.d.ts:512 |
+| `legendInsetConfig.rx?` | `number` | Corner radius. | core/types/src/utils/D3plusConfig.d.ts:508 |
+| `legendInsetConfig.stroke?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:505 |
+| `legendInsetConfig.strokeWidth?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:506 |
+| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:515 |
+| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:517 |
+| <a id="property-legendsort"></a> `legendSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort comparator for legend items. | core/types/src/utils/D3plusConfig.d.ts:519 |
+| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | core/types/src/utils/D3plusConfig.d.ts:521 |
+| <a id="property-levelformat"></a> `levelFormat?` | (`d`: `number`) => `string` \| `number` | Formats the Radar's level value labels. Receives the ring's value and returns its label. Defaults to the abbreviated number format the axes use (`1.5k`, `2M`, …). | core/types/src/utils/D3plusConfig.d.ts:527 |
+| <a id="property-levellabelangle"></a> `levelLabelAngle?` | `number` | Direction of the Radar's level value labels, in degrees clockwise from 12 o'clock. `0` (the default) runs the labels straight up from the center. Each label sits just inside its ring, offset to the clockwise side of that direction so neither line crosses the text. Spokes start at 3 o'clock, so the spoke for the metric at index `i` of `n` sits at `90 + 360 * i / n` degrees. | core/types/src/utils/D3plusConfig.d.ts:536 |
+| <a id="property-levellabelconfig"></a> `levelLabelConfig?` | `object` | Style of the Radar's level value labels. | core/types/src/utils/D3plusConfig.d.ts:538 |
+| `levelLabelConfig.fontColor?` | `string` | Text color. Defaults to the color that contrasts with the chart's background. | core/types/src/utils/D3plusConfig.d.ts:540 |
+| `levelLabelConfig.fontFamily?` | `string` \| `string`[] | Font family. Defaults to the chart's `fontFamily`. | core/types/src/utils/D3plusConfig.d.ts:542 |
+| `levelLabelConfig.fontOpacity?` | `number` | Text opacity. Defaults to `1`. | core/types/src/utils/D3plusConfig.d.ts:544 |
+| `levelLabelConfig.fontSize?` | `number` | Font size, in pixels. Defaults to `10`. | core/types/src/utils/D3plusConfig.d.ts:546 |
+| `levelLabelConfig.fontWeight?` | `string` \| `number` | Font weight. Defaults to `400`. | core/types/src/utils/D3plusConfig.d.ts:548 |
+| <a id="property-levellabels"></a> `levelLabels?` | `boolean` | Whether the Radar labels each level ring with its value. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:551 |
+| <a id="property-levels"></a> `levels?` | `number` \| `number`[] | The Radar's level rings. A number (default `6`) is the approximate ring count: the radial domain is rounded out to "nice" values and the rings sit on its ticks, the same way axis ticks are chosen. An array sets the exact ring values. | core/types/src/utils/D3plusConfig.d.ts:558 |
+| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | core/types/src/utils/D3plusConfig.d.ts:560 |
+| <a id="property-link"></a> `link?` | [`LinkOption`](#linkoption) | Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. | core/types/src/utils/D3plusConfig.d.ts:562 |
+| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:566 |
+| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | core/types/src/utils/D3plusConfig.d.ts:564 |
 | <a id="property-locale"></a> `locale?` | `string` | Locale code used for text and number formatting. | core/types/src/utils/D3plusConfig.d.ts:340 |
-| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | core/types/src/utils/D3plusConfig.d.ts:516 |
-| <a id="property-minimap"></a> `minimap?` | `boolean` | Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. | core/types/src/utils/D3plusConfig.d.ts:518 |
-| <a id="property-minimapclassname"></a> `minimapClassName?` | `string` | Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:520 |
-| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:522 |
-| <a id="property-ocean"></a> `ocean?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | Ocean color for geomaps (any CSS value including 'transparent'), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors. | core/types/src/utils/D3plusConfig.d.ts:528 |
-| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | core/types/src/utils/D3plusConfig.d.ts:533 |
-| <a id="property-point"></a> `point?` | (`d`: [`DataPoint`](#datapoint)) => `number`[] | Coordinate accessor for point-based geomaps. | core/types/src/utils/D3plusConfig.d.ts:535 |
-| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | Point size accessor for geomaps. | core/types/src/utils/D3plusConfig.d.ts:537 |
-| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:541 |
-| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:539 |
-| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | core/types/src/utils/D3plusConfig.d.ts:543 |
-| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | core/types/src/utils/D3plusConfig.d.ts:545 |
-| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | core/types/src/utils/D3plusConfig.d.ts:547 |
-| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:549 |
-| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:551 |
-| <a id="property-search"></a> `search?` | `boolean` | Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:553 |
-| <a id="property-searchaccessor"></a> `searchAccessor?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. | core/types/src/utils/D3plusConfig.d.ts:555 |
-| <a id="property-searchcontrolclassname"></a> `searchControlClassName?` | `string` | Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. | core/types/src/utils/D3plusConfig.d.ts:557 |
-| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | core/types/src/utils/D3plusConfig.d.ts:559 |
-| `shapeConfig.duration?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:560 |
-| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | core/types/src/utils/D3plusConfig.d.ts:569 |
-| <a id="property-size"></a> `size?` | `string` | Size accessor key. | core/types/src/utils/D3plusConfig.d.ts:571 |
-| <a id="property-sizelegend"></a> `sizeLegend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) | Controls size-legend visibility — the nested-circle key drawn in the bottom-right corner of charts that size their marks. Shown by default whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height; pass `true` to always show it, `false` to hide it, or a `(config, scale, size) => boolean` accessor. | core/types/src/utils/D3plusConfig.d.ts:580 |
-| <a id="property-sizelegendconfig"></a> `sizeLegendConfig?` | [`SizeLegendConfig`](#sizelegendconfig-3) | Configuration for the size-legend component. | core/types/src/utils/D3plusConfig.d.ts:582 |
-| <a id="property-sizelegendposition"></a> `sizeLegendPosition?` | `"right"` \| `"bottom"` | Which margin the size legend claims in the bottom-right corner: `"right"` (default) keeps the chart's full height, `"bottom"` its full width. | core/types/src/utils/D3plusConfig.d.ts:588 |
-| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | core/types/src/utils/D3plusConfig.d.ts:590 |
-| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | core/types/src/utils/D3plusConfig.d.ts:597 |
-| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`); \} \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | core/types/src/utils/D3plusConfig.d.ts:606 |
-| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Subtitle text, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:611 |
-| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:613 |
-| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | core/types/src/utils/D3plusConfig.d.ts:615 |
-| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | core/types/src/utils/D3plusConfig.d.ts:617 |
-| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | core/types/src/utils/D3plusConfig.d.ts:619 |
-| <a id="property-tableview"></a> `tableView?` | `boolean` | Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:621 |
-| <a id="property-tableviewclassname"></a> `tableViewClassName?` | `string` | Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. | core/types/src/utils/D3plusConfig.d.ts:623 |
-| <a id="property-tableviewcontrolclassname"></a> `tableViewControlClassName?` | `string` | Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. | core/types/src/utils/D3plusConfig.d.ts:625 |
-| <a id="property-tableviewcontrolstyle"></a> `tableViewControlStyle?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:627 |
-| <a id="property-tableviewcontrolstyleactive"></a> `tableViewControlStyleActive?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:629 |
-| <a id="property-tableviewcontrolstylehover"></a> `tableViewControlStyleHover?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:631 |
-| <a id="property-tableviewdownload"></a> `tableViewDownload?` | `boolean` | Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. | core/types/src/utils/D3plusConfig.d.ts:633 |
-| <a id="property-tableviewpagesize"></a> `tableViewPageSize?` | `number` \| `false` | Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. | core/types/src/utils/D3plusConfig.d.ts:635 |
-| <a id="property-tableviewsort"></a> `tableViewSort?` | `boolean` | Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. | core/types/src/utils/D3plusConfig.d.ts:637 |
-| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | core/types/src/utils/D3plusConfig.d.ts:639 |
-| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:641 |
-| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | core/types/src/utils/D3plusConfig.d.ts:652 |
-| <a id="property-tileurl"></a> `tileUrl?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas. | core/types/src/utils/D3plusConfig.d.ts:647 |
-| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | core/types/src/utils/D3plusConfig.d.ts:654 |
-| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:656 |
-| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | core/types/src/utils/D3plusConfig.d.ts:658 |
-| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:660 |
-| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Chart title or title accessor function. | core/types/src/utils/D3plusConfig.d.ts:662 |
-| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | core/types/src/utils/D3plusConfig.d.ts:664 |
-| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:666 |
-| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | core/types/src/utils/D3plusConfig.d.ts:668 |
-| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | core/types/src/utils/D3plusConfig.d.ts:670 |
-| <a id="property-tooltipshared"></a> `tooltipShared?` | `boolean` | Whether hovering a Plot's plot area shows one tooltip listing every series' value at the nearest discrete-axis position, with a crosshair through it. Applies when a discrete axis is set and at least two series share that position. | core/types/src/utils/D3plusConfig.d.ts:677 |
-| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | core/types/src/utils/D3plusConfig.d.ts:693 |
-| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | core/types/src/utils/D3plusConfig.d.ts:695 |
-| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | core/types/src/utils/D3plusConfig.d.ts:697 |
-| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:699 |
-| <a id="property-trendline"></a> `trendLine?` | `boolean` \| `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"` | Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it. | core/types/src/utils/D3plusConfig.d.ts:683 |
-| <a id="property-trendlineconfig"></a> `trendLineConfig?` | [`TrendLineConfig`](#trendlineconfig-1) | Options for the trend lines: `group` (`"series"` or `"all"`), the polynomial `order`, a `confidence` band with `confidenceLevel` and `confidenceConfig`, a `projection` into the future with `projectionConfig`, `tooltip`, and Line styles (`stroke`, `strokeWidth`, `strokeDasharray`, …). | core/types/src/utils/D3plusConfig.d.ts:691 |
-| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | core/types/src/utils/D3plusConfig.d.ts:701 |
-| <a id="property-width-2"></a> `width?` | `number` | Overall width of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:703 |
-| <a id="property-x-6"></a> `x?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:705 |
-| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:717 |
-| <a id="property-x2sort"></a> `x2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | core/types/src/utils/D3plusConfig.d.ts:721 |
-| <a id="property-xbreak"></a> `xBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the x axis — `[start, end]` or a list of them — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:713 |
-| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | core/types/src/utils/D3plusConfig.d.ts:707 |
-| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:715 |
-| <a id="property-xsort"></a> `xSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:719 |
-| <a id="property-y-6"></a> `y?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:723 |
-| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:736 |
-| <a id="property-y2sort"></a> `y2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | core/types/src/utils/D3plusConfig.d.ts:740 |
-| <a id="property-ybreak"></a> `yBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the y axis — `[start, end]` or a list of them, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:732 |
-| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | core/types/src/utils/D3plusConfig.d.ts:725 |
-| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:734 |
-| <a id="property-ysort"></a> `ySort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:738 |
-| <a id="property-zoom"></a> `zoom?` | `boolean` | Enables pan/zoom with zoom-control buttons. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:742 |
-| <a id="property-zoomcontrolclassname"></a> `zoomControlClassName?` | `string` | Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:744 |
-| <a id="property-zoomcontrolicons"></a> `zoomControlIcons?` | `Partial`\<`Record`\<`"zoomIn"` \| `"zoomOut"` \| `"zoomReset"` \| `"zoomBrush"`, `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))\>\> | Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either raw HTML — used as that button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:754 |
-| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | core/types/src/utils/D3plusConfig.d.ts:756 |
-| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. | core/types/src/utils/D3plusConfig.d.ts:758 |
-| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | core/types/src/utils/D3plusConfig.d.ts:760 |
-| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` \| `"modifier"` | Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the default) leaves page scrolling alone: only Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans only once zoomed in. `true` zooms on any wheel; `false` never does. | core/types/src/utils/D3plusConfig.d.ts:767 |
+| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | core/types/src/utils/D3plusConfig.d.ts:568 |
+| <a id="property-minimap"></a> `minimap?` | `boolean` | Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. | core/types/src/utils/D3plusConfig.d.ts:570 |
+| <a id="property-minimapclassname"></a> `minimapClassName?` | `string` | Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:572 |
+| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:574 |
+| <a id="property-ocean"></a> `ocean?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | Ocean color for geomaps (any CSS value including 'transparent'), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors. | core/types/src/utils/D3plusConfig.d.ts:580 |
+| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | core/types/src/utils/D3plusConfig.d.ts:585 |
+| <a id="property-outerpadding"></a> `outerPadding?` | `number` \| `"auto"` | Room (px) the Radar reserves around its web for the metric labels. `"auto"` (the default) measures the labels and gives the web the largest radius at which every label fits inside the chart, wrapping long labels onto two lines (and truncating what still doesn't fit) rather than shrinking the web below half its largest possible size. A number reserves exactly that much room and wraps labels to that width. | core/types/src/utils/D3plusConfig.d.ts:594 |
+| <a id="property-point"></a> `point?` | (`d`: [`DataPoint`](#datapoint)) => `number`[] | Coordinate accessor for point-based geomaps. | core/types/src/utils/D3plusConfig.d.ts:596 |
+| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | Point size accessor for geomaps. | core/types/src/utils/D3plusConfig.d.ts:598 |
+| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:602 |
+| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:600 |
+| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | core/types/src/utils/D3plusConfig.d.ts:604 |
+| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | core/types/src/utils/D3plusConfig.d.ts:606 |
+| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | core/types/src/utils/D3plusConfig.d.ts:608 |
+| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:610 |
+| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:612 |
+| <a id="property-search"></a> `search?` | `boolean` | Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:614 |
+| <a id="property-searchaccessor"></a> `searchAccessor?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. | core/types/src/utils/D3plusConfig.d.ts:616 |
+| <a id="property-searchcontrolclassname"></a> `searchControlClassName?` | `string` | Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. | core/types/src/utils/D3plusConfig.d.ts:618 |
+| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | core/types/src/utils/D3plusConfig.d.ts:620 |
+| `shapeConfig.duration?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:621 |
+| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | core/types/src/utils/D3plusConfig.d.ts:630 |
+| <a id="property-size"></a> `size?` | `string` | Size accessor key. | core/types/src/utils/D3plusConfig.d.ts:632 |
+| <a id="property-sizelegend"></a> `sizeLegend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) | Controls size-legend visibility — the nested-circle key drawn in the bottom-right corner of charts that size their marks. Shown by default whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height; pass `true` to always show it, `false` to hide it, or a `(config, scale, size) => boolean` accessor. | core/types/src/utils/D3plusConfig.d.ts:641 |
+| <a id="property-sizelegendconfig"></a> `sizeLegendConfig?` | [`SizeLegendConfig`](#sizelegendconfig-3) | Configuration for the size-legend component. | core/types/src/utils/D3plusConfig.d.ts:643 |
+| <a id="property-sizelegendposition"></a> `sizeLegendPosition?` | `"right"` \| `"bottom"` | Which margin the size legend claims in the bottom-right corner: `"right"` (default) keeps the chart's full height, `"bottom"` its full width. | core/types/src/utils/D3plusConfig.d.ts:649 |
+| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | core/types/src/utils/D3plusConfig.d.ts:651 |
+| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | core/types/src/utils/D3plusConfig.d.ts:658 |
+| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`); \} \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | core/types/src/utils/D3plusConfig.d.ts:667 |
+| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Subtitle text, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:672 |
+| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:674 |
+| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | core/types/src/utils/D3plusConfig.d.ts:676 |
+| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | core/types/src/utils/D3plusConfig.d.ts:678 |
+| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | core/types/src/utils/D3plusConfig.d.ts:680 |
+| <a id="property-tableview"></a> `tableView?` | `boolean` | Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:682 |
+| <a id="property-tableviewclassname"></a> `tableViewClassName?` | `string` | Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. | core/types/src/utils/D3plusConfig.d.ts:684 |
+| <a id="property-tableviewcontrolclassname"></a> `tableViewControlClassName?` | `string` | Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. | core/types/src/utils/D3plusConfig.d.ts:686 |
+| <a id="property-tableviewcontrolstyle"></a> `tableViewControlStyle?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:688 |
+| <a id="property-tableviewcontrolstyleactive"></a> `tableViewControlStyleActive?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:690 |
+| <a id="property-tableviewcontrolstylehover"></a> `tableViewControlStyleHover?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:692 |
+| <a id="property-tableviewdownload"></a> `tableViewDownload?` | `boolean` | Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. | core/types/src/utils/D3plusConfig.d.ts:694 |
+| <a id="property-tableviewpagesize"></a> `tableViewPageSize?` | `number` \| `false` | Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. | core/types/src/utils/D3plusConfig.d.ts:696 |
+| <a id="property-tableviewsort"></a> `tableViewSort?` | `boolean` | Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. | core/types/src/utils/D3plusConfig.d.ts:698 |
+| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | core/types/src/utils/D3plusConfig.d.ts:700 |
+| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:702 |
+| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | core/types/src/utils/D3plusConfig.d.ts:713 |
+| <a id="property-tileurl"></a> `tileUrl?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas. | core/types/src/utils/D3plusConfig.d.ts:708 |
+| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | core/types/src/utils/D3plusConfig.d.ts:715 |
+| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:717 |
+| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | core/types/src/utils/D3plusConfig.d.ts:719 |
+| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:721 |
+| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Chart title or title accessor function. | core/types/src/utils/D3plusConfig.d.ts:723 |
+| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | core/types/src/utils/D3plusConfig.d.ts:725 |
+| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:727 |
+| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | core/types/src/utils/D3plusConfig.d.ts:729 |
+| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | core/types/src/utils/D3plusConfig.d.ts:731 |
+| <a id="property-tooltipshared"></a> `tooltipShared?` | `boolean` | Whether hovering a Plot's plot area shows one tooltip listing every series' value at the nearest discrete-axis position, with a crosshair through it. Applies when a discrete axis is set and at least two series share that position. | core/types/src/utils/D3plusConfig.d.ts:738 |
+| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | core/types/src/utils/D3plusConfig.d.ts:754 |
+| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | core/types/src/utils/D3plusConfig.d.ts:756 |
+| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | core/types/src/utils/D3plusConfig.d.ts:758 |
+| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:760 |
+| <a id="property-trendline"></a> `trendLine?` | `boolean` \| `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"` | Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it. | core/types/src/utils/D3plusConfig.d.ts:744 |
+| <a id="property-trendlineconfig"></a> `trendLineConfig?` | [`TrendLineConfig`](#trendlineconfig-1) | Options for the trend lines: `group` (`"series"` or `"all"`), the polynomial `order`, a `confidence` band with `confidenceLevel` and `confidenceConfig`, a `projection` into the future with `projectionConfig`, `tooltip`, and Line styles (`stroke`, `strokeWidth`, `strokeDasharray`, …). | core/types/src/utils/D3plusConfig.d.ts:752 |
+| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | core/types/src/utils/D3plusConfig.d.ts:762 |
+| <a id="property-width-2"></a> `width?` | `number` | Overall width of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:764 |
+| <a id="property-x-6"></a> `x?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:766 |
+| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:778 |
+| <a id="property-x2sort"></a> `x2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | core/types/src/utils/D3plusConfig.d.ts:782 |
+| <a id="property-xbreak"></a> `xBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the x axis — `[start, end]` or a list of them — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:774 |
+| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | core/types/src/utils/D3plusConfig.d.ts:768 |
+| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:776 |
+| <a id="property-xsort"></a> `xSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:780 |
+| <a id="property-y-6"></a> `y?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:784 |
+| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:797 |
+| <a id="property-y2sort"></a> `y2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | core/types/src/utils/D3plusConfig.d.ts:801 |
+| <a id="property-ybreak"></a> `yBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the y axis — `[start, end]` or a list of them, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:793 |
+| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | core/types/src/utils/D3plusConfig.d.ts:786 |
+| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:795 |
+| <a id="property-ysort"></a> `ySort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:799 |
+| <a id="property-zoom"></a> `zoom?` | `boolean` | Enables pan/zoom with zoom-control buttons. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:803 |
+| <a id="property-zoomcontrolclassname"></a> `zoomControlClassName?` | `string` | Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:805 |
+| <a id="property-zoomcontrolicons"></a> `zoomControlIcons?` | `Partial`\<`Record`\<`"zoomIn"` \| `"zoomOut"` \| `"zoomReset"` \| `"zoomBrush"`, `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))\>\> | Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either raw HTML — used as that button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:815 |
+| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | core/types/src/utils/D3plusConfig.d.ts:817 |
+| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. | core/types/src/utils/D3plusConfig.d.ts:819 |
+| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | core/types/src/utils/D3plusConfig.d.ts:821 |
+| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` \| `"modifier"` | Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the default) leaves page scrolling alone: only Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans only once zoomed in. `true` zooms on any wheel; `false` never does. | core/types/src/utils/D3plusConfig.d.ts:828 |
 
 ***
 

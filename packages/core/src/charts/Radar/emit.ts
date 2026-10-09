@@ -1,7 +1,7 @@
 /**
     `radarEmit` — Path SceneNodes for each radar polygon, using
-    `groupData` + `pathConfig` stashed on `viz.ctx`. Emits flat
-    SceneNodes directly (no transient Shape compute pass).
+    `groupData` + `pathConfig` stashed on `viz.ctx`. Emits flat SceneNodes
+    directly (no transient Shape compute pass).
 */
 
 import type {DataPoint} from "@d3plus/data";

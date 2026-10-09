@@ -407,6 +407,21 @@ export interface D3plusConfig {
   /** Hides the SVG from assistive technology when true (`aria-hidden`). */
   ariaHidden?: boolean;
   /**
+      The Radar's axis styles, named after the parts of a Plot axis: the
+      inner level rings are its gridlines (`gridConfig`, a faint stroke like
+      Plot's gridlines), the outer ring is its axis line (`barConfig`, the
+      chart's background ink), and the spokes and metric labels are its ticks
+      (`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring
+      styles take `stroke`, `strokeWidth`, `strokeOpacity`,
+      `strokeDasharray`, and `opacity` (or Plot's `"stroke-width"` spelling),
+      each a value or a `(ring, i) => value` accessor.
+  */
+  axisConfig?: {
+    barConfig?: Record<string, unknown>;
+    gridConfig?: Record<string, unknown>;
+    shapeConfig?: Record<string, unknown>;
+  };
+  /**
       Text (rendered as HTML — any valid HTML string works, including anchor
       links) shown in the chart's bottom-right corner, most often a map tile
       credit. `false` (the default) shows nothing. A credit wider than half
@@ -573,6 +588,43 @@ export interface D3plusConfig {
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
   legendTooltip?: TooltipConfig;
+  /**
+      Formats the Radar's level value labels. Receives the ring's value and
+      returns its label. Defaults to the abbreviated number format the axes
+      use (`1.5k`, `2M`, …).
+  */
+  levelFormat?: (d: number) => string | number;
+  /**
+      Direction of the Radar's level value labels, in degrees clockwise from
+      12 o'clock. `0` (the default) runs the labels straight up from the
+      center. Each label sits just inside its ring, offset to the clockwise
+      side of that direction so neither line crosses the text. Spokes start
+      at 3 o'clock, so the spoke for the metric at index `i` of `n` sits at
+      `90 + 360 * i / n` degrees.
+  */
+  levelLabelAngle?: number;
+  /** Style of the Radar's level value labels. */
+  levelLabelConfig?: {
+    /** Text color. Defaults to the color that contrasts with the chart's background. */
+    fontColor?: string;
+    /** Font family. Defaults to the chart's `fontFamily`. */
+    fontFamily?: string | string[];
+    /** Text opacity. Defaults to `1`. */
+    fontOpacity?: number;
+    /** Font size, in pixels. Defaults to `10`. */
+    fontSize?: number;
+    /** Font weight. Defaults to `400`. */
+    fontWeight?: number | string;
+  };
+  /** Whether the Radar labels each level ring with its value. Defaults to `true`. */
+  levelLabels?: boolean;
+  /**
+      The Radar's level rings. A number (default `6`) is the approximate ring
+      count: the radial domain is rounded out to "nice" values and the rings
+      sit on its ticks, the same way axis ticks are chosen. An array sets the
+      exact ring values.
+  */
+  levels?: number | number[];
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
@@ -597,6 +649,15 @@ export interface D3plusConfig {
   ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
   on?: Record<string, (event: Event) => void>;
+  /**
+      Room (px) the Radar reserves around its web for the metric labels.
+      `"auto"` (the default) measures the labels and gives the web the largest
+      radius at which every label fits inside the chart, wrapping long labels
+      onto two lines (and truncating what still doesn't fit) rather than
+      shrinking the web below half its largest possible size. A number
+      reserves exactly that much room and wraps labels to that width.
+  */
+  outerPadding?: number | "auto";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */
