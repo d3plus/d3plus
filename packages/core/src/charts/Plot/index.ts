@@ -62,6 +62,7 @@ import {
 } from "./stackHelpers.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
+import {resolveConfidence, validateConfidenceConfig} from "./confidenceConfig.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
@@ -73,7 +74,7 @@ import {plotFacetHooks} from "./plotFacet.js";
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
 import {linkedColorDefaults} from "../viz/linkGroup.js";
-import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Accessor function or string key for a plotted value. */
 type PlotAccessor = (d: DataPoint, i: number) => number | Date | string;
@@ -531,30 +532,21 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   confidence(_?: unknown): this | VizInstance["_confidence"] {
     if (!arguments.length) return this._confidence;
-    const bound = (b: unknown): ConfidenceAccessor | false =>
-      typeof b === "function"
-        ? (b as ConfidenceAccessor)
-        : typeof b === "string" && b
-          ? (accessor(b) as ConfidenceAccessor)
-          : false;
-    const pair = Array.isArray(_) ? [bound(_[0]), bound(_[1])] : [false, false];
-    this._confidence =
-      pair[0] || pair[1]
-        ? (pair as [ConfidenceAccessor | false, ConfidenceAccessor | false])
-        : false;
+    this._confidence = resolveConfidence(_);
     return this;
   }
 
   /**
-       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `1.5`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out.
+       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `1.5`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
 
 @example
        .confidenceConfig({Bar: {stroke: "#333", strokeWidth: 2, capWidth: 8}, tooltip: false})
 */
   confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    return arguments.length
-      ? ((this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig)), this)
-      : this._confidenceConfig;
+    if (!arguments.length) return this._confidenceConfig;
+    validateConfidenceConfig(this.constructor.name, _);
+    this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig);
+    return this;
   }
 
   /**

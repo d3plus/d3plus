@@ -512,7 +512,9 @@ export interface D3plusConfig {
       error bar (a Path, with `stroke`, `strokeWidth`, and `capWidth` — the end
       caps' length in pixels or as a percentage string of the bar's thickness).
       Keys nested under `Area` or `Bar` apply only to that shape. `tooltip:
-      false` leaves the bounds out of tooltips.
+      false` leaves the bounds out of tooltips. Accepted keys: any Area or
+      Path key, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path
+      keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
   /**

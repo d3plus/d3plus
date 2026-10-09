@@ -279,6 +279,7 @@ it("still warns about a typo in the user's config", async function () {
     ["LinePlot", {...plot, annotations: [{shape: "Line", data: [{id: "a", x: 4, y: 10}], strok: "red"}]}],
     ["Network", {links, nodes, shapeConfig: {labelConfig: {fontSzie: 12}}}],
     ["BarChart", {...plot, titl: "Title"}],
+    ["BarChart", {...plot, confidence: ["lci", "hci"], confidenceConfig: {capWdth: 4, Bar: {strokWidth: 2}}}],
   ];
   const warnings = await render("", renderAndHover, {charts: typos, renderer: "svg"});
   assert.deepStrictEqual(warnings, [
@@ -286,5 +287,7 @@ it("still warns about a typo in the user's config", async function () {
     'Line.config() received unknown property "strok".',
     'TextBox.config() received unknown property "fontSzie".',
     'BarChart.config() received unknown property "titl".',
+    'BarChart.confidenceConfig() received unknown property "capWdth".',
+    'BarChart.confidenceConfig() received unknown property "Bar.strokWidth".',
   ]);
 });
