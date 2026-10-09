@@ -30,6 +30,7 @@ import {
   measurePlotLineLabels,
   preparePlotAxisLayout,
 } from "./pipeline.js";
+import {computePlotTrendFits} from "./trendLines.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
 type Row = Record<string, unknown>;
@@ -44,7 +45,7 @@ const superDraw = (viz: VizInstance, callback?: () => void) =>
 
 /** Runs format + per-axis-value stages; returns formatted data and axis-value bundles. */
 function runPlotDataStages(viz: VizInstance) {
-  const plotCtx = runStages({viz}, [formatPlotData, computePlotAxisValues]);
+  const plotCtx = runStages({viz}, [formatPlotData, computePlotAxisValues, computePlotTrendFits]);
   // Time flags (xTime/x2Time/yTime/y2Time) are written onto `viz` by
   // `formatPlotData` and read directly via `viz._xTime` etc. downstream.
   return {
@@ -290,6 +291,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     xOffsetRight,
     topOffset,
     xHeight,
+    xLabelMode,
   } = measureAxes(
     viz,
     {
@@ -317,7 +319,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     showX, showY, defaultConfig, defaultX2Config, defaultY2Config, yC, xC,
     xTicks, yTicks, x2Ticks, y2Ticks, labelWidths, largestLabel, xRangeMax,
     xTest, yTest, x2Test, y2Test, yBounds, y2Bounds, yWidth, y2Width, xHeight, x2Height,
-    xOffsetLeft, xOffsetRight, topOffset, xTestRange, x2TestRange, height, width,
+    xOffsetLeft, xOffsetRight, topOffset, xTestRange, x2TestRange, height, width, xLabelMode,
     opp, barLabels, showLineLabels, stackGroup, horizontalMargin, verticalMargin,
   } as unknown as PlotPaintContext;
   return viz._paint!(pCtx);

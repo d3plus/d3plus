@@ -7,7 +7,9 @@
       group totals, sorts axisData by discrete-then-group-sum-then-opp,
       builds `discreteKeys`/`stackKeys`/`stackData`, fills in missing Area
       filler points, runs d3-stack with the configured order/offset, then
-      derives `domains` from the stack extents.
+      derives `domains` from the stack extents. Each stacked row and its
+      source datum also gets its share of its stack's total (see
+      `stampShare`).
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
       either the data values (for the discrete axis or user-sorted axes) or
       extent (for continuous).
@@ -22,6 +24,9 @@ import * as d3Shape from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
+import {stampShare} from "../features/shareKey.js";
+import {isSpanAxis, spanDomain} from "./discreteSpan.js";
+import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
@@ -85,6 +90,27 @@ function fillMissingAreaPoints(
   });
 }
 
+/**
+    Stamps each stacked row (and its source datum, which tooltip accessors
+    receive) with its share (`stampShare`): its value as a fraction of the
+    total stack at its discrete position. Both sides use absolute values, so
+    a diverging stack's negative segments get positive shares and every
+    stack's shares sum to 1. Runs before filler points are added, since a
+    filler reuses another point's source datum.
+*/
+function stampStackShares(data: Row[], opp: string | undefined): void {
+  const stacked = data.filter((d: Row) => ["Area", "Bar"].includes(d.shape as string));
+  const totals = new Map<unknown, number>();
+  for (const d of stacked)
+    totals.set(d.discrete, (totals.get(d.discrete) || 0) + Math.abs(+(d[opp as string] as number) || 0));
+  for (const d of stacked) {
+    const total = totals.get(d.discrete);
+    const share = total ? Math.abs(+(d[opp as string] as number) || 0) / total : 0;
+    stampShare(d, share);
+    if (d.data) stampShare(d.data as Row, share);
+  }
+}
+
 /** Stacked branch: d3-stack + extent-derived domains. */
 function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizContext> {
   const {data, axisData, xData, yData, opp, stackGroup} = ctx;
@@ -121,6 +147,7 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     (d: Row) => d.discrete,
   ).map(([, values]) => values);
 
+  stampStackShares(data, opp);
   fillMissingAreaPoints(viz, {axisData, data, stackData: stackGroupsData, stackKeys, stackGroup, opp});
 
   if (viz.schema[`${viz.schema.discrete}Sort`]) {
@@ -154,15 +181,24 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     }) as never) as unknown as (data: Row[][]) => number[][][])(stackGroupsData);
 
   const discreteData = (viz.schema.discrete === "x" ? xData : yData) as DomainValue[];
+  const trend = trendDomainValues(viz._trendFits || []);
   const discreteTime = viz.schema.discrete === "x" ? viz._xTime : viz._yTime;
 
   const domains: Record<string, DomainValue[]> = {
-    [viz.schema.discrete]: (discreteTime
-      ? extent(discreteData as (number | Date)[])
-      : discreteData) as DomainValue[],
+    [viz.schema.discrete]: (viz._discreteExtent
+      ? spanDomain(viz, axisData)
+      : discreteTime
+        ? extent(discreteData as (number | Date)[])
+        : discreteData) as DomainValue[],
     [opp as string]: [
-      min(stackData.map((g: number[][]) => min(g.map((p: number[]) => p[0])) as number)) as number,
-      max(stackData.map((g: number[][]) => max(g.map((p: number[]) => p[1])) as number)) as number,
+      min([
+        ...stackData.map((g: number[][]) => min(g.map((p: number[]) => p[0])) as number),
+        ...trend,
+      ]) as number,
+      max([
+        ...stackData.map((g: number[][]) => max(g.map((p: number[]) => p[1])) as number),
+        ...trend,
+      ]) as number,
     ],
   };
 
@@ -190,15 +226,19 @@ function computeNonStackedDomains(
   }
 
   const domains: Record<string, DomainValue[]> = {
-    x: ((!xTime && viz.schema.discrete === "x") || viz.schema.xSort
-      ? xData
-      : extent(xData as (number | Date)[])) as DomainValue[],
+    x: (isSpanAxis(viz, "x")
+      ? spanDomain(viz, axisData)
+      : (!xTime && viz.schema.discrete === "x") || viz.schema.xSort
+        ? xData
+        : extent(xData as (number | Date)[])) as DomainValue[],
     x2: ((!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
       ? x2Data
       : extent(x2Data as (number | Date)[])) as DomainValue[],
-    y: ((!yTime && viz.schema.discrete === "y") || viz.schema.ySort
-      ? yData
-      : extent(yData as (number | Date)[])) as DomainValue[],
+    y: (isSpanAxis(viz, "y")
+      ? spanDomain(viz, axisData)
+      : (!yTime && viz.schema.discrete === "y") || viz.schema.ySort
+        ? yData
+        : extent(yData as (number | Date)[])) as DomainValue[],
     y2: ((!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
       ? y2Data
       : extent(y2Data as (number | Date)[])) as DomainValue[],

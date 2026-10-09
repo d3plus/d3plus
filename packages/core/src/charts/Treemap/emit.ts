@@ -11,6 +11,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 
@@ -31,7 +32,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
 
   const locale = viz.schema.locale;
   const drawLabel = viz._drawLabel;
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Rect");
 
   const rectNodes: SceneNode[] = nodes.map(d => {
     const fill = resolveAccessor<string>(sc.fill, d.data, d.i);
@@ -47,7 +48,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       height: d.y1 - d.y0,
       datum: d.data,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, d.data, d.i, fill),
         stroke:
           typeof stroke === "string" || stroke == null
             ? stroke
@@ -105,10 +106,17 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: DataPoint & {data?: DataPoint; i?: number}) => {
         const src = (d && d.data ? d.data : d) as DataPoint & {i?: number};
         const fillVal = resolveAccessor<string>(sc.fill, src, src.i);
-        return typeof fillVal === "string" ? colorContrast(fillVal) : undefined;
+        return typeof fillVal === "string" ? colorContrast(fillVal, viz.schema.colorDefaults) : undefined;
       },
+      ...userLabelConfig(viz, "Rect"),
     },
   });
+
+  // Marks each label as eligible for the drill-down morph (isFlipEligible),
+  // so it moves along with its cell instead of just fading in in place —
+  // distinct from every other text a chart emits (title/subtitle/legend),
+  // which is never stamped this way and so never flip-morphs.
+  for (const n of labelNodes) (n as {shapeType?: string}).shapeType = "Label";
 
   return [...rectNodes, ...labelNodes];
 };

@@ -79,12 +79,13 @@ function barLabelConfig() {
         const bg = (this._backgroundConfig!.fill === "transparent"
           ? backgroundColor(this._select!.node())
           : this._backgroundConfig!.fill) as string;
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       }
       return colorContrast(
         typeof this.schema.shapeConfig.fill === "function"
           ? this.schema.shapeConfig.fill(d, i)
           : this.schema.shapeConfig.fill,
+        this.schema.colorDefaults,
       );
     },
     fontStroke(this: VizInstance, d: DataPoint, i: number) {
@@ -92,7 +93,7 @@ function barLabelConfig() {
         const bg = (this._backgroundConfig!.fill === "transparent"
           ? backgroundColor(this._select!.node())
           : this._backgroundConfig!.fill) as string;
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       }
       return "transparent";
     },

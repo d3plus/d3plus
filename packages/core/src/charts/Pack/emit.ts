@@ -8,6 +8,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
+import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PackLeaf} from "./applyLayout.js";
 
@@ -26,9 +27,9 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as PackLeaf[];
   if (!nodes.length) return [];
 
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
-  // Pack's per-shape config is nested under `Circle`.
-  const circleConfig = (sc.Circle ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Circle");
+  // Pack's label accessor is nested under `Circle`.
+  const circleConfig = (viz.schema.shapeConfig.Circle ?? {}) as Record<string, unknown>;
   const labelFn = circleConfig.label as ((d: DataPoint, i: number) => unknown) | undefined;
 
   const circleNodes: SceneNode[] = nodes.map((d, i) => {
@@ -42,9 +43,15 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       cx: d.x,
       cy: d.y,
       r: d.r,
+      // Distinguishes this circle from Plot's Circle shape (which carries
+      // shapeType "Circle" via the generic Shape.toScene() stamp) so the
+      // drill-down morph's proportional remap — appropriate for Pack's
+      // subdivide-a-container circles, not a scatter chart's — only applies
+      // here.
+      shapeType: "Pack",
       datum,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, datum, i, fill),
         stroke,
         opacity: datum.__d3plusOpacity__,
         strokeWidth,
@@ -80,7 +87,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       const r = (aes as {r: number}).r;
       return {width: r * 1.6, height: r * 0.8, x: -r * 0.8, y: -r * 0.4};
     },
-    labelConfig: {fontResize: true},
+    labelConfig: {fontResize: true, ...userLabelConfig(viz, "Circle")},
   });
 
   return [...circleNodes, ...labelNodes];

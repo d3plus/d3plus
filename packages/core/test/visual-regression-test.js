@@ -229,6 +229,25 @@ const charts = [
       {row: "Outer", column: "A", value: 30}, {row: "Outer", column: "B", value: 16},
       {row: "Outer", column: "C", value: 24}, {row: "Outer", column: "D", value: 8},
     ])`],
+  ["chord", `lib => new lib.Chord()
+    .value("value")
+    .links([
+      {source: "alpha", target: "beta",  value: 5},
+      {source: "alpha", target: "gamma", value: 3},
+      {source: "beta",  target: "gamma", value: 2},
+      {source: "gamma", target: "alpha", value: 4},
+      {source: "delta", target: "alpha", value: 6},
+    ])`],
+  // Fixed node positions keep the force layout deterministic; `.arrows("both")`
+  // locks in the shared edge-arrow geometry.
+  ["network-arrows", `lib => new lib.Network()
+    .arrows("both")
+    .nodes([
+      {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0}, {id: "C", x: 0, y: -50},
+    ])
+    .links([
+      {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "B", target: "C"},
+    ])`],
 ];
 
 // Runs in-page: build + render the chart, then walk the rendered SVG and

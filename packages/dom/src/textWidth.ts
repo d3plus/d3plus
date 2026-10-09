@@ -1,4 +1,13 @@
-import {prepareWithSegments, layoutWithLines} from "@chenglou/pretext";
+import {
+  clearCache,
+  layoutWithLines,
+  prepareWithSegments,
+} from "@chenglou/pretext";
+import {noteMeasured, onFontsLoaded} from "./fontLoading.js";
+
+// pretext caches glyph widths per font string, so widths measured before a web
+// font finished loading are those of the fallback font.
+onFontsLoaded(clearCache);
 
 /** Common named HTML entities for the DOM-free decode fallback. */
 const NAMED_ENTITIES: Record<string, string> = {
@@ -98,6 +107,7 @@ export default function (
   text: string | string[],
   style: Record<string, string | number> = {},
 ): number | number[] {
+  noteMeasured(String(style["font-family"] || "sans-serif"));
   const font = buildFont(style);
 
   if (text instanceof Array)

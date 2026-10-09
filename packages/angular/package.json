@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/angular",
-  "version": "4.3.0",
+  "version": "4.7.0",
   "description": "Angular components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
@@ -27,7 +27,7 @@
     "build:esm": "ng-packagr -p ng-package.json",
     "build": "ng-packagr -p ng-package.json",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint src/**/*.ts && eslint --global=it --global=before test && mocha 'test/**/*-test.js'"
+    "test": "eslint src && eslint --global=it --global=before test && mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",

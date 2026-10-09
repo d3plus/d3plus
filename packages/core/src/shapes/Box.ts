@@ -3,14 +3,14 @@ import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
 import {merge} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 import type {D3plusConfig} from "../utils/index.js";
 import type {VizContext} from "../utils/configPrep.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
@@ -161,10 +161,9 @@ function computeBoxGroup(
       d.data as DataPoint,
       d.i as number,
     );
-    (d as Record<string, unknown>).x = box.schema.x(
-      d.data as DataPoint,
-      d.i as number,
-    );
+    // The group key is this same accessor evaluated on each member; the
+    // merged datum can't be re-read because `merge` sums numeric fields.
+    (d as Record<string, unknown>).x = key;
     (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
   } else if (d.orient === "horizontal") {
     // Compute values for horizontal orientation.
@@ -174,10 +173,7 @@ function computeBoxGroup(
     );
     (d as Record<string, unknown>).width = rectLength;
     (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-    (d as Record<string, unknown>).y = box.schema.y(
-      d.data as DataPoint,
-      d.i as number,
-    );
+    (d as Record<string, unknown>).y = key;
   }
 
   // Compute data for outliers.
@@ -252,7 +248,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
 }
 
 /**
-    Creates SVG box based on an array of data.
+    Creates SVG box-and-whisker plots based on an array of data, one per group of values.
 */
 export default class Box extends BaseClass {
   // installFluent generates the config accessors (orient, x, rectWidth, …) at
@@ -446,7 +442,7 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.medianConfig = assign(this.schema.medianConfig, _!)), this)
+      ? ((this.schema.medianConfig = mergeConfigBag(this, "medianConfig", _)), this)
       : this.schema.medianConfig;
   }
 
@@ -457,7 +453,7 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.outlierConfig = assign(this.schema.outlierConfig, _!)), this)
+      ? ((this.schema.outlierConfig = mergeConfigBag(this, "outlierConfig", _)), this)
       : this.schema.outlierConfig;
   }
 
@@ -468,7 +464,7 @@ export default class Box extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      ? ((this.schema.rectConfig = mergeConfigBag(this, "rectConfig", _)), this)
       : this.schema.rectConfig;
   }
 
@@ -490,7 +486,7 @@ export default class Box extends BaseClass {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.whiskerConfig = assign(this.schema.whiskerConfig, _!)), this)
+      ? ((this.schema.whiskerConfig = mergeConfigBag(this, "whiskerConfig", _)), this)
       : this.schema.whiskerConfig;
   }
 
@@ -507,3 +503,5 @@ export default class Box extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(Box.prototype, "medianConfig", "outlierConfig", "rectConfig", "whiskerConfig");

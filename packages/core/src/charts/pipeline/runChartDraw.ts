@@ -33,7 +33,7 @@
 */
 
 import {runStages} from "./stages.js";
-import {marginOriginTransform} from "../features/chartGeometry.js";
+import {chartBounds, marginOriginTransform} from "../features/chartGeometry.js";
 
 import type {DataPoint} from "@d3plus/data";
 import type {Transform} from "@d3plus/render";
@@ -97,4 +97,9 @@ export function runChartDraw(
     ? transformFn(viz)
     : marginOriginTransform(viz);
   viz._chartClip = def.chartClip ? def.chartClip(viz) : undefined;
+  // The box the drill-down morph transition (enterFrom/exitTo) measures its
+  // fractions against — see ChartDefinition.chartBodyRect.
+  viz._bodyRect = def.chartBodyRect
+    ? def.chartBodyRect(viz)
+    : {x: 0, y: 0, ...chartBounds(viz)};
 }

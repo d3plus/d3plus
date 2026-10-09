@@ -12,10 +12,20 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
+import {stampShare} from "../features/shareKey.js";
 
 export const applyPieLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
-  const outerRadius = Math.min(width, height) / 2;
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  // Reserves room for the hovered/active stroke emphasis (interactionOpacity.ts's
+  // emphasizeStroke, ×2 hover / ×3 active over the configured base width) so
+  // it never gets clipped by the chart's own edge — half of the WIDEST
+  // possible stroke (centered on the wedge's outline) overflows past the
+  // outer radius. A function-valued strokeWidth can't be resolved without a
+  // datum, so it falls back to Pie's own default (2) rather than guessing.
+  const baseStrokeWidth = typeof sc.strokeWidth === "number" ? sc.strokeWidth : 2;
+  const strokeBuffer = (baseStrokeWidth * 3) / 2;
+  const outerRadius = Math.max(0, Math.min(width, height) / 2 - strokeBuffer);
 
   type PieFn = Pie<unknown, DataPoint>;
   const pie = viz.ctx.pie as PieFn;
@@ -37,11 +47,10 @@ export const applyPieLayout: TransformStage = ({viz}) => {
     d.__d3plus__ = true;
     d.i = i;
     // The tooltip binds the unwrapped row, so the slice's share of the total
-    // must live on the row for the tooltip accessor to read it. Mirrors
-    // Treemap stamping `share` onto `d.data`.
+    // must live on the row for the tooltip accessor to read it.
     const share = total ? d.value / total : 0;
     (d as {share?: number}).share = share;
-    (d.data as DataPoint & {share?: number}).share = share;
+    stampShare(d.data, share);
   });
 
   const innerRadius = viz.schema.innerRadius as
@@ -57,8 +66,17 @@ export const applyPieLayout: TransformStage = ({viz}) => {
     .outerRadius(outerRadius);
 
   viz.ctx.pieData = pieData;
+  // pieWidth/pieHeight stay the FULL available space (not reduced by
+  // strokeBuffer) — centerChartTransform centers the origin against these,
+  // and shrinking them would pull the circle off-center toward the
+  // top-left instead of leaving equal buffer space on every side.
   viz.ctx.pieWidth = width;
   viz.ctx.pieHeight = height;
+  // The actual (buffer-reduced) radius wedges are drawn at — chartBodyRect
+  // (Pie/index.ts) reads this instead of deriving a radius from
+  // pieWidth/pieHeight, so the drill-morph's "whole pie" reference box
+  // matches the wedges' real size, not the looser available space.
+  viz.ctx.pieOuterRadius = outerRadius;
 
   return {shapeData: pieData};
 };

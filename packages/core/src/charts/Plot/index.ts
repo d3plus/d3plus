@@ -2,14 +2,13 @@
 
 // @ts-ignore
 import pkg from "open-color/open-color.js";
+import {zoomTransform} from "d3-zoom";
 const {theme: openColor} = pkg;
 
 import {
   colorAssign,
-  colorContrast,
-  colorDefaults,
 } from "@d3plus/color";
-import {assign, backgroundColor} from "@d3plus/dom";
+import {assign} from "@d3plus/dom";
 
 import {
   AxisBottom,
@@ -18,26 +17,28 @@ import {
   AxisTop,
 } from "../../components/index.js";
 import {accessor, constant} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 
-// E4: Plot's identity-coerce accessor schema (18 keys). installFluent's
-// per-key idempotence lets this co-exist with vizSchema on the parent
-// Viz.prototype — installFluent walks the actual prototype (Plot.prototype
-// here) and skips keys already present.
+// E4: Plot's identity-coerce accessor schema. installFluent installs it on
+// the instance's prototype alongside vizSchema's accessors.
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
   {key: "baseline", coerce: "identity" as const},
+  {key: "baselineBreak", coerce: "identity" as const},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},
   {key: "sizeMin", coerce: "identity" as const},
   {key: "sizeScale", coerce: "identity" as const},
   {key: "stacked", coerce: "identity" as const},
+  {key: "tooltipShared", coerce: "identity" as const},
+  {key: "xBreak", coerce: "identity" as const},
   {key: "xCutoff", coerce: "identity" as const},
   {key: "xDomain", coerce: "identity" as const},
   {key: "x2Domain", coerce: "identity" as const},
   {key: "xSort", coerce: "identity" as const},
   {key: "x2Sort", coerce: "identity" as const},
+  {key: "yBreak", coerce: "identity" as const},
   {key: "yCutoff", coerce: "identity" as const},
   {key: "yDomain", coerce: "identity" as const},
   {key: "y2Domain", coerce: "identity" as const},
@@ -45,7 +46,7 @@ const plotSchema = [
   {key: "y2Sort", coerce: "identity" as const},
 ];
 
-import {plotDef} from "./pipeline.js";
+import {plotDef, plotSizeLegendScale} from "./pipeline.js";
 import {drawPlot} from "./draw.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
 import {
@@ -57,11 +58,18 @@ import {
   type StackOrderFn,
   type StackOrderInput,
 } from "./stackHelpers.js";
-import {plotPaint, type PlotPaintContext} from "../features/plotPaint.js";
+import type {PlotPaintContext} from "../features/plotPaint.js";
+import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
+import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
+import {contentPoint, handleSharedHover} from "./sharedHover.js";
+import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
+import {gridStroke} from "../../components/Axis/gridStroke.js";
+import {plotInsetRegion} from "./insetRegion.js";
 
 import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
+import {linkedColorDefaults} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Accessor function or string key for a plotted value. */
@@ -82,10 +90,18 @@ const defaultBuffers = {
   Rect: RectBuffer,
 };
 
+/** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
+function reverseDomain(patch: unknown): unknown {
+  const domain = (patch as {domain?: unknown} | undefined)?.domain;
+  return Array.isArray(domain) ? {...(patch as object), domain: domain.slice().reverse()} : patch;
+}
+
 /**
     Creates an x/y plot based on an array of data.
 */
 export default class Plot extends Viz {
+  _trendLine: TrendLineType = plotDef.defaults!.trendLine as TrendLineType;
+  _trendLineConfig: Record<string, unknown> = trendLineDefaults();
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -119,6 +135,11 @@ export default class Plot extends Viz {
       },
       fillOpacity: constant(0.5),
     };
+    this._crosshairConfig = {
+      stroke: openColor.colors.gray[500],
+      strokeDasharray: "4 3",
+      strokeWidth: 1,
+    };
     this._discreteCutoff = defaults.discreteCutoff as number;
     this._groupPadding = defaults.groupPadding as number;
     this._labelConnectorConfig = {
@@ -126,7 +147,7 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i)),
+      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i), linkedColorDefaults(this)),
       r: constant(3),
     };
     this._lineMarkers = defaults.lineMarkers as boolean;
@@ -137,6 +158,7 @@ export default class Plot extends Viz {
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
     this.schema.shapeSort = (a: string, b: string) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);
+    this.schema.tooltipShared = defaults.tooltipShared as boolean;
     this.schema.sizeMax = 20;
     this.schema.sizeMin = 5;
     this.schema.sizeScale = "sqrt";
@@ -163,9 +185,7 @@ export default class Plot extends Viz {
           const range = this._xAxis.range();
           const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
           if (range[0] === position) return "transparent";
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg);
-          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+          return gridStroke(this._select?.node(), this.schema.colorDefaults);
         },
       },
     };
@@ -188,9 +208,7 @@ export default class Plot extends Viz {
           const range = this._yAxis.range();
           const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);
           if (range[range.length - 1] === position) return "transparent";
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-                  const contrast = colorContrast(bg);
-          return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];
+          return gridStroke(this._select?.node(), this.schema.colorDefaults);
         },
       },
     };
@@ -274,6 +292,7 @@ export default class Plot extends Viz {
     }
     // Axes are drawn behind the shapes.
     scene.root.children.unshift(...axisNodes);
+    appendSharedHoverNodes(this as unknown as VizInstance, scene);
     return scene;
   }
 
@@ -351,18 +370,16 @@ export default class Plot extends Viz {
   /**
       Picks the interaction point closest to a surface-local cursor position
       along the discrete axis. `event.point` is post-zoom surface space while the
-      points are in pre-zoom content space (they live under the `viz-zoom`
-      group), so the cursor is un-zoomed by `_zoomTransform` before comparing.
+      points are in chart content space (under the `viz-zoom` group and then
+      the chart's own `viz-chart-body` transform), so the cursor is un-zoomed
+      by `_zoomTransform` and offset by `_chartTransform` before comparing.
       @private
 */
   _nearestInteractionPoint(
     points: InteractionPoint[],
     point: [number, number],
   ): InteractionPoint | null {
-    const t = this._zoomTransform;
-    const scale = t && t.scale ? t.scale : 1;
-    const cx = (point[0] - (t ? t.x : 0)) / scale;
-    const cy = (point[1] - (t ? t.y : 0)) / scale;
+    const [cx, cy] = contentPoint(this as unknown as VizInstance, point);
     const axis = this.schema.discrete === "y" ? "y" : "x";
     const target = axis === "y" ? cy : cx;
     let best: InteractionPoint | null = null;
@@ -378,11 +395,39 @@ export default class Plot extends Viz {
   }
 
   /**
+      Drives the shared multi-series tooltip + crosshair: while the pointer is
+      inside the plot area, snaps to the nearest discrete position and, when
+      two or more series share it, shows them all in one tooltip (suppressing
+      the single-shape tooltip). Clears on leaving the plot area or the chart.
+      @private
+*/
+  _sharedHover(event: SceneEvent): void {
+    handleSharedHover(this as unknown as VizInstance, event);
+  }
+
+  /**
       Extends the draw behavior of the abstract Viz class.
       @private
 */
   _draw(callback?: () => void) {
     return drawPlot(this as unknown as VizInstance, callback);
+  }
+
+  /**
+      The bubble radius scale, for the size legend (see `plotSizeLegendScale`).
+      @private
+  */
+  _sizeLegendScale() {
+    return plotSizeLegendScale(this as unknown as VizInstance);
+  }
+
+  /**
+      The plot area, with the plotted marks as obstacles, for drawing a
+      legend inside the plot's empty space (see `legendInset`).
+      @private
+  */
+  _insetRegion() {
+    return plotInsetRegion(this as unknown as VizInstance);
   }
 
   /**
@@ -397,8 +442,27 @@ export default class Plot extends Viz {
     // function of its inputs. `super._draw` resets `_chartScene` to []
     // before the paint phase, so the emit output IS the scene. Viz.toScene
     // wraps the collection in viz-chart-cells + zoom transform.
-    this._chartScene = plotPaint(this as unknown as VizInstance, pCtx);
+    const viz = this as unknown as VizInstance;
+    const target = viz._zoomEventTarget || viz._container;
+    this._chartScene = paintZoomablePlot(
+      viz,
+      pCtx,
+      target && target.node() ? zoomTransform(target.node()) : undefined,
+    );
     return this;
+  }
+
+  /**
+      Zooms by rescaling the plot's linear axes instead of scaling the
+      rendered picture (see `Plot/plotZoom.ts`). Returns false when no axis
+      is linear, so the plot falls back to picture zoom.
+      @private
+*/
+  _zoomRescale(t: ZoomState, duration = 0): boolean {
+    const nodes = zoomPlot(this as unknown as VizInstance, t, duration);
+    if (!nodes) return false;
+    this._chartScene = nodes;
+    return true;
   }
 
   /**
@@ -426,7 +490,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backgroundConfig = assign(this._backgroundConfig, _!)), this)
+      ? ((this._backgroundConfig = mergeConfigBag(this, "backgroundConfig", _, this._backgroundConfig)), this)
       : this._backgroundConfig;
   }
 
@@ -480,7 +544,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._confidenceConfig = assign(this._confidenceConfig, _!)), this)
+      ? ((this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig)), this)
       : this._confidenceConfig;
   }
 
@@ -507,7 +571,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   labelConnectorConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._labelConnectorConfig = assign(this._labelConnectorConfig, _!)),
+      ? ((this._labelConnectorConfig = mergeConfigBag(this, "labelConnectorConfig", _, this._labelConnectorConfig)),
         this)
       : this._labelConnectorConfig;
   }
@@ -525,11 +589,51 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
+      Paint for the shared tooltip's crosshair guide line (`stroke`,
+      `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
+      current config.
+*/
+  crosshairConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this._crosshairConfig = mergeConfigBag(this, "crosshairConfig", _, this._crosshairConfig)), this)
+      : this._crosshairConfig;
+  }
+
+  /**
+      Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
+*/
+  trendLine(_?: TrendLineType): this | TrendLineType {
+    return arguments.length
+      ? ((this._trendLine = _ as TrendLineType), this)
+      : this._trendLine;
+  }
+
+  /**
+      Options for the trend lines drawn by `trendLine`, merged into the current config:
+      - `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
+      - `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).
+      - `confidence`: draws a confidence band around a linear fit (default `false`).
+      - `confidenceLevel`: the band's confidence level (default `0.95`).
+      - `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).
+      - `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.
+      - `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: "2 4"}`).
+      - `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).
+      - Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.
+
+Stacked charts always fit one line to the stack totals.
+*/
+  trendLineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this._trendLineConfig = mergeConfigBag(this, "trendLineConfig", _, this._trendLineConfig)), this)
+      : this._trendLineConfig;
+  }
+
+  /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
 */
   lineMarkerConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._lineMarkerConfig = assign(this._lineMarkerConfig, _!)), this)
+      ? ((this._lineMarkerConfig = mergeConfigBag(this, "lineMarkerConfig", _, this._lineMarkerConfig)), this)
       : this._lineMarkerConfig;
   }
 
@@ -546,9 +650,10 @@ Additionally, each config object can also contain an optional "layer" key, which
       Sets the size of bubbles to the given Number, data key, or function.
 */
   size(_?: PlotAccessorArg | false): this | PlotAccessor {
-    return arguments.length
-      ? ((this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string)), this)
-      : this._size;
+    if (!arguments.length) return this._size;
+    this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string);
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
+    return this;
   }
 
   /**
@@ -617,7 +722,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   xConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._xConfig = assign(this._xConfig, _!)), this)
+      ? ((this._xConfig = mergeConfigBag(this, "xConfig", _, this._xConfig)), this)
       : this._xConfig;
   }
 
@@ -626,7 +731,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   x2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._x2Config = assign(this._x2Config, _!)), this)
+      ? ((this._x2Config = mergeConfigBag(this, "x2Config", _, this._x2Config)), this)
       : this._x2Config;
   }
 
@@ -664,26 +769,24 @@ Additionally, each config object can also contain an optional "layer" key, which
 *Note:* If a "domain" array is passed to the y-axis config, it will be reversed.
 */
   yConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    if (arguments.length) {
-      const cfg = _ as {domain?: unknown[]};
-      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
-      this._yConfig = assign(this._yConfig, _!);
-      return this;
-    }
-    return this._yConfig;
+    return arguments.length
+      ? ((this._yConfig = mergeConfigBag(this, "yConfig", reverseDomain(_), this._yConfig)), this)
+      : this._yConfig;
   }
 
   /**
       A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 */
   y2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
-    if (arguments.length) {
-      const cfg = _ as {domain?: unknown[]};
-      if (cfg.domain) cfg.domain = cfg.domain.slice().reverse();
-      this._y2Config = assign(this._y2Config, _!);
-      return this;
-    }
-    return this._y2Config;
+    return arguments.length
+      ? ((this._y2Config = mergeConfigBag(this, "y2Config", reverseDomain(_), this._y2Config)), this)
+      : this._y2Config;
   }
 
 }
+
+resolvesReset(
+  Plot.prototype,
+  "backgroundConfig", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
+  "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+);

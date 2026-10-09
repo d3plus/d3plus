@@ -6,6 +6,8 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {arrowEnds, arrowNode} from "../features/edgeArrows.js";
+import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
   paintFromShapeConfig,
@@ -18,6 +20,10 @@ interface SankeyLink {
   source: SankeyNode;
   target: SankeyNode;
   value: number;
+  // Added by d3-sankey: link thickness + per-end y-centers.
+  width?: number;
+  y0?: number;
+  y1?: number;
 }
 type SankeyNode = DataPoint & {
   __d3plus__?: true;
@@ -48,18 +54,36 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
   if (c.links && c.links.length) {
     for (let i = 0; i < c.links.length; i++) {
       const link = c.links[i];
-      const paint = paintFromShapeConfig(linkConfig, link as unknown as DataPoint, i);
+      const datum = link as unknown as DataPoint;
+      const paint = paintFromShapeConfig(linkConfig, datum, i);
       out.push({
         type: "path",
         shapeType: "Link",
         key: `sankey-link-${(link.source.id ?? "")}-${(link.target.id ?? "")}`,
         d: c.pathFn(link),
-        datum: link as unknown as DataPoint,
+        datum,
         paint,
         aria: {
           label: `${drawNodeLabel(viz, link.source, 0)} to ${drawNodeLabel(viz, link.target, 0)}, ${link.value}.`,
         },
       } as SceneNode);
+
+      // Optional directional arrowheads. Flow runs source(left) → target(right):
+      // the target arrow points right into the target, the source arrow points
+      // left into the source (bidirectional when both are set).
+      const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
+      if (ends.source || ends.target) {
+        const width = typeof link.width === "number" ? link.width : 2;
+        const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
+        const size = typeof sizeCfg === "number" ? sizeCfg : Math.max(8, Math.min(width, 28));
+        const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
+        if (ends.target && typeof link.y1 === "number") {
+          out.push(arrowNode({key: `sankey-arrow-t-${link.source.id}-${link.target.id}`, datum, x: link.target.x0, y: link.y1, angle: 0, size, fill, opacity: 1}));
+        }
+        if (ends.source && typeof link.y0 === "number") {
+          out.push(arrowNode({key: `sankey-arrow-s-${link.source.id}-${link.target.id}`, datum, x: link.source.x1, y: link.y0, angle: Math.PI, size, fill, opacity: 1}));
+        }
+      }
     }
   }
 

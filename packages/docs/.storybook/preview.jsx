@@ -18,6 +18,13 @@ const componentName = component => {
   return displayName ? displayName.replace(/_args_[A-z]+/g, "") : null;
 };
 
+// Args printed as their own `const` above the JSX and referenced by shorthand
+// inside `config`. `data` is always hoisted (rows, a datafy generator, or a
+// URL string); `nodes` and `links` only when they hold row arrays.
+const hoistedKeys = ["data", "nodes", "links"];
+const isHoisted = (key, value) =>
+  key === "data" ? value !== undefined : Array.isArray(value);
+
 // Rebuilds the "Show code" snippet for a chart story from its LIVE args.
 // Storybook re-runs this transform with the current args on every control
 // change (the reactive dynamic-source path), so the code block stays in sync
@@ -28,10 +35,31 @@ const componentName = component => {
 const configSourceTransform = (code, {args, component}) => {
   const compName = componentName(component);
   if (!compName || args == null) return code;
-  const stringifiedArgs = stringify(args);
-  return `import {${compName}} from "@d3plus/react";
-${stringifiedArgs.includes("formatAbbreviate") ? `import {formatAbbreviate} from "@d3plus/format";\n` : ""}
-<${component.name} config={${stringifiedArgs}} />`;
+  const hoisted = hoistedKeys.filter(key => isHoisted(key, args[key]));
+  const rest = Object.fromEntries(
+    Object.entries(args).filter(([key]) => !hoisted.includes(key)),
+  );
+  // A URL string skips stringify's cleanup, which would space out its commas.
+  const declarations = hoisted
+    .map(key => {
+      const value = args[key];
+      const printed =
+        typeof value === "string" ? JSON.stringify(value) : stringify(value);
+      return `const ${key} = ${printed};\n\n`;
+    })
+    .join("");
+  const restConfig = stringify(rest);
+  const config = !hoisted.length
+    ? restConfig
+    : restConfig === "{}"
+      ? `{${hoisted.join(", ")}}`
+      : `{\n${hoisted.map(key => `  ${key},\n`).join("")}${restConfig.slice(2)}`;
+  const imports = `import {${compName}} from "@d3plus/react";\n${
+    `${declarations}${config}`.includes("formatAbbreviate")
+      ? `import {formatAbbreviate} from "@d3plus/format";\n`
+      : ""
+  }`;
+  return `${imports}\n${declarations}<${component.name} config={${config}} />`;
 };
 
 const preview = {
@@ -106,7 +134,7 @@ const preview = {
         order: [
           "Introduction",
           "Guides",
-          ["Migration (v3 → v4)", "Frameworks", "Configuration", "Rendering", "Server-Side Rendering", "Data", "Interactivity", "Animation", "Theming", "Color", "Accessibility", "TypeScript"],
+          ["Migration (v3 → v4)", "Frameworks", "Configuration", "Rendering", "Server-Side Rendering", "Exporting", "Data", "Interactivity", "Animation", "Theming", "Color", "Legends", "Accessibility", "TypeScript"],
           "Core",
           "*",
         ],

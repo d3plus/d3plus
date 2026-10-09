@@ -1,12 +1,14 @@
 import {merge as arrayMerge} from "d3-array";
 
 import {addToQueue, unique} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
 import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, BaseClass, constant} from "../../utils/index.js";
+import {broadcastLink} from "./linkGroup.js";
+import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
+import {mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 /**
     First half of the fluent config accessors shared by every Viz chart
@@ -39,6 +41,7 @@ export default class VizBaseConfig extends BaseClass {
       if (this._sceneRenderer) this._scheduleSceneRepaint();
     }
 
+    broadcastLink(this as unknown as VizInstance, "active", _);
     return this;
   }
 
@@ -47,7 +50,7 @@ export default class VizBaseConfig extends BaseClass {
 */
   aggs(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.aggs = assign(this.schema.aggs, _!)), this)
+      ? ((this.schema.aggs = mergeConfigBag(this, "aggs", _)), this)
       : this.schema.aggs;
   }
 
@@ -61,27 +64,67 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
+      Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
+*/
+  attributionIcon(
+    _?: string | ((el: HTMLElement) => void | (() => void)),
+  ): this | string | ((el: HTMLElement) => void | (() => void)) | undefined {
+    return arguments.length
+      ? ((this.schema.attributionIcon = _), this)
+      : (this.schema.attributionIcon as
+          | string
+          | ((el: HTMLElement) => void | (() => void))
+          | undefined);
+  }
+
+  /**
       Configuration object for the attribution style.
 */
   attributionStyle(
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.attributionStyle = assign(this.schema.attributionStyle, _!)), this)
+      ? ((this.schema.attributionStyle = mergeConfigBag(this, "attributionStyle", _)), this)
       : this.schema.attributionStyle;
   }
 
   /**
-      Configuration object for the back button.
+      Configuration object for the back button. Superseded by
+      `.backControlStyle()`/`.backControlClassName()` for the button's
+      appearance (it renders as a real `<button>`, like the zoom/search
+      controls, not a configurable text node) — kept for backwards
+      compatibility, but no longer affects how the button looks.
 */
   backConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.backConfig = assign(this.schema.backConfig, _!)), this)
+      ? ((this.schema.backConfig = mergeConfigBag(this, "backConfig", _)), this)
       : this.schema.backConfig;
   }
 
   /**
+      An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  backControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.backControlClassName = _), this)
+      : this.schema.backControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  backControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.backControlStyle = _), this)
+      : this.schema.backControlStyle;
+  }
+
+  /**
       Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
+
+      When the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.
 */
   color(
     _?:
@@ -124,7 +167,7 @@ export default class VizBaseConfig extends BaseClass {
     _?: Record<string, unknown>,
   ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.colorScaleConfig = assign(this.schema.colorScaleConfig, _!)), this)
+      ? ((this.schema.colorScaleConfig = mergeConfigBag(this, "colorScaleConfig", _)), this)
       : this.schema.colorScaleConfig;
   }
 
@@ -226,7 +269,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      The interval, in milliseconds, for checking if the visualization is visible on the page.
+      The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 */
   detectVisibleInterval(_?: number): this | number {
     return arguments.length
@@ -235,30 +278,12 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Shows a button that allows for downloading the current visualization.
+      When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 */
-  downloadButton(_?: boolean): this | boolean {
+  detectVisibleUnload(_?: boolean): this | boolean {
     return arguments.length
-      ? ((this.schema.downloadButton = _), this)
-      : this.schema.downloadButton;
-  }
-
-  /**
-      Sets specific options of the saveElement function used when downloading the visualization.
-*/
-  downloadConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    return arguments.length
-      ? ((this.schema.downloadConfig = assign(this.schema.downloadConfig, _!)), this)
-      : this.schema.downloadConfig;
-  }
-
-  /**
-      Defines which control group to add the download button into.
-*/
-  downloadPosition(_?: string): this | string {
-    return arguments.length
-      ? ((this.schema.downloadPosition = _), this)
-      : this.schema.downloadPosition;
+      ? ((this.schema.detectVisibleUnload = _), this)
+      : this.schema.detectVisibleUnload;
   }
 
   /**
@@ -405,6 +430,7 @@ Defaults to an empty array (`[]`).
     )
       this._scheduleSceneRepaint();
 
+    broadcastLink(this as unknown as VizInstance, "hover", _);
     return this;
   }
 
@@ -423,11 +449,14 @@ Defaults to an empty array (`[]`).
     // Scene-rendered charts express de-emphasis via the scene's
     // interaction-opacity pass, so repaint to apply/clear the gray treatment.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
+    broadcastLink(this as unknown as VizInstance, "highlight", _);
     return this;
   }
 
   /**
-      Accessor function or string key for the label of each data point.
+      Accessor function, or a constant string applied to every data point's
+      label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+      per-datum object key — pass a function for that).
 */
   label(
     _?: string | ((d: DataPoint, i: number) => string),
@@ -438,7 +467,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Whether to display the legend.
+      Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 */
   legend(
     _?:
@@ -458,7 +487,7 @@ Defaults to an empty array (`[]`).
 */
   legendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)), this)
       : this.schema.legendConfig;
   }
 
@@ -472,6 +501,26 @@ Defaults to an empty array (`[]`).
       ? ((this.schema.legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
         this)
       : this.schema.legendFilterInvert;
+  }
+
+  /**
+      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
+*/
+  legendInset(
+    _?: boolean | ((config: Record<string, unknown>) => boolean),
+  ): this | boolean | ((config: Record<string, unknown>) => boolean) {
+    return arguments.length
+      ? ((this.schema.legendInset = _), this)
+      : this.schema.legendInset;
+  }
+
+  /**
+      Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
+*/
+  legendInsetConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this.schema.legendInsetConfig = mergeConfigBag(this, "legendInsetConfig", _)), this)
+      : this.schema.legendInsetConfig;
   }
 
   /**
@@ -501,7 +550,18 @@ Defaults to an empty array (`[]`).
 */
   legendTooltip(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.legendTooltip = assign(this.schema.legendTooltip, _!)), this)
+      ? ((this.schema.legendTooltip = mergeConfigBag(this, "legendTooltip", _)), this)
       : this.schema.legendTooltip;
   }
 }
+
+resolvesReset(
+  VizBaseConfig.prototype,
+  "aggs",
+  "attributionStyle",
+  "backConfig",
+  "colorScaleConfig",
+  "legendConfig",
+  "legendInsetConfig",
+  "legendTooltip",
+);

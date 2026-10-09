@@ -129,3 +129,22 @@ it("merges provided global config ahead of the component config", () => {
   assert.strictEqual(cfg.shared, "local", "local wins on conflict");
   app.unmount();
 });
+
+it("uses the className passed to createD3plusComponent as the default", () => {
+  const {MockViz} = makeViz();
+  const Comp = createD3plusComponent(MockViz, "factory-chart");
+  const {app, host} = mount({render: () => h(Comp, {config: {}})});
+  assert.ok(host.querySelector("div.factory-chart"), "factory className applied");
+  app.unmount();
+});
+
+it("tolerates visualizations without render() or destroy()", () => {
+  const configs = [];
+  class BareViz {
+    config(c) { configs.push(c); return this; }
+  }
+  const Comp = createD3plusComponent(BareViz);
+  const {app} = mount({render: () => h(Comp, {config: {a: 1}})});
+  assert.strictEqual(configs[0].a, 1, "config forwarded");
+  app.unmount();
+});

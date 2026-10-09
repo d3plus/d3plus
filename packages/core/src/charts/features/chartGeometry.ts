@@ -17,7 +17,7 @@
     @module
 */
 
-import type {Transform} from "@d3plus/render";
+import type {ClipShape, Transform} from "@d3plus/render";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /**
@@ -56,8 +56,8 @@ export function marginOriginTransform(viz: Viz): Transform {
         y: this._margin.top + height / 2,
       };
 
-    Used by Pie, Donut, RadialMatrix, Radar — every chart whose data
-    lays out around a center point (polar / circular geometry).
+    Used by Pie, Donut, RadialMatrix, Radar, Chord — every chart whose
+    data lays out around a center point (polar / circular geometry).
 
     Width and height are the margin-adjusted chart-area dimensions —
     callers usually have them on hand from `chartBounds(viz)` or from
@@ -72,4 +72,14 @@ export function centerChartTransform(
     x: viz._margin.left + width / 2,
     y: viz._margin.top + height / 2,
   };
+}
+
+/**
+    The chart area (the svg minus its margins) as a scene-space rect clip —
+    where zoomable content is clipped so pan/zoom can't spill it over the
+    legend, title, or timeline.
+*/
+export function chartAreaRect(viz: Viz): ClipShape {
+  const {width, height} = chartBounds(viz);
+  return {type: "rect", x: viz._margin.left, y: viz._margin.top, width, height};
 }

@@ -1,27 +1,31 @@
 /**
-    BarChart — Plot with `baseline: 0`, `discrete: "x"`, `shape: "Bar"`.
+    BarChart — Plot with `baseline: 0`, `baselineBreak: true`, `discrete: "x"`,
+    `shape: "Bar"`.
 */
 
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
+import {stackShareTooltipConfig} from "../Plot/stackShareTooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 export const barChartDef: ChartDefinition = {
   name: "BarChart",
   paintDriven: true,
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 
   fields: [
     {key: "baseline", default: 0},
+    {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
+    {key: "tooltipConfig", merge: true, factory: stackShareTooltipConfig},
     {
       key: "legend",
       coerce: "const",
@@ -31,6 +35,8 @@ export const barChartDef: ChartDefinition = {
           arr: DataPoint[],
         ) => unknown;
         return (config: VizInstance, arr: DataPoint[]) => {
+          // Color-category entries never repeat the bars' own ids.
+          if (viz._legendCategories) return base.call(viz, config, arr);
           const legendIds = arr
             .map(viz.schema.groupBy[viz._legendDepth!].bind(viz))
             .sort()
@@ -48,6 +54,8 @@ export const barChartDef: ChartDefinition = {
 };
 
 /**
-    Creates a bar chart based on an array of data.
+    Creates a bar chart based on an array of data. When stacked, each bar's
+    fraction of its stack total is available to tooltip accessors as `share`
+    (unless the data has its own `share` field).
 */
 export default makeChart(barChartDef, Plot);

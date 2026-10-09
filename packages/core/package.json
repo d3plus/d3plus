@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/core",
-  "version": "4.3.0",
+  "version": "4.7.0",
   "description": "Data visualization made easy. A javascript library that extends the popular D3.js to enable fast and beautiful visualizations.",
   "license": "MIT",
   "type": "module",
@@ -43,8 +43,9 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts internal.ts umd-entry.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test": "eslint index.ts internal.ts umd-entry.ts src && eslint --global=it test && mocha 'test/**/*-test.js'",
+    "test:dev-pages": "mocha test/dev-pages.js",
+    "test:coverage": "c8 -r text -r lcov --src src --exclude-after-remap --include 'src/**' --include '*.ts' mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/color": "workspace:*",
@@ -58,6 +59,7 @@
     "@floating-ui/dom": "^1.6.0",
     "d3-array": "^3.2.4",
     "d3-brush": "^3.0.0",
+    "d3-chord": "^3.0.1",
     "d3-color": "^3.1.0",
     "d3-composite-projections": "^1.4.0",
     "d3-force": "^3.0.0",
@@ -72,6 +74,7 @@
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
     "d3-tile": "^1.0.0",
+    "d3-time": "^3.1.0",
     "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
     "d3-zoom": "^3.0.0",
@@ -80,6 +83,7 @@
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {
+    "@bcoe/v8-coverage": "^1.0.2",
     "playwright": "1.59.1"
   }
 }

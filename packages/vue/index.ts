@@ -3,8 +3,11 @@ import {
   BarChart as BarChartClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Chord as ChordClass,
   Donut as DonutClass,
+  Gauge as GaugeClass,
   Geomap as GeomapClass,
+  Histogram as HistogramClass,
   LinePlot as LinePlotClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
@@ -12,6 +15,7 @@ import {
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
+  Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
   Rings as RingsClass,
@@ -56,10 +60,16 @@ export const BarChart = createD3plusComponent(BarChartClass, "chart");
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
+/** Vue component for rendering a d3plus Chord visualization. */
+export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
+/** Vue component for rendering a d3plus Gauge visualization. */
+export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
 export const Geomap = createD3plusComponent(GeomapClass, "chart");
+/** Vue component for rendering a d3plus Histogram visualization. */
+export const Histogram = createD3plusComponent(HistogramClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
 /** Vue component for rendering a d3plus Matrix visualization. */
@@ -74,6 +84,8 @@ export const Pie = createD3plusComponent(PieClass, "chart");
 export const Plot = createD3plusComponent(PlotClass, "chart");
 /** Vue component for rendering a d3plus Priestley visualization. */
 export const Priestley = createD3plusComponent(PriestleyClass, "chart");
+/** Vue component for rendering a d3plus Pyramid visualization. */
+export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 /** Vue component for rendering a d3plus Radar visualization. */
 export const Radar = createD3plusComponent(RadarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */

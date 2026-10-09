@@ -58,3 +58,34 @@ LargerNetwork.parameters = {
   controls: {include: ["center"]},
   docs: {description: {story: "Nodes one hop from the center sit on the inner ring; their neighbors fan out to an outer ring."}}
 };
+
+export const DirectionalArrows = Template.bind({});
+DirectionalArrows.args = {
+  center: "alpha",
+  arrows: "target",
+  links: [
+    {source: "alpha", target: "beta"},
+    {source: "alpha", target: "gamma"},
+    {source: "beta", target: "delta"},
+    {source: "gamma", target: "epsilon"}
+  ]
+};
+DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` draws an arrowhead at each edge's endpoint — following the bezier's tangent for the curved outer-ring links and insetting to the node for the straight center links. Use `\"both\"` or a per-link accessor for bi-directional edges."}}};
+
+export const SizedNodes = Template.bind({});
+SizedNodes.args = {
+  height: 500,
+  center: "alpha",
+  data: [
+    {id: "alpha", value: 50}, {id: "beta", value: 100}, {id: "gamma", value: 10}, {id: "delta", value: 400},
+    {id: "epsilon", value: 25}, {id: "zeta", value: 800}, {id: "eta", value: 60}, {id: "theta", value: 150},
+    {id: "iota", value: 5}, {id: "kappa", value: 300}
+  ],
+  links: [
+    {source: "alpha", target: "beta"}, {source: "alpha", target: "gamma"}, {source: "alpha", target: "delta"},
+    {source: "beta", target: "epsilon"}, {source: "beta", target: "zeta"}, {source: "gamma", target: "eta"},
+    {source: "delta", target: "theta"}, {source: "delta", target: "iota"}, {source: "gamma", target: "kappa"}
+  ],
+  size: "value"
+};
+SizedNodes.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "sizeScale", "sizeLegend"]}, docs: {description: {story: "`size` sizes every node, including the center, with one scale (square-root by default; see `sizeScale`), kept between `sizeMin` and `sizeMax`. A size legend in the corner shows what each radius means."}}};

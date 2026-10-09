@@ -46,7 +46,7 @@ import {D3plusContext} from "@d3plus/react";
 
 Every d3plus class is exported as a React component:
 
-- **Charts** — `AreaPlot`, `BarChart`, `BoxWhisker`, `BumpChart`, `Donut`, `Geomap`, `LinePlot`, `Matrix`, `Network`, `Pack`, `Pie`, `Plot`, `Priestley`, `Radar`, `RadialMatrix`, `Rings`, `Sankey`, `StackedArea`, `Tree`, `Treemap`, `Viz`
+- **Charts** — `AreaPlot`, `BarChart`, `BoxWhisker`, `BumpChart`, `Donut`, `Gauge`, `Geomap`, `LinePlot`, `Matrix`, `Network`, `Pack`, `Pie`, `Plot`, `Priestley`, `Radar`, `RadialMatrix`, `Rings`, `Sankey`, `StackedArea`, `Tree`, `Treemap`, `Viz`
 - **Components** — `Axis`, `AxisBottom`, `AxisLeft`, `AxisRight`, `AxisTop`, `ColorScale`, `Legend`, `Message`, `TextBox`, `Timeline`, `Tooltip`
 - **Shapes** — `Area`, `Bar`, `Box`, `Circle`, `Image`, `Line`, `Path`, `Rect`, `Shape`, `Whisker`
 - **Utilities** — `BaseClass`

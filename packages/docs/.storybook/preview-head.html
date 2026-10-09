@@ -7,8 +7,32 @@
 
 <style>
 
+  /* phones inflate the text of blocks they judge too small to read, which
+     made some code blocks larger than others; keep every size as set */
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
   pre {
     font-family: ui-monospace, monospace !important;
+  }
+
+  /* on phones, wide tables (the args/controls table, markdown tables) scroll
+     within their own box instead of widening the whole page */
+  @media (max-width: 600px) {
+    .sbdocs table,
+    .docblock-argstable {
+      display: block;
+      max-width: 100%;
+      overflow-x: auto;
+    }
+
+    /* inline code is set not to wrap, so a long span widened the page */
+    .sbdocs :not(pre) > code {
+      white-space: normal;
+      overflow-wrap: anywhere;
+    }
   }
 
   .sbdocs-wrapper {
@@ -49,6 +73,12 @@
   .docs-story > div:first-child { /* viz container */
     padding: 0 !important;
   }
+  /* a tighter canvas gutter on phones lets more examples fit without scrolling */
+  @media (max-width: 600px) {
+    .docs-story {
+      padding: 12px !important;
+    }
+  }
 
   /* removes inner viz padding */
   .innerZoomElementWrapper > div:first-child {
@@ -58,20 +88,17 @@
     display: block;
   }
 
-  /* size container div */
+  /* size container div; content wider than the canvas (swatch rows, call
+     grids on a phone) scrolls sideways instead of being cropped */
   .sb-story {
     align-items: stretch;
     display: flex;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     width: 100%;
   }
   .sb-story > div {
     width: 100%;
-  }
-
-  .d3plus-logo .d3plus-plot-x-axis .bar,
-  .d3plus-logo .d3plus-plot-y-axis .bar {
-    transition: opacity 0.2s;
   }
 
 </style>

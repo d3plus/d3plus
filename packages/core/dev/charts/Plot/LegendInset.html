@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>LegendInset · Plot</title>
+  <meta name="description" content="Legends, size legends and colorScales placed inside empty plot corners.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    .viz {
+      height: 420px;
+      margin-bottom: 24px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="viz" id="legend"></div>
+  <div class="viz" id="sized"></div>
+  <div class="viz" id="colorScale"></div>
+  <div class="viz" id="ring"></div>
+  <div class="viz" id="network"></div>
+  <div class="viz" id="pack"></div>
+  <div class="viz" id="styled"></div>
+  <div class="viz" id="off"></div>
+</body>
+
+<script>
+
+  // Points in the top corners and bottom-left leave the bottom-right open.
+  const clusters = [
+    {id: "Alpha", group: "North", x: 1, y: 9, value: 120}, {id: "Beta", group: "North", x: 2, y: 10, value: 1450},
+    {id: "Gamma", group: "North", x: 1.5, y: 8, value: 640}, {id: "Delta", group: "East", x: 9, y: 9, value: 80},
+    {id: "Epsilon", group: "East", x: 10, y: 10, value: 2300}, {id: "Zeta", group: "East", x: 8.5, y: 8, value: 900},
+    {id: "Eta", group: "South", x: 1, y: 1, value: 310}, {id: "Theta", group: "South", x: 2, y: 2, value: 1800},
+    {id: "Iota", group: "South", x: 2.5, y: 1.2, value: 450}
+  ];
+
+  // The legend moves into the empty corner and claims no margin.
+  new d3plus.Plot()
+    .select("#legend")
+    .data(clusters)
+    .groupBy(["group", "id"])
+    .x("x")
+    .y("y")
+    .title("Legend inside the plot")
+    .render();
+
+  // The size legend gets first try at the space; the legend keeps its margin.
+  new d3plus.Plot()
+    .select("#sized")
+    .data(clusters)
+    .groupBy(["group", "id"])
+    .x("x")
+    .y("y")
+    .size("value")
+    .title("Size legend inside, legend in its margin")
+    .render();
+
+  // A colorScale fits as a column (or a row, where that's what fits).
+  new d3plus.Plot()
+    .select("#colorScale")
+    .data(clusters)
+    .groupBy("id")
+    .x("x")
+    .y("y")
+    .colorScale("value")
+    .colorScaleConfig({scale: "linear"})
+    .title("Gradient colorScale inside the plot")
+    .render();
+
+  // A ring of points: the hole in the middle is never used.
+  new d3plus.Plot()
+    .select("#ring")
+    .data(Array.from({length: 24}, (_, i) => ({
+      id: `p${i}`, group: ["A", "B", "C"][i % 3],
+      x: Math.cos(i / 24 * Math.PI * 2), y: Math.sin(i / 24 * Math.PI * 2)
+    })))
+    .groupBy(["group", "id"])
+    .x("x")
+    .y("y")
+    .title("Never inside the marks")
+    .render();
+
+  // A network gathered in the middle of a wide chart; zoom to see the box.
+  new d3plus.Network()
+    .select("#network")
+    .data([
+      {id: "Hub", region: "Core"}, {id: "Alpha", region: "North"}, {id: "Beta", region: "North"},
+      {id: "Gamma", region: "East"}, {id: "Delta", region: "East"}, {id: "Epsilon", region: "South"},
+      {id: "Zeta", region: "South"}, {id: "Eta", region: "West"}
+    ])
+    .groupBy(["region", "id"])
+    .nodes([
+      {id: "Hub", x: 0, y: 0}, {id: "Alpha", x: -1, y: -1.2}, {id: "Beta", x: 0.4, y: -1.4},
+      {id: "Gamma", x: 1.3, y: -0.3}, {id: "Delta", x: 1.2, y: 0.6}, {id: "Epsilon", x: 0.2, y: 1.3},
+      {id: "Zeta", x: -0.8, y: 1}, {id: "Eta", x: -1.4, y: 0.1}
+    ])
+    .links([
+      {source: "Hub", target: "Alpha"}, {source: "Hub", target: "Beta"}, {source: "Hub", target: "Gamma"},
+      {source: "Hub", target: "Delta"}, {source: "Hub", target: "Epsilon"}, {source: "Hub", target: "Zeta"},
+      {source: "Hub", target: "Eta"}, {source: "Alpha", target: "Beta"}, {source: "Gamma", target: "Delta"}
+    ])
+    .render();
+
+  // Pack's circle leaves the corners of a wide chart open.
+  new d3plus.Pack()
+    .select("#pack")
+    .data(clusters)
+    .groupBy(["group", "id"])
+    .sum("value")
+    .render();
+
+  // legendInsetConfig styles the box behind the inset legend.
+  new d3plus.Plot()
+    .select("#styled")
+    .data(clusters)
+    .groupBy(["group", "id"])
+    .x("x")
+    .y("y")
+    .legendInsetConfig({fill: "#f1f3f5", fillOpacity: 0.95, stroke: "#adb5bd", rx: 8, margin: 10})
+    .title("legendInsetConfig")
+    .render();
+
+  // legendInset(false) keeps every legend in its margin.
+  new d3plus.Plot()
+    .select("#off")
+    .data(clusters)
+    .groupBy(["group", "id"])
+    .x("x")
+    .y("y")
+    .size("value")
+    .legendInset(false)
+    .title("legendInset(false)")
+    .render();
+
+</script>
+
+</html>

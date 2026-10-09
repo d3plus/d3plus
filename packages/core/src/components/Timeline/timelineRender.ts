@@ -2,7 +2,6 @@ import {extent, max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
 
-import {colorDefaults} from "@d3plus/color";
 import {date, elem, textWidth} from "@d3plus/dom";
 import {formatDate} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
@@ -11,6 +10,7 @@ import type {GroupNode} from "@d3plus/render";
 import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
+import {parseTimeValues} from "../Axis/timeValues.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
@@ -48,8 +48,8 @@ export function prepareTicks(tl: Timeline): {
   ticks: unknown[];
   tickFormat: (d: Date) => string;
 } {
-  if (tl.schema.ticks) tl.schema.ticks = (tl.schema.ticks as (string | number | false | undefined)[]).map(date);
-  if (tl._data) tl._data = (tl._data as (string | number | false | undefined)[]).map(date);
+  if (tl.schema.ticks) tl.schema.ticks = parseTimeValues(tl.schema.ticks);
+  if (tl._data) tl._data = parseTimeValues(tl._data);
 
   let ticks = tl.schema.ticks ? tl.schema.ticks : tl.schema.domain.map(date);
   if (!tl.schema.ticks) {
@@ -291,7 +291,7 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     .data(playData)
     .select(playButtonGroup.node())
     .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig));
-  if (disabled) tl._playButtonClass.config({fontColor: colorDefaults.missing});
+  if (disabled) tl._playButtonClass.config({fontColor: tl.schema.colorDefaults.missing});
   tl._playButtonClass.render();
 
   // The play button's pixels are composed into the scene (compute mode), but

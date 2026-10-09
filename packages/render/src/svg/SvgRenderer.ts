@@ -1,14 +1,17 @@
 import {type BaseType, select, type Selection} from "d3-selection";
-import {transition, type Transition} from "d3-transition";
+import type {Transition} from "d3-transition";
 import textures from "textures";
 
-import {collapse} from "../animate/interpolate.js";
+import type {FlipTransition} from "../animate/diff.js";
 import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
 import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
 import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
+import {enterStart, reconcileExit} from "./svgFlip.js";
+import {clockedTransition, trackTransition} from "./svgClock.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
+import {configureTexture} from "../textureConfig.js";
 import {
   applyOverlayToElement,
   createOverlayHost,
@@ -51,6 +54,22 @@ type OverlayItem = ReturnType<typeof walkOverlays>[number];
     rendering the page's first sequential-blue gradient).
 */
 let rendererInstanceSeq = 0;
+
+/**
+    The client-space position of an <svg>'s user-space origin — what pointer
+    coordinates are measured from. Read off the screen CTM rather than
+    `getBoundingClientRect()`: for an <svg> nested inside another <svg> (the
+    scene svg inside a chart's compute svg), the bounding rect is the box of
+    its painted *content*, which shifts as content zooms/pans or overflows the
+    viewport. Falls back to the bounding rect where the CTM is unavailable
+    (headless DOMs).
+*/
+function svgClientOrigin(svg: SVGSVGElement): {left: number; top: number} {
+  const ctm = typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
+  if (ctm) return {left: ctm.e, top: ctm.f};
+  const rect = svg.getBoundingClientRect();
+  return {left: rect.left, top: rect.top};
+}
 
 export default class SvgRenderer implements Renderer {
   readonly kind = "svg" as const;
@@ -167,8 +186,16 @@ export default class SvgRenderer implements Renderer {
     if (scene.meta?.background)
       this._svg.style.background = scene.meta.background;
 
-    const t = transition().duration(duration);
-    this._reconcile(select(this._root), scene.root.children, duration, t);
+    const t = clockedTransition(duration);
+    const flip: FlipTransition = {
+      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      instantExitKey: opts?.instantExitKey,
+      reunionEnterKey: opts?.reunionEnterKey,
+      reunionEnterFrom: opts?.reunionEnterFrom,
+      instantExitAll: opts?.instantExitAll,
+    };
+    this._reconcile(select(this._root), scene.root.children, duration, t, flip);
     this._reconcileOverlays(scene);
 
     let cancelled = false;
@@ -254,13 +281,7 @@ export default class SvgRenderer implements Renderer {
       const textureClass = config.texture;
       delete (config as Record<string, unknown>).texture;
       const t = textures[textureClass]();
-      for (const k in config) {
-        if (k in t) {
-          const v = config[k];
-          if (Array.isArray(v)) t[k](...v);
-          else t[k](v);
-        }
-      }
+      configureTexture(t, config);
       select(this._svg).call(t);
       def = t;
       this._textureDefs.set(key, def);
@@ -273,6 +294,7 @@ export default class SvgRenderer implements Renderer {
     children: SceneNode[],
     duration: number,
     t: RenderTransition,
+    flip?: FlipTransition,
   ): void {
     // HtmlOverlay nodes live outside the SVG; they're reconciled separately
     // by `_reconcileOverlays` against the sibling overlay host. Skip the
@@ -323,8 +345,7 @@ export default class SvgRenderer implements Renderer {
       if (d && this.parentNode) removePersistTrail(this.parentNode as Element, d.key);
       if (d) self._trailGrads.remove(d.key);
     });
-    if (duration) exit.transition(t).attr("opacity", 0).remove();
-    else exit.remove();
+    reconcileExit(exit, duration, t, flip, resolveFill);
 
     const enter = sel
       .enter()
@@ -335,7 +356,7 @@ export default class SvgRenderer implements Renderer {
     enter.each(function (this: Element, d: SceneNode) {
       const s = select(this);
       applyStatic(s, d);
-      applyGeometry(s, collapse(d), false, resolveFill);
+      applyGeometry(s, enterStart(d, flip), false, resolveFill);
     });
 
     const merged = enter.merge(sel);
@@ -361,7 +382,7 @@ export default class SvgRenderer implements Renderer {
         duration && canTrail && !persistTrail ? stash.__d3plusTrailPrev__ : undefined;
       applyStatic(s, d);
       if (duration) {
-        const tsel = s.transition(t);
+        const tsel = trackTransition(s.transition(t), t);
         applyGeometry(tsel, d, true, resolveFill);
         if (
           d.type === "text" &&
@@ -392,7 +413,7 @@ export default class SvgRenderer implements Renderer {
       }
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
-        self._reconcile(s, (d as GroupNode).children, duration, t);
+        self._reconcile(s, (d as GroupNode).children, duration, t, flip);
       }
     });
   }
@@ -511,8 +532,8 @@ export default class SvgRenderer implements Renderer {
 
   pick(point: [number, number]): PickResult | null {
     if (!this._svg) return null;
-    const rect = this._svg.getBoundingClientRect();
-    const el = document.elementFromPoint(rect.left + point[0], rect.top + point[1]);
+    const origin = svgClientOrigin(this._svg);
+    const el = document.elementFromPoint(origin.left + point[0], origin.top + point[1]);
     return this._pickFromElement(el);
   }
 
@@ -549,11 +570,11 @@ export default class SvgRenderer implements Renderer {
     if (!this._svg) return;
     this._listening = true;
     const svg = this._svg;
-    // Cache the svg bounding rect so high-frequency pointer events
+    // Cache the svg's client origin so high-frequency pointer events
     // (mousemove during zoom drag) don't trigger forced layout reflow.
-    let cachedRect: DOMRect | null = null;
+    let cachedOrigin: {left: number; top: number} | null = null;
     const invalidateRect = (): void => {
-      cachedRect = null;
+      cachedOrigin = null;
     };
     window.addEventListener("resize", invalidateRect, {passive: true});
     window.addEventListener("scroll", invalidateRect, {passive: true, capture: true});
@@ -563,10 +584,8 @@ export default class SvgRenderer implements Renderer {
       window.removeEventListener("scroll", invalidateRect, {capture: true} as EventListenerOptions);
     };
     const local = (e: MouseEvent): [number, number] => {
-      if (!cachedRect || (cachedRect.width === 0 && cachedRect.height === 0)) {
-        cachedRect = svg.getBoundingClientRect();
-      }
-      return [e.clientX - cachedRect.left, e.clientY - cachedRect.top];
+      if (!cachedOrigin) cachedOrigin = svgClientOrigin(svg);
+      return [e.clientX - cachedOrigin.left, e.clientY - cachedOrigin.top];
     };
     const emit = (type: string, e: MouseEvent): void => {
       const point = local(e);
@@ -588,16 +607,16 @@ export default class SvgRenderer implements Renderer {
       dblclick: e => emit("dblclick", e as MouseEvent),
       contextmenu: e => emit("contextmenu", e as MouseEvent),
       mousemove: e => emit("mousemove", e as MouseEvent),
+      // Always reported, even when no node was hovered, so pointer state
+      // tracked over empty space (e.g. a plot crosshair) can clear.
       mouseleave: e => {
-        if (this._hoverKey !== null) {
-          this._dispatch({
-            type: "mouseleave",
-            point: local(e as MouseEvent),
-            pick: null,
-            nativeEvent: e,
-          });
-          this._hoverKey = null;
-        }
+        this._dispatch({
+          type: "mouseleave",
+          point: local(e as MouseEvent),
+          pick: null,
+          nativeEvent: e,
+        });
+        this._hoverKey = null;
       },
     };
     for (const [k, fn] of Object.entries(this._domListeners))

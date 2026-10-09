@@ -17,7 +17,7 @@ const barSchema: ConfigField[] = [
 ];
 
 /**
-    Creates SVG areas based on an array of data.
+    Creates SVG bars based on an array of data.
 */
 export default class Bar extends Shape {
   /**

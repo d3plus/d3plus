@@ -78,7 +78,7 @@ accessors), and its `_draw` runs the shared Viz pipeline then the chart's own
 Two kinds of def:
 
 - **Data-driven** (`emit(ctx) → SceneNode[]`): Treemap, Pack, Pie, Tree,
-  Network, Sankey, Rings, Geomap, Matrix, RadialMatrix, Priestley, Radar.
+  Network, Sankey, Rings, Chord, Geomap, Matrix, RadialMatrix, Priestley, Radar.
 - **Paint-driven** (`paintDriven: true`): the Plot family (BarChart, LinePlot,
   AreaPlot, StackedArea, BoxWhisker, BumpChart). `Plot._paint` (via `plotPaint`)
   builds `viz._chartScene`; there is no `emit` step.
@@ -176,6 +176,34 @@ pnpm --filter @d3plus/docs run dev    # Storybook on :4000
 ```
 
 The `scripts/dev.js` watcher rebuilds ESM and UMD outputs when source changes.
+
+### Dev pages
+
+Each static package's `dev/` folder holds manual test pages, and
+`http://localhost:4000/` is a generated `dev/index.html` listing them. Core's
+pages mirror the source layout:
+
+```
+packages/core/dev/
+  charts/<Chart>/<Topic>.html      # Plot family charts get their own folder;
+  charts/Plot/<Topic>.html         #   Plot-wide and Viz-wide features live in
+  charts/Viz/<Topic>.html          #   charts/Plot and charts/Viz
+  components/<Component>/<Topic>.html
+  shapes/<Shape>/<Topic>.html
+  utils/<Topic>.html
+```
+
+- Name topics in PascalCase without the chart prefix; a chart's general page
+  is named after its folder (`charts/Treemap/Treemap.html`).
+- Give every page a `<title>` and a one-line
+  `<meta name="description">`; `scripts/dev-index.js` builds the index from
+  them (`pnpm run dev:index`, also run by the dev server).
+- Load bundles from `/umd/d3plus-<pkg>.full.js` and, in core, follow it with
+  `<script src="/dev.js"></script>` (index link + SVG/Canvas switch; any
+  chart page accepts `?renderer=canvas`).
+- Keep data local, next to the page that loads it. Pages must render with no
+  console errors or warnings: `pnpm run test:dev-pages` loads every core page
+  in Chromium (SVG and Canvas) and fails on any.
 
 ### Building
 

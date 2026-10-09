@@ -1,13 +1,28 @@
 import {range} from "d3-array";
 import {select} from "d3-selection";
 
-import {inViewport} from "@d3plus/dom";
+import {inViewport, onFontsLoaded} from "@d3plus/dom";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import type Viz from "./Viz.js";
+import {
+  canObserveVisibility,
+  observeVisibility,
+  syncUnloadObserver,
+} from "./vizVisibility.js";
+
+/**
+    Whether the chart counts as on-screen for this render. `_forceVisible` is set
+    by the observer callbacks, whose margin admits charts that are just outside
+    the strict viewport.
+    @private
+*/
+function isVisible(viz: Viz): boolean {
+  return !!viz._forceVisible || inViewport(viz._select.node());
+}
 
 /**
     Appends a fullscreen SVG to the BODY if a container has not been provided
@@ -55,7 +70,7 @@ function scopeTooltip(viz: Viz): void {
 function autoSize(viz: Viz): void {
   if (
     (!viz.schema.width || !viz.schema.height) &&
-    (!viz.schema.detectVisible || inViewport(viz._select.node()))
+    (!viz.schema.detectVisible || isVisible(viz))
   ) {
     viz._autoWidth = viz.schema.width === undefined;
     viz._autoHeight = viz.schema.height === undefined;
@@ -79,6 +94,12 @@ function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void 
     .style("position", "absolute")
     .style("top", parent.style("padding-top"))
     .style("left", parent.style("padding-left"))
+    // Lets the browser skip layout and paint of the SVG's contents while it
+    // is far off-screen. The SVG is absolutely positioned and explicitly sized,
+    // so it needs no intrinsic size, and tooltips live outside it so are not
+    // clipped. Unset with detectVisible(false), which also keeps it out of
+    // static SVG/PNG output.
+    .style("content-visibility", viz.schema.detectVisible ? "auto" : null)
     .transition()
     .duration(viz.schema.duration)
     .style(
@@ -129,6 +150,8 @@ function resetPolls(viz: Viz): void {
   viz._visiblePoll = clearInterval(viz._visiblePoll);
   viz._resizePoll = clearTimeout(viz._resizePoll);
   viz._scrollPoll = clearTimeout(viz._scrollPoll);
+  viz._visibleUnobserve?.();
+  viz._visibleUnobserve = undefined;
   // scrollContainer is "" when constructed without a window (headless/SSR);
   // there is nothing to unbind and select("") throws on an invalid selector.
   if (viz.schema.scrollContainer)
@@ -161,7 +184,21 @@ function setupDetection(viz: Viz, callback?: () => void): boolean {
       }
     }, viz.schema.detectVisibleInterval);
     return true;
-  } else if (viz.schema.detectVisible && !inViewport(viz._select.node())) {
+  } else if (viz.schema.detectVisible && !isVisible(viz)) {
+    if (canObserveVisibility()) {
+      viz._visibleUnobserve = observeVisibility(
+        viz._select.node(),
+        viz.schema.scrollContainer,
+        () => {
+          viz._visibleUnobserve?.();
+          viz._visibleUnobserve = undefined;
+          viz._forceVisible = true;
+          viz.render(callback);
+        },
+        viz.schema.detectVisibleInterval,
+      );
+      return true;
+    }
     select(viz.schema.scrollContainer).on(`scroll.${viz._uuid}`, () => {
       if (!viz._scrollPoll) {
         viz._scrollPoll = setTimeout(() => {
@@ -270,6 +307,8 @@ function buildDataTable(viz: Viz): void {
     @private
 */
 function finishDraw(viz: Viz, callback?: () => void): void {
+  // scrolled away while data was loading; the next reload redraws
+  if (viz._unloaded) return;
   buildDataTable(viz);
 
   // Run the chart pipeline. Extracted to a free function so the
@@ -278,6 +317,8 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   // loading, callback timing) stays on the class because it's
   // inherently instance-bound.
   runVizPipeline(viz as unknown as VizInstance);
+  viz._instantNextDraw = false;
+  syncUnloadObserver(viz);
 
   if (
     viz._messageClass._isVisible &&
@@ -290,6 +331,16 @@ function finishDraw(viz: Viz, callback?: () => void): void {
         .duration(viz.schema.duration)
         .attr("opacity", 1);
   }
+
+  // Text drawn before a web font finished loading was laid out with the
+  // fallback font's metrics; redraw once it arrives. A render still waiting
+  // on its callback is retried rather than dropped.
+  const redraw = (): void => {
+    if (!viz._fontsUnsubscribe) return;
+    if (viz._callback) setTimeout(redraw, viz.schema.duration);
+    else viz.render();
+  };
+  viz._fontsUnsubscribe ??= onFontsLoaded(redraw);
 
   if (viz.schema.detectResize && (viz._autoWidth || viz._autoHeight)) {
     viz._resizeObserver?.observe(viz._select.node().parentNode);
@@ -332,6 +383,13 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
 */
 export function vizRender(viz: Viz, callback?: () => void): Viz {
   viz._callback = callback;
+  // With unloading switched off nothing would ever reload an unloaded chart,
+  // so drop the observer and treat this as a normal (possibly deferred) render.
+  if (!(viz.schema.detectVisible && viz.schema.detectVisibleUnload)) {
+    viz._unloadUnobserve?.();
+    viz._unloadUnobserve = undefined;
+    viz._unloaded = false;
+  }
   // Resets margins and padding
   viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
   viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
@@ -345,6 +403,7 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
 
   resetPolls(viz);
   if (!setupDetection(viz, callback)) loadAndDraw(viz, callback);
+  viz._forceVisible = false;
 
   // Attaches touchstart event listener to the BODY to hide the tooltip when the user touches any element without data
   select("body").on(`touchstart.${viz._uuid}`, touchstartBody.bind(viz));

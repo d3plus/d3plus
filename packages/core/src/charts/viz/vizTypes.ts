@@ -21,20 +21,27 @@
     @module
 */
 
+import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
+import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
+import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
+import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
 
 import type {DataPoint} from "@d3plus/data";
-import type {ClipShape, SceneNode, Transform} from "@d3plus/render";
+import type {ClipShape, Scene, SceneNode, Transform, TransitionRect} from "@d3plus/render";
 
 import type {
   Axis,
   ColorScale,
   Legend,
   Message,
+  SizeLegend,
   TextBox,
   Timeline,
   Tooltip,
 } from "../../components/index.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+import type {InsetKey, InsetPlacement, InsetRegion} from "../features/insetState.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
@@ -55,6 +62,16 @@ export interface Padding {
   bottom: number;
   left: number;
   right: number;
+}
+
+/** One entry on the drill-down history stack (`Viz._history`), pushed by a click.shape drill-down and popped by Back. */
+export interface DrillDownHistoryEntry {
+  depth: number;
+  filter?: (d: DataPoint, i: number) => boolean;
+  /** `groupBy[groupDepth]`'s value for the clicked node — identifies the reunion node the Back morph grows back into. */
+  groupId?: unknown;
+  /** The groupBy index `groupId` was read at (== `_drawDepth` when the node was clicked). */
+  groupDepth?: number;
 }
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -139,6 +156,8 @@ export interface VizInstance {
   _y2?: (d: DataPoint, i: number) => number | Date | string;
   _shape: (d: DataPoint, i: number) => string;
   _size?: (d: DataPoint, i?: number) => number;
+  /** The data key `size` was set to, when it was set with a string; the size legend's default title. */
+  _sizeKey?: string;
   _value?: (d: DataPoint, i: number) => number;
   _time?: (d: DataPoint, i: number) => string | number | Date;
   _sort?: ((a: DataPoint, b: DataPoint) => number) | null;
@@ -162,6 +181,8 @@ export interface VizInstance {
 
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
+  /** The whole scene last painted (chart, legend, colorScale, chrome). */
+  _paintedScene?: Scene;
   _chartTransform?: Transform;
   _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];
@@ -169,6 +190,21 @@ export interface VizInstance {
   _previousShapes?: string[];
   _previousAnnotations?: Record<string, string[]>;
   _zoomTransform?: Transform;
+  /** Data-shape nodes the automatic `zoomMax` measures when they aren't `_chartScene`'s top level (Plot). */
+  _zoomShapes?: SceneNode[];
+  /** The unzoomed Plot draw an axis-rescaling zoom rescales from. */
+  _plotZoomBase?: PlotZoomBase;
+  /** Pending repaint that drops a Plot's zoom clip once an animated reset settles. */
+  _plotUnclipTimer?: ReturnType<typeof setTimeout>;
+  /**
+      Chart-specific zoom: repaints for a transform and returns true, or
+      returns false to fall back to picture zoom (Plot rescales its axes).
+  */
+  _zoomRescale?: (t: ZoomState, duration?: number) => boolean;
+  /** Cleanup functions returned by `zoomControlIcons`' mount functions, keyed by button. */
+  _zoomIconCleanup?: Partial<Record<ZoomControlIconKey, () => void>>;
+  /** Cleanup function returned by an `attributionIcon` mount function. */
+  _attributionIconCleanup?: () => void;
 
   /* 7. Lifecycle & rendering */
   _select?: D3Selection;
@@ -183,12 +219,36 @@ export interface VizInstance {
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** The `link` group this chart is registered under (see `linkGroup.ts`). */
+  _linkGroup?: string;
+  /** The categorical scale `initColorDefaults` created; linked charts still using it share their group's instead. */
+  _autoColorScale?: unknown;
+  /** Whether the search control's input is currently open. */
+  _searchOpen?: boolean;
+  /** The search control's current (lowercased) search term. */
+  _searchTerm?: string;
+  /** The `_highlight` predicate saved when the search box opened, restored when it closes. */
+  _searchPrevHighlight?: ((d: DataPoint, i?: number) => boolean) | false;
+  /** 0-based index of the current match within `searchMatches(...)`, once Enter/Shift+Enter has stepped to one. */
+  _searchMatchIndex?: number;
   _ordinalColorScale?: ((value: string) => string) | undefined;
   _hoverDatum?: DataPoint | null;
+  /** Epoch ms until which an animated transition is in flight (pointer routing pauses). */
+  _transitionEndsAt?: number;
   _userHover?: number;
   _userDuration?: number;
   _dataCutoff: number;
   _brushing?: boolean;
+  /** Whether the table-view toggle is currently showing the data table instead of the chart. */
+  _tableView?: boolean;
+  /** The data table's current page (0-indexed), when `tableViewPageSize` paginates it. */
+  _tableViewPage?: number;
+  /** The data table's current sort column + direction, when the user has clicked a header. */
+  _tableViewSort?: {column: string; direction: "asc" | "desc"};
+  /** Which dataset the data table currently shows — `viz._data` (raw) once toggled, `viz._filteredData` (aggregate) by default. */
+  _tableViewDataSource?: "raw" | "aggregate";
+  /** Cached first-occurrence-index lookups (exact JSON match, and groupBy-key fallback) for restoring `.data()` insertion order to the aggregate view; invalidated by comparing against the raw array reference they were built from. */
+  _tableViewGroupOrder?: {data: DataPoint[]; exact: Map<string, number>; group: Map<string, number>};
   /** Timeline brush selection (timeline feature). */
   _timelineSelection?: (Date | number)[] | false;
   /** The last drawn timeline value (ms), to detect multi-period trail jumps. */
@@ -196,17 +256,115 @@ export interface VizInstance {
   /** The user-set data, retained to detect changes across `.data()` calls. */
   _userData?: DataPoint[] | string;
   /** Drill-down history stack (back button). */
-  _history?: DataPoint[];
+  _history?: DrillDownHistoryEntry[];
+  /**
+      The local, chart-family-defined "body rect" flip-morph fractions are
+      measured against — e.g. Treemap/Pack's margin-adjusted chart area at
+      local origin, or Plot's measured axis plot rect. Set by `runChartDraw`
+      (via `ChartDefinition.chartBodyRect`) or by Plot's own paint pipeline.
+  */
+  _bodyRect?: {x: number; y: number; width: number; height: number};
+  /**
+      One-shot: the clicked node's rect, captured at click time and
+      normalized as fractions of the *pre-click* `_bodyRect`, armed by
+      `clickShape`. Resolved into `_resolvedEnterFrom` (against the *new*
+      draw's `_bodyRect`) and cleared by `resolveDrillMorph`. Also carries:
+      `key`, the clicked node's own scene key, resolved into
+      `_resolvedInstantExitKey` so its own exit (now filtered out of the new
+      scene) is removed instantly instead of animating on top of the
+      children that replace it; and, when the clicked node carried them
+      (currently only Pie/Donut wedges), `parentStartAngle`/`parentEndAngle`
+      — its angular range, read by the next draw's `pieEmit` to build each
+      entering child wedge's `flipFromArc` (a real arc confined within that
+      range, at full radius) via the actual arc generator.
+  */
+  _pendingEnterOrigin?: {
+    fx: number; fy: number; fw: number; fh: number;
+    key?: string | number;
+    parentStartAngle?: number;
+    parentEndAngle?: number;
+  };
+  /**
+      One-shot: the group id/depth being un-filtered by a Back click, armed by
+      the two Back-click sites — plus the OLD (pre-render) `_bodyRect`,
+      captured at the same moment, so the exiting siblings' own (frozen)
+      geometry can be read as proportions of the frame they were actually
+      laid out in. Resolved into `_resolvedExitTo`/`_resolvedExitToBody` (by
+      finding the matching node in the *new* `_chartScene`) and cleared by
+      `resolveDrillMorph`.
+  */
+  _pendingExitReunion?: {
+    groupId: unknown;
+    groupDepth: number;
+    body?: {x: number; y: number; width: number; height: number};
+  };
+  /**
+      The drill-down morph's resolved enter/exit boxes for the upcoming
+      `drawScene` call, plus each one's "body" reference box (the full
+      layout entering/exiting nodes' own geometry is proportional within —
+      see `DrawOptions.enterFromBody`/`exitToBody`). Set by
+      `resolveDrillMorph`, read and one-shot cleared by `_drawSceneToTarget`.
+  */
+  _resolvedEnterFrom?: TransitionRect;
+  _resolvedEnterFromBody?: TransitionRect;
+  _resolvedExitTo?: TransitionRect;
+  _resolvedExitToBody?: TransitionRect;
+  /** See `DrawOptions.instantExitKey` — the clicked node's own key, resolved from `_pendingEnterOrigin.key`. */
+  _resolvedInstantExitKey?: string | number;
+  /** See `DrawOptions.reunionEnterKey` — the Back click's reunion node's own key, resolved when `resolveDrillMorph` finds a match. */
+  _resolvedReunionEnterKey?: string | number;
+  /** See `DrawOptions.reunionEnterFrom` — the OLD (pre-Back) body rect, the full size the reunion node's former children occupied. */
+  _resolvedReunionEnterFrom?: TransitionRect;
+  /** See `DrawOptions.instantExitAll` — set alongside `_resolvedReunionEnterKey`, when a reunion match was found. */
+  _resolvedInstantExitAll?: boolean;
+  /** Cached measured size of the shared top-left controls panel (back/table-view/search). `measurement` is `topLeftControlsMarkup.ts`-internal (per-item positions); `signature` is the cache key (each contribution's html + resolved style). */
+  _topLeftControlsBox?: {width: number; height: number; signature: string; measurement: unknown};
 
   /* 8. Plot-specific (only present on Plot subclasses) */
   _xAxis?: Axis;
   _yAxis?: Axis;
   _x2Axis?: Axis;
   _y2Axis?: Axis;
+  /** The x/y data keys, when set by string (Plot's default axis titles). */
+  _xKey?: string;
+  _yKey?: string;
   _xFunc?: (d: DataPoint, axis?: string) => number;
   _yFunc?: (d: DataPoint, axis?: string) => number;
+  /** The plot area (inside the axes) in chart content space, set by the paint phase. */
+  _plotArea?: {x: number; y: number; width: number; height: number};
+  /** Crosshair guide-line paint for the shared tooltip. */
+  _crosshairConfig?: Record<string, unknown>;
+  /**
+      The active shared-tooltip hover, if any: the snapped discrete position
+      (pixel + data value), the hovered Line points to mark, and which side of
+      the marks the crosshair draws on.
+  */
+  _sharedHoverState?: {
+    mode: "shared" | "single";
+    axis: "x" | "y";
+    px: number;
+    value: unknown;
+    markers: {datum: DataPoint; x: number; y: number}[];
+    layer: "back" | "front";
+  } | null;
+  /** True while the shared multi-series tooltip owns the tooltip. */
+  _sharedHoverActive?: boolean;
+  /** The tooltip's own `arrow`/`thead`/`tbody`, held while the shared tooltip replaces them. */
+  _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
+  /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
+  _sizeLegendFinal?: SizeLegendScale | null;
+  /** Size-legend component, rendered in the bottom-right corner panel. */
+  _sizeLegendClass?: SizeLegend;
+  /** The bottom-right corner panel reserved in `vizDrawPure` for this draw (see `bottomRightControlsMarkup.ts`). */
+  _bottomRightBox?: BottomRightBox | null;
+  /** Chrome being laid out for the chart's interior this pass, which claims no margin (see `pipeline/insetPlacement.ts`). */
+  _insetPending?: Set<InsetKey> | null;
+  /** The chrome drawn inside the chart's negative space this draw, and where. */
+  _insetPlacement?: InsetPlacement | null;
+  /** The default `legendPosition`/`colorScalePosition` accessors; a different one means the user picked a side. */
+  _insetAutoPositions?: {legend: unknown; colorScale: unknown};
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
@@ -228,9 +386,22 @@ export interface VizInstance {
   _labelConnectorConfig?: Record<string, unknown>;
   _lineMarkerConfig?: Record<string, unknown>;
   _confidenceConfig?: Record<string, unknown>;
+  /** The `trendLine` setting: a regression type, `true` (linear), or `false`. */
+  _trendLine?: TrendLineType;
+  _trendLineConfig?: Record<string, unknown>;
+  /** The trend lines fit by `computePlotTrendFits` for the current draw. */
+  _trendFits?: TrendFit[];
   _xCutoff?: number;
   _yCutoff?: number;
   _discreteCutoff?: number;
+  /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
+  _discreteExtent?: (d: DataPoint) => [number, number];
+  /** The series part of a stacked row's stack group; by default every groupBy level above the leaf. */
+  _stackGroup?: (d: DataPoint, i: number) => string;
+  /** Extra room (px) reserved above a Plot's chart area, inside its margins. */
+  _plotInsetTop?: number;
+  /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
+  _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */
@@ -239,13 +410,14 @@ export interface VizInstance {
   _timelineClass?: Timeline;
   _titleClass?: TextBox;
   _subtitleClass?: TextBox;
-  _backClass?: TextBox;
   _messageClass?: Message;
   _tooltipClass?: Tooltip;
   _legendSort?: (a: DataPoint, b: DataPoint) => number;
   _legendPosition?: (config: VizInstance) => string | false;
   _legend?: ((config: VizInstance, data: DataPoint[]) => boolean) | boolean;
   _legendDepth?: number;
+  /** The color category each legend entry stands for, when the legend is labelled by color rather than groupBy. */
+  _legendCategories?: WeakMap<DataPoint, string>;
   _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
   _title?: ((data: DataPoint[]) => string | false) | string | false;
@@ -274,6 +446,14 @@ export interface VizInstance {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   _zoomBrush?: any;
   _zoomSet?: boolean;
+  /** Whether a Geomap's themed basemap resolved dark on the latest draw. */
+  _basemapDark?: boolean;
+  /** Whether a Geomap is watching its backdrop for theme changes. */
+  _themeWatch?: boolean;
+  /** The attribution d3plus last set from the tile URL (vs. a user-set one). */
+  _tileAttribution?: string | false;
+  /** Whether a compact (ⓘ) attribution was clicked open. */
+  _attributionPinned?: boolean;
   _zoomToBounds?: (bounds: number[][] | null, duration?: number) => void;
   _renderTiles?: (transform?: ZoomTransform, duration?: number) => void;
   /**
@@ -305,10 +485,15 @@ export interface VizInstance {
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
   _thresholdFunction?(data: DataPoint[], tree?: unknown): DataPoint[];
+  /** The chart's size-legend radius scale, estimated before layout for the given chart area (see `ChartDefinition.sizeLegendScale`). */
+  _sizeLegendScale?(available: {width: number; height: number}): SizeLegendScale | null;
+  /** The region chart chrome may be drawn inside, with the chart's marks as obstacles (see `ChartDefinition.insetRegion`). */
+  _insetRegion?(): InsetRegion | null;
   toScene?(): SceneNode;
   config?(_?: D3plusConfig): D3plusConfig | this;
   active?(_?: unknown): unknown;
   hover?(_?: unknown): unknown;
+  highlight?(_?: unknown): unknown;
   /* Fluent accessors invoked imperatively by features/pipeline (installFluent). */
   timeFilter?(_?: ((d: DataPoint, i: number) => boolean) | false): VizInstance;
   render?(callback?: () => void): VizInstance;

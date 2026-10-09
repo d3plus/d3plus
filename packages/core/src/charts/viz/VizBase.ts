@@ -1,16 +1,20 @@
 import {select} from "d3-selection";
 
 import {unique} from "@d3plus/data";
-import {assign, date} from "@d3plus/dom";
+import {date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import {accessor, constant} from "../../utils/index.js";
 import type {D3plusConfig} from "../../utils/index.js";
+import type {ZoomControlIcons} from "../drawSteps/zoomControlsMarkup.js";
+import type {SizeLegendScale, SizeLegendSize} from "../../components/SizeLegend/sizeLegendLayout.js";
+import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 import VizBaseConfig from "./VizBaseConfig.js";
+import {isPlainObject, mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 /**
     Second half of the fluent config accessors shared by every Viz chart
-    (`loadingHTML` through `zoomPadding`), extending `VizBaseConfig` which
+    (`loadingHTML` through `tableViewPageSize`), extending `VizBaseConfig` which
     holds the first half. Split purely so each file stays under the
     `max-lines` budget; the methods remain real prototype methods, so
     `BaseClass.config()` reflection and polymorphic `this` chaining are
@@ -52,8 +56,61 @@ export default class VizBase extends VizBaseConfig {
 */
   messageStyle(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.messageStyle = assign(this.schema.messageStyle, _!)), this)
+      ? ((this.schema.messageStyle = mergeConfigBag(this, "messageStyle", _)), this)
       : this.schema.messageStyle;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+*/
+  minimapClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.minimapClassName = _), this)
+      : this.schema.minimapClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapLabelStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapLabelStyle = _), this)
+      : this.schema.minimapLabelStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapStyle = _), this)
+      : this.schema.minimapStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyle = _), this)
+      : this.schema.minimapViewportStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  minimapViewportStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.minimapViewportStyleActive = _), this)
+      : this.schema.minimapViewportStyleActive;
   }
 
   /**
@@ -88,6 +145,68 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
+      Resolves the string the search box matches its typed term against, for
+      a given datum. Defaults to the mark's resolved on-screen label
+      (`viz._drawLabel`) — the same text the user reads on the chart.
+      Override it to match against something else instead, e.g. a data
+      field that isn't shown as the label.
+
+      This is checked alongside, not instead of, every level of the datum's
+      own groupBy hierarchy — searching a leaf's label also matches its
+      ancestor group's cell/legend entry, and vice versa, regardless of
+      this accessor's override.
+*/
+  searchAccessor(
+    _?: (d: DataPoint, i: number) => string,
+  ): this | ((d: DataPoint, i: number) => string) {
+    return arguments.length
+      ? ((this.schema.searchAccessor = _), this)
+      : this.schema.searchAccessor;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  searchControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.searchControlClassName = _), this)
+      : this.schema.searchControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyle = _), this)
+      : this.schema.searchControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleActive = _), this)
+      : this.schema.searchControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  searchControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.searchControlStyleHover = _), this)
+      : this.schema.searchControlStyleHover;
+  }
+
+  /**
       The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 */
   select(_?: string | HTMLElement): this | ReturnType<typeof select> {
@@ -113,9 +232,44 @@ export default class VizBase extends VizBaseConfig {
   shapeConfig(): D3plusConfig;
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): this | D3plusConfig {
+    if (!arguments.length) return this.schema.shapeConfig;
+    if (isPlainObject(_)) validateShapeConfig(this.constructor.name, _);
+    this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _);
+    return this;
+  }
+
+  /**
+      Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+*/
+  sizeLegend(
+    _?:
+      | boolean
+      | ((config: Record<string, unknown>, scale: SizeLegendScale, size: SizeLegendSize) => boolean),
+  ):
+    | this
+    | boolean
+    | ((config: Record<string, unknown>, scale: SizeLegendScale, size: SizeLegendSize) => boolean) {
     return arguments.length
-      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
-      : this.schema.shapeConfig;
+      ? ((this.schema.sizeLegend = typeof _ === "function" ? _ : constant(_)), this)
+      : this.schema.sizeLegend;
+  }
+
+  /**
+      Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
+*/
+  sizeLegendConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+    return arguments.length
+      ? ((this.schema.sizeLegendConfig = mergeConfigBag(this, "sizeLegendConfig", _)), this)
+      : this.schema.sizeLegendConfig;
+  }
+
+  /**
+      Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
+*/
+  sizeLegendPosition(_?: "right" | "bottom"): this | "right" | "bottom" {
+    return arguments.length
+      ? ((this.schema.sizeLegendPosition = _), this)
+      : this.schema.sizeLegendPosition;
   }
 
   /**
@@ -134,7 +288,7 @@ export default class VizBase extends VizBaseConfig {
 */
   subtitleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.subtitleConfig = assign(this.schema.subtitleConfig, _!)), this)
+      ? ((this.schema.subtitleConfig = mergeConfigBag(this, "subtitleConfig", _)), this)
       : this.schema.subtitleConfig;
   }
 
@@ -245,7 +399,7 @@ export default class VizBase extends VizBaseConfig {
 */
   timelineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.timelineConfig = assign(this.schema.timelineConfig, _!)), this)
+      ? ((this.schema.timelineConfig = mergeConfigBag(this, "timelineConfig", _)), this)
       : this.schema.timelineConfig;
   }
 
@@ -290,7 +444,7 @@ export default class VizBase extends VizBaseConfig {
 */
   titleConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.titleConfig = assign(this.schema.titleConfig, _!)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
       : this.schema.titleConfig;
   }
 
@@ -321,7 +475,7 @@ export default class VizBase extends VizBaseConfig {
 */
   tooltipConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.tooltipConfig = assign(this.schema.tooltipConfig, _!)), this)
+      ? ((this.schema.tooltipConfig = mergeConfigBag(this, "tooltipConfig", _)), this)
       : this.schema.tooltipConfig;
   }
 
@@ -344,7 +498,7 @@ export default class VizBase extends VizBaseConfig {
 */
   totalConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this.schema.totalConfig = assign(this.schema.totalConfig, _!)), this)
+      ? ((this.schema.totalConfig = mergeConfigBag(this, "totalConfig", _)), this)
       : this.schema.totalConfig;
   }
 
@@ -400,7 +554,27 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
-      An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+*/
+  zoomControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.zoomControlClassName = _), this)
+      : this.schema.zoomControlClassName;
+  }
+
+  /**
+      Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+*/
+  zoomControlIcons(
+    _?: ZoomControlIcons,
+  ): this | ZoomControlIcons | undefined {
+    return arguments.length
+      ? ((this.schema.zoomControlIcons = _), this)
+      : (this.schema.zoomControlIcons as ZoomControlIcons | undefined);
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 */
   zoomControlStyle(
     _?: Record<string, unknown> | false,
@@ -411,7 +585,7 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
-      An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+      An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 */
   zoomControlStyleActive(
     _?: Record<string, unknown> | false,
@@ -422,7 +596,7 @@ export default class VizBase extends VizBaseConfig {
   }
 
   /**
-      An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+      An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 */
   zoomControlStyleHover(
     _?: Record<string, unknown> | false,
@@ -441,4 +615,76 @@ export default class VizBase extends VizBaseConfig {
       : this.schema.zoomPadding;
   }
 
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.
+*/
+  tableViewClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.tableViewClassName = _), this)
+      : this.schema.tableViewClassName;
+  }
+
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+*/
+  tableViewControlClassName(_?: string): this | string {
+    return arguments.length
+      ? ((this.schema.tableViewControlClassName = _), this)
+      : this.schema.tableViewControlClassName;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyle(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyle = _), this)
+      : this.schema.tableViewControlStyle;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyleActive(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyleActive = _), this)
+      : this.schema.tableViewControlStyleActive;
+  }
+
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+*/
+  tableViewControlStyleHover(
+    _?: Record<string, unknown> | false,
+  ): this | Record<string, unknown> | false {
+    return arguments.length
+      ? ((this.schema.tableViewControlStyleHover = _), this)
+      : this.schema.tableViewControlStyleHover;
+  }
+
+  /**
+      The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.
+*/
+  tableViewPageSize(_?: number | false): this | number | false {
+    return arguments.length
+      ? ((this.schema.tableViewPageSize = _), this)
+      : this.schema.tableViewPageSize;
+  }
+
 }
+
+resolvesReset(
+  VizBase.prototype,
+  "messageStyle",
+  "shapeConfig",
+  "sizeLegendConfig",
+  "subtitleConfig",
+  "timelineConfig",
+  "titleConfig",
+  "tooltipConfig",
+  "totalConfig",
+);

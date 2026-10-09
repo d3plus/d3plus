@@ -198,52 +198,186 @@ ShapeBackgroundImages.args = {
 };
 ShapeBackgroundImages.parameters = {controls: {include: ["shapeConfig", "size", "sizeMax"]}, docs: {description: {story: "Render each circle as an image by setting `shapeConfig.Circle.backgroundImage` to a per-datum URL (and blanking the `label`) — here country icons stand in for the bubbles on a GDP-versus-complexity plot."}}};
 
-export const TrendlineUsingAnnotations = Template.bind()
-TrendlineUsingAnnotations.args = {
-  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&include=State+County:04000US06&drilldowns=County,Year&measures=Premature%20Death,Diabetes%20Prevalence&Year=2025",
-  groupBy: "County",
-  annotations: [
-    {
-      // x is "Diabetes Prevalence" (a proportion, ~0.07–0.15) and y is
-      // "Premature Death" (years of potential life lost per 100,000, ~4,000–
-      // 27,000) — so annotation coordinates must use those same units to
-      // overlay the scatter. Trend rises across the diabetes range; Baseline is
-      // flat near the county median (~8,000).
-      data: [
-        {
-          "id": "Trend",
-          "x": 0.075,
-          "y": 6000
-        },
-        {
-          "id": "Trend",
-          "x": 0.15,
-          "y": 14000
-        },
-        {
-          "id": "Baseline",
-          "x": 0.075,
-          "y": 8000
-        },
-        {
-          "id": "Baseline",
-          "x": 0.15,
-          "y": 8000
-        }
-      ],
-      shape: "Line",
-      stroke: funcify(
-        d => d["id"] === "Trend" ? "#6A994E" : "#c3c3c3",
-        "d => d['id'] === 'Trend' ? '#6A994E' : '#c3c3c3'"
-      ),
-      strokeDasharray: "10",
-      strokeWidth: 2
-    }
+export const Annotations = Template.bind({});
+Annotations.args = {
+  data: [
+    {store: "Store 1", visitors: 4.2, revenue: 48},
+    {store: "Store 2", visitors: 5.1, revenue: 61},
+    {store: "Store 3", visitors: 6.0, revenue: 66},
+    {store: "Store 4", visitors: 6.8, revenue: 79},
+    {store: "Store 5", visitors: 7.5, revenue: 84},
+    {store: "Store 6", visitors: 8.3, revenue: 97},
+    {store: "Store 7", visitors: 9.0, revenue: 182},
+    {store: "Store 8", visitors: 9.6, revenue: 108},
+    {store: "Store 9", visitors: 10.4, revenue: 121},
+    {store: "Store 10", visitors: 11.2, revenue: 126},
+    {store: "Store 11", visitors: 12.1, revenue: 139},
+    {store: "Store 12", visitors: 13.0, revenue: 150}
   ],
-  x: "Diabetes Prevalence",
-  y: "Premature Death"
+  groupBy: "store",
+  x: "visitors",
+  y: "revenue",
+  legend: false,
+  shapeConfig: {Circle: {fill: "#4dabf7"}},
+  annotations: [
+    // A dashed reference line across the plot, with a small text label above it.
+    {
+      shape: "Line",
+      data: [{id: "target", x: 4, y: 100}, {id: "target", x: 13.4, y: 100}],
+      stroke: "#adb5bd",
+      strokeDasharray: "6 4",
+      strokeWidth: 1.5
+    },
+    {
+      shape: "Rect",
+      data: [{id: "target-label", x: 4.9, y: 106, width: 84, height: 18}],
+      fill: "transparent",
+      label: "Target: $100k",
+      labelConfig: {fontColor: "#868e96", fontSize: 11, padding: 0, textAnchor: "start", verticalAlign: "middle"}
+    },
+    // A pull-out label for one data point: a ring around it, a leader line, and a callout box,
+    // all drawn in front of the marks.
+    {
+      shape: "Circle",
+      layer: "front",
+      data: [{id: "ring", x: 9.0, y: 182, r: 13}],
+      fill: "transparent",
+      stroke: "#c92a2a",
+      strokeWidth: 2
+    },
+    {
+      shape: "Line",
+      layer: "front",
+      data: [{id: "leader", x: 9.35, y: 180}, {id: "leader", x: 10.6, y: 172}],
+      stroke: "#c92a2a",
+      strokeWidth: 1.5
+    },
+    {
+      shape: "Rect",
+      layer: "front",
+      data: [{id: "callout", x: 11.8, y: 172, width: 150, height: 40}],
+      fill: "#fff5f5",
+      stroke: "#c92a2a",
+      strokeWidth: 1.5,
+      label: "Store 7\n$182k from 9k visitors",
+      labelConfig: {fontColor: "#c92a2a", fontSize: 12, padding: 4, textAnchor: "middle", verticalAlign: "middle"}
+    }
+  ]
 };
-TrendlineUsingAnnotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Draw reference lines over the data with `annotations`: each entry brings its own `data` and a `Line` shape, plotted in the same `x`/`y` units as the marks — here a sloped trend and a flat baseline."}}};
+Annotations.parameters = {controls: {include: ["annotations"]}, docs: {description: {story: "Layer custom shapes over the data with `annotations`. Each entry names a `shape`, brings its own `data` in the same `x`/`y` units as the marks, and sits `\"back\"` (default) or `\"front\"` of them via `layer`. Here a dashed `Line` with a `Rect` text label marks a revenue target, and a pull-out label calls out one store: a `Circle` ring around the point, a `Line` leader, and a `Rect` callout carrying a `label`. Width, height and radius are in pixels. To draw a fitted trend line, use `trendLine` instead."}}};
+
+export const TrendLine = Template.bind({});
+TrendLine.args = {
+  data: [
+    {region: "North", id: "North 1", x: 1.0, y: 8.8},
+    {region: "North", id: "North 2", x: 1.8, y: 8.8},
+    {region: "North", id: "North 3", x: 2.6, y: 14.0},
+    {region: "North", id: "North 4", x: 3.4, y: 12.7},
+    {region: "North", id: "North 5", x: 4.2, y: 13.2},
+    {region: "North", id: "North 6", x: 5.0, y: 18.8},
+    {region: "North", id: "North 7", x: 5.8, y: 26.6},
+    {region: "North", id: "North 8", x: 6.6, y: 26.8},
+    {region: "North", id: "North 9", x: 7.4, y: 28.0},
+    {region: "North", id: "North 10", x: 8.2, y: 23.1},
+    {region: "North", id: "North 11", x: 9.0, y: 28.4},
+    {region: "North", id: "North 12", x: 9.8, y: 26.9},
+    {region: "South", id: "South 1", x: 1.0, y: 17.1},
+    {region: "South", id: "South 2", x: 1.8, y: 18.7},
+    {region: "South", id: "South 3", x: 2.6, y: 22.4},
+    {region: "South", id: "South 4", x: 3.4, y: 33.3},
+    {region: "South", id: "South 5", x: 4.2, y: 34.5},
+    {region: "South", id: "South 6", x: 5.0, y: 36.7},
+    {region: "South", id: "South 7", x: 5.8, y: 39.0},
+    {region: "South", id: "South 8", x: 6.6, y: 34.1},
+    {region: "South", id: "South 9", x: 7.4, y: 37.9},
+    {region: "South", id: "South 10", x: 8.2, y: 44.1},
+    {region: "South", id: "South 11", x: 9.0, y: 47.8},
+    {region: "South", id: "South 12", x: 9.8, y: 51.7},
+    {region: "West", id: "West 1", x: 1.0, y: 34.6},
+    {region: "West", id: "West 2", x: 1.8, y: 28.2},
+    {region: "West", id: "West 3", x: 2.6, y: 37.7},
+    {region: "West", id: "West 4", x: 3.4, y: 41.7},
+    {region: "West", id: "West 5", x: 4.2, y: 42.9},
+    {region: "West", id: "West 6", x: 5.0, y: 42.1},
+    {region: "West", id: "West 7", x: 5.8, y: 48.9},
+    {region: "West", id: "West 8", x: 6.6, y: 47.5},
+    {region: "West", id: "West 9", x: 7.4, y: 60.8},
+    {region: "West", id: "West 10", x: 8.2, y: 63.2},
+    {region: "West", id: "West 11", x: 9.0, y: 62.6},
+    {region: "West", id: "West 12", x: 9.8, y: 62.8}
+  ],
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: true
+};
+TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Set `trendLine: true` to fit a least-squares line to the plotted data. Each series (here the parent `region` of each point) gets its own dashed line in its color, drawn behind the marks. Hover a line for its equation, R² and number of observations."}}};
+
+export const TrendLineConfidence = Template.bind({});
+TrendLineConfidence.args = {
+  data: TrendLine.args.data,
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: "linear",
+  trendLineConfig: {
+    group: "all",
+    confidence: true
+  }
+};
+TrendLineConfidence.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.group: \"all\"` fits one line to every point instead of one per series, and `confidence: true` shades the 95% confidence band for the line (set `confidenceLevel` to change it, and `confidenceConfig` to style it). Bands are drawn for linear fits only."}}};
+
+export const TrendLineTypes = Template.bind({});
+TrendLineTypes.args = {
+  data: [
+    {id: "p1", x: 0.0, y: -36.7},
+    {id: "p2", x: 0.5, y: -26.9},
+    {id: "p3", x: 1.0, y: -14.5},
+    {id: "p4", x: 1.5, y: -7.4},
+    {id: "p5", x: 2.0, y: -4.7},
+    {id: "p6", x: 2.5, y: -1.9},
+    {id: "p7", x: 3.0, y: 1.6},
+    {id: "p8", x: 3.5, y: 1.1},
+    {id: "p9", x: 4.0, y: -1.1},
+    {id: "p10", x: 4.5, y: -0.6},
+    {id: "p11", x: 5.0, y: 2.5},
+    {id: "p12", x: 5.5, y: -4.6},
+    {id: "p13", x: 6.0, y: -5.2},
+    {id: "p14", x: 6.5, y: -0.6},
+    {id: "p15", x: 7.0, y: -2.6},
+    {id: "p16", x: 7.5, y: 1.5},
+    {id: "p17", x: 8.0, y: 4.6},
+    {id: "p18", x: 8.5, y: 8.9},
+    {id: "p19", x: 9.0, y: 21.6},
+    {id: "p20", x: 9.5, y: 25.0}
+  ],
+  groupBy: "id",
+  x: "x",
+  y: "y",
+  legend: false,
+  trendLine: "polynomial",
+  trendLineConfig: {
+    order: 3,
+    stroke: "#c92a2a",
+    strokeDasharray: "none"
+  }
+};
+TrendLineTypes.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Besides `\"linear\"`, `trendLine` accepts `\"exponential\"`, `\"logarithmic\"`, `\"power\"` and `\"polynomial\"` (with `trendLineConfig.order` setting the degree). Other `trendLineConfig` keys style the line: here a solid red cubic fit. Points with a single `groupBy` level are each their own series, so they share one trend line."}}};
+
+export const TrendLineProjection = Template.bind({});
+TrendLineProjection.args = {
+  data: TrendLine.args.data,
+  groupBy: ["region", "id"],
+  x: "x",
+  y: "y",
+  trendLine: "linear",
+  trendLineConfig: {
+    group: "all",
+    confidence: true,
+    projection: {to: 14}
+  }
+};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a continuous axis, `trendLineConfig.projection` with `{to}` extends the fit to that value; the x axis widens to fit it. A number would step that many times past the last value, by the median gap between values. With `confidence`, the band beyond the data is a prediction interval, wider than the confidence band, since it covers where individual new points could fall."}}};
 
 export const MultipleShapes = Template.bind({});
 MultipleShapes.args = {
@@ -295,3 +429,72 @@ SortingShapes.args = {
   y: "value"
 };
 SortingShapes.parameters = {controls: {include: ["shapeSort"]}, docs: {description: {story: "When a plot mixes shape types, `shapeSort` sets the order they are drawn — the comparator here renders `Line` marks before `Circle`s so the points sit on top of the connecting line."}}};
+
+export const SizeLegend = Template.bind({});
+SizeLegend.args = {
+  data: [
+    {id: "Alpha", x: 4, y: 7, revenue: 120}, {id: "Beta", x: 5, y: 2, revenue: 1450},
+    {id: "Gamma", x: 6, y: 9, revenue: 640}, {id: "Delta", x: 2, y: 4, revenue: 80},
+    {id: "Epsilon", x: 8, y: 5, revenue: 2300}, {id: "Zeta", x: 3, y: 8, revenue: 900},
+    {id: "Eta", x: 7, y: 3, revenue: 310}, {id: "Theta", x: 9, y: 8, revenue: 1800}
+  ],
+  groupBy: "id",
+  legendPosition: "bottom",
+  size: "revenue",
+  sizeMax: 36,
+  sizeMin: 4,
+  x: "x",
+  y: "y"
+};
+SizeLegend.parameters = {controls: {include: ["size", "sizeLegend", "sizeLegendPosition", "sizeLegendConfig", "legendPosition"]}, docs: {description: {story: "When `size` sizes the bubbles by more than one value, a size legend appears in the chart's bottom-right corner. Its circles are drawn at the same radii as the chart's bubbles, so the largest circle matches the largest bubble exactly. When `size` is a data key, that key becomes the legend's title. By default the legend takes room from the right margin, so the chart keeps its full height. Set `sizeLegendPosition` to `\"bottom\"` to take room from the bottom instead, or `sizeLegend` to `false` to hide it."}}};
+
+export const SizeLegendConfig = Template.bind({});
+SizeLegendConfig.args = {
+  ...SizeLegend.args,
+  colorScale: "y",
+  colorScalePosition: "right",
+  sizeLegendConfig: {
+    title: "Revenue ($M)",
+    values: [100, 1000, 2000],
+    tickFormat: funcify(
+      d => `$${d}M`,
+      "d => `$${d}M`"
+    )
+  }
+};
+SizeLegendConfig.parameters = {controls: {include: ["sizeLegendConfig", "colorScalePosition"]}, docs: {description: {story: "`sizeLegendConfig` customizes the size legend: `title`, `values` (the circles to draw), `tickFormat`, and styling through `shapeConfig`, `lineConfig`, `labelConfig`, and `titleConfig`. A colorScale on the right shares the right column, shortening so it ends above the size legend."}}};
+
+export const LegendInset = Template.bind({});
+LegendInset.args = {
+  data: [
+    {id: "Alpha", group: "North", x: 1, y: 9}, {id: "Beta", group: "North", x: 2, y: 10},
+    {id: "Gamma", group: "North", x: 1.5, y: 8}, {id: "Delta", group: "East", x: 9, y: 9},
+    {id: "Epsilon", group: "East", x: 10, y: 10}, {id: "Zeta", group: "East", x: 8.5, y: 8},
+    {id: "Eta", group: "South", x: 1, y: 1}, {id: "Theta", group: "South", x: 2, y: 2},
+    {id: "Iota", group: "South", x: 2.5, y: 1.2}
+  ],
+  groupBy: ["group", "id"],
+  x: "x",
+  y: "y"
+};
+LegendInset.parameters = {controls: {include: ["legendInset", "legendInsetConfig", "size"]}, docs: {description: {story: "When the points leave a corner of the plot empty, the legend is drawn there, over a translucent box, instead of taking a margin. If the chart also sizes its points, the size legend gets the first try at that space and the legend goes back to its margin. Points that enclose an empty area never get a legend placed inside them."}}};
+
+const countryRegions = [
+  ["Kenya", "Africa", 3.1, 62], ["Nigeria", "Africa", 2.4, 53], ["Egypt", "Africa", 4.2, 71],
+  ["Ghana", "Africa", 2.9, 64], ["Brazil", "Americas", 5.6, 76], ["Canada", "Americas", 8.9, 82],
+  ["Chile", "Americas", 6.3, 80], ["Mexico", "Americas", 5.2, 75], ["China", "Asia", 6.1, 78],
+  ["India", "Asia", 3.4, 70], ["Japan", "Asia", 8.1, 84], ["Vietnam", "Asia", 4.6, 74],
+  ["France", "Europe", 8.4, 83], ["Germany", "Europe", 8.8, 81], ["Poland", "Europe", 7.2, 78],
+  ["Spain", "Europe", 7.8, 83], ["Australia", "Oceania", 8.7, 83], ["Fiji", "Oceania", 4.9, 68],
+  ["New Zealand", "Oceania", 8.3, 82], ["Samoa", "Oceania", 4.4, 73]
+];
+
+export const ColorByCategory = Template.bind({});
+ColorByCategory.args = {
+  data: countryRegions.map(([country, region, income, life]) => ({country, region, income, life})),
+  groupBy: "country",
+  color: "region",
+  x: "income",
+  y: "life"
+};
+ColorByCategory.parameters = {controls: {include: ["color", "groupBy", "legend", "legendPosition"]}, docs: {description: {story: "When `color` is a category that isn't one of the `groupBy` levels, here each country's point is colored by its region, the legend shows one entry per category, labelled by the category. Click an entry to hide every point in that region (click again to bring them back), shift+click it to show only that region, or hover it to highlight the region's points. When `color` returns actual CSS colors there is no category to name, so the legend stays hidden."}}};

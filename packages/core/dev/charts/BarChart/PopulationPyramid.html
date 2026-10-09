@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>PopulationPyramid · BarChart</title>
+  <meta name="description" content="Horizontal stacked BarChart drawn as a population pyramid, with a timeline.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <!-- <script src="https://d3plus.org/js/d3plus-plot.v0.7.full.js"></script> -->
+
+</head>
+
+<body>
+  <div class="viz" id="viz1"></div>
+</body>
+
+<script>
+
+// Fake California-style population pyramid: five-year age bands for two
+// years, with Female counts negated so they extend left of the axis.
+const ages = ["0-4", "5-9", "10-14", "15-19", "20-24", "25-29", "30-34", "35-39",
+  "40-44", "45-49", "50-54", "55-59", "60-64", "65-69", "70-74", "75-79", "80+"];
+const base = [2.4, 2.5, 2.6, 2.6, 2.8, 3.0, 2.9, 2.7, 2.6, 2.5, 2.5, 2.4, 2.2, 1.8, 1.4, 0.9, 1.0];
+const data = [];
+[2019, 2020].forEach((year, y) => {
+  ages.forEach((age, i) => {
+    const total = base[i] * 1e6 * (1 + y * 0.01);
+    const femaleRatio = 0.49 + i * 0.004;
+    data.push({Year: year, Age: age, Gender: "Male", "Total Population": Math.round(total * (1 - femaleRatio))});
+    data.push({Year: year, Age: age, Gender: "Female", "Total Population": -Math.round(total * femaleRatio)});
+  });
+});
+
+new d3plus.BarChart()
+  .data(data)
+  .config({
+    axisPersist: true,
+    height: 800,
+    groupBy: "Gender",
+    discrete: "y",
+    y: "Age",
+    ySort: (a, b) => ages.indexOf(a.Age) - ages.indexOf(b.Age),
+    x: "Total Population",
+    stacked: true,
+    time: "Year",
+  })
+  .render();
+
+</script>
+
+</html>

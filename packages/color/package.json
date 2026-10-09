@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/color",
-  "version": "4.3.0",
+  "version": "4.7.0",
   "description": "Color functions that extent the ability of d3-color.",
   "license": "MIT",
   "type": "module",
@@ -39,7 +39,7 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'",
+    "test": "eslint index.ts src && eslint --global=it test && mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {

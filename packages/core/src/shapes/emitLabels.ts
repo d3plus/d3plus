@@ -17,7 +17,7 @@ import type {BuildLabelDataOpts} from "./buildLabelData.js";
 import type {SceneNode} from "@d3plus/render";
 
 /** Defaults that match Shape's `_labelConfig` so chart emits look like Shape labels. */
-const shapeLabelDefaults = {
+export const shapeLabelDefaults = {
   fontMin: 8,
   fontMax: 50,
   fontResize: true,

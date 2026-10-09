@@ -3,24 +3,15 @@ import path from "node:path";
 import {parseSync, printSync} from "@swc/core";
 
 const hiddenMethods = {
-  AreaPlot: ["shape", "zoom"],
-  BarChart: ["shape", "zoom"],
-  BoxWhisker: ["shape", "zoom"],
-  BumpChart: ["shape", "zoom"],
-  Donut: ["shape", "zoom"],
-  LinePlot: ["shape", "zoom"],
-  Pack: ["zoom"],
-  Pie: ["zoom"],
-  Plot: ["zoom"],
-  Priestley: ["zoom"],
-  Priestley: ["zoom"],
-  Radar: ["zoom"],
-  RadialMatrix: ["zoom"],
-  Rings: ["zoom"],
-  Sankey: ["zoom"],
-  StackedArea: ["shape", "zoom"],
-  Tree: ["zoom"],
-  Treemap: ["shape", "zoom"],
+  AreaPlot: ["shape"],
+  BarChart: ["shape"],
+  BoxWhisker: ["shape"],
+  BumpChart: ["shape"],
+  Chord: ["shape"],
+  Donut: ["shape"],
+  LinePlot: ["shape"],
+  StackedArea: ["shape"],
+  Treemap: ["shape"],
 };
 
 function isWrappedInQuotes(str) {
@@ -41,8 +32,7 @@ const hasParent = ({augments}) =>
 // components/Axis/Axis.ts), but the Storybook args/stories are organized flat by
 // category. Collapse a source path to its first segment (the category) so the
 // generated paths match the flat layout the stories import.
-const collapseCategory = p =>
-  p ? `/${p.split("/").filter(Boolean)[0]}` : "";
+const collapseCategory = p => (p ? `/${p.split("/").filter(Boolean)[0]}` : "");
 
 export default function (
   story,
@@ -230,7 +220,8 @@ export default function (
   // Prefer this class's own config interface (Axis → AxisConfig) so shared key
   // names like `title` read the right meaning; fall back to the cross-interface
   // merge for inherited/universal keys (shape configs, D3plusConfig).
-  const ifaceSpecific = (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
+  const ifaceSpecific =
+    (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
   const ifaceMerged = interfaceDocs.merged || {};
   const hideRe = disabledMethods.length
     ? new RegExp(`^(${disabledMethods.join("|")}.*)$`)
@@ -306,7 +297,9 @@ function withDefault(arg, value) {
   ) {
     arg.defaultValue = value;
     arg.table = {
-      defaultValue: {summary: vt === "array" ? JSON.stringify(value) : String(value)},
+      defaultValue: {
+        summary: vt === "array" ? JSON.stringify(value) : String(value),
+      },
     };
   } else {
     arg.table = {defaultValue: {summary: "undefined"}};
@@ -346,7 +339,15 @@ function configArgType(value, doc) {
         )
         .filter(Boolean);
       arg.control.type = arg.options.length < 5 ? "radio" : "select";
-    } else if (types.some(t => t === "object" || t.startsWith("record") || t.startsWith("array") || t.endsWith("[]")))
+    } else if (
+      types.some(
+        t =>
+          t === "object" ||
+          t.startsWith("record") ||
+          t.startsWith("array") ||
+          t.endsWith("[]"),
+      )
+    )
       arg.control.type = "object";
     else if (types.includes("number")) arg.control.type = "number";
     else if (types.includes("string")) arg.control.type = "text";

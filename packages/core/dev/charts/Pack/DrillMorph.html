@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DrillMorph · Pack</title>
+    <meta name="description" content="Click a circle to drill in; children grow out of the clicked circle (issue #166).">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        padding: 10px;
+        font: 13px sans-serif;
+      }
+      #viz {
+        display: block;
+        height: calc(100vh - 50px);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      <span id="durationLabel">600ms</span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // Issue #166 manual check, Pack variant: click a top-level circle to
+    // drill into its children — they should start at the clicked circle's
+    // rect and grow to fill it, instead of fading in in place. "Back" should
+    // mirror this — the reappearing circles shrink back into the parent's rect.
+    var data = [
+      {parent: "Group 1", id: "alpha", value: 29},
+      {parent: "Group 1", id: "beta", value: 10},
+      {parent: "Group 1", id: "gamma", value: 2},
+      {parent: "Group 2", id: "delta", value: 29},
+      {parent: "Group 2", id: "eta", value: 25},
+      {parent: "Group 2", id: "theta", value: 8},
+      {parent: "Group 3", id: "iota", value: 40},
+      {parent: "Group 3", id: "kappa", value: 12},
+    ];
+
+    var chart = new d3plus.Pack()
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .depth(0)
+      .duration(600)
+      .select("#viz")
+      .render();
+
+    document.getElementById("duration").addEventListener("input", function (e) {
+      var v = +e.target.value;
+      document.getElementById("durationLabel").textContent = v + "ms";
+      chart.duration(v);
+    });
+  </script>
+</html>

@@ -4,7 +4,10 @@
 <head>
 
   <meta charset="utf-8">
-  <script src="../../umd/d3plus-core.full.js"></script>
+  <title>Logo · Plot</title>
+  <meta name="description" content="Animated d3plus logo built from Plot annotations.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
 
   <style>
 
@@ -18,11 +21,6 @@
       height: 300px;
       justify-content: center;
       width: 100%;
-    }
-
-    .d3plus-plot-x-axis .bar,
-    .d3plus-plot-y-axis .bar {
-      transition: opacity 0.75s;
     }
 
   </style>
@@ -154,7 +152,6 @@ const icon = {
         ...threeLabelConfig,
         fontColor: dColor
       },
-      padding: 0,
       shape: "Rect",
       strokeWidth: 0
     },
@@ -196,7 +193,6 @@ const animationFrames = [
           ...threeLabelConfig,
           fontColor: threeColor
         },
-        padding: 0,
         shape: "Rect",
         strokeWidth: 0
       },
@@ -326,7 +322,6 @@ const animationFrames = [
           ...threeLabelConfig,
           fontColor: threeColor
         },
-        padding: 0,
         shape: "Rect",
         strokeWidth: 0
       },

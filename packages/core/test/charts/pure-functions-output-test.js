@@ -33,6 +33,16 @@ it("vizPreDrawPure drawDepth is capped to groupBy.length - 1", () => {
   assert.strictEqual(ctx.drawDepth, 2, "depth capped to groupBy.length - 1");
 });
 
+it("vizPreDrawPure id closure stringifies numeric ids, including a merged datum's", () => {
+  const chart = new BarChart()
+    .data([{id: 1, x: 1, y: 10}, {id: 2, x: 2, y: 20}])
+    .groupBy("id");
+  const ctx = vizPreDrawPure(chart);
+  assert.strictEqual(ctx.id({id: 1}, 0), "1");
+  assert.deepStrictEqual(ctx.id({id: [1, 2]}, 0), ["1", "2"]);
+  assert.deepStrictEqual(ctx.id({id: ["a", "b"]}, 0), ["a", "b"]);
+});
+
 it("vizPreDrawPure id closure resolves to the groupBy value at drawDepth", () => {
   const chart = new BarChart()
     .data([{group: "G1", id: "a"}, {group: "G1", id: "b"}])

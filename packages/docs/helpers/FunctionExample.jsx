@@ -11,9 +11,20 @@ const theme = convert();
  * Displays a utility-function demo as two syntax-highlighted code blocks sitting
  * side-by-side — the call/input on the left, the returned value on the right —
  * separated by an arrow. Used by the function docs (Data / Text / Format / Color)
- * to show input → output at a glance.
+ * to show input → output at a glance. Without `output` it renders the single
+ * `input` block full width, for code-only examples.
  */
 export default function FunctionExample({input, output, language = "jsx"}) {
+  if (output === undefined)
+    return (
+      <ThemeProvider theme={theme}>
+        <div style={{fontSize: 13}}>
+          <SyntaxHighlighter language={language} copyable bordered padded>
+            {input}
+          </SyntaxHighlighter>
+        </div>
+      </ThemeProvider>
+    );
   return (
     <ThemeProvider theme={theme}>
       <div

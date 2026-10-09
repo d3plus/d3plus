@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DrillMorph · Treemap</title>
+    <meta name="description" content="Click a cell to drill in; children grow out of the clicked cell (issue #166). Includes a zoom toggle.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        padding: 10px;
+        font: 13px sans-serif;
+      }
+      #viz {
+        display: block;
+        height: calc(100vh - 50px);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      <span id="durationLabel">600ms</span>
+      &nbsp;|&nbsp;
+      zoom: <input id="zoom" type="checkbox" />
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // Issue #166 manual check: click a top-level cell to drill into its
+    // children — they should start at the clicked cell's rect and grow to
+    // fill the chart, instead of fading in in place. Click "Back" to see the
+    // mirror: the reappearing cells should shrink back into the parent's rect.
+    var chart = new d3plus.Treemap()
+      .data("./data.json")
+      .groupBy(["group", "item"])
+      .sum("value")
+      .depth(0)
+      .duration(600)
+      .select("#viz")
+      .render();
+
+    document.getElementById("duration").addEventListener("input", function (e) {
+      var v = +e.target.value;
+      document.getElementById("durationLabel").textContent = v + "ms";
+      chart.duration(v);
+    });
+
+    document.getElementById("zoom").addEventListener("change", function (e) {
+      chart.zoom(e.target.checked).render();
+    });
+  </script>
+</html>

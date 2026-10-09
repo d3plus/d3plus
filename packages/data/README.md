@@ -36,6 +36,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`unique`](#unique) | ES5 implementation to reduce an Array of values to unique instances. |
 
@@ -199,6 +200,29 @@ merge([
 ```ts
 {id: ["bar", "foo"], group: "A", value: 30, links: [1, 2, 3]}
 ```
+
+***
+
+<a id="nest"></a>
+
+### nest()
+
+> **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
+
+Defined in: [nest.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/data/src/nest.ts#L17)
+
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
+
+#### Returns
+
+`NestEntry`[]
 
 ***
 

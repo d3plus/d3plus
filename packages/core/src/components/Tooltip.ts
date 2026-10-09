@@ -2,20 +2,20 @@ import {select} from "d3-selection";
 import {computePosition, arrow as arrowMiddleware, offset, flip, shift} from "@floating-ui/dom";
 import type {VirtualElement} from "@floating-ui/dom";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
+import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem, stylize} from "@d3plus/dom";
+import {elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const tooltipSchema: ConfigField[] = [
   {key: "arrow", coerce: "const", default: accessor("arrow", "")},
-  {key: "background", coerce: "const", default: constant(colorDefaults.light)},
+  {key: "background", coerce: "const", factory: t => () => t.schema.colorDefaults.light},
   {key: "body", coerce: "const", default: accessor("body", "")},
   {key: "border", coerce: "const", default: constant("1px solid rgba(0, 0, 0, 0.25)")},
   {key: "borderRadius", coerce: "const", default: constant("4px")},
@@ -29,6 +29,7 @@ const tooltipSchema: ConfigField[] = [
   {key: "tbody", coerce: "identity", default: []},
   {key: "thead", coerce: "identity", default: []},
   {key: "title", coerce: "const", default: accessor("title", "")},
+  {key: "titleSwatch", coerce: "identity", default: true},
   {key: "maxWidth", coerce: "const", default: constant("300px")},
   {key: "minWidth", coerce: "const", default: constant("200px")},
   {key: "width", coerce: "const", default: constant("auto")},
@@ -225,10 +226,11 @@ function buildTable(
   const theadTrUpdate = theadTr.merge(theadTrEnter as never);
   stylize(theadTrUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
   const th = theadTrUpdate.selectAll("th").data(that.schema.thead);
-  th.enter()
+  const thUpdate = th.enter()
     .append("th")
     .merge(th as never)
     .html(cellContent as never);
+  stylize(thUpdate as never, that.schema.thStyle);
   th.exit().remove();
 
   tableEnter.append("tbody").attr("class", "d3plus-tooltip-tbody");
@@ -240,11 +242,11 @@ function buildTable(
   const trUpdate = tr.merge(trEnter as never);
   stylize(trUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
   const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
-  td.enter()
+  const tdUpdate = td.enter()
     .append("td")
     .merge(td as never)
     .html(cellContent as never);
-  stylize(td, that.schema.tdStyle);
+  stylize(tdUpdate as never, that.schema.tdStyle);
 }
 
 /**
@@ -382,14 +384,17 @@ export default class Tooltip extends BaseClass {
     };
     this.schema.tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
-      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string)) as unknown as string,
+      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string, this.schema.colorDefaults)) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
     this.schema.trStyle = {
       "border-top": (d: unknown, i: number) =>
         i ? "1px solid rgba(0, 0, 0, 0.1)" : "none",
     };
-    this.schema.tdStyle = {};
+    // First column (labels) left-aligned, value columns right-aligned.
+    const cellAlign = (_d: unknown, i: number) => (i ? "right" : "left");
+    this.schema.tdStyle = {"text-align": cellAlign};
+    this.schema.thStyle = {"text-align": cellAlign};
   }
 
   /**
@@ -445,7 +450,7 @@ export default class Tooltip extends BaseClass {
   arrowStyle(_: Record<string, string>): this;
   arrowStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.arrowStyle = assign(this.schema.arrowStyle, _!)), this)
+      ? ((this.schema.arrowStyle = mergeConfigBag(this, "arrowStyle", _)), this)
       : this.schema.arrowStyle;
   }
 
@@ -456,7 +461,7 @@ export default class Tooltip extends BaseClass {
   bodyStyle(_: Record<string, string>): this;
   bodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.bodyStyle = assign(this.schema.bodyStyle, _!)), this)
+      ? ((this.schema.bodyStyle = mergeConfigBag(this, "bodyStyle", _)), this)
       : this.schema.bodyStyle;
   }
 
@@ -502,7 +507,7 @@ export default class Tooltip extends BaseClass {
   footerStyle(_: Record<string, string>): this;
   footerStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.footerStyle = assign(this.schema.footerStyle, _!)), this)
+      ? ((this.schema.footerStyle = mergeConfigBag(this, "footerStyle", _)), this)
       : this.schema.footerStyle;
   }
 
@@ -553,7 +558,7 @@ export default class Tooltip extends BaseClass {
   tableStyle(_: Record<string, string>): this;
   tableStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tableStyle = assign(this.schema.tableStyle, _!)), this)
+      ? ((this.schema.tableStyle = mergeConfigBag(this, "tableStyle", _)), this)
       : this.schema.tableStyle;
   }
 
@@ -564,7 +569,7 @@ export default class Tooltip extends BaseClass {
   tbodyStyle(_: Record<string, string>): this;
   tbodyStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tbodyStyle = assign(this.schema.tbodyStyle, _!)), this)
+      ? ((this.schema.tbodyStyle = mergeConfigBag(this, "tbodyStyle", _)), this)
       : this.schema.tbodyStyle;
   }
 
@@ -575,7 +580,7 @@ export default class Tooltip extends BaseClass {
   theadStyle(_: Record<string, string>): this;
   theadStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.theadStyle = assign(this.schema.theadStyle, _!)), this)
+      ? ((this.schema.theadStyle = mergeConfigBag(this, "theadStyle", _)), this)
       : this.schema.theadStyle;
   }
 
@@ -586,7 +591,7 @@ export default class Tooltip extends BaseClass {
   titleStyle(_: Record<string, string>): this;
   titleStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.titleStyle = assign(this.schema.titleStyle, _!)), this)
+      ? ((this.schema.titleStyle = mergeConfigBag(this, "titleStyle", _)), this)
       : this.schema.titleStyle;
   }
 
@@ -597,7 +602,7 @@ export default class Tooltip extends BaseClass {
   tooltipStyle(_: Record<string, string>): this;
   tooltipStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tooltipStyle = assign(this.schema.tooltipStyle, _!)), this)
+      ? ((this.schema.tooltipStyle = mergeConfigBag(this, "tooltipStyle", _)), this)
       : this.schema.tooltipStyle;
   }
 
@@ -613,18 +618,54 @@ export default class Tooltip extends BaseClass {
   trStyle(_: Record<string, unknown>): this;
   trStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.trStyle = assign(this.schema.trStyle, _!)), this)
+      ? ((this.schema.trStyle = mergeConfigBag(this, "trStyle", _)), this)
       : this.schema.trStyle;
   }
 
   /**
-      An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
+      An object with CSS keys and values to be applied to all <td> elements inside of each <tr>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+@example <caption>default styles</caption>
+  {
+    "text-align": (d, i) => i ? "right" : "left"
+  }
 */
-  tdStyle(): Record<string, string>;
-  tdStyle(_: Record<string, string>): this;
-  tdStyle(_?: Record<string, string>): unknown {
+  tdStyle(): Record<string, unknown>;
+  tdStyle(_: Record<string, unknown>): this;
+  tdStyle(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.tdStyle = assign(this.schema.tdStyle, _!)), this)
+      ? ((this.schema.tdStyle = mergeConfigBag(this, "tdStyle", _)), this)
       : this.schema.tdStyle;
   }
+
+  /**
+      An object with CSS keys and values to be applied to all <th> elements inside of the <thead>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+@example <caption>default styles</caption>
+  {
+    "text-align": (d, i) => i ? "right" : "left"
+  }
+*/
+  thStyle(): Record<string, unknown>;
+  thStyle(_: Record<string, unknown>): this;
+  thStyle(_?: Record<string, unknown>): unknown {
+    return arguments.length
+      ? ((this.schema.thStyle = mergeConfigBag(this, "thStyle", _)), this)
+      : this.schema.thStyle;
+  }
 }
+
+resolvesReset(
+  Tooltip.prototype,
+  "arrowStyle",
+  "bodyStyle",
+  "footerStyle",
+  "tableStyle",
+  "tbodyStyle",
+  "theadStyle",
+  "titleStyle",
+  "tooltipStyle",
+  "trStyle",
+  "tdStyle",
+  "thStyle",
+);

@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/ssr",
-  "version": "4.3.0",
+  "version": "4.7.0",
   "description": "Server-side rendering for d3plus visualizations — render charts to SVG strings and PNG buffers in Node, with no browser.",
   "license": "MIT",
   "type": "module",
@@ -37,12 +37,13 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it test && mocha 'test/**/*-test.js'",
+    "test": "eslint index.ts src && eslint --global=it test && mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",
-    "@d3plus/render": "workspace:*"
+    "@d3plus/render": "workspace:*",
+    "undici": "^7.28.0"
   },
   "peerDependencies": {
     "@napi-rs/canvas": ">=0.1.0",

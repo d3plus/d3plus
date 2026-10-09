@@ -32,9 +32,17 @@ export interface GeomapTileOptions {
   /** Per-tile fetch timeout in milliseconds. Default 15000. */
   tileTimeout?: number;
   /**
+      User-Agent sent with each tile request by the default fetcher. Defaults
+      to one naming d3plus; set it to identify your app, as tile providers such
+      as OpenStreetMap require. Ignored when `fetchTile` is set.
+  */
+  tileUserAgent?: string;
+  /**
       Custom tile fetcher — return the raw image bytes (or `null`/throw to skip)
       for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults
-      to the global `fetch`.
+      to the global `fetch`. The caller owns the network request made here:
+      d3plus does not apply SSRF filtering to this path, so a `fetchTile` can
+      reach internal/private hosts (e.g. a self-hosted tile server) on purpose.
   */
   fetchTile?: (url: string) => Promise<ArrayBuffer | Uint8Array | null>;
 }

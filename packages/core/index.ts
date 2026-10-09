@@ -3,8 +3,11 @@ export {
   BarChart,
   BoxWhisker,
   BumpChart,
+  Chord,
   Donut,
+  Gauge,
   Geomap,
+  Histogram,
   LinePlot,
   Matrix,
   Network,
@@ -12,6 +15,7 @@ export {
   Pie,
   Plot,
   Priestley,
+  Pyramid,
   Radar,
   RadialMatrix,
   Rings,
@@ -31,6 +35,7 @@ export {
   ColorScale,
   Legend,
   Message,
+  SizeLegend,
   TextBox,
   Timeline,
   Tooltip,
@@ -53,6 +58,7 @@ export {
   accessor,
   BaseClass,
   configPrep,
+  configWarnings,
   constant,
   RESET,
 } from "./src/utils/index.js";
@@ -60,12 +66,18 @@ export {
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorDefaultsConfig,
   ColorScaleConfig,
   LegendConfig,
+  SizeLegendConfig,
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TrendLineConfig,
 } from "./src/utils/index.js";
+export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
+export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 
 export type {
   AnyShapeConfig,

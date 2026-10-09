@@ -177,7 +177,14 @@ export default class CanvasRenderer implements Renderer {
     this._reconcileOverlays(scene);
 
     const ease = opts?.ease ?? cubicInOut;
-    const interp = interpolateScene(prev, scene, trailLog);
+    const interp = interpolateScene(prev, scene, trailLog, {
+      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      instantExitKey: opts?.instantExitKey,
+      reunionEnterKey: opts?.reunionEnterKey,
+      reunionEnterFrom: opts?.reunionEnterFrom,
+      instantExitAll: opts?.instantExitAll,
+    });
     const start = now();
     let cancelled = false;
 
@@ -542,11 +549,11 @@ export default class CanvasRenderer implements Renderer {
       dblclick: e => emit("dblclick", e as MouseEvent),
       contextmenu: e => emit("contextmenu", e as MouseEvent),
       mousemove: e => emit("mousemove", e as MouseEvent),
+      // Always reported, even when no node was hovered, so pointer state
+      // tracked over empty space (e.g. a plot crosshair) can clear.
       mouseleave: e => {
-        if (this._hoverKey !== null) {
-          this._dispatch({type: "mouseleave", point: local(e as MouseEvent), pick: null, nativeEvent: e});
-          this._hoverKey = null;
-        }
+        this._dispatch({type: "mouseleave", point: local(e as MouseEvent), pick: null, nativeEvent: e});
+        this._hoverKey = null;
       },
     };
     for (const [k, fn] of Object.entries(this._domListeners)) canvas.addEventListener(k, fn);

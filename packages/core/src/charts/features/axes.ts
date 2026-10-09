@@ -40,15 +40,19 @@ import {max} from "d3-array";
 
 import type Axis from "../../components/Axis/Axis.js";
 
+import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measureEndLabels, placeEndLabels} from "./axisEndLabels.js";
+import type {XLabelMode} from "./axisEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
+import {buildXConfig} from "./xAxisConfig.js";
+import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {LabelWidth, PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /** A measured axis's outer bounding box. */
 type AxisBounds = {width: number; height: number; x: number; y: number};
 
-/** A queued production-axis scene, drained after the shape loop. */
-type AxisScene = {key: string; transform: {x: number; y: number}; axis: Axis};
+/** A queued production-axis scene, drained after the shape loop; `gridOnly` keeps just its gridlines. */
+type AxisScene = {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean};
 
 /** The y/y2 bounds + claimed widths a y-axis measure pass produces. */
 type YAxisMeasure = {yBounds: AxisBounds; yWidth: number | undefined; y2Bounds: AxisBounds; y2Width: number | undefined};
@@ -126,6 +130,7 @@ export interface AxisMeasureResult {
   xOffsetRight: number;
   topOffset: number;
   xHeight: number;
+  xLabelMode: XLabelMode;
 }
 
 /** Measure the y/y2 test axes and report their bounds + claimed widths. */
@@ -145,7 +150,7 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(viz._yConfig)
+      .config(plotAxisConfig(viz, "y"))
       .scale(yConfigScale)
       .measure();
   }
@@ -173,39 +178,6 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
   return {yBounds, yWidth, y2Bounds, y2Width};
 }
 
-/** Build the shared x-axis config object, including the no-y-axis variant. */
-function buildXConfig(viz: Viz, inputs: AxisMeasureInputs): Record<string, unknown> {
-  const {xTicks, showX, showY, xData, xScalePadding} = inputs;
-
-  const xC: Record<string, unknown> = {
-    data: xData,
-    locale: viz.schema.locale,
-    rounding: viz.schema.xDomain ? "none" : "outside",
-    scalePadding: xScalePadding,
-  };
-  if (!showY && showX) {
-    xC.barConfig = {stroke: "transparent"};
-    xC.tickSize = 0;
-    xC.shapeConfig = {
-      labelBounds: (d: {labelBounds: {height: number; y: number}}, i: number) => {
-        const {height, y} = d.labelBounds;
-        const width = viz.schema.width / 2;
-        const x = i ? -width : 0;
-        return {x, y, width, height};
-      },
-      labelConfig: {
-        padding: 0,
-        rotate: 0,
-        textAnchor: (d: {id: unknown}) =>
-          xTicks && d.id === xTicks[0] ? "start" : "end",
-      },
-      labelRotation: false,
-    };
-  }
-
-  return xC;
-}
-
 /**
     Measure the x/x2 test axes and solve the coupled four-side offsets,
     interleaving the line-label measure between the two x-axis passes.
@@ -217,6 +189,7 @@ function measureXTestAxes(
   yWidth: number | undefined,
   y2Width: number | undefined,
   measureLineLabels: () => LineLabelMeasurement,
+  ends: boolean,
 ): Omit<AxisMeasureResult, "yBounds" | "y2Bounds" | "yWidth" | "y2Width" | "xC"> {
   const {
     xTest, x2Test, yTest, xDomain, x2Domain, xTicks, x2Ticks,
@@ -225,6 +198,7 @@ function measureXTestAxes(
   } = inputs;
 
   let xRangeMax: number | undefined = undefined;
+  const xOverrides = ends ? END_LABEL_AXIS_CONFIG : {};
 
   if (showX) {
     xTest
@@ -235,7 +209,8 @@ function measureXTestAxes(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(viz._xConfig)
+      .config(plotAxisConfig(viz, "x"))
+      .config(xOverrides)
       .scale(xConfigScale)
       .measure();
   }
@@ -253,7 +228,8 @@ function measureXTestAxes(
       .ticks(xTicks)
       .width(width)
       .config(xC)
-      .config(viz._xConfig)
+      .config(plotAxisConfig(viz, "x"))
+      .config(xOverrides)
       .scale(xConfigScale)
       .measure();
   }
@@ -279,25 +255,25 @@ function measureXTestAxes(
   const x2Bounds = x2Test.outerBounds() as AxisBounds;
   const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
 
-  const xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
   if (showX) {
     xTest.range([xOffsetLeft, undefined]).measure();
   }
 
-  const topOffset = showY
-    ? (
-        yTest.shapeConfig().labelConfig as {fontSize: () => number}
-      ).fontSize() / 2
-    : 0;
+  const yLabelConfig = yTest.shapeConfig().labelConfig as {fontSize: () => number};
+  const topOffset = (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
 
   const xOffsetRight = max([
+    0,
     y2Width,
     width - xTestRange[1],
     width - x2TestRange[1],
   ] as number[])!;
   const xBounds = xTest.outerBounds() as AxisBounds;
-  const xHeight = xBounds.height + (showY ? xTest.padding() : 0);
+  const endSpace = ends ? endLabelSpace(measureEndLabels(xTest), height - x2Height) : 0;
+  const xHeight = ends ? endSpace : xBounds.height + (showY || showX ? xTest.padding() : 0);
+  const xLabelMode: XLabelMode = !ends ? "axis" : endSpace ? "ends" : "none";
 
   return {
     xRangeMax,
@@ -310,6 +286,7 @@ function measureXTestAxes(
     xOffsetRight,
     topOffset,
     xHeight,
+    xLabelMode,
   };
 }
 
@@ -329,9 +306,10 @@ export function measureAxes(
 ): AxisMeasureResult {
   const {yBounds, yWidth, y2Bounds, y2Width} = measureYTestAxes(viz, inputs);
 
+  const ends = labelsXEnds(viz, inputs.showX, inputs.showY);
   const xC = buildXConfig(viz, inputs);
 
-  const xResult = measureXTestAxes(viz, inputs, xC, yWidth, y2Width, measureLineLabels);
+  const xResult = measureXTestAxes(viz, inputs, xC, yWidth, y2Width, measureLineLabels, ends);
 
   viz._padding.left += xResult.xOffsetLeft;
   viz._padding.right += xResult.xOffsetRight;
@@ -365,14 +343,14 @@ function solveFinalYAxes(
       .ticks(yTicks)
       .width(width)
       .config(yC)
-      .config(viz._yConfig)
+      .config(plotAxisConfig(viz, "y"))
       .scale(yConfigScale)
       .measure();
   }
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
   if (y2Exists) {
     y2Test
@@ -453,6 +431,7 @@ function renderXAxes(
   xRange: number[],
   axisRelativeTransform: RelativeTransform,
   axisSceneQueue: AxisScene[],
+  plotBottom: number,
 ): PositionAccessor {
   const {xDomain, x2Domain, xConfigScale, x2ConfigScale} = pCtx;
   const {defaultX2Config, showX, x2Exists, xC} = pCtx;
@@ -472,14 +451,19 @@ function renderXAxes(
     .ticks(xTicks)
     .width(width)
     .config(xC)
-    .config(viz._xConfig)
-    .scale(xConfigScale)
-    .render();
+    .config(plotAxisConfig(viz, "x"))
+    .config(pCtx.zoomAxes?.x ?? {})
+    .scale(xConfigScale);
+  // Labeling its ends, the axis draws only its gridlines, up from the plot's bottom edge.
+  const gridOnly = Boolean(pCtx.xLabelMode && pCtx.xLabelMode !== "axis");
+  if (gridOnly) alignAxisLine(xAxis, plotBottom);
+  xAxis.render();
   if (showX) {
     axisSceneQueue.push({
       key: "plot-x-axis",
       transform: axisRelativeTransform("x"),
       axis: xAxis,
+      gridOnly,
     });
   }
 
@@ -495,6 +479,7 @@ function renderXAxes(
       .config(xC)
       .config(defaultX2Config)
       .config(viz._x2Config)
+      .config(pCtx.zoomAxes?.x2 ?? {})
       .scale(x2ConfigScale)
       .render();
     axisSceneQueue.push({
@@ -557,7 +542,8 @@ function renderYAxes(
     .ticks(yTicks)
     .width(xRange[xRange.length - 1])
     .config(yC)
-    .config(viz._yConfig)
+    .config(plotAxisConfig(viz, "y"))
+    .config(pCtx.zoomAxes?.y ?? {})
     .scale(yConfigScale)
     .render();
   if (showY) {
@@ -581,6 +567,7 @@ function renderYAxes(
       .title(false)
       .config(viz._y2Config)
       .config(defaultY2Config)
+      .config(pCtx.zoomAxes?.y2 ?? {})
       .scale(y2ConfigScale)
       .render();
     axisSceneQueue.push({
@@ -620,17 +607,20 @@ function renderYAxes(
     bumps the line labels, and queues axis scenes for the emit phase.
     Returns everything `plotEmit` needs to consume.
 */
-export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult {
+export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
     let {x, y} = pCtx;
     const {labelWidths} = pCtx;
     const {xHeight, x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
 
     let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
 
+    // A `frozen` layout (a zoom repaint) keeps the previous draw's axis sizes
+    // and plot rect, so changing tick labels can't make the plot area jump
+    // mid-gesture; the axes still re-render their ticks for the new domains.
     const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} =
-      solveFinalYAxes(viz, pCtx, yRange);
+      frozen || solveFinalYAxes(viz, pCtx, yRange);
 
-    const xRange = [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
+    const xRange = frozen?.xRange ?? [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
 
     const axisRelativeTransform = setupAxisTransforms(viz, pCtx, xOffsetLeft, yWidth);
 
@@ -638,9 +628,12 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult 
     // axes render above shapes.
     const axisSceneQueue: AxisScene[] = [];
 
-    x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue);
+    // Content space puts the plot's top at the y axis's `x2Height`.
+    const plotBottom = (frozen?.yRange ?? yRange)[1] - x2Height;
+    x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
+    const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
-    yRange = [
+    yRange = frozen?.yRange ?? [
       viz._xAxis!.outerBounds().y + x2Height,
       height - (xHeight + topOffset + verticalMargin),
     ];
@@ -669,5 +662,6 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext): PlotMeasureResult 
       axisSceneQueue,
       yOffset: yOffset || 0,
       labelPositions: labelPositions as Record<string, number>,
+      xEndLabels,
     };
 }

@@ -4,7 +4,7 @@ import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, getSize, isObject} from "@d3plus/dom";
+import {getSize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import {SvgRenderer} from "@d3plus/render";
@@ -13,11 +13,12 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn, D3plusConfig} from "../utils/index.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import {hitAreaNode} from "./hitAreaNode.js";
 import {interactionPoints} from "./interactionPoints.js";
+import {textureKey} from "./textureKey.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
 /** Coerces a value to a finite number, or undefined. @private */
@@ -162,7 +163,7 @@ export default class Shape extends BaseClass {
         if (["transparent", "none"].includes(c))
           c = this.schema.stroke(d, i) as string;
         const col = color(c);
-        return col ? col.darker(1) : c;
+        return col ? col.darker(1).toString() : c;
       },
       "stroke-width": (d: DataPoint, i: number) => {
         const s = (this.schema.strokeWidth(d, i) as number) || 1;
@@ -175,7 +176,7 @@ export default class Shape extends BaseClass {
         if (["transparent", "none"].includes(c))
           c = this.schema.stroke(d, i) as string;
         const col = color(c);
-        return col ? col.darker(0.5) : c;
+        return col ? col.darker(0.5).toString() : c;
       },
       "stroke-width": (d: DataPoint, i: number) => {
         const s = (this.schema.strokeWidth(d, i) as number) || 1;
@@ -189,7 +190,7 @@ export default class Shape extends BaseClass {
     // etc. rely on this. Bar overrides to "middle" in its constructor.
     this.schema.labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
-        colorContrast(this.schema.fill(d, i) as string),
+        colorContrast(this.schema.fill(d, i) as string, this.schema.colorDefaults),
       // Fade labels with their shape's opacity (e.g. an axis tick label hides
       // when `shapeConfig.opacity` is 0). Reads `this.schema.opacity` live —
       // like `fontColor` reads `fill` — which unwraps nested label data.
@@ -232,7 +233,7 @@ export default class Shape extends BaseClass {
     const styleLogic = (_: unknown): unknown => {
       return typeof _ !== "function"
         ? _
-        : d.nested && d.key && d.values
+        : d.nested && d.key !== undefined && d.values
           ? (_ as AccessorFn)(
               (d.values as unknown as DataPoint[])[0],
               this._data.indexOf((d.values as unknown as DataPoint[])[0]),
@@ -240,42 +241,12 @@ export default class Shape extends BaseClass {
           : (_ as AccessorFn)(d, i);
     };
 
-    const fallback = this.schema.textureDefault;
-
-    let texture: Record<string, unknown>;
-    if (!isObject(textureVal))
-      texture = {texture: textureVal} as Record<string, unknown>;
-    else texture = textureVal as Record<string, unknown>;
-    if (!texture.background) texture.background = styleLogic(this.schema.fill);
-    if (!texture.stroke && !fallback.stroke)
-      texture.stroke = styleLogic(this.schema.stroke);
-    const pathNames = [
-      "squares",
-      "nylon",
-      "waves",
-      "woven",
-      "crosses",
-      "caps",
-      "hexagons",
-    ];
-    if (
-      pathNames.includes(texture.texture as string) ||
-      typeof texture.texture === "function"
-    ) {
-      texture.d = texture.texture;
-      texture.texture = "paths";
-    } else if (texture.texture === "grid") {
-      if (!texture.orientation && !fallback.orientation)
-        texture.orientation = ["vertical", "horizontal"];
-      texture.texture = "lines";
-    }
-    if (!texture.fill && texture.texture !== "paths")
-      texture.fill = texture.stroke;
-    const retObj = assign({}, fallback, texture);
-    if (typeof retObj.d === "function") {
-      retObj.d = retObj.d(retObj.size || 20);
-    }
-    return JSON.stringify(retObj);
+    return textureKey(
+      textureVal,
+      () => styleLogic(this.schema.fill),
+      () => styleLogic(this.schema.stroke),
+      this.schema.textureDefault,
+    );
   }
 
   /**
@@ -333,7 +304,7 @@ export default class Shape extends BaseClass {
 */
   _styleVal(fn: unknown, d: DataPoint, i: number): unknown {
     if (typeof fn !== "function") return fn;
-    if (d.nested && d.key && d.values)
+    if (d.nested && d.key !== undefined && d.values)
       return (fn as AccessorFn)(d.data as DataPoint, d.i as number);
     return (fn as AccessorFn)(d, i);
   }
@@ -648,7 +619,7 @@ export default class Shape extends BaseClass {
   activeStyle(_: Record<string, unknown>): this;
   activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.activeStyle = assign({}, this.schema.activeStyle, _!)),
+      ? ((this.schema.activeStyle = mergeConfigBag(this, "activeStyle", _)),
         this)
       : this.schema.activeStyle;
   }
@@ -683,7 +654,7 @@ export default class Shape extends BaseClass {
   hoverStyle(_: Record<string, unknown>): this;
   hoverStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.hoverStyle = assign({}, this.schema.hoverStyle, _!)), this)
+      ? ((this.schema.hoverStyle = mergeConfigBag(this, "hoverStyle", _)), this)
       : this.schema.hoverStyle;
   }
 
@@ -694,7 +665,7 @@ export default class Shape extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
       : this.schema.labelConfig;
   }
 
@@ -729,7 +700,7 @@ export default class Shape extends BaseClass {
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.textureDefault = assign(this.schema.textureDefault, _!)),
+      ? ((this.schema.textureDefault = mergeConfigBag(this, "textureDefault", _)),
         this)
       : this.schema.textureDefault;
   }
@@ -747,3 +718,5 @@ export default class Shape extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(Shape.prototype, "activeStyle", "hoverStyle", "labelConfig", "textureDefault");

@@ -10,6 +10,8 @@ import type {SceneNode} from "@d3plus/render";
 import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {resolveThemed} from "./basemapTheme.js";
+import type {Themed} from "./basemapTheme.js";
 
 interface GeomapCtx {
   topoData: Array<{__d3plus__?: true; data?: DataPoint; feature: unknown; id: string | number}>;
@@ -27,19 +29,19 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   const out: SceneNode[] = [];
 
   // The ocean rect and basemap tiles normally live in the imperative geomap
-  // <svg> (`_container`), outside the scene graph. That's fine on-screen, but a
-  // server render serializes only the scene, so under SSR (`viz._ssr`) — and on
-  // the canvas backend, whose compute <svg> keeps its ocean transparent — paint
+  // <svg> (`_container`), outside the scene graph — beneath the scene on SVG,
+  // or in an underlay beneath the <canvas>. That's fine on-screen, but a
+  // server render serializes only the scene, so under SSR (`viz._ssr`) paint
   // them into the scene here, beneath the geography, so the output is complete.
-  if (viz._renderer === "canvas" || viz._ssr) {
-    const ocean = viz.schema.ocean as string | undefined;
+  if (viz._ssr) {
+    const ocean = resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)) as string | undefined;
     if (ocean && ocean !== "transparent") {
       const {width, height} = chartBounds(viz);
       out.push({
         type: "rect",
         key: "geomap-ocean",
-        x: viz._margin.left,
-        y: viz._margin.top,
+        x: 0,
+        y: 0,
         width,
         height,
         paint: {fill: ocean},

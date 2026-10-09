@@ -10,14 +10,15 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
+import {addDomainEnds, crowdsEndLabel, isNegative} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
+import {axisBarNodes, brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 
-/* catches for -0 and less*/
-export const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
+export {isNegative};
 
 const floorPow = (d: number): number =>
   Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
@@ -56,9 +57,9 @@ function calculateStep(
   let step = Math.floor(stepScale(size));
 
   if (this.schema.scale === "time") {
-    if (this._data && this._data.length) {
-      const dataExtent = extent(this._data as number[]);
-      const distance = this._data.reduce(
+    if (this._scaleData.length) {
+      const dataExtent = extent(this._scaleData as number[]);
+      const distance = this._scaleData.reduce(
         (n: number, d: unknown, i: number, arr: unknown[]) => {
           if (i) {
             const dist = Math.abs((d as number) - (arr[i - 1] as number));
@@ -90,11 +91,14 @@ export function calculateTicks(
   scale: D3Scale,
   minorTicks: boolean = false,
 ): unknown[] {
+  // A broken scale ticks each segment like an axis; a label pass drops a crowded break edge's label.
+  if (isBrokenScale(scale))
+    return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks), minorTicks ? undefined : (v, regular, s) => !crowdsEndLabel(v, regular, d => s(d)));
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
-  if (this.schema.scale === "time" && this._data.length) {
-    const newDomain = extent(this._data as number[]) as number[];
+  if (this.schema.scale === "time" && this._scaleData.length) {
+    const newDomain = extent(this._scaleData as number[]) as number[];
     const range = newDomain.map(d => scale(d));
     scaleClone.domain(newDomain).range(range);
   }
@@ -156,8 +160,8 @@ export function calculateTicks(
   }
 
   // for time scale, if data array has been provided, filter out ticks that are not in the array
-  if (this.schema.scale === "time" && this._data.length) {
-    const dataNumbers = this._data.map(Number);
+  if (this.schema.scale === "time" && this._scaleData.length) {
+    const dataNumbers = this._scaleData.map(Number);
     ticks = ticks.filter((t: unknown) => {
       const tn = +(t as number);
       return dataNumbers.find(
@@ -167,27 +171,7 @@ export function calculateTicks(
     });
   }
 
-  // forces min/max into ticks, if not present
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 1 : 0]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[0])) {
-      ticks.unshift(domain[0]);
-    }
-  }
-  if (
-    !this._d3ScaleNegative ||
-    isNegative(domain[inverted ? 0 : 1]) ===
-      ticks.some((d: unknown) => isNegative(d as number))
-  ) {
-    if (!ticks.map(Number).includes(+domain[1])) {
-      ticks.push(domain[1]);
-    }
-  }
-
-  return ticks;
+  return addDomainEnds(this, ticks, domain, scaleClone, !minorTicks);
 }
 
 /** Laid-out artifacts produced by `measureAxis` that the paint phase consumes. */
@@ -234,13 +218,19 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
 
     const labelOffset = data && axis.schema.labelOffset ? data.offset ?? 0 : 0;
 
-    const labelWidth = horizontal
+    const fitWidth = horizontal
       ? space
       : bounds.width -
         margin[axis._position.opposite] -
         hBuff -
         margin[axis.schema.orient] +
         p;
+    // A `fixedSize` label space can be narrower than a label: widen that
+    // label's box (outward, away from the axis line) instead of dropping it.
+    const labelWidth =
+      !horizontal && data && typeof axis.schema.fixedSize === "number"
+        ? Math.max(fitWidth, Math.ceil(data.width) + p)
+        : fitWidth;
 
     const offset = margin[opposite],
       size = (hBuff + labelOffset) * (flip ? -1 : 1),
@@ -280,7 +270,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
           ? size
           : ticks.includes(d)
             ? Math.ceil(size / 2)
-            : axis._data.find((t: unknown) => +(t as number) === d)
+            : axis._scaleData.find((t: unknown) => +(t as number) === d)
               ? Math.ceil(size / 4)
               : 0,
       text:
@@ -573,10 +563,7 @@ export function axisToScene(axis: Axis): GroupNode {
   }
 
   const bar = barLinePoints(axis);
-  if (bar) {
-    const barPaint = configToPaint(axis, axis.schema.barConfig as Record<string, unknown>);
-    children.push({type: "line", key: "bar", points: bar.points, paint: barPaint});
-  }
+  if (bar) children.push(...axisBarNodes(axis, bar.points, cfg => configToPaint(axis, cfg)));
 
   if (
     axis._titleClass &&

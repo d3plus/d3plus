@@ -13,15 +13,21 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import type {SceneNode} from "@d3plus/render";
+import type {ClipShape, SceneNode} from "@d3plus/render";
 
 import type Axis from "../../components/Axis/Axis.js";
 import * as shapes from "../../shapes/index.js";
 import {renderAxes} from "./axes.js";
+import {emitEndLabels} from "./axisEndLabels.js";
+import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
+import {valueAxisExtent} from "../Plot/baselineBreak.js";
+import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
+import {emitTrendLines} from "../Plot/trendScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {markSharedConfig} from "../../utils/configWarnings.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -65,7 +71,7 @@ export interface PlotDatum {
 }
 
 /** A user annotation: a shape key plus its config, optionally z-layered. */
-interface Annotation {
+export interface Annotation {
   shape: string;
   layer?: string;
   [key: string]: unknown;
@@ -170,6 +176,10 @@ export interface PlotPaintContext {
   barLabels: string[];
   showLineLabels: boolean;
   stackGroup: unknown;
+  /** How the x axis is labeled (see `axisEndLabels.ts`); "axis" when omitted. */
+  xLabelMode?: XLabelMode;
+  /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
+  zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
 }
 
 /**
@@ -202,9 +212,11 @@ export interface PlotMeasureResult {
   y2Width: number | undefined;
   yBounds: {width: number; height: number; x: number; y: number};
   y2Bounds: {width: number; height: number; x: number; y: number};
-  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis}[];
+  axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean}[];
   yOffset: number;
   labelPositions: Record<string, number>;
+  /** The x axis's positioned end labels (see `axisEndLabels.ts`); empty unless its ends are labeled. */
+  xEndLabels?: EndLabelBox[];
 }
 
 /**
@@ -219,13 +231,13 @@ function emitBackgroundRect(viz: Viz, out: SceneNode[], xRange: number[], yRange
   const bgConfig = viz._backgroundConfig;
   if (bgConfig && bgConfig.fill && bgConfig.fill !== "transparent") {
     // Coords are relative to `_chartTransform` (margin.left, margin.top +
-    // x2Height + topOffset), so we subtract the chart-transform offset.
+    // x2Height + topOffset), the origin `xRange` is already measured from.
     // yRange[0] = x2Height, so the y simplification is
     // (yRange[1] - yRange[0]) / 2.
     const bgRect = makeShape("Rect")
       .renderMode("compute")
       .data([{}])
-      .x(xRange[0] - viz._margin.left + (xRange[1] - xRange[0]) / 2)
+      .x(xRange[0] + (xRange[1] - xRange[0]) / 2)
       .width(xRange[1] - xRange[0])
       .y((yRange[1] - yRange[0]) / 2)
       .height(yRange[1] - yRange[0])
@@ -270,7 +282,7 @@ function markAnnotationsInert(nodes: SceneNode[]): SceneNode[] {
     match old→new by id frame-to-frame and TWEEN instead of exit/entering. The
     subtree is marked inert (annotations never show tooltips).
 */
-function collectAnnotationGroup(
+export function collectAnnotationGroup(
   inst: shapes.Shape,
   key: string,
 ): SceneNode | null {
@@ -296,6 +308,51 @@ function collectAnnotationGroup(
 }
 
 /**
+    Renders one annotation in compute mode: the annotation's own config, with
+    positions mapped from data space through the plot's axis functions — the
+    same mapping user `annotations` get.
+*/
+export function renderPlotAnnotation(
+  viz: Viz,
+  annotation: Annotation,
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+  domains: Record<string, unknown[]>,
+  yOffset: number,
+): shapes.Shape {
+  // `shape` and `layer` pick the class and z-layer; the rest is shape config.
+  const config: Record<string, unknown> = Object.assign({}, annotation);
+  delete config.shape;
+  delete config.layer;
+  const inst = makeShape(annotation.shape)
+    .renderMode("compute")
+    .duration(viz.schema.duration)
+    .config(config)
+    .config(markSharedConfig({
+      x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      x0:
+        viz.schema.discrete === "x"
+          ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
+          : x(domains.x[0]),
+      x1:
+        viz.schema.discrete === "x"
+          ? null
+          : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
+      y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
+      y0:
+        viz.schema.discrete === "y"
+          ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
+          : y(domains.y[1]) - yOffset,
+      y1:
+        viz.schema.discrete === "y"
+          ? null
+          : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
+    }));
+  inst.render();
+  return inst;
+}
+
+/**
     Renders back/front annotations, pushing back-layer scenes onto `out` and
     returning the front-layer shape instances for later absorption.
 */
@@ -312,34 +369,8 @@ function emitAnnotations(
   // (before the main shape loop below); "front" annotations queue and
   // absorb AFTER the shape loop, giving back → shapes → front.
   const frontAnnotationShapes: shapes.Shape[] = [];
-  const renderAnnotation = (annotation: Annotation) => {
-    const inst = makeShape(annotation.shape)
-      .renderMode("compute")
-      .duration(viz.schema.duration)
-      .config(annotation)
-      .config({
-        x: (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-        x0:
-          viz.schema.discrete === "x"
-            ? (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x))
-            : x(domains.x[0]),
-        x1:
-          viz.schema.discrete === "x"
-            ? null
-            : (d: PlotDatum) => (d.x2 ? x(d.x2, "x2") : x(d.x)),
-        y: (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y)),
-        y0:
-          viz.schema.discrete === "y"
-            ? (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y))
-            : y(domains.y[1]) - yOffset,
-        y1:
-          viz.schema.discrete === "y"
-            ? null
-            : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-      });
-    inst.render();
-    return inst;
-  };
+  const renderAnnotation = (annotation: Annotation) =>
+    renderPlotAnnotation(viz, annotation, x, y, domains, yOffset);
 
   Object.keys(viz._previousAnnotations!).forEach(layer => {
     const annotationData: Annotation[] = (
@@ -381,7 +412,7 @@ function buildShapeConfig(
 ): Record<string, unknown> {
   const discrete = viz.schema.discrete || "x";
 
-  return {
+  return markSharedConfig({
     discrete: viz.schema.discrete,
     duration: viz.schema.duration,
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
@@ -408,7 +439,7 @@ function buildShapeConfig(
       discrete === "y"
         ? null
         : (d: PlotDatum) => (d.y2 ? y(d.y2, "y2") : y(d.y) - yOffset),
-  };
+  });
 }
 
 /** Runs the main shape loop, pushing each shape's scene nodes onto `out`. */
@@ -424,7 +455,7 @@ function emitShapeLoop(
   const {labelWidths, largestLabel} = pCtx;
   const {width} = pCtx;
   const {opp, showLineLabels} = pCtx;
-  const {x, y, xRange, yRange, labelPositions} = mCtx;
+  const {x, y, xRange, yRange, labelPositions, yOffset} = mCtx;
 
   const events = Object.keys(viz.schema.on);
   // Precompute id→index and discrete→index Maps once per draw. Without
@@ -445,6 +476,7 @@ function emitShapeLoop(
     showLineLabels, labelWidths, largestLabel, labelPositions,
     width,
     values: [],
+    valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
@@ -503,7 +535,7 @@ function collectAxisScenes(
 ): {grid: SceneNode[]; rest: SceneNode[]} {
   const grid: SceneNode[] = [];
   const rest: SceneNode[] = [];
-  axisSceneQueue.forEach(({key, transform, axis}) => {
+  axisSceneQueue.forEach(({key, transform, axis, gridOnly}) => {
     if (!axis || typeof axis.toScene !== "function") return;
     const scene = axis.toScene();
     if (!scene) return;
@@ -515,7 +547,7 @@ function collectAxisScenes(
       tagAxisGroup(g);
       grid.push(g);
     }
-    if (restChildren.length) {
+    if (restChildren.length && !gridOnly) {
       const r: SceneNode = {type: "group", key, transform, children: restChildren};
       tagAxisGroup(r);
       rest.push(r);
@@ -532,7 +564,12 @@ function collectAxisScenes(
     Returns the flat `SceneNode[]` array that the caller (`Plot._paint`)
     merges into `_chartScene`.
 */
-export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResult): SceneNode[] {
+export function plotEmit(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  mCtx: PlotMeasureResult,
+  clip?: ClipShape,
+): SceneNode[] {
     const out: SceneNode[] = [];
 
     const {shapeData, domains} = pCtx;
@@ -543,12 +580,17 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
 
     emitBackgroundRect(viz, out, xRange, yRange);
 
-    // Gridlines sit just above the background, behind the data shapes.
+    // Gridlines sit just above the background, behind the data shapes, with
+    // each axis break's lines across the plot among them.
     out.push(...axisScenes.grid);
+    out.push(...breakLineNodes(viz, {xRange, yRange, x2Height: pCtx.x2Height}));
 
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
     const frontAnnotationShapes = emitAnnotations(viz, out, x, y, domains, yOffset);
+
+    // Trend lines sit behind the marks they summarize.
+    out.push(...emitTrendLines(viz, x, y));
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
@@ -563,11 +605,26 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
       if (group) out.push(group);
     });
 
-    // Ticks, tick labels, domain bar, and title render on top of the shapes.
-    out.push(...axisScenes.rest);
+    // A zoomable plot keeps everything but the axes in one stably-keyed group
+    // that clips to the plot rect while zoomed (see `Plot/plotZoom.ts`), so
+    // rescaled shapes can't paint over the axes. The group is emitted
+    // unzoomed too, so the first zoom tick updates it in place rather than
+    // re-entering every shape.
+    // Breaks with a mask cut their gap across everything below the axes.
+    const masked = maskBreaks(viz, out, {xRange, yRange, x2Height: pCtx.x2Height});
+    const content = viz.schema.zoom
+      ? [{type: "group", key: PLOT_ZOOM_CONTENT_KEY, ...(clip ? {clip} : {}), children: masked} as SceneNode]
+      : masked;
 
-    return out;
+    const endLabels = emitEndLabels(viz._xAxis!, mCtx.xEndLabels ?? []);
+    if (endLabels) tagAxisGroup(endLabels);
+
+    // Ticks, tick labels, domain bar, title, and end labels render on top of the shapes.
+    return [...content, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
 }
+
+/** Key of the group `plotEmit` wraps a zoomable plot's non-axis content in. */
+export const PLOT_ZOOM_CONTENT_KEY = "plot-zoom-content";
 
 /**
     Plot paint phase as a free function — orchestrates the axis render +
@@ -584,6 +641,38 @@ export function plotEmit(viz: Viz, pCtx: PlotPaintContext, mCtx: PlotMeasureResu
     @param pCtx Cross-phase locals produced by `Plot._draw`.
 */
 export function plotPaint(viz: Viz, pCtx: PlotPaintContext): SceneNode[] {
-  const mCtx = renderAxes(viz, pCtx);
-  return plotEmit(viz, pCtx, mCtx);
+  return plotPaintMeasured(viz, pCtx).nodes;
+}
+
+/**
+    `plotPaint` that also returns the solved axis layout, and accepts a
+    `frozen` layout to repaint against (plus a clip for the plot content) —
+    how a zoom repaints the plot with rescaled domains.
+*/
+export function plotPaintMeasured(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  frozen?: PlotMeasureResult,
+  clip?: ClipShape,
+): {nodes: SceneNode[]; layout: PlotMeasureResult} {
+  const layout = renderAxes(viz, pCtx, frozen);
+  // The drill-down morph's fractions are measured against the plot's actual
+  // measured pixel rect — Plot bakes margins/axis offsets directly into
+  // shape coordinates (no separate _chartTransform the way Treemap/Pack
+  // have), so xRange/yRange already are that local rect.
+  const {xRange, yRange} = layout;
+  viz._bodyRect = {
+    x: xRange[0], y: yRange[0],
+    width: xRange[1] - xRange[0],
+    height: yRange[1] - yRange[0],
+  };
+  // `xRange` is measured from the chart area's left edge, which is where
+  // `_chartTransform` puts content space's origin.
+  viz._plotArea = {
+    x: xRange[0],
+    y: 0,
+    width: xRange[1] - xRange[0],
+    height: yRange[1] - yRange[0],
+  };
+  return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

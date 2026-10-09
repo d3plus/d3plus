@@ -5,7 +5,8 @@
     The class is identical for every chart: its constructor runs
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
-    `_thresholdFunction` delegates to `def.thresholdFunction` if present.
+    `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` delegate to
+    `def.thresholdFunction` / `def.sizeLegendScale` / `def.insetRegion` if present.
 
     A chart's `index.ts` becomes literally `export default makeChart(def)`.
 */
@@ -43,6 +44,18 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
         runChartDraw(this as unknown as VizInstance, def, def.layoutStage, def.chartTransform);
       }
       return this;
+    }
+
+    _sizeLegendScale(available: {width: number; height: number}) {
+      return def.sizeLegendScale
+        ? def.sizeLegendScale(this as unknown as VizInstance, available)
+        : super._sizeLegendScale(available);
+    }
+
+    _insetRegion() {
+      return def.insetRegion
+        ? def.insetRegion(this as unknown as VizInstance)
+        : super._insetRegion();
     }
 
     _thresholdFunction(data: unknown[]) {

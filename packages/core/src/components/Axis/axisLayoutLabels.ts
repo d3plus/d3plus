@@ -122,10 +122,17 @@ function calculateLabelSize(
       : space,
   );
 
-  const res = wrap(tickFormat(d)) as ReturnType<typeof wrap> & {
+  const text = tickFormat(d);
+  let res = wrap(text) as ReturnType<typeof wrap> & {
     width: number;
     height: number;
   };
+  // A label wider than its share of the axis wraps to nothing; measure it
+  // across the whole axis instead, so the overlap pass thins the labels out.
+  if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
+    wrap.width(wSize! - p * 2);
+    res = wrap(text) as typeof res;
+  }
   res.lines = res.lines.filter((d: string) => d !== "");
   res.width = res.lines.length ? Math.ceil(max(res.widths)!) : 0;
   res.height = res.lines.length
@@ -227,6 +234,13 @@ export function createTextData(
   textData = textData.map((datum: AxisTextDatum) => {
     datum.space = maxSpace - datum.fP * 2;
     const res = calculateLabelSize(axis, datum, labelCtx);
+    // A label measured wider than its share (see `calculateLabelSize`) is
+    // painted at that width; the overlap pass below thins its neighbors.
+    if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(res.width));
+    // Likewise a vertical axis label taller than its share is painted at its
+    // own height, leaving the overlap pass to thin out its neighbors.
+    else if (!horizontal && !datum.rotate && res.height - datum.fP > datum.space)
+      datum.space = Math.ceil(res.height);
     return Object.assign(res, datum);
   });
 
@@ -288,7 +302,11 @@ export function computeAxisBounds(
     [x]: rangeOuter[0],
   });
 
-  bounds[height] = max([axis.schema.minSize, bounds[height]]);
+  bounds[height] =
+    typeof axis.schema.fixedSize === "number"
+      ? axis.schema.fixedSize
+      : max([axis.schema.minSize, bounds[height]])!;
+  axis._labelSpace = bounds[height];
 
   margin[axis.schema.orient] += hBuff;
   margin[opposite] =

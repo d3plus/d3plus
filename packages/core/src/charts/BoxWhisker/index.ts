@@ -6,7 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
@@ -15,13 +15,15 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export const boxWhiskerDef: ChartDefinition = {
   name: "BoxWhisker",
   paintDriven: true,
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 
   fields: [
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Box"), coerce: "const"},
+    // A box summarizes a distribution; there is no single value to share.
+    {key: "tooltipShared", default: false},
     {
       key: "tooltipConfig",
       merge: true,

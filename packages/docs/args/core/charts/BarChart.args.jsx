@@ -171,6 +171,22 @@ export const argTypes = assign(
         summary: "any"
       }
     },
+    baselineBreak: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      table: {
+        defaultValue: {
+          summary: true
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     buffer: {
       control: {},
       description: "Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).",
@@ -445,49 +461,6 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "any"
-      }
-    },
-    downloadButton: {
-      control: {
-        type: "boolean"
-      },
-      description: "Shows a button that allows for downloading the current visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    downloadConfig: {
-      control: {},
-      description: "Sets specific options of the saveElement function used when downloading the visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    downloadPosition: {
-      control: {
-        type: "text"
-      },
-      description: "Defines which control group to add the download button into.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
       }
     },
     duration: {

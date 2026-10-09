@@ -3,7 +3,7 @@
 */
 
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
@@ -11,7 +11,7 @@ import Plot from "../Plot/index.js";
 export const areaPlotDef: ChartDefinition = {
   name: "AreaPlot",
   paintDriven: true,
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 

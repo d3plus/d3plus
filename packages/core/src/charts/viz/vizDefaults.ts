@@ -5,15 +5,17 @@ import {scaleOrdinal} from "d3-scale";
 import {zoom} from "d3-zoom";
 
 import {colorAssign, colorContrast, colorDefaults} from "@d3plus/color";
-import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
-import {ColorScale, Legend, TextBox, Timeline, Tooltip} from "../../components/index.js";
+import {ColorScale, Legend, SizeLegend} from "../../components/index.js";
+import {sizeLegendFits} from "../../components/SizeLegend/sizeLegendLayout.js";
 import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
+import {markDefault} from "../../utils/configDefault.js";
 import {installFluent} from "../../fluent.js";
 
+import {legendCategoryOf} from "../features/legendCategory.js";
 import {legendLabel} from "../features/legendLabel.js";
 import clickShape from "../events/click.shape.js";
 import clickLegend from "../events/click.legend.js";
@@ -22,7 +24,11 @@ import mouseleave from "../events/mouseleave.js";
 import mousemoveLegend from "../events/mousemove.legend.js";
 import mousemoveShape from "../events/mousemove.shape.js";
 
+import {backgroundInk} from "./backgroundInk.js";
+import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
+import {linkedColorDefaults, registerLink} from "./linkGroup.js";
 import type Viz from "./Viz.js";
+import type {VizInstance} from "./vizTypes.js";
 
 function debounce<A extends unknown[]>(
   func: (...args: A) => void,
@@ -34,14 +40,6 @@ function debounce<A extends unknown[]>(
     clearTimeout(timeout);
     timeout = setTimeout(() => func.apply(context, args), delay);
   };
-}
-
-/**
- * Default padding logic that will return false if the screen is less than 600 pixels wide.
- * @private
- */
-function defaultPadding(): boolean {
-  return typeof window !== "undefined" ? window.innerWidth > 600 : true;
 }
 
 /**
@@ -87,8 +85,14 @@ const vizSchema = [
   {key: "filter", coerce: "identity" as const},
   {key: "height", coerce: "identity" as const},
   {key: "legendSort", coerce: "identity" as const},
+  {key: "link", coerce: "identity" as const, onSet: (viz: VizInstance) => registerLink(viz)},
+  {key: "minimap", coerce: "identity" as const},
+  {key: "search", coerce: "identity" as const},
   {key: "svgDesc", coerce: "identity" as const},
   {key: "svgTitle", coerce: "identity" as const},
+  {key: "tableView", coerce: "identity" as const},
+  {key: "tableViewDownload", coerce: "identity" as const},
+  {key: "tableViewSort", coerce: "identity" as const},
   {key: "timeFilter", coerce: "identity" as const},
   {key: "timeline", coerce: "identity" as const},
   {key: "width", coerce: "identity" as const},
@@ -110,32 +114,49 @@ function initBaseDefaults(viz: Viz): void {
   viz._renderMode = "full";
   viz.schema.ariaHidden = true;
   viz.schema.attribution = false;
-  const attributionBg = "rgba(255, 255, 255, 0.75)";
-  viz.schema.attributionStyle = {
-    background: attributionBg,
-    border: "1px solid rgba(0, 0, 0, 0.25)",
-    color: colorContrast(attributionBg),
-    display: "block",
-    font: `400 11px/11px ${fontFamilyStringify(fontFamily)}`,
-    margin: "5px",
-    opacity: 0.75,
-    padding: "4px 6px 3px",
-  };
-  viz._backClass = new TextBox()
-    .on("click", () => {
-      if (viz._history.length) viz.config(viz._history.pop()).render();
-      else (viz.depth(viz._drawDepth - 1) as Viz).filter(false);
-      viz.render();
-    })
-    .on("mousemove", () =>
-      viz._backClass.select().style("cursor", "pointer"),
-    );
-  viz.schema.backConfig = {
-    fontSize: 10,
-    padding: 5,
-    resize: false,
-  };
+  viz.schema.attributionIcon = undefined;
+  viz.schema.attributionStyle = attributionStyleDefault;
   viz.schema.cache = true;
+}
+
+/**
+    Default inline style for the "← Back" button — structural-only, the
+    same properties `zoomControlStyleDefault`/`searchControlStyleDefault`
+    use, except `width: "auto"` (it shows an icon + the word "Back", not a
+    single centered glyph) with a small `gap` between them and horizontal
+    padding for breathing room. Also lighter/smaller than the other two's
+    `font` (900 15px): that value is a holdover from when their icons were
+    bold Unicode glyphs sized to read clearly (the icons are SVG now, so it
+    no longer affects THEM at all) — but back is the one place that font
+    actually renders visible text, where 900 15px reads oversized/heavy.
+    No background/border/color, same as the other two: a plain
+    browser-appearance button, letting native/host-page button chrome show
+    through by default.
+    @private
+*/
+export const backControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `400 12px/1 ${fontFamilyStringify(fontFamily)}`,
+  gap: "4px",
+  height: "20px",
+  "justify-content": "center",
+  padding: "0 6px",
+  width: "auto",
+};
+
+/**
+    Back-button control styling defaults.
+    @private
+*/
+function initBackDefaults(viz: Viz): void {
+  // No longer drives the button's appearance (see `.backConfig()`'s own
+  // doc comment), but `.backConfig({...})` merges into this via
+  // `assign(this.schema.backConfig, _)` — leaving it undefined makes that
+  // throw on the very first call, on every chart.
+  viz.schema.backConfig = {};
+  viz.schema.backControlClassName = undefined;
+  viz.schema.backControlStyle = backControlStyleDefault;
 }
 
 /**
@@ -144,10 +165,11 @@ function initBaseDefaults(viz: Viz): void {
 */
 function initColorDefaults(viz: Viz): void {
   viz.schema.color = (d: DataPoint, i: number) => viz.schema.groupBy[0](d, i);
-  viz._colorDefaults = {
-    ...colorDefaults,
-    scale: scaleOrdinal().range(colorDefaults.scale.range()),
-  };
+  // Each viz gets its own categorical scale so assignments don't leak
+  // across charts on the same page.
+  const scale = scaleOrdinal<string>().range(colorDefaults.scale.range());
+  viz.schema.colorDefaults = {...colorDefaults, scale};
+  viz._autoColorScale = scale;
   viz._colorScaleClass = new ColorScale();
   viz.schema.colorScaleConfig = {
     axisConfig: {
@@ -172,9 +194,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.detectResizeDelay = 400;
   viz.schema.detectVisible = true;
   viz.schema.detectVisibleInterval = 1000;
-  viz.schema.downloadButton = false;
-  viz.schema.downloadConfig = {type: "png"};
-  viz.schema.downloadPosition = "top";
+  viz.schema.detectVisibleUnload = true;
   viz.schema.duration = 600;
   viz.schema.fontFamily = fontFamily;
   viz._hidden = [];
@@ -185,11 +205,12 @@ function initDataDefaults(viz: Viz): void {
 }
 
 /**
-    Legend visibility, class instance, and config defaults.
+    Legend and size legend visibility, class instances, and config defaults.
     @private
 */
 function initLegendDefaults(viz: Viz): void {
   viz.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
+    if (viz._legendCategories) return arr.length > 1;
     const maxGrouped = max(arr, (d: DataPoint, i: number) => {
       const id = viz.schema.groupBy[viz._legendDepth].bind(viz)(d, i);
       return id instanceof Array ? id.length : 1;
@@ -202,7 +223,10 @@ function initLegendDefaults(viz: Viz): void {
     shapeConfig: {
       ariaLabel: legendLabel.bind(viz),
       labelConfig: {
-        fontColor: undefined,
+        // Labels read against the chart's own background (dark text on a light
+        // page, light text on a dark one), not the swatch fill the chart's
+        // shape labels contrast with.
+        fontColor: () => backgroundInk(viz),
         fontResize: false,
         padding: 0,
       },
@@ -212,9 +236,13 @@ function initLegendDefaults(viz: Viz): void {
   viz.schema.legendPadding = defaultPadding;
   viz.schema.legendPosition = () =>
     viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+  const sortLabel = (d: DataPoint): string =>
+    legendCategoryOf(viz as unknown as VizInstance, d) ?? viz._drawLabel(d);
   viz.schema.legendSort = (a: DataPoint, b: DataPoint) =>
-    viz._drawLabel(a).localeCompare(viz._drawLabel(b));
+    sortLabel(a).localeCompare(sortLabel(b));
   viz.schema.legendTooltip = {};
+  viz._sizeLegendClass = new SizeLegend();
+  Object.assign(viz.schema, {sizeLegend: sizeLegendFits, sizeLegendConfig: {}, sizeLegendPosition: "right"});
 }
 
 /**
@@ -348,16 +376,18 @@ function initShapeDefaults(viz: Viz): void {
       // hues, so the color itself carries the ordering.
       if (viz.schema.colorOrdinal && viz._ordinalColorScale)
         return viz._ordinalColorScale(key);
-      return colorAssign(key, viz._colorDefaults);
+      return colorAssign(key, linkedColorDefaults(viz));
     },
     labelConfig: {
-      fontColor: (d: DataPoint, i: number) => {
+      // Marked so chart emitters layering user label config keep their own
+      // label colors over this generic one.
+      fontColor: markDefault((d: DataPoint, i: number) => {
         const c =
           typeof viz.schema.shapeConfig.fill === "function"
             ? viz.schema.shapeConfig.fill(d, i)
             : viz.schema.shapeConfig.fill;
-        return colorContrast(c);
-      },
+        return colorContrast(c, viz.schema.colorDefaults);
+      }),
     },
     opacity: constant(1),
     stroke: (d: DataPoint, i: number) => {
@@ -368,7 +398,7 @@ function initShapeDefaults(viz: Viz): void {
       // A fill that doesn't parse as a color (e.g. "none"/"transparent" on a
       // confidence band) has no darker shade — fall back to the fill itself.
       const col = color(c as string);
-      return col ? col.darker(0.25) : c;
+      return col ? col.darker(0.25).toString() : c;
     },
     role: "presentation",
     strokeWidth: constant(0),
@@ -377,71 +407,100 @@ function initShapeDefaults(viz: Viz): void {
 }
 
 /**
-    Subtitle, title, timeline, threshold, tooltip, and total label defaults.
+    Default attribution styles: flush to the chart area's bottom-right corner
+    like the credit on a slippy map, in small type on a translucent backing
+    that keeps it legible over busy tiles without boxing it in. The dark
+    variant applies over a dark basemap while the style is still this
+    untouched default (compared by reference, like the zoom-control styles).
     @private
 */
-function initLabelDefaults(viz: Viz): void {
-  viz._subtitleClass = new TextBox();
-  viz.schema.subtitleConfig = {
-    ariaHidden: true,
-    fontSize: 12,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.subtitlePadding = defaultPadding;
+const attributionLightBg = "rgba(255, 255, 255, 0.7)";
+const attributionDarkBg = "rgba(24, 25, 28, 0.7)";
+const attributionBase = {
+  "border-radius": "3px 0 0 0",
+  display: "flex",
+  "align-items": "center",
+  gap: "4px",
+  font: `400 10px/1.4 ${fontFamilyStringify(fontFamily)}`,
+};
+export const attributionStyleDefault = {
+  ...attributionBase,
+  background: attributionLightBg,
+  color: colorContrast(attributionLightBg),
+};
+export const attributionStyleDarkDefault = {
+  ...attributionBase,
+  background: attributionDarkBg,
+  color: colorContrast(attributionDarkBg),
+};
 
-  viz.schema.svgDesc = "";
-  viz.schema.svgTitle = "";
+/**
+    Default inline styles for the zoom-control buttons — structural only
+    (sizing/spacing/typography); no color, background, border, or opacity.
+    Letting native/host-page button chrome show through by default means a
+    page styling its own buttons (Tailwind, Bootstrap, a design system) via
+    `zoomControlClassName` composes cleanly instead of fighting inline color
+    overrides. The active state (brush mode on) paints the OS accent color
+    through CSS system colors (`AccentColor`/`AccentColorText`, falling back
+    to the selection `Highlight` where unsupported), so it reads as pressed
+    in the browser's own idiom; hover gets no default styling (`false`). The
+    `.active` class, `aria-pressed`, and `:hover`/`:active` pseudo-classes
+    stay available for a host page's own CSS to hook into. Consumers who want d3plus's old
+    opinionated look can restore it via `.zoomControlStyle({...})`.
 
-  viz.schema.timeline = true;
-  viz._timelineClass = new Timeline().align("end");
-  viz.schema.timelineConfig = {
-    padding: 5,
-  };
-  viz.schema.timelinePadding = defaultPadding;
+    Exported as stable object references (not inlined per-instance) so
+    `zoomControls.ts` can tell, via `===`, whether a given viz's
+    `zoomControlStyle*` is still the untouched default — that's what lets
+    setting `zoomControlClassName` auto-disable the defaults without also
+    clobbering a style the caller explicitly customized themselves.
+    @private
+*/
+export const zoomControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const zoomControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const zoomControlStyleHoverDefault = false as const;
 
-  viz.schema.threshold = constant(0.0001);
-  viz.schema.thresholdKey = undefined;
-  viz.schema.thresholdName = () => viz.schema.translate("Values");
-
-  viz._titleClass = new TextBox();
-  viz.schema.titleConfig = {
-    ariaHidden: true,
-    fontSize: 16,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.titlePadding = defaultPadding;
-
-  viz.schema.tooltip = constant(true);
-  viz._tooltipClass = new Tooltip();
-  viz.schema.tooltipConfig = {
-    pointerEvents: "none",
-    titleStyle: {
-      "max-width": "200px",
-    },
-  };
-
-  viz._totalClass = new TextBox();
-  viz.schema.totalConfig = {
-    fontSize: 10,
-    padding: 5,
-    resize: false,
-    textAnchor: "middle",
-  };
-  viz.schema.totalFormat = (d: number) =>
-    `${viz.schema.translate("Total")}: ${formatAbbreviate(d, viz.schema.locale)}`;
-  viz.schema.totalPadding = defaultPadding;
-}
+/**
+    Default inline styles for the table-view toggle button — structural only,
+    mirroring `zoomControlStyleDefault` et al. so the two chrome features look
+    and behave consistently. Kept as separate object references (not shared
+    with zoom's) so `tableViewControl.ts` can independently detect, via `===`,
+    whether `tableViewControlStyle*` is still untouched — the same
+    auto-disable-on-className trick `zoomControlClassName` uses.
+*/
+export const tableViewControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const tableViewControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const tableViewControlStyleHoverDefault = false as const;
 
 /**
     Zoom behavior, brush, control button styling, and zoom limit defaults.
     @private
 */
 function initZoomDefaults(viz: Viz): void {
-  viz.schema.zoom = false;
+  viz.schema.zoom = true;
   viz._zoomBehavior = zoom();
   viz._zoomBrush = brush();
   viz.schema.zoomBrushHandleSize = 1;
@@ -452,35 +511,116 @@ function initZoomDefaults(viz: Viz): void {
     fill: "#777",
     "stroke-width": 0,
   };
-  const zoomBg = "rgba(255, 255, 255, 0.75)";
-  viz.schema.zoomControlStyle = {
-    background: zoomBg,
-    border: "1px solid rgba(0, 0, 0, 0.75)",
-    color: colorContrast(zoomBg),
-    display: "block",
-    font: `900 15px/21px ${fontFamilyStringify(fontFamily)}`,
-    height: "20px",
-    margin: "5px",
-    opacity: 0.75,
-    padding: 0,
-    "text-align": "center",
-    width: "20px",
-  };
-  const zoomActiveBg = "rgba(0, 0, 0, 0.75)";
-  viz.schema.zoomControlStyleActive = {
-    background: zoomActiveBg,
-    color: colorContrast(zoomActiveBg),
-    opacity: 1,
-  };
-  viz.schema.zoomControlStyleHover = {
-    cursor: "pointer",
-    opacity: 1,
-  };
+  viz.schema.zoomControlClassName = undefined;
+  viz.schema.zoomControlIcons = undefined;
+  viz.schema.zoomControlStyle = zoomControlStyleDefault;
+  viz.schema.zoomControlStyleActive = zoomControlStyleActiveDefault;
+  viz.schema.zoomControlStyleHover = zoomControlStyleHoverDefault;
   viz.schema.zoomFactor = 2;
-  viz.schema.zoomMax = 16;
+  viz.schema.zoomMax = undefined;
   viz.schema.zoomPadding = 20;
   viz.schema.zoomPan = true;
-  viz.schema.zoomScroll = true;
+  viz.schema.zoomScroll = "modifier";
+}
+
+/**
+    Table-view button + data-table defaults. Mirrors `initZoomDefaults`:
+    a chrome toggle shown by default, styled structurally (no color/
+    background) so a host page's own button styling applies through the
+    cascade once `tableViewControlClassName` is set.
+    @private
+*/
+function initTableViewDefaults(viz: Viz): void {
+  viz.schema.tableView = true;
+  viz.schema.tableViewClassName = undefined;
+  viz.schema.tableViewControlClassName = undefined;
+  viz.schema.tableViewControlStyle = tableViewControlStyleDefault;
+  viz.schema.tableViewControlStyleActive = tableViewControlStyleActiveDefault;
+  viz.schema.tableViewControlStyleHover = tableViewControlStyleHoverDefault;
+  viz.schema.tableViewDownload = true;
+  viz.schema.tableViewPageSize = 50;
+  viz.schema.tableViewSort = true;
+}
+
+/**
+    Default inline styles for the minimap — mirrors the zoom-control defaults'
+    own reasoning (structural/neutral, easy to override or auto-disable via
+    `minimapClassName`) and the same by-reference `===` trick that lets
+    setting `minimapClassName` auto-disable an untouched default without
+    clobbering a caller's own customization.
+    @private
+*/
+export const minimapStyleDefault = {
+  background: "rgba(255, 255, 255, 0.75)",
+  border: "1px solid rgba(0, 0, 0, 0.25)",
+  "border-radius": "2px",
+  "box-sizing": "border-box",
+};
+export const minimapViewportStyleDefault = {
+  background: "rgba(0, 0, 0, 0.15)",
+  border: "1px solid rgba(0, 0, 0, 0.5)",
+  "border-radius": "2px",
+  cursor: "grab",
+};
+export const minimapViewportStyleActiveDefault = {
+  background: "rgba(0, 0, 0, 0.25)",
+  cursor: "grabbing",
+};
+export const minimapLabelStyleDefault = {
+  bottom: "2px",
+  right: "3px",
+  color: "rgba(0, 0, 0, 0.75)",
+  font: `400 9px/1 ${fontFamilyStringify(fontFamily)}`,
+  "pointer-events": "none",
+};
+
+/**
+    Minimap visibility and styling defaults.
+    @private
+*/
+function initMinimapDefaults(viz: Viz): void {
+  viz.schema.minimap = true;
+  viz.schema.minimapClassName = undefined;
+  viz.schema.minimapStyle = minimapStyleDefault;
+  viz.schema.minimapViewportStyle = minimapViewportStyleDefault;
+  viz.schema.minimapViewportStyleActive = minimapViewportStyleActiveDefault;
+  viz.schema.minimapLabelStyle = minimapLabelStyleDefault;
+}
+
+/**
+    Default inline styles for the search control's toggle button — the same
+    structural-only values as `zoomControlStyleDefault` et al. (visual
+    parity by default), kept as independent objects/consumers rather than
+    shared references so restyling one doesn't affect the other.
+    @private
+*/
+export const searchControlStyleDefault = {
+  "align-items": "center",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  padding: 0,
+  width: "20px",
+};
+export const searchControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const searchControlStyleHoverDefault = false as const;
+
+/**
+    Search-control (toggle button + input) styling defaults.
+    @private
+*/
+function initSearchDefaults(viz: Viz): void {
+  viz.schema.search = true;
+  viz.schema.searchAccessor = (d: DataPoint, i: number) => viz._drawLabel(d, i);
+  viz.schema.searchControlClassName = undefined;
+  viz.schema.searchControlStyle = searchControlStyleDefault;
+  viz.schema.searchControlStyleActive = searchControlStyleActiveDefault;
+  viz.schema.searchControlStyleHover = searchControlStyleHoverDefault;
 }
 
 /**
@@ -505,4 +645,8 @@ export function initVizDefaults(viz: Viz): void {
   initShapeDefaults(viz);
   initLabelDefaults(viz);
   initZoomDefaults(viz);
+  initTableViewDefaults(viz);
+  initMinimapDefaults(viz);
+  initBackDefaults(viz);
+  initSearchDefaults(viz);
 }

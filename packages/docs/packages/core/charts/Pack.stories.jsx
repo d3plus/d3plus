@@ -53,3 +53,27 @@ NestedGroups.parameters = {
   controls: {include: ["groupBy"]},
   docs: {description: {story: "An array `groupBy` packs leaf circles inside a circle for each parent group."}}
 };
+
+const packData = [
+  {group: "A", id: "a1", value: 10}, {group: "A", id: "a2", value: 20}, {group: "A", id: "a3", value: 15},
+  {group: "B", id: "b1", value: 8}, {group: "B", id: "b2", value: 18}, {group: "B", id: "b3", value: 12},
+  {group: "C", id: "c1", value: 22}, {group: "C", id: "c2", value: 9}
+];
+
+export const LayoutPadding = Template.bind({});
+LayoutPadding.args = {
+  data: packData,
+  groupBy: ["group", "id"],
+  layoutPadding: 12,
+  sum: "value"
+};
+LayoutPadding.parameters = {controls: {include: ["layoutPadding"]}, docs: {description: {story: "`layoutPadding` is the gap d3's pack layout keeps between touching circles, so a larger value spreads the leaves apart and leaves room for their labels at the cost of some area."}}};
+
+export const PackOpacity = Template.bind({});
+PackOpacity.args = {
+  data: packData,
+  groupBy: ["group", "id"],
+  packOpacity: 0.15,
+  sum: "value"
+};
+PackOpacity.parameters = {controls: {include: ["packOpacity"]}, docs: {description: {story: "`packOpacity` sets how solid the enclosing parent circles are drawn. Lowering it from the default keeps the grouping visible while letting the leaf circles stand out."}}};

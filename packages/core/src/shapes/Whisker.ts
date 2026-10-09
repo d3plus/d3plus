@@ -2,14 +2,15 @@ import {groups} from "d3-array";
 import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep} from "../utils/index.js";
 import type {D3plusConfig} from "../utils/index.js";
 import type {VizContext} from "../utils/configPrep.js";
-import {installFluent} from "../fluent.js";
+import {markSharedConfig} from "../utils/configWarnings.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
 import Circle from "./Circle.js";
@@ -31,7 +32,7 @@ const whiskerSchema: ConfigField[] = [
 ];
 
 /**
-    Creates SVG whisker based on an array of data.
+    Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 */
 export default class Whisker extends BaseClass {
   // installFluent generates the config accessors (length, orient, x, …) at
@@ -152,12 +153,12 @@ export default class Whisker extends BaseClass {
             .data(values)
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Whisker-Endpoint-${shapeName}`) as never)
-            .config({
+            .config(markSharedConfig({
               height: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 5 : 20,
               width: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 20 : 5,
-            })
+            }))
             .config(configPrep.bind(this as unknown as VizContext)(this.schema.endpointConfig, "shape", shapeName as string)!)
             .render(),
         );
@@ -216,7 +217,7 @@ export default class Whisker extends BaseClass {
   endpointConfig(_: Record<string, unknown>): this;
   endpointConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.endpointConfig = assign(this.schema.endpointConfig, _!)), this)
+      ? ((this.schema.endpointConfig = mergeConfigBag(this, "endpointConfig", _)), this)
       : this.schema.endpointConfig;
   }
 
@@ -238,7 +239,7 @@ export default class Whisker extends BaseClass {
   lineConfig(_: Record<string, unknown>): this;
   lineConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.lineConfig = assign(this.schema.lineConfig, _!)), this)
+      ? ((this.schema.lineConfig = mergeConfigBag(this, "lineConfig", _)), this)
       : this.schema.lineConfig;
   }
 
@@ -266,3 +267,5 @@ export default class Whisker extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(Whisker.prototype, "endpointConfig", "lineConfig");

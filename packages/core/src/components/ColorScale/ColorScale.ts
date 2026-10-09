@@ -2,8 +2,8 @@ import {max, min} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
-import {colorContrast, colorDefaults} from "@d3plus/color";
-import {assign, backgroundColor, elem} from "@d3plus/dom";
+import {colorContrast} from "@d3plus/color";
+import {backgroundColor, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
@@ -15,7 +15,7 @@ import {Axis, TextBox} from "../index.js";
 import {Rect} from "../../shapes/index.js";
 import {accessor, BaseClass, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import Legend from "../Legend/Legend.js";
@@ -39,11 +39,12 @@ const colorScaleSchema: ConfigField[] = [
   // (colorMax / colorMin) ramp or the diverging (min↔mid↔max) construction,
   // so magnitude reads as one hue getting darker rather than a multi-hue ramp.
   {key: "color", coerce: "identity"},
-  // Blue high pole (and default sequential hue), gray "nothing" midpoint, red
-  // low pole — warm/cool poles that stay distinct under color-vision deficiency.
-  {key: "colorMax", coerce: "identity", default: colorDefaults.sequential},
-  {key: "colorMid", coerce: "identity", default: colorDefaults.light},
-  {key: "colorMin", coerce: "identity", default: colorDefaults.off},
+  // Unset poles fall back to `colorDefaults` at draw time: `sequential` (blue)
+  // high, `light` midpoint, `off` (red) low — warm/cool poles that stay
+  // distinct under color-vision deficiency.
+  {key: "colorMax", coerce: "identity"},
+  {key: "colorMid", coerce: "identity"},
+  {key: "colorMin", coerce: "identity"},
   {key: "domain", coerce: "identity"},
   {key: "duration", coerce: "identity", default: 600},
   {key: "height", coerce: "identity", default: 200},
@@ -152,14 +153,14 @@ export default class ColorScale extends BaseClass {
     this.schema.labelConfig = {
       fontColor: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg);
+        return colorContrast(bg, this.schema.colorDefaults);
       },
       fontSize: 12,
     };
     this._legendClass = new Legend();
     this.schema.legendConfig = {
       shapeConfig: {
-        stroke: colorDefaults.dark,
+        stroke: () => this.schema.colorDefaults.dark,
         strokeWidth: 1,
       },
     };
@@ -295,13 +296,13 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+      The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 */
   axisConfig(): Record<string, unknown>;
   axisConfig(_: Record<string, unknown>): this;
   axisConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.axisConfig = assign(this.schema.axisConfig, _!)), this)
+      ? ((this.schema.axisConfig = mergeConfigBag(this, "axisConfig", _)), this)
       : this.schema.axisConfig;
   }
 
@@ -315,13 +316,13 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+      A pass-through for the TextBox class used to style the labelMin and labelMax text.
 */
   labelConfig(): Record<string, unknown>;
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
       : this.schema.labelConfig;
   }
 
@@ -344,13 +345,13 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+      Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 */
   legendConfig(): Record<string, unknown>;
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)), this)
       : this.schema.legendConfig;
   }
 
@@ -364,13 +365,13 @@ export default class ColorScale extends BaseClass {
   }
 
   /**
-      The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+      The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 */
   rectConfig(): Record<string, unknown>;
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      ? ((this.schema.rectConfig = mergeConfigBag(this, "rectConfig", _)), this)
       : this.schema.rectConfig;
   }
 
@@ -385,3 +386,5 @@ export default class ColorScale extends BaseClass {
       : this._select;
   }
 }
+
+resolvesReset(ColorScale.prototype, "axisConfig", "labelConfig", "legendConfig", "rectConfig");

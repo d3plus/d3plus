@@ -1,45 +1,80 @@
-import {zoomTransform} from "d3-zoom";
+import {select} from "d3-selection";
+import {zoomIdentity, zoomTransform} from "d3-zoom";
+import type {ZoomTransform} from "d3-zoom";
 
 import {attrize} from "@d3plus/dom";
 import {chartBounds} from "../features/chartGeometry.js";
+import {ensureZoomDom} from "../features/ensureZoomDom.js";
+import {autoZoomMax} from "../features/zoomExtent.js";
 import type {FeatureLayout, FeatureModule} from "../features/features.js";
 import type Viz from "../viz/Viz.js";
-
-/** Mutable version of ZoomTransform for direct property manipulation. */
-interface MutableTransform {
-  k: number;
-  x: number;
-  y: number;
-}
-
-/**
-    Brush mode is per-chart, not global. Previously a module-level
-    `let brushing = false` was shared across all chart instances on the
-    page — toggling brush on chart A silently flipped chart B's state.
-    Now lives on `viz._brushing` and is read/written via helpers.
-*/
-function isBrushing(viz: Viz): boolean {
-  return Boolean(viz._brushing);
-}
-function setBrushing(viz: Viz, value: boolean): void {
-  viz._brushing = value;
-}
+import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  isBrushing,
+  mountCustomIcons,
+  paintZoomButton,
+  setBrushing,
+  showsZoomControls,
+  syncBrushButton,
+  ZOOM_PANEL_STYLE,
+  zoomControlsHtml,
+} from "./zoomControlsMarkup.js";
+import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 
 /**
-    Apply a plain key/value style object to a real DOM element. v4 uses
-    HtmlOverlay nodes for the zoom-control buttons, so the d3-selection
-    `stylize` helper isn't reachable from the scene-graph escape hook.
+    Builds the four zoom-control buttons as an `htmlOverlay` scene-node
+    panel, pinned to the top-right corner of the whole chart (not the
+    margin-inset chart area) — top-positioned features leave room for it via
+    `zoomControlsBox`. Clicks ride the declarative `events` map (the
+    renderer delegates them from the host element, so they survive DOM
+    churn); hover can't be delegated (mouseenter/mouseleave don't bubble), so
+    `onUpdate` binds it per button. `onUpdate` (not `onMount`) because the
+    html isn't a fixed constant — it bakes in `zoomControlClassName`, the
+    locale's translated `aria-label`s, and the brush state, so those
+    changes swap in fresh button nodes on the next draw. The
+    `data-zoom-bound` guard styles, binds, and mounts each node's custom
+    icon (`zoomControlIcons`, if set) exactly once.
+    @private
 */
-function applyStyleObj(
-  el: HTMLElement,
-  styles: Record<string, string | number | undefined | null | false> | false | null | undefined,
-): void {
-  if (!styles) return;
-  for (const k in styles) {
-    const v = styles[k];
-    if (v === undefined || v === null || v === false) continue;
-    (el.style as unknown as Record<string, string>)[k] = String(v);
-  }
+function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
+  return {
+    type: "htmlOverlay" as const,
+    key: "viz-zoom-controls",
+    x: 0,
+    y: 0,
+    width: viz.schema.width,
+    style: ZOOM_PANEL_STYLE,
+    className: "d3plus-zoom-control",
+    html: zoomControlsHtml(viz),
+    events: {
+      ".zoom-in": {click: () => zoomMath.bind(viz)(viz.schema.zoomFactor)},
+      ".zoom-out": {click: () => zoomMath.bind(viz)(1 / viz.schema.zoomFactor)},
+      ".zoom-reset": {click: () => zoomMath.bind(viz)(0)},
+      ".zoom-brush": {
+        click: (e: Event) => {
+          // Delegated dispatch: `e.currentTarget` is the host wrapper, so
+          // resolve the actual button from the event target.
+          const btn = (e.target as Element).closest(".zoom-brush") as HTMLElement | null;
+          if (!btn) return;
+          const willBrush = !isBrushing(viz);
+          btn.classList.toggle("active", willBrush);
+          btn.setAttribute("aria-pressed", String(willBrush));
+          paintZoomButton(viz, btn, btn.matches(":hover"));
+          zoomEvents.bind(viz)(willBrush);
+        },
+      },
+    },
+    onUpdate: (host: HTMLElement) => {
+      host.querySelectorAll<HTMLElement>(".zoom-control").forEach(btn => {
+        if (btn.dataset.zoomBound) return;
+        btn.dataset.zoomBound = "1";
+        paintZoomButton(viz, btn);
+        btn.addEventListener("mouseenter", () => paintZoomButton(viz, btn, true));
+        btn.addEventListener("mouseleave", () => paintZoomButton(viz, btn));
+        mountCustomIcons(viz, btn);
+      });
+    },
+  };
 }
 
 /**
@@ -58,115 +93,56 @@ function applyStyleObj(
          the SVG element directly via `viz._container.call(zoomBehavior)`.
       2. Returns the four control buttons (in/out/reset/brush) as an
          `htmlOverlay` scene-node panel; `runVizPipeline` appends it to
-         `viz._featurePanels`. `onMount` is
-         the scene's interactive-HTML escape hook: it wires the click/hover
-         handlers + applies the user's zoomControl style configs. `onMount`
-         fires ONCE per host element (after innerHTML is written, so the
-         `.zoom-in` / `.zoom-out` querySelectors below resolve), not per
-         draw — the html string is constant, so listeners attached here
-         survive every subsequent draw (renderers only rewrite innerHTML
-         when it differs from the current value).
+         `viz._featurePanels`. `onUpdate` is the scene's interactive-HTML
+         escape hook: it wires the hover handlers + applies the user's
+         zoomControl style configs, once per button DOM node (guarded by a
+         `data-zoom-bound` marker). Click handling instead rides the
+         declarative `events` map, which the renderer delegates from the
+         host element, so it survives DOM churn with no extra bookkeeping.
+         `onUpdate` (rather than `onMount`) matters because the html string
+         below isn't a fixed constant — it bakes in `zoomControlClassName`,
+         the active locale's translated `aria-label`s, and the current brush
+         state, so a `.locale(...)` or `.zoomControlClassName(...)` call
+         replaces the button nodes on the next draw. Renderers only rewrite
+         `innerHTML` when the string actually differs from the last-written
+         value, so the common case (nothing changed) is a cheap no-op.
 */
 export const zoomFeature: FeatureModule = {
   name: "zoom",
   layout: ({viz}) => {
+    if (!viz.schema.zoom) resetZoom(viz);
+    else ensureZoomSurface(viz);
     if (!viz._container || !viz._zoomGroup) return {panel: null, margin: {}};
 
     const bounds = chartBounds(viz as never);
     const height = viz._zoomHeight || bounds.height,
-      that = viz,
       width = viz._zoomWidth || bounds.width;
 
+    // The zoom behavior works in the coordinate space of the element it's
+    // bound to — the outer <svg> (or the <canvas>, which shares its origin) —
+    // so the extent is the chart area's rect in that space, not a
+    // margin-relative [0, 0] → [width, height]. `Viz.toScene` applies the
+    // resulting transform above each chart's own positioning transform.
+    const {left, top} = viz._margin;
+    const area: [[number, number], [number, number]] = [
+      [left, top],
+      [left + width, top + height],
+    ];
     viz._zoomBehavior
-      .extent([
-        [0, 0],
-        [width, height],
-      ])
-      .scaleExtent([1, viz.schema.zoomMax])
-      .translateExtent([
-        [0, 0],
-        [width, height],
-      ])
+      .filter((event: MouseEvent & TouchEvent) => zoomGestureFilter(viz, event))
+      .wheelDelta(wheelDelta)
+      .extent(area)
+      .scaleExtent([1, zoomMax(viz, width, height)])
+      .translateExtent(area)
       .on("zoom", (event: {transform: unknown}) =>
         zoomed.bind(viz)(event.transform),
       );
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
 
-    let panel: FeatureLayout["panel"] = null;
-    if (viz.schema.zoom) {
-      panel = {
-        type: "htmlOverlay" as const,
-        key: "viz-zoom-controls",
-        x: viz._margin.left,
-        y: viz._margin.top,
-        className: "d3plus-zoom-control",
-        html:
-          '<div class="zoom-control zoom-in">&#65291;</div>' +
-          '<div class="zoom-control zoom-out">&#65293;</div>' +
-          '<div class="zoom-control zoom-reset">&#8634;</div>' +
-          '<div class="zoom-control zoom-brush">&#164;</div>',
-        // Declarative click wiring — clicks bubble, so the renderer's
-        // delegated dispatcher can route them by selector. The four
-        // handlers below are the single source of truth for what each
-        // zoom button does. Hover styles can't be delegated (mouseenter
-        // / mouseleave don't bubble), so they live in onMount below as
-        // a per-button binding.
-        events: {
-          ".zoom-in": {
-            click: () => zoomMath.bind(that)(that.schema.zoomFactor),
-          },
-          ".zoom-out": {
-            click: () => zoomMath.bind(that)(1 / that.schema.zoomFactor),
-          },
-          ".zoom-reset": {
-            click: () => zoomMath.bind(that)(0),
-          },
-          ".zoom-brush": {
-            click: (e: Event) => {
-              // The overlay dispatches clicks via delegation, so `e.currentTarget`
-              // is the host wrapper that encloses all four buttons — not the
-              // clicked button. Styling/toggling the wrapper would paint the
-              // active background around the whole control stack and offset it by
-              // the base margin/border. Resolve the actual button from the event
-              // target, the same way the dispatcher matches (`target.closest`).
-              const btn = (e.target as Element).closest(".zoom-brush") as HTMLElement | null;
-              if (!btn) return;
-              const willBrush = !isBrushing(that);
-              const isActive = btn.classList.toggle("active", willBrush);
-              applyStyleObj(
-                btn,
-                isActive
-                  ? that.schema.zoomControlStyleActive || {}
-                  : that.schema.zoomControlStyle || {},
-              );
-              zoomEvents.bind(that)(willBrush);
-            },
-          },
-        },
-        // onMount fires AFTER innerHTML is written so the querySelectorAll
-        // matches. Applies base styles + binds non-delegable hover events
-        // per button (mouseenter/mouseleave don't bubble through
-        // delegated event listeners).
-        onMount: (host: HTMLElement) => {
-          const buttons = host.querySelectorAll<HTMLElement>(".zoom-control");
-          buttons.forEach(btn => {
-            applyStyleObj(btn, that.schema.zoomControlStyle || {});
-            btn.addEventListener("mouseenter", () => {
-              applyStyleObj(btn, that.schema.zoomControlStyleHover || {});
-            });
-            btn.addEventListener("mouseleave", () => {
-              applyStyleObj(
-                btn,
-                btn.classList.contains("active")
-                  ? that.schema.zoomControlStyleActive || {}
-                  : that.schema.zoomControlStyle || {},
-              );
-            });
-          });
-        },
-      };
-    }
+    const panel: FeatureLayout["panel"] = showsZoomControls(viz)
+      ? buildZoomControlPanel(viz)
+      : null;
 
     viz._zoomBrush
       .extent([
@@ -179,21 +155,130 @@ export const zoomFeature: FeatureModule = {
       .on("brush", brushBrush.bind(viz))
       .on("end", brushEnd.bind(viz));
 
-    const brushGroup = viz._container.selectAll("g.brush").data([0]);
+    // The brush mounts in the outer <svg> above the painted scene (see
+    // `Viz._drawSceneToTarget`), not inside `_container` beneath it, so the
+    // selection box stays visible over the shapes while dragging. It's
+    // offset to the chart area, so selections come out chart-area-relative.
+    const brushGroup = viz._select.selectAll(":scope > g.d3plus-zoom-brush").data([0]);
     viz._brushGroup = brushGroup
       .enter()
       .append("g")
-      .attr("class", "brush")
+      .attr("class", "d3plus-zoom-brush")
       .merge(brushGroup)
+      .attr("transform", `translate(${left}, ${top})`)
       .call(viz._zoomBrush);
 
-    zoomEvents.bind(viz)();
-    if (viz._renderTiles)
-      viz._renderTiles(zoomTransform((viz._zoomEventTarget || viz._container).node()), 0);
+    zoomEvents.bind(viz)(isBrushing(viz));
+    if (viz._renderTiles) viz._renderTiles(tileZoomTransform(viz), 0);
 
     return {panel, margin: {}};
   },
 };
+
+/**
+    The maximum zoom scale: an explicit `zoomMax`, or — when unset — the scale
+    at which the chart's smallest shape fills the chart area.
+    @private
+*/
+function zoomMax(viz: Viz, width: number, height: number): number {
+  if (typeof viz.schema.zoomMax === "number") return viz.schema.zoomMax;
+  return autoZoomMax(
+    viz._zoomShapes || viz._chartScene || [],
+    width,
+    height,
+    viz.schema.zoomPadding,
+    viz._chartTransform?.scale ?? 1,
+  );
+}
+
+/**
+    Mounts the DOM a zoomable chart needs: the `_container` <svg> hosting the
+    zoom brush (every chart but Network/Geomap, which mount their own
+    variants in `_draw`), and, on the SVG backend, points d3-zoom at the outer
+    <svg>. The scene paints into that same outer <svg>, so it receives wheel/
+    drag/dblclick both over painted shapes and over empty background. (The
+    Canvas backend binds the <canvas> instead — see `bindCanvasZoom`.)
+    @private
+*/
+function ensureZoomSurface(viz: Viz): void {
+  if (!viz._select) return;
+  if (!viz._ssr && (!viz._container || viz._container.classed("d3plus-zoom"))) {
+    const {width, height} = chartBounds(viz as never);
+    ensureZoomDom(viz as never, {kind: "generic", width, height, duration: viz.schema.duration});
+  }
+  if (viz._renderer !== "canvas") retargetZoom(viz, viz._select);
+}
+
+/**
+    Moves the d3-zoom listeners onto a new element, clearing them from the
+    previous target (and from `_container`, the default target) so a single
+    gesture is never zoomed twice.
+    @private
+*/
+function retargetZoom(viz: Viz, target: NonNullable<Viz["_zoomEventTarget"]>): void {
+  const prev = viz._zoomEventTarget;
+  if (prev && prev.node() === target.node()) return;
+  if (prev) prev.on(".zoom", null);
+  if (viz._container) viz._container.on(".zoom", null);
+  viz._zoomEventTarget = target;
+}
+
+/**
+    Canvas backend: once the scene is painted (so the <canvas> exists), bind
+    d3-zoom to it. The compute <svg> overlaying the canvas is transparent to
+    pointer events there, so the canvas is the sole interaction surface —
+    CanvasRenderer's pick drives tooltips and d3-zoom drives pan/zoom on the
+    same element. Called after every canvas paint; a no-op once bound.
+*/
+export function bindCanvasZoom(viz: Viz): void {
+  if (!viz.schema.zoom || viz._ssr || !viz._zoomBehavior || !viz._brushGroup) return;
+  const renderer = viz._sceneRenderer as {toCanvas?: () => HTMLCanvasElement | null} | undefined;
+  const canvasNode = renderer && typeof renderer.toCanvas === "function" ? renderer.toCanvas() : null;
+  if (!canvasNode || (viz._zoomEventTarget && viz._zoomEventTarget.node() === canvasNode)) return;
+  retargetZoom(viz, select(canvasNode) as unknown as NonNullable<Viz["_zoomEventTarget"]>);
+  zoomEvents.bind(viz)(isBrushing(viz));
+}
+
+/**
+    Routes pointer events between the chart surface and the zoom brush.
+    While brush mode is on, the outer <svg> goes transparent to pointer
+    events and only the brush group opts back in, so a drag anywhere over the
+    chart (shapes included) reaches the brush rather than a shape. On the
+    Canvas backend the compute <svg> stays transparent otherwise, so the
+    <canvas> beneath is the interaction surface.
+*/
+export function applyZoomPointerEvents(viz: Viz): void {
+  const canvas = viz._renderer === "canvas";
+  const brushing = isBrushing(viz);
+  if (viz._select)
+    viz._select.style("pointer-events", canvas || brushing ? "none" : null);
+  if (viz._container) viz._container.style("pointer-events", canvas ? "none" : null);
+  if (viz._brushGroup) viz._brushGroup.style("pointer-events", brushing ? "all" : null);
+}
+
+/**
+    The current zoom transform re-expressed for content inside `_container`,
+    which sits at the chart's margin offset rather than at the surface origin
+    the zoom behavior measures from (Geomap's imperative tile layer).
+*/
+export function tileZoomTransform(viz: Viz): ZoomTransform {
+  const t = zoomTransform((viz._zoomEventTarget || viz._container).node());
+  const {left, top} = viz._margin;
+  return zoomIdentity
+    .translate(t.x + (t.k - 1) * left, t.y + (t.k - 1) * top)
+    .scale(t.k);
+}
+
+/**
+    Drops any zoom left over from before `zoom` was turned off, so the chart
+    renders at its natural scale and a later re-enable starts from identity.
+    @private
+*/
+function resetZoom(viz: Viz): void {
+  viz._zoomTransform = undefined;
+  const tgt = viz._zoomEventTarget || viz._container;
+  if (tgt && tgt.node()) tgt.property("__zoom", zoomIdentity);
+}
 
 /**
     @name zoomEvents
@@ -205,6 +290,7 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
 
   if (brush) this._brushGroup.style("display", "inline");
   else this._brushGroup.style("display", "none");
+  applyZoomPointerEvents(this);
 
   // The element d3-zoom binds its pointer listeners to. Defaults to the compute
   // `<svg>` container; on the Canvas backend it's the <canvas> (see
@@ -218,6 +304,7 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
     if (!this.schema.zoomScroll) {
       tgt.on("wheel.zoom", null);
     }
+    applyTouchAction(this);
     if (!this.schema.zoomPan) {
       tgt
         .on("mousedown.zoom mousemove.zoom", null)
@@ -229,6 +316,58 @@ function zoomEvents(this: Viz, brush: boolean = false): void {
   } else {
     tgt.on(".zoom", null);
   }
+}
+
+/** Whether the chart is currently zoomed in (or panned) from its natural view. */
+function isZoomedIn(viz: Viz): boolean {
+  const tgt = viz._zoomEventTarget || viz._container;
+  return Boolean(tgt && tgt.node() && zoomTransform(tgt.node()).k > 1);
+}
+
+/**
+    Which gestures d3-zoom acts on. With `zoomScroll: "modifier"` (the default
+    for charts embedded in a scrolling page), a chart doesn't capture the
+    page's own scrolling: a plain wheel scrolls the page and only Ctrl/⌘ +
+    wheel zooms (a trackpad pinch arrives as a Ctrl + wheel, so it zooms
+    too), and a one-finger touch scrolls the page while a two-finger pinch
+    zooms — until the chart is zoomed in, when one finger pans it. d3-zoom
+    registers every current touch when a gesture starts, so skipping the
+    first finger still gives a full pinch. Everything else follows d3-zoom's
+    default filter (no Ctrl + drag, primary button only).
+    @private
+*/
+function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
+  const modifier = viz.schema.zoomScroll === "modifier";
+  if (event.type === "wheel") return !modifier || event.ctrlKey || event.metaKey;
+  if (event.type === "touchstart" && modifier)
+    return (event.touches?.length ?? 0) > 1 || isZoomedIn(viz);
+  return !event.ctrlKey && !event.button;
+}
+
+/**
+    d3-zoom's wheel-to-zoom rate, except that its 10× boost for Ctrl + wheel
+    only applies to a trackpad pinch (which browsers report as Ctrl + wheel
+    with small deltas). Now that Ctrl + wheel is how a mouse zooms a chart, a
+    mouse notch (~100px) held with Ctrl would otherwise jump 4× per notch.
+    @private
+*/
+function wheelDelta(event: WheelEvent): number {
+  const pinch = event.ctrlKey && event.deltaMode === 0 && Math.abs(event.deltaY) < 50;
+  return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * (pinch ? 10 : 1);
+}
+
+/**
+    Lets the browser keep one-finger page scrolling over a chart while
+    `zoomScroll` is "modifier" and the chart is at its natural view (a
+    pinch still reaches d3-zoom), and hands every touch to the chart once
+    it's zoomed in so one finger pans it.
+    @private
+*/
+function applyTouchAction(viz: Viz): void {
+  const tgt = viz._zoomEventTarget || viz._container;
+  if (!tgt) return;
+  const modifier = viz.schema.zoomScroll === "modifier" && viz.schema.zoomPan;
+  tgt.style("touch-action", modifier ? (isZoomedIn(viz) ? "none" : "pan-x pan-y") : null);
 }
 
 /**
@@ -261,11 +400,11 @@ function zoomed(
     // Nullish-coalesce rather than `||` so a legitimate zero (a deliberate
     // collapse-to-zero scale, or pan transform at origin) doesn't get
     // silently rewritten to the default.
-    this._zoomTransform = {
-      x: t.x ?? 0,
-      y: t.y ?? 0,
-      scale: t.k ?? 1,
-    };
+    const state = {k: t.k ?? 1, x: t.x ?? 0, y: t.y ?? 0};
+    // A chart can zoom its own way (Plot rescales its axes); otherwise the
+    // transform scales the rendered picture via `Viz.toScene`.
+    if (this._zoomRescale && this._zoomRescale(state, duration)) this._zoomTransform = undefined;
+    else this._zoomTransform = {x: state.x, y: state.y, scale: state.k};
   } else if (t === false) {
     this._zoomTransform = undefined;
   }
@@ -276,12 +415,14 @@ function zoomed(
   // a 600 ms transition per event, causing visible lag + setTimeout
   // accumulation. Programmatic zooms (zoomMath, zoomToBounds) pass an
   // explicit duration when they want animation.
+  // The size legend relabels for the zoom (see `zoomSizeLegendScale`).
+  refreshBottomRightPanel(this as unknown as VizInstance);
   if (this._drawSceneToTarget && this._sceneRenderer) {
     this._drawSceneToTarget(duration);
   }
+  applyTouchAction(this);
 
-  if (this._renderTiles)
-    this._renderTiles(zoomTransform((this._zoomEventTarget || this._container).node()), duration);
+  if (this._renderTiles) this._renderTiles(tileZoomTransform(this), duration);
 }
 
 /**
@@ -292,38 +433,53 @@ function zoomed(
 function zoomMath(this: Viz, factor: number = 0): void {
   if (!this._container) return;
 
-  const center = this._zoomBehavior
-      .extent()
-      .bind(document)()[1]
-      .map((d: number) => d / 2),
-    scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(
-      (this._zoomEventTarget || this._container).node(),
-    ) as unknown as MutableTransform;
+  const [[x0, y0], [x1, y1]] = this._zoomBehavior.extent().bind(document)(),
+    cx = (x0 + x1) / 2,
+    cy = (y0 + y1) / 2,
+    t = zoomTransform((this._zoomEventTarget || this._container).node());
 
-  if (!factor) {
-    t.k = scaleExtent[0];
-    t.x = 0;
-    t.y = 0;
-  } else {
-    const translate0 = [(center[0] - t.x) / t.k, (center[1] - t.y) / t.k];
-    t.k = Math.min(scaleExtent[1], t.k * factor);
-    if (t.k <= scaleExtent[0]) {
-      t.k = scaleExtent[0];
-      t.x = 0;
-      t.y = 0;
-    } else {
-      t.x += center[0] - (translate0[0] * t.k + t.x);
-      t.y += center[1] - (translate0[1] * t.k + t.y);
-    }
-  }
+  if (!factor) return zoomTo(this, 1, 0, 0);
+  // Scale about the chart area's center: keep the content point currently at
+  // the center fixed on screen.
+  const k = t.k * factor;
+  zoomTo(this, k, cx - ((cx - t.x) / t.k) * k, cy - ((cy - t.y) / t.k) * k);
+}
 
-  zoomed.bind(this)(t, this.schema.duration);
+/**
+    Applies a programmatic zoom: clamps the scale to `scaleExtent` and the
+    translate to `translateExtent` (the constraint d3-zoom enforces for
+    pointer gestures), records it as the bound element's zoom state so the
+    next wheel/drag continues from here, and paints it.
+
+    Exported so `minimap.ts`'s drag-to-pan and Cmd/Ctrl+scroll-to-zoom can
+    reuse the same scale/translate clamping instead of reimplementing it.
+*/
+export function zoomTo(
+  viz: Viz,
+  scale: number,
+  x: number,
+  y: number,
+  duration: number = viz.schema.duration,
+): void {
+  const [kMin, kMax] = viz._zoomBehavior.scaleExtent(),
+    [[x0, y0], [x1, y1]] = viz._zoomBehavior.translateExtent(),
+    k = Math.max(kMin, Math.min(kMax, scale));
+  // Content must still cover the whole area: its left edge (x0·k + tx) can't
+  // move right of x0, nor its right edge (x1·k + tx) left of x1.
+  const tx = Math.max(x1 * (1 - k), Math.min(x0 * (1 - k), x)),
+    ty = Math.max(y1 * (1 - k), Math.min(y0 * (1 - k), y));
+  // A fresh transform, never a mutation of `zoomTransform(node)`'s result —
+  // for an element d3-zoom hasn't stored state on yet, that's d3's shared
+  // `zoomIdentity` constant.
+  const t = zoomIdentity.translate(tx, ty).scale(k);
+  (viz._zoomEventTarget || viz._container).property("__zoom", t);
+  zoomed.bind(viz)(t, duration);
 }
 
 /**
     @name zoomToBounds
-    Zooms to given bounds.
+    Zooms so the given on-screen bounds (surface pixels, as currently
+    displayed) fill the chart area, less `zoomPadding`. `null` resets.
     @param bounds
     @private
 */
@@ -332,44 +488,29 @@ function zoomToBounds(
   bounds: number[][] | null,
   duration: number = this.schema.duration,
 ): void {
-  const scaleExtent = this._zoomBehavior.scaleExtent(),
-    t = zoomTransform(
-      (this._zoomEventTarget || this._container).node(),
-    ) as unknown as MutableTransform;
+  if (!bounds) return zoomTo(this, 1, 0, 0, duration);
 
-  if (bounds) {
-    const [width, height] = this._zoomBehavior.translateExtent()[1],
-      dx = bounds[1][0] - bounds[0][0],
-      dy = bounds[1][1] - bounds[0][1];
+  const [[x0, y0], [x1, y1]] = this._zoomBehavior.translateExtent(),
+    pad = this.schema.zoomPadding,
+    t = zoomTransform((this._zoomEventTarget || this._container).node()),
+    // Un-apply the current transform: bounds → unzoomed surface space.
+    bx0 = (bounds[0][0] - t.x) / t.k,
+    by0 = (bounds[0][1] - t.y) / t.k,
+    bx1 = (bounds[1][0] - t.x) / t.k,
+    by1 = (bounds[1][1] - t.y) / t.k;
 
-    let k = Math.min(scaleExtent[1], 1 / Math.max(dx / width, dy / height));
-
-    let xMod: number, yMod: number;
-    if (dx / dy < width / height) {
-      k *= (height - this.schema.zoomPadding * 2) / height;
-      xMod = (width - dx * k) / 2 / k;
-      yMod = this.schema.zoomPadding / k;
-    } else {
-      k *= (width - this.schema.zoomPadding * 2) / width;
-      yMod = (height - dy * k) / 2 / k;
-      xMod = this.schema.zoomPadding / k;
-    }
-
-    t.x = (t.x - bounds[0][0] + xMod) * ((t.k * k) / t.k);
-    t.y = (t.y - bounds[0][1] + yMod) * ((t.k * k) / t.k);
-    t.k *= k;
-
-    if (t.x > 0) t.x = 0;
-    else if (t.x < width * -t.k + width) t.x = width * -t.k + width;
-    if (t.y > 0) t.y = 0;
-    else if (t.y < height * -t.k + height) t.y = height * -t.k + height;
-  } else {
-    t.k = scaleExtent[0];
-    t.x = 0;
-    t.y = 0;
-  }
-
-  zoomed.bind(this)(t, duration);
+  const k = Math.min(
+    (x1 - x0 - pad * 2) / (bx1 - bx0),
+    (y1 - y0 - pad * 2) / (by1 - by0),
+  );
+  // Center the bounds in the chart area.
+  zoomTo(
+    this,
+    k,
+    (x0 + x1) / 2 - (k * (bx0 + bx1)) / 2,
+    (y0 + y1) / 2 - (k * (by0 + by1)) / 2,
+    duration,
+  );
 }
 
 /**
@@ -388,7 +529,16 @@ function brushEnd(this: Viz, event: {selection: number[][] | null}): void {
   if (!event.selection) return; // Only transition after input.
 
   this._brushGroup.call(this._zoomBrush.move, null);
-  zoomToBounds.bind(this)(event.selection);
+  // A selection is a one-shot zoom: leave brush mode so the chart takes
+  // pointer events (hover, pan, wheel) again.
+  zoomEvents.bind(this)(false);
+  syncBrushButton(this);
+  // The brush group is offset by the chart margin; shift its selection into
+  // the surface space `zoomToBounds` expects.
+  const {left, top} = this._margin;
+  zoomToBounds.bind(this)(
+    event.selection.map(([x, y]) => [x + left, y + top]),
+  );
 }
 
 /**

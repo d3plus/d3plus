@@ -42,6 +42,6 @@ export function configureOrdinalColor(viz: VizInstance): void {
     : values;
   const keys = ordered.map(v => (typeof v === "string" ? v : JSON.stringify(v)));
 
-  const range = colorRamp(colorDefaults.sequential, keys.length || 1, {ordinal: true});
+  const range = colorRamp((viz.schema.colorDefaults ?? colorDefaults).sequential, keys.length || 1, {ordinal: true});
   viz._ordinalColorScale = scaleOrdinal<string, string>().domain(keys).range(range);
 }

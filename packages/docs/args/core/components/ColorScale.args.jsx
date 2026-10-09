@@ -40,7 +40,7 @@ export const argTypes = assign(
     },
     axisConfig: {
       control: {},
-      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
+      description: "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -126,6 +126,34 @@ export const argTypes = assign(
       }
     },
     color: {
+      control: {
+        type: "object"
+      },
+      description: "The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | array.&lt;string&gt;"
+      }
+    },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
+      }
+    },
+    colorMax: {
       control: {},
       description: "",
       table: {
@@ -138,52 +166,30 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
-    colorMax: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#1c7ed6",
-      description: "",
-      table: {
-        defaultValue: {
-          summary: "#1c7ed6"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
     colorMid: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#f8f9fa",
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "#f8f9fa"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "unknown"
       }
     },
     colorMin: {
-      control: {
-        type: "text"
-      },
-      defaultValue: "#c92a2a",
+      control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "#c92a2a"
+          summary: "undefined"
         }
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "unknown"
       }
     },
     config: {
@@ -262,7 +268,7 @@ export const argTypes = assign(
     },
     labelConfig: {
       control: {},
-      description: "A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.",
+      description: "A pass-through for the TextBox class used to style the labelMin and labelMax text.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -305,7 +311,7 @@ export const argTypes = assign(
     },
     legendConfig: {
       control: {},
-      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
+      description: "Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -409,7 +415,7 @@ export const argTypes = assign(
     },
     rectConfig: {
       control: {},
-      description: "The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).",
+      description: "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.",
       table: {
         defaultValue: {
           summary: "undefined"

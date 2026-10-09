@@ -1,43 +1,39 @@
+import {colorDefaults, type ColorDefaults} from "@d3plus/color";
 import {assign, isObject} from "@d3plus/dom";
+import {scaleOrdinal} from "d3-scale";
 import {
   findLocale,
   translateLocale as dictionaries,
   type TranslationStrings,
 } from "@d3plus/locales";
 
-import type {D3plusConfig} from "./D3plusConfig.js";
+import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
+import {containsReset, isPlainObject, mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../fluent.js";
+import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
 /**
-    Recursive function that resets nested Object configs.
-
+    Swaps every nested `RESET` in a config value for the matching entry of
+    `defaults`, dropping the key when that default is `undefined`. Objects
+    holding a `RESET` are copied on the way down, so the caller's value is
+    untouched; any other value passes through as is.
     @private
 */
-function nestedReset(
-  obj: Record<string, unknown>,
-  defaults: Record<string, unknown> | undefined,
-): void {
-  if (isObject(obj)) {
-    for (const nestedKey in obj) {
-      if (
-        {}.hasOwnProperty.call(obj, nestedKey) &&
-        !nestedKey.startsWith("_")
-      ) {
-        const defaultValue =
-          defaults && isObject(defaults) ? defaults[nestedKey] : undefined;
-        if (obj[nestedKey] === RESET) {
-          if (defaultValue) obj[nestedKey] = defaultValue;
-          else delete obj[nestedKey];
-        } else if (isObject(obj[nestedKey])) {
-          nestedReset(
-            obj[nestedKey] as Record<string, unknown>,
-            defaultValue as Record<string, unknown> | undefined,
-          );
-        }
-      }
-    }
+function nestedReset(value: unknown, defaults: unknown): unknown {
+  if (!isPlainObject(value) || !containsReset(value)) return value;
+  const out: Record<string, unknown> = {...value};
+  const fallbacks = isObject(defaults) ? (defaults as Record<string, unknown>) : {};
+  for (const key of Object.keys(out)) {
+    if (key.startsWith("_")) continue;
+    if (out[key] === RESET) {
+      if (fallbacks[key] === undefined) delete out[key];
+      else out[key] = fallbacks[key];
+    } else out[key] = nestedReset(out[key], fallbacks[key]);
   }
+  return out;
 }
+
+type Setter = ((v: unknown) => unknown) & {[RESOLVES_RESET]?: boolean};
 
 /**
     finds all prototype methods of a class and it's parent classes
@@ -59,6 +55,25 @@ function getAllMethods(obj: object): string[] {
       // keyed reconcile and forces a full remount on the next draw).
       !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
   );
+}
+
+/**
+    Merges color overrides into an instance and every BaseClass it owns (own
+    properties and `ctx` entries), so a Viz's legend, tooltip, axes, and
+    shapes pick them up too.
+    @private
+*/
+function cascadeColorDefaults(
+  obj: BaseClass,
+  overrides: Partial<ColorDefaults>,
+  seen: WeakSet<BaseClass>,
+): void {
+  if (seen.has(obj)) return;
+  seen.add(obj);
+  obj.schema.colorDefaults = {...obj.schema.colorDefaults, ...overrides};
+  for (const child of [...Object.values(obj), ...Object.values(obj.ctx)]) {
+    if (child instanceof BaseClass) cascadeColorDefaults(child, overrides, seen);
+  }
 }
 
 /**
@@ -88,6 +103,7 @@ export default class BaseClass {
   constructor() {
     this.schema = {};
     this.ctx = {};
+    this.schema.colorDefaults = {...colorDefaults};
     this.schema.locale = "en-US";
     this.schema.on = {};
     this.schema.parent = {};
@@ -108,40 +124,20 @@ export default class BaseClass {
   config(): D3plusConfig;
   config(_: D3plusConfig): this;
   config(_?: D3plusConfig): D3plusConfig | this {
-    if (!this._configDefault) {
-      const config: D3plusConfig = {};
-      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
-        const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
-      });
-      this._configDefault = config;
-    }
+    const defaults = this._defaultConfig();
 
     if (arguments.length) {
       for (const k in _) {
         if ({}.hasOwnProperty.call(_, k)) {
           if (k in this) {
             const v = _![k];
-            if (v === RESET) {
-              if (k === "on")
-                this.schema.on = this._configDefault![k];
-              else
-                (this as unknown as Record<string, (v: unknown) => unknown>)[k](
-                  this._configDefault![k],
-                );
-            } else {
-              nestedReset(
-                v as Record<string, unknown>,
-                this._configDefault![k] as Record<string, unknown>,
-              );
-              (this as unknown as Record<string, (v: unknown) => unknown>)[k](
-                v,
-              );
-            }
-          } else {
-            // console.warn(
-            //   `${this.constructor.name}.config() received unknown property "${k}".`,
-            // );
+            const setter = (this as unknown as Record<string, Setter>)[k];
+            if (v === RESET && k === "on") this.schema.on = defaults[k];
+            else if (setter[RESOLVES_RESET]) setter.call(this, v);
+            else if (v === RESET) setter.call(this, defaults[k]);
+            else setter.call(this, nestedReset(v, defaults[k]));
+          } else if (!isSharedConfig(_)) {
+            warnUnknownConfig(`${this.constructor.name}.config()`, k);
           }
         }
       }
@@ -153,6 +149,23 @@ export default class BaseClass {
       });
       return config;
     }
+  }
+
+  /**
+      The snapshot of every getter's value that `RESET` restores from, taken
+      the first time it is needed.
+      @private
+  */
+  _defaultConfig(): D3plusConfig {
+    if (!this._configDefault) {
+      const config: D3plusConfig = {};
+      getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
+        const v = (this as unknown as Record<string, () => unknown>)[k]();
+        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
+      });
+      this._configDefault = config;
+    }
+    return this._configDefault;
   }
 
   /**
@@ -176,6 +189,29 @@ export default class BaseClass {
     return arguments.length
       ? ((this.schema.locale = findLocale(_ as string)), this)
       : this.schema.locale;
+  }
+
+  /**
+      Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+@example
+new Treemap()
+  .colorDefaults({
+    dark: "#222",
+    light: "#fff",
+    scale: ["#1b9e77", "#d95f02", "#7570b3"]
+  })
+*/
+  colorDefaults(): ColorDefaults;
+  colorDefaults(_: ColorDefaultsConfig): this;
+  colorDefaults(_?: ColorDefaultsConfig): ColorDefaults | this {
+    if (!arguments.length) return this.schema.colorDefaults;
+    const {scale, ...rest} = _ ?? {};
+    const next: Partial<ColorDefaults> = {...rest};
+    if (Array.isArray(scale)) next.scale = scaleOrdinal<string>().range(scale);
+    else if (scale) next.scale = scale;
+    cascadeColorDefaults(this, next, new WeakSet());
+    return this;
   }
 
   /**
@@ -247,11 +283,9 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = assign(
-          this.schema.shapeConfig ?? {},
-          _!,
-        ) as D3plusConfig),
-        this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
       : (this.schema.shapeConfig as D3plusConfig);
   }
 }
+
+resolvesReset(BaseClass.prototype, "shapeConfig");

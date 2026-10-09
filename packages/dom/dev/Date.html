@@ -1,0 +1,58 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Date</title>
+  <meta name="description" content="date() parsing several date string formats.">
+  <script src="/umd/d3plus-dom.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
+
+  var date = d3plus.date("1987-02");
+  log(date);
+
+  var date = d3plus.date("1987-02-01");
+  log(date);
+
+  var date = d3plus.date("02/01/1987");
+  log(date);
+
+  var date = d3plus.date("02-01-1987");
+  log(date);
+  
+
+</script>
+
+</html>

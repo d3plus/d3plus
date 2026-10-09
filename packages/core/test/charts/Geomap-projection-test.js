@@ -74,6 +74,18 @@ it("applyGeomapLayout fits the projection so every point lands inside the chart 
   });
 });
 
+it("applyGeomapLayout fits the same projection when a later draw reuses the cached extent", () => {
+  const viz = mockGeomapViz();
+  applyGeomapLayout({viz});
+  const first = {scale: viz.schema.projection.scale(), translate: viz.schema.projection.translate()};
+  // Once zoom is wired the extent is cached; the point-radius padding it was
+  // fitted with must be reused with it, or the map shifts between draws.
+  viz._zoomSet = true;
+  applyGeomapLayout({viz});
+  assert.strictEqual(viz.schema.projection.scale(), first.scale);
+  assert.deepStrictEqual(viz.schema.projection.translate(), first.translate);
+});
+
 it("Geomap.projection resolves a named d3-geo projection (geoMercator)", () => {
   const proj = new Geomap().projection("geoMercator").projection();
   const ref = geoMercator();

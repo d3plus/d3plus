@@ -61,7 +61,7 @@ export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
 
   src.forEach((datum: DataPoint, i: number) => {
     let d: DataPoint = datum;
-    if (datum.nested && datum.key && datum.values) {
+    if (datum.nested && datum.key !== undefined && datum.values) {
       d = (datum.values as unknown as DataPoint[])[0];
       i = data.indexOf(d);
     }

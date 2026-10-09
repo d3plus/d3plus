@@ -3,6 +3,7 @@ import path from "node:path";
 import fs from "node:fs";
 import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
+import webpack from "webpack";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -77,6 +78,12 @@ export default {
         // in the Node built-ins `net`/`tls`/`child_process`/`fs`).
         jsdom: false,
         "@napi-rs/canvas": false,
+        // `@d3plus/ssr`'s geomap-tile SSRF guard statically imports `undici`
+        // (unlike jsdom/canvas, not behind a lazy `import()`). Stub it the
+        // same way — it pulls in a long tail of `node:*` builtins (zlib,
+        // http2, sqlite, …) that webpack's "unhandled scheme" resolver
+        // otherwise rejects outright.
+        undici: false,
       };
 
       // Belt-and-suspenders for any Node core module reached before the aliases
@@ -87,7 +94,20 @@ export default {
         tls: false,
         child_process: false,
         fs: false,
+        dns: false,
       };
+
+      // webpack resolves a `node:`-scheme request (e.g. the geomap-tile SSRF
+      // guard's `import net from "node:net"`) through its scheme handler
+      // instead of the alias/fallback maps above, which only match bare
+      // specifiers — so strip the prefix first and let `net`/`dns` above
+      // catch it.
+      config.plugins = config.plugins || [];
+      config.plugins.push(
+        new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
+          resource.request = resource.request.replace(/^node:/, "");
+        }),
+      );
 
       // TypeScript sources use .js extensions in imports (ESM convention);
       // tell webpack to also try .ts/.tsx when it sees .js/.jsx

@@ -15,6 +15,10 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {resolveAccessor, shapeConfigFor} from "../features/emitHelpers.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
+
+import {ringsCenterLabel, ringsGeometry, sizeRingsNodes} from "./ringsSizing.js";
+import type {RingGeometry} from "./ringsSizing.js";
 
 /**
     Single laid-out node — accreted across the layout's passes. Each
@@ -42,6 +46,8 @@ interface RingsNode {
   labelBounds?: {x: number; y: number; width: number; height: number};
   rotate?: number;
   textAnchor?: string;
+  /** The center node only: whether its label fits inside the circle (else it sits below). */
+  labelInside?: boolean;
 }
 
 /**
@@ -198,14 +204,6 @@ function buildRingsGraph(
   return {nodes, nodeLookup, links, linkMap};
 }
 
-/** Ring geometry derived from the chart bounds. */
-interface RingGeometry {
-  width: number;
-  height: number;
-  ringWidth: number;
-  primaryRing: number;
-  secondaryRing: number;
-}
 
 /**
     Claim the center node + two rings, compute each node's angle/position, build
@@ -218,8 +216,12 @@ function placeRingsNodes(
   linkMap: Record<string, RingsEdge[]>,
   center: RingsNode,
   geom: RingGeometry,
-  data: Record<string, DataPoint>,
-): {nodes: RingsNode[]; primaries: RingsNode[]; secondaries: RingsNode[]} {
+): {
+  nodes: RingsNode[];
+  primaries: RingsNode[];
+  secondaries: RingsNode[];
+  radius: SizeLegendScale | null;
+} {
   const {width, height, primaryRing, secondaryRing} = geom;
 
   center.x = width / 2;
@@ -286,75 +288,11 @@ function placeRingsNodes(
     });
   });
 
-  sizeRingsNodes(v, center, geom, data, primaries, secondaries);
+  const radius = sizeRingsNodes(v, center, geom, totalEndNodes, primaries, secondaries);
 
   const nodes = [center].concat(primaries).concat(secondaries);
 
-  return {nodes, primaries, secondaries};
-}
-
-/**
-    Build the radius scale from the size extent (or ring defaults) and assign
-    each ring node its `ring` + `r`. Mutates `center.r` and every ring node.
-*/
-function sizeRingsNodes(
-  v: VizInstance,
-  center: RingsNode,
-  geom: RingGeometry,
-  data: Record<string, DataPoint>,
-  primaries: RingsNode[],
-  secondaries: RingsNode[],
-): void {
-  const {ringWidth} = geom;
-  const primaryDistance = ringWidth / 2;
-  const secondaryDistance = ringWidth / 4;
-
-  let primaryMax = primaryDistance / 2 - 4;
-  if (primaryDistance / 2 - 4 < 8) primaryMax = min([primaryDistance / 2, 8]) || 0;
-
-  let secondaryMax = secondaryDistance / 2 - 4;
-  if (secondaryDistance / 2 - 4 < 4) secondaryMax = min([secondaryDistance / 2, 4]) || 0;
-  if (secondaryMax > ringWidth / 10) secondaryMax = ringWidth / 10;
-  if (secondaryMax > primaryMax && secondaryMax > 10) secondaryMax = primaryMax * 0.75;
-  if (primaryMax > secondaryMax * 1.5) primaryMax = secondaryMax * 1.5;
-  primaryMax = Math.floor(primaryMax);
-  secondaryMax = Math.floor(secondaryMax);
-
-  let radiusFn: (v: number) => number;
-  if (v._size) {
-    const domain = extent(
-      Object.values(data),
-      (d: DataPoint) => d.size as number,
-    ) as [number, number];
-    if (domain[0] === domain[1]) domain[0] = 0;
-    radiusFn = scales.scaleLinear()
-      .domain(domain)
-      .rangeRound([3, min([primaryMax, secondaryMax]) as number]) as unknown as (v: number) => number;
-    center.r = radiusFn(center.size as number);
-  } else {
-    radiusFn = scales.scaleLinear()
-      .domain([1, 2])
-      .rangeRound([primaryMax, secondaryMax]) as unknown as (v: number) => number;
-  }
-
-  secondaries.forEach(s => {
-    s.ring = 2;
-    const val = (v._size ? s.size : 2) as number;
-    s.r = v.schema.sizeMin
-      ? (max([v.schema.sizeMin, radiusFn(val)]) as number)
-      : v.schema.sizeMax
-        ? (min([v.schema.sizeMax, radiusFn(val)]) as number)
-        : radiusFn(val);
-  });
-  primaries.forEach(p => {
-    p.ring = 1;
-    const val = (v._size ? p.size : 1) as number;
-    p.r = v.schema.sizeMin
-      ? (max([v.schema.sizeMin, radiusFn(val)]) as number)
-      : v.schema.sizeMax
-        ? (min([v.schema.sizeMax, radiusFn(val)]) as number)
-        : radiusFn(val);
-  });
+  return {nodes, primaries, secondaries, radius};
 }
 
 /**
@@ -427,15 +365,14 @@ function buildRingsEdges(
 
 /** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
 function applyRingsLabelBounds(v: VizInstance, nodes: RingsNode[], geom: RingGeometry): void {
-  const {primaryRing, ringWidth} = geom;
+  const {ringWidth} = geom;
   nodes.forEach(node => {
     if (node.id === v.schema.center) {
-      node.labelBounds = {
-        x: -primaryRing / 2,
-        y: -primaryRing / 2,
-        width: primaryRing,
-        height: primaryRing,
-      };
+      const {bounds, inside} = ringsCenterLabel(
+        v, node, geom, v._drawLabel(node.data || node.node, node.i), v.schema.fontFamily,
+      );
+      node.labelBounds = bounds;
+      node.labelInside = inside;
       return;
     }
     const labelConfigRef = (v.schema.shapeConfig as Record<string, unknown>).labelConfig as
@@ -506,6 +443,10 @@ function publishRingsCtx(
       ? `M${d.sourceX},${d.sourceY}C${d.sourceBisectX},${d.sourceBisectY} ${d.targetBisectX},${d.targetBisectY} ${d.targetX},${d.targetY}`
       : `M${d.source.x},${d.source.y} ${d.target.x},${d.target.y}`;
 
+  // The center's label sits inside its circle unless the circle is too small
+  // (see `ringsCenterLabel`), in which case it sits below like any other.
+  const centerInside = (node: RingsNode) =>
+    node.id === v.schema.center && nodeLookup[node.id]?.labelInside !== false;
   const shapeConfig = {
     label: (d: RingsNode) =>
       nodes.length <= v.schema.dataCutoff ||
@@ -517,27 +458,29 @@ function publishRingsCtx(
     labelConfig: {
       fontColor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
         const node = (d.data ?? d) as RingsNode & {key?: string};
-        if (node.id === v.schema.center) {
+        if (node.id === v.schema.center && nodeLookup[node.id]?.labelInside !== false) {
           const fill = resolveAccessor<string>(
             (shapeConfigFor(v, node.key ?? node.shape) as {fill?: unknown}).fill,
             (node.data ?? node) as DataPoint,
             node.i,
           );
-          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)");
+          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", v.schema.colorDefaults);
         }
         return colorContrast(
           v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
+          v.schema.colorDefaults,
         );
       },
-      fontResize: (d: RingsNode & {data?: RingsNode}) => ((d.data ?? d) as RingsNode).id === v.schema.center,
+      fontResize: (d: RingsNode & {data?: RingsNode}) => centerInside((d.data ?? d) as RingsNode),
       padding: 0,
       textAnchor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
         const node = (d.data ?? d) as RingsNode & {key?: string};
+        if (node.id === v.schema.center && !centerInside(node)) return "middle";
         return nodeLookup[node.id]?.textAnchor ||
           (shapeConfigFor(v, (node.key ?? node.shape)) as {labelConfig: {textAnchor: string}}).labelConfig.textAnchor;
       },
       verticalAlign: (d: RingsNode & {data?: RingsNode}) =>
-        ((d.data ?? d) as RingsNode).id === v.schema.center ? "middle" : "top",
+        centerInside((d.data ?? d) as RingsNode) ? "middle" : "top",
     },
     rotate: (d: RingsNode) => nodeLookup[d.id].rotate || 0,
   };
@@ -546,18 +489,21 @@ function publishRingsCtx(
   v.ctx.ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
 }
 
-export const applyRingsLayout: TransformStage = ({viz}) => {
-  const v = viz;
 
+/**
+    Filtered data keyed by id, the node graph, and the center node — or null
+    when there's nothing to lay out or no node matches `center`. Normalizes
+    `center` to the matched node's id.
+*/
+function prepareRings(v: VizInstance): {
+  data: Record<string, DataPoint>;
+  graph: ReturnType<typeof buildRingsGraph>;
+  center: RingsNode | undefined;
+} | null {
   if (!Array.isArray(v._filteredData)) v._filteredData = [];
   if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
   if (!Array.isArray(v.schema.links)) v.schema.links = [];
-  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) {
-    v.ctx.nodeLookup = {};
-    v.ctx.linkLookup = {};
-    v.ctx.ringsCtx = emptyRingsCtx();
-    return {viz};
-  }
+  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) return null;
 
   const data: Record<string, DataPoint> = (v._filteredData as DataPoint[]).reduce(
     (obj: Record<string, DataPoint>, d, i) => {
@@ -567,37 +513,64 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     {},
   );
 
-  const {nodeLookup, links, linkMap} = buildRingsGraph(v, data);
-
-  const {width, height} = chartBounds(v);
-  const edges: RingsEdge[] = [];
-  const radius = (min([height, width]) || 0) / 2;
-  const ringWidth = radius / 3;
-  const primaryRing = ringWidth;
-  const secondaryRing = ringWidth * 2;
-  const geom: RingGeometry = {width, height, ringWidth, primaryRing, secondaryRing};
+  const graph = buildRingsGraph(v, data);
 
   // Data loading coerces leading-zero ids (e.g. "010101") into numbers, so a
   // string `center` config may not key the (coerced) node lookup directly. Try
   // the raw value, then its coerced form.
-  let center = nodeLookup[v.schema.center];
+  let center = graph.nodeLookup[v.schema.center];
   if (!center && v.schema.center != null && !isNaN(v.schema.center as unknown as number))
-    center = nodeLookup[parseFloat(v.schema.center as unknown as string)];
+    center = graph.nodeLookup[parseFloat(v.schema.center as unknown as string)];
+  // Normalize so downstream comparisons against node ids use the matched id.
+  if (center) v.schema.center = center.id;
+  return {data, graph, center};
+}
+
+/**
+    Rings' size-legend scale for a chart area of `width` × `height`: places a
+    scratch copy of the node graph exactly as the layout does and returns the
+    radius scale it sized with. The ring geometry only shrinks as the area
+    does, so the layout's final radii never exceed this estimate's.
+*/
+export function ringsSizeLegendScale(v: VizInstance, width: number, height: number): SizeLegendScale | null {
+  if (!v._size) return null;
+  const {nodeLookup} = v.ctx;
+  const prepared = prepareRings(v);
+  v.ctx.nodeLookup = nodeLookup;
+  if (!prepared || !prepared.center) return null;
+  const {graph, center} = prepared;
+  return placeRingsNodes(v, graph.nodeLookup, graph.linkMap, center, ringsGeometry(width, height)).radius;
+}
+
+export const applyRingsLayout: TransformStage = ({viz}) => {
+  const v = viz;
+  v._sizeLegendFinal = null;
+
+  const prepared = prepareRings(v);
+  if (!prepared) {
+    v.ctx.nodeLookup = {};
+    v.ctx.linkLookup = {};
+    v.ctx.ringsCtx = emptyRingsCtx();
+    return {viz};
+  }
+  const {graph: {nodeLookup, links, linkMap}, center} = prepared;
   if (!center) {
     v.ctx.ringsCtx = emptyRingsCtx();
     return {viz};
   }
-  // Normalize so downstream comparisons against node ids use the matched id.
-  v.schema.center = center.id;
 
-  const {nodes, primaries, secondaries} = placeRingsNodes(
+  const {width, height} = chartBounds(v);
+  const edges: RingsEdge[] = [];
+  const geom = ringsGeometry(width, height);
+
+  const {nodes, primaries, secondaries, radius} = placeRingsNodes(
     v,
     nodeLookup,
     linkMap,
     center,
     geom,
-    data,
   );
+  v._sizeLegendFinal = radius;
 
   buildRingsEdges(v, nodes, primaries, secondaries, linkMap, center, geom, edges);
 

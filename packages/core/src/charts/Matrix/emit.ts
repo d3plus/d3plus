@@ -6,6 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface MatrixCell extends Record<string, unknown> {
@@ -27,7 +28,7 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
   const cellWidth = viz.ctx.cellWidth as number;
   const cellHeight = viz.ctx.cellHeight as number;
   const cellPadding = (viz.schema.cellPadding as number) ?? 0;
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Rect");
   const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
 
   return cells.map((d, i): SceneNode => {
@@ -45,7 +46,7 @@ export const matrixEmit: ChartEmit = ({viz, shapeData}) => {
       x, y, width: w, height: h,
       datum: d as DataPoint,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, d as DataPoint, i, fill),
         stroke,
         strokeWidth,
       },

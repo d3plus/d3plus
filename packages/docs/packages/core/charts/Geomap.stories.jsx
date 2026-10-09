@@ -79,11 +79,115 @@ ChangingProjection.args = {
 };
 ChangingProjection.parameters = {controls: {include: ["projection", "topojson", "topojsonFilter"]}, docs: {description: {story: "Any d3-geo projection name can be passed to `projection`; `\"geoMercator\"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== \"ata\"`)."}}};
 
-export const ChangingTileset = Template.bind({});
-ChangingTileset.args = {
-  tileUrl: "https://tile.opentopomap.org/{z}/{x}/{y}.png"
-}
-ChangingTileset.parameters = {controls: {include: ["tileUrl"]}, docs: {description: {story: "Point `tileUrl` at a different XYZ tile server (here OpenTopoMap) to swap the background imagery — handy for topographic or otherwise custom basemaps."}}};
+// Tile servers that serve tiles without an account or API key (checked
+// 2026-09-25). Each still has its own usage policy and attribution, which
+// Geomap displays automatically.
+const esri = name => `https://server.arcgisonline.com/ArcGIS/rest/services/${name}/MapServer/tile/{z}/{y}/{x}`;
+const noKeyTilesets = [
+  {name: "Esri Light Gray (default)", url: esri("Canvas/World_Light_Gray_Base")},
+  {name: "Esri Dark Gray (dark default)", url: esri("Canvas/World_Dark_Gray_Base")},
+  {name: "Esri Terrain", url: esri("World_Terrain_Base")},
+  {name: "Esri Street Map", url: esri("World_Street_Map")},
+  {name: "Esri Imagery", url: esri("World_Imagery")},
+  {name: "Esri National Geographic", url: esri("NatGeo_World_Map")},
+  {name: "OSM Standard", url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"},
+  {name: "OSM Humanitarian", url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"},
+  {name: "OpenTopoMap", url: "https://tile.opentopomap.org/{z}/{x}/{y}.png"},
+];
+
+// No topojson layered on top here — these three stories are about the raw
+// basemap tiles, so nothing but the ocean/tile imagery is drawn over them.
+const tileBackdrop = {
+  projection: "geoMercator"
+};
+
+export const ChangingTileset = {
+  render: () => {
+    const [tileUrl, setTileUrl] = React.useState(noKeyTilesets[0].url);
+    return (
+      <div>
+        <select
+          value={tileUrl}
+          onChange={e => setTileUrl(e.target.value)}
+          style={{marginBottom: "12px", font: "inherit", padding: "4px 8px"}}
+        >
+          {noKeyTilesets.map(({name, url}) => <option key={url} value={url}>{name}</option>)}
+        </select>
+        <Geomap config={{...tileBackdrop, height: 400, tileUrl}} />
+      </div>
+    );
+  },
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "Point `tileUrl` at any XYZ tile server to swap the background imagery — pick one of the servers that need no API key from the menu above the map. The credit in the corner updates to match, and any other `{z}/{x}/{y}` template works too (Esri's services order it `{z}/{y}/{x}`)."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+import {useState} from "react";
+
+function ChangingTileset() {
+  const [tileUrl, setTileUrl] = useState("${noKeyTilesets[0].url}");
+  return (
+    <div>
+      <select value={tileUrl} onChange={e => setTileUrl(e.target.value)}>
+${noKeyTilesets.map(t => `        <option value="${t.url}">${t.name}</option>`).join("\n")}
+      </select>
+      <Geomap config={{tileUrl}} />
+    </div>
+  );
+}`}
+    }
+  }
+};
+
+export const NoKeyTilesets = {
+  render: () => (
+    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
+      {noKeyTilesets.map(({name, url}) =>
+        <div key={url} style={{height: "280px"}}>
+          <Geomap config={{...tileBackdrop, height: 280, title: name, tileUrl: url}} />
+        </div>
+      )}
+    </div>
+  ),
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "Every tile server that works without an account or API key, side by side. Esri's Canvas layers are the default: Light Gray on a light page and Dark Gray on a dark one. The others suit topographic, street-level, or imagery backdrops."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+
+${noKeyTilesets.map(t => `// ${t.name}
+<Geomap config={{tileUrl: "${t.url}"}} />`).join("\n\n")}`}
+    }
+  }
+};
+
+export const LightAndDarkTiles = {
+  render: () => (
+    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
+      {[["Light page", "#ffffff", "#222"], ["Dark page", "#15191e", "#ddd"]].map(([label, background, color]) =>
+        <div key={label} style={{background, color, padding: "12px", borderRadius: "6px", height: "304px"}}>
+          <Geomap config={{...tileBackdrop, height: 280, title: label, titleConfig: {fontColor: color}}} />
+        </div>
+      )}
+    </div>
+  ),
+  parameters: {
+    controls: {disable: true},
+    docs: {
+      description: {story: "`tileUrl` and `ocean` also accept a `{light, dark}` pair, and the defaults are one: Esri Light Gray Canvas on a light backdrop and Dark Gray Canvas on a dark one, with a matching ocean and no-data fill. Geomap reads the backdrop from the page (the nearest background color, or a dark `color-scheme` on a dark system) and redraws when it changes."},
+      source: {code: `import {Geomap} from "@d3plus/react";
+
+// The default, spelled out: any two tile servers can be paired this way.
+<Geomap config={{
+  tileUrl: {
+    light: "${noKeyTilesets[0].url}",
+    dark: "${noKeyTilesets[1].url}"
+  },
+  ocean: {light: "#d0cfd4", dark: "#222327"}
+}} />`}
+    }
+  }
+};
 
 export const ChangingNoDataColor = Template.bind({});
 ChangingNoDataColor.args = {
@@ -256,3 +360,48 @@ PointMotionTrails.parameters = {
   controls: {include: ["renderer", "time"]},
   docs: {description: {story: "Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends."}}
 };
+
+export const PointSizeLegend = Template.bind({});
+PointSizeLegend.args = {
+  data: [
+    {city: "Tokyo", lon: 139.69, lat: 35.69, pop: 37.1}, {city: "Delhi", lon: 77.21, lat: 28.61, pop: 33.8},
+    {city: "Shanghai", lon: 121.47, lat: 31.23, pop: 29.9}, {city: "São Paulo", lon: -46.63, lat: -23.55, pop: 22.8},
+    {city: "Mexico City", lon: -99.13, lat: 19.43, pop: 22.3}, {city: "Cairo", lon: 31.24, lat: 30.04, pop: 22.2},
+    {city: "Mumbai", lon: 72.88, lat: 19.08, pop: 21.3}, {city: "Beijing", lon: 116.41, lat: 39.90, pop: 21.8},
+    {city: "Dhaka", lon: 90.41, lat: 23.81, pop: 23.2}, {city: "Osaka", lon: 135.50, lat: 34.69, pop: 19.0},
+    {city: "New York", lon: -74.01, lat: 40.71, pop: 18.9}, {city: "Karachi", lon: 67.01, lat: 24.86, pop: 17.2},
+    {city: "Buenos Aires", lon: -58.38, lat: -34.60, pop: 15.5}, {city: "Istanbul", lon: 28.98, lat: 41.01, pop: 15.8},
+    {city: "Lagos", lon: 3.38, lat: 6.52, pop: 15.9}, {city: "Manila", lon: 120.98, lat: 14.60, pop: 14.7},
+    {city: "Rio de Janeiro", lon: -43.17, lat: -22.91, pop: 13.7}, {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 12.5},
+    {city: "Moscow", lon: 37.62, lat: 55.76, pop: 12.7}, {city: "Paris", lon: 2.35, lat: 48.86, pop: 11.2},
+    {city: "London", lon: -0.13, lat: 51.51, pop: 9.6}, {city: "Lima", lon: -77.04, lat: -12.05, pop: 11.2},
+    {city: "Bangkok", lon: 100.50, lat: 13.76, pop: 11.1}, {city: "Jakarta", lon: 106.85, lat: -6.21, pop: 11.2},
+    {city: "Chicago", lon: -87.63, lat: 41.88, pop: 8.9}, {city: "Sydney", lon: 151.21, lat: -33.87, pop: 5.2},
+    {city: "Johannesburg", lon: 28.05, lat: -26.20, pop: 6.2}, {city: "Toronto", lon: -79.38, lat: 43.65, pop: 6.4},
+    {city: "Nairobi", lon: 36.82, lat: -1.29, pop: 5.3}, {city: "Madrid", lon: -3.70, lat: 40.42, pop: 6.8},
+    {city: "Berlin", lon: 13.40, lat: 52.52, pop: 3.6}, {city: "Santiago", lon: -70.67, lat: -33.45, pop: 6.9},
+    {city: "Auckland", lon: 174.76, lat: -36.85, pop: 1.7}, {city: "Reykjavík", lon: -21.94, lat: 64.15, pop: 0.2},
+  ],
+  groupBy: "city",
+  legend: false,
+  ocean: "transparent",
+  point: funcify(
+    d => [d.lon, d.lat],
+    "d => [d.lon, d.lat]"
+  ),
+  pointSize: funcify(
+    d => d.pop,
+    "d => d.pop"
+  ),
+  pointSizeMax: 24,
+  pointSizeMin: 3,
+  pointSizeScale: "sqrt",
+  sizeLegendConfig: {title: "Population (millions)"},
+  tiles: false,
+  topojson: "https://oec.world/topojson/world-50m.json",
+  topojsonFilter: funcify(
+    d => d.id !== "ata",
+    "d => d.id !== 'ata'"
+  )
+};
+PointSizeLegend.parameters = {controls: {include: ["pointSize", "pointSizeMin", "pointSizeMax", "pointSizeScale", "sizeLegendConfig"]}, docs: {description: {story: "Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed."}}};

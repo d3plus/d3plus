@@ -30,9 +30,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
+| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
+| [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
+| [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
+| [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
@@ -40,13 +44,50 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
-| [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
+| [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
 | [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
 | [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
+| [`studentTCdf`](#studenttcdf) | The cumulative distribution function of Student's t-distribution. |
+| [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportio |
+
+| Interfaces | Description |
+| --- | --- |
+| [`Bounds`](#bounds) | An axis-aligned box: top-left corner plus size. |
+| [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
+| [`RegressionOptions`](#regressionoptions) |  |
+| [`RegressionResult`](#regressionresult) |  |
+
+| Type Aliases | Description |
+| --- | --- |
+| [`RegressionType`](#regressiontype) |  |
 
 ## Functions
+
+<a id="ckmeans"></a>
+
+### ckmeans()
+
+> **ckmeans**(`data`: `number`[], `nClusters`: `number`): `number`[][]
+
+Defined in: [ckmeans.ts:223](https://github.com/d3plus/d3plus/blob/main/packages/math/src/ckmeans.ts#L223)
+
+Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | `number`[] | input data, as an array of number values |
+| `nClusters` | `number` | number of desired classes. This cannot be greater than the number of values in the data array. |
+
+#### Returns
+
+`number`[][]
+
+***
 
 <a id="closest"></a>
 
@@ -77,7 +118,7 @@ Finds the closest numeric value in an array.
 
 > **largestRect**(`poly`: `Point`[], `options?`: `LargestRectOptions`): `LargestRectResult` \| `null`
 
-Defined in: [largestRect.ts:315](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.ts#L315)
+Defined in: [largestRect.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/math/src/largestRect.ts#L322)
 
 Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios.
 
@@ -116,6 +157,52 @@ verbose: false,
 
 ***
 
+<a id="linearconfidence"></a>
+
+### linearConfidence()
+
+> **linearConfidence**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: [linearConfidence.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/linearConfidence.ts#L8)
+
+Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `level` | `number` | `0.95` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+***
+
+<a id="linearprediction"></a>
+
+### linearPrediction()
+
+> **linearPrediction**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: [linearPrediction.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/linearPrediction.ts#L8)
+
+Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`. Wider than the confidence band of `linearConfidence`, since it covers the scatter of individual values as well as the uncertainty of the fitted line, which makes it the band to draw around a forecast. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `level` | `number` | `0.95` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+***
+
 <a id="lineintersection"></a>
 
 ### lineIntersection()
@@ -138,6 +225,37 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 #### Returns
 
 `Point` \| `null`
+
+***
+
+<a id="negativespace"></a>
+
+### negativeSpace()
+
+> **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
+
+Defined in: [negativeSpace.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L102)
+
+Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
+outside the marks described by `obstacles`. The marks are treated as a single
+solid region — the convex hull of every (padded) obstacle box — so a hole in
+the middle of a ring of points is never returned, only the space around them.
+Boxes in `options.exclude` are kept clear too, each on its own. Each
+returned box is maximal (it cannot grow in any direction without leaving
+`bounds` or touching the hull or an excluded box). Results are sorted largest area first, and the
+output is deterministic for a given input.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `bounds` | [`Bounds`](#bounds) | The region to search, such as a chart's plot area. |
+| `obstacles` | [`Bounds`](#bounds)[] | The bounding boxes of the marks drawn inside `bounds`. |
+| `options` | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options. |
+
+#### Returns
+
+[`Bounds`](#bounds)[]
 
 ***
 
@@ -326,7 +444,7 @@ An array containing two values, the closest point on the left and the closest po
 
 Defined in: [polygonRotate.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/polygonRotate.ts#L10)
 
-Rotates a point around a given origin.
+Rotates a polygon around a given origin.
 
 #### Parameters
 
@@ -339,6 +457,30 @@ Rotates a point around a given origin.
 #### Returns
 
 `Point`[]
+
+***
+
+<a id="regression"></a>
+
+### regression()
+
+> **regression**(`points`: \[`number`, `number`\][], `type?`: [`RegressionType`](#regressiontype), `options?`: [`RegressionOptions`](#regressionoptions)): [`RegressionResult`](#regressionresult) \| `null`
+
+Defined in: [regression.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L127)
+
+Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Default | Description |
+| ------ | ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | *required* | An array of `[x, y]` pairs. |
+| `type` | [`RegressionType`](#regressiontype) | `"linear"` | The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial". |
+| `options` | [`RegressionOptions`](#regressionoptions) | `{}` | Additional options, such as the polynomial `order`. |
+
+#### Returns
+
+[`RegressionResult`](#regressionresult) \| `null`
 
 ***
 
@@ -440,3 +582,131 @@ Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorith
 #### Author
 
 Vladimir Agafonkin
+
+***
+
+<a id="studenttcdf"></a>
+
+### studentTCdf()
+
+> **studentTCdf**(`t`: `number`, `df`: `number`): `number`
+
+Defined in: [studentTQuantile.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L64)
+
+The cumulative distribution function of Student's t-distribution.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `t` | `number` | The t statistic. |
+| `df` | `number` | Degrees of freedom. |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="studenttquantile"></a>
+
+### studentTQuantile()
+
+> **studentTQuantile**(`p`: `number`, `df`: `number`): `number`
+
+Defined in: [studentTQuantile.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L74)
+
+The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p` | `number` | A probability between 0 and 1 (e.g. 0.975 for a two-sided 95% interval). |
+| `df` | `number` | Degrees of freedom (greater than 0). |
+
+#### Returns
+
+`number`
+
+## Interfaces
+
+<a id="bounds"></a>
+
+### Bounds
+
+Defined in: [negativeSpace.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L6)
+
+An axis-aligned box: top-left corner plus size.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-height"></a> `height` | `number` | [negativeSpace.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L10) |
+| <a id="property-width"></a> `width` | `number` | [negativeSpace.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L9) |
+| <a id="property-x"></a> `x` | `number` | [negativeSpace.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L7) |
+| <a id="property-y"></a> `y` | `number` | [negativeSpace.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L8) |
+
+***
+
+<a id="negativespaceoptions"></a>
+
+### NegativeSpaceOptions
+
+Defined in: [negativeSpace.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L14)
+
+Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-divisions"></a> `divisions?` | `number` | Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. | [negativeSpace.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L22) |
+| <a id="property-exclude"></a> `exclude?` | [`Bounds`](#bounds)[] | Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). | [negativeSpace.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L24) |
+| <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | [negativeSpace.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L20) |
+| <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | [negativeSpace.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L18) |
+| <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | [negativeSpace.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L16) |
+
+***
+
+<a id="regressionoptions"></a>
+
+### RegressionOptions
+
+Defined in: [regression.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L29)
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | [regression.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L31) |
+
+***
+
+<a id="regressionresult"></a>
+
+### RegressionResult
+
+Defined in: [regression.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L8)
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
+| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | [regression.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L26) |
+| <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | [regression.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L24) |
+| <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
+| <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
+| <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | [regression.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L10) |
+
+## Type Aliases
+
+<a id="regressiontype"></a>
+
+### RegressionType
+
+> **RegressionType** = `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"`
+
+Defined in: [regression.ts:1](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L1)

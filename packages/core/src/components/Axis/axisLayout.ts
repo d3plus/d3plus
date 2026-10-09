@@ -11,12 +11,12 @@
 
     The function mutates the input `axis` to populate `_d3Scale`,
     `_d3ScaleNegative`, `_outerBounds`, `_margin`, `_availableTicks`,
-    `_visibleTicks`, `_labelRotation`, `_tickUnit` — matching the side effects
-    the original inline `Axis.render` body had. It also returns the local
-    layout artifacts the paint phase consumes (`ticks`, `labels`, `range`,
-    `textData`, `tickFormat`, `hBuff`, `wBuff`, `tickGet`, `labelHeight`,
-    `bounds`) so callers can destructure those without re-reading them off
-    the instance.
+    `_visibleTicks`, `_labelRotation`, `_tickUnit`, `_labelFormat` — matching
+    the side effects the original inline `Axis.render` body had. It also
+    returns the local layout artifacts the paint phase consumes (`ticks`,
+    `labels`, `range`, `textData`, `tickFormat`, `hBuff`, `wBuff`, `tickGet`,
+    `labelHeight`, `bounds`) so callers can destructure those without
+    re-reading them off the instance.
 
     This is the canonical v4 chart-as-data shape — Plot's test axes and any
     future "how much room does this axis need?" caller drives layout via
@@ -37,6 +37,7 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
+import {axisScaleData} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -86,10 +87,12 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  axis._scaleData = axisScaleData(axis);
 
   let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
 
   const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
+  axis._labelFormat = tickFormat;
 
   ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet));
 

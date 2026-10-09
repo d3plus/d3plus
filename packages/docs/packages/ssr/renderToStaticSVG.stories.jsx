@@ -21,3 +21,33 @@ export default {
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
+import FunctionExample from "../../helpers/FunctionExample.jsx";
+
+const code = `import {writeFileSync} from "node:fs";
+import {BarChart} from "@d3plus/core";
+import {renderToStaticSVG} from "@d3plus/ssr";
+
+const data = [
+  {region: "North", quarter: "Q1", revenue: 120},
+  {region: "North", quarter: "Q2", revenue: 140},
+  {region: "South", quarter: "Q1", revenue: 90},
+  {region: "South", quarter: "Q2", revenue: 110},
+];
+
+const svg = await renderToStaticSVG(
+  new BarChart().data(data).groupBy("region").x("quarter").y("revenue"),
+  {width: 800, height: 500},
+);
+// '<svg xmlns="http://www.w3.org/2000/svg" …>…</svg>'
+
+writeFileSync("revenue.svg", svg);`;
+
+export const Example = () => <FunctionExample input={code} language="js" />;
+Example.parameters = {
+  docs: {
+    source: {code, language: "js"},
+    description: {
+      story: "Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) covers setup, fonts, and maps.",
+    },
+  },
+};

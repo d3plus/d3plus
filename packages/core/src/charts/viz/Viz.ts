@@ -9,9 +9,15 @@ import type {PickResult, Renderer, Scene, SceneEvent, SceneNode, Transform} from
 
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
+import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
+import {chartAreaRect} from "../features/chartGeometry.js";
+import {initInsetDefaults, insetComponentScene} from "../features/insetState.js";
+import type {InsetKey, InsetRegion} from "../features/insetState.js";
+import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
+import {unregisterLink} from "./linkGroup.js";
 import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
@@ -46,7 +52,7 @@ function mountTargetFor(kind: string, target: Element): Element {
 }
 
 /**
-    Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
+    The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 */
 export default class Viz extends VizBase {
 
@@ -57,6 +63,7 @@ export default class Viz extends VizBase {
   constructor() {
     super();
     initVizDefaults(this);
+    initInsetDefaults(this as unknown as VizInstance);
   }
 
   /**
@@ -80,13 +87,17 @@ export default class Viz extends VizBase {
     const children: SceneNode[] = [];
     // Chart cells stashed on _chartScene — via `chartDef.emit(ctx)` for
     // data-driven charts, or `Plot._paint` for the paint-driven Plot family.
-    // Wraps in two groups when a zoom transform is active:
-    //   viz-chart-cells (chart-positioning transform)
+    // Wraps in three groups:
+    //   viz-chart-cells (clip window, untransformed)
     //     viz-zoom (zoom transform — pan/scale from d3-zoom)
-    //       … chart scene children
+    //       viz-chart-body (chart-positioning transform)
+    //         … chart scene children
     // This lets zoom apply to the chart content WITHOUT moving legend/
     // title/total/etc. (which live in sibling viz-* groups, not under
-    // viz-chart-cells).
+    // viz-chart-cells). The zoom transform sits above the chart transform so
+    // it lives in the same surface space d3-zoom measures the pointer in —
+    // a wheel zoom stays anchored under the cursor regardless of margins or
+    // a chart's own centering transform (Pie, Radar, …).
     if (this._chartScene && this._chartScene.length) {
       const sliced = applyInteractionOpacity(
         this._chartScene,
@@ -101,15 +112,22 @@ export default class Viz extends VizBase {
         type: "group" as const,
         key: "viz-zoom",
         transform: this._zoomTransform ?? {x: 0, y: 0, scale: 1},
-        children: sliced,
+        children: [{
+          type: "group" as const,
+          key: "viz-chart-body",
+          ...(this._chartTransform ? {transform: this._chartTransform} : {}),
+          children: sliced,
+        }],
       }];
+      // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
+      // while the viz-zoom child transform pans/scales content beneath it.
+      // Any zoomable chart without its own clip is clipped to the chart area,
+      // so zoomed content can't spill over the legend/title/timeline.
+      const clip = this._chartClip ?? (this.schema.zoom && this._margin ? chartAreaRect(this as unknown as VizInstance) : undefined);
       children.push({
         type: "group",
         key: "viz-chart-cells",
-        ...(this._chartTransform ? {transform: this._chartTransform} : {}),
-        // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
-        // while the viz-zoom child transform pans/scales content beneath it.
-        ...(this._chartClip ? {clip: this._chartClip} : {}),
+        ...(clip ? {clip} : {}),
         children: zoomNode,
       });
     }
@@ -183,23 +201,16 @@ export default class Viz extends VizBase {
         children.push({
           type: "group",
           key: `viz-${name}`,
-          children: [compScene],
+          children: name === "timeline"
+            ? [compScene]
+            : insetComponentScene(this as unknown as VizInstance, name as InsetKey, compScene, (comp as Legend | ColorScale).outerBounds()),
         });
       }
     }
-    // E2: FeatureModule.layout() panels (title/subtitle/total/back).
+    // E2: FeatureModule.layout() panels (title/subtitle/total, plus the
+    // zoom/top-left-controls/attribution overlays appended post-draw).
     if (this._featurePanels && this._featurePanels.length) {
-      const panels = this._featurePanels.slice();
-      // Tag the back-button panel so the pointer bridge can route its click.
-      for (const panel of panels) {
-        if (
-          panel &&
-          typeof (panel as {key?: string}).key === "string" &&
-          (panel as {key: string}).key.toLowerCase().includes("back")
-        )
-          tagInteractionGroup(panel as SceneNode, "back");
-      }
-      children.push({type: "group", key: "viz-features", children: panels});
+      children.push({type: "group", key: "viz-features", children: this._featurePanels});
     }
     return {
       width: this.schema.width,
@@ -214,6 +225,25 @@ export default class Viz extends VizBase {
   */
   _draw(): void {
     vizDraw(this as unknown as VizInstance);
+  }
+
+  /**
+      The chart's size-legend radius scale (see `ChartDefinition.sizeLegendScale`).
+      Charts that size marks override this; the base chart sizes nothing.
+      @private
+  */
+  _sizeLegendScale(_available: {width: number; height: number}): SizeLegendScale | null {
+    return null;
+  }
+
+  /**
+      The region chart chrome may be drawn inside, with the chart's mark boxes
+      as obstacles (see `ChartDefinition.insetRegion`). Charts that leave
+      negative space override this; the base chart offers none.
+      @private
+  */
+  _insetRegion(): InsetRegion | null {
+    return null;
   }
 
   /**
@@ -352,6 +382,7 @@ export default class Viz extends VizBase {
     if (!userTarget) return;
     const mountTarget = mountTargetFor(kind, userTarget as Element);
     const scene = this.toScene();
+    this._paintedScene = scene;
     const w = this.schema.width || 400;
     const h = this.schema.height || 300;
     // Reuse the renderer instance if it matches the kind, to avoid mount
@@ -407,7 +438,11 @@ export default class Viz extends VizBase {
     // skip the transition machinery — animating every wheel/drag tick
     // accumulates `setTimeout(duration+10)` per event.
     const drawDuration =
-      durationOverride !== undefined ? durationOverride : this.schema.duration;
+      durationOverride !== undefined
+        ? durationOverride
+        : this._instantNextDraw
+          ? 0
+          : this.schema.duration;
     // A duration>0 render (drill-down, zoom, re-center) must win over any
     // pending coalesced duration-0 repaint — otherwise that repaint fires on
     // the next frame and interrupts this transition, snapping shapes to their
@@ -447,7 +482,29 @@ export default class Viz extends VizBase {
         ? computeTrailCatchup(this as unknown as VizInstance, scene, this._trailSeq, sequence)
         : undefined;
     if (sequence !== undefined) this._trailSeq = sequence;
-    this._sceneRenderer.drawScene(scene, {duration: drawDuration, sequence, trailCatchup});
+    this._sceneRenderer.drawScene(scene, {
+      duration: drawDuration, sequence, trailCatchup,
+      // The drill-down morph's resolved boxes for this draw, if a drill
+      // click armed one (resolveDrillMorph, run just before this method via
+      // runVizPipeline). One-shot: cleared right below so a later repaint
+      // that reaches this method by some OTHER path (a zoom/pan tick, a
+      // coalesced hover repaint, Rings' click-to-recenter) never inherits a
+      // stale box from an earlier drill click.
+      enterFrom: this._resolvedEnterFrom, enterFromBody: this._resolvedEnterFromBody,
+      exitTo: this._resolvedExitTo, exitToBody: this._resolvedExitToBody,
+      instantExitKey: this._resolvedInstantExitKey,
+      reunionEnterKey: this._resolvedReunionEnterKey,
+      reunionEnterFrom: this._resolvedReunionEnterFrom,
+      instantExitAll: this._resolvedInstantExitAll,
+    });
+    this._resolvedEnterFrom = undefined;
+    this._resolvedEnterFromBody = undefined;
+    this._resolvedExitTo = undefined;
+    this._resolvedExitToBody = undefined;
+    this._resolvedInstantExitKey = undefined;
+    this._resolvedReunionEnterKey = undefined;
+    this._resolvedReunionEnterFrom = undefined;
+    this._resolvedInstantExitAll = undefined;
     this._lastSceneRendered = scene;
 
     // Canvas backend: the compute <svg> (`_select`) is an emptied overlay
@@ -458,16 +515,14 @@ export default class Viz extends VizBase {
     // is the sole interaction surface. The only interactive DOM that still
     // lives in this svg is the timeline's d3-brush (the canvas can't host the
     // native brush handles), so re-enable events on just that group. On the
-    // SVG backend `_select` IS the scene host, so events must stay enabled.
-    if (this._select) {
-      this._select.style("pointer-events", kind === "canvas" ? "none" : null);
-      if (this._container)
-        this._container.style("pointer-events", kind === "canvas" ? "none" : null);
-      if (kind === "canvas")
-        this._select
-          .select("g.d3plus-viz-timeline")
-          .style("pointer-events", "auto");
-    }
+    // SVG backend `_select` IS the scene host, so events must stay enabled
+    // (except while the zoom brush is active — see `applyZoomPointerEvents`).
+    applyZoomPointerEvents(this);
+    if (this._select && kind === "canvas")
+      this._select
+        .select("g.d3plus-viz-timeline")
+        .style("pointer-events", "auto");
+    if (kind === "canvas") bindCanvasZoom(this);
 
     // The timeline brush (d3-brush DOM, mounted in `g.d3plus-viz-timeline` in
     // the outer svg) must paint above the scene-rendered timeline buttons/ticks
@@ -484,6 +539,9 @@ export default class Viz extends VizBase {
         ? host.querySelector(":scope > g.d3plus-viz-timeline")
         : null;
       if (tlGroup) host!.appendChild(tlGroup);
+      // Likewise the zoom brush, so its selection box draws over the shapes.
+      const zoomBrush = host ? host.querySelector(":scope > g.d3plus-zoom-brush") : null;
+      if (zoomBrush && zoomBrush !== host!.lastElementChild) host!.appendChild(zoomBrush);
     }
   }
 
@@ -509,6 +567,14 @@ export default class Viz extends VizBase {
   }
 
   /**
+      Pointer hook run by `_routeSceneEvent` before any handler routing, for
+      every event including ones over empty space. No-op here; Plot overrides
+      it to drive the shared multi-series tooltip and crosshair.
+      @private
+  */
+  _sharedHover(_event: SceneEvent): void {}
+
+  /**
       Routes a renderer pointer event to the matching `viz.schema.on` handlers.
       Bridges the v4 scene-rendered path (SvgRenderer/CanvasRenderer), where
       compute-mode shapes mount no per-shape DOM, so `shape.on(evt, fn)`
@@ -526,6 +592,10 @@ export default class Viz extends VizBase {
     // — the glitchy jump. `_transitionEndsAt` is stamped by `_drawSceneToTarget`
     // for the transition's duration; it lapses on its own, so interaction
     // resumes the instant the transition settles.
+    // Runs for every event, picked or not, so a chart can track the pointer
+    // across empty space (Plot's shared tooltip + crosshair) — and ahead of
+    // the transition guard below, so leaving mid-transition still clears it.
+    this._sharedHover(event);
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.
@@ -572,22 +642,13 @@ export default class Viz extends VizBase {
       interactionGroup?: string;
       shapeType?: string;
     };
-    // Back-button panel: its d3-selection click listener never fires in the
-    // scene path (it's a plain text node), so route its click here to pop
-    // the drill-down history / step up a level.
-    if (nodeAny.interactionGroup === "back") {
-      if (event.type === "click") {
-        const self = this;
-        if (self._history.length) self.config(self._history.pop()).render();
-        else self.depth(self._drawDepth - 1).filter(false).render();
-      }
-      return;
-    }
-    // Axis ticks/labels and the timeline are chrome — they carry data but
-    // are not chart shapes, so they must not fire shape tooltips/handlers.
+    // Axis ticks/labels, the timeline, and Plot's trend lines are chrome —
+    // they carry data but are not chart shapes, so they must not fire shape
+    // tooltips/handlers (a trend line's own tooltip runs in `_sharedHover`).
     if (
       nodeAny.interactionGroup === "axis" ||
-      nodeAny.interactionGroup === "timeline"
+      nodeAny.interactionGroup === "timeline" ||
+      nodeAny.interactionGroup === "trend"
     )
       return;
     // Prefer the node's stamped interaction group (set by Viz.toScene), so
@@ -616,6 +677,10 @@ export default class Viz extends VizBase {
       typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
     this._lastScenePick = {
       d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType,
+      // The live picked node's own geometry, read synchronously by clickShape
+      // (before the drill-down re-render replaces this frame) to arm the
+      // forward drill-down morph.
+      node: pick.node,
     };
     this._hoverDatum = rawDatum;
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
@@ -655,10 +720,13 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
+    unregisterLink(this as unknown as VizInstance);
     this._resizeObserver?.disconnect();
+    this._fontsUnsubscribe?.();
+    this._fontsUnsubscribe = undefined;
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
     // Clear the visibility/resize/scroll poll timers + scroll listener
@@ -675,6 +743,10 @@ export default class Viz extends VizBase {
     if (this._scrollPoll) {
       this._scrollPoll = clearTimeout(this._scrollPoll) as never;
     }
+    this._visibleUnobserve?.();
+    this._visibleUnobserve = undefined;
+    this._unloadUnobserve?.();
+    this._unloadUnobserve = undefined;
     if (this._sceneRepaintRAF != null) {
       if (typeof cancelAnimationFrame === "function")
         cancelAnimationFrame(this._sceneRepaintRAF);

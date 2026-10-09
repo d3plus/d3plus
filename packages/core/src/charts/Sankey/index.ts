@@ -19,13 +19,14 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -37,7 +38,7 @@ const sankeyAligns = {
 export const sankeyDef: ChartDefinition = {
   name: "Sankey",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applySankeyLayout,
   emit: sankeyEmit,
 
@@ -141,6 +142,7 @@ export const sankeyDef: ChartDefinition = {
       // interaction-opacity pass re-reads `_hover` and dims non-matching nodes.
       // Coalesced to one paint per frame (see Viz._scheduleSceneRepaint).
       if (this._sceneRenderer) this._scheduleSceneRepaint();
+      broadcastLink(this, "hover", _);
       return this;
     };
   },
@@ -151,6 +153,8 @@ export const sankeyDef: ChartDefinition = {
   },
 
   fields: [
+    {key: "arrows", default: false},
+    {key: "arrowSize"},
     {key: "iterations", default: 6},
     {key: "links", default: accessor("links")},
     {key: "linkSort"},

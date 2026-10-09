@@ -8,7 +8,7 @@ coverage:
         target: 95%
         flags: [color]
       core:
-        target: 25%
+        target: 85%
         flags: [core]
       data:
         target: 95%
@@ -16,6 +16,9 @@ coverage:
       dom:
         target: 95%
         flags: [dom]
+      element:
+        target: 90%
+        flags: [element]
       export:
         target: 40%
         flags: [export]
@@ -31,9 +34,21 @@ coverage:
       react:
         target: 65%
         flags: [react]
+      render:
+        target: 85%
+        flags: [render]
+      ssr:
+        target: 95%
+        flags: [ssr]
+      svelte:
+        target: 95%
+        flags: [svelte]
       text:
         target: 85%
         flags: [text]
+      vue:
+        target: 95%
+        flags: [vue]
     patch:
       default:
         target: auto
@@ -58,6 +73,10 @@ flags:
     paths:
       - packages/dom/
     carryforward: true
+  element:
+    paths:
+      - packages/element/
+    carryforward: true
   export:
     paths:
       - packages/export/
@@ -78,7 +97,23 @@ flags:
     paths:
       - packages/react/
     carryforward: true
+  render:
+    paths:
+      - packages/render/
+    carryforward: true
+  ssr:
+    paths:
+      - packages/ssr/
+    carryforward: true
+  svelte:
+    paths:
+      - packages/svelte/
+    carryforward: true
   text:
     paths:
       - packages/text/
+    carryforward: true
+  vue:
+    paths:
+      - packages/vue/
     carryforward: true

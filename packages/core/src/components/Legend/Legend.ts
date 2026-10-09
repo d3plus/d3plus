@@ -2,18 +2,19 @@ import {max, sum} from "d3-array";
 import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign, elem, rtl as detectRTL} from "@d3plus/dom";
+import {elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 import type {SvgRenderer} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
 import {accessor, BaseClass, constant, paintComponentScene} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {buildLegendShapeConfig} from "./legendConfig.js";
 import {
+  clearLegend,
   computeLegendBounds,
   computeLegendLineData,
   measureLegendTitle,
@@ -213,14 +214,17 @@ export default class Legend extends BaseClass {
 
     this._lineData = computeLegendLineData(this, availableHeight);
 
-    let spaceNeeded = this._rowWidth(this._lineData);
+    let spaceNeeded: number | false = this._rowWidth(this._lineData);
     const availableWidth = this.schema.width - this.schema.padding * 2;
     if (this.schema.direction === "column" || spaceNeeded > availableWidth)
-      spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight, spaceNeeded);
+      spaceNeeded = wrapLegendRows(this, availableWidth, availableHeight);
 
-    computeLegendBounds(this, spaceNeeded);
-    renderLegendTitle(this);
-    renderLegendShapes(this);
+    if (spaceNeeded === false) clearLegend(this);
+    else {
+      computeLegendBounds(this, spaceNeeded);
+      renderLegendTitle(this);
+      renderLegendShapes(this);
+    }
 
     // Standalone render: paint the scene into the user's `_select`. Inside a
     // Viz the legend runs in compute mode and the Viz composes its toScene().
@@ -290,7 +294,7 @@ export default class Legend extends BaseClass {
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _!)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
       : this.schema.shapeConfig;
   }
 
@@ -301,7 +305,9 @@ export default class Legend extends BaseClass {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.titleConfig = assign(this.schema.titleConfig, _!)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
       : this.schema.titleConfig;
   }
 }
+
+resolvesReset(Legend.prototype, "shapeConfig", "titleConfig");

@@ -4,14 +4,18 @@ export {default as BaseClass} from "./BaseClass.js";
 export type {
   D3plusConfig,
   AxisConfig,
+  ColorDefaultsConfig,
   ColorScaleConfig,
   LegendConfig,
+  SizeLegendConfig,
   TextBoxConfig,
   TimelineConfig,
   TooltipConfig,
+  TrendLineConfig,
 } from "./D3plusConfig.js";
 export type {D3Scale} from "./D3Scale.js";
 export {default as configPrep} from "./configPrep.js";
+export {configWarnings} from "./configWarnings.js";
 export {default as constant} from "./constant.js";
 export {default as getProp} from "./getProp.js";
 export {paintComponentScene} from "./paintComponentScene.js";

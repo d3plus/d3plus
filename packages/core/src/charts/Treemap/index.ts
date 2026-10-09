@@ -25,8 +25,9 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
+import {summedShare} from "../features/shareKey.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -60,7 +61,7 @@ type SortFn = (a: HierarchyNode<DataPoint>, b: HierarchyNode<DataPoint>) => numb
 export const treemapDef: ChartDefinition = {
   name: "Treemap",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyTreemapLayout,
   emit: treemapEmit,
 
@@ -138,12 +139,8 @@ export const treemapDef: ChartDefinition = {
                   ? ""
                   : `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
               }
-              // A Legend bucket aggregates multiple rows, so `share` arrives
-              // as an array of the members' shares — sum it; a single cell's
-              // share is a plain number.
-              const share = Array.isArray(x.share)
-                ? (x.share as number[]).reduce((a, b) => a + b, 0)
-                : (x.share as number);
+              // A Legend bucket aggregates multiple rows; sum its members' shares.
+              const share = summedShare(x);
               if (!Number.isFinite(share)) return "";
               return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
             },

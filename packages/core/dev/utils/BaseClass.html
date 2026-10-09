@@ -4,13 +4,15 @@
 <head>
 
   <meta charset="utf-8">
-  <script src="../umd/d3plus-core.full.js"></script>
+  <title>BaseClass · utils</title>
+  <meta name="description" content="BaseClass config(), locale and the RESET token.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
 
   <style>
 
     body {
       margin: 0;
-      overflow: hidden;
     }
 
   </style>
@@ -21,57 +23,33 @@
 
   <script>
 
+    // Prints each logged value into the page as well as the console.
+    const output = document.body.appendChild(document.createElement("pre"));
+    const log = (...args) => {
+      console.log(...args);
+      const text = args.map(a => {
+        if (typeof a === "string") return a;
+        try {
+          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+        } catch {
+          return String(a);
+        }
+      });
+      output.textContent += `${text.join(" ")}\n`;
+    };
+
     var tester = new d3plus.BaseClass();
 
-    // console.log(tester._configDefault);
     tester.config({
-      color: "green",
       locale: "zh",
       on: {
-        click: "Farts",
-        end: d => console.log(d)
-      },
-      // on: {
-      //   Path: {
-      //     fill: "#888"
-      //   }
-      // }
-      // windowObject: window
-      // shapeConfig: {
-      //   Circle: {
-      //     fill: "red"
-      //   }
-      // }
+        click: d => log("click", d)
+      }
     });
-    // console.log(tester._locale);
-    console.log(tester._configDefault.locale);
+    log("locale after config():", tester.locale());
 
-    // console.log("\non");
-    // console.log(tester._on);
-    console.log(tester.locale());
-    // tester.config({on: d3plus.RESET});
     tester.config({locale: d3plus.RESET});
-    // tester.config({shapeConfig: {fill: "die", Circle: {fill: "D3PLUS-COMMON-RESET", stroke: "blue"}}})
-    console.log(tester.locale());
-    // tester.config({on: {
-    //     Path: {
-    //       fill: "D3PLUS-COMMON-RESET"
-    //     }
-    //   }});
-    // console.log(tester._on);
-
-    // console.log("\ncolor");
-    // console.log(tester._color);
-    // tester.config({color: d3plus.RESET});
-    // console.log(tester._color);
-
-    // tester.config({
-    //   shapeConfig: {
-    //     Path: {
-    //       color: "red"
-    //     }
-    //   }
-    // });
+    log("locale after RESET:", tester.locale());
 
   </script>
 

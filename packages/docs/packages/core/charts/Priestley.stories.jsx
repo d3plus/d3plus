@@ -58,3 +58,31 @@ GroupingBarsIntoLanes.args = {
   start: "start"
 };
 GroupingBarsIntoLanes.parameters = {controls: {include: ["groupBy", "shapeConfig"]}, docs: {description: {story: "Passing `[\"parent\", \"id\"]` to `groupBy` nests the bars into lanes by `parent`; the `shapeConfig.fill` function then colors each bar by its parent group."}}};
+
+const missions = [
+  {mission: "Sojourner", start: 1997, end: 1997},
+  {mission: "Spirit", start: 2004, end: 2010},
+  {mission: "Opportunity", start: 2004, end: 2018},
+  {mission: "Curiosity", start: 2012, end: 2024},
+  {mission: "Perseverance", start: 2021, end: 2024}
+];
+
+export const MissionTimeline = Template.bind({});
+MissionTimeline.args = {
+  data: missions,
+  end: "end",
+  groupBy: "mission",
+  start: "start"
+};
+MissionTimeline.parameters = {controls: {include: ["start", "end"]}, docs: {description: {story: "Rover missions as lifespans: each bar runs from its landing year (`start`) to its final year (`end`), bars that overlap in time are stacked into separate lanes automatically, and a mission that started and ended in the same year still gets a visible sliver."}}};
+
+export const LanePadding = Template.bind({});
+LanePadding.args = {
+  data: missions,
+  end: "end",
+  groupBy: "mission",
+  paddingInner: 0.6,
+  paddingOuter: 0.3,
+  start: "start"
+};
+LanePadding.parameters = {controls: {include: ["paddingInner", "paddingOuter"]}, docs: {description: {story: "`paddingInner` is the fraction of each lane left empty between bars and `paddingOuter` the space above the first and below the last lane, the same meaning they have for a d3 band scale."}}};

@@ -13,13 +13,16 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import type Shape from "../../shapes/Shape.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
+import {drawWithInset, sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyRingsLayout} from "./applyLayout.js";
+import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
+import {broadcastLink} from "../viz/linkGroup.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -79,12 +82,12 @@ function installRingsAccessors(viz: VizInstance): void {
     return this;
   };
   v.size = function(this: VizInstance, _?: RingsAccessor) {
-    return arguments.length
-      ? ((this._size = (typeof _ === "function" || !_
-          ? _
-          : accessor(_ as unknown as string)) as VizInstance["_size"]),
-        this)
-      : this._size;
+    if (!arguments.length) return this._size;
+    this._size = (typeof _ === "function" || !_
+      ? _
+      : accessor(_ as unknown as string)) as VizInstance["_size"];
+    this._sizeKey = typeof _ === "string" ? _ : undefined;
+    return this;
   };
   v.hover = function(
     this: VizInstance,
@@ -97,6 +100,7 @@ function installRingsAccessors(viz: VizInstance): void {
     // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
     // hover change only takes effect once a repaint is scheduled.
     if (this._sceneRenderer) this._scheduleSceneRepaint();
+    broadcastLink(this, "hover", _);
     return this;
   };
 }
@@ -104,9 +108,11 @@ function installRingsAccessors(viz: VizInstance): void {
 export const ringsDef: ChartDefinition = {
   name: "Rings",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRingsLayout,
+  sizeLegendScale: (viz, {width, height}) => ringsSizeLegendScale(viz, width, height),
   emit: ringsEmit,
+  insetRegion: sceneInsetRegion,
 
   setup: (viz: VizInstance) => {
     installRingsAccessors(viz);
@@ -157,7 +163,10 @@ export const ringsDef: ChartDefinition = {
       viz.schema.center = d.id;
       viz._margin = {bottom: 0, left: 0, right: 0, top: 0};
       viz._padding = {bottom: 0, left: 0, right: 0, top: 0};
-      viz._draw();
+      drawWithInset(viz);
+      // _draw() resets the feature panels; re-run the post-draw features so
+      // the corner controls, size legend, and attribution come back.
+      runPostDrawFeatures(viz);
       // _draw() only recomputes layout/scene; paint it with the chart duration
       // so the re-centering animates (a bare _draw leaves the only repaint to
       // the coalesced duration-0 one, which snaps).
@@ -168,6 +177,8 @@ export const ringsDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    {key: "arrows", default: false},
+    {key: "arrowSize"},
     {key: "center"},
     {
       key: "tooltipConfig",
@@ -204,11 +215,12 @@ export const ringsDef: ChartDefinition = {
           duration: 0,
           fontMin: 1,
           fontResize: true,
-          labelPadding: 0,
           textAnchor: "middle",
           verticalAlign: "middle",
         },
-        Path: {fill: "none", label: false, stroke: "#eee", strokeWidth: 1},
+        // Thin (1px) lines need more contrast than a wide flow-width stroke
+        // (cf. Sankey's #DBDBDB) to read clearly against a white background.
+        Path: {fill: "none", label: false, stroke: "#adb5bd", strokeWidth: 1},
       }),
     },
   ],

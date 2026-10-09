@@ -9,10 +9,12 @@ export type {
   NodeBase,
   Paint,
   Transform,
+  TransitionRect,
   RectNode,
   CircleNode,
   LineNode,
   AreaNode,
+  ArcGeometry,
   PathNode,
   ImageNode,
   TextNode,
@@ -50,11 +52,11 @@ export {curveFor, linePath, areaPath} from "./src/paths.js";
 
 export {domToScene} from "./src/dom.js";
 
-export {applyDeclarativeEvents} from "./src/overlay.js";
+export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 
-export {collapse, cubicInOut, interpolateNode} from "./src/animate/interpolate.js";
+export {collapse, collapseTo, cubicInOut, interpolateNode, isFlipEligible} from "./src/animate/interpolate.js";
 export type {Interp} from "./src/animate/interpolate.js";
 export {diffChildren, interpolateScene} from "./src/animate/diff.js";
-export type {GroupDiff} from "./src/animate/diff.js";
+export type {FlipTransition, GroupDiff} from "./src/animate/diff.js";
 export {commitTrailCatchups, commitTrailScene, isPersistTrail, persistTrailNode, TrailLog} from "./src/animate/trailLog.js";
 export type {TrailCatchup} from "./src/animate/trailLog.js";

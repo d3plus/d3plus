@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import { D3plusConfig } from "./D3plusConfig.js";
+import {markSharedConfig} from "./configWarnings.js";
 
 interface D3PlusWrapped {
   __d3plus__?: boolean;
@@ -130,5 +131,5 @@ export default function configPrep(
       parseEvents(newConfig, (config[nest] as ConfigObject).on as unknown as Record<string, DataAccessor>);
   }
 
-  return newConfig;
+  return markSharedConfig(newConfig);
 }

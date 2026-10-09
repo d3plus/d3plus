@@ -6,6 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
+import {textureFill, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface RmCell extends Record<string, unknown> {
@@ -23,7 +24,7 @@ export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
   const cells = (shapeData ?? []) as RmCell[];
   if (!cells.length) return [];
   const arcData = viz.ctx.arcData as (d: RmCell) => string;
-  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const sc = shapeConfigFor(viz, "Path");
   const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
 
   return cells.map((d, i): SceneNode => {
@@ -37,7 +38,7 @@ export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
       d: arcData(d),
       datum: d as DataPoint,
       paint: {
-        fill: typeof fill === "string" ? fill : undefined,
+        fill: textureFill(sc, d as DataPoint, i, fill),
         stroke,
         strokeWidth,
       },

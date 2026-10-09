@@ -1,6 +1,6 @@
 {
   "name": "@d3plus/vue",
-  "version": "4.3.0",
+  "version": "4.7.0",
   "description": "Vue 3 components for d3plus visualizations.",
   "license": "MIT",
   "type": "module",
@@ -36,7 +36,7 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "test": "eslint index.ts src/**/*.ts && eslint --global=it --global=before test && mocha 'test/**/*-test.js'",
+    "test": "eslint index.ts src && eslint --global=it --global=before test && mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {

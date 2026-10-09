@@ -1,0 +1,65 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>ForceLayout · Network</title>
+  <meta name="description" content="Force-directed Network from nodes without coordinates, with sized links.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #viz {
+      height: 600px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div id="viz"></div>
+</body>
+
+<script>
+
+  // Nodes without x/y are placed by a force simulation; links refer to
+  // nodes by index and are sized by weight.
+  var nodeArray = [
+    {id: "alpha"},
+    {id: "beta"},
+    {id: "gamma"},
+    {id: "epsilon"},
+    {id: "zeta"},
+    {id: "theta"}
+  ];
+
+  var linkArray = [
+    {source: 0, target: 1, weight: 10},
+    {source: 0, target: 2, weight: 10},
+    {source: 3, target: 4, weight: 10},
+    {source: 3, target: 5, weight: 5},
+    {source: 5, target: 0, weight: 20},
+    {source: 2, target: 1, weight: 12},
+    {source: 4, target: 5, weight: 12}
+  ];
+
+  new d3plus.Network()
+    .select("#viz")
+    .config({
+      links: linkArray,
+      linkSize: function(d) { return d.weight; },
+      nodes: nodeArray
+    })
+    .render();
+
+</script>
+
+</html>

@@ -28,9 +28,13 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
+import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
+import {rowSpan} from "../Plot/discreteSpan.js";
+import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {markSharedConfig} from "../../utils/configWarnings.js";
 
 /**
     The cross-phase locals a shape emitter reads. Assembled once per draw by
@@ -71,6 +75,9 @@ export interface ShapeEmitContext {
   labelPositions: Record<string, number>;
 
   width: number;
+
+  /** Pixel span of the value axis; bars are clamped inside it. */
+  valueExtent?: [number, number];
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -83,7 +90,7 @@ export type ShapeEmitter = (ctx: ShapeEmitContext, key: string) => SceneNode[];
 */
 function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown> {
   const {viz, opp, x, y, stackData, domains, stackKeyIndex, discreteKeyIndex} = ctx;
-  const inner: Record<string, unknown> = Object.assign({}, ctx.shapeConfig);
+  const inner: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
   // Bubble plots: when a `size` accessor is set, default to layering circles
   // largest-behind so smaller marks stay visible under bigger ones. This is a
   // default — `finishShape` applies the user's `shapeConfig` afterwards, so an
@@ -124,7 +131,9 @@ function finishShape(ctx: ShapeEmitContext, key: string, s: Shape): SceneNode[] 
   viz._wirePlotShapeEvents!(s, key, events);
   const userConfig = shapeConfigFor(viz, key);
   if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
-  s.config(userConfig).render();
+  s.config(userConfig);
+  if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
+  s.render();
   return collectComputed(s);
 }
 
@@ -142,11 +151,13 @@ const barEmit: ShapeEmitter = ctx => {
   const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values} = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
-    .config(buildInner(ctx, "Bar"))
+    .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
     .data(values);
 
-  let space;
   const scale = viz.schema.discrete === "x" ? x : y;
+  if (viz._discreteExtent) return spanBarEmit(ctx, s, scale);
+
+  let space;
   const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
   const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
   const range = viz.schema.discrete === "x" ? xRange : yRange;
@@ -216,6 +227,21 @@ const barEmit: ShapeEmitter = ctx => {
   return finishShape(ctx, "Bar", s);
 };
 
+/**
+    Bar on a span axis (`viz._discreteExtent`): each bar fills its own
+    `[start, end]`, less `groupPadding`. Series sharing a span overlap.
+*/
+function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneNode[] {
+  const {viz} = ctx;
+  const size = (d: PlotDatum) => {
+    const [start, end] = rowSpan(viz, d);
+    return Math.max(1, Math.abs(scale(end) - scale(start)) - viz._groupPadding!);
+  };
+  s.width(size);
+  s.height(size);
+  return finishShape(ctx, "Bar", s);
+}
+
 /** Line — duration, optional confidence band, end-labels, and point markers. */
 const lineEmit: ShapeEmitter = ctx => {
   const {
@@ -233,7 +259,7 @@ const lineEmit: ShapeEmitter = ctx => {
 
   if (viz._confidence) {
     const confidence = viz._confidence;
-    const areaConfig: Record<string, unknown> = Object.assign({}, ctx.shapeConfig);
+    const areaConfig: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
     const discrete = viz.schema.discrete || "x";
     const key = discrete === "x" ? "y" : "x";
     const scaleFunction = discrete === "x" ? y : x;

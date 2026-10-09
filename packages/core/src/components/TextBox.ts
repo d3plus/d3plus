@@ -315,11 +315,10 @@ function computeTextBoxDatum(
       else lineData[line - 1] = that.schema.ellipsis(lineData[line - 1], line);
     };
 
-    // Constraint the font size
-    fS = max([fS, fMin])!;
-    fS = min([fS, fMax])!;
-
     if (resize) {
+      // fontMin/fontMax bound the resize search; a fixed fontSize is used as given.
+      fS = max([fS, fMin])!;
+      fS = min([fS, fMax])!;
       lH = fS * lHRatio;
       wrapper.fontSize(fS).lineHeight(lH);
       style["font-size"] = fS;
@@ -406,7 +405,7 @@ const textBoxSchema: ConfigField[] = [
 ];
 
 /**
-    Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+    Creates a wrapped text box for each point in an array of data.
 */
 export default class TextBox extends BaseClass {
   // installFluent generates the config accessors (text, fontSize, x, …) at

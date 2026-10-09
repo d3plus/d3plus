@@ -1,0 +1,93 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>TextBox</title>
+  <meta name="description" content="TextBox wrapping with inline HTML, and a lineHeight change after 2 seconds.">
+  <link href="https://fonts.googleapis.com/css?family=Pathway+Gothic+One" rel="stylesheet">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    p {
+      display: block;
+      font-family: "Pathway Gothic One";
+    }
+
+    .box {
+      border: 1px solid red;
+      display: inline-block;
+      height: 200px;
+      margin-right: 42px;
+      width: 150px;
+    }
+
+    svg {
+      position: absolute;
+      top: 0;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <main>
+    <svg width=1265 height="764" id="svg"></svg>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <div class="box"></div>
+    <p>
+      Here is some sample text that has been wrapped using d3plus.textBox.
+    </p>
+  </main>
+</body>
+
+<script>
+
+  var data = [
+    {text: "Here is some | [sample text] that has been wrapped using d3plus.textBox."},
+    {text: "Facilities <b>with</b> All Three <b>Leadership Examples and then some</b> text and then a forth line"},
+    {text: "...and here is a second sentence!"},
+    // {text: "这是句3号。这也即使包装没有空格！"},
+    // {text: "supercalifragilisticexpialidociousdavedavedavedavedavedave"},
+  ];
+
+  var width = 150;
+
+  function draw() {
+    const boxes = new d3plus.TextBox()
+      .data(data)
+      .duration(500)
+      .fontSize(16)
+      .width(width)
+      .select("#svg")
+      .x(function(d, i) { return i * (width + 50); })
+      // .fontFamily(["Pathway Gothic One", "sans-serif"])
+      // .fontWeight(800)
+      // .fontStroke("red")
+      // .fontStrokeWidth(0.25)
+      // .fontColor("white")
+      // .fontStroke((d, i) => i === 1 ? "red" : "transparent")
+      // .fontStrokeWidth((d, i) => i === 1 ? 0.5 : 0)
+      .render();
+
+    setTimeout(() => {
+      boxes.lineHeight(16).render();
+    }, 2000);
+  }
+
+  draw();
+
+</script>
+
+</html>

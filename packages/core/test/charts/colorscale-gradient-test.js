@@ -100,3 +100,65 @@ it("smooth-gradient ColorScale paints a <linearGradient> a rect references", asy
     `a rect fill resolves to ${ref} (rect fills: ${JSON.stringify(fp.fills)})`,
   );
 });
+
+/** Reports the painted gradient rects and where the colorScale was placed. */
+const paintedFn = src =>
+  new Promise((resolve, reject) => {
+    try {
+      const build = new Function("lib", `return (${src})(lib);`);
+      const viz = build(window.d3plus).duration(0).select("#viz");
+      viz.render(() => {
+        const host = document.querySelector("#viz").getBoundingClientRect();
+        const rects = [...document.querySelectorAll("#viz rect")]
+          .filter(r => (r.getAttribute("fill") || "").startsWith("url(#"))
+          .map(r => {
+            const b = r.getBoundingClientRect();
+            return {x: b.x - host.x, y: b.y - host.y, width: b.width, height: b.height};
+          });
+        resolve({
+          rects,
+          svgs: document.querySelectorAll("#viz .d3plus-viz-colorScale svg").length,
+          placement: viz._insetPlacement || null,
+        });
+      });
+    } catch (err) {
+      reject(err);
+    }
+  });
+
+it("smooth-gradient ColorScale paints a single gradient bar", async function () {
+  this.timeout(60000);
+  const body =
+    '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
+  const fp = await render(body, paintedFn, builderSrc);
+
+  assert.strictEqual(fp.rects.length, 1, "one gradient rect is painted");
+  assert.strictEqual(fp.svgs, 0, "the colorScale paints no svg of its own");
+});
+
+it("smooth-gradient ColorScale drawn inside the chart paints a single gradient bar in its box", async function () {
+  this.timeout(60000);
+  const src = `lib => new lib.Plot()
+    .data([
+      {id: "a", x: 1, y: 9, value: 10}, {id: "b", x: 2, y: 10, value: 20},
+      {id: "c", x: 9, y: 9, value: 15}, {id: "d", x: 10, y: 10, value: 40},
+      {id: "e", x: 1, y: 1, value: 30}, {id: "f", x: 2, y: 2, value: 25},
+    ])
+    .groupBy("id").x("x").y("y")
+    .colorScale("value")
+    .colorScaleConfig({scale: "linear"})`;
+  const body =
+    '<div id="viz" style="width:800px;height:500px;font-family:sans-serif;"></div>';
+  const fp = await render(body, paintedFn, src);
+
+  assert.ok(fp.placement, "the colorScale is placed inside the chart");
+  assert.strictEqual(fp.placement.key, "colorScale");
+  assert.strictEqual(fp.rects.length, 1, "one gradient rect is painted");
+  assert.strictEqual(fp.svgs, 0, "the colorScale paints no svg of its own");
+  const [r] = fp.rects;
+  const p = fp.placement;
+  assert.ok(
+    r.x >= p.x && r.y >= p.y && r.x + r.width <= p.x + p.width && r.y + r.height <= p.y + p.height,
+    `gradient ${JSON.stringify(r)} sits inside its box ${JSON.stringify(p)}`,
+  );
+});

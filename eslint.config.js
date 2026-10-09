@@ -1,8 +1,14 @@
 import tseslint from "typescript-eslint";
+import globals from "globals";
+import react from "eslint-plugin-react";
+import storybook from "eslint-plugin-storybook";
 
 import js from "@eslint/js";
 export default [
   js.configs.recommended,
+  {
+    ignores: ["packages/docs/build/**", "packages/docs/.next/**"],
+  },
   {
     files: ["**/*.js"],
     plugins: {
@@ -10,8 +16,8 @@ export default [
     },
     languageOptions: {
       globals: {
-        browser: true,
-        node: true,
+        ...globals.browser,
+        ...globals.node,
       },
     },
   },
@@ -22,8 +28,8 @@ export default [
     },
     languageOptions: {
       globals: {
-        browser: true,
-        node: true,
+        ...globals.browser,
+        ...globals.node,
       },
       parser: tseslint.parser,
     },
@@ -54,6 +60,50 @@ export default [
     },
   },
   {
+    // Storybook stories, args, helpers, and config. The generated story header
+    // always imports React and funcify, whether or not the stories below the
+    // marker use them.
+    files: ["packages/docs/**/*.jsx"],
+    plugins: {react},
+    languageOptions: {
+      globals: {
+        ...globals.browser,
+      },
+      parserOptions: {
+        ecmaFeatures: {jsx: true},
+      },
+    },
+    settings: {react: {version: "detect"}},
+    rules: {
+      "react/jsx-uses-react": "error",
+      "react/jsx-uses-vars": "error",
+      "no-unused-vars": [
+        "error",
+        {varsIgnorePattern: "^(React|funcify)$", argsIgnorePattern: "^_"},
+      ],
+    },
+  },
+  {
+    // A story file with no exported stories is a generated stub that does not
+    // appear in the built site. Its header already imports the function (or
+    // defines the Template) the stories will use, so `story-exports` and
+    // `no-unused-vars` stay warnings until every stub is filled in (#761).
+    files: ["packages/docs/packages/**/*.stories.jsx"],
+    plugins: {storybook},
+    rules: {
+      "no-unused-vars": [
+        "warn",
+        {varsIgnorePattern: "^(React|funcify)$", argsIgnorePattern: "^_"},
+      ],
+      "storybook/default-exports": "error",
+      "storybook/hierarchy-separator": "error",
+      "storybook/no-redundant-story-name": "error",
+      "storybook/no-renderer-packages": "error",
+      "storybook/prefer-pascal-case": "error",
+      "storybook/story-exports": "warn",
+    },
+  },
+  {
     files: ["**/test/**/*.js", "**/test/**/*.mjs"],
     languageOptions: {
       globals: {
@@ -71,6 +121,9 @@ export default [
     rules: {
       "max-lines": "off",
       "max-lines-per-function": "off",
+      // Tests may name the globals they rely on in a `/* global … */` comment
+      // even when the environment already provides them.
+      "no-redeclare": ["error", {builtinGlobals: false}],
     },
   },
 ];

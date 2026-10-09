@@ -31,22 +31,26 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | Charts | Description |
 | --- | --- |
 | [`AreaPlot`](#areaplot) | Creates an area plot based on an array of data. |
-| [`BarChart`](#barchart) | Creates a bar chart based on an array of data. |
+| [`BarChart`](#barchart) | Creates a bar chart based on an array of data. When stacked, each bar's |
 | [`BoxWhisker`](#boxwhisker) | Creates a simple box and whisker based on an array of data. |
 | [`BumpChart`](#bumpchart) | Creates a bump chart based on an array of data. |
+| [`Chord`](#chord) | Creates a Chord diagram based on a defined set of nodes and links. |
 | [`Donut`](#donut) | Extends the Pie visualization to create a donut chart. |
+| [`Gauge`](#gauge) | Creates a gauge (speedometer) from an array of data: a single dial that |
 | [`Geomap`](#geomap) | Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate  |
+| [`Histogram`](#histogram) | Creates a histogram from an array of raw observations: the `value` of each |
 | [`LinePlot`](#lineplot) | Creates a line plot based on an array of data. |
 | [`Matrix`](#matrix) | Creates a simple rows/columns Matrix view of any dataset. |
 | [`Network`](#network) | Creates a network visualization based on a defined set of nodes and edges. |
 | [`Pack`](#pack) | Uses the d3 pack layout to create a Circle Packing chart based on an array of data. |
 | [`Pie`](#pie) | Uses the d3 pie layout to create SVG arcs based on an array of data. |
 | [`Priestley`](#priestley) | Creates a Priestley timeline based on an array of data. |
+| [`Pyramid`](#pyramid) | Creates a population pyramid: horizontal bars for two groups (the first |
 | [`Radar`](#radar) | Creates a radar visualization based on an array of data. |
 | [`RadialMatrix`](#radialmatrix) | Creates a radial layout of a rows/columns Matrix of any dataset. |
 | [`Rings`](#rings) | Creates a ring visualization based on a defined set of nodes and edges. |
 | [`Sankey`](#sankey) | Creates a Sankey visualization based on a defined set of nodes and links. |
-| [`StackedArea`](#stackedarea) | Creates a stacked area plot based on an array of data. |
+| [`StackedArea`](#stackedarea) | Creates a stacked area plot based on an array of data. Each point's |
 | [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
 | [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
 
@@ -54,13 +58,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`Area`](#area) | Creates SVG areas based on an array of data. |
 | [`Axis`](#axis) | Creates an SVG scale based on an array of data. |
-| [`AxisBottom`](#axisbottom) | Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functional |
-| [`AxisLeft`](#axisleft) | Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all fun |
-| [`AxisRight`](#axisright) | Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all fu |
-| [`AxisTop`](#axistop) | Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionalit |
-| [`Bar`](#bar) | Creates SVG areas based on an array of data. |
+| [`AxisBottom`](#axisbottom) | Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does. |
+| [`AxisLeft`](#axisleft) | Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does. |
+| [`AxisRight`](#axisright) | Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does. |
+| [`AxisTop`](#axistop) | Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does. |
+| [`Bar`](#bar) | Creates SVG bars based on an array of data. |
 | [`BaseClass`](#baseclass) | Provides shared configuration, event handling, and locale management inherited by all d3plus classes. |
-| [`Box`](#box) | Creates SVG box based on an array of data. |
+| [`Box`](#box) | Creates SVG box-and-whisker plots based on an array of data, one per group of values. |
 | [`Circle`](#circle) | Creates SVG circles based on an array of data. |
 | [`ColorScale`](#colorscale) | Creates an SVG color scale based on an array of data. |
 | [`Image`](#image) | Creates SVG images based on an array of data. |
@@ -68,13 +72,14 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Line`](#line) | Creates SVG lines based on an array of data. |
 | [`Path`](#path) | Creates SVG Paths based on an array of data. |
 | [`Plot`](#plot) | Creates an x/y plot based on an array of data. |
-| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-st |
+| [`Rect`](#rect) | Creates SVG rectangles based on an array of data. |
 | [`Shape`](#shape) | An abstracted class for generating shapes. |
-| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-tex |
+| [`SizeLegend`](#sizelegend) | A nested-circle legend for a size scale: concentric circles sharing a |
+| [`TextBox`](#textbox) | Creates a wrapped text box for each point in an array of data. |
 | [`Timeline`](#timeline) | Creates an interactive timeline brush component for selecting time periods within a visualization. |
 | [`Tooltip`](#tooltip) | Creates HTML tooltips in the body of a webpage. |
-| [`Viz`](#viz) | Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-sta |
-| [`Whisker`](#whisker) | Creates SVG whisker based on an array of data. |
+| [`Viz`](#viz) | The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessor |
+| [`Whisker`](#whisker) | Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint sha |
 
 | Functions | Description |
 | --- | --- |
@@ -84,6 +89,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`assign`](#assign) | A deeply recursive version of `Object.assign`. |
 | [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
 | [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the |
+| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
@@ -95,6 +101,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`colorValidate`](#colorvalidate) | Validates a chart color palette against the computable accessibility checks. |
 | [`concat`](#concat) | Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat th |
 | [`configPrep`](#configprep) | Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you m |
+| [`configWarnings`](#configwarnings) | Toggles the console warnings d3plus logs when a class receives a config |
 | [`constant`](#constant) | Wraps non-function variables in a simple return function. |
 | [`date`](#date) | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats. |
 | [`elem`](#elem) | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optiona |
@@ -105,15 +112,21 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
 | [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
 | [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
+| [`getSize`](#getsize) | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with  |
 | [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued |
 | [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
 | [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
 | [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
+| [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
+| [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
+| [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
+| [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with  |
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
@@ -122,7 +135,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
 | [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
-| [`polygonRotate`](#polygonrotate) | Rotates a point around a given origin. |
+| [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
+| [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
 | [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "r |
 | [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
@@ -130,6 +144,8 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
 | [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
 | [`strip`](#strip) | Removes all non ASCII characters from a string. |
+| [`studentTCdf`](#studenttcdf) | The cumulative distribution function of Student's t-distribution. |
+| [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportio |
 | [`stylize`](#stylize) | Applies each key/value in an object as a style. |
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWidth`](#textwidth) | Given a text string, returns the predicted pixel width of the string when placed into DOM. |
@@ -143,10 +159,10 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false |
 | [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
 | [`formatLocale`](#formatlocale) |  |
-| [`locale`](#locale) |  |
+| [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when |
 | [`RESET`](#reset) | String constant used to reset an individual config property. |
-| [`titleCaseLocale`](#titlecaselocale) |  |
-| [`translateLocale`](#translatelocale) |  |
+| [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kep |
+| [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, to |
 
 | Interfaces | Description |
 | --- | --- |
@@ -154,6 +170,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`AxisConfig`](#axisconfig) |  |
 | [`BarConfig`](#barconfig) | Bar-specific config (Rect + start/end coords). |
 | [`BaseShapeConfig`](#baseshapeconfig) | Common props inherited from `Shape` — every shape subclass accepts |
+| [`Bounds`](#bounds) | An axis-aligned box: top-left corner plus size. |
 | [`BoxConfig`](#boxconfig) | Box-specific config (whisker + median + outliers; subset of Shape). |
 | [`CircleConfig`](#circleconfig) | Circle-specific config (radius). |
 | [`ColorCheck`](#colorcheck) | One computed check in a palette validation report. |
@@ -166,29 +183,40 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the |
 | [`DataPoint`](#datapoint) | DataPoint |
 | [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
+| [`GaugeBand`](#gaugeband) | A colored zone along the dial, e.g. `{min: 80, color: "red"}`. |
 | [`ImageConfig`](#imageconfig) | Image-specific config (url + dimensions). |
 | [`LegendConfig`](#legendconfig) |  |
 | [`LineConfig`](#lineconfig) | Line-specific config (curve + defined). |
+| [`LinkConfig`](#linkconfig) | The object form of the `link` config: a group name plus the key and interactions to mirror. |
 | [`Margin`](#margin) | Margin object with all four sides. |
 | [`MergedDataPoint`](#mergeddatapoint) |  |
+| [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
 | [`Padding`](#padding) | Padding object with all four sides. |
 | [`PathConfig`](#pathconfig) | Path-specific config (raw SVG path d string or generator). |
 | [`RectConfig`](#rectconfig) | Rect-specific config (width + height on top of base). |
+| [`RegressionOptions`](#regressionoptions) |  |
+| [`RegressionResult`](#regressionresult) |  |
+| [`SizeLegendConfig`](#sizelegendconfig) |  |
 | [`TextBoxConfig`](#textboxconfig) |  |
 | [`TimelineConfig`](#timelineconfig) |  |
 | [`TimeLocaleDefinition`](#timelocaledefinition) |  |
 | [`TitleCaseRules`](#titlecaserules) |  |
 | [`TooltipConfig`](#tooltipconfig) |  |
 | [`TranslationStrings`](#translationstrings) |  |
+| [`TrendLineConfig`](#trendlineconfig) |  |
 | [`WhiskerConfig`](#whiskerconfig) | Whisker-specific config. |
 
 | Type Aliases | Description |
 | --- | --- |
 | [`AnyShapeConfig`](#anyshapeconfig) | Union of every shape config — useful for code that composes |
 | [`CheckState`](#checkstate) | The state of a single check. `warn` passes but obligates secondary encoding. |
+| [`ColorDefaultsConfig`](#colordefaultsconfig) | `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. |
 | [`ConstOrAccessor`](#constoraccessor) | A value that can either be a function (called per-datum) or a literal |
 | [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization, component, and shape classes. |
 | [`D3Selection`](#d3selection) | D3-style selection — deliberately loose. d3-selection's element/datum |
+| [`GaugeIndicator`](#gaugeindicator) | How a gauge shows its value: a needle, or an arc filled from the minimum. |
+| [`LinkOption`](#linkoption) | `link` as a group name, the full object form, or `false` for unlinked. |
+| [`RegressionType`](#regressiontype) |  |
 | [`StringOrAccessor`](#stringoraccessor) | A value that can be a function, a string key (wrapped in `accessor`), |
 
 ## Classes
@@ -204,10 +232,6 @@ Creates SVG areas based on an array of data.
 #### Extends
 
 - [`Shape`](#shape-1)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -294,6 +318,70 @@ The style to apply to active shapes.
 ###### Inherited from
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
+
+<a id="colordefaults"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
 
 <a id="config"></a>
 
@@ -517,7 +605,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -548,7 +636,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -589,7 +677,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -617,7 +705,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -651,7 +739,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -686,7 +774,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -724,7 +812,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -740,7 +828,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -830,7 +918,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -846,7 +934,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -976,7 +1064,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -1000,7 +1088,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -1234,25 +1322,8 @@ The y1 (bottom edge) position accessor for the area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Bar`](#bar).[`_transition`](#property-_transition-6) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -1260,7 +1331,7 @@ The y1 (bottom edge) position accessor for the area.
 
 ### Axis
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:12
+Defined in: core/types/src/components/Axis/Axis.d.ts:13
 
 Creates an SVG scale based on an array of data.
 
@@ -1276,10 +1347,6 @@ Creates an SVG scale based on an array of data.
 - [`AxisTop`](#axistop)
 - [`Timeline`](#timeline)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
 
 <a id="barconfig"></a>
@@ -1290,7 +1357,7 @@ Creates an SVG scale based on an array of data.
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -1302,7 +1369,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -1316,6 +1383,174 @@ Axis line style.
 
 `this`
 
+<a id="baselinebreakconfig"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+<a id="breakconfig"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+<a id="colordefaults-1"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
 <a id="config-1"></a>
 
 ##### config()
@@ -1324,7 +1559,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -1340,7 +1575,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -1366,7 +1601,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1378,7 +1613,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -1400,7 +1635,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -1412,7 +1647,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -1434,7 +1669,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1446,7 +1681,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -1468,7 +1703,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -1499,7 +1734,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -1538,7 +1773,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -1561,7 +1796,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1589,7 +1824,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1623,7 +1858,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1658,7 +1893,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -1696,7 +1931,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -1708,7 +1943,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -1728,7 +1963,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -1750,7 +1985,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -1766,7 +2001,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -1790,7 +2025,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:83
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -1812,7 +2047,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1830,7 +2065,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -1858,7 +2093,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -1874,7 +2109,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -1900,7 +2135,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -1912,7 +2147,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -1932,7 +2167,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:78
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -1950,7 +2185,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -1974,7 +2209,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -2004,36 +2239,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks"></a> `_availableTicks` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_configdefault-1"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | - | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | - | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-1"></a> `_data` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata"></a> `_gridLineData?` | `object`[] | - | - | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-1"></a> `_group` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_labelrotation"></a> `_labelRotation` | `boolean` \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint"></a> `_managesOwnScenePaint?` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin"></a> `_margin` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position"></a> `_position` | `object` | - | - | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-1"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-1"></a> `_select` | `Selection` | - | - | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape"></a> `_tickShape?` | [`Shape`](#shape-1) | - | - | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickunit"></a> `_tickUnit` | `number` | - | - | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-1"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | - | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-1"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks"></a> `_visibleTicks` | `unknown`[] | - | - | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-1"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-1"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-1"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-1"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -2043,15 +2250,11 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/Axis/AxisBottom.d.ts:5
 
-Shorthand method for creating an axis where the ticks are drawn below the horizontal domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -2063,7 +2266,7 @@ Shorthand method for creating an axis where the ticks are drawn below the horizo
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -2079,7 +2282,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -2097,6 +2300,190 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
+<a id="baselinebreakconfig-1"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-1"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+<a id="colordefaults-2"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
 <a id="config-2"></a>
 
 ##### config()
@@ -2105,7 +2492,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -2121,7 +2508,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -2147,7 +2534,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2163,7 +2550,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -2189,7 +2576,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -2205,7 +2592,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -2231,7 +2618,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2247,7 +2634,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -2273,7 +2660,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -2304,7 +2691,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -2343,7 +2730,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -2370,7 +2757,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2398,7 +2785,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2432,7 +2819,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2467,7 +2854,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -2505,7 +2892,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -2521,7 +2908,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -2545,7 +2932,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -2571,7 +2958,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -2587,7 +2974,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -2611,7 +2998,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:83
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -2637,7 +3024,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2659,7 +3046,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -2691,7 +3078,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -2707,7 +3094,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -2733,7 +3120,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -2749,7 +3136,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -2773,7 +3160,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:78
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -2795,7 +3182,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -2819,7 +3206,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -2849,36 +3236,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-1"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_configdefault-2"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale-1"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative-1"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-2"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-1"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-2"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_labelrotation-1"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale-1"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint-1"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin-1"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-1"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-1"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-2"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-2"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-1"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickunit-1"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass-1"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-2"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat-1"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-2"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks-1"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-2"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-2"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-2"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-2"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -2888,15 +3247,11 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/Axis/AxisLeft.d.ts:5
 
-Shorthand method for creating an axis where the ticks are drawn to the left of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -2908,7 +3263,7 @@ Shorthand method for creating an axis where the ticks are drawn to the left of t
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -2924,7 +3279,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -2942,6 +3297,190 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
+<a id="baselinebreakconfig-2"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-2"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+<a id="colordefaults-3"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
 <a id="config-3"></a>
 
 ##### config()
@@ -2950,7 +3489,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -2966,7 +3505,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -2992,7 +3531,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3008,7 +3547,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3034,7 +3573,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -3050,7 +3589,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -3076,7 +3615,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3092,7 +3631,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3118,7 +3657,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -3149,7 +3688,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -3188,7 +3727,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -3215,7 +3754,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3243,7 +3782,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3277,7 +3816,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3312,7 +3851,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -3350,7 +3889,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -3366,7 +3905,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -3390,7 +3929,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -3416,7 +3955,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -3432,7 +3971,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -3456,7 +3995,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:83
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -3482,7 +4021,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3504,7 +4043,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -3536,7 +4075,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -3552,7 +4091,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -3578,7 +4117,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -3594,7 +4133,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -3618,7 +4157,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:78
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -3640,7 +4179,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -3664,7 +4203,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -3694,36 +4233,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-2"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_configdefault-3"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale-2"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative-2"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-3"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-2"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-3"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_labelrotation-2"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale-2"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint-2"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin-2"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-2"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-2"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-3"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-3"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-2"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickunit-2"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass-2"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-3"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat-2"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-3"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks-2"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-3"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-3"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-3"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-3"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -3733,15 +4244,11 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/Axis/AxisRight.d.ts:5
 
-Shorthand method for creating an axis where the ticks are drawn to the right of the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -3753,7 +4260,7 @@ Shorthand method for creating an axis where the ticks are drawn to the right of 
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -3769,7 +4276,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -3787,6 +4294,190 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
+<a id="baselinebreakconfig-3"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-3"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+<a id="colordefaults-4"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
 <a id="config-4"></a>
 
 ##### config()
@@ -3795,7 +4486,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -3811,7 +4502,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -3837,7 +4528,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3853,7 +4544,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -3879,7 +4570,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -3895,7 +4586,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -3921,7 +4612,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3937,7 +4628,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -3963,7 +4654,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -3994,7 +4685,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -4033,7 +4724,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4060,7 +4751,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4088,7 +4779,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4122,7 +4813,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4157,7 +4848,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4195,7 +4886,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -4211,7 +4902,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -4235,7 +4926,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -4261,7 +4952,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -4277,7 +4968,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -4301,7 +4992,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:83
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -4327,7 +5018,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4349,7 +5040,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -4381,7 +5072,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -4397,7 +5088,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -4423,7 +5114,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -4439,7 +5130,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -4463,7 +5154,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:78
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -4485,7 +5176,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -4509,7 +5200,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -4539,36 +5230,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-3"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_configdefault-4"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale-3"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative-3"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-4"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-3"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-4"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_labelrotation-3"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale-3"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint-3"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin-3"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-3"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-3"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-4"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-4"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-3"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickunit-3"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass-3"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-4"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat-3"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-4"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks-3"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-4"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-4"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-4"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-4"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -4578,15 +5241,11 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/components/Axis/AxisTop.d.ts:5
 
-Shorthand method for creating an axis where the ticks are drawn above the vertical domain path. Extends all functionality of the base [Axis](#Axis) class.
+Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does.
 
 #### Extends
 
 - [`Axis`](#axis)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -4598,7 +5257,7 @@ Shorthand method for creating an axis where the ticks are drawn above the vertic
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -4614,7 +5273,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -4632,6 +5291,190 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
+<a id="baselinebreakconfig-4"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-4"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+<a id="colordefaults-5"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
 <a id="config-5"></a>
 
 ##### config()
@@ -4640,7 +5483,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -4656,7 +5499,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -4682,7 +5525,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4698,7 +5541,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -4724,7 +5567,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -4740,7 +5583,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -4766,7 +5609,7 @@ Grid config of the axis.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4782,7 +5625,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -4808,7 +5651,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -4839,7 +5682,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -4878,7 +5721,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -4905,7 +5748,7 @@ layout without owning an Axis instance.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4933,7 +5776,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -4967,7 +5810,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5002,7 +5845,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5040,7 +5883,7 @@ console.log("data for legend clicked:", d);
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -5056,7 +5899,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -5080,7 +5923,7 @@ The orientation of the shape.
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -5106,7 +5949,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -5122,7 +5965,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -5146,7 +5989,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:83
+Defined in: core/types/src/components/Axis/Axis.d.ts:93
 
 Renders the current Axis to the page.
 
@@ -5172,7 +6015,7 @@ Renders the current Axis to the page.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5194,7 +6037,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -5226,7 +6069,7 @@ mounting DOM.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -5242,7 +6085,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -5268,7 +6111,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -5284,7 +6127,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -5308,7 +6151,7 @@ Title configuration of the axis.
 
 > **toScene**(): `GroupNode`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:78
+Defined in: core/types/src/components/Axis/Axis.d.ts:88
 
 Produces a backend-agnostic scene graph for this axis with no DOM dependency:
 gridlines + domain bar emitted natively, tick marks/labels composed from the
@@ -5330,7 +6173,7 @@ tick Shape's toScene(), and the title from the title TextBox's toScene().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -5354,7 +6197,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -5384,36 +6227,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-4"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_configdefault-5"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale-4"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative-4"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-5"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-4"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-5"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_labelrotation-4"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale-4"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint-4"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin-4"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_outerbounds-4"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_position-4"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-5"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-5"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-4"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickunit-4"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass-4"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-5"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat-4"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-5"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks-4"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-5"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-5"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-5"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-5"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -5423,39 +6238,13 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/shapes/Bar.d.ts:9
 
-Creates SVG areas based on an array of data.
+Creates SVG bars based on an array of data.
 
 #### Extends
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-1"></a>
 
@@ -5540,6 +6329,70 @@ The style to apply to active shapes.
 ###### Inherited from
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
+
+<a id="colordefaults-6"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
 
 <a id="config-6"></a>
 
@@ -5763,7 +6616,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -5794,7 +6647,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -5835,7 +6688,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5863,7 +6716,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5897,7 +6750,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5932,7 +6785,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -5970,7 +6823,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -5986,7 +6839,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -6076,7 +6929,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -6092,7 +6945,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -6222,7 +7075,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6246,7 +7099,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6412,25 +7265,8 @@ The y1 (bottom edge) position accessor for each bar.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-1"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-6"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-6"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-1"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-1"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-6"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-1"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-1"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-1"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-1"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-6"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-6"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-1"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-1"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-6"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-1"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-6"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-6"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-6"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-6"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-6"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -6438,7 +7274,7 @@ The y1 (bottom edge) position accessor for each bar.
 
 ### BaseClass
 
-Defined in: core/types/src/utils/BaseClass.d.ts:5
+Defined in: core/types/src/utils/BaseClass.d.ts:6
 
 Provides shared configuration, event handling, and locale management inherited by all d3plus classes.
 
@@ -6447,6 +7283,7 @@ Provides shared configuration, event handling, and locale management inherited b
 - [`Axis`](#axis)
 - [`ColorScale`](#colorscale)
 - [`Legend`](#legend)
+- [`SizeLegend`](#sizelegend-1)
 - [`TextBox`](#textbox)
 - [`Tooltip`](#tooltip-1)
 - [`Box`](#box)
@@ -6454,6 +7291,62 @@ Provides shared configuration, event handling, and locale management inherited b
 - [`Whisker`](#whisker)
 
 #### Methods
+
+<a id="colordefaults-7"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
 
 <a id="config-7"></a>
 
@@ -6463,7 +7356,7 @@ Provides shared configuration, event handling, and locale management inherited b
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -6475,7 +7368,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -6497,7 +7390,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -6524,7 +7417,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -6561,7 +7454,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6585,7 +7478,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6615,7 +7508,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6646,7 +7539,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -6680,7 +7573,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -6692,7 +7585,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -6714,7 +7607,7 @@ Parent config used by the wrapper.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -6726,7 +7619,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -6748,7 +7641,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6768,7 +7661,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -6794,10 +7687,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-7"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_uuid-7"></a> `_uuid` | `string` | - | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-7"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-7"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-7"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-7"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -6807,15 +7698,11 @@ return d === "Back" ? "Get outta here" : d;
 
 Defined in: core/types/src/shapes/Box.d.ts:12
 
-Creates SVG box based on an array of data.
+Creates SVG box-and-whisker plots based on an array of data, one per group of values.
 
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -6838,6 +7725,70 @@ The active highlight state for all sub-shapes in this Box.
 ###### Returns
 
 `void`
+
+<a id="colordefaults-8"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
 
 <a id="config-8"></a>
 
@@ -6947,7 +7898,7 @@ The hover highlight state for all sub-shapes in this Box.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -6978,7 +7929,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7053,7 +8004,7 @@ Configuration object for the median line.
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7081,7 +8032,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7115,7 +8066,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7150,7 +8101,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7222,7 +8173,7 @@ Configuration object for each outlier point.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -7238,7 +8189,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -7346,7 +8297,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -7362,7 +8313,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -7406,7 +8357,7 @@ group so collectComputed(boxInstance) yields the union.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7430,7 +8381,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -7494,16 +8445,8 @@ Configuration object for the whisker.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_box"></a> `_box` | [`Rect`](#rect) | - | - | core/types/src/shapes/Box.d.ts:16 |
-| <a id="property-_configdefault-8"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-7"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Box.d.ts:14 |
-| <a id="property-_median"></a> `_median` | [`Rect`](#rect) | - | - | core/types/src/shapes/Box.d.ts:17 |
-| <a id="property-_select-7"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Box.d.ts:15 |
-| <a id="property-_uuid-8"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_whisker"></a> `_whisker` | [`Whisker`](#whisker) | - | - | core/types/src/shapes/Box.d.ts:18 |
-| <a id="property-_whiskerendpoint"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | core/types/src/shapes/Box.d.ts:19 |
-| <a id="property-ctx-8"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-8"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-8"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-8"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -7519,33 +8462,7 @@ Creates SVG circles based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-1"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-3"></a>
 
@@ -7630,6 +8547,70 @@ The style to apply to active shapes.
 ###### Inherited from
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
+
+<a id="colordefaults-9"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
 
 <a id="config-9"></a>
 
@@ -7853,7 +8834,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7884,7 +8865,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -7925,7 +8906,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7953,7 +8934,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -7987,7 +8968,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8022,7 +9003,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8060,7 +9041,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -8076,7 +9057,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -8166,7 +9147,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -8182,7 +9163,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -8312,7 +9293,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -8336,7 +9317,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -8366,25 +9347,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-2"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-9"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-8"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-2"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-2"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-7"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-2"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-2"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-2"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-2"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-7"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-8"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-2"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-2"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-7"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-2"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-9"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-9"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-9"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-9"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-9"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -8400,10 +9364,6 @@ Creates an SVG color scale based on an array of data.
 
 - [`BaseClass`](#baseclass)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
 
 <a id="axisconfig-1"></a>
@@ -8416,7 +9376,7 @@ Creates an SVG color scale based on an array of data.
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:57
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Returns
 
@@ -8428,7 +9388,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:58
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
 ###### Parameters
 
@@ -8440,6 +9400,70 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 `this`
 
+<a id="colordefaults-10"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
 <a id="config-10"></a>
 
 ##### config()
@@ -8448,7 +9472,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -8464,7 +9488,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -8526,7 +9550,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:67
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Returns
 
@@ -8538,7 +9562,7 @@ A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:68
 
-A pass-through for the [TextBox](http://d3plus.org/docs/#TextBox) class used to style the labelMin and labelMax text.
+A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
 ###### Parameters
 
@@ -8628,7 +9652,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:82
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Returns
 
@@ -8640,7 +9664,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:83
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Axis](http://d3plus.org/docs/#Axis). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
 ###### Parameters
 
@@ -8660,7 +9684,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -8691,7 +9715,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -8732,7 +9756,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8760,7 +9784,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8794,7 +9818,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8829,7 +9853,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -8887,7 +9911,7 @@ Returns the outer bounds of the ColorScale content. Must be called after renderi
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -8903,7 +9927,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -8931,7 +9955,7 @@ Parent config used by the wrapper.
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:93
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Returns
 
@@ -8943,7 +9967,7 @@ The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining
 
 Defined in: core/types/src/components/ColorScale/ColorScale.d.ts:94
 
-The [ColorScale](http://d3plus.org/docs/#ColorScale) is constructed by combining an [Axis](http://d3plus.org/docs/#Axis) for the ticks/labels and a [Rect](http://d3plus.org/docs/#Rect) for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the [Axis](http://d3plus.org/docs/#Axis) class used to display the text ([axisConfig](http://d3plus.org/docs/#ColorScale.axisConfig)) and the [Rect](http://d3plus.org/docs/#Rect) class used to draw the color breaks ([rectConfig](http://d3plus.org/docs/#ColorScale.rectConfig)). This method acts as a pass-through to the config method of the [Rect](http://d3plus.org/docs/#Rect). An example usage of this method can be seen [here](http://d3plus.org/examples/d3plus-legend/colorScale-dark/).
+The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
 ###### Parameters
 
@@ -9017,7 +10041,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -9033,7 +10057,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -9083,7 +10107,7 @@ and the discrete variant use concrete per-bucket fills.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9107,7 +10131,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9137,24 +10161,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_axisclass"></a> `_axisClass` | [`Axis`](#axis) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:16 |
-| <a id="property-_axistest"></a> `_axisTest` | [`Axis`](#axis) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:17 |
-| <a id="property-_colorscale"></a> `_colorScale?` | `D3Scale`\<`string`\> | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:18 |
-| <a id="property-_configdefault-10"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-9"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:19 |
-| <a id="property-_gradientfill"></a> `_gradientFill?` | `string` | Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. | - | core/types/src/components/ColorScale/ColorScale.d.ts:28 |
-| <a id="property-_group-8"></a> `_group` | `Selection` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:20 |
-| <a id="property-_labelclass-3"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:21 |
-| <a id="property-_labelmax"></a> `_labelMax` | `string` \| *required* | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:23 |
-| <a id="property-_labelmin"></a> `_labelMin` | `string` \| *required* | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:22 |
-| <a id="property-_legendclass"></a> `_legendClass` | [`Legend`](#legend) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:24 |
-| <a id="property-_outerbounds-5"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:25 |
-| <a id="property-_rectclass"></a> `_rectClass` | [`Rect`](#rect) | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:26 |
-| <a id="property-_scenerenderer-8"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:29 |
-| <a id="property-_select-9"></a> `_select` | `Selection` | - | - | core/types/src/components/ColorScale/ColorScale.d.ts:15 |
-| <a id="property-_uuid-10"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-10"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-10"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-10"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-10"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -9187,10 +10195,6 @@ image().data([data])();
 ```ts
 image().data([data])(function() { alert("draw complete!"); })
 ```
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -9343,8 +10347,6 @@ scene graph rather than emit d3-selection DOM.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-_data-10"></a> `_data` | [`DataPoint`](#datapoint)[] | core/types/src/shapes/Image.d.ts:21 |
-| <a id="property-_select-10"></a> `_select` | `Selection` | core/types/src/shapes/Image.d.ts:20 |
 | <a id="property-schema-11"></a> `schema` | `Record`\<`string`, `any`\> | core/types/src/shapes/Image.d.ts:19 |
 
 ***
@@ -9360,10 +10362,6 @@ Creates an SVG legend based on an array of data.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -9387,6 +10385,70 @@ The active method for all shapes.
 
 `this`
 
+<a id="colordefaults-11"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
 <a id="config-12"></a>
 
 ##### config()
@@ -9395,7 +10457,7 @@ The active method for all shapes.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -9411,7 +10473,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -9491,7 +10553,7 @@ The hover method for all shapes.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -9522,7 +10584,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -9563,7 +10625,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9591,7 +10653,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9625,7 +10687,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9660,7 +10722,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -9718,7 +10780,7 @@ Returns the outer bounds of the legend content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -9734,7 +10796,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -9907,7 +10969,7 @@ the x/y accessors against this._lineData / this._outerBounds).
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9931,7 +10993,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -9961,25 +11023,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-11"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-11"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/Legend/Legend.d.ts:13 |
-| <a id="property-_group-9"></a> `_group` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:19 |
-| <a id="property-_linedata"></a> `_lineData` | `Record`\<`string`, `unknown`\>[] | - | - | core/types/src/components/Legend/Legend.d.ts:14 |
-| <a id="property-_outerbounds-6"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | - | core/types/src/components/Legend/Legend.d.ts:15 |
-| <a id="property-_rtl"></a> `_rtl` | `boolean` | - | - | core/types/src/components/Legend/Legend.d.ts:18 |
-| <a id="property-_scenerenderer-9"></a> `_sceneRenderer?` | `SvgRenderer` | - | - | core/types/src/components/Legend/Legend.d.ts:26 |
-| <a id="property-_select-11"></a> `_select` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:16 |
-| <a id="property-_shapegroup"></a> `_shapeGroup` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:21 |
-| <a id="property-_shapes"></a> `_shapes` | `unknown`[] | - | - | core/types/src/components/Legend/Legend.d.ts:17 |
-| <a id="property-_titleclass-5"></a> `_titleClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Legend/Legend.d.ts:12 |
-| <a id="property-_titlegroup"></a> `_titleGroup` | `Selection` | - | - | core/types/src/components/Legend/Legend.d.ts:20 |
-| <a id="property-_titleheight"></a> `_titleHeight` | `number` | - | - | core/types/src/components/Legend/Legend.d.ts:22 |
-| <a id="property-_titlewidth"></a> `_titleWidth` | `number` | - | - | core/types/src/components/Legend/Legend.d.ts:23 |
-| <a id="property-_uuid-11"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_wraplines"></a> `_wrapLines` | (() => `void`) \| *required* | - | - | core/types/src/components/Legend/Legend.d.ts:24 |
-| <a id="property-_wraprows"></a> `_wrapRows` | (() => `void`) \| *required* | - | - | core/types/src/components/Legend/Legend.d.ts:25 |
-| <a id="property-ctx-11"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-12"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-11"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-12"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -9994,10 +11039,6 @@ Creates SVG lines based on an array of data.
 #### Extends
 
 - [`Shape`](#shape-1)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -10085,13 +11126,77 @@ The style to apply to active shapes.
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
 
+<a id="colordefaults-12"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
 <a id="config-13"></a>
 
 ##### config()
 
 ###### Call Signature
 
-> **config**(): [`LineConfig`](#lineconfig-2)
+> **config**(): [`LineConfig`](#lineconfig-3)
 
 Defined in: core/types/src/shapes/Line.d.ts:36
 
@@ -10101,7 +11206,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Returns
 
-[`LineConfig`](#lineconfig-2)
+[`LineConfig`](#lineconfig-3)
 
 ###### Overrides
 
@@ -10109,7 +11214,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 ###### Call Signature
 
-> **config**(`_`: `Partial`\<[`LineConfig`](#lineconfig-2)\>): `this`
+> **config**(`_`: `Partial`\<[`LineConfig`](#lineconfig-3)\>): `this`
 
 Defined in: core/types/src/shapes/Line.d.ts:37
 
@@ -10121,7 +11226,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 | Parameter | Type |
 | ------ | ------ |
-| `_` | `Partial`\<[`LineConfig`](#lineconfig-2)\> |
+| `_` | `Partial`\<[`LineConfig`](#lineconfig-3)\> |
 
 ###### Returns
 
@@ -10307,7 +11412,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -10338,7 +11443,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -10379,7 +11484,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10407,7 +11512,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10441,7 +11546,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10476,7 +11581,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -10514,7 +11619,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -10530,7 +11635,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -10620,7 +11725,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -10636,7 +11741,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -10766,7 +11871,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -10790,7 +11895,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -10820,25 +11925,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-3"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-12"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-12"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-3"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-3"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-10"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-3"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-4"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-3"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-3"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-10"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-12"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-3"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-3"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-8"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-3"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-12"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-12"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-13"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-12"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-13"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -10854,33 +11942,7 @@ Creates SVG Paths based on an array of data.
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-2"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-6"></a>
 
@@ -10965,6 +12027,70 @@ The style to apply to active shapes.
 ###### Inherited from
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
+
+<a id="colordefaults-13"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
 
 <a id="config-14"></a>
 
@@ -11188,7 +12314,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -11219,7 +12345,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -11260,7 +12386,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11288,7 +12414,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11322,7 +12448,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11357,7 +12483,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -11395,7 +12521,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -11411,7 +12537,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -11501,7 +12627,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -11517,7 +12643,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -11647,7 +12773,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -11671,7 +12797,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -11701,25 +12827,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-4"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-13"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-13"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-4"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-4"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-11"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-4"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-5"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-4"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-4"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-11"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-13"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-4"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-4"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-9"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-4"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-13"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-13"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-14"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-13"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-14"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -11727,7 +12836,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Plot
 
-Defined in: core/types/src/charts/Plot/index.d.ts:14
+Defined in: core/types/src/charts/Plot/index.d.ts:16
 
 Creates an x/y plot based on an array of data.
 
@@ -11735,123 +12844,7 @@ Creates an x/y plot based on an array of data.
 
 - [`Viz`](#viz)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:100
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_drawSceneToTarget`](#_drawscenetotarget-1)
-
-<a id="_paint"></a>
-
-##### \_paint()
-
-> **\_paint**(`pCtx`: `PlotPaintContext`): `this`
-
-Defined in: core/types/src/charts/Plot/index.d.ts:82
-
-Paint phase: production axis rendering, shape buffer setup, and shape
-emission with event handlers. Receives all cross-phase locals from
-_draw via `pCtx` (so this method has zero coupling to _draw's local
-scope beyond the explicit context).
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `pCtx` | `PlotPaintContext` |
-
-###### Returns
-
-`this`
-
-<a id="_schedulescenerepaint"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:136
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
-
-###### Inherited from
-
-[`Viz`](#viz).[`_scheduleSceneRepaint`](#_schedulescenerepaint-1)
-
-<a id="_wireplotshapeevents"></a>
-
-##### \_wirePlotShapeEvents()
-
-> **\_wirePlotShapeEvents**(`shape`: `object`, `shapeKey`: `string`, `events`: `string`[]): `void`
-
-Defined in: core/types/src/charts/Plot/index.d.ts:47
-
-Wires user-registered `on()` event handlers onto a freshly-configured
-shape instance. Splits the registered events into three buckets:
-global (`"click"`), shape-scoped (`"click.shape"`), and
-shape-class-scoped (`"click.Bar"` etc.). All three forward into
-`this.schema.on[event](d.data, d.i, x, event)`. Extracted from
-Plot._paint so the chart-level event wiring is in one place.
-
-On the scene path (SvgRenderer/CanvasRenderer) these d3-selection
-bindings don't fire — compute-mode shapes mount no per-shape DOM.
-Pointer events are instead routed by `Viz._drawSceneToTarget`'s
-renderer bridge: it hit-tests via `Renderer.pick`, reads the picked
-node's stamped `shapeType`, and dispatches the matching global,
-`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three
-buckets this method wires, so SVG and Canvas behave identically.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `shape` | \{ `on`: `unknown`; \} |
-| `shape.on` |
-| `shapeKey` | `string` |
-| `events` | `string`[] |
-
-###### Returns
-
-`void`
 
 <a id="active-7"></a>
 
@@ -11907,7 +12900,7 @@ Custom aggregation methods for each data key.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: core/types/src/charts/Plot/index.d.ts:88
+Defined in: core/types/src/charts/Plot/index.d.ts:119
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -11947,13 +12940,37 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 
 [`Viz`](#viz).[`attribution`](#attribution-1)
 
+<a id="attributionicon"></a>
+
+##### attributionIcon()
+
+> **attributionIcon**(`_?`: `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))): `string` \| [`Plot`](#plot) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:28
+
+Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) |
+
+###### Returns
+
+`string` \| [`Plot`](#plot) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
+
+###### Inherited from
+
+[`Viz`](#viz).[`attributionIcon`](#attributionicon-1)
+
 <a id="attributionstyle"></a>
 
 ##### attributionStyle()
 
 > **attributionStyle**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:28
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:32
 
 Configuration object for the attribution style.
 
@@ -11977,7 +12994,7 @@ Configuration object for the attribution style.
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:92
+Defined in: core/types/src/charts/Plot/index.d.ts:123
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -11997,9 +13014,13 @@ Determines whether the x and y axes should have their scales persist while users
 
 > **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:32
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:40
 
-Configuration object for the back button.
+Configuration object for the back button. Superseded by
+`.backControlStyle()`/`.backControlClassName()` for the button's
+appearance (it renders as a real `<button>`, like the zoom/search
+controls, not a configurable text node) — kept for backwards
+compatibility, but no longer affects how the button looks.
 
 ###### Parameters
 
@@ -12015,13 +13036,61 @@ Configuration object for the back button.
 
 [`Viz`](#viz).[`backConfig`](#backconfig-1)
 
+<a id="backcontrolclassname"></a>
+
+##### backControlClassName()
+
+> **backControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:44
+
+An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`backControlClassName`](#backcontrolclassname-1)
+
+<a id="backcontrolstyle"></a>
+
+##### backControlStyle()
+
+> **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:48
+
+An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`backControlStyle`](#backcontrolstyle-1)
+
 <a id="backgroundconfig"></a>
 
 ##### backgroundConfig()
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:96
+Defined in: core/types/src/charts/Plot/index.d.ts:127
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -12041,7 +13110,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:100
+Defined in: core/types/src/charts/Plot/index.d.ts:131
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -12061,9 +13130,11 @@ Determines whether or not to add additional padding at the ends of x or y scales
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:36
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:54
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
+
+When the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.
 
 ###### Parameters
 
@@ -12079,13 +13150,77 @@ Defines the main color to be used for each data point in a visualization. Can be
 
 [`Viz`](#viz).[`color`](#color-1)
 
+<a id="colordefaults-14"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Viz`](#viz).[`colorDefaults`](#colordefaults-21)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Viz`](#viz).[`colorDefaults`](#colordefaults-21)
+
 <a id="colorscale-1"></a>
 
 ##### colorScale()
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:40
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:58
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -12109,7 +13244,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:44
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:62
 
 A pass-through to the config method of ColorScale.
 
@@ -12133,7 +13268,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:56
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:74
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -12157,7 +13292,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:48
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:66
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -12181,7 +13316,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Plot`](#plot) \| (() => `string` \| `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:52
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:70
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -12205,7 +13340,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`number`, `number`\]
 
-Defined in: core/types/src/charts/Plot/index.d.ts:113
+Defined in: core/types/src/charts/Plot/index.d.ts:144
 
 The confidence interval as an array of [lower, upper] bounds.
 
@@ -12237,7 +13372,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:117
+Defined in: core/types/src/charts/Plot/index.d.ts:148
 
 Configuration object for shapes rendered as confidence intervals.
 
@@ -12259,7 +13394,7 @@ Configuration object for shapes rendered as confidence intervals.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -12269,13 +13404,13 @@ Methods that correspond to the key/value pairs and returns this class.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`config`](#config-21)
+[`Viz`](#viz).[`config`](#config-22)
 
 ###### Call Signature
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -12291,7 +13426,29 @@ Methods that correspond to the key/value pairs and returns this class.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`config`](#config-21)
+[`Viz`](#viz).[`config`](#config-22)
+
+<a id="crosshairconfig"></a>
+
+##### crosshairConfig()
+
+> **crosshairConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/Plot/index.d.ts:170
+
+Paint for the shared tooltip's crosshair guide line (`stroke`,
+`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
+current config.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
 <a id="data-14"></a>
 
@@ -12299,7 +13456,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(`_?`: `string` \| [`DataPoint`](#datapoint)[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: [`DataPoint`](#datapoint)[]) => `Record`\<`string`, `unknown`\> \| [`DataPoint`](#datapoint)[]): [`Plot`](#plot) \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:69
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:87
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -12332,9 +13489,9 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:140
+Defined in: core/types/src/charts/viz/Viz.d.ts:165
 
-Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
 ###### Returns
 
@@ -12350,7 +13507,7 @@ Tears down the visualization: disconnects the ResizeObserver and removes DOM eve
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:76
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:94
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -12374,7 +13531,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:80
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:98
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -12398,7 +13555,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:84
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:102
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -12422,9 +13579,9 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:88
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:106
 
-The interval, in milliseconds, for checking if the visualization is visible on the page.
+The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
 ###### Parameters
 
@@ -12440,35 +13597,15 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 [`Viz`](#viz).[`detectVisibleInterval`](#detectvisibleinterval-1)
 
-<a id="discretecutoff"></a>
+<a id="detectvisibleunload"></a>
 
-##### discreteCutoff()
+##### detectVisibleUnload()
 
-> **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
+> **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:121
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:110
 
-When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `number` |
-
-###### Returns
-
-`number` \| [`Plot`](#plot)
-
-<a id="downloadbutton"></a>
-
-##### downloadButton()
-
-> **downloadButton**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:92
-
-Shows a button that allows for downloading the current visualization.
+When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
 ###### Parameters
 
@@ -12482,55 +13619,27 @@ Shows a button that allows for downloading the current visualization.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`downloadButton`](#downloadbutton-1)
+[`Viz`](#viz).[`detectVisibleUnload`](#detectvisibleunload-1)
 
-<a id="downloadconfig"></a>
+<a id="discretecutoff"></a>
 
-##### downloadConfig()
+##### discreteCutoff()
 
-> **downloadConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+> **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:96
+Defined in: core/types/src/charts/Plot/index.d.ts:152
 
-Sets specific options of the saveElement function used when downloading the visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-[`Viz`](#viz).[`downloadConfig`](#downloadconfig-1)
-
-<a id="downloadposition"></a>
-
-##### downloadPosition()
-
-> **downloadPosition**(`_?`: `string`): `string` \| [`Plot`](#plot)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:100
-
-Defines which control group to add the download button into.
+When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
 ###### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `_?` | `string` |
+| `_?` | `number` |
 
 ###### Returns
 
-`string` \| [`Plot`](#plot)
-
-###### Inherited from
-
-[`Viz`](#viz).[`downloadPosition`](#downloadposition-1)
+`number` \| [`Plot`](#plot)
 
 <a id="fontfamily"></a>
 
@@ -12538,7 +13647,7 @@ Defines which control group to add the download button into.
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Plot`](#plot) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:104
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:114
 
 The font family used throughout the visualization.
 
@@ -12562,7 +13671,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Plot`](#plot) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:108
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:118
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -12586,7 +13695,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:125
+Defined in: core/types/src/charts/Plot/index.d.ts:156
 
 The pixel space between groups of bars.
 
@@ -12606,7 +13715,7 @@ The pixel space between groups of bars.
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:122
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -12630,7 +13739,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:126
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -12654,7 +13763,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:138
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -12682,7 +13791,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:130
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -12706,9 +13815,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -12730,7 +13841,7 @@ Accessor function or string key for the label of each data point.
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:129
+Defined in: core/types/src/charts/Plot/index.d.ts:160
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -12750,7 +13861,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:133
+Defined in: core/types/src/charts/Plot/index.d.ts:164
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -12770,9 +13881,9 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
 
-Whether to display the legend.
+Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
 ###### Parameters
 
@@ -12794,7 +13905,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
 
 Configuration object passed to the legend's config method.
 
@@ -12818,7 +13929,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -12836,13 +13947,61 @@ Defines the click functionality of categorical legend squares. When set to false
 
 [`Viz`](#viz).[`legendFilterInvert`](#legendfilterinvert-1)
 
+<a id="legendinset"></a>
+
+##### legendInset()
+
+> **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:160
+
+Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`) |
+
+###### Returns
+
+`boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
+
+###### Inherited from
+
+[`Viz`](#viz).[`legendInset`](#legendinset-1)
+
+<a id="legendinsetconfig"></a>
+
+##### legendInsetConfig()
+
+> **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:164
+
+Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`legendInsetConfig`](#legendinsetconfig-1)
+
 <a id="legendpadding"></a>
 
 ##### legendPadding()
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:168
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -12866,7 +14025,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:172
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -12890,7 +14049,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:176
 
 Configuration object for the legend tooltip.
 
@@ -12914,7 +14073,7 @@ Configuration object for the legend tooltip.
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:137
+Defined in: core/types/src/charts/Plot/index.d.ts:193
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -12934,7 +14093,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/Plot/index.d.ts:141
+Defined in: core/types/src/charts/Plot/index.d.ts:197
 
 Draws circle markers on each vertex of a Line.
 
@@ -12954,7 +14113,7 @@ Draws circle markers on each vertex of a Line.
 
 > **loadingHTML**(`_?`: `string` \| ((`viz`: `VizBase`) => `string`)): `string` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:17
+Defined in: core/types/src/charts/viz/VizBase.d.ts:19
 
 The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -12978,7 +14137,7 @@ The inner HTML of the status message displayed when loading AJAX requests and di
 
 > **loadingMessage**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:21
+Defined in: core/types/src/charts/viz/VizBase.d.ts:23
 
 Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -13004,7 +14163,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -13029,13 +14188,13 @@ The locale used for all text and number formatting. Supports the locales defined
 
 ###### Inherited from
 
-[`Viz`](#viz).[`locale`](#locale-20)
+[`Viz`](#viz).[`locale`](#locale-21)
 
 ###### Call Signature
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -13066,7 +14225,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 ###### Inherited from
 
-[`Viz`](#viz).[`locale`](#locale-20)
+[`Viz`](#viz).[`locale`](#locale-21)
 
 <a id="messagemask"></a>
 
@@ -13074,7 +14233,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **messageMask**(`_?`: `string` \| `boolean`): `string` \| `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:25
+Defined in: core/types/src/charts/viz/VizBase.d.ts:27
 
 The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
 
@@ -13098,7 +14257,7 @@ The color of the mask displayed underneath the status message when loading AJAX 
 
 > **messageStyle**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:29
+Defined in: core/types/src/charts/viz/VizBase.d.ts:31
 
 Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -13116,13 +14275,133 @@ Defines the CSS style properties for the status message that is displayed when l
 
 [`Viz`](#viz).[`messageStyle`](#messagestyle-1)
 
+<a id="minimapclassname"></a>
+
+##### minimapClassName()
+
+> **minimapClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:35
+
+An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`minimapClassName`](#minimapclassname-1)
+
+<a id="minimaplabelstyle"></a>
+
+##### minimapLabelStyle()
+
+> **minimapLabelStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:39
+
+An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`minimapLabelStyle`](#minimaplabelstyle-1)
+
+<a id="minimapstyle"></a>
+
+##### minimapStyle()
+
+> **minimapStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:43
+
+An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`minimapStyle`](#minimapstyle-1)
+
+<a id="minimapviewportstyle"></a>
+
+##### minimapViewportStyle()
+
+> **minimapViewportStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:47
+
+An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`minimapViewportStyle`](#minimapviewportstyle-1)
+
+<a id="minimapviewportstyleactive"></a>
+
+##### minimapViewportStyleActive()
+
+> **minimapViewportStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:51
+
+An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`minimapViewportStyleActive`](#minimapviewportstyleactive-1)
+
 <a id="nodatahtml"></a>
 
 ##### noDataHTML()
 
 > **noDataHTML**(`_?`: `string` \| ((`viz`: `VizBase`) => `string`)): `string` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:33
+Defined in: core/types/src/charts/viz/VizBase.d.ts:55
 
 The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -13146,7 +14425,7 @@ The inner HTML of the status message displayed when no data is supplied to the v
 
 > **noDataMessage**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:37
+Defined in: core/types/src/charts/viz/VizBase.d.ts:59
 
 Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
 
@@ -13172,7 +14451,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -13194,13 +14473,13 @@ console.log("data for legend clicked:", d);
 
 ###### Inherited from
 
-[`Viz`](#viz).[`on`](#on-20)
+[`Viz`](#viz).[`on`](#on-21)
 
 ###### Call Signature
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -13228,13 +14507,13 @@ console.log("data for legend clicked:", d);
 
 ###### Inherited from
 
-[`Viz`](#viz).[`on`](#on-20)
+[`Viz`](#viz).[`on`](#on-21)
 
 ###### Call Signature
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -13263,13 +14542,13 @@ console.log("data for legend clicked:", d);
 
 ###### Inherited from
 
-[`Viz`](#viz).[`on`](#on-20)
+[`Viz`](#viz).[`on`](#on-21)
 
 ###### Call Signature
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -13297,7 +14576,7 @@ console.log("data for legend clicked:", d);
 
 ###### Inherited from
 
-[`Viz`](#viz).[`on`](#on-20)
+[`Viz`](#viz).[`on`](#on-21)
 
 <a id="parent-14"></a>
 
@@ -13307,7 +14586,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -13317,13 +14596,13 @@ Parent config used by the wrapper.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`parent`](#parent-20)
+[`Viz`](#viz).[`parent`](#parent-21)
 
 ###### Call Signature
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -13339,7 +14618,7 @@ Parent config used by the wrapper.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`parent`](#parent-20)
+[`Viz`](#viz).[`parent`](#parent-21)
 
 <a id="render-14"></a>
 
@@ -13347,7 +14626,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:48
+Defined in: core/types/src/charts/viz/Viz.d.ts:66
 
 Draws the visualization given the specified configuration.
 
@@ -13363,7 +14642,7 @@ Draws the visualization given the specified configuration.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`render`](#render-19)
+[`Viz`](#viz).[`render`](#render-20)
 
 <a id="renderer"></a>
 
@@ -13373,7 +14652,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:69
+Defined in: core/types/src/charts/viz/Viz.d.ts:87
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -13391,7 +14670,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:70
+Defined in: core/types/src/charts/viz/Viz.d.ts:88
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -13419,7 +14698,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderMode**(): `"full"` \| `"compute"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:77
+Defined in: core/types/src/charts/viz/Viz.d.ts:95
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -13438,7 +14717,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderMode**(`_`: `"full"` \| `"compute"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:78
+Defined in: core/types/src/charts/viz/Viz.d.ts:96
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -13465,7 +14744,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:86
+Defined in: core/types/src/charts/viz/Viz.d.ts:104
 
 Public entry point that renders this chart through the @d3plus/render
 pluggable backends. The compute pass happens via render() (in an svg
@@ -13495,7 +14774,7 @@ interact with the renderer (e.g. for picking) or read the scene data.
 
 > **scrollContainer**(`_?`: `string` \| `HTMLElement` \| `Window`): `string` \| [`Plot`](#plot) \| `HTMLElement` \| `Window`
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:41
+Defined in: core/types/src/charts/viz/VizBase.d.ts:63
 
 If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
 
@@ -13513,13 +14792,142 @@ If using scroll or visibility detection, this method allow a custom override of 
 
 [`Viz`](#viz).[`scrollContainer`](#scrollcontainer-1)
 
+<a id="searchaccessor"></a>
+
+##### searchAccessor()
+
+> **searchAccessor**(`_?`: (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`): [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:76
+
+Resolves the string the search box matches its typed term against, for
+a given datum. Defaults to the mark's resolved on-screen label
+(`viz._drawLabel`) — the same text the user reads on the chart.
+Override it to match against something else instead, e.g. a data
+field that isn't shown as the label.
+
+This is checked alongside, not instead of, every level of the datum's
+own groupBy hierarchy — searching a leaf's label also matches its
+ancestor group's cell/legend entry, and vice versa, regardless of
+this accessor's override.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` |
+
+###### Returns
+
+[`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
+
+###### Inherited from
+
+[`Viz`](#viz).[`searchAccessor`](#searchaccessor-1)
+
+<a id="searchcontrolclassname"></a>
+
+##### searchControlClassName()
+
+> **searchControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:80
+
+An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`searchControlClassName`](#searchcontrolclassname-1)
+
+<a id="searchcontrolstyle"></a>
+
+##### searchControlStyle()
+
+> **searchControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:84
+
+An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`searchControlStyle`](#searchcontrolstyle-1)
+
+<a id="searchcontrolstyleactive"></a>
+
+##### searchControlStyleActive()
+
+> **searchControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:88
+
+An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`searchControlStyleActive`](#searchcontrolstyleactive-1)
+
+<a id="searchcontrolstylehover"></a>
+
+##### searchControlStyleHover()
+
+> **searchControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:92
+
+An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`searchControlStyleHover`](#searchcontrolstylehover-1)
+
 <a id="select-14"></a>
 
 ##### select()
 
 > **select**(`_?`: `string` \| `HTMLElement`): [`Plot`](#plot) \| `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:45
+Defined in: core/types/src/charts/viz/VizBase.d.ts:96
 
 The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 
@@ -13535,7 +14943,7 @@ The SVG container element as a d3 selector or DOM element. Defaults to `undefine
 
 ###### Inherited from
 
-[`Viz`](#viz).[`select`](#select-19)
+[`Viz`](#viz).[`select`](#select-20)
 
 <a id="shape"></a>
 
@@ -13543,7 +14951,7 @@ The SVG container element as a d3 selector or DOM element. Defaults to `undefine
 
 > **shape**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:49
+Defined in: core/types/src/charts/viz/VizBase.d.ts:100
 
 Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
 
@@ -13569,7 +14977,7 @@ Changes the primary shape used to represent each data point in a visualization. 
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:53
+Defined in: core/types/src/charts/viz/VizBase.d.ts:104
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -13579,13 +14987,13 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`shapeConfig`](#shapeconfig-21)
+[`Viz`](#viz).[`shapeConfig`](#shapeconfig-22)
 
 ###### Call Signature
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:54
+Defined in: core/types/src/charts/viz/VizBase.d.ts:105
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -13601,7 +15009,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`shapeConfig`](#shapeconfig-21)
+[`Viz`](#viz).[`shapeConfig`](#shapeconfig-22)
 
 <a id="size"></a>
 
@@ -13609,7 +15017,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:145
+Defined in: core/types/src/charts/Plot/index.d.ts:201
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -13623,13 +15031,85 @@ Sets the size of bubbles to the given Number, data key, or function.
 
 [`Plot`](#plot) \| `PlotAccessor`
 
+<a id="sizelegend"></a>
+
+##### sizeLegend()
+
+> **sizeLegend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:109
+
+Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) |
+
+###### Returns
+
+`boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)
+
+###### Inherited from
+
+[`Viz`](#viz).[`sizeLegend`](#sizelegend-2)
+
+<a id="sizelegendconfig"></a>
+
+##### sizeLegendConfig()
+
+> **sizeLegendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:113
+
+Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`sizeLegendConfig`](#sizelegendconfig-2)
+
+<a id="sizelegendposition"></a>
+
+##### sizeLegendPosition()
+
+> **sizeLegendPosition**(`_?`: `"right"` \| `"bottom"`): [`Plot`](#plot) \| `"right"` \| `"bottom"`
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:117
+
+Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `"right"` \| `"bottom"` |
+
+###### Returns
+
+[`Plot`](#plot) \| `"right"` \| `"bottom"`
+
+###### Inherited from
+
+[`Viz`](#viz).[`sizeLegendPosition`](#sizelegendposition-1)
+
 <a id="stackoffset"></a>
 
 ##### stackOffset()
 
 > **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:153
+Defined in: core/types/src/charts/Plot/index.d.ts:209
 
 Sets the vertical offset applied to stacked series. Accepts a named
 offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
@@ -13653,7 +15133,7 @@ stack offset function.
 
 > **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:168
+Defined in: core/types/src/charts/Plot/index.d.ts:224
 
 Sets the order of stacked series, from the bottom of the stack upward.
 Accepts:
@@ -13684,7 +15164,7 @@ is not specified, returns the current stack order.
 
 > **subtitle**(`_?`: `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)): `string` \| [`Plot`](#plot) \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:58
+Defined in: core/types/src/charts/viz/VizBase.d.ts:121
 
 Accessor function or string for the visualization's subtitle.
 
@@ -13708,7 +15188,7 @@ Accessor function or string for the visualization's subtitle.
 
 > **subtitleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:62
+Defined in: core/types/src/charts/viz/VizBase.d.ts:125
 
 Configuration object for the subtitle.
 
@@ -13732,7 +15212,7 @@ Configuration object for the subtitle.
 
 > **subtitlePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:66
+Defined in: core/types/src/charts/viz/VizBase.d.ts:129
 
 Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -13750,13 +15230,157 @@ Tells the subtitle whether or not to use the internal padding defined by the vis
 
 [`Viz`](#viz).[`subtitlePadding`](#subtitlepadding-1)
 
+<a id="tableviewclassname"></a>
+
+##### tableViewClassName()
+
+> **tableViewClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:234
+
+An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewClassName`](#tableviewclassname-1)
+
+<a id="tableviewcontrolclassname"></a>
+
+##### tableViewControlClassName()
+
+> **tableViewControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:238
+
+An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewControlClassName`](#tableviewcontrolclassname-1)
+
+<a id="tableviewcontrolstyle"></a>
+
+##### tableViewControlStyle()
+
+> **tableViewControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:242
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewControlStyle`](#tableviewcontrolstyle-1)
+
+<a id="tableviewcontrolstyleactive"></a>
+
+##### tableViewControlStyleActive()
+
+> **tableViewControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:246
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewControlStyleActive`](#tableviewcontrolstyleactive-1)
+
+<a id="tableviewcontrolstylehover"></a>
+
+##### tableViewControlStyleHover()
+
+> **tableViewControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:250
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewControlStyleHover`](#tableviewcontrolstylehover-1)
+
+<a id="tableviewpagesize"></a>
+
+##### tableViewPageSize()
+
+> **tableViewPageSize**(`_?`: `number` \| `false`): `number` \| `false` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:254
+
+The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `number` \| `false` |
+
+###### Returns
+
+`number` \| `false` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`tableViewPageSize`](#tableviewpagesize-1)
+
 <a id="threshold"></a>
 
 ##### threshold()
 
 > **threshold**(`_?`: `number` \| ((`data`: [`DataPoint`](#datapoint)[]) => `number`)): `number` \| [`Plot`](#plot) \| ((`data`: [`DataPoint`](#datapoint)[]) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:70
+Defined in: core/types/src/charts/viz/VizBase.d.ts:133
 
 The threshold value for bucketing small data points together.
 
@@ -13780,7 +15404,7 @@ The threshold value for bucketing small data points together.
 
 > **thresholdKey**(`key?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:75
+Defined in: core/types/src/charts/viz/VizBase.d.ts:138
 
 Accessor for the value used in the threshold algorithm.
 
@@ -13804,7 +15428,7 @@ Accessor for the value used in the threshold algorithm.
 
 > **thresholdName**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:79
+Defined in: core/types/src/charts/viz/VizBase.d.ts:142
 
 The label displayed for bucketed threshold items.
 
@@ -13828,7 +15452,7 @@ The label displayed for bucketed threshold items.
 
 > **time**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:83
+Defined in: core/types/src/charts/viz/VizBase.d.ts:146
 
 Accessor function or string key for the time dimension of each data point.
 
@@ -13852,7 +15476,7 @@ Accessor function or string key for the time dimension of each data point.
 
 > **timelineConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:87
+Defined in: core/types/src/charts/viz/VizBase.d.ts:150
 
 Configuration object for the timeline.
 
@@ -13876,7 +15500,7 @@ Configuration object for the timeline.
 
 > **timelineDefault**(`_?`: `string` \| `Date` \| (`string` \| `Date`)[]): [`Plot`](#plot) \| `Date`[]
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:91
+Defined in: core/types/src/charts/viz/VizBase.d.ts:154
 
 The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -13900,7 +15524,7 @@ The starting time or range for the timeline. Can be a single Date/String, or an 
 
 > **timelinePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:95
+Defined in: core/types/src/charts/viz/VizBase.d.ts:158
 
 Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -13924,7 +15548,7 @@ Tells the timeline whether or not to use the internal padding defined by the vis
 
 > **title**(`_?`: `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)): `string` \| [`Plot`](#plot) \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:99
+Defined in: core/types/src/charts/viz/VizBase.d.ts:162
 
 Accessor function or string for the visualization's title.
 
@@ -13948,7 +15572,7 @@ Accessor function or string for the visualization's title.
 
 > **titleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:103
+Defined in: core/types/src/charts/viz/VizBase.d.ts:166
 
 Configuration object for the title.
 
@@ -13964,7 +15588,7 @@ Configuration object for the title.
 
 ###### Inherited from
 
-[`Viz`](#viz).[`titleConfig`](#titleconfig-8)
+[`Viz`](#viz).[`titleConfig`](#titleconfig-9)
 
 <a id="titlepadding"></a>
 
@@ -13972,7 +15596,7 @@ Configuration object for the title.
 
 > **titlePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:107
+Defined in: core/types/src/charts/viz/VizBase.d.ts:170
 
 Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -13996,7 +15620,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:63
+Defined in: core/types/src/charts/viz/Viz.d.ts:81
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -14017,7 +15641,7 @@ Server-side callers cast this to their native canvas to encode a raster
 
 > **tooltip**(`_?`: `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:111
+Defined in: core/types/src/charts/viz/VizBase.d.ts:174
 
 Whether to display tooltips on hover.
 
@@ -14041,7 +15665,7 @@ Whether to display tooltips on hover.
 
 > **tooltipConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:115
+Defined in: core/types/src/charts/viz/VizBase.d.ts:178
 
 Configuration object for the tooltip.
 
@@ -14065,7 +15689,7 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:30
+Defined in: core/types/src/charts/Plot/index.d.ts:34
 
 Composes the chart's scene graph: the native shape scenes from Viz.toScene
 (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
@@ -14077,7 +15701,7 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 
 ###### Overrides
 
-[`Viz`](#viz).[`toScene`](#toscene-19)
+[`Viz`](#viz).[`toScene`](#toscene-20)
 
 <a id="tosvgstring"></a>
 
@@ -14085,7 +15709,7 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 
 > **toSVGString**(): `string`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:56
+Defined in: core/types/src/charts/viz/Viz.d.ts:74
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -14107,7 +15731,7 @@ server-side rendering (see `@d3plus/ssr`).
 
 > **total**(`_?`: `string` \| `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `string` \| `boolean` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:119
+Defined in: core/types/src/charts/viz/VizBase.d.ts:182
 
 Accessor function or string key for the total value displayed in the visualization.
 
@@ -14131,7 +15755,7 @@ Accessor function or string key for the total value displayed in the visualizati
 
 > **totalConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:123
+Defined in: core/types/src/charts/viz/VizBase.d.ts:186
 
 Configuration object for the total bar.
 
@@ -14155,7 +15779,7 @@ Configuration object for the total bar.
 
 > **totalFormat**(`_?`: (`d`: `number`) => `string`): [`Plot`](#plot) \| ((`d`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:127
+Defined in: core/types/src/charts/viz/VizBase.d.ts:190
 
 Formatter function for the value in the total bar.
 
@@ -14179,7 +15803,7 @@ Formatter function for the value in the total bar.
 
 > **totalPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:131
+Defined in: core/types/src/charts/viz/VizBase.d.ts:194
 
 Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -14205,7 +15829,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -14223,13 +15847,13 @@ return d === "Back" ? "Get outta here" : d;
 
 ###### Inherited from
 
-[`Viz`](#viz).[`translate`](#translate-20)
+[`Viz`](#viz).[`translate`](#translate-21)
 
 ###### Call Signature
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -14253,7 +15877,58 @@ return d === "Back" ? "Get outta here" : d;
 
 ###### Inherited from
 
-[`Viz`](#viz).[`translate`](#translate-20)
+[`Viz`](#viz).[`translate`](#translate-21)
+
+<a id="trendline"></a>
+
+##### trendLine()
+
+> **trendLine**(`_?`: `TrendLineType`): [`Plot`](#plot) \| `TrendLineType`
+
+Defined in: core/types/src/charts/Plot/index.d.ts:174
+
+Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `TrendLineType` |
+
+###### Returns
+
+[`Plot`](#plot) \| `TrendLineType`
+
+<a id="trendlineconfig"></a>
+
+##### trendLineConfig()
+
+> **trendLineConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/Plot/index.d.ts:189
+
+Options for the trend lines drawn by `trendLine`, merged into the current config:
+- `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.
+- `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).
+- `confidence`: draws a confidence band around a linear fit (default `false`).
+- `confidenceLevel`: the band's confidence level (default `0.95`).
+- `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).
+- `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.
+- `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: "2 4"}`).
+- `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).
+- Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.
+
+Stacked charts always fit one line to the stack totals.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
 <a id="x-1"></a>
 
@@ -14261,7 +15936,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:172
+Defined in: core/types/src/charts/Plot/index.d.ts:228
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -14281,7 +15956,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:176
+Defined in: core/types/src/charts/Plot/index.d.ts:232
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -14301,7 +15976,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:184
+Defined in: core/types/src/charts/Plot/index.d.ts:240
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14321,7 +15996,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:180
+Defined in: core/types/src/charts/Plot/index.d.ts:236
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14341,7 +16016,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:188
+Defined in: core/types/src/charts/Plot/index.d.ts:244
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -14361,7 +16036,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: core/types/src/charts/Plot/index.d.ts:192
+Defined in: core/types/src/charts/Plot/index.d.ts:248
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -14381,7 +16056,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:202
+Defined in: core/types/src/charts/Plot/index.d.ts:258
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14401,7 +16076,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/Plot/index.d.ts:198
+Defined in: core/types/src/charts/Plot/index.d.ts:254
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -14423,7 +16098,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **zoomBrushHandleSize**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:135
+Defined in: core/types/src/charts/viz/VizBase.d.ts:198
 
 The pixel stroke-width of the zoom brush area.
 
@@ -14447,7 +16122,7 @@ The pixel stroke-width of the zoom brush area.
 
 > **zoomBrushHandleStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:139
+Defined in: core/types/src/charts/viz/VizBase.d.ts:202
 
 An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -14471,7 +16146,7 @@ An object containing CSS key/value pairs that is used to style the outer handle 
 
 > **zoomBrushSelectionStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:143
+Defined in: core/types/src/charts/viz/VizBase.d.ts:206
 
 An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -14489,15 +16164,63 @@ An object containing CSS key/value pairs that is used to style the inner selecti
 
 [`Viz`](#viz).[`zoomBrushSelectionStyle`](#zoombrushselectionstyle-1)
 
+<a id="zoomcontrolclassname"></a>
+
+##### zoomControlClassName()
+
+> **zoomControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:210
+
+An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Plot`](#plot)
+
+###### Inherited from
+
+[`Viz`](#viz).[`zoomControlClassName`](#zoomcontrolclassname-1)
+
+<a id="zoomcontrolicons"></a>
+
+##### zoomControlIcons()
+
+> **zoomControlIcons**(`_?`: `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\>): [`Plot`](#plot) \| `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> \| `undefined`
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:214
+
+Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> |
+
+###### Returns
+
+[`Plot`](#plot) \| `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> \| `undefined`
+
+###### Inherited from
+
+[`Viz`](#viz).[`zoomControlIcons`](#zoomcontrolicons-1)
+
 <a id="zoomcontrolstyle"></a>
 
 ##### zoomControlStyle()
 
 > **zoomControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:147
+Defined in: core/types/src/charts/viz/VizBase.d.ts:218
 
-An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -14519,9 +16242,9 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:151
+Defined in: core/types/src/charts/viz/VizBase.d.ts:222
 
-An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -14543,9 +16266,9 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:155
+Defined in: core/types/src/charts/viz/VizBase.d.ts:226
 
-An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -14567,7 +16290,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:159
+Defined in: core/types/src/charts/viz/VizBase.d.ts:230
 
 A pixel value to be used to pad all sides of a zoomed area.
 
@@ -14589,10 +16312,8 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-14"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Viz`](#viz).[`_configDefault`](#property-_configdefault-20) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_uuid-14"></a> `_uuid` | `string` | - | [`Viz`](#viz).[`_uuid`](#property-_uuid-20) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-14"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Viz`](#viz).[`ctx`](#property-ctx-20) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-15"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Viz`](#viz).[`schema`](#property-schema-21) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-14"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Viz`](#viz).[`ctx`](#property-ctx-21) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-15"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Viz`](#viz).[`schema`](#property-schema-22) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -14602,39 +16323,13 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 Defined in: core/types/src/shapes/Rect.d.ts:8
 
-Creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-shape/getting-started/) for help getting started using the rectangle generator.
+Creates SVG rectangles based on an array of data.
 
 #### Extends
 
 - [`Shape`](#shape-1)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-3"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
-
-###### Inherited from
-
-[`Shape`](#shape-1).[`_dataFilter`](#_datafilter-4)
 
 <a id="active-8"></a>
 
@@ -14719,6 +16414,70 @@ The style to apply to active shapes.
 ###### Inherited from
 
 [`Shape`](#shape-1).[`activeStyle`](#activestyle-6)
+
+<a id="colordefaults-15"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Shape`](#shape-1).[`colorDefaults`](#colordefaults-16)
 
 <a id="config-16"></a>
 
@@ -14942,7 +16701,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -14973,7 +16732,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -15014,7 +16773,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15042,7 +16801,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15076,7 +16835,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15111,7 +16870,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15149,7 +16908,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -15165,7 +16924,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -15255,7 +17014,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -15271,7 +17030,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -15401,7 +17160,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -15425,7 +17184,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -15455,25 +17214,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-5"></a> `_activeGroup` | `Selection` | - | [`Shape`](#shape-1).[`_activeGroup`](#property-_activegroup-6) | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-15"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Shape`](#shape-1).[`_configDefault`](#property-_configdefault-16) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-14"></a> `_data` | [`DataPoint`](#datapoint)[] | - | [`Shape`](#shape-1).[`_data`](#property-_data-15) | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-5"></a> `_enter` | `Selection` | - | [`Shape`](#shape-1).[`_enter`](#property-_enter-6) | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-5"></a> `_exit` | `Selection` | - | [`Shape`](#shape-1).[`_exit`](#property-_exit-6) | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-12"></a> `_group` | `Selection` | - | [`Shape`](#shape-1).[`_group`](#property-_group-13) | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-5"></a> `_hoverGroup` | `Selection` | - | [`Shape`](#shape-1).[`_hoverGroup`](#property-_hovergroup-6) | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-6"></a> `_labelClass` | [`TextBox`](#textbox) | - | [`Shape`](#shape-1).[`_labelClass`](#property-_labelclass-7) | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-5"></a> `_name` | `string` | - | [`Shape`](#shape-1).[`_name`](#property-_name-6) | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-5"></a> `_path` | `Record`\<`string`, `unknown`\> | - | [`Shape`](#shape-1).[`_path`](#property-_path-6) | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-12"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | [`Shape`](#shape-1).[`_sceneRenderer`](#property-_scenerenderer-13) | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-14"></a> `_select` | `Selection` | - | [`Shape`](#shape-1).[`_select`](#property-_select-15) | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-5"></a> `_tagName` | `string` | - | [`Shape`](#shape-1).[`_tagName`](#property-_tagname-6) | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-5"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | [`Shape`](#shape-1).[`_textureDefs`](#property-_texturedefs-6) | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-10"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Shape`](#shape-1).[`_transition`](#property-_transition-11) | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-5"></a> `_update` | `Selection` | - | [`Shape`](#shape-1).[`_update`](#property-_update-6) | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-15"></a> `_uuid` | `string` | - | [`Shape`](#shape-1).[`_uuid`](#property-_uuid-16) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-15"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-16"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-15"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Shape`](#shape-1).[`ctx`](#property-ctx-16) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-16"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Shape`](#shape-1).[`schema`](#property-schema-17) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -15498,29 +17240,7 @@ An abstracted class for generating shapes.
 - [`Path`](#path)
 - [`Rect`](#rect)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_datafilter-4"></a>
-
-##### \_dataFilter()?
-
-> `optional` **\_dataFilter**(`data`: [`DataPoint`](#datapoint)[]): [`DataPoint`](#datapoint)[]
-
-Defined in: core/types/src/shapes/Shape.d.ts:37
-
-###### Parameters
-
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The raw data array to filter. |
-
-###### Returns
-
-[`DataPoint`](#datapoint)[]
 
 <a id="active-9"></a>
 
@@ -15589,6 +17309,70 @@ The style to apply to active shapes.
 ###### Returns
 
 `this`
+
+<a id="colordefaults-16"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
 
 <a id="config-17"></a>
 
@@ -15780,7 +17564,7 @@ A pass-through to the config method of the TextBox class used to create a shape'
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -15811,7 +17595,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -15852,7 +17636,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15880,7 +17664,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15914,7 +17698,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15949,7 +17733,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -15987,7 +17771,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -16003,7 +17787,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -16081,7 +17865,7 @@ The SVG container element as a d3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -16097,7 +17881,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -16207,7 +17991,7 @@ the @d3plus/render pluggable backends; it has no effect on render().
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -16231,7 +18015,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -16261,45 +18045,104 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_activegroup-6"></a> `_activeGroup` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:43 |
-| <a id="property-_configdefault-16"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-15"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Shape.d.ts:29 |
-| <a id="property-_enter-6"></a> `_enter` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:40 |
-| <a id="property-_exit-6"></a> `_exit` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:41 |
-| <a id="property-_group-13"></a> `_group` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:38 |
-| <a id="property-_hovergroup-6"></a> `_hoverGroup` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:42 |
-| <a id="property-_labelclass-7"></a> `_labelClass` | [`TextBox`](#textbox) | - | - | core/types/src/shapes/Shape.d.ts:30 |
-| <a id="property-_name-6"></a> `_name` | `string` | - | - | core/types/src/shapes/Shape.d.ts:31 |
-| <a id="property-_path-6"></a> `_path` | `Record`\<`string`, `unknown`\> | - | - | core/types/src/shapes/Shape.d.ts:44 |
-| <a id="property-_scenerenderer-13"></a> `_sceneRenderer?` | `SvgRenderer` | SvgRenderer mounted by the standalone `render()` path; reused across redraws. | - | core/types/src/shapes/Shape.d.ts:46 |
-| <a id="property-_select-15"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:34 |
-| <a id="property-_tagname-6"></a> `_tagName` | `string` | - | - | core/types/src/shapes/Shape.d.ts:32 |
-| <a id="property-_texturedefs-6"></a> `_textureDefs` | `Record`\<`string`, `Record`\<`string`, `unknown`\>\> | - | - | core/types/src/shapes/Shape.d.ts:33 |
-| <a id="property-_transition-11"></a> `_transition` | `Transition`\<`BaseType`\> | - | - | core/types/src/shapes/Shape.d.ts:35 |
-| <a id="property-_update-6"></a> `_update` | `Selection` | - | - | core/types/src/shapes/Shape.d.ts:39 |
-| <a id="property-_uuid-16"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-16"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-17"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-16"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-17"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
-<a id="textbox"></a>
+<a id="sizelegend-1"></a>
 
-### TextBox
+### SizeLegend
 
-Defined in: core/types/src/components/TextBox.d.ts:43
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:43
 
-Creates a wrapped text box for each point in an array of data. See [this example](https://d3plus.org/examples/d3plus-text/getting-started/) for help getting started using the TextBox class.
+A nested-circle legend for a size scale: concentric circles sharing a
+bottom tangent, each labeled with the value its radius encodes.
+
+Charts that size marks by a `size` accessor (bubble plots, Geomap points,
+Network, Rings) draw one automatically in their bottom-right corner (see
+`sizeLegend` and `sizeLegendConfig` on the chart). On its own, give it
+any d3 continuous scale that maps values to pixel radii.
+
+#### Example
+
+```ts
+new SizeLegend()
+.scale(d3.scaleSqrt().domain([0, 1000]).range([2, 30]))
+.title("Population")
+.select("#container")
+.render();
+```
 
 #### Extends
 
 - [`BaseClass`](#baseclass)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
+
+<a id="colordefaults-17"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
 
 <a id="config-18"></a>
 
@@ -16309,7 +18152,7 @@ Creates a wrapped text box for each point in an array of data. See [this example
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -16325,7 +18168,700 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
+Defined in: core/types/src/utils/BaseClass.d.ts:29
+
+Methods that correspond to the key/value pairs and returns this class.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`D3plusConfig`](#d3plusconfig) |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`config`](#config-7)
+
+<a id="labelconfig-8"></a>
+
+##### labelConfig()
+
+###### Call Signature
+
+> **labelConfig**(): `SizeLegendTextConfig`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:58
+
+Font settings for the value labels: `fontColor`, `fontFamily`, `fontSize`. Merged into the current settings.
+
+###### Returns
+
+`SizeLegendTextConfig`
+
+###### Call Signature
+
+> **labelConfig**(`_`: `SizeLegendTextConfig`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:59
+
+Font settings for the value labels: `fontColor`, `fontFamily`, `fontSize`. Merged into the current settings.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `SizeLegendTextConfig` |
+
+###### Returns
+
+`this`
+
+<a id="layout"></a>
+
+##### layout()
+
+> **layout**(): `SizeLegendLayout`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:85
+
+Lays the legend out from the current config and returns the result
+(circles, leader lines, labels, overall width/height). Pure: reads no
+DOM, so a chart can measure the legend before it draws.
+
+###### Returns
+
+`SizeLegendLayout`
+
+<a id="lineconfig-1"></a>
+
+##### lineConfig()
+
+###### Call Signature
+
+> **lineConfig**(): `SizeLegendLineConfig`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:63
+
+Paint for the leader lines: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. Merged into the current settings.
+
+###### Returns
+
+`SizeLegendLineConfig`
+
+###### Call Signature
+
+> **lineConfig**(`_`: `SizeLegendLineConfig`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:64
+
+Paint for the leader lines: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. Merged into the current settings.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `SizeLegendLineConfig` |
+
+###### Returns
+
+`this`
+
+<a id="locale-17"></a>
+
+##### locale()
+
+###### Call Signature
+
+> **locale**(): `string`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:51
+
+The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
+
+###### Returns
+
+`string`
+
+###### Example
+
+```ts
+{
+          separator: "",
+          suffixes: ["y", "z", "a", "f", "p", "n", "\u00b5", "m", "", "k", "M", "B", "t", "q", "Q", "Z", "Y"],
+          grouping: [3],
+          delimiters: {
+            thousands: ",",
+            decimal: "."
+          },
+          currency: ["$", ""]
+        }
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`locale`](#locale-7)
+
+###### Call Signature
+
+> **locale**(`_`: `string` \| `object`): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:52
+
+The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `string` \| `object` |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+{
+          separator: "",
+          suffixes: ["y", "z", "a", "f", "p", "n", "\u00b5", "m", "", "k", "M", "B", "t", "q", "Q", "Z", "Y"],
+          grouping: [3],
+          delimiters: {
+            thousands: ",",
+            decimal: "."
+          },
+          currency: ["$", ""]
+        }
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`locale`](#locale-7)
+
+<a id="on-17"></a>
+
+##### on()
+
+###### Call Signature
+
+> **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
+
+Defined in: core/types/src/utils/BaseClass.d.ts:78
+
+Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
+
+###### Returns
+
+`Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
+
+###### Example
+
+```ts
+new Plot
+.on("click.Shape", function(d) {
+console.log("data for shape clicked:", d);
+})
+.on("click.Legend", function(d) {
+console.log("data for legend clicked:", d);
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`on`](#on-7)
+
+###### Call Signature
+
+> **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:79
+
+Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `string` |
+
+###### Returns
+
+((...`args`: `unknown`[]) => `unknown`) \| `undefined`
+
+###### Example
+
+```ts
+new Plot
+.on("click.Shape", function(d) {
+console.log("data for shape clicked:", d);
+})
+.on("click.Legend", function(d) {
+console.log("data for legend clicked:", d);
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`on`](#on-7)
+
+###### Call Signature
+
+> **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:80
+
+Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `string` |
+| `f` | (...`args`: `unknown`[]) => `unknown` |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Plot
+.on("click.Shape", function(d) {
+console.log("data for shape clicked:", d);
+})
+.on("click.Legend", function(d) {
+console.log("data for legend clicked:", d);
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`on`](#on-7)
+
+###### Call Signature
+
+> **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:81
+
+Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Plot
+.on("click.Shape", function(d) {
+console.log("data for shape clicked:", d);
+})
+.on("click.Legend", function(d) {
+console.log("data for legend clicked:", d);
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`on`](#on-7)
+
+<a id="outerbounds-7"></a>
+
+##### outerBounds()
+
+> **outerBounds**(): `object`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:89
+
+The width and height of the last layout, in pixels.
+
+###### Returns
+
+`object`
+
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `height` | `number` | core/types/src/components/SizeLegend/SizeLegend.d.ts:91 |
+| `width` | `number` | core/types/src/components/SizeLegend/SizeLegend.d.ts:90 |
+
+<a id="parent-17"></a>
+
+##### parent()
+
+###### Call Signature
+
+> **parent**(): `unknown`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:85
+
+Parent config used by the wrapper.
+
+###### Returns
+
+`unknown`
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`parent`](#parent-7)
+
+###### Call Signature
+
+> **parent**(`_`: `unknown`): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:86
+
+Parent config used by the wrapper.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `unknown` |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`parent`](#parent-7)
+
+<a id="render-17"></a>
+
+##### render()
+
+> **render**(`callback?`: () => `void`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:106
+
+Renders the legend. Standalone, it paints into the `select` container
+(sized to the legend); inside a chart (`renderMode("compute")`) it only
+lays out, and the chart composes `toScene()`.
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `callback?` | () => `void` | Optional callback invoked after rendering completes. |
+
+###### Returns
+
+`this`
+
+<a id="select-17"></a>
+
+##### select()
+
+###### Call Signature
+
+> **select**(): `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\> \| `undefined`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:78
+
+The container element for a standalone render, as a d3 selector or DOM element.
+
+###### Returns
+
+`Selection`\<`BaseType`, `unknown`, `null`, `undefined`\> \| `undefined`
+
+###### Call Signature
+
+> **select**(`_`: `string` \| `HTMLElement` \| `SVGElement`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:79
+
+The container element for a standalone render, as a d3 selector or DOM element.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `string` \| `HTMLElement` \| `SVGElement` |
+
+###### Returns
+
+`this`
+
+<a id="shapeconfig-18"></a>
+
+##### shapeConfig()
+
+###### Call Signature
+
+> **shapeConfig**(): `SizeLegendShapeConfig`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:68
+
+Paint for the circles: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. Merged into the current settings.
+
+###### Returns
+
+`SizeLegendShapeConfig`
+
+###### Overrides
+
+[`BaseClass`](#baseclass).[`shapeConfig`](#shapeconfig-7)
+
+###### Call Signature
+
+> **shapeConfig**(`_`: `SizeLegendShapeConfig`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:69
+
+Paint for the circles: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. Merged into the current settings.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `SizeLegendShapeConfig` |
+
+###### Returns
+
+`this`
+
+###### Overrides
+
+[`BaseClass`](#baseclass).[`shapeConfig`](#shapeconfig-7)
+
+<a id="titleconfig-7"></a>
+
+##### titleConfig()
+
+###### Call Signature
+
+> **titleConfig**(): `SizeLegendTextConfig`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:73
+
+Font settings for the title: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. Merged into the current settings.
+
+###### Returns
+
+`SizeLegendTextConfig`
+
+###### Call Signature
+
+> **titleConfig**(`_`: `SizeLegendTextConfig`): `this`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:74
+
+Font settings for the title: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. Merged into the current settings.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `SizeLegendTextConfig` |
+
+###### Returns
+
+`this`
+
+<a id="toscene-17"></a>
+
+##### toScene()
+
+> **toScene**(`x?`: `number`, `y?`: `number`): `GroupNode`
+
+Defined in: core/types/src/components/SizeLegend/SizeLegend.d.ts:99
+
+Produces a backend-agnostic scene graph of the last layout, offset by the
+optional transform.
+
+###### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `x?` | `number` | Horizontal offset of the legend's top-left corner. |
+| `y?` | `number` | Vertical offset of the legend's top-left corner. |
+
+###### Returns
+
+`GroupNode`
+
+<a id="translate-17"></a>
+
+##### translate()
+
+###### Call Signature
+
+> **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:95
+
+Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
+
+###### Returns
+
+(`d`: `string`, `locale?`: `string`) => `string`
+
+###### Example
+
+```ts
+.translate(function(d) {
+return d === "Back" ? "Get outta here" : d;
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`translate`](#translate-7)
+
+###### Call Signature
+
+> **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:96
+
+Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | (`d`: `string`, `locale?`: `string`) => `string` |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+.translate(function(d) {
+return d === "Back" ? "Get outta here" : d;
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`translate`](#translate-7)
+
+#### Properties
+
+| Property | Type | Description | Inherited from | Defined in |
+| ------ | ------ | ------ | ------ | ------ |
+| <a id="property-ctx-17"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-18"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
+
+***
+
+<a id="textbox"></a>
+
+### TextBox
+
+Defined in: core/types/src/components/TextBox.d.ts:43
+
+Creates a wrapped text box for each point in an array of data.
+
+#### Extends
+
+- [`BaseClass`](#baseclass)
+
+#### Methods
+
+<a id="colordefaults-18"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+<a id="config-19"></a>
+
+##### config()
+
+###### Call Signature
+
+> **config**(): [`D3plusConfig`](#d3plusconfig)
+
 Defined in: core/types/src/utils/BaseClass.d.ts:28
+
+Methods that correspond to the key/value pairs and returns this class.
+
+###### Returns
+
+[`D3plusConfig`](#d3plusconfig)
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`config`](#config-7)
+
+###### Call Signature
+
+> **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -16411,7 +18947,7 @@ Configures the ability to render simple HTML tags. Defaults to supporting `<b>`,
 
 `this`
 
-<a id="locale-17"></a>
+<a id="locale-18"></a>
 
 ##### locale()
 
@@ -16419,7 +18955,7 @@ Configures the ability to render simple HTML tags. Defaults to supporting `<b>`,
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -16450,7 +18986,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -16483,7 +19019,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 [`BaseClass`](#baseclass).[`locale`](#locale-7)
 
-<a id="on-17"></a>
+<a id="on-18"></a>
 
 ##### on()
 
@@ -16491,7 +19027,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16519,7 +19055,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16553,7 +19089,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16588,7 +19124,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -16618,7 +19154,7 @@ console.log("data for legend clicked:", d);
 
 [`BaseClass`](#baseclass).[`on`](#on-7)
 
-<a id="parent-17"></a>
+<a id="parent-18"></a>
 
 ##### parent()
 
@@ -16626,7 +19162,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -16642,7 +19178,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -16660,7 +19196,7 @@ Parent config used by the wrapper.
 
 [`BaseClass`](#baseclass).[`parent`](#parent-7)
 
-<a id="render-17"></a>
+<a id="render-18"></a>
 
 ##### render()
 
@@ -16680,7 +19216,7 @@ Renders the text boxes. If a *callback* is specified, it will be called once the
 
 `this`
 
-<a id="select-17"></a>
+<a id="select-18"></a>
 
 ##### select()
 
@@ -16714,7 +19250,7 @@ The SVG container element as a d3 selector or DOM element. If not specified, an 
 
 `this`
 
-<a id="shapeconfig-18"></a>
+<a id="shapeconfig-19"></a>
 
 ##### shapeConfig()
 
@@ -16722,7 +19258,7 @@ The SVG container element as a d3 selector or DOM element. If not specified, an 
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -16738,7 +19274,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -16756,7 +19292,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 [`BaseClass`](#baseclass).[`shapeConfig`](#shapeconfig-7)
 
-<a id="toscene-17"></a>
+<a id="toscene-18"></a>
 
 ##### toScene()
 
@@ -16771,7 +19307,7 @@ layout (_textData) and per-line positioning render() applies to the DOM.
 
 `GroupNode`
 
-<a id="translate-17"></a>
+<a id="translate-18"></a>
 
 ##### translate()
 
@@ -16779,7 +19315,7 @@ layout (_textData) and per-line positioning render() applies to the DOM.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -16803,7 +19339,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -16833,12 +19369,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-17"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-16"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/TextBox.d.ts:46 |
-| <a id="property-_select-16"></a> `_select` | `Selection` | - | - | core/types/src/components/TextBox.d.ts:45 |
-| <a id="property-_uuid-17"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-17"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-18"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-18"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-19"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -16854,10 +19386,6 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 - [`Axis`](#axis)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
 
 <a id="barconfig-6"></a>
@@ -16868,7 +19396,7 @@ Creates an interactive timeline brush component for selecting time periods withi
 
 > **barConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:87
+Defined in: core/types/src/components/Axis/Axis.d.ts:97
 
 Axis line style.
 
@@ -16884,7 +19412,7 @@ Axis line style.
 
 > **barConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:88
+Defined in: core/types/src/components/Axis/Axis.d.ts:98
 
 Axis line style.
 
@@ -16902,7 +19430,191 @@ Axis line style.
 
 [`Axis`](#axis).[`barConfig`](#barconfig)
 
-<a id="config-19"></a>
+<a id="baselinebreakconfig-5"></a>
+
+##### baselineBreakConfig()
+
+###### Call Signature
+
+> **baselineBreakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:125
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+###### Call Signature
+
+> **baselineBreakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:126
+
+Style of the break drawn when `baselineBreak` is on and the domain stops
+short of `baseline`: `space` (pixels of axis between the baseline tick
+and the first tick after the break), `gap` (pixels between the two
+break marks, where the axis line is not drawn), `size` (length of each
+mark, drawn outward from the axis line on the tick side so it never
+reaches into the plot), `angle` (degrees each mark tilts from
+perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
+the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
+cuts the gap between those lines across the bars, default `false`),
+plus `stroke`/`stroke-width` and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`baselineBreakConfig`](#baselinebreakconfig)
+
+<a id="breakconfig-5"></a>
+
+##### breakConfig()
+
+###### Call Signature
+
+> **breakConfig**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:111
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+###### Call Signature
+
+> **breakConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Axis/Axis.d.ts:112
+
+Style of the breaks set with `break`: `space` (pixels of axis each break
+occupies), `gap` (pixels between its two marks, where the axis line is
+not drawn), `size` (length of each mark, drawn outward from the axis
+line on the tick side so it never reaches into the plot), `angle`
+(degrees each mark tilts from perpendicular), `lines` (whether a Plot
+runs a line across the plot from each mark, default `true`),
+`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over
+the axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the
+lines across the shapes, default `true`), plus `stroke`/`stroke-width`
+and other line styles for the marks.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Inherited from
+
+[`Axis`](#axis).[`breakConfig`](#breakconfig)
+
+<a id="colordefaults-19"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`Axis`](#axis).[`colorDefaults`](#colordefaults-1)
+
+<a id="config-20"></a>
 
 ##### config()
 
@@ -16910,7 +19622,7 @@ Axis line style.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -16926,7 +19638,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -16952,7 +19664,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `unknown`[]
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:92
+Defined in: core/types/src/components/Axis/Axis.d.ts:130
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -16968,7 +19680,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **data**(`_`: `unknown`[]): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:93
+Defined in: core/types/src/components/Axis/Axis.d.ts:131
 
 An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.
 
@@ -16994,7 +19706,7 @@ An array of data points, which helps determine which ticks should be shown and w
 
 > **gridConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:97
+Defined in: core/types/src/components/Axis/Axis.d.ts:135
 
 Grid config of the axis.
 
@@ -17010,7 +19722,7 @@ Grid config of the axis.
 
 > **gridConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:98
+Defined in: core/types/src/components/Axis/Axis.d.ts:136
 
 Grid config of the axis.
 
@@ -17070,7 +19782,7 @@ Handle style.
 
 > **labelRotation**(): `boolean` \| `undefined`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:102
+Defined in: core/types/src/components/Axis/Axis.d.ts:140
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -17086,7 +19798,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **labelRotation**(`_`: `boolean`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:103
+Defined in: core/types/src/components/Axis/Axis.d.ts:141
 
 Whether to rotate horizontal axis labels -90 degrees.
 
@@ -17104,7 +19816,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 [`Axis`](#axis).[`labelRotation`](#labelrotation)
 
-<a id="locale-18"></a>
+<a id="locale-19"></a>
 
 ##### locale()
 
@@ -17112,7 +19824,7 @@ Whether to rotate horizontal axis labels -90 degrees.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -17143,7 +19855,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -17182,7 +19894,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **measure**(): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:125
+Defined in: core/types/src/components/Axis/Axis.d.ts:163
 
 Runs the layout pass only — scale construction, tick selection, label
 textWrap, and outerBounds — with **no DOM access**. After it returns,
@@ -17201,7 +19913,7 @@ layout without owning an Axis instance.
 
 [`Axis`](#axis).[`measure`](#measure)
 
-<a id="on-18"></a>
+<a id="on-19"></a>
 
 ##### on()
 
@@ -17296,7 +20008,7 @@ Event listener for the specified brush event *typename*. Mirrors the core [d3-br
 
 > **orient**(): `string`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:107
+Defined in: core/types/src/components/Axis/Axis.d.ts:145
 
 The orientation of the shape.
 
@@ -17312,7 +20024,7 @@ The orientation of the shape.
 
 > **orient**(`_`: `string`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:108
+Defined in: core/types/src/components/Axis/Axis.d.ts:146
 
 The orientation of the shape.
 
@@ -17330,13 +20042,13 @@ The orientation of the shape.
 
 [`Axis`](#axis).[`orient`](#orient)
 
-<a id="outerbounds-7"></a>
+<a id="outerbounds-8"></a>
 
 ##### outerBounds()
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:114
+Defined in: core/types/src/components/Axis/Axis.d.ts:152
 
 Returns the outer bounds of the axis content. Must be called after rendering.
 
@@ -17354,7 +20066,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 [`Axis`](#axis).[`outerBounds`](#outerbounds)
 
-<a id="parent-18"></a>
+<a id="parent-19"></a>
 
 ##### parent()
 
@@ -17362,7 +20074,7 @@ Returns the outer bounds of the axis content. Must be called after rendering.
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -17378,7 +20090,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -17430,7 +20142,7 @@ The config Object for the Rect class used to create the playButton.
 
 `this`
 
-<a id="render-18"></a>
+<a id="render-19"></a>
 
 ##### render()
 
@@ -17454,7 +20166,7 @@ Draws the timeline.
 
 [`Axis`](#axis).[`render`](#render-1)
 
-<a id="select-18"></a>
+<a id="select-19"></a>
 
 ##### select()
 
@@ -17462,7 +20174,7 @@ Draws the timeline.
 
 > **select**(): `Selection`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:135
+Defined in: core/types/src/components/Axis/Axis.d.ts:173
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17484,7 +20196,7 @@ mounting DOM.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `null` \| `undefined`): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:136
+Defined in: core/types/src/components/Axis/Axis.d.ts:174
 
 The SVG container element as a d3 selector or DOM element.
 
@@ -17542,7 +20254,7 @@ Selection style.
 
 `this`
 
-<a id="shapeconfig-19"></a>
+<a id="shapeconfig-20"></a>
 
 ##### shapeConfig()
 
@@ -17550,7 +20262,7 @@ Selection style.
 
 > **shapeConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:140
+Defined in: core/types/src/components/Axis/Axis.d.ts:178
 
 Tick style of the axis.
 
@@ -17566,7 +20278,7 @@ Tick style of the axis.
 
 > **shapeConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:141
+Defined in: core/types/src/components/Axis/Axis.d.ts:179
 
 Tick style of the axis.
 
@@ -17584,7 +20296,7 @@ Tick style of the axis.
 
 [`Axis`](#axis).[`shapeConfig`](#shapeconfig-1)
 
-<a id="titleconfig-7"></a>
+<a id="titleconfig-8"></a>
 
 ##### titleConfig()
 
@@ -17592,7 +20304,7 @@ Tick style of the axis.
 
 > **titleConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:145
+Defined in: core/types/src/components/Axis/Axis.d.ts:183
 
 Title configuration of the axis.
 
@@ -17608,7 +20320,7 @@ Title configuration of the axis.
 
 > **titleConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Axis/Axis.d.ts:146
+Defined in: core/types/src/components/Axis/Axis.d.ts:184
 
 Title configuration of the axis.
 
@@ -17626,7 +20338,7 @@ Title configuration of the axis.
 
 [`Axis`](#axis).[`titleConfig`](#titleconfig)
 
-<a id="toscene-18"></a>
+<a id="toscene-19"></a>
 
 ##### toScene()
 
@@ -17653,7 +20365,7 @@ lined up with the timeline.
 
 [`Axis`](#axis).[`toScene`](#toscene-1)
 
-<a id="translate-18"></a>
+<a id="translate-19"></a>
 
 ##### translate()
 
@@ -17661,7 +20373,7 @@ lined up with the timeline.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -17685,7 +20397,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -17715,45 +20427,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_availableticks-5"></a> `_availableTicks` | `unknown`[] | - | [`Axis`](#axis).[`_availableTicks`](#property-_availableticks) | core/types/src/components/Axis/Axis.d.ts:37 |
-| <a id="property-_brush"></a> `_brush` | `BrushBehavior`\<`unknown`\> | - | - | core/types/src/components/Timeline/Timeline.d.ts:14 |
-| <a id="property-_brushgroup"></a> `_brushGroup` | `Selection` | - | - | core/types/src/components/Timeline/Timeline.d.ts:15 |
-| <a id="property-_buttonbehaviorcurrent"></a> `_buttonBehaviorCurrent` | `string` | - | - | core/types/src/components/Timeline/Timeline.d.ts:9 |
-| <a id="property-_configdefault-18"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`Axis`](#axis).[`_configDefault`](#property-_configdefault-1) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_d3scale-5"></a> `_d3Scale` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3Scale`](#property-_d3scale) | core/types/src/components/Axis/Axis.d.ts:33 |
-| <a id="property-_d3scalenegative-5"></a> `_d3ScaleNegative` | `D3Scale`\<`number`\> \| `null` | - | [`Axis`](#axis).[`_d3ScaleNegative`](#property-_d3scalenegative) | core/types/src/components/Axis/Axis.d.ts:34 |
-| <a id="property-_data-17"></a> `_data` | `unknown`[] | - | [`Axis`](#axis).[`_data`](#property-_data-1) | core/types/src/components/Axis/Axis.d.ts:15 |
-| <a id="property-_gridlinedata-5"></a> `_gridLineData?` | `object`[] | - | [`Axis`](#axis).[`_gridLineData`](#property-_gridlinedata) | core/types/src/components/Axis/Axis.d.ts:30 |
-| <a id="property-_group-14"></a> `_group` | `Selection` | - | [`Axis`](#axis).[`_group`](#property-_group-1) | core/types/src/components/Axis/Axis.d.ts:35 |
-| <a id="property-_hiddenhandles"></a> `_hiddenHandles` | `boolean` | - | - | core/types/src/components/Timeline/Timeline.d.ts:10 |
-| <a id="property-_labelrotation-5"></a> `_labelRotation` | `boolean` \| *required* | - | [`Axis`](#axis).[`_labelRotation`](#property-_labelrotation) | core/types/src/components/Axis/Axis.d.ts:16 |
-| <a id="property-_lastscale-5"></a> `_lastScale` | ((`d`: `unknown`) => `number`) \| *required* | - | [`Axis`](#axis).[`_lastScale`](#property-_lastscale) | core/types/src/components/Axis/Axis.d.ts:36 |
-| <a id="property-_managesownscenepaint-5"></a> `_managesOwnScenePaint?` | `boolean` | - | [`Axis`](#axis).[`_managesOwnScenePaint`](#property-_managesownscenepaint) | core/types/src/components/Axis/Axis.d.ts:42 |
-| <a id="property-_margin-5"></a> `_margin` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_margin`](#property-_margin) | core/types/src/components/Axis/Axis.d.ts:17 |
-| <a id="property-_onplaytoggle"></a> `_onPlayToggle?` | () => `void` | - | - | core/types/src/components/Timeline/Timeline.d.ts:13 |
-| <a id="property-_outerbounds-7"></a> `_outerBounds` | `Record`\<`string`, `number`\> | - | [`Axis`](#axis).[`_outerBounds`](#property-_outerbounds) | core/types/src/components/Axis/Axis.d.ts:18 |
-| <a id="property-_paddingleft"></a> `_paddingLeft` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:16 |
-| <a id="property-_playbuttonclass"></a> `_playButtonClass` | [`TextBox`](#textbox) | - | - | core/types/src/components/Timeline/Timeline.d.ts:11 |
-| <a id="property-_playtimer"></a> `_playTimer` | `number` \| `false` | - | - | core/types/src/components/Timeline/Timeline.d.ts:12 |
-| <a id="property-_position-5"></a> `_position` | `object` | - | [`Axis`](#axis).[`_position`](#property-_position) | core/types/src/components/Axis/Axis.d.ts:19 |
-| `_position.height` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:22 |
-| `_position.horizontal` | `boolean` | - | - | core/types/src/components/Axis/Axis.d.ts:20 |
-| `_position.opposite` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:25 |
-| `_position.width` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:21 |
-| `_position.x` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:23 |
-| `_position.y` | `string` | - | - | core/types/src/components/Axis/Axis.d.ts:24 |
-| <a id="property-_scenerenderer-14"></a> `_sceneRenderer?` | `SvgRenderer` | - | [`Axis`](#axis).[`_sceneRenderer`](#property-_scenerenderer-1) | core/types/src/components/Axis/Axis.d.ts:41 |
-| <a id="property-_select-17"></a> `_select` | `Selection` | - | [`Axis`](#axis).[`_select`](#property-_select-1) | core/types/src/components/Axis/Axis.d.ts:14 |
-| <a id="property-_tickshape-5"></a> `_tickShape?` | [`Shape`](#shape-1) | - | [`Axis`](#axis).[`_tickShape`](#property-_tickshape) | core/types/src/components/Axis/Axis.d.ts:29 |
-| <a id="property-_tickswidth"></a> `_ticksWidth` | `number` | - | - | core/types/src/components/Timeline/Timeline.d.ts:17 |
-| <a id="property-_tickunit-5"></a> `_tickUnit` | `number` | - | [`Axis`](#axis).[`_tickUnit`](#property-_tickunit) | core/types/src/components/Axis/Axis.d.ts:27 |
-| <a id="property-_titleclass-6"></a> `_titleClass` | [`TextBox`](#textbox) | - | [`Axis`](#axis).[`_titleClass`](#property-_titleclass) | core/types/src/components/Axis/Axis.d.ts:28 |
-| <a id="property-_transition-12"></a> `_transition` | `Transition`\<`BaseType`\> | - | [`Axis`](#axis).[`_transition`](#property-_transition-1) | core/types/src/components/Axis/Axis.d.ts:39 |
-| <a id="property-_userformat-5"></a> `_userFormat` | `false` \| ((`d`: `unknown`) => `string`) \| *required* | - | [`Axis`](#axis).[`_userFormat`](#property-_userformat) | core/types/src/components/Axis/Axis.d.ts:40 |
-| <a id="property-_uuid-18"></a> `_uuid` | `string` | - | [`Axis`](#axis).[`_uuid`](#property-_uuid-1) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_visibleticks-5"></a> `_visibleTicks` | `unknown`[] | - | [`Axis`](#axis).[`_visibleTicks`](#property-_visibleticks) | core/types/src/components/Axis/Axis.d.ts:38 |
-| <a id="property-ctx-18"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-19"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-19"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`Axis`](#axis).[`ctx`](#property-ctx-1) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-20"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`Axis`](#axis).[`schema`](#property-schema-1) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -17768,10 +20443,6 @@ Creates HTML tooltips in the body of a webpage.
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -17843,7 +20514,71 @@ CSS styles applied to the body element.
 
 `this`
 
-<a id="config-20"></a>
+<a id="colordefaults-20"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+<a id="config-21"></a>
 
 ##### config()
 
@@ -17851,7 +20586,7 @@ CSS styles applied to the body element.
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -17867,7 +20602,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -17953,7 +20688,7 @@ CSS styles applied to the footer element.
 
 `this`
 
-<a id="locale-19"></a>
+<a id="locale-20"></a>
 
 ##### locale()
 
@@ -17961,7 +20696,7 @@ CSS styles applied to the footer element.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -17992,7 +20727,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -18025,7 +20760,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 [`BaseClass`](#baseclass).[`locale`](#locale-7)
 
-<a id="on-19"></a>
+<a id="on-20"></a>
 
 ##### on()
 
@@ -18033,7 +20768,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18061,7 +20796,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18095,7 +20830,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18130,7 +20865,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -18160,7 +20895,7 @@ console.log("data for legend clicked:", d);
 
 [`BaseClass`](#baseclass).[`on`](#on-7)
 
-<a id="parent-19"></a>
+<a id="parent-20"></a>
 
 ##### parent()
 
@@ -18264,7 +20999,7 @@ return [d.x, d.y];
 }
 ```
 
-<a id="shapeconfig-20"></a>
+<a id="shapeconfig-21"></a>
 
 ##### shapeConfig()
 
@@ -18272,7 +21007,7 @@ return [d.x, d.y];
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -18288,7 +21023,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -18380,33 +21115,49 @@ CSS styles applied to the table body element.
 
 ###### Call Signature
 
-> **tdStyle**(): `Record`\<`string`, `string`\>
+> **tdStyle**(): `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/components/Tooltip.d.ts:115
+Defined in: core/types/src/components/Tooltip.d.ts:120
 
-An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
+An object with CSS keys and values to be applied to all <td> elements inside of each <tr>. Values may be `(d, i)` functions, where `i` is the cell's column index.
 
 ###### Returns
 
-`Record`\<`string`, `string`\>
+`Record`\<`string`, `unknown`\>
+
+###### Example
+
+```ts
+{
+"text-align": (d, i) => i ? "right" : "left"
+}
+```
 
 ###### Call Signature
 
-> **tdStyle**(`_`: `Record`\<`string`, `string`\>): `this`
+> **tdStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: core/types/src/components/Tooltip.d.ts:116
+Defined in: core/types/src/components/Tooltip.d.ts:121
 
-An object with CSS keys and values to be applied to all <td> elements inside of each <tr>.
+An object with CSS keys and values to be applied to all <td> elements inside of each <tr>. Values may be `(d, i)` functions, where `i` is the cell's column index.
 
 ###### Parameters
 
 | Parameter | Type |
 | ------ | ------ |
-| `_` | `Record`\<`string`, `string`\> |
+| `_` | `Record`\<`string`, `unknown`\> |
 
 ###### Returns
 
 `this`
+
+###### Example
+
+```ts
+{
+"text-align": (d, i) => i ? "right" : "left"
+}
+```
 
 <a id="theadstyle"></a>
 
@@ -18441,6 +21192,56 @@ CSS styles applied to the table head element.
 ###### Returns
 
 `this`
+
+<a id="thstyle"></a>
+
+##### thStyle()
+
+###### Call Signature
+
+> **thStyle**(): `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/components/Tooltip.d.ts:130
+
+An object with CSS keys and values to be applied to all <th> elements inside of the <thead>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+###### Returns
+
+`Record`\<`string`, `unknown`\>
+
+###### Example
+
+```ts
+{
+"text-align": (d, i) => i ? "right" : "left"
+}
+```
+
+###### Call Signature
+
+> **thStyle**(`_`: `Record`\<`string`, `unknown`\>): `this`
+
+Defined in: core/types/src/components/Tooltip.d.ts:131
+
+An object with CSS keys and values to be applied to all <th> elements inside of the <thead>. Values may be `(d, i)` functions, where `i` is the cell's column index.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+{
+"text-align": (d, i) => i ? "right" : "left"
+}
+```
 
 <a id="titlestyle"></a>
 
@@ -18510,7 +21311,7 @@ Overall CSS styles applied to the tooltip container.
 
 `this`
 
-<a id="translate-19"></a>
+<a id="translate-20"></a>
 
 ##### translate()
 
@@ -18518,7 +21319,7 @@ Overall CSS styles applied to the tooltip container.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18542,7 +21343,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -18622,14 +21423,8 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-19"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-18"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/components/Tooltip.d.ts:9 |
-| <a id="property-_parentel"></a> `_parentEl?` | `HTMLElement` | v4: optional per-chart parent element (default: global #d3plus-portal). | - | core/types/src/components/Tooltip.d.ts:11 |
-| <a id="property-_portalel"></a> `_portalEl?` | `HTMLElement` | v4: this Tooltip's own portal div (a `.d3plus-tooltip-portal` appended to `<body>`). Tracked per-instance so that charts each own a distinct portal — and so `parent()` switches only remove THIS instance's portal, not a sibling Tooltip's. | - | core/types/src/components/Tooltip.d.ts:18 |
-| <a id="property-_tooltiprefs"></a> `_tooltipRefs` | `Record`\<`string`, \{ `arrowDistance`: `number`; `arrowEl`: `HTMLElement`; `arrowHeight`: `number`; `reference`: `VirtualElement` \| `HTMLElement`; `tooltip`: `HTMLElement`; \}\> | - | - | core/types/src/components/Tooltip.d.ts:19 |
-| <a id="property-_uuid-19"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-19"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-20"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-20"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-21"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -18637,9 +21432,9 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 ### Viz
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:7
+Defined in: core/types/src/charts/viz/Viz.d.ts:9
 
-Creates an x/y plot based on an array of data. See [this example](https://d3plus.org/examples/d3plus-treemap/getting-started/) for help getting started using the treemap generator.
+The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 
 #### Extends
 
@@ -18649,56 +21444,7 @@ Creates an x/y plot based on an array of data. See [this example](https://d3plus
 
 - [`Plot`](#plot)
 
-#### Indexable
-
-> \[`key`: `string`\]: `any`
-
 #### Methods
-
-<a id="_drawscenetotarget-1"></a>
-
-##### \_drawSceneToTarget()
-
-> **\_drawSceneToTarget**(`durationOverride?`: `number`): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:100
-
-Renders this chart through the @d3plus/render pluggable backends. Called
-automatically by `render()`. The compute pass draws into `this._select`
-(an auto-created svg INSIDE the user's target div) — that svg is the
-off-stage detached compute svg. SvgRenderer mounts to the user's target
-div (the parent), as a sibling to the detached compute svg. The compute
-svg's children get cleared so only the scene output is visible.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `durationOverride?` | `number` |
-
-###### Returns
-
-`void`
-
-<a id="_schedulescenerepaint-1"></a>
-
-##### \_scheduleSceneRepaint()
-
-> **\_scheduleSceneRepaint**(): `void`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:136
-
-Coalesces interaction-driven scene repaints (hover/active dimming) into a
-single paint per animation frame. A fast pointer sweep across a dense
-chart fires a hover transition per shape crossed; painting each one
-synchronously rebuilt the whole scene back-to-back, saturating the main
-thread (~200ms stalls) so the tooltip couldn't reposition and appeared
-stuck at its last spot. Only the latest hover state is visible, so the
-intermediate paints are wasted — collapse them to one rAF-scheduled draw.
-
-###### Returns
-
-`void`
 
 <a id="active-10"></a>
 
@@ -18772,13 +21518,37 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 
 `VizBase.attribution`
 
+<a id="attributionicon-1"></a>
+
+##### attributionIcon()
+
+> **attributionIcon**(`_?`: `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))): `string` \| [`Viz`](#viz) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:28
+
+Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) |
+
+###### Returns
+
+`string` \| [`Viz`](#viz) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
+
+###### Inherited from
+
+`VizBase.attributionIcon`
+
 <a id="attributionstyle-1"></a>
 
 ##### attributionStyle()
 
 > **attributionStyle**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:28
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:32
 
 Configuration object for the attribution style.
 
@@ -18802,9 +21572,13 @@ Configuration object for the attribution style.
 
 > **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:32
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:40
 
-Configuration object for the back button.
+Configuration object for the back button. Superseded by
+`.backControlStyle()`/`.backControlClassName()` for the button's
+appearance (it renders as a real `<button>`, like the zoom/search
+controls, not a configurable text node) — kept for backwards
+compatibility, but no longer affects how the button looks.
 
 ###### Parameters
 
@@ -18820,15 +21594,65 @@ Configuration object for the back button.
 
 `VizBase.backConfig`
 
+<a id="backcontrolclassname-1"></a>
+
+##### backControlClassName()
+
+> **backControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:44
+
+An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.backControlClassName`
+
+<a id="backcontrolstyle-1"></a>
+
+##### backControlStyle()
+
+> **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:48
+
+An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.backControlStyle`
+
 <a id="color-1"></a>
 
 ##### color()
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:36
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:54
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
+
+When the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.
 
 ###### Parameters
 
@@ -18844,13 +21668,77 @@ Defines the main color to be used for each data point in a visualization. Can be
 
 `VizBase.color`
 
+<a id="colordefaults-21"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+`VizBase.colorDefaults`
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+`VizBase.colorDefaults`
+
 <a id="colorscale-2"></a>
 
 ##### colorScale()
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:40
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:58
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -18874,7 +21762,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:44
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:62
 
 A pass-through to the config method of ColorScale.
 
@@ -18898,7 +21786,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:56
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:74
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -18922,7 +21810,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:48
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:66
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -18946,7 +21834,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Viz`](#viz) \| (() => `string` \| `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:52
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:70
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -18964,7 +21852,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 `VizBase.colorScalePosition`
 
-<a id="config-21"></a>
+<a id="config-22"></a>
 
 ##### config()
 
@@ -18972,7 +21860,7 @@ Defines which side of the visualization to anchor the color scale. Acceptable va
 
 > **config**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:27
+Defined in: core/types/src/utils/BaseClass.d.ts:28
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -18988,7 +21876,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **config**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:28
+Defined in: core/types/src/utils/BaseClass.d.ts:29
 
 Methods that correspond to the key/value pairs and returns this class.
 
@@ -19012,7 +21900,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(`_?`: `string` \| [`DataPoint`](#datapoint)[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: [`DataPoint`](#datapoint)[]) => `Record`\<`string`, `unknown`\> \| [`DataPoint`](#datapoint)[]): [`Viz`](#viz) \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:69
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:87
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -19045,9 +21933,9 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:140
+Defined in: core/types/src/charts/viz/Viz.d.ts:165
 
-Tears down the visualization: disconnects the ResizeObserver and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
 ###### Returns
 
@@ -19059,7 +21947,7 @@ Tears down the visualization: disconnects the ResizeObserver and removes DOM eve
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:76
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:94
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -19083,7 +21971,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:80
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:98
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -19107,7 +21995,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:84
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:102
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -19131,9 +22019,9 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:88
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:106
 
-The interval, in milliseconds, for checking if the visualization is visible on the page.
+The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
 ###### Parameters
 
@@ -19149,15 +22037,15 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 `VizBase.detectVisibleInterval`
 
-<a id="downloadbutton-1"></a>
+<a id="detectvisibleunload-1"></a>
 
-##### downloadButton()
+##### detectVisibleUnload()
 
-> **downloadButton**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
+> **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:92
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:110
 
-Shows a button that allows for downloading the current visualization.
+When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
 ###### Parameters
 
@@ -19171,55 +22059,7 @@ Shows a button that allows for downloading the current visualization.
 
 ###### Inherited from
 
-`VizBase.downloadButton`
-
-<a id="downloadconfig-1"></a>
-
-##### downloadConfig()
-
-> **downloadConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:96
-
-Sets specific options of the saveElement function used when downloading the visualization.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-`VizBase.downloadConfig`
-
-<a id="downloadposition-1"></a>
-
-##### downloadPosition()
-
-> **downloadPosition**(`_?`: `string`): `string` \| [`Viz`](#viz)
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:100
-
-Defines which control group to add the download button into.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `string` |
-
-###### Returns
-
-`string` \| [`Viz`](#viz)
-
-###### Inherited from
-
-`VizBase.downloadPosition`
+`VizBase.detectVisibleUnload`
 
 <a id="fontfamily-1"></a>
 
@@ -19227,7 +22067,7 @@ Defines which control group to add the download button into.
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Viz`](#viz) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:104
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:114
 
 The font family used throughout the visualization.
 
@@ -19251,7 +22091,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Viz`](#viz) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:108
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:118
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -19275,7 +22115,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:112
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:122
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -19299,7 +22139,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:116
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:126
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -19323,7 +22163,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:128
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:138
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -19351,7 +22191,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:120
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:130
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -19375,9 +22215,11 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:132
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
 
-Accessor function or string key for the label of each data point.
+Accessor function, or a constant string applied to every data point's
+label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+per-datum object key — pass a function for that).
 
 ###### Parameters
 
@@ -19399,9 +22241,9 @@ Accessor function or string key for the label of each data point.
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:136
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
 
-Whether to display the legend.
+Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
 ###### Parameters
 
@@ -19423,7 +22265,7 @@ Whether to display the legend.
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:140
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
 
 Configuration object passed to the legend's config method.
 
@@ -19447,7 +22289,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:144
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -19465,13 +22307,61 @@ Defines the click functionality of categorical legend squares. When set to false
 
 `VizBase.legendFilterInvert`
 
+<a id="legendinset-1"></a>
+
+##### legendInset()
+
+> **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:160
+
+Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`) |
+
+###### Returns
+
+`boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
+
+###### Inherited from
+
+`VizBase.legendInset`
+
+<a id="legendinsetconfig-1"></a>
+
+##### legendInsetConfig()
+
+> **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:164
+
+Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.legendInsetConfig`
+
 <a id="legendpadding-1"></a>
 
 ##### legendPadding()
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:148
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:168
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -19495,7 +22385,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:152
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:172
 
 Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
 
@@ -19519,7 +22409,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:156
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:176
 
 Configuration object for the legend tooltip.
 
@@ -19543,7 +22433,7 @@ Configuration object for the legend tooltip.
 
 > **loadingHTML**(`_?`: `string` \| ((`viz`: `VizBase`) => `string`)): `string` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:17
+Defined in: core/types/src/charts/viz/VizBase.d.ts:19
 
 The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -19567,7 +22457,7 @@ The inner HTML of the status message displayed when loading AJAX requests and di
 
 > **loadingMessage**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:21
+Defined in: core/types/src/charts/viz/VizBase.d.ts:23
 
 Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -19585,7 +22475,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 
 `VizBase.loadingMessage`
 
-<a id="locale-20"></a>
+<a id="locale-21"></a>
 
 ##### locale()
 
@@ -19593,7 +22483,7 @@ Toggles the visibility of the status message that is displayed when loading AJAX
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -19624,7 +22514,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -19663,7 +22553,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **messageMask**(`_?`: `string` \| `boolean`): `string` \| `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:25
+Defined in: core/types/src/charts/viz/VizBase.d.ts:27
 
 The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
 
@@ -19687,7 +22577,7 @@ The color of the mask displayed underneath the status message when loading AJAX 
 
 > **messageStyle**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:29
+Defined in: core/types/src/charts/viz/VizBase.d.ts:31
 
 Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
 
@@ -19705,13 +22595,133 @@ Defines the CSS style properties for the status message that is displayed when l
 
 `VizBase.messageStyle`
 
+<a id="minimapclassname-1"></a>
+
+##### minimapClassName()
+
+> **minimapClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:35
+
+An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.minimapClassName`
+
+<a id="minimaplabelstyle-1"></a>
+
+##### minimapLabelStyle()
+
+> **minimapLabelStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:39
+
+An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.minimapLabelStyle`
+
+<a id="minimapstyle-1"></a>
+
+##### minimapStyle()
+
+> **minimapStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:43
+
+An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.minimapStyle`
+
+<a id="minimapviewportstyle-1"></a>
+
+##### minimapViewportStyle()
+
+> **minimapViewportStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:47
+
+An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.minimapViewportStyle`
+
+<a id="minimapviewportstyleactive-1"></a>
+
+##### minimapViewportStyleActive()
+
+> **minimapViewportStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:51
+
+An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.minimapViewportStyleActive`
+
 <a id="nodatahtml-1"></a>
 
 ##### noDataHTML()
 
 > **noDataHTML**(`_?`: `string` \| ((`viz`: `VizBase`) => `string`)): `string` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:33
+Defined in: core/types/src/charts/viz/VizBase.d.ts:55
 
 The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
 
@@ -19735,7 +22745,7 @@ The inner HTML of the status message displayed when no data is supplied to the v
 
 > **noDataMessage**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:37
+Defined in: core/types/src/charts/viz/VizBase.d.ts:59
 
 Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
 
@@ -19753,7 +22763,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 
 `VizBase.noDataMessage`
 
-<a id="on-20"></a>
+<a id="on-21"></a>
 
 ##### on()
 
@@ -19761,7 +22771,7 @@ Toggles the visibility of the status message that is displayed when no data is s
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19789,7 +22799,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19823,7 +22833,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19858,7 +22868,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -19888,7 +22898,7 @@ console.log("data for legend clicked:", d);
 
 `VizBase.on`
 
-<a id="parent-20"></a>
+<a id="parent-21"></a>
 
 ##### parent()
 
@@ -19896,7 +22906,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -19912,7 +22922,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -19930,13 +22940,13 @@ Parent config used by the wrapper.
 
 `VizBase.parent`
 
-<a id="render-19"></a>
+<a id="render-20"></a>
 
 ##### render()
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:48
+Defined in: core/types/src/charts/viz/Viz.d.ts:66
 
 Draws the visualization given the specified configuration.
 
@@ -19958,7 +22968,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:69
+Defined in: core/types/src/charts/viz/Viz.d.ts:87
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -19972,7 +22982,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:70
+Defined in: core/types/src/charts/viz/Viz.d.ts:88
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -19996,7 +23006,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderMode**(): `"full"` \| `"compute"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:77
+Defined in: core/types/src/charts/viz/Viz.d.ts:95
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -20011,7 +23021,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderMode**(`_`: `"full"` \| `"compute"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:78
+Defined in: core/types/src/charts/viz/Viz.d.ts:96
 
 "full" runs the DOM enter/update/exit for every shape; "compute"
 skips DOM work and only populates the scene data (`_textData`,
@@ -20034,7 +23044,7 @@ skips DOM work and only populates the scene data (`_textData`,
 
 > **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:86
+Defined in: core/types/src/charts/viz/Viz.d.ts:104
 
 Public entry point that renders this chart through the @d3plus/render
 pluggable backends. The compute pass happens via render() (in an svg
@@ -20060,7 +23070,7 @@ interact with the renderer (e.g. for picking) or read the scene data.
 
 > **scrollContainer**(`_?`: `string` \| `HTMLElement` \| `Window`): `string` \| [`Viz`](#viz) \| `HTMLElement` \| `Window`
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:41
+Defined in: core/types/src/charts/viz/VizBase.d.ts:63
 
 If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
 
@@ -20078,13 +23088,142 @@ If using scroll or visibility detection, this method allow a custom override of 
 
 `VizBase.scrollContainer`
 
-<a id="select-19"></a>
+<a id="searchaccessor-1"></a>
+
+##### searchAccessor()
+
+> **searchAccessor**(`_?`: (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`): [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:76
+
+Resolves the string the search box matches its typed term against, for
+a given datum. Defaults to the mark's resolved on-screen label
+(`viz._drawLabel`) — the same text the user reads on the chart.
+Override it to match against something else instead, e.g. a data
+field that isn't shown as the label.
+
+This is checked alongside, not instead of, every level of the datum's
+own groupBy hierarchy — searching a leaf's label also matches its
+ancestor group's cell/legend entry, and vice versa, regardless of
+this accessor's override.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` |
+
+###### Returns
+
+[`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
+
+###### Inherited from
+
+`VizBase.searchAccessor`
+
+<a id="searchcontrolclassname-1"></a>
+
+##### searchControlClassName()
+
+> **searchControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:80
+
+An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.searchControlClassName`
+
+<a id="searchcontrolstyle-1"></a>
+
+##### searchControlStyle()
+
+> **searchControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:84
+
+An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.searchControlStyle`
+
+<a id="searchcontrolstyleactive-1"></a>
+
+##### searchControlStyleActive()
+
+> **searchControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:88
+
+An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.searchControlStyleActive`
+
+<a id="searchcontrolstylehover-1"></a>
+
+##### searchControlStyleHover()
+
+> **searchControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:92
+
+An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.searchControlStyleHover`
+
+<a id="select-20"></a>
 
 ##### select()
 
 > **select**(`_?`: `string` \| `HTMLElement`): [`Viz`](#viz) \| `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:45
+Defined in: core/types/src/charts/viz/VizBase.d.ts:96
 
 The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 
@@ -20108,7 +23247,7 @@ The SVG container element as a d3 selector or DOM element. Defaults to `undefine
 
 > **shape**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:49
+Defined in: core/types/src/charts/viz/VizBase.d.ts:100
 
 Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
 
@@ -20126,7 +23265,7 @@ Changes the primary shape used to represent each data point in a visualization. 
 
 `VizBase.shape`
 
-<a id="shapeconfig-21"></a>
+<a id="shapeconfig-22"></a>
 
 ##### shapeConfig()
 
@@ -20134,7 +23273,7 @@ Changes the primary shape used to represent each data point in a visualization. 
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:53
+Defined in: core/types/src/charts/viz/VizBase.d.ts:104
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -20150,7 +23289,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:54
+Defined in: core/types/src/charts/viz/VizBase.d.ts:105
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -20168,13 +23307,85 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 `VizBase.shapeConfig`
 
+<a id="sizelegend-2"></a>
+
+##### sizeLegend()
+
+> **sizeLegend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:109
+
+Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) |
+
+###### Returns
+
+`boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`)
+
+###### Inherited from
+
+`VizBase.sizeLegend`
+
+<a id="sizelegendconfig-2"></a>
+
+##### sizeLegendConfig()
+
+> **sizeLegendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:113
+
+Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+[`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.sizeLegendConfig`
+
+<a id="sizelegendposition-1"></a>
+
+##### sizeLegendPosition()
+
+> **sizeLegendPosition**(`_?`: `"right"` \| `"bottom"`): [`Viz`](#viz) \| `"right"` \| `"bottom"`
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:117
+
+Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `"right"` \| `"bottom"` |
+
+###### Returns
+
+[`Viz`](#viz) \| `"right"` \| `"bottom"`
+
+###### Inherited from
+
+`VizBase.sizeLegendPosition`
+
 <a id="subtitle-1"></a>
 
 ##### subtitle()
 
 > **subtitle**(`_?`: `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)): `string` \| [`Viz`](#viz) \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:58
+Defined in: core/types/src/charts/viz/VizBase.d.ts:121
 
 Accessor function or string for the visualization's subtitle.
 
@@ -20198,7 +23409,7 @@ Accessor function or string for the visualization's subtitle.
 
 > **subtitleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:62
+Defined in: core/types/src/charts/viz/VizBase.d.ts:125
 
 Configuration object for the subtitle.
 
@@ -20222,7 +23433,7 @@ Configuration object for the subtitle.
 
 > **subtitlePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:66
+Defined in: core/types/src/charts/viz/VizBase.d.ts:129
 
 Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -20240,13 +23451,157 @@ Tells the subtitle whether or not to use the internal padding defined by the vis
 
 `VizBase.subtitlePadding`
 
+<a id="tableviewclassname-1"></a>
+
+##### tableViewClassName()
+
+> **tableViewClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:234
+
+An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.tableViewClassName`
+
+<a id="tableviewcontrolclassname-1"></a>
+
+##### tableViewControlClassName()
+
+> **tableViewControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:238
+
+An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.tableViewControlClassName`
+
+<a id="tableviewcontrolstyle-1"></a>
+
+##### tableViewControlStyle()
+
+> **tableViewControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:242
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.tableViewControlStyle`
+
+<a id="tableviewcontrolstyleactive-1"></a>
+
+##### tableViewControlStyleActive()
+
+> **tableViewControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:246
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.tableViewControlStyleActive`
+
+<a id="tableviewcontrolstylehover-1"></a>
+
+##### tableViewControlStyleHover()
+
+> **tableViewControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:250
+
+An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `false` \| `Record`\<`string`, `unknown`\> |
+
+###### Returns
+
+`false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
+
+###### Inherited from
+
+`VizBase.tableViewControlStyleHover`
+
+<a id="tableviewpagesize-1"></a>
+
+##### tableViewPageSize()
+
+> **tableViewPageSize**(`_?`: `number` \| `false`): `number` \| `false` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:254
+
+The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `number` \| `false` |
+
+###### Returns
+
+`number` \| `false` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.tableViewPageSize`
+
 <a id="threshold-1"></a>
 
 ##### threshold()
 
 > **threshold**(`_?`: `number` \| ((`data`: [`DataPoint`](#datapoint)[]) => `number`)): `number` \| [`Viz`](#viz) \| ((`data`: [`DataPoint`](#datapoint)[]) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:70
+Defined in: core/types/src/charts/viz/VizBase.d.ts:133
 
 The threshold value for bucketing small data points together.
 
@@ -20270,7 +23625,7 @@ The threshold value for bucketing small data points together.
 
 > **thresholdKey**(`key?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:75
+Defined in: core/types/src/charts/viz/VizBase.d.ts:138
 
 Accessor for the value used in the threshold algorithm.
 
@@ -20294,7 +23649,7 @@ Accessor for the value used in the threshold algorithm.
 
 > **thresholdName**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:79
+Defined in: core/types/src/charts/viz/VizBase.d.ts:142
 
 The label displayed for bucketed threshold items.
 
@@ -20318,7 +23673,7 @@ The label displayed for bucketed threshold items.
 
 > **time**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:83
+Defined in: core/types/src/charts/viz/VizBase.d.ts:146
 
 Accessor function or string key for the time dimension of each data point.
 
@@ -20342,7 +23697,7 @@ Accessor function or string key for the time dimension of each data point.
 
 > **timelineConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:87
+Defined in: core/types/src/charts/viz/VizBase.d.ts:150
 
 Configuration object for the timeline.
 
@@ -20366,7 +23721,7 @@ Configuration object for the timeline.
 
 > **timelineDefault**(`_?`: `string` \| `Date` \| (`string` \| `Date`)[]): [`Viz`](#viz) \| `Date`[]
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:91
+Defined in: core/types/src/charts/viz/VizBase.d.ts:154
 
 The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -20390,7 +23745,7 @@ The starting time or range for the timeline. Can be a single Date/String, or an 
 
 > **timelinePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:95
+Defined in: core/types/src/charts/viz/VizBase.d.ts:158
 
 Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -20414,7 +23769,7 @@ Tells the timeline whether or not to use the internal padding defined by the vis
 
 > **title**(`_?`: `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)): `string` \| [`Viz`](#viz) \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:99
+Defined in: core/types/src/charts/viz/VizBase.d.ts:162
 
 Accessor function or string for the visualization's title.
 
@@ -20432,13 +23787,13 @@ Accessor function or string for the visualization's title.
 
 `VizBase.title`
 
-<a id="titleconfig-8"></a>
+<a id="titleconfig-9"></a>
 
 ##### titleConfig()
 
 > **titleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:103
+Defined in: core/types/src/charts/viz/VizBase.d.ts:166
 
 Configuration object for the title.
 
@@ -20462,7 +23817,7 @@ Configuration object for the title.
 
 > **titlePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:107
+Defined in: core/types/src/charts/viz/VizBase.d.ts:170
 
 Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -20486,7 +23841,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:63
+Defined in: core/types/src/charts/viz/Viz.d.ts:81
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -20503,7 +23858,7 @@ Server-side callers cast this to their native canvas to encode a raster
 
 > **tooltip**(`_?`: `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:111
+Defined in: core/types/src/charts/viz/VizBase.d.ts:174
 
 Whether to display tooltips on hover.
 
@@ -20527,7 +23882,7 @@ Whether to display tooltips on hover.
 
 > **tooltipConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:115
+Defined in: core/types/src/charts/viz/VizBase.d.ts:178
 
 Configuration object for the tooltip.
 
@@ -20545,13 +23900,13 @@ Configuration object for the tooltip.
 
 `VizBase.tooltipConfig`
 
-<a id="toscene-19"></a>
+<a id="toscene-20"></a>
 
 ##### toScene()
 
 > **toScene**(): `Scene`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:27
+Defined in: core/types/src/charts/viz/Viz.d.ts:29
 
 Composes a backend-agnostic scene graph from the shapes/features produced
 by the most recent render. Combines:
@@ -20571,7 +23926,7 @@ by the most recent render. Combines:
 
 > **toSVGString**(): `string`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:56
+Defined in: core/types/src/charts/viz/Viz.d.ts:74
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -20589,7 +23944,7 @@ server-side rendering (see `@d3plus/ssr`).
 
 > **total**(`_?`: `string` \| `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `string` \| `boolean` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:119
+Defined in: core/types/src/charts/viz/VizBase.d.ts:182
 
 Accessor function or string key for the total value displayed in the visualization.
 
@@ -20613,7 +23968,7 @@ Accessor function or string key for the total value displayed in the visualizati
 
 > **totalConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:123
+Defined in: core/types/src/charts/viz/VizBase.d.ts:186
 
 Configuration object for the total bar.
 
@@ -20637,7 +23992,7 @@ Configuration object for the total bar.
 
 > **totalFormat**(`_?`: (`d`: `number`) => `string`): [`Viz`](#viz) \| ((`d`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:127
+Defined in: core/types/src/charts/viz/VizBase.d.ts:190
 
 Formatter function for the value in the total bar.
 
@@ -20661,7 +24016,7 @@ Formatter function for the value in the total bar.
 
 > **totalPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:131
+Defined in: core/types/src/charts/viz/VizBase.d.ts:194
 
 Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -20679,7 +24034,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 
 `VizBase.totalPadding`
 
-<a id="translate-20"></a>
+<a id="translate-21"></a>
 
 ##### translate()
 
@@ -20687,7 +24042,7 @@ Tells the total whether or not to use the internal padding defined by the visual
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -20711,7 +24066,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -20743,7 +24098,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **zoomBrushHandleSize**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:135
+Defined in: core/types/src/charts/viz/VizBase.d.ts:198
 
 The pixel stroke-width of the zoom brush area.
 
@@ -20767,7 +24122,7 @@ The pixel stroke-width of the zoom brush area.
 
 > **zoomBrushHandleStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:139
+Defined in: core/types/src/charts/viz/VizBase.d.ts:202
 
 An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -20791,7 +24146,7 @@ An object containing CSS key/value pairs that is used to style the outer handle 
 
 > **zoomBrushSelectionStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:143
+Defined in: core/types/src/charts/viz/VizBase.d.ts:206
 
 An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
 
@@ -20809,15 +24164,63 @@ An object containing CSS key/value pairs that is used to style the inner selecti
 
 `VizBase.zoomBrushSelectionStyle`
 
+<a id="zoomcontrolclassname-1"></a>
+
+##### zoomControlClassName()
+
+> **zoomControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:210
+
+An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `string` |
+
+###### Returns
+
+`string` \| [`Viz`](#viz)
+
+###### Inherited from
+
+`VizBase.zoomControlClassName`
+
+<a id="zoomcontrolicons-1"></a>
+
+##### zoomControlIcons()
+
+> **zoomControlIcons**(`_?`: `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\>): [`Viz`](#viz) \| `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> \| `undefined`
+
+Defined in: core/types/src/charts/viz/VizBase.d.ts:214
+
+Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_?` | `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> |
+
+###### Returns
+
+[`Viz`](#viz) \| `Partial`\<`Record`\<`ZoomControlIconKey`, `ZoomControlIconValue`\>\> \| `undefined`
+
+###### Inherited from
+
+`VizBase.zoomControlIcons`
+
 <a id="zoomcontrolstyle-1"></a>
 
 ##### zoomControlStyle()
 
 > **zoomControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:147
+Defined in: core/types/src/charts/viz/VizBase.d.ts:218
 
-An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -20839,9 +24242,9 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomControlStyleActive**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:151
+Defined in: core/types/src/charts/viz/VizBase.d.ts:222
 
-An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -20863,9 +24266,9 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomControlStyleHover**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:155
+Defined in: core/types/src/charts/viz/VizBase.d.ts:226
 
-An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.
+An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
 ###### Parameters
 
@@ -20887,7 +24290,7 @@ An object containing CSS key/value pairs that is used to style each zoom control
 
 > **zoomPadding**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBase.d.ts:159
+Defined in: core/types/src/charts/viz/VizBase.d.ts:230
 
 A pixel value to be used to pad all sides of a zoomed area.
 
@@ -20909,10 +24312,8 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-20"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | `VizBase._configDefault` | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_uuid-20"></a> `_uuid` | `string` | - | `VizBase._uuid` | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-ctx-20"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | `VizBase.ctx` | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-21"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | `VizBase.schema` | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-21"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | `VizBase.ctx` | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-22"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | `VizBase.schema` | core/types/src/utils/BaseClass.d.ts:15 |
 
 ***
 
@@ -20922,15 +24323,11 @@ A pixel value to be used to pad all sides of a zoomed area.
 
 Defined in: core/types/src/shapes/Whisker.d.ts:12
 
-Creates SVG whisker based on an array of data.
+Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 
 #### Extends
 
 - [`BaseClass`](#baseclass)
-
-#### Indexable
-
-> \[`key`: `string`\]: `any`
 
 #### Methods
 
@@ -20954,7 +24351,71 @@ The active highlight state for all sub-shapes in this Whisker.
 
 `void`
 
-<a id="config-22"></a>
+<a id="colordefaults-22"></a>
+
+##### colorDefaults()
+
+###### Call Signature
+
+> **colorDefaults**(): [`ColorDefaults`](#colordefaults-23)
+
+Defined in: core/types/src/utils/BaseClass.d.ts:64
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Returns
+
+[`ColorDefaults`](#colordefaults-23)
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+###### Call Signature
+
+> **colorDefaults**(`_`: [`ColorDefaultsConfig`](#colordefaultsconfig)): `this`
+
+Defined in: core/types/src/utils/BaseClass.d.ts:65
+
+Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.
+
+###### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | [`ColorDefaultsConfig`](#colordefaultsconfig) |
+
+###### Returns
+
+`this`
+
+###### Example
+
+```ts
+new Treemap()
+.colorDefaults({
+dark: "#222",
+light: "#fff",
+scale: ["#1b9e77", "#d95f02", "#7570b3"]
+})
+```
+
+###### Inherited from
+
+[`BaseClass`](#baseclass).[`colorDefaults`](#colordefaults-7)
+
+<a id="config-23"></a>
 
 ##### config()
 
@@ -21088,7 +24549,7 @@ The hover highlight state for all sub-shapes in this Whisker.
 
 `void`
 
-<a id="lineconfig-1"></a>
+<a id="lineconfig-2"></a>
 
 ##### lineConfig()
 
@@ -21122,7 +24583,7 @@ Configuration object for the line shape.
 
 `this`
 
-<a id="locale-21"></a>
+<a id="locale-22"></a>
 
 ##### locale()
 
@@ -21130,7 +24591,7 @@ Configuration object for the line shape.
 
 > **locale**(): `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:44
+Defined in: core/types/src/utils/BaseClass.d.ts:51
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -21161,7 +24622,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **locale**(`_`: `string` \| `object`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:45
+Defined in: core/types/src/utils/BaseClass.d.ts:52
 
 The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.
 
@@ -21194,7 +24655,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 [`BaseClass`](#baseclass).[`locale`](#locale-7)
 
-<a id="on-21"></a>
+<a id="on-22"></a>
 
 ##### on()
 
@@ -21202,7 +24663,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **on**(): `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>
 
-Defined in: core/types/src/utils/BaseClass.d.ts:58
+Defined in: core/types/src/utils/BaseClass.d.ts:78
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -21230,7 +24691,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`): ((...`args`: `unknown`[]) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:59
+Defined in: core/types/src/utils/BaseClass.d.ts:79
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -21264,7 +24725,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `string`, `f`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:60
+Defined in: core/types/src/utils/BaseClass.d.ts:80
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -21299,7 +24760,7 @@ console.log("data for legend clicked:", d);
 
 > **on**(`_`: `Record`\<`string`, (...`args`: `unknown`[]) => `unknown`\>): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:61
+Defined in: core/types/src/utils/BaseClass.d.ts:81
 
 Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.
 
@@ -21329,7 +24790,7 @@ console.log("data for legend clicked:", d);
 
 [`BaseClass`](#baseclass).[`on`](#on-7)
 
-<a id="parent-21"></a>
+<a id="parent-22"></a>
 
 ##### parent()
 
@@ -21337,7 +24798,7 @@ console.log("data for legend clicked:", d);
 
 > **parent**(): `unknown`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:65
+Defined in: core/types/src/utils/BaseClass.d.ts:85
 
 Parent config used by the wrapper.
 
@@ -21353,7 +24814,7 @@ Parent config used by the wrapper.
 
 > **parent**(`_`: `unknown`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:66
+Defined in: core/types/src/utils/BaseClass.d.ts:86
 
 Parent config used by the wrapper.
 
@@ -21371,7 +24832,7 @@ Parent config used by the wrapper.
 
 [`BaseClass`](#baseclass).[`parent`](#parent-7)
 
-<a id="render-20"></a>
+<a id="render-21"></a>
 
 ##### render()
 
@@ -21391,7 +24852,7 @@ Draws the whisker.
 
 `this`
 
-<a id="select-20"></a>
+<a id="select-21"></a>
 
 ##### select()
 
@@ -21425,7 +24886,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 `this`
 
-<a id="shapeconfig-22"></a>
+<a id="shapeconfig-23"></a>
 
 ##### shapeConfig()
 
@@ -21433,7 +24894,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: core/types/src/utils/BaseClass.d.ts:80
+Defined in: core/types/src/utils/BaseClass.d.ts:100
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -21449,7 +24910,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:81
+Defined in: core/types/src/utils/BaseClass.d.ts:101
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -21467,7 +24928,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 [`BaseClass`](#baseclass).[`shapeConfig`](#shapeconfig-7)
 
-<a id="toscene-20"></a>
+<a id="toscene-21"></a>
 
 ##### toScene()
 
@@ -21483,7 +24944,7 @@ endpoint shape's scene children.
 
 `GroupNode`
 
-<a id="translate-21"></a>
+<a id="translate-22"></a>
 
 ##### translate()
 
@@ -21491,7 +24952,7 @@ endpoint shape's scene children.
 
 > **translate**(): (`d`: `string`, `locale?`: `string`) => `string`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:75
+Defined in: core/types/src/utils/BaseClass.d.ts:95
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -21515,7 +24976,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **translate**(`_`: (`d`: `string`, `locale?`: `string`) => `string`): `this`
 
-Defined in: core/types/src/utils/BaseClass.d.ts:76
+Defined in: core/types/src/utils/BaseClass.d.ts:96
 
 Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.
 
@@ -21545,14 +25006,8 @@ return d === "Back" ? "Get outta here" : d;
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-_configdefault-21"></a> `_configDefault?` | [`D3plusConfig`](#d3plusconfig) | - | [`BaseClass`](#baseclass).[`_configDefault`](#property-_configdefault-7) | core/types/src/utils/BaseClass.d.ts:18 |
-| <a id="property-_data-19"></a> `_data` | [`DataPoint`](#datapoint)[] | - | - | core/types/src/shapes/Whisker.d.ts:14 |
-| <a id="property-_line"></a> `_line` | [`Line`](#line) | - | - | core/types/src/shapes/Whisker.d.ts:16 |
-| <a id="property-_select-18"></a> `_select` | `Selection` | - | - | core/types/src/shapes/Whisker.d.ts:15 |
-| <a id="property-_uuid-21"></a> `_uuid` | `string` | - | [`BaseClass`](#baseclass).[`_uuid`](#property-_uuid-7) | core/types/src/utils/BaseClass.d.ts:17 |
-| <a id="property-_whiskerendpoint-1"></a> `_whiskerEndpoint` | ([`Rect`](#rect) \| [`Circle`](#circle))[] | - | - | core/types/src/shapes/Whisker.d.ts:17 |
-| <a id="property-ctx-21"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:16 |
-| <a id="property-schema-22"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:14 |
+| <a id="property-ctx-22"></a> `ctx` | `Record`\<`string`, `unknown`\> | Chart-internal scratch (d3 layout instances, computed derived state). | [`BaseClass`](#baseclass).[`ctx`](#property-ctx-7) | core/types/src/utils/BaseClass.d.ts:17 |
+| <a id="property-schema-23"></a> `schema` | `Record`\<`string`, `any`\> | Post-coercion fluent storage (`.sum(...)`, `.x(...)`, …). `any` is deliberate and load-bearing: `installFluent` coerces accessor/const fields into functions, so call sites invoke `schema.fill(d, i)` and index `schema.groupBy[i]`. It is NOT `D3plusConfig` (that describes the pre-coercion user input). Typing it as a coerced `ResolvedSchema` interface is the only way to drop the `any`; until then it stays. | [`BaseClass`](#baseclass).[`schema`](#property-schema-7) | core/types/src/utils/BaseClass.d.ts:15 |
 
 ## Functions
 
@@ -21722,6 +25177,29 @@ to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
 
 ***
 
+<a id="ckmeans"></a>
+
+### ckmeans()
+
+> **ckmeans**(`data`: `number`[], `nClusters`: `number`): `number`[][]
+
+Defined in: math/types/src/ckmeans.d.ts:6
+
+Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | `number`[] | input data, as an array of number values |
+| `nClusters` | `number` | number of desired classes. This cannot be greater than the number of values in the data array. |
+
+#### Returns
+
+`number`[][]
+
+***
+
 <a id="closest"></a>
 
 ### closest()
@@ -21774,7 +25252,7 @@ Adds two colors together.
 
 ### colorAssign()
 
-> **colorAssign**(`c`: `string` \| `boolean` \| `null` \| `undefined`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
+> **colorAssign**(`c`: `string` \| `boolean` \| `null` \| `undefined`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults-23)\>): `string`
 
 Defined in: color/types/src/assign.d.ts:7
 
@@ -21785,7 +25263,7 @@ Assigns a color to a value using a predefined set of defaults.
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `c` | `string` \| `boolean` \| `null` \| *required* | A valid CSS color string. |
-| `u?` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
+| `u?` | `Partial`\<[`ColorDefaults`](#colordefaults-23)\> | An object containing overrides of the default colors. |
 
 #### Returns
 
@@ -21797,7 +25275,7 @@ Assigns a color to a value using a predefined set of defaults.
 
 ### colorContrast()
 
-> **colorContrast**(`c`: `string`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults)\>): `string`
+> **colorContrast**(`c`: `string`, `u?`: `Partial`\<[`ColorDefaults`](#colordefaults-23)\>): `string`
 
 Defined in: color/types/src/contrast.d.ts:7
 
@@ -21808,7 +25286,7 @@ Based on the color provided, this function will return a "white" or "black" colo
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
 | `c` | `string` | A valid CSS color string. |
-| `u?` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
+| `u?` | `Partial`\<[`ColorDefaults`](#colordefaults-23)\> | An object containing overrides of the default colors. |
 
 #### Returns
 
@@ -21987,6 +25465,62 @@ Preps a config object for d3plus data, and optionally bubbles up a specific nest
 #### Returns
 
 `ConfigObject`
+
+***
+
+<a id="configwarnings"></a>
+
+### configWarnings()
+
+#### Call Signature
+
+> **configWarnings**(): `boolean`
+
+Defined in: core/types/src/utils/configWarnings.d.ts:11
+
+Toggles the console warnings d3plus logs when a class receives a config
+property it does not support (like a misspelled key passed to `.config()`
+or `shapeConfig`). Warnings are on by default and the setting applies to
+every chart on the page. With no argument, returns the current setting.
+
+##### Returns
+
+`boolean`
+
+##### Example
+
+```ts
+import {configWarnings} from "@d3plus/core";
+configWarnings(false);
+```
+
+#### Call Signature
+
+> **configWarnings**(`_`: `boolean`): `void`
+
+Defined in: core/types/src/utils/configWarnings.d.ts:12
+
+Toggles the console warnings d3plus logs when a class receives a config
+property it does not support (like a misspelled key passed to `.config()`
+or `shapeConfig`). Warnings are on by default and the setting applies to
+every chart on the page. With no argument, returns the current setting.
+
+##### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `_` | `boolean` |
+
+##### Returns
+
+`void`
+
+##### Example
+
+```ts
+import {configWarnings} from "@d3plus/core";
+configWarnings(false);
+```
 
 ***
 
@@ -22233,6 +25767,28 @@ An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-r
 
 ***
 
+<a id="getsize"></a>
+
+### getSize()
+
+> **getSize**(`elem`: `HTMLElement`): \[`number` \| `undefined`, `number` \| `undefined`\]
+
+Defined in: dom/types/src/getSize.d.ts:4
+
+Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `elem` | `HTMLElement` |
+
+#### Returns
+
+\[`number` \| `undefined`, `number` \| `undefined`\]
+
+***
+
 <a id="hash"></a>
 
 ### hash()
@@ -22371,6 +25927,52 @@ verbose: false,
 
 ***
 
+<a id="linearconfidence"></a>
+
+### linearConfidence()
+
+> **linearConfidence**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: math/types/src/linearConfidence.d.ts:6
+
+Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | An array of `[x, y]` pairs. |
+| `level?` | `number` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+***
+
+<a id="linearprediction"></a>
+
+### linearPrediction()
+
+> **linearPrediction**(`points`: \[`number`, `number`\][], `level?`: `number`): ((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+Defined in: math/types/src/linearPrediction.d.ts:6
+
+Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`. Wider than the confidence band of `linearConfidence`, since it covers the scatter of individual values as well as the uncertainty of the fitted line, which makes it the band to draw around a forecast. Returns a function mapping an x value to its `[lower, upper]` bounds, or `null` when there are fewer than three usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | An array of `[x, y]` pairs. |
+| `level?` | `number` | The confidence level, between 0 and 1. Defaults to 0.95. |
+
+#### Returns
+
+((`x`: `number`) => \[`number`, `number`\]) \| `null`
+
+***
+
 <a id="lineintersection"></a>
 
 ### lineIntersection()
@@ -22458,6 +26060,60 @@ merge([
 
 ***
 
+<a id="negativespace"></a>
+
+### negativeSpace()
+
+> **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
+
+Defined in: math/types/src/negativeSpace.d.ts:34
+
+Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
+outside the marks described by `obstacles`. The marks are treated as a single
+solid region — the convex hull of every (padded) obstacle box — so a hole in
+the middle of a ring of points is never returned, only the space around them.
+Boxes in `options.exclude` are kept clear too, each on its own. Each
+returned box is maximal (it cannot grow in any direction without leaving
+`bounds` or touching the hull or an excluded box). Results are sorted largest area first, and the
+output is deterministic for a given input.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `bounds` | [`Bounds`](#bounds) | The region to search, such as a chart's plot area. |
+| `obstacles` | [`Bounds`](#bounds)[] | The bounding boxes of the marks drawn inside `bounds`. |
+| `options?` | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options. |
+
+#### Returns
+
+[`Bounds`](#bounds)[]
+
+***
+
+<a id="nest"></a>
+
+### nest()
+
+> **nest**(`data`: [`DataPoint`](#datapoint)[], `keys`: `KeyAccessor` \| `KeyAccessor`[]): `NestEntry`[]
+
+Defined in: data/types/src/nest.d.ts:12
+
+Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
+| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
+
+#### Returns
+
+`NestEntry`[]
+
+***
+
 <a id="nestgroups"></a>
 
 ### nestGroups()
@@ -22478,6 +26134,28 @@ Recursively groups data by each key function, producing {key, values} objects co
 #### Returns
 
 `NestEntry`[]
+
+***
+
+<a id="onfontsloaded"></a>
+
+### onFontsLoaded()
+
+> **onFontsLoaded**(`callback`: () => `void`): () => `void`
+
+Defined in: dom/types/src/fontLoading.d.ts:17
+
+Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `callback` | () => `void` | The function to run after the font loads. |
+
+#### Returns
+
+() => `void`
 
 ***
 
@@ -22688,7 +26366,7 @@ An array containing two values, the closest point on the left and the closest po
 
 Defined in: math/types/src/polygonRotate.d.ts:8
 
-Rotates a point around a given origin.
+Rotates a polygon around a given origin.
 
 #### Parameters
 
@@ -22701,6 +26379,30 @@ Rotates a point around a given origin.
 #### Returns
 
 `Point`[]
+
+***
+
+<a id="regression"></a>
+
+### regression()
+
+> **regression**(`points`: \[`number`, `number`\][], `type?`: [`RegressionType`](#regressiontype), `options?`: [`RegressionOptions`](#regressionoptions)): [`RegressionResult`](#regressionresult) \| `null`
+
+Defined in: math/types/src/regression.d.ts:32
+
+Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `points` | \[`number`, `number`\][] | An array of `[x, y]` pairs. |
+| `type?` | [`RegressionType`](#regressiontype) | The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial". |
+| `options?` | [`RegressionOptions`](#regressionoptions) | Additional options, such as the polynomial `order`. |
+
+#### Returns
+
+[`RegressionResult`](#regressionresult) \| `null`
 
 ***
 
@@ -22724,9 +26426,9 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 
 ### saveElement()
 
-> **saveElement**(`elem`: `HTMLElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
+> **saveElement**(`elem`: `HTMLElement` \| `SVGElement`, `options?`: `SaveElementOptions`, `renderOptions?`: `SaveElementRenderOptions`): `void`
 
-Defined in: export/types/src/saveElement.d.ts:36
+Defined in: export/types/src/saveElement.d.ts:43
 
 Downloads an HTML Element as a bitmap PNG image.
 
@@ -22734,7 +26436,7 @@ Downloads an HTML Element as a bitmap PNG image.
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `elem` | `HTMLElement` | The DOM element or d3 selection to export. |
+| `elem` | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export. |
 | `options?` | `SaveElementOptions` | Additional options to specify. |
 | `renderOptions?` | `SaveElementRenderOptions` | Custom options to be passed to the html-to-image function. |
 
@@ -22865,6 +26567,52 @@ Removes all non ASCII characters from a string.
 #### Returns
 
 `string`
+
+***
+
+<a id="studenttcdf"></a>
+
+### studentTCdf()
+
+> **studentTCdf**(`t`: `number`, `df`: `number`): `number`
+
+Defined in: math/types/src/studentTQuantile.d.ts:6
+
+The cumulative distribution function of Student's t-distribution.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `t` | `number` | The t statistic. |
+| `df` | `number` | Degrees of freedom. |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="studenttquantile"></a>
+
+### studentTQuantile()
+
+> **studentTQuantile**(`p`: `number`, `df`: `number`): `number`
+
+Defined in: math/types/src/studentTQuantile.d.ts:12
+
+The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `p` | `number` | A probability between 0 and 1 (e.g. 0.975 for a two-sided 95% interval). |
+| `df` | `number` | Degrees of freedom (greater than 0). |
+
+#### Returns
+
+`number`
 
 ***
 
@@ -23062,9 +26810,11 @@ Creates an area plot based on an array of data.
 
 > `const` **BarChart**: () => `any`
 
-Defined in: core/types/src/charts/BarChart/index.d.ts:9
+Defined in: core/types/src/charts/BarChart/index.d.ts:12
 
-Creates a bar chart based on an array of data.
+Creates a bar chart based on an array of data. When stacked, each bar's
+fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
 
 #### Returns
 
@@ -23104,11 +26854,27 @@ Creates a bump chart based on an array of data.
 
 ***
 
-<a id="colordefaults-1"></a>
+<a id="chord"></a>
+
+### Chord
+
+> `const` **Chord**: () => `any`
+
+Defined in: core/types/src/charts/Chord/index.d.ts:18
+
+Creates a Chord diagram based on a defined set of nodes and links.
+
+#### Returns
+
+`any`
+
+***
+
+<a id="colordefaults-24"></a>
 
 ### colorDefaults
 
-> `const` **colorDefaults**: [`ColorDefaults`](#colordefaults)
+> `const` **colorDefaults**: [`ColorDefaults`](#colordefaults-23)
 
 Defined in: color/types/src/defaults.d.ts:44
 
@@ -23211,6 +26977,25 @@ Defined in: locales/types/src/dictionaries/formatLocale.d.ts:15
 
 ***
 
+<a id="gauge"></a>
+
+### Gauge
+
+> `const` **Gauge**: () => `any`
+
+Defined in: core/types/src/charts/Gauge/index.d.ts:20
+
+Creates a gauge (speedometer) from an array of data: a single dial that
+reads each row's `value` against its `domain`. One row shows its value
+under the hub; several rows each get a needle (or a progress track),
+identified by the legend and tooltips.
+
+#### Returns
+
+`any`
+
+***
+
 <a id="geomap"></a>
 
 ### Geomap
@@ -23220,6 +27005,25 @@ Defined in: locales/types/src/dictionaries/formatLocale.d.ts:15
 Defined in: core/types/src/charts/Geomap/index.d.ts:13
 
 Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
+
+#### Returns
+
+`any`
+
+***
+
+<a id="histogram"></a>
+
+### Histogram
+
+> `const` **Histogram**: () => `any`
+
+Defined in: core/types/src/charts/Histogram/index.d.ts:13
+
+Creates a histogram from an array of raw observations: the `value` of each
+row is binned along a linear x axis, and bar heights show each bin's
+count (or density / relative frequency via `binNormalize`). Series set by
+`groupBy` share bin edges and are stacked.
 
 #### Returns
 
@@ -23243,13 +27047,15 @@ Creates a line plot based on an array of data.
 
 ***
 
-<a id="locale-22"></a>
+<a id="locale-23"></a>
 
 ### locale
 
 > `const` **locale**: `Record`\<`string`, [`TimeLocaleDefinition`](#timelocaledefinition)\>
 
-Defined in: locales/types/src/dictionaries/timeLocale.d.ts:38
+Defined in: locales/types/src/dictionaries/timeLocale.d.ts:41
+
+d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips.
 
 ***
 
@@ -23333,13 +27139,35 @@ Creates a Priestley timeline based on an array of data.
 
 ***
 
+<a id="pyramid"></a>
+
+### Pyramid
+
+> `const` **Pyramid**: () => `any`
+
+Defined in: core/types/src/charts/Pyramid/index.d.ts:18
+
+Creates a population pyramid: horizontal bars for two groups (the first
+`groupBy` level, e.g. Male / Female) extending in opposite directions
+from a shared center line, one row per `y` category (e.g. age band).
+Values stay positive — the left side is mirrored internally and the value
+axis reads magnitudes on both halves. The category labels run down a
+gutter between the halves (or beside the chart, with `categoryPosition`).
+Deeper `groupBy` levels stack within each side.
+
+#### Returns
+
+`any`
+
+***
+
 <a id="radar"></a>
 
 ### Radar
 
 > `const` **Radar**: () => `any`
 
-Defined in: core/types/src/charts/Radar/index.d.ts:13
+Defined in: core/types/src/charts/Radar/index.d.ts:17
 
 Creates a radar visualization based on an array of data.
 
@@ -23415,9 +27243,11 @@ Creates a Sankey visualization based on a defined set of nodes and links.
 
 > `const` **StackedArea**: () => `any`
 
-Defined in: core/types/src/charts/StackedArea/index.d.ts:9
+Defined in: core/types/src/charts/StackedArea/index.d.ts:11
 
-Creates a stacked area plot based on an array of data.
+Creates a stacked area plot based on an array of data. Each point's
+fraction of its stack total is available to tooltip accessors as `share`
+(unless the data has its own `share` field).
 
 #### Returns
 
@@ -23431,7 +27261,9 @@ Creates a stacked area plot based on an array of data.
 
 > `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
 
-Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:25
+Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:28
+
+Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.
 
 ***
 
@@ -23441,7 +27273,9 @@ Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:25
 
 > `const` **translateLocale**: `Record`\<`string`, [`TranslationStrings`](#translationstrings)\>
 
-Defined in: locales/types/src/dictionaries/translateLocale.d.ts:20
+Defined in: locales/types/src/dictionaries/translateLocale.d.ts:48
+
+Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. Each entry maps the English string to its translation.
 
 ***
 
@@ -23553,28 +27387,35 @@ Area-specific config (curve, defined, dual-edge x/y).
 
 ### AxisConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:9
+Defined in: core/types/src/utils/D3plusConfig.d.ts:13
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-barconfig"></a> `barConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:10 |
-| <a id="property-grid"></a> `grid?` | `unknown`[] | Grid values of the axis. | core/types/src/utils/D3plusConfig.d.ts:12 |
-| <a id="property-gridconfig"></a> `gridConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:13 |
-| <a id="property-gridsize"></a> `gridSize?` | `number` | Grid size of the axis. | core/types/src/utils/D3plusConfig.d.ts:15 |
-| <a id="property-label-1"></a> `label?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:16 |
-| <a id="property-labeloffset"></a> `labelOffset?` | `number` \| `false` | - | core/types/src/utils/D3plusConfig.d.ts:19 |
-| <a id="property-labels"></a> `labels?` | `unknown`[] | Visible tick labels of the axis. | core/types/src/utils/D3plusConfig.d.ts:18 |
-| <a id="property-maxsize"></a> `maxSize?` | `number` | Maximum size allowed for the space that contains the axis tick labels and title. | core/types/src/utils/D3plusConfig.d.ts:21 |
-| <a id="property-minsize"></a> `minSize?` | `number` | Minimum size alloted for the space that contains the axis tick labels and title. | core/types/src/utils/D3plusConfig.d.ts:23 |
-| <a id="property-range"></a> `range?` | (`number` \| `undefined`)[] | Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value. | core/types/src/utils/D3plusConfig.d.ts:28 |
-| <a id="property-scale-1"></a> `scale?` | `AxisScale` | Scale of the axis. | core/types/src/utils/D3plusConfig.d.ts:30 |
-| <a id="property-tickformat"></a> `tickFormat?` | (`d`: `string` \| `number`) => `string` \| `number` | Tick formatter. | core/types/src/utils/D3plusConfig.d.ts:32 |
-| <a id="property-ticks"></a> `ticks?` | `unknown`[] | Tick values of the axis. | core/types/src/utils/D3plusConfig.d.ts:34 |
-| <a id="property-ticksize"></a> `tickSize?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:35 |
-| <a id="property-timelocale"></a> `timeLocale?` | `Record`\<`string`, `unknown`\> | Defines a custom locale object to be used in time scales. Must include `dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and `shortMonths` (see [d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)). | core/types/src/utils/D3plusConfig.d.ts:42 |
-| <a id="property-title"></a> `title?` | `string` | Title of the axis. | core/types/src/utils/D3plusConfig.d.ts:44 |
+| <a id="property-barconfig"></a> `barConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:14 |
+| <a id="property-baseline"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | core/types/src/utils/D3plusConfig.d.ts:19 |
+| <a id="property-baselinebreak"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | core/types/src/utils/D3plusConfig.d.ts:33 |
+| <a id="property-baselinebreakconfig"></a> `baselineBreakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the baseline break: `space` (pixels of axis between the baseline tick and the first tick after the break, default `36`), `gap` (pixels between the two marks, where the axis line is not drawn, default `5`), `size` (length of each mark, drawn outward from the axis line on the tick side so it never reaches into the plot, default `10`), `angle` (degrees each mark tilts from perpendicular to the axis, default `30`), `lines` (whether a Plot runs a straight line across the plot from the foot of each mark, perpendicular to the axis, default `true`; they take the axis line's `barConfig` style), `lineConfig` (those lines' `stroke`, `stroke-width`, and other line styles, layered over the axis line style), `mask` (whether a Plot cuts the gap between the two lines straight across the shapes, default `false`), plus `stroke`, `stroke-width`, and the other line styles `barConfig` takes, for the marks. | core/types/src/utils/D3plusConfig.d.ts:50 |
+| <a id="property-break"></a> `break?` | `false` \| \[`number`, `number`\] \| \[`number`, `number`\][] | Value ranges to remove from a linear axis: one `[start, end]` pair, or a list of them (`[[start, end], [start, end]]`). Each range collapses to a short fixed gap in the axis, marked like the baseline break, with no ticks or gridlines inside it and both of its edges labeled; the values on either side keep one shared scale. Reversed pairs are flipped, overlapping ones merged, and ranges that don't lie strictly inside the domain (or that don't leave room for the data) are ignored. Only positions change — tooltips and labels still show the real values. | core/types/src/utils/D3plusConfig.d.ts:61 |
+| <a id="property-breakconfig"></a> `breakConfig?` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `Record`\<`string`, `string` \| `number`\>\> | Style of the ranges set with `break`: the same `space`, `gap`, `size`, `angle`, `lines`, `lineConfig`, and mark line styles as `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between the break's two lines straight across the shapes) defaulting to `true`. | core/types/src/utils/D3plusConfig.d.ts:68 |
+| <a id="property-domainticks"></a> `domainTicks?` | `boolean` | Whether the domain's min and max are always shown as ticks, even when they aren't among the scale's own "nice" tick values (the nearest nice tick is dropped when it would crowd them). Defaults to `true`; zooming turns it off so a rescaled axis shows only nice values. | core/types/src/utils/D3plusConfig.d.ts:105 |
+| <a id="property-fixedsize"></a> `fixedSize?` | `number` | Exact size of the space that contains the axis tick labels and title. Labels that need more room overflow outward instead of moving the axis line; zooming pins a rescaled axis this way so it doesn't shift. | core/types/src/utils/D3plusConfig.d.ts:83 |
+| <a id="property-grid"></a> `grid?` | `unknown`[] | Grid values of the axis. | core/types/src/utils/D3plusConfig.d.ts:70 |
+| <a id="property-gridconfig"></a> `gridConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:71 |
+| <a id="property-gridsize"></a> `gridSize?` | `number` | Grid size of the axis. | core/types/src/utils/D3plusConfig.d.ts:73 |
+| <a id="property-label-1"></a> `label?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:74 |
+| <a id="property-labeloffset"></a> `labelOffset?` | `number` \| `false` | - | core/types/src/utils/D3plusConfig.d.ts:77 |
+| <a id="property-labels"></a> `labels?` | `unknown`[] | Visible tick labels of the axis. | core/types/src/utils/D3plusConfig.d.ts:76 |
+| <a id="property-maxsize"></a> `maxSize?` | `number` | Maximum size allowed for the space that contains the axis tick labels and title. | core/types/src/utils/D3plusConfig.d.ts:85 |
+| <a id="property-minsize"></a> `minSize?` | `number` | Minimum size alloted for the space that contains the axis tick labels and title. | core/types/src/utils/D3plusConfig.d.ts:87 |
+| <a id="property-range"></a> `range?` | (`number` \| `undefined`)[] | Scale range (in pixels) of the axis. The given array must have 2 values, but one may be `undefined` to allow the default behavior for that value. | core/types/src/utils/D3plusConfig.d.ts:92 |
+| <a id="property-scale-1"></a> `scale?` | `AxisScale` | Scale of the axis. | core/types/src/utils/D3plusConfig.d.ts:94 |
+| <a id="property-tickformat"></a> `tickFormat?` | (`d`: `string` \| `number`) => `string` \| `number` | Tick formatter. | core/types/src/utils/D3plusConfig.d.ts:96 |
+| <a id="property-ticks"></a> `ticks?` | `unknown`[] | Tick values of the axis. | core/types/src/utils/D3plusConfig.d.ts:98 |
+| <a id="property-ticksize"></a> `tickSize?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:106 |
+| <a id="property-timelocale"></a> `timeLocale?` | `Record`\<`string`, `unknown`\> | Defines a custom locale object to be used in time scales. Must include `dateTime`, `date`, `time`, `periods`, `days`, `shortDays`, `months`, and `shortMonths` (see [d3-time-format](https://github.com/d3/d3-time-format/blob/master/README.md#timeFormatLocale)). | core/types/src/utils/D3plusConfig.d.ts:113 |
+| <a id="property-title"></a> `title?` | `string` | Title of the axis. | core/types/src/utils/D3plusConfig.d.ts:115 |
 
 ***
 
@@ -23598,7 +27439,7 @@ Bar-specific config (Rect + start/end coords).
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-active-1"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`RectConfig`](#rectconfig-3).[`active`](#property-active-8) | core/types/src/shapes/shapeConfig.d.ts:46 |
+| <a id="property-active-1"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`RectConfig`](#rectconfig-3).[`active`](#property-active-9) | core/types/src/shapes/shapeConfig.d.ts:46 |
 | <a id="property-activeopacity-1"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`RectConfig`](#rectconfig-3).[`activeOpacity`](#property-activeopacity-6) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-1"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`RectConfig`](#rectconfig-3).[`activeStyle`](#property-activestyle-6) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-1"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`RectConfig`](#rectconfig-3).[`ariaLabel`](#property-arialabel-6) | core/types/src/shapes/shapeConfig.d.ts:52 |
@@ -23609,9 +27450,9 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-duration-1"></a> `duration?` | `number` | Animation duration in ms. | [`RectConfig`](#rectconfig-3).[`duration`](#property-duration-8) | core/types/src/shapes/shapeConfig.d.ts:65 |
 | <a id="property-fill-1"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`RectConfig`](#rectconfig-3).[`fill`](#property-fill-6) | core/types/src/shapes/shapeConfig.d.ts:67 |
 | <a id="property-fillopacity-1"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`RectConfig`](#rectconfig-3).[`fillOpacity`](#property-fillopacity-6) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-3) | core/types/src/shapes/shapeConfig.d.ts:139 |
+| <a id="property-height"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`height`](#property-height-4) | core/types/src/shapes/shapeConfig.d.ts:139 |
 | <a id="property-hitarea-1"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`RectConfig`](#rectconfig-3).[`hitArea`](#property-hitarea-6) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-1"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-8) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-hover-1"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`RectConfig`](#rectconfig-3).[`hover`](#property-hover-9) | core/types/src/shapes/shapeConfig.d.ts:71 |
 | <a id="property-hoveropacity-1"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverOpacity`](#property-hoveropacity-6) | core/types/src/shapes/shapeConfig.d.ts:73 |
 | <a id="property-hoverstyle-1"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`RectConfig`](#rectconfig-3).[`hoverStyle`](#property-hoverstyle-6) | core/types/src/shapes/shapeConfig.d.ts:75 |
 | <a id="property-id-1"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`RectConfig`](#rectconfig-3).[`id`](#property-id-7) | core/types/src/shapes/shapeConfig.d.ts:79 |
@@ -23642,11 +27483,11 @@ Bar-specific config (Rect + start/end coords).
 | <a id="property-trailpersist"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | [`RectConfig`](#rectconfig-3).[`trailPersist`](#property-trailpersist-2) | core/types/src/shapes/shapeConfig.d.ts:143 |
 | <a id="property-vectoreffect-1"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`RectConfig`](#rectconfig-3).[`vectorEffect`](#property-vectoreffect-6) | core/types/src/shapes/shapeConfig.d.ts:125 |
 | <a id="property-verticalalign-1"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`RectConfig`](#rectconfig-3).[`verticalAlign`](#property-verticalalign-6) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-3) | core/types/src/shapes/shapeConfig.d.ts:138 |
-| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-9) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-width"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | [`RectConfig`](#rectconfig-3).[`width`](#property-width-4) | core/types/src/shapes/shapeConfig.d.ts:138 |
+| <a id="property-x-1"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`RectConfig`](#rectconfig-3).[`x`](#property-x-10) | core/types/src/shapes/shapeConfig.d.ts:129 |
 | <a id="property-x0-1"></a> `x0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:174 |
 | <a id="property-x1-1"></a> `x1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:175 |
-| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-9) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-y-1"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`RectConfig`](#rectconfig-3).[`y`](#property-y-10) | core/types/src/shapes/shapeConfig.d.ts:131 |
 | <a id="property-y0-1"></a> `y0?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:176 |
 | <a id="property-y1-1"></a> `y1?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> \| `null` | - | - | core/types/src/shapes/shapeConfig.d.ts:177 |
 
@@ -23665,7 +27506,7 @@ these via `.config(...)` regardless of geometry.
 
 - [`AreaConfig`](#areaconfig-1)
 - [`CircleConfig`](#circleconfig-1)
-- [`LineConfig`](#lineconfig-2)
+- [`LineConfig`](#lineconfig-3)
 - [`PathConfig`](#pathconfig-1)
 - [`RectConfig`](#rectconfig-3)
 
@@ -23723,6 +27564,25 @@ these via `.config(...)` regardless of geometry.
 
 ***
 
+<a id="bounds"></a>
+
+### Bounds
+
+Defined in: math/types/src/negativeSpace.d.ts:2
+
+An axis-aligned box: top-left corner plus size.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-height-1"></a> `height` | `number` | math/types/src/negativeSpace.d.ts:6 |
+| <a id="property-width-1"></a> `width` | `number` | math/types/src/negativeSpace.d.ts:5 |
+| <a id="property-x-3"></a> `x` | `number` | math/types/src/negativeSpace.d.ts:3 |
+| <a id="property-y-3"></a> `y` | `number` | math/types/src/negativeSpace.d.ts:4 |
+
+***
+
 <a id="boxconfig-1"></a>
 
 ### BoxConfig
@@ -23749,8 +27609,8 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 | <a id="property-select-3"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:205 |
 | <a id="property-whiskerconfig"></a> `whiskerConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:206 |
 | <a id="property-whiskermode"></a> `whiskerMode?` | `string` \| `number` \| (`string` \| `number`)[] | Whisker mode: single mode string/number or [low, high] pair. | core/types/src/shapes/shapeConfig.d.ts:208 |
-| <a id="property-x-3"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:209 |
-| <a id="property-y-3"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:210 |
+| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:209 |
+| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:210 |
 
 ***
 
@@ -23818,8 +27678,8 @@ Circle-specific config (radius).
 | <a id="property-trailpersist-1"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:151 |
 | <a id="property-vectoreffect-3"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
 | <a id="property-verticalalign-3"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-4"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-4"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-x-5"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-y-5"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
 
 ***
 
@@ -23841,7 +27701,7 @@ One computed check in a palette validation report.
 
 ***
 
-<a id="colordefaults"></a>
+<a id="colordefaults-23"></a>
 
 ### ColorDefaults
 
@@ -23881,15 +27741,16 @@ Options for [colorRamp](#colorramp).
 
 ### ColorScaleConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:173
+Defined in: core/types/src/utils/D3plusConfig.d.ts:315
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-bucketformat"></a> `bucketFormat?` | (`start`: `number`, `i`: `number`, `buckets`: `number`[], `values`: `number`[]) => `string` | Formats the label for each bucket in a bucket-type scale ("jenks", "quantile", …). Passed the bucket's start value, its index, the full bucket array, and every data value used to build the buckets. | core/types/src/utils/D3plusConfig.d.ts:184 |
-| <a id="property-bucketjoiner"></a> `bucketJoiner?` | (`min`: `string`, `max`: `string`) => `string` | Given a bucket's minimum and maximum values, returns the full label. | core/types/src/utils/D3plusConfig.d.ts:186 |
-| <a id="property-domain"></a> `domain?` | `number`[] | For a linear scale, the `[min, max]` values used by the color scale; values outside this range map to the nearest color. | core/types/src/utils/D3plusConfig.d.ts:178 |
+| <a id="property-bucketformat"></a> `bucketFormat?` | (`start`: `number`, `i`: `number`, `buckets`: `number`[], `values`: `number`[]) => `string` | Formats the label for each bucket in a bucket-type scale ("jenks", "quantile", …). Passed the bucket's start value, its index, the full bucket array, and every data value used to build the buckets. | core/types/src/utils/D3plusConfig.d.ts:328 |
+| <a id="property-bucketjoiner"></a> `bucketJoiner?` | (`min`: `string`, `max`: `string`) => `string` | Given a bucket's minimum and maximum values, returns the full label. | core/types/src/utils/D3plusConfig.d.ts:330 |
+| <a id="property-color"></a> `color?` | `string` \| `string`[] | The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through. | core/types/src/utils/D3plusConfig.d.ts:317 |
+| <a id="property-domain"></a> `domain?` | `number`[] | For a linear scale, the `[min, max]` values used by the color scale; values outside this range map to the nearest color. | core/types/src/utils/D3plusConfig.d.ts:322 |
 
 ***
 
@@ -23905,9 +27766,9 @@ Options for [colorValidate](#colorvalidate).
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-mode"></a> `mode?` | `"light"` \| `"dark"` | Surface mode — sets the lightness band and default surface. | color/types/src/validate.d.ts:17 |
+| <a id="property-mode"></a> `mode?` | `"dark"` \| `"light"` | Surface mode — sets the lightness band and default surface. | color/types/src/validate.d.ts:17 |
 | <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Validate as an ordered one-hue ramp instead of a categorical palette. | color/types/src/validate.d.ts:23 |
-| <a id="property-pairs"></a> `pairs?` | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | color/types/src/validate.d.ts:21 |
+| <a id="property-pairs"></a> `pairs?` | `"all"` \| `"adjacent"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | color/types/src/validate.d.ts:21 |
 | <a id="property-surface"></a> `surface?` | `string` | Chart surface color the marks are drawn on. | color/types/src/validate.d.ts:19 |
 
 ***
@@ -23933,7 +27794,7 @@ The result of validating a palette. `ok` is true when no check hard-fails.
 
 ### D3plusConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:188
+Defined in: core/types/src/utils/D3plusConfig.d.ts:336
 
 #### Indexable
 
@@ -23945,115 +27806,180 @@ Allows additional custom properties.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-active-4"></a> `active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The active callback function for highlighting shapes. | core/types/src/utils/D3plusConfig.d.ts:194 |
-| <a id="property-aggs"></a> `aggs?` | `object` | Custom aggregation functions keyed by data property. | core/types/src/utils/D3plusConfig.d.ts:196 |
-| <a id="property-ariahidden"></a> `ariaHidden?` | `boolean` | Hides the SVG from assistive technology when true (`aria-hidden`). | core/types/src/utils/D3plusConfig.d.ts:200 |
-| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:202 |
-| <a id="property-baseline"></a> `baseline?` | `number` | The baseline for the x/y plot. | core/types/src/utils/D3plusConfig.d.ts:204 |
-| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | core/types/src/utils/D3plusConfig.d.ts:206 |
-| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | core/types/src/utils/D3plusConfig.d.ts:208 |
-| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | core/types/src/utils/D3plusConfig.d.ts:210 |
-| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | core/types/src/utils/D3plusConfig.d.ts:212 |
-| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | core/types/src/utils/D3plusConfig.d.ts:213 |
-| `colorScaleConfig.centered?` | `boolean` | - | core/types/src/utils/D3plusConfig.d.ts:214 |
-| `colorScaleConfig.colorMax?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:218 |
-| `colorScaleConfig.colorMid?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:217 |
-| `colorScaleConfig.colorMin?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:216 |
-| `colorScaleConfig.colors?` | `string`[] | - | core/types/src/utils/D3plusConfig.d.ts:215 |
-| `colorScaleConfig.scale?` | `AxisScale` | - | core/types/src/utils/D3plusConfig.d.ts:219 |
-| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:222 |
-| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | core/types/src/utils/D3plusConfig.d.ts:224 |
-| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:226 |
-| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`), `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | core/types/src/utils/D3plusConfig.d.ts:232 |
-| <a id="property-data-5"></a> `data?` | `string` \| [`DataPoint`](#datapoint)[] | Data array or URL string to load data from. | core/types/src/utils/D3plusConfig.d.ts:190 |
-| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | core/types/src/utils/D3plusConfig.d.ts:237 |
-| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | core/types/src/utils/D3plusConfig.d.ts:239 |
-| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | core/types/src/utils/D3plusConfig.d.ts:241 |
-| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | core/types/src/utils/D3plusConfig.d.ts:243 |
-| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:245 |
-| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | core/types/src/utils/D3plusConfig.d.ts:247 |
-| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) \| (`d`: [`DataPoint`](#datapoint)) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | core/types/src/utils/D3plusConfig.d.ts:249 |
-| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:251 |
-| <a id="property-height-1"></a> `height?` | `number` | Overall height of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:253 |
-| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:255 |
-| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:257 |
-| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | core/types/src/utils/D3plusConfig.d.ts:261 |
-| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | core/types/src/utils/D3plusConfig.d.ts:259 |
-| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | core/types/src/utils/D3plusConfig.d.ts:263 |
-| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: [`DataPoint`](#datapoint)[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant. | core/types/src/utils/D3plusConfig.d.ts:270 |
-| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | core/types/src/utils/D3plusConfig.d.ts:272 |
-| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | core/types/src/utils/D3plusConfig.d.ts:273 |
-| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:274 |
-| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:277 |
-| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:279 |
-| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:281 |
-| <a id="property-legendsort"></a> `legendSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort comparator for legend items. | core/types/src/utils/D3plusConfig.d.ts:283 |
-| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | core/types/src/utils/D3plusConfig.d.ts:285 |
-| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | core/types/src/utils/D3plusConfig.d.ts:287 |
-| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:291 |
-| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | core/types/src/utils/D3plusConfig.d.ts:289 |
-| <a id="property-locale"></a> `locale?` | `string` | Locale code used for text and number formatting. | core/types/src/utils/D3plusConfig.d.ts:192 |
-| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | core/types/src/utils/D3plusConfig.d.ts:293 |
-| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:295 |
-| <a id="property-ocean"></a> `ocean?` | `string` | Ocean color for geomaps (any CSS value including 'transparent'). | core/types/src/utils/D3plusConfig.d.ts:297 |
-| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | core/types/src/utils/D3plusConfig.d.ts:299 |
-| <a id="property-point"></a> `point?` | (`d`: [`DataPoint`](#datapoint)) => `number`[] | Coordinate accessor for point-based geomaps. | core/types/src/utils/D3plusConfig.d.ts:301 |
-| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | Point size accessor for geomaps. | core/types/src/utils/D3plusConfig.d.ts:303 |
-| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:307 |
-| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:305 |
-| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | core/types/src/utils/D3plusConfig.d.ts:309 |
-| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | core/types/src/utils/D3plusConfig.d.ts:311 |
-| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | core/types/src/utils/D3plusConfig.d.ts:313 |
-| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:315 |
-| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:317 |
-| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | core/types/src/utils/D3plusConfig.d.ts:319 |
-| `shapeConfig.duration?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:320 |
-| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | core/types/src/utils/D3plusConfig.d.ts:329 |
-| <a id="property-size"></a> `size?` | `string` | Size accessor key. | core/types/src/utils/D3plusConfig.d.ts:331 |
-| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | core/types/src/utils/D3plusConfig.d.ts:333 |
-| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | core/types/src/utils/D3plusConfig.d.ts:340 |
-| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`); \} \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | core/types/src/utils/D3plusConfig.d.ts:349 |
-| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Subtitle text, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:354 |
-| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:356 |
-| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | core/types/src/utils/D3plusConfig.d.ts:358 |
-| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | core/types/src/utils/D3plusConfig.d.ts:360 |
-| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | core/types/src/utils/D3plusConfig.d.ts:362 |
-| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | core/types/src/utils/D3plusConfig.d.ts:364 |
-| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:366 |
-| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | core/types/src/utils/D3plusConfig.d.ts:370 |
-| <a id="property-tileurl"></a> `tileUrl?` | `string` | URL to XYZ map tiles. | core/types/src/utils/D3plusConfig.d.ts:368 |
-| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | core/types/src/utils/D3plusConfig.d.ts:372 |
-| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:374 |
-| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | core/types/src/utils/D3plusConfig.d.ts:376 |
-| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:378 |
-| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Chart title or title accessor function. | core/types/src/utils/D3plusConfig.d.ts:380 |
-| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | core/types/src/utils/D3plusConfig.d.ts:382 |
-| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:384 |
-| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | core/types/src/utils/D3plusConfig.d.ts:386 |
-| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | core/types/src/utils/D3plusConfig.d.ts:388 |
-| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | core/types/src/utils/D3plusConfig.d.ts:390 |
-| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | core/types/src/utils/D3plusConfig.d.ts:392 |
-| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | core/types/src/utils/D3plusConfig.d.ts:394 |
-| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:396 |
-| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | core/types/src/utils/D3plusConfig.d.ts:398 |
-| <a id="property-width-1"></a> `width?` | `number` | Overall width of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:400 |
-| <a id="property-x-5"></a> `x?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:402 |
-| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:408 |
-| <a id="property-x2sort"></a> `x2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | core/types/src/utils/D3plusConfig.d.ts:412 |
-| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | core/types/src/utils/D3plusConfig.d.ts:404 |
-| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:406 |
-| <a id="property-xsort"></a> `xSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:410 |
-| <a id="property-y-5"></a> `y?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:414 |
-| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:420 |
-| <a id="property-y2sort"></a> `y2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | core/types/src/utils/D3plusConfig.d.ts:424 |
-| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | core/types/src/utils/D3plusConfig.d.ts:416 |
-| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:418 |
-| <a id="property-ysort"></a> `ySort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:422 |
-| <a id="property-zoom"></a> `zoom?` | `boolean` | Set to false to disable zooming on Geomap and Network. | core/types/src/utils/D3plusConfig.d.ts:426 |
-| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | core/types/src/utils/D3plusConfig.d.ts:428 |
-| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. | core/types/src/utils/D3plusConfig.d.ts:430 |
-| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | core/types/src/utils/D3plusConfig.d.ts:432 |
-| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` | Whether scroll-wheel zooming is enabled. | core/types/src/utils/D3plusConfig.d.ts:434 |
+| <a id="property-active-4"></a> `active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The active callback function for highlighting shapes. | core/types/src/utils/D3plusConfig.d.ts:342 |
+| <a id="property-aggs"></a> `aggs?` | `object` | Custom aggregation functions keyed by data property. | core/types/src/utils/D3plusConfig.d.ts:344 |
+| <a id="property-ariahidden"></a> `ariaHidden?` | `boolean` | Hides the SVG from assistive technology when true (`aria-hidden`). | core/types/src/utils/D3plusConfig.d.ts:348 |
+| <a id="property-attribution"></a> `attribution?` | `string` \| `boolean` | Text (rendered as HTML — any valid HTML string works, including anchor links) shown in the chart's bottom-right corner, most often a map tile credit. `false` (the default) shows nothing. A credit wider than half the chart area collapses to a small "ⓘ" badge that expands on hover, focus, or click. | core/types/src/utils/D3plusConfig.d.ts:371 |
+| <a id="property-attributionicon"></a> `attributionIcon?` | `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) | Overrides the "ⓘ" badge a long attribution collapses to, which otherwise renders as an inline SVG. A string is used as the badge's raw HTML content; a mount function, `(el: HTMLElement) => void | (() => void)`, is called once with the badge's reserved element so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:381 |
+| <a id="property-attributionstyle"></a> `attributionStyle?` | `Record`\<`string`, `unknown`\> | CSS key/value pairs used to style the attribution text. | core/types/src/utils/D3plusConfig.d.ts:383 |
+| <a id="property-axisconfig"></a> `axisConfig?` | `object` | The Radar's axis styles, named after the parts of a Plot axis: the inner level rings are its gridlines (`gridConfig`, a faint stroke like Plot's gridlines), the outer ring is its axis line (`barConfig`, the chart's background ink), and the spokes and metric labels are its ticks (`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring styles take `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, and `opacity` (or Plot's `"stroke-width"` spelling), each a value or a `(ring, i) => value` accessor. | core/types/src/utils/D3plusConfig.d.ts:359 |
+| `axisConfig.barConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:360 |
+| `axisConfig.gridConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:361 |
+| `axisConfig.shapeConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/utils/D3plusConfig.d.ts:362 |
+| <a id="property-backcontrolclassname"></a> `backControlClassName?` | `string` | Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. | core/types/src/utils/D3plusConfig.d.ts:385 |
+| <a id="property-barpadding"></a> `barPadding?` | `number` | Padding between bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:387 |
+| <a id="property-baseline-1"></a> `baseline?` | `number` | The baseline value: where a Plot's bars and areas start, and the value an axis's `baselineBreak` returns to. Defaults to `0` on an axis. | core/types/src/utils/D3plusConfig.d.ts:392 |
+| <a id="property-baselinebreak-1"></a> `baselineBreak?` | `boolean` | When the domain of a linear value axis stops short of the `baseline` (e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the axis's end tick and breaks the axis between it and the domain: a short stretch of axis holds the baseline tick and two tilted marks with a gap in the axis line, then the domain spans the rest. Style it with the axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied value domain (`yDomain`/`yConfig.domain`, or the x versions for horizontal bars), and bars start at the baseline tick; turned off, a `yDomain` stretches to reach the baseline while a `yConfig.domain` is kept and cuts its bars off at the axis. Defaults to `true` for BarChart and `false` for other Plots and a standalone Axis. | core/types/src/utils/D3plusConfig.d.ts:406 |
+| <a id="property-cache"></a> `cache?` | `boolean` | Whether to cache the processed data between renders. | core/types/src/utils/D3plusConfig.d.ts:408 |
+| <a id="property-categoryposition"></a> `categoryPosition?` | `"left"` \| `"center"` | Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. | core/types/src/utils/D3plusConfig.d.ts:432 |
+| <a id="property-colordefaults"></a> `colorDefaults?` | [`ColorDefaultsConfig`](#colordefaultsconfig) | Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). | core/types/src/utils/D3plusConfig.d.ts:410 |
+| <a id="property-colorordinal"></a> `colorOrdinal?` | `boolean` | Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. | core/types/src/utils/D3plusConfig.d.ts:412 |
+| <a id="property-colorscale"></a> `colorScale?` | `string` \| ((`d`: `number`) => `string`) | Color scale key or custom color function. | core/types/src/utils/D3plusConfig.d.ts:414 |
+| <a id="property-colorscaleconfig"></a> `colorScaleConfig?` | `object` | Configuration for the color scale component. | core/types/src/utils/D3plusConfig.d.ts:416 |
+| `colorScaleConfig.axisConfig?` | [`AxisConfig`](#axisconfig-2) | - | core/types/src/utils/D3plusConfig.d.ts:417 |
+| `colorScaleConfig.centered?` | `boolean` | - | core/types/src/utils/D3plusConfig.d.ts:418 |
+| `colorScaleConfig.colorMax?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:422 |
+| `colorScaleConfig.colorMid?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:421 |
+| `colorScaleConfig.colorMin?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:420 |
+| `colorScaleConfig.colors?` | `string`[] | - | core/types/src/utils/D3plusConfig.d.ts:419 |
+| `colorScaleConfig.scale?` | `AxisScale` | - | core/types/src/utils/D3plusConfig.d.ts:423 |
+| <a id="property-colorscalepadding"></a> `colorScalePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:426 |
+| <a id="property-colorscaleposition"></a> `colorScalePosition?` | `false` \| `Position` \| (() => false \| Position) | Position of the color scale, `false` to hide it, or an accessor returning either. | core/types/src/utils/D3plusConfig.d.ts:428 |
+| <a id="property-column"></a> `column?` | `string` | Column key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:430 |
+| <a id="property-comparison"></a> `comparison?` | `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`) | Pyramid: a comparison value per row (data key or accessor), drawn as an outline around each side's bars. | core/types/src/utils/D3plusConfig.d.ts:434 |
+| <a id="property-comparisonconfig"></a> `comparisonConfig?` | `Record`\<`string`, `unknown`\> | Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. | core/types/src/utils/D3plusConfig.d.ts:436 |
+| <a id="property-confidence"></a> `confidence?` | `false` \| \[`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`), `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)\] | The confidence interval as `[lower, upper]` bounds — each given as an accessor function or a static data key (e.g. `["lci", "hci"]`), or `false` to disable. | core/types/src/utils/D3plusConfig.d.ts:442 |
+| <a id="property-crosshairconfig"></a> `crosshairConfig?` | `Record`\<`string`, `unknown`\> | Paint for the shared tooltip's crosshair guide line (`stroke`, `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). | core/types/src/utils/D3plusConfig.d.ts:450 |
+| <a id="property-data-5"></a> `data?` | `string` \| [`DataPoint`](#datapoint)[] | Data array or URL string to load data from. | core/types/src/utils/D3plusConfig.d.ts:338 |
+| <a id="property-datacutoff"></a> `dataCutoff?` | `number` | Maximum number of data points to render before downsampling. | core/types/src/utils/D3plusConfig.d.ts:452 |
+| <a id="property-depth"></a> `depth?` | `number` | Active depth level for nested groupings. | core/types/src/utils/D3plusConfig.d.ts:454 |
+| <a id="property-discrete-4"></a> `discrete?` | `"x"` \| `"y"` | Sets orientation of main category axis. | core/types/src/utils/D3plusConfig.d.ts:456 |
+| <a id="property-duration-4"></a> `duration?` | `number` | Default duration of transitions, in milliseconds. | core/types/src/utils/D3plusConfig.d.ts:458 |
+| <a id="property-filter"></a> `filter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which data points are included, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:460 |
+| <a id="property-fitfilter"></a> `fitFilter?` | `string` \| `number` \| ((`d`: `Record`\<`string`, `unknown`\>) => `boolean`) | Allows removing specific geographies from topojson file to improve zoom. | core/types/src/utils/D3plusConfig.d.ts:462 |
+| <a id="property-groupby"></a> `groupBy?` | `string` \| `string`[] \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) \| (`d`: [`DataPoint`](#datapoint)) => `string` \| `number`[] | Grouping key(s) or accessor function(s). | core/types/src/utils/D3plusConfig.d.ts:464 |
+| <a id="property-grouppadding"></a> `groupPadding?` | `number` | Padding between groups of bars in pixels. | core/types/src/utils/D3plusConfig.d.ts:466 |
+| <a id="property-height-2"></a> `height?` | `number` | Overall height of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:468 |
+| <a id="property-hiddencolor"></a> `hiddenColor?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:470 |
+| <a id="property-hiddenopacity"></a> `hiddenOpacity?` | `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`) | Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:472 |
+| <a id="property-highlight"></a> `highlight?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Persistently emphasizes matching marks (keep color) and grays the rest. | core/types/src/utils/D3plusConfig.d.ts:476 |
+| <a id="property-hover-4"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | The hover callback function for highlighting shapes on mouseover. | core/types/src/utils/D3plusConfig.d.ts:474 |
+| <a id="property-label-5"></a> `label?` | `string` \| `false` \| `string`[] \| `AccessorFn` | Label accessor for shapes. | core/types/src/utils/D3plusConfig.d.ts:478 |
+| <a id="property-legend"></a> `legend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `arr`: [`DataPoint`](#datapoint)[]) => `boolean`) | Controls legend visibility. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` accessor to decide dynamically — the chart defaults use an accessor to auto-hide the legend when it would be redundant, and to show it with one entry per category when `color` is a category that isn't a `groupBy` level. | core/types/src/utils/D3plusConfig.d.ts:486 |
+| <a id="property-legendconfig"></a> `legendConfig?` | `object` | Configuration for the legend component. | core/types/src/utils/D3plusConfig.d.ts:488 |
+| `legendConfig.label?` | `DataPointAccessor`\<`string`\> | - | core/types/src/utils/D3plusConfig.d.ts:489 |
+| `legendConfig.shape?` | `DataPointAccessor`\<`string`\> | Each item's swatch: `"Rect"` (a square), `"Circle"` (a dot), or `"Line"` (a dot with a short stroke through it). Defaults to the shape of the series it stands for: a dot for Circles, the line glyph for Lines, and a square for everything else. | core/types/src/utils/D3plusConfig.d.ts:496 |
+| `legendConfig.shapeConfig?` | `Record`\<`string`, `string` \| `number`\> | - | core/types/src/utils/D3plusConfig.d.ts:497 |
+| <a id="property-legendfilterinvert"></a> `legendFilterInvert?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:500 |
+| <a id="property-legendinset"></a> `legendInset?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig)) => `boolean`) | Whether one legend may be drawn inside the empty space around the chart's marks instead of in a margin (size legend first, then legend, then colorScale), or an accessor receiving the resolved config. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:506 |
+| <a id="property-legendinsetconfig"></a> `legendInsetConfig?` | `object` | Style of the semi-transparent box behind a legend drawn inside the chart. | core/types/src/utils/D3plusConfig.d.ts:508 |
+| `legendInsetConfig.fill?` | `string` | Box fill; defaults to the chart's background color. | core/types/src/utils/D3plusConfig.d.ts:510 |
+| `legendInsetConfig.fillOpacity?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:511 |
+| `legendInsetConfig.margin?` | `number` | Space between the box's edge and the legend inside it. | core/types/src/utils/D3plusConfig.d.ts:517 |
+| `legendInsetConfig.padding?` | `number` | Space kept between the box and the chart's marks and edges. | core/types/src/utils/D3plusConfig.d.ts:519 |
+| `legendInsetConfig.rx?` | `number` | Corner radius. | core/types/src/utils/D3plusConfig.d.ts:515 |
+| `legendInsetConfig.stroke?` | `string` | - | core/types/src/utils/D3plusConfig.d.ts:512 |
+| `legendInsetConfig.strokeWidth?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:513 |
+| <a id="property-legendpadding"></a> `legendPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:522 |
+| <a id="property-legendposition"></a> `legendPosition?` | `Position` \| (() => `Position`) | Position of the legend, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:524 |
+| <a id="property-legendsort"></a> `legendSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort comparator for legend items. | core/types/src/utils/D3plusConfig.d.ts:526 |
+| <a id="property-legendtooltip"></a> `legendTooltip?` | [`TooltipConfig`](#tooltipconfig-3) | Tooltip configuration for legend items. | core/types/src/utils/D3plusConfig.d.ts:528 |
+| <a id="property-levelformat"></a> `levelFormat?` | (`d`: `number`) => `string` \| `number` | Formats the Radar's level value labels. Receives the ring's value and returns its label. Defaults to the abbreviated number format the axes use (`1.5k`, `2M`, …). | core/types/src/utils/D3plusConfig.d.ts:534 |
+| <a id="property-levellabelangle"></a> `levelLabelAngle?` | `number` | Direction of the Radar's level value labels, in degrees clockwise from 12 o'clock. `0` (the default) runs the labels straight up from the center. Each label sits just inside its ring, offset to the clockwise side of that direction so neither line crosses the text. Spokes start at 3 o'clock, so the spoke for the metric at index `i` of `n` sits at `90 + 360 * i / n` degrees. | core/types/src/utils/D3plusConfig.d.ts:543 |
+| <a id="property-levellabelconfig"></a> `levelLabelConfig?` | `object` | Style of the Radar's level value labels. | core/types/src/utils/D3plusConfig.d.ts:545 |
+| `levelLabelConfig.fontColor?` | `string` | Text color. Defaults to the color that contrasts with the chart's background. | core/types/src/utils/D3plusConfig.d.ts:547 |
+| `levelLabelConfig.fontFamily?` | `string` \| `string`[] | Font family. Defaults to the chart's `fontFamily`. | core/types/src/utils/D3plusConfig.d.ts:549 |
+| `levelLabelConfig.fontOpacity?` | `number` | Text opacity. Defaults to `1`. | core/types/src/utils/D3plusConfig.d.ts:551 |
+| `levelLabelConfig.fontSize?` | `number` | Font size, in pixels. Defaults to `10`. | core/types/src/utils/D3plusConfig.d.ts:553 |
+| `levelLabelConfig.fontWeight?` | `string` \| `number` | Font weight. Defaults to `400`. | core/types/src/utils/D3plusConfig.d.ts:555 |
+| <a id="property-levellabels"></a> `levelLabels?` | `boolean` | Whether the Radar labels each level ring with its value. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:558 |
+| <a id="property-levels"></a> `levels?` | `number` \| `number`[] | The Radar's level rings. A number (default `6`) is the approximate ring count: the radial domain is rounded out to "nice" values and the rings sit on its ticks, the same way axis ticks are chosen. An array sets the exact ring values. | core/types/src/utils/D3plusConfig.d.ts:565 |
+| <a id="property-linelabels"></a> `lineLabels?` | `boolean` | Whether to show labels on line charts. | core/types/src/utils/D3plusConfig.d.ts:567 |
+| <a id="property-link"></a> `link?` | [`LinkOption`](#linkoption) | Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. | core/types/src/utils/D3plusConfig.d.ts:569 |
+| <a id="property-loadinghtml"></a> `loadingHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content for the loading indicator, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:573 |
+| <a id="property-loadingmessage"></a> `loadingMessage?` | `boolean` | Whether to show the loading message. | core/types/src/utils/D3plusConfig.d.ts:571 |
+| <a id="property-locale"></a> `locale?` | `string` | Locale code used for text and number formatting. | core/types/src/utils/D3plusConfig.d.ts:340 |
+| <a id="property-metric"></a> `metric?` | `string` | Metric key for the visualization. | core/types/src/utils/D3plusConfig.d.ts:575 |
+| <a id="property-minimap"></a> `minimap?` | `boolean` | Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. | core/types/src/utils/D3plusConfig.d.ts:577 |
+| <a id="property-minimapclassname"></a> `minimapClassName?` | `string` | Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:579 |
+| <a id="property-nodatahtml"></a> `noDataHTML?` | `string` \| ((`viz`: `VizBase`) => `string`) | Custom HTML content shown when no data is supplied, or a function receiving the viz instance. | core/types/src/utils/D3plusConfig.d.ts:581 |
+| <a id="property-ocean"></a> `ocean?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | Ocean color for geomaps (any CSS value including 'transparent'), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors. | core/types/src/utils/D3plusConfig.d.ts:587 |
+| <a id="property-on-5"></a> `on?` | `Record`\<`string`, (`event`: `Event`) => `void`\> | Event listeners keyed by event name. | core/types/src/utils/D3plusConfig.d.ts:592 |
+| <a id="property-outerpadding"></a> `outerPadding?` | `number` \| `"auto"` | Room (px) the Radar reserves around its web for the metric labels. `"auto"` (the default) measures the labels and gives the web the largest radius at which every label fits inside the chart, wrapping long labels onto two lines (and truncating what still doesn't fit) rather than shrinking the web below half its largest possible size. A number reserves exactly that much room and wraps labels to that width. | core/types/src/utils/D3plusConfig.d.ts:601 |
+| <a id="property-percent"></a> `percent?` | `boolean` | Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. | core/types/src/utils/D3plusConfig.d.ts:603 |
+| <a id="property-point"></a> `point?` | (`d`: [`DataPoint`](#datapoint)) => `number`[] | Coordinate accessor for point-based geomaps. | core/types/src/utils/D3plusConfig.d.ts:605 |
+| <a id="property-pointsize"></a> `pointSize?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | Point size accessor for geomaps. | core/types/src/utils/D3plusConfig.d.ts:607 |
+| <a id="property-pointsizemax"></a> `pointSizeMax?` | `number` | Maximum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:611 |
+| <a id="property-pointsizemin"></a> `pointSizeMin?` | `number` | Minimum point size for geomaps. | core/types/src/utils/D3plusConfig.d.ts:609 |
+| <a id="property-projection"></a> `projection?` | `string` \| ((`x`: `number`, `y`: `number`) => \[`number`, `number`\]) | Map projection name or function. | core/types/src/utils/D3plusConfig.d.ts:613 |
+| <a id="property-projectionpadding"></a> `projectionPadding?` | `string` \| `number` | Outer padding between the visualization edge and map shapes. | core/types/src/utils/D3plusConfig.d.ts:615 |
+| <a id="property-projectionrotate"></a> `projectionRotate?` | \[`number`, `number`\] | Rotation offset for the map projection center. | core/types/src/utils/D3plusConfig.d.ts:617 |
+| <a id="property-row"></a> `row?` | `string` | Row key for matrix-style layouts. | core/types/src/utils/D3plusConfig.d.ts:619 |
+| <a id="property-scrollcontainer"></a> `scrollContainer?` | `string` \| `Window` | Scrollable container selector for tooltip positioning. | core/types/src/utils/D3plusConfig.d.ts:621 |
+| <a id="property-search"></a> `search?` | `boolean` | Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:623 |
+| <a id="property-searchaccessor"></a> `searchAccessor?` | (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` | Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. | core/types/src/utils/D3plusConfig.d.ts:625 |
+| <a id="property-searchcontrolclassname"></a> `searchControlClassName?` | `string` | Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. | core/types/src/utils/D3plusConfig.d.ts:627 |
+| <a id="property-shapeconfig"></a> `shapeConfig?` | `object` | Configuration for shape rendering. | core/types/src/utils/D3plusConfig.d.ts:629 |
+| `shapeConfig.duration?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:630 |
+| <a id="property-shapesort"></a> `shapeSort?` | (`a`: `string`, `b`: `string`) => `number` | A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort) that receives each shape class (e.g. "Circle", "Line") as its arguments. Shapes are drawn in groups by type, so this defines the layering order for all shapes of a given type. | core/types/src/utils/D3plusConfig.d.ts:639 |
+| <a id="property-sides"></a> `sides?` | `unknown`[] | Pyramid: the side values (the first `groupBy` level) as `[left, right]`. | core/types/src/utils/D3plusConfig.d.ts:641 |
+| <a id="property-sidetitleconfig"></a> `sideTitleConfig?` | [`TextBoxConfig`](#textboxconfig-1) | Pyramid: TextBox styles for the side titles. | core/types/src/utils/D3plusConfig.d.ts:643 |
+| <a id="property-sidetitles"></a> `sideTitles?` | `boolean` | Pyramid: draws the name of each side above its half of the chart. | core/types/src/utils/D3plusConfig.d.ts:645 |
+| <a id="property-size"></a> `size?` | `string` | Size accessor key. | core/types/src/utils/D3plusConfig.d.ts:647 |
+| <a id="property-sizelegend"></a> `sizeLegend?` | `boolean` \| ((`config`: [`D3plusConfig`](#d3plusconfig), `scale`: `SizeLegendScale`, `size`: `SizeLegendSize`) => `boolean`) | Controls size-legend visibility — the nested-circle key drawn in the bottom-right corner of charts that size their marks. Shown by default whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height; pass `true` to always show it, `false` to hide it, or a `(config, scale, size) => boolean` accessor. | core/types/src/utils/D3plusConfig.d.ts:656 |
+| <a id="property-sizelegendconfig"></a> `sizeLegendConfig?` | [`SizeLegendConfig`](#sizelegendconfig-3) | Configuration for the size-legend component. | core/types/src/utils/D3plusConfig.d.ts:658 |
+| <a id="property-sizelegendposition"></a> `sizeLegendPosition?` | `"right"` \| `"bottom"` | Which margin the size legend claims in the bottom-right corner: `"right"` (default) keeps the chart's full height, `"bottom"` its full width. | core/types/src/utils/D3plusConfig.d.ts:664 |
+| <a id="property-stacked"></a> `stacked?` | `boolean` | Whether to stack series. | core/types/src/utils/D3plusConfig.d.ts:666 |
+| <a id="property-stackoffset"></a> `stackOffset?` | `string` \| ((`series`: `number`[][][], `order`: `number`[]) => `void`) | Vertical offset applied to stacked series. One of `"diverging"` (default — positive and negative values split around zero), `"none"`, `"expand"` (normalize each stack to 100%), `"silhouette"` (streamgraph), or `"wiggle"` (minimize slope changes); or a custom offset function. | core/types/src/utils/D3plusConfig.d.ts:673 |
+| <a id="property-stackorder"></a> `stackOrder?` | `string` \| `string`[] \| \{ `order?`: `"ascending"` \| `"descending"`; `value`: `string` \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`); \} \| ((`d`: [`DataPoint`](#datapoint)) => `unknown`) | Order of stacked series, from the bottom of the stack upward. Accepts a named order (`"descending"` [default] / `"ascending"` by summed value, `"key"` / `"keyReverse"` alphabetically, `"none"` / `"data"` for input order, or d3's `"insideOut"` / `"appearance"` / `"reverse"`), an Array of series keys for an explicit order, a value accessor, or a `{value, order}` config to rank series by an aggregate of any data field. | core/types/src/utils/D3plusConfig.d.ts:682 |
+| <a id="property-subtitle"></a> `subtitle?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Subtitle text, or an accessor returning it. | core/types/src/utils/D3plusConfig.d.ts:687 |
+| <a id="property-subtitlepadding"></a> `subtitlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:689 |
+| <a id="property-sum"></a> `sum?` | `DataPointAccessor`\<`number`\> | Value accessor for treemaps and aggregation. | core/types/src/utils/D3plusConfig.d.ts:691 |
+| <a id="property-svgdesc"></a> `svgDesc?` | `string` | Accessible description applied to the root SVG (`<desc>`). | core/types/src/utils/D3plusConfig.d.ts:693 |
+| <a id="property-svgtitle"></a> `svgTitle?` | `string` | Accessible title applied to the root SVG (`<title>`). | core/types/src/utils/D3plusConfig.d.ts:695 |
+| <a id="property-symmetric"></a> `symmetric?` | `boolean` | Pyramid: centers the value axis on zero so both halves share one scale. | core/types/src/utils/D3plusConfig.d.ts:697 |
+| <a id="property-tableview"></a> `tableView?` | `boolean` | Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:699 |
+| <a id="property-tableviewclassname"></a> `tableViewClassName?` | `string` | Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. | core/types/src/utils/D3plusConfig.d.ts:701 |
+| <a id="property-tableviewcontrolclassname"></a> `tableViewControlClassName?` | `string` | Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. | core/types/src/utils/D3plusConfig.d.ts:703 |
+| <a id="property-tableviewcontrolstyle"></a> `tableViewControlStyle?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:705 |
+| <a id="property-tableviewcontrolstyleactive"></a> `tableViewControlStyleActive?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:707 |
+| <a id="property-tableviewcontrolstylehover"></a> `tableViewControlStyleHover?` | `false` \| `Record`\<`string`, `unknown`\> | CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. | core/types/src/utils/D3plusConfig.d.ts:709 |
+| <a id="property-tableviewdownload"></a> `tableViewDownload?` | `boolean` | Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. | core/types/src/utils/D3plusConfig.d.ts:711 |
+| <a id="property-tableviewpagesize"></a> `tableViewPageSize?` | `number` \| `false` | Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. | core/types/src/utils/D3plusConfig.d.ts:713 |
+| <a id="property-tableviewsort"></a> `tableViewSort?` | `boolean` | Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. | core/types/src/utils/D3plusConfig.d.ts:715 |
+| <a id="property-threshold"></a> `threshold?` | `number` | Threshold value for grouping small slices. | core/types/src/utils/D3plusConfig.d.ts:717 |
+| <a id="property-thresholdname"></a> `thresholdName?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`) | Label for the threshold group, or a `(datum, index)` accessor. | core/types/src/utils/D3plusConfig.d.ts:719 |
+| <a id="property-tiles"></a> `tiles?` | `boolean` | Whether to show map tiles. | core/types/src/utils/D3plusConfig.d.ts:730 |
+| <a id="property-tileurl"></a> `tileUrl?` | `string` \| \{ `dark`: `string`; `light`: `string`; \} | URL template for XYZ map tiles, with `{z}`, `{x}`, `{y}` (and optional `{s}` subdomain) placeholders — or a `{light, dark}` pair, chosen by the chart's backdrop. Defaults to Esri's Light Gray and Dark Gray Canvas. | core/types/src/utils/D3plusConfig.d.ts:725 |
+| <a id="property-time"></a> `time?` | `string` | Time key for temporal data. | core/types/src/utils/D3plusConfig.d.ts:732 |
+| <a id="property-timefilter"></a> `timeFilter?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Predicate filtering which time slices are shown, or false to disable. | core/types/src/utils/D3plusConfig.d.ts:734 |
+| <a id="property-timeline"></a> `timeline?` | `boolean` | Whether to show the timeline component. | core/types/src/utils/D3plusConfig.d.ts:736 |
+| <a id="property-timelinepadding"></a> `timelinePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:738 |
+| <a id="property-title-1"></a> `title?` | `string` \| ((`data`: [`DataPoint`](#datapoint)[]) => `string`) | Chart title or title accessor function. | core/types/src/utils/D3plusConfig.d.ts:740 |
+| <a id="property-titleconfig"></a> `titleConfig?` | `Record`\<`string`, `string` \| `number`\> | CSS style configuration for the title. | core/types/src/utils/D3plusConfig.d.ts:742 |
+| <a id="property-titlepadding"></a> `titlePadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:744 |
+| <a id="property-tooltip"></a> `tooltip?` | `boolean` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) | Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. | core/types/src/utils/D3plusConfig.d.ts:746 |
+| <a id="property-tooltipconfig"></a> `tooltipConfig?` | [`TooltipConfig`](#tooltipconfig-3) | Configuration for the tooltip component. | core/types/src/utils/D3plusConfig.d.ts:748 |
+| <a id="property-tooltipshared"></a> `tooltipShared?` | `boolean` | Whether hovering a Plot's plot area shows one tooltip listing every series' value at the nearest discrete-axis position, with a crosshair through it. Applies when a discrete axis is set and at least two series share that position. | core/types/src/utils/D3plusConfig.d.ts:755 |
+| <a id="property-topojson"></a> `topojson?` | `string` \| `object` | Path or object for the topojson data. | core/types/src/utils/D3plusConfig.d.ts:771 |
+| <a id="property-topojsonfill"></a> `topojsonFill?` | `string` | CSS color to fill the map shapes. | core/types/src/utils/D3plusConfig.d.ts:773 |
+| <a id="property-topojsonid"></a> `topojsonId?` | (`obj`: `Record`\<`string`, `unknown`\>) => `string` | Accessor function for topojson feature IDs. | core/types/src/utils/D3plusConfig.d.ts:775 |
+| <a id="property-totalpadding"></a> `totalPadding?` | `boolean` \| ((`viz`: `VizBase`) => `boolean`) | Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. | core/types/src/utils/D3plusConfig.d.ts:777 |
+| <a id="property-trendline"></a> `trendLine?` | `boolean` \| `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"` | Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it. | core/types/src/utils/D3plusConfig.d.ts:761 |
+| <a id="property-trendlineconfig"></a> `trendLineConfig?` | [`TrendLineConfig`](#trendlineconfig-1) | Options for the trend lines: `group` (`"series"` or `"all"`), the polynomial `order`, a `confidence` band with `confidenceLevel` and `confidenceConfig`, a `projection` into the future with `projectionConfig`, `tooltip`, and Line styles (`stroke`, `strokeWidth`, `strokeDasharray`, …). | core/types/src/utils/D3plusConfig.d.ts:769 |
+| <a id="property-value"></a> `value?` | `DataPointAccessor`\<`number`\> | Value accessor for the visualization. | core/types/src/utils/D3plusConfig.d.ts:779 |
+| <a id="property-width-2"></a> `width?` | `number` | Overall width of the visualization in pixels. | core/types/src/utils/D3plusConfig.d.ts:781 |
+| <a id="property-x-6"></a> `x?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:783 |
+| <a id="property-x2domain"></a> `x2Domain?` | (`number` \| `Date`)[] | The x2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:795 |
+| <a id="property-x2sort"></a> `x2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete x2 axes. | core/types/src/utils/D3plusConfig.d.ts:799 |
+| <a id="property-xbreak"></a> `xBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the x axis — `[start, end]` or a list of them — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:791 |
+| <a id="property-xconfig"></a> `xConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the x-axis. | core/types/src/utils/D3plusConfig.d.ts:785 |
+| <a id="property-xdomain"></a> `xDomain?` | (`number` \| `Date`)[] | The x domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:793 |
+| <a id="property-xsort"></a> `xSort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for x-axis values. | core/types/src/utils/D3plusConfig.d.ts:797 |
+| <a id="property-y-6"></a> `y?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | Key, index, or accessor function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:801 |
+| <a id="property-y2domain"></a> `y2Domain?` | (`number` \| `Date`)[] | The y2 domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:814 |
+| <a id="property-y2sort"></a> `y2Sort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Defines a custom sorting comparator function for discrete y2 axes. | core/types/src/utils/D3plusConfig.d.ts:818 |
+| <a id="property-ybreak"></a> `yBreak?` | \[`number`, `number`\] \| \[`number`, `number`\][] | Value range(s) to remove from the y axis — `[start, end]` or a list of them, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the axis with a gap cut across the shapes that cross it (see the axis `break` and `breakConfig`). | core/types/src/utils/D3plusConfig.d.ts:810 |
+| <a id="property-yconfig"></a> `yConfig?` | [`AxisConfig`](#axisconfig-2) | Configuration for the y-axis. | core/types/src/utils/D3plusConfig.d.ts:803 |
+| <a id="property-ydomain"></a> `yDomain?` | (`number` \| `Date`)[] | The y domain as an array. If either value is undefined, it is calculated from the data. | core/types/src/utils/D3plusConfig.d.ts:812 |
+| <a id="property-ysort"></a> `ySort?` | (`a`: [`DataPoint`](#datapoint), `b`: [`DataPoint`](#datapoint)) => `number` | Custom sort function for y-axis values. | core/types/src/utils/D3plusConfig.d.ts:816 |
+| <a id="property-zoom"></a> `zoom?` | `boolean` | Enables pan/zoom with zoom-control buttons. On by default for every chart. | core/types/src/utils/D3plusConfig.d.ts:820 |
+| <a id="property-zoomcontrolclassname"></a> `zoomControlClassName?` | `string` | Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. | core/types/src/utils/D3plusConfig.d.ts:822 |
+| <a id="property-zoomcontrolicons"></a> `zoomControlIcons?` | `Partial`\<`Record`\<`"zoomIn"` \| `"zoomOut"` \| `"zoomReset"` \| `"zoomBrush"`, `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))\>\> | Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either raw HTML — used as that button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it — return a cleanup function if there's teardown to do. | core/types/src/utils/D3plusConfig.d.ts:832 |
+| <a id="property-zoomfactor"></a> `zoomFactor?` | `number` | Multiplier applied to programmatic zoom steps. | core/types/src/utils/D3plusConfig.d.ts:834 |
+| <a id="property-zoommax"></a> `zoomMax?` | `number` | Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. | core/types/src/utils/D3plusConfig.d.ts:836 |
+| <a id="property-zoompan"></a> `zoomPan?` | `boolean` | Whether panning (drag) is enabled while zoomed. | core/types/src/utils/D3plusConfig.d.ts:838 |
+| <a id="property-zoomscroll"></a> `zoomScroll?` | `boolean` \| `"modifier"` | Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the default) leaves page scrolling alone: only Ctrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans only once zoomed in. `true` zooms on any wheel; `false` never does. | core/types/src/utils/D3plusConfig.d.ts:845 |
 
 ***
 
@@ -24074,7 +28000,7 @@ loader methods (`data()`, `links()`, …) for their data-like fields.
 
 #### Methods
 
-<a id="config-23"></a>
+<a id="config-24"></a>
 
 ##### config()
 
@@ -24104,7 +28030,7 @@ Defined in: dom/types/src/renderer.d.ts:10
 
 `unknown`
 
-<a id="render-21"></a>
+<a id="render-22"></a>
 
 ##### render()?
 
@@ -24164,6 +28090,24 @@ A set of default locale formatters used when assigning suffixes and currency in 
 
 ***
 
+<a id="gaugeband"></a>
+
+### GaugeBand
+
+Defined in: core/types/src/charts/Gauge/gaugeGeometry.d.ts:9
+
+A colored zone along the dial, e.g. `{min: 80, color: "red"}`.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-color-1"></a> `color?` | `string` | The band's fill color. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:15 |
+| <a id="property-max"></a> `max?` | `number` | Where the band ends. Defaults to the domain's maximum. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:13 |
+| <a id="property-min"></a> `min?` | `number` | Where the band starts. Defaults to the previous band's end, or the domain's minimum. | core/types/src/charts/Gauge/gaugeGeometry.d.ts:11 |
+
+***
+
 <a id="imageconfig-1"></a>
 
 ### ImageConfig
@@ -24178,15 +28122,15 @@ Image-specific config (url + dimensions).
 | ------ | ------ | ------ | ------ |
 | <a id="property-data-6"></a> `data?` | [`DataPoint`](#datapoint)[] | - | core/types/src/shapes/shapeConfig.d.ts:181 |
 | <a id="property-duration-5"></a> `duration?` | `number` | - | core/types/src/shapes/shapeConfig.d.ts:182 |
-| <a id="property-height-2"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:183 |
+| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:183 |
 | <a id="property-id-4"></a> `id?` | `AccessorFn` | - | core/types/src/shapes/shapeConfig.d.ts:184 |
 | <a id="property-opacity-4"></a> `opacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:185 |
 | <a id="property-pointerevents-4"></a> `pointerEvents?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:186 |
 | <a id="property-select-5"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:187 |
 | <a id="property-url"></a> `url?` | `AccessorFn` | URL accessor returning the image src. | core/types/src/shapes/shapeConfig.d.ts:189 |
-| <a id="property-width-2"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:190 |
-| <a id="property-x-6"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:191 |
-| <a id="property-y-6"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:192 |
+| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:190 |
+| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:191 |
+| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:192 |
 
 ***
 
@@ -24194,19 +28138,19 @@ Image-specific config (url + dimensions).
 
 ### LegendConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:165
+Defined in: core/types/src/utils/D3plusConfig.d.ts:252
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-active-5"></a> `active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | The active method for all shapes. | core/types/src/utils/D3plusConfig.d.ts:167 |
-| <a id="property-hover-5"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | The hover method for all shapes. | core/types/src/utils/D3plusConfig.d.ts:169 |
-| <a id="property-shape"></a> `shape?` | `Accessor`\<`string`\> | The shape type used for each legend entry. | core/types/src/utils/D3plusConfig.d.ts:171 |
+| <a id="property-active-5"></a> `active?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | The active method for all shapes. | core/types/src/utils/D3plusConfig.d.ts:254 |
+| <a id="property-hover-5"></a> `hover?` | `false` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`) => `boolean`) | The hover method for all shapes. | core/types/src/utils/D3plusConfig.d.ts:256 |
+| <a id="property-shape"></a> `shape?` | `Accessor`\<`string`\> | The shape type used for each legend entry. | core/types/src/utils/D3plusConfig.d.ts:258 |
 
 ***
 
-<a id="lineconfig-2"></a>
+<a id="lineconfig-3"></a>
 
 ### LineConfig
 
@@ -24269,8 +28213,30 @@ Line-specific config (curve + defined).
 | <a id="property-texturedefault-4"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
 | <a id="property-vectoreffect-4"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
 | <a id="property-verticalalign-4"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-7"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-7"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+
+***
+
+<a id="linkconfig"></a>
+
+### LinkConfig
+
+Defined in: core/types/src/charts/viz/linkGroup.d.ts:8
+
+The object form of the `link` config: a group name plus the key and interactions to mirror.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-active-7"></a> `active?` | `boolean` | Mirror `active`. Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:16 |
+| <a id="property-by"></a> `by?` | `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) | The value two charts' rows match on. A string is a data key. Defaults to the chart's own id. | core/types/src/charts/viz/linkGroup.d.ts:12 |
+| <a id="property-color-2"></a> `color?` | `boolean` | Share categorical color assignments, so a value gets the same color in every linked chart. Defaults to `true`; a chart that sets its own `colorDefaults.scale` keeps it. | core/types/src/charts/viz/linkGroup.d.ts:22 |
+| <a id="property-group"></a> `group` | `string` | Charts that share a group name are linked. | core/types/src/charts/viz/linkGroup.d.ts:10 |
+| <a id="property-highlight-1"></a> `highlight?` | `boolean` | Mirror `highlight` (including the search box). Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:18 |
+| <a id="property-hover-7"></a> `hover?` | `boolean` | Mirror hover. Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:14 |
+| <a id="property-legend-1"></a> `legend?` | `boolean` | Mirror legend hide/solo clicks. Defaults to `true`. | core/types/src/charts/viz/linkGroup.d.ts:20 |
 
 ***
 
@@ -24278,7 +28244,7 @@ Line-specific config (curve + defined).
 
 ### Margin
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:31
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:37
 
 Margin object with all four sides.
 
@@ -24286,10 +28252,10 @@ Margin object with all four sides.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-bottom"></a> `bottom` | `number` | core/types/src/charts/viz/vizTypes.d.ts:33 |
-| <a id="property-left"></a> `left` | `number` | core/types/src/charts/viz/vizTypes.d.ts:34 |
-| <a id="property-right"></a> `right` | `number` | core/types/src/charts/viz/vizTypes.d.ts:35 |
-| <a id="property-top"></a> `top` | `number` | core/types/src/charts/viz/vizTypes.d.ts:32 |
+| <a id="property-bottom"></a> `bottom` | `number` | core/types/src/charts/viz/vizTypes.d.ts:39 |
+| <a id="property-left"></a> `left` | `number` | core/types/src/charts/viz/vizTypes.d.ts:40 |
+| <a id="property-right"></a> `right` | `number` | core/types/src/charts/viz/vizTypes.d.ts:41 |
+| <a id="property-top"></a> `top` | `number` | core/types/src/charts/viz/vizTypes.d.ts:38 |
 
 ***
 
@@ -24305,11 +28271,31 @@ Defined in: data/types/src/merge.d.ts:4
 
 ***
 
+<a id="negativespaceoptions"></a>
+
+### NegativeSpaceOptions
+
+Defined in: math/types/src/negativeSpace.d.ts:9
+
+Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-divisions"></a> `divisions?` | `number` | Number of evenly spaced grid lines added per axis, so the hull's diagonal edges are resolved finely. Default 48. | math/types/src/negativeSpace.d.ts:17 |
+| <a id="property-exclude"></a> `exclude?` | [`Bounds`](#bounds)[] | Other boxes to keep clear of, each on its own rather than as part of the marks' hull (e.g. controls overlaid on the chart). | math/types/src/negativeSpace.d.ts:19 |
+| <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | math/types/src/negativeSpace.d.ts:15 |
+| <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | math/types/src/negativeSpace.d.ts:13 |
+| <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | math/types/src/negativeSpace.d.ts:11 |
+
+***
+
 <a id="padding"></a>
 
 ### Padding
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:38
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:44
 
 Padding object with all four sides.
 
@@ -24317,10 +28303,10 @@ Padding object with all four sides.
 
 | Property | Type | Defined in |
 | ------ | ------ | ------ |
-| <a id="property-bottom-1"></a> `bottom` | `number` | core/types/src/charts/viz/vizTypes.d.ts:40 |
-| <a id="property-left-1"></a> `left` | `number` | core/types/src/charts/viz/vizTypes.d.ts:41 |
-| <a id="property-right-1"></a> `right` | `number` | core/types/src/charts/viz/vizTypes.d.ts:42 |
-| <a id="property-top-1"></a> `top` | `number` | core/types/src/charts/viz/vizTypes.d.ts:39 |
+| <a id="property-bottom-1"></a> `bottom` | `number` | core/types/src/charts/viz/vizTypes.d.ts:46 |
+| <a id="property-left-1"></a> `left` | `number` | core/types/src/charts/viz/vizTypes.d.ts:47 |
+| <a id="property-right-1"></a> `right` | `number` | core/types/src/charts/viz/vizTypes.d.ts:48 |
+| <a id="property-top-1"></a> `top` | `number` | core/types/src/charts/viz/vizTypes.d.ts:45 |
 
 ***
 
@@ -24344,7 +28330,7 @@ Path-specific config (raw SVG path d string or generator).
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-active-7"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`BaseShapeConfig`](#baseshapeconfig).[`active`](#property-active-2) | core/types/src/shapes/shapeConfig.d.ts:46 |
+| <a id="property-active-8"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`BaseShapeConfig`](#baseshapeconfig).[`active`](#property-active-2) | core/types/src/shapes/shapeConfig.d.ts:46 |
 | <a id="property-activeopacity-5"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-5"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-5"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
@@ -24357,7 +28343,7 @@ Path-specific config (raw SVG path d string or generator).
 | <a id="property-fill-5"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
 | <a id="property-fillopacity-5"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
 | <a id="property-hitarea-5"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-7"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-hover-8"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
 | <a id="property-hoveropacity-5"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
 | <a id="property-hoverstyle-5"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
 | <a id="property-id-6"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
@@ -24386,8 +28372,8 @@ Path-specific config (raw SVG path d string or generator).
 | <a id="property-texturedefault-5"></a> `textureDefault?` | `Record`\<`string`, `unknown`\> | Default texture config merged into the per-datum texture. | [`BaseShapeConfig`](#baseshapeconfig).[`textureDefault`](#property-texturedefault-2) | core/types/src/shapes/shapeConfig.d.ts:123 |
 | <a id="property-vectoreffect-5"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
 | <a id="property-verticalalign-5"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-x-8"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-8"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
 
 ***
 
@@ -24415,7 +28401,7 @@ Rect-specific config (width + height on top of base).
 
 | Property | Type | Description | Inherited from | Defined in |
 | ------ | ------ | ------ | ------ | ------ |
-| <a id="property-active-8"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`BaseShapeConfig`](#baseshapeconfig).[`active`](#property-active-2) | core/types/src/shapes/shapeConfig.d.ts:46 |
+| <a id="property-active-9"></a> `active?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently active. | [`BaseShapeConfig`](#baseshapeconfig).[`active`](#property-active-2) | core/types/src/shapes/shapeConfig.d.ts:46 |
 | <a id="property-activeopacity-6"></a> `activeOpacity?` | `number` | Opacity applied to non-active data points (default ~0.25). | [`BaseShapeConfig`](#baseshapeconfig).[`activeOpacity`](#property-activeopacity-2) | core/types/src/shapes/shapeConfig.d.ts:48 |
 | <a id="property-activestyle-6"></a> `activeStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for active data points. | [`BaseShapeConfig`](#baseshapeconfig).[`activeStyle`](#property-activestyle-2) | core/types/src/shapes/shapeConfig.d.ts:50 |
 | <a id="property-arialabel-6"></a> `ariaLabel?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | ARIA label per datum (accessibility). | [`BaseShapeConfig`](#baseshapeconfig).[`ariaLabel`](#property-arialabel-2) | core/types/src/shapes/shapeConfig.d.ts:52 |
@@ -24426,9 +28412,9 @@ Rect-specific config (width + height on top of base).
 | <a id="property-duration-8"></a> `duration?` | `number` | Animation duration in ms. | [`BaseShapeConfig`](#baseshapeconfig).[`duration`](#property-duration-2) | core/types/src/shapes/shapeConfig.d.ts:65 |
 | <a id="property-fill-6"></a> `fill?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Fill color or accessor returning one. | [`BaseShapeConfig`](#baseshapeconfig).[`fill`](#property-fill-2) | core/types/src/shapes/shapeConfig.d.ts:67 |
 | <a id="property-fillopacity-6"></a> `fillOpacity?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Fill opacity (0..1). | [`BaseShapeConfig`](#baseshapeconfig).[`fillOpacity`](#property-fillopacity-2) | core/types/src/shapes/shapeConfig.d.ts:69 |
-| <a id="property-height-3"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:139 |
+| <a id="property-height-4"></a> `height?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:139 |
 | <a id="property-hitarea-6"></a> `hitArea?` | `Record`\<`string`, `unknown`\> \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`, `aes`: `unknown`) => `Record`\<`string`, `unknown`\>) | Hit-area shape: function returning bounds or static bounds. | [`BaseShapeConfig`](#baseshapeconfig).[`hitArea`](#property-hitarea-2) | core/types/src/shapes/shapeConfig.d.ts:77 |
-| <a id="property-hover-8"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
+| <a id="property-hover-9"></a> `hover?` | ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `null` | Predicate or null marking which data points are currently hovered. | [`BaseShapeConfig`](#baseshapeconfig).[`hover`](#property-hover-2) | core/types/src/shapes/shapeConfig.d.ts:71 |
 | <a id="property-hoveropacity-6"></a> `hoverOpacity?` | `number` | Opacity applied to non-hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverOpacity`](#property-hoveropacity-2) | core/types/src/shapes/shapeConfig.d.ts:73 |
 | <a id="property-hoverstyle-6"></a> `hoverStyle?` | `Record`\<`string`, `unknown`\> | Style overrides for hovered data points. | [`BaseShapeConfig`](#baseshapeconfig).[`hoverStyle`](#property-hoverstyle-2) | core/types/src/shapes/shapeConfig.d.ts:75 |
 | <a id="property-id-7"></a> `id?` | `AccessorFn` | Unique-id accessor per datum (used for keyed enter/update/exit). | [`BaseShapeConfig`](#baseshapeconfig).[`id`](#property-id-2) | core/types/src/shapes/shapeConfig.d.ts:79 |
@@ -24459,9 +28445,65 @@ Rect-specific config (width + height on top of base).
 | <a id="property-trailpersist-2"></a> `trailPersist?` | `number` \| `boolean` | Steps of trail history to keep (number), or `true` for a long fading tail. | - | core/types/src/shapes/shapeConfig.d.ts:143 |
 | <a id="property-vectoreffect-6"></a> `vectorEffect?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | SVG `vector-effect` (e.g. "non-scaling-stroke"). | [`BaseShapeConfig`](#baseshapeconfig).[`vectorEffect`](#property-vectoreffect-2) | core/types/src/shapes/shapeConfig.d.ts:125 |
 | <a id="property-verticalalign-6"></a> `verticalAlign?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | Label vertical-align ("top"/"middle"/"bottom"). | [`BaseShapeConfig`](#baseshapeconfig).[`verticalAlign`](#property-verticalalign-2) | core/types/src/shapes/shapeConfig.d.ts:127 |
-| <a id="property-width-3"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:138 |
-| <a id="property-x-9"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
-| <a id="property-y-9"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+| <a id="property-width-4"></a> `width?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | - | core/types/src/shapes/shapeConfig.d.ts:138 |
+| <a id="property-x-10"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | X position. | [`BaseShapeConfig`](#baseshapeconfig).[`x`](#property-x-2) | core/types/src/shapes/shapeConfig.d.ts:129 |
+| <a id="property-y-10"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Y position. | [`BaseShapeConfig`](#baseshapeconfig).[`y`](#property-y-2) | core/types/src/shapes/shapeConfig.d.ts:131 |
+
+***
+
+<a id="regressionoptions"></a>
+
+### RegressionOptions
+
+Defined in: math/types/src/regression.d.ts:22
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | math/types/src/regression.d.ts:24 |
+
+***
+
+<a id="regressionresult"></a>
+
+### RegressionResult
+
+Defined in: math/types/src/regression.d.ts:2
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | math/types/src/regression.d.ts:12 |
+| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | math/types/src/regression.d.ts:20 |
+| <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | math/types/src/regression.d.ts:18 |
+| <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | math/types/src/regression.d.ts:14 |
+| <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | math/types/src/regression.d.ts:16 |
+| <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | math/types/src/regression.d.ts:4 |
+
+***
+
+<a id="sizelegendconfig-3"></a>
+
+### SizeLegendConfig
+
+Defined in: core/types/src/utils/D3plusConfig.d.ts:260
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-labelconfig-7"></a> `labelConfig?` | `SizeLegendTextConfig` | Value-label font: `fontColor`, `fontFamily`, `fontSize`. | core/types/src/utils/D3plusConfig.d.ts:276 |
+| <a id="property-labelpadding"></a> `labelPadding?` | `number` | Gap between each leader line and its label, in pixels. | core/types/src/utils/D3plusConfig.d.ts:283 |
+| <a id="property-lineconfig"></a> `lineConfig?` | `SizeLegendLineConfig` | Leader-line paint: `stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`. | core/types/src/utils/D3plusConfig.d.ts:274 |
+| <a id="property-linelength"></a> `lineLength?` | `number` | Length of the leader lines past the largest circle, in pixels. | core/types/src/utils/D3plusConfig.d.ts:281 |
+| <a id="property-padding-1"></a> `padding?` | `number` | - | core/types/src/utils/D3plusConfig.d.ts:279 |
+| <a id="property-shapeconfig-1"></a> `shapeConfig?` | `SizeLegendShapeConfig` | Circle paint: `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `strokeOpacity`. | core/types/src/utils/D3plusConfig.d.ts:272 |
+| <a id="property-tickformat-1"></a> `tickFormat?` | (`value`: `number`) => `string` | Formats each value's label. Defaults to the locale's abbreviated number format. | core/types/src/utils/D3plusConfig.d.ts:268 |
+| <a id="property-title-2"></a> `title?` | `string` | Title above the circles. Defaults to the `size` key when `size` is set to a string. | core/types/src/utils/D3plusConfig.d.ts:270 |
+| <a id="property-titleconfig-1"></a> `titleConfig?` | `SizeLegendTextConfig` | Title font: `fontColor`, `fontFamily`, `fontSize`, `fontWeight`. | core/types/src/utils/D3plusConfig.d.ts:278 |
+| <a id="property-values"></a> `values?` | `number` \| `number`[] \| ((`domain`: \[`number`, `number`\]) => `number`[]) | The values to draw circles for: an array of values, how many to pick from the size domain (default 3: its min, max, and a round middle), or a function receiving the `[min, max]` domain and returning values. | core/types/src/utils/D3plusConfig.d.ts:266 |
 
 ***
 
@@ -24469,34 +28511,34 @@ Rect-specific config (width + height on top of base).
 
 ### TextBoxConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:74
+Defined in: core/types/src/utils/D3plusConfig.d.ts:161
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-ellipsis"></a> `ellipsis?` | (`text`: `string`, `line`: `number`) => `string` | Handles truncated lines, returning the new line value. Passed the line's text and number; by default appends an ellipsis to every line except a first word that cannot fit (which returns ""). | core/types/src/utils/D3plusConfig.d.ts:112 |
-| <a id="property-fontcolor"></a> `fontColor?` | `Accessor`\<`string`\> | The font color as an accessor function or static string. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:78 |
-| <a id="property-fontfamily"></a> `fontFamily?` | `Accessor`\<`string` \| `string`[]\> | The font-family to use: a font name, a comma-separated list of fallbacks, an array of fallbacks, or an accessor returning a string or array. The first available font on the client is used. | core/types/src/utils/D3plusConfig.d.ts:86 |
-| <a id="property-fontmax"></a> `fontMax?` | `number` | The maximum font size in pixels, used when dynamically resizing fonts. | core/types/src/utils/D3plusConfig.d.ts:92 |
-| <a id="property-fontmin"></a> `fontMin?` | `number` | The minimum font size in pixels, used when dynamically resizing fonts. | core/types/src/utils/D3plusConfig.d.ts:90 |
-| <a id="property-fontopacity"></a> `fontOpacity?` | `Accessor`\<`number`\> | The font opacity as an accessor function or static number between 0 and 1. | core/types/src/utils/D3plusConfig.d.ts:96 |
-| <a id="property-fontresize"></a> `fontResize?` | `Accessor`\<`boolean`\> | Toggles font resizing — a static boolean, or an accessor returning a boolean. | core/types/src/utils/D3plusConfig.d.ts:94 |
-| <a id="property-fontsize"></a> `fontSize?` | `Accessor`\<`number`\> | The font size in pixels. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:80 |
-| <a id="property-fontstroke"></a> `fontStroke?` | `Accessor`\<`string`\> | The font stroke color for the rendered text. | core/types/src/utils/D3plusConfig.d.ts:98 |
-| <a id="property-fontstrokewidth"></a> `fontStrokeWidth?` | `Accessor`\<`number`\> | The font stroke width for the rendered text. | core/types/src/utils/D3plusConfig.d.ts:100 |
-| <a id="property-fontweight"></a> `fontWeight?` | `Accessor`\<`string` \| `number`\> | The font weight. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:88 |
-| <a id="property-height-4"></a> `height?` | `Accessor`\<`number`\> | The height for each text box. | core/types/src/utils/D3plusConfig.d.ts:122 |
-| <a id="property-lineheight"></a> `lineHeight?` | `Accessor`\<`number`\> | The line height, which is 1.2 times the font size by default. | core/types/src/utils/D3plusConfig.d.ts:102 |
-| <a id="property-maxlines"></a> `maxLines?` | `Accessor`\<`number` \| `null`\> | Restricts the maximum number of lines to wrap onto; null (unlimited) by default. | core/types/src/utils/D3plusConfig.d.ts:104 |
-| <a id="property-overflow"></a> `overflow?` | `Accessor`\<`boolean`\> | Whether text is allowed to overflow its bounding box. | core/types/src/utils/D3plusConfig.d.ts:106 |
-| <a id="property-padding"></a> `padding?` | `Accessor`\<`string` \| `number`\> | The padding as a CSS shorthand string or number. Defaults to 0. | core/types/src/utils/D3plusConfig.d.ts:114 |
-| <a id="property-rotateanchor"></a> `rotateAnchor?` | `Accessor`\<\[`number`, `number`\]\> | The anchor point around which to rotate the text box. | core/types/src/utils/D3plusConfig.d.ts:116 |
-| <a id="property-split"></a> `split?` | (`text`: `string`) => `string`[] | The word split function: given a string, returns it split into an array of words. | core/types/src/utils/D3plusConfig.d.ts:118 |
-| <a id="property-text"></a> `text?` | `Accessor`\<`string`\> | The text content for each box. | core/types/src/utils/D3plusConfig.d.ts:76 |
-| <a id="property-width-4"></a> `width?` | `Accessor`\<`number`\> | The width for each text box. | core/types/src/utils/D3plusConfig.d.ts:120 |
-| <a id="property-x-10"></a> `x?` | `Accessor`\<`number`\> | The x position (left edge) for each text box. | core/types/src/utils/D3plusConfig.d.ts:124 |
-| <a id="property-y-10"></a> `y?` | `Accessor`\<`number`\> | The y position (top edge) for each text box. | core/types/src/utils/D3plusConfig.d.ts:126 |
+| <a id="property-ellipsis"></a> `ellipsis?` | (`text`: `string`, `line`: `number`) => `string` | Handles truncated lines, returning the new line value. Passed the line's text and number; by default appends an ellipsis to every line except a first word that cannot fit (which returns ""). | core/types/src/utils/D3plusConfig.d.ts:199 |
+| <a id="property-fontcolor"></a> `fontColor?` | `Accessor`\<`string`\> | The font color as an accessor function or static string. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:165 |
+| <a id="property-fontfamily"></a> `fontFamily?` | `Accessor`\<`string` \| `string`[]\> | The font-family to use: a font name, a comma-separated list of fallbacks, an array of fallbacks, or an accessor returning a string or array. The first available font on the client is used. | core/types/src/utils/D3plusConfig.d.ts:173 |
+| <a id="property-fontmax"></a> `fontMax?` | `number` | The maximum font size in pixels, used when dynamically resizing fonts. | core/types/src/utils/D3plusConfig.d.ts:179 |
+| <a id="property-fontmin"></a> `fontMin?` | `number` | The minimum font size in pixels, used when dynamically resizing fonts. | core/types/src/utils/D3plusConfig.d.ts:177 |
+| <a id="property-fontopacity"></a> `fontOpacity?` | `Accessor`\<`number`\> | The font opacity as an accessor function or static number between 0 and 1. | core/types/src/utils/D3plusConfig.d.ts:183 |
+| <a id="property-fontresize"></a> `fontResize?` | `Accessor`\<`boolean`\> | Toggles font resizing — a static boolean, or an accessor returning a boolean. | core/types/src/utils/D3plusConfig.d.ts:181 |
+| <a id="property-fontsize"></a> `fontSize?` | `Accessor`\<`number`\> | The font size in pixels. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:167 |
+| <a id="property-fontstroke"></a> `fontStroke?` | `Accessor`\<`string`\> | The font stroke color for the rendered text. | core/types/src/utils/D3plusConfig.d.ts:185 |
+| <a id="property-fontstrokewidth"></a> `fontStrokeWidth?` | `Accessor`\<`number`\> | The font stroke width for the rendered text. | core/types/src/utils/D3plusConfig.d.ts:187 |
+| <a id="property-fontweight"></a> `fontWeight?` | `Accessor`\<`string` \| `number`\> | The font weight. Inferred from the DOM selection by default. | core/types/src/utils/D3plusConfig.d.ts:175 |
+| <a id="property-height-5"></a> `height?` | `Accessor`\<`number`\> | The height for each text box. | core/types/src/utils/D3plusConfig.d.ts:209 |
+| <a id="property-lineheight"></a> `lineHeight?` | `Accessor`\<`number`\> | The line height, which is 1.2 times the font size by default. | core/types/src/utils/D3plusConfig.d.ts:189 |
+| <a id="property-maxlines"></a> `maxLines?` | `Accessor`\<`number` \| `null`\> | Restricts the maximum number of lines to wrap onto; null (unlimited) by default. | core/types/src/utils/D3plusConfig.d.ts:191 |
+| <a id="property-overflow"></a> `overflow?` | `Accessor`\<`boolean`\> | Whether text is allowed to overflow its bounding box. | core/types/src/utils/D3plusConfig.d.ts:193 |
+| <a id="property-padding-2"></a> `padding?` | `Accessor`\<`string` \| `number`\> | The padding as a CSS shorthand string or number. Defaults to 0. | core/types/src/utils/D3plusConfig.d.ts:201 |
+| <a id="property-rotateanchor"></a> `rotateAnchor?` | `Accessor`\<\[`number`, `number`\]\> | The anchor point around which to rotate the text box. | core/types/src/utils/D3plusConfig.d.ts:203 |
+| <a id="property-split"></a> `split?` | (`text`: `string`) => `string`[] | The word split function: given a string, returns it split into an array of words. | core/types/src/utils/D3plusConfig.d.ts:205 |
+| <a id="property-text"></a> `text?` | `Accessor`\<`string`\> | The text content for each box. | core/types/src/utils/D3plusConfig.d.ts:163 |
+| <a id="property-width-5"></a> `width?` | `Accessor`\<`number`\> | The width for each text box. | core/types/src/utils/D3plusConfig.d.ts:207 |
+| <a id="property-x-11"></a> `x?` | `Accessor`\<`number`\> | The x position (left edge) for each text box. | core/types/src/utils/D3plusConfig.d.ts:211 |
+| <a id="property-y-11"></a> `y?` | `Accessor`\<`number`\> | The y position (top edge) for each text box. | core/types/src/utils/D3plusConfig.d.ts:213 |
 
 ***
 
@@ -24504,24 +28546,24 @@ Defined in: core/types/src/utils/D3plusConfig.d.ts:74
 
 ### TimelineConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:128
+Defined in: core/types/src/utils/D3plusConfig.d.ts:215
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-brushfilter"></a> `brushFilter?` | () => `boolean` | Brush event filter. | core/types/src/utils/D3plusConfig.d.ts:130 |
-| <a id="property-brushmin"></a> `brushMin?` | `number` | The minimum number of ticks that can be highlighted when using "ticks" `buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time periods is undesirable. | core/types/src/utils/D3plusConfig.d.ts:136 |
-| <a id="property-buttonalign"></a> `buttonAlign?` | `"start"` \| `"middle"` \| `"end"` | Toggles the horizontal alignment of the button timeline. | core/types/src/utils/D3plusConfig.d.ts:138 |
-| <a id="property-buttonbehavior"></a> `buttonBehavior?` | `"auto"` \| `"buttons"` \| `"ticks"` | Toggles the style of the timeline. | core/types/src/utils/D3plusConfig.d.ts:140 |
-| <a id="property-buttonheight"></a> `buttonHeight?` | `number` | Button height. | core/types/src/utils/D3plusConfig.d.ts:142 |
-| <a id="property-buttonpadding"></a> `buttonPadding?` | `number` | Button padding. | core/types/src/utils/D3plusConfig.d.ts:144 |
-| <a id="property-handleconfig"></a> `handleConfig?` | `Record`\<`string`, `unknown`\> | Handle style. | core/types/src/utils/D3plusConfig.d.ts:146 |
-| <a id="property-handlesize"></a> `handleSize?` | `number` | Handle size. | core/types/src/utils/D3plusConfig.d.ts:148 |
-| <a id="property-playbutton"></a> `playButton?` | `boolean` | Determines the visibility of the play button to the left of the timeline, which cycles through the available periods at a rate set by `playButtonInterval`. | core/types/src/utils/D3plusConfig.d.ts:153 |
-| <a id="property-playbuttoninterval"></a> `playButtonInterval?` | `number` | The interval, in milliseconds, between periods when cycling via the play button. Used only when the chart's `duration` is 0 (no transition); otherwise playback steps once per `duration` so each step animates in full. | core/types/src/utils/D3plusConfig.d.ts:159 |
-| <a id="property-selection"></a> `selection?` | `number` \| `false` \| `Date` \| (`number` \| `Date`)[] | The current selection. Defaults to the most recent period in the timeline. | core/types/src/utils/D3plusConfig.d.ts:161 |
-| <a id="property-snapping"></a> `snapping?` | `boolean` | Toggles the snapping value. | core/types/src/utils/D3plusConfig.d.ts:163 |
+| <a id="property-brushfilter"></a> `brushFilter?` | () => `boolean` | Brush event filter. | core/types/src/utils/D3plusConfig.d.ts:217 |
+| <a id="property-brushmin"></a> `brushMin?` | `number` | The minimum number of ticks that can be highlighted when using "ticks" `buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time periods is undesirable. | core/types/src/utils/D3plusConfig.d.ts:223 |
+| <a id="property-buttonalign"></a> `buttonAlign?` | `"start"` \| `"middle"` \| `"end"` | Toggles the horizontal alignment of the button timeline. | core/types/src/utils/D3plusConfig.d.ts:225 |
+| <a id="property-buttonbehavior"></a> `buttonBehavior?` | `"auto"` \| `"buttons"` \| `"ticks"` | Toggles the style of the timeline. | core/types/src/utils/D3plusConfig.d.ts:227 |
+| <a id="property-buttonheight"></a> `buttonHeight?` | `number` | Button height. | core/types/src/utils/D3plusConfig.d.ts:229 |
+| <a id="property-buttonpadding"></a> `buttonPadding?` | `number` | Button padding. | core/types/src/utils/D3plusConfig.d.ts:231 |
+| <a id="property-handleconfig"></a> `handleConfig?` | `Record`\<`string`, `unknown`\> | Handle style. | core/types/src/utils/D3plusConfig.d.ts:233 |
+| <a id="property-handlesize"></a> `handleSize?` | `number` | Handle size. | core/types/src/utils/D3plusConfig.d.ts:235 |
+| <a id="property-playbutton"></a> `playButton?` | `boolean` | Determines the visibility of the play button to the left of the timeline, which cycles through the available periods at a rate set by `playButtonInterval`. | core/types/src/utils/D3plusConfig.d.ts:240 |
+| <a id="property-playbuttoninterval"></a> `playButtonInterval?` | `number` | The interval, in milliseconds, between periods when cycling via the play button. Used only when the chart's `duration` is 0 (no transition); otherwise playback steps once per `duration` so each step animates in full. | core/types/src/utils/D3plusConfig.d.ts:246 |
+| <a id="property-selection"></a> `selection?` | `number` \| `false` \| `Date` \| (`number` \| `Date`)[] | The current selection. Defaults to the most recent period in the timeline. | core/types/src/utils/D3plusConfig.d.ts:248 |
+| <a id="property-snapping"></a> `snapping?` | `boolean` | Toggles the snapping value. | core/types/src/utils/D3plusConfig.d.ts:250 |
 
 ***
 
@@ -24567,25 +28609,26 @@ Defined in: locales/types/src/dictionaries/titleCaseLocale.d.ts:1
 
 ### TooltipConfig
 
-Defined in: core/types/src/utils/D3plusConfig.d.ts:46
+Defined in: core/types/src/utils/D3plusConfig.d.ts:117
 
 #### Properties
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-arrow"></a> `arrow?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The inner HTML content of the arrow element, empty by default. | core/types/src/utils/D3plusConfig.d.ts:48 |
-| <a id="property-background"></a> `background?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The background color accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:50 |
-| <a id="property-body"></a> `body?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | - | core/types/src/utils/D3plusConfig.d.ts:66 |
-| <a id="property-border"></a> `border?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The border accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:52 |
-| <a id="property-borderradius"></a> `borderRadius?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The border-radius accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:54 |
-| <a id="property-footer"></a> `footer?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The footer content accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:56 |
-| <a id="property-maxwidth"></a> `maxWidth?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The max-width accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:58 |
-| <a id="property-minwidth"></a> `minWidth?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The min-width accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:60 |
-| <a id="property-offset"></a> `offset?` | `number` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | The pixel offset between the tooltip and its anchor point. | core/types/src/utils/D3plusConfig.d.ts:62 |
-| <a id="property-padding-1"></a> `padding?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The inner padding of each tooltip. | core/types/src/utils/D3plusConfig.d.ts:64 |
-| <a id="property-tbody"></a> `tbody?` | ((`d`: [`DataPoint`](#datapoint)) => \[`string`, `string`\][]) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`, `x?`: `object`) => `string`))[][] | - | core/types/src/utils/D3plusConfig.d.ts:70 |
-| <a id="property-thead"></a> `thead?` | ((`d`: [`DataPoint`](#datapoint)) => \[`string`, `string`\][]) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`, `x?`: `object`) => `string`))[][] | - | core/types/src/utils/D3plusConfig.d.ts:67 |
-| <a id="property-title-2"></a> `title?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | - | core/types/src/utils/D3plusConfig.d.ts:65 |
+| <a id="property-arrow"></a> `arrow?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The inner HTML content of the arrow element, empty by default. | core/types/src/utils/D3plusConfig.d.ts:119 |
+| <a id="property-background"></a> `background?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The background color accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:121 |
+| <a id="property-body"></a> `body?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | - | core/types/src/utils/D3plusConfig.d.ts:143 |
+| <a id="property-border"></a> `border?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The border accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:123 |
+| <a id="property-borderradius"></a> `borderRadius?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The border-radius accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:125 |
+| <a id="property-footer"></a> `footer?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | The footer content accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:127 |
+| <a id="property-maxwidth"></a> `maxWidth?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The max-width accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:129 |
+| <a id="property-minwidth-1"></a> `minWidth?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The min-width accessor for each tooltip. | core/types/src/utils/D3plusConfig.d.ts:131 |
+| <a id="property-offset"></a> `offset?` | `number` \| ((`d`: [`DataPoint`](#datapoint)) => `number`) | The pixel offset between the tooltip and its anchor point. | core/types/src/utils/D3plusConfig.d.ts:133 |
+| <a id="property-padding-3"></a> `padding?` | `string` \| `number` \| ((`d`: [`DataPoint`](#datapoint)) => `string` \| `number`) | The inner padding of each tooltip. | core/types/src/utils/D3plusConfig.d.ts:135 |
+| <a id="property-tbody"></a> `tbody?` | ((`d`: [`DataPoint`](#datapoint)) => \[`string`, `string`\][]) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`, `x?`: `object`) => `string`))[][] | Body rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and stacked Plot charts `x.share` is the row's fraction of its total, unless the data has its own `share` field (then `x.share` is that field). | core/types/src/utils/D3plusConfig.d.ts:157 |
+| <a id="property-thead"></a> `thead?` | ((`d`: [`DataPoint`](#datapoint)) => \[`string`, `string`\][]) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i?`: `number`, `x?`: `object`) => `string`))[][] | Header rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and stacked Plot charts `x.share` is the row's fraction of its total, unless the data has its own `share` field (then `x.share` is that field). | core/types/src/utils/D3plusConfig.d.ts:149 |
+| <a id="property-title-3"></a> `title?` | `string` \| ((`d`: [`DataPoint`](#datapoint)) => `string`) | - | core/types/src/utils/D3plusConfig.d.ts:136 |
+| <a id="property-titleswatch"></a> `titleSwatch?` | `boolean` | Whether a chart's tooltip title leads with a swatch of the hovered shape's color and shape. `true` by default; set it in `legendTooltip` to drop the swatch from legend tooltips only. | core/types/src/utils/D3plusConfig.d.ts:142 |
 
 ***
 
@@ -24601,21 +28644,76 @@ Defined in: locales/types/src/dictionaries/translateLocale.d.ts:1
 | ------ | ------ | ------ |
 | <a id="property-and"></a> `and` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:2 |
 | <a id="property-back"></a> `Back` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:3 |
-| <a id="property-click-to-expand"></a> `Click to Expand` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:4 |
-| <a id="property-click-to-hide"></a> `Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:5 |
-| <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:6 |
-| <a id="property-click-to-show"></a> `Click to Show` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:7 |
-| <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:8 |
-| <a id="property-download"></a> `Download` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:9 |
-| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:10 |
-| <a id="property-more"></a> `more` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:11 |
-| <a id="property-no-data-available"></a> `No Data Available` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:12 |
-| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:13 |
-| <a id="property-share"></a> `Share` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:14 |
-| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:15 |
-| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:16 |
-| <a id="property-total"></a> `Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:17 |
-| <a id="property-values"></a> `Values` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:18 |
+| <a id="property-brush-zoom"></a> `Brush Zoom` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:4 |
+| <a id="property-clear"></a> `Clear` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:5 |
+| <a id="property-click-to-expand"></a> `Click to Expand` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:6 |
+| <a id="property-click-to-hide"></a> `Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:7 |
+| <a id="property-click-to-highlight"></a> `Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:8 |
+| <a id="property-click-to-show"></a> `Click to Show` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:9 |
+| <a id="property-click-to-show-all"></a> `Click to Show All` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:10 |
+| <a id="property-comparison-1"></a> `Comparison` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:11 |
+| <a id="property-count"></a> `Count` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:12 |
+| <a id="property-density"></a> `Density` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:13 |
+| <a id="property-download"></a> `Download` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:14 |
+| <a id="property-equation"></a> `Equation` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:15 |
+| <a id="property-exponential"></a> `Exponential` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:16 |
+| <a id="property-linear"></a> `Linear` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:17 |
+| <a id="property-loading-visualization"></a> `Loading Visualization` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:18 |
+| <a id="property-logarithmic"></a> `Logarithmic` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:19 |
+| <a id="property-match"></a> `Match` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:20 |
+| <a id="property-matches"></a> `Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:21 |
+| <a id="property-more"></a> `more` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:22 |
+| <a id="property-no-data-available"></a> `No Data Available` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:23 |
+| <a id="property-no-matches"></a> `No Matches` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:24 |
+| <a id="property-observations"></a> `Observations` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:25 |
+| <a id="property-percent-of-total"></a> `Percent of Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:26 |
+| <a id="property-polynomial"></a> `Polynomial` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:27 |
+| <a id="property-power"></a> `Power` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:28 |
+| <a id="property-powered-by-d3plus"></a> `Powered by D3plus` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:29 |
+| <a id="property-projected"></a> `Projected` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:30 |
+| <a id="property-range-1"></a> `Range` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:31 |
+| <a id="property-relative-frequency"></a> `Relative Frequency` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:32 |
+| <a id="property-reset-zoom"></a> `Reset Zoom` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:33 |
+| <a id="property-search-1"></a> `Search` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:34 |
+| <a id="property-share"></a> `Share` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:35 |
+| <a id="property-shiftclick-to-hide"></a> `Shift+Click to Hide` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:36 |
+| <a id="property-shiftclick-to-highlight"></a> `Shift+Click to Highlight` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:37 |
+| <a id="property-total"></a> `Total` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:38 |
+| <a id="property-trend-line"></a> `Trend Line` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:39 |
+| <a id="property-value-1"></a> `Value` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:40 |
+| <a id="property-values-1"></a> `Values` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:41 |
+| <a id="property-zoom-in"></a> `Zoom In` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:42 |
+| <a id="property-zoom-out"></a> `Zoom Out` | `string` | locales/types/src/dictionaries/translateLocale.d.ts:43 |
+
+***
+
+<a id="trendlineconfig-1"></a>
+
+### TrendLineConfig
+
+Defined in: core/types/src/utils/D3plusConfig.d.ts:285
+
+#### Indexable
+
+> \[`key`: `string`\]: `unknown`
+
+Other Line shape config.
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-confidence-1"></a> `confidence?` | `boolean` | Draws a confidence band around a linear fit. Defaults to `false`. | core/types/src/utils/D3plusConfig.d.ts:291 |
+| <a id="property-confidenceconfig"></a> `confidenceConfig?` | `Record`\<`string`, `unknown`\> | Area shape config for the confidence band. Its fill defaults to the line color. | core/types/src/utils/D3plusConfig.d.ts:295 |
+| <a id="property-confidencelevel"></a> `confidenceLevel?` | `number` | The confidence band's level, between 0 and 1. Defaults to 0.95. | core/types/src/utils/D3plusConfig.d.ts:293 |
+| <a id="property-group-1"></a> `group?` | `"series"` \| `"all"` | `"series"` (default) fits one line per series, colored to match it; `"all"` fits one line to every point. Stacked charts always fit the stack totals. | core/types/src/utils/D3plusConfig.d.ts:287 |
+| <a id="property-order-1"></a> `order?` | `number` | The polynomial degree when `trendLine` is `"polynomial"`. Defaults to 2. | core/types/src/utils/D3plusConfig.d.ts:289 |
+| <a id="property-projection-1"></a> `projection?` | `number` \| \{ `to`: `string` \| `number` \| `Date`; \} | Extends each trend line past the end of its data: a number of steps (at the data's own spacing — the median gap between values, or the calendar interval of dates), or `{to}` an end value to step up to (a number, or on a time axis a Date or a parseable date such as a year). Widens the axis to fit. Ignored on a category axis. Defaults to `0` (off). | core/types/src/utils/D3plusConfig.d.ts:299 |
+| <a id="property-projectionconfig"></a> `projectionConfig?` | `Record`\<`string`, `unknown`\> | Line shape config for the projected stretch, merged over the line's own styles. Defaults to `{strokeDasharray: "2 4"}`. | core/types/src/utils/D3plusConfig.d.ts:303 |
+| <a id="property-stroke-7"></a> `stroke?` | `string` | Line color. Defaults to the series color (dark gray when `group` is `"all"`). | core/types/src/utils/D3plusConfig.d.ts:307 |
+| <a id="property-strokedasharray-7"></a> `strokeDasharray?` | `string` | Line dash pattern. Defaults to `"6 4"`. | core/types/src/utils/D3plusConfig.d.ts:311 |
+| <a id="property-strokewidth-7"></a> `strokeWidth?` | `number` | Line width in pixels. Defaults to 2. | core/types/src/utils/D3plusConfig.d.ts:309 |
+| <a id="property-tooltip-1"></a> `tooltip?` | `boolean` | Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. | core/types/src/utils/D3plusConfig.d.ts:305 |
 
 ***
 
@@ -24639,11 +28737,11 @@ Whisker-specific config.
 | <a id="property-endpoint"></a> `endpoint?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | End-cap shape name (e.g. "Rect"). | core/types/src/shapes/shapeConfig.d.ts:217 |
 | <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:218 |
 | <a id="property-length"></a> `length?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | Whisker length in pixels. | core/types/src/shapes/shapeConfig.d.ts:220 |
-| <a id="property-lineconfig"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:221 |
+| <a id="property-lineconfig-1"></a> `lineConfig?` | `Record`\<`string`, `unknown`\> | - | core/types/src/shapes/shapeConfig.d.ts:221 |
 | <a id="property-orient-1"></a> `orient?` | [`ConstOrAccessor`](#constoraccessor)\<`string`\> | - | core/types/src/shapes/shapeConfig.d.ts:222 |
 | <a id="property-select-9"></a> `select?` | `string` \| `HTMLElement` \| `SVGElement` \| `null` | - | core/types/src/shapes/shapeConfig.d.ts:223 |
-| <a id="property-x-11"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:224 |
-| <a id="property-y-11"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:225 |
+| <a id="property-x-12"></a> `x?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:224 |
+| <a id="property-y-12"></a> `y?` | [`ConstOrAccessor`](#constoraccessor)\<`number`\> | - | core/types/src/shapes/shapeConfig.d.ts:225 |
 
 ## Type Aliases
 
@@ -24651,7 +28749,7 @@ Whisker-specific config.
 
 ### AnyShapeConfig
 
-> **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-2) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
+> **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-3) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
 
 Defined in: core/types/src/shapes/shapeConfig.d.ts:233
 
@@ -24670,6 +28768,24 @@ time (Plot's `shapeConfig`, axis decorators, etc.).
 Defined in: color/types/src/validate.d.ts:2
 
 The state of a single check. `warn` passes but obligates secondary encoding.
+
+***
+
+<a id="colordefaultsconfig"></a>
+
+### ColorDefaultsConfig
+
+> **ColorDefaultsConfig** = `Partial`\<`Omit`\<[`ColorDefaults`](#colordefaults-23), `"scale"`\>\> & `object`
+
+Defined in: core/types/src/utils/D3plusConfig.d.ts:333
+
+`colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors.
+
+#### Type Declaration
+
+| Name | Type | Defined in |
+| ------ | ------ | ------ |
+| `scale?` | [`ColorDefaults`](#colordefaults-23)\[`"scale"`\] \| `string`[] | core/types/src/utils/D3plusConfig.d.ts:334 |
 
 ***
 
@@ -24720,7 +28836,7 @@ Constructor type for d3plus visualization, component, and shape classes.
 
 > **D3Selection** = `object`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:51
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:66
 
 D3-style selection — deliberately loose. d3-selection's element/datum
 generics are invariant, so a single typed alias can't accept every
@@ -24740,7 +28856,7 @@ the per-class fluent-accessor index signatures).
 
 > **attr**(`name`: `string`, ...`args`: `any`[]): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:53
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:68
 
 ###### Parameters
 
@@ -24759,7 +28875,7 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:53
 
 > **call**(...`args`: `any`[]): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:58
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:73
 
 ###### Parameters
 
@@ -24777,19 +28893,19 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:58
 
 > **node**(): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:52
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:67
 
 ###### Returns
 
 `any`
 
-<a id="on-22"></a>
+<a id="on-23"></a>
 
 ##### on()
 
 > **on**(`event`: `string`, `handler`: `any`): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:57
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:72
 
 ###### Parameters
 
@@ -24802,13 +28918,13 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:57
 
 `any`
 
-<a id="select-21"></a>
+<a id="select-22"></a>
 
 ##### select()
 
 > **select**(`selector`: `any`): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:56
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:71
 
 ###### Parameters
 
@@ -24826,7 +28942,7 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:56
 
 > **selectAll**(`selector`: `string`): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:55
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:70
 
 ###### Parameters
 
@@ -24844,7 +28960,7 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:55
 
 > **style**(`name`: `string`, ...`args`: `any`[]): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:54
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:69
 
 ###### Parameters
 
@@ -24863,7 +28979,7 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:54
 
 > **transition**(...`args`: `any`[]): `any`
 
-Defined in: core/types/src/charts/viz/vizTypes.d.ts:59
+Defined in: core/types/src/charts/viz/vizTypes.d.ts:74
 
 ###### Parameters
 
@@ -24874,6 +28990,40 @@ Defined in: core/types/src/charts/viz/vizTypes.d.ts:59
 ###### Returns
 
 `any`
+
+***
+
+<a id="gaugeindicator"></a>
+
+### GaugeIndicator
+
+> **GaugeIndicator** = `"needle"` \| `"progress"`
+
+Defined in: core/types/src/charts/Gauge/dialLayout.d.ts:8
+
+How a gauge shows its value: a needle, or an arc filled from the minimum.
+
+***
+
+<a id="linkoption"></a>
+
+### LinkOption
+
+> **LinkOption** = `string` \| `false` \| [`LinkConfig`](#linkconfig)
+
+Defined in: core/types/src/charts/viz/linkGroup.d.ts:25
+
+`link` as a group name, the full object form, or `false` for unlinked.
+
+***
+
+<a id="regressiontype"></a>
+
+### RegressionType
+
+> **RegressionType** = `"linear"` \| `"exponential"` \| `"logarithmic"` \| `"power"` \| `"polynomial"`
+
+Defined in: math/types/src/regression.d.ts:1
 
 ***
 

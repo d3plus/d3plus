@@ -15,7 +15,6 @@ export const argTypes = assign(
    * overrides any defaults that have been changed in Plot
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(zoom.*)$/))
     .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
@@ -23,49 +22,6 @@ export const argTypes = assign(
    */
   
   {
-    _drawSceneToTarget: {
-      control: {
-        type: "number"
-      },
-      description: "Renders this chart through the @d3plus/render pluggable backends. Called\nautomatically by `render()`. The compute pass draws into `this._select`\n(an auto-created svg INSIDE the user's target div) — that svg is the\noff-stage detached compute svg. SvgRenderer mounts to the user's target\ndiv (the parent), as a sibling to the detached compute svg. The compute\nsvg's children get cleared so only the scene output is visible.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    _paint: {
-      control: {},
-      description: "Paint phase: production axis rendering, shape buffer setup, and shape\nemission with event handlers. Receives all cross-phase locals from\n_draw via `pCtx` (so this method has zero coupling to _draw's local\nscope beyond the explicit context).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "plotpaintcontext"
-      }
-    },
-    _wirePlotShapeEvents: {
-      control: {
-        type: "object"
-      },
-      description: "Wires user-registered `on()` event handlers onto a freshly-configured\nshape instance. Splits the registered events into three buckets:\nglobal (`\"click\"`), shape-scoped (`\"click.shape\"`), and\nshape-class-scoped (`\"click.Bar\"` etc.). All three forward into\n`this.schema.on[event](d.data, d.i, x, event)`. Extracted from\nPlot._paint so the chart-level event wiring is in one place.\n\nOn the scene path (SvgRenderer/CanvasRenderer) these d3-selection\nbindings don't fire — compute-mode shapes mount no per-shape DOM.\nPointer events are instead routed by `Viz._drawSceneToTarget`'s\nrenderer bridge: it hit-tests via `Renderer.pick`, reads the picked\nnode's stamped `shapeType`, and dispatches the matching global,\n`.shape`, and shape-class-scoped (`.Bar`) handlers — the same three\nbuckets this method wires, so SVG and Canvas behave identically.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "object"
-      }
-    },
     active: {
       control: {},
       description: "The active callback function for highlighting shapes.",
@@ -121,6 +77,21 @@ export const argTypes = assign(
         summary: "string | boolean"
       }
     },
+    attributionIcon: {
+      control: {
+        type: "text"
+      },
+      description: "Overrides the \"ⓘ\" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
+    },
     attributionStyle: {
       control: {},
       description: "Configuration object for the attribution style.",
@@ -152,7 +123,7 @@ export const argTypes = assign(
     },
     backConfig: {
       control: {},
-      description: "Configuration object for the back button.",
+      description: "Configuration object for the back button. Superseded by\n`.backControlStyle()`/`.backControlClassName()` for the button's\nappearance (it renders as a real `<button>`, like the zoom/search\ncontrols, not a configurable text node) — kept for backwards\ncompatibility, but no longer affects how the button looks.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -161,6 +132,34 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
+      }
+    },
+    backControlClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    backControlStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
       }
     },
     backgroundConfig: {
@@ -197,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The baseline for the x/y plot.",
+      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -206,6 +205,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    baselineBreak: {
+      control: {
+        type: "boolean"
+      },
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     buffer: {
@@ -228,7 +242,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.",
+      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.\n\nWhen the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `\"country\"` and colored by `\"region\"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -237,6 +251,19 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | false | function"
+      }
+    },
+    colorDefaults: {
+      control: {},
+      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: true,
+        summary: "colordefaultsconfig"
       }
     },
     colorScale: {
@@ -353,6 +380,20 @@ export const argTypes = assign(
         summary: "d3plusconfig"
       }
     },
+    crosshairConfig: {
+      control: {},
+      defaultValue: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}",
+      description: "Paint for the shared tooltip's crosshair guide line (`stroke`,\n`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the\ncurrent config.",
+      table: {
+        defaultValue: {
+          summary: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     data: {
       control: {
         type: "object"
@@ -417,7 +458,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The interval, in milliseconds, for checking if the visualization is visible on the page.",
+      description: "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -426,6 +467,21 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
+      }
+    },
+    detectVisibleUnload: {
+      control: {
+        type: "boolean"
+      },
+      description: "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
       }
     },
     discreteCutoff: {
@@ -442,49 +498,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "number"
-      }
-    },
-    downloadButton: {
-      control: {
-        type: "boolean"
-      },
-      description: "Shows a button that allows for downloading the current visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    downloadConfig: {
-      control: {},
-      description: "Sets specific options of the saveElement function used when downloading the visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    downloadPosition: {
-      control: {
-        type: "text"
-      },
-      description: "Defines which control group to add the download button into.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
       }
     },
     fontFamily: {
@@ -593,7 +606,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor function or string key for the label of each data point.",
+      description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -638,7 +651,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether to display the legend.",
+      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -675,6 +688,34 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean | function"
+      }
+    },
+    legendInset: {
+      control: {
+        type: "boolean"
+      },
+      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | function"
+      }
+    },
+    legendInsetConfig: {
+      control: {},
+      description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     },
     legendPadding: {
@@ -737,11 +778,11 @@ export const argTypes = assign(
     },
     lineMarkerConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
+      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
       description: "Shape config for the Circle shapes drawn by the lineMarkers method.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => colorAssign(this._id(d, i)), r: 3}",
+          detail: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
           summary: "function"
         }
       },
@@ -837,6 +878,73 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
+      }
+    },
+    minimapClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    minimapLabelStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. \"2x\"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    minimapStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    minimapViewportStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    minimapViewportStyleActive: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
       }
     },
     noDataHTML: {
@@ -976,6 +1084,73 @@ export const argTypes = assign(
         summary: "string | htmlelement | window"
       }
     },
+    searchAccessor: {
+      control: {},
+      description: "Resolves the string the search box matches its typed term against, for\na given datum. Defaults to the mark's resolved on-screen label\n(`viz._drawLabel`) — the same text the user reads on the chart.\nOverride it to match against something else instead, e.g. a data\nfield that isn't shown as the label.\n\nThis is checked alongside, not instead of, every level of the datum's\nown groupBy hierarchy — searching a leaf's label also matches its\nancestor group's cell/legend entry, and vice versa, regardless of\nthis accessor's override.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
+    searchControlClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    searchControlStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    searchControlStyleActive: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    searchControlStyleHover: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
     select: {
       control: {
         type: "text"
@@ -1043,6 +1218,53 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "false | plotaccessorarg"
+      }
+    },
+    sizeLegend: {
+      control: {
+        type: "boolean"
+      },
+      description: "Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | function"
+      }
+    },
+    sizeLegendConfig: {
+      control: {},
+      description: "Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
+    sizeLegendPosition: {
+      control: {
+        type: "radio"
+      },
+      description: "Which margin the size legend claims in the chart's bottom-right corner. `\"right\"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `\"bottom\"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.",
+      options: [
+        "right",
+        "bottom"
+      ],
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"right\" | \"bottom\""
       }
     },
     sizeMax: {
@@ -1179,6 +1401,90 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean | function"
+      }
+    },
+    tableViewClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    tableViewControlClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    tableViewControlStyle: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    tableViewControlStyleActive: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    tableViewControlStyleHover: {
+      control: {},
+      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "false | record"
+      }
+    },
+    tableViewPageSize: {
+      control: {
+        type: "number"
+      },
+      description: "The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number | false"
       }
     },
     threshold: {
@@ -1355,6 +1661,22 @@ export const argTypes = assign(
         summary: "record"
       }
     },
+    tooltipShared: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: true,
+      description: "Whether hovering a Plot's plot area shows one tooltip listing every\nseries' value at the nearest discrete-axis position, with a crosshair\nthrough it. Applies when a discrete axis is set and at least two series\nshare that position.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     total: {
       control: {
         type: "text"
@@ -1422,6 +1744,32 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "function"
+      }
+    },
+    trendLine: {
+      control: {},
+      description: "Draws an automatic trend line fit to the plotted data: `true` (or `\"linear\"`) for a least-squares line, or one of `\"exponential\"`, `\"logarithmic\"`, `\"power\"`, or `\"polynomial\"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "trendlinetype"
+      }
+    },
+    trendLineConfig: {
+      control: {},
+      description: "Options for the trend lines drawn by `trendLine`, merged into the current config:\n- `group`: `\"series\"` (default) fits one line per series, colored to match it; `\"all\"` fits a single line to every point.\n- `order`: the polynomial degree when `trendLine` is `\"polynomial\"` (default `2`).\n- `confidence`: draws a confidence band around a linear fit (default `false`).\n- `confidenceLevel`: the band's confidence level (default `0.95`).\n- `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).\n- `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.\n- `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: \"2 4\"}`).\n- `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).\n- Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.\n\nStacked charts always fit one line to the stack totals.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     },
     x: {
@@ -1496,13 +1844,28 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    xBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the x axis — `[start, end]` or a list of\nthem — drawn as a break in the axis with a gap cut across the shapes\nthat cross it (see the axis `break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
+      }
+    },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },
@@ -1627,13 +1990,28 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    yBreak: {
+      control: {
+        type: "object"
+      },
+      description: "Value range(s) to remove from the y axis — `[start, end]` or a list of\nthem, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the\naxis with a gap cut across the shapes that cross it (see the axis\n`break` and `breakConfig`).",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "* | array.&lt;*&gt;"
+      }
+    },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  const bg = this._select ? backgroundColor(this._select.node()) : \"rgb(255, 255, 255)\";\n  const contrast = colorContrast(bg);\n  return contrast === colorDefaults.dark ? openColor.colors.gray[200] : openColor.colors.gray[600];\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },
@@ -1727,9 +2105,37 @@ export const argTypes = assign(
         summary: "false | record"
       }
     },
+    zoomControlClassName: {
+      control: {
+        type: "text"
+      },
+      description: "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
+    },
+    zoomControlIcons: {
+      control: {},
+      description: "Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "partial"
+      }
+    },
     zoomControlStyle: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1742,7 +2148,7 @@ export const argTypes = assign(
     },
     zoomControlStyleActive: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1755,7 +2161,7 @@ export const argTypes = assign(
     },
     zoomControlStyleHover: {
       control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling.",
+      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
       table: {
         defaultValue: {
           summary: "undefined"

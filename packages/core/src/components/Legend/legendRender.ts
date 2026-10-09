@@ -1,7 +1,7 @@
 import {max, sum} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign, textWidth} from "@d3plus/dom";
+import {textWidth} from "@d3plus/dom";
 import {textWrap} from "@d3plus/text";
 
 import * as shapes from "../../shapes/index.js";
@@ -50,16 +50,17 @@ export function computeLegendLineData(
     const shape = legend.schema.shape(d, i);
     const r = legend._fetchConfig("r", d, i) as number;
 
+    const height = legend._fetchConfig("height", d, i) as number;
     let res: Record<string, unknown> = {
       data: d,
       i,
       id: legend.schema.id(d, i),
       shape,
       shapeR: r,
+      // A Line swatch fills a square, like a Rect's, so swatches line up.
       shapeWidth:
-        shape === "Circle" ? r * 2 : legend._fetchConfig("width", d, i),
-      shapeHeight:
-        shape === "Circle" ? r * 2 : legend._fetchConfig("height", d, i),
+        shape === "Circle" ? r * 2 : shape === "Line" ? height : legend._fetchConfig("width", d, i),
+      shapeHeight: shape === "Circle" ? r * 2 : height,
       y: 0,
     };
 
@@ -87,7 +88,9 @@ export function computeLegendLineData(
 
     res = Object.assign(res, newRes);
 
-    res.width =
+    // A label with no room for even one line (e.g. a chart only a few pixels
+    // wide) measures as zero, so row packing falls back to swatches alone.
+    res.width = !(res.lines as string[]).length ? 0 :
       Math.ceil(
         max(
           (res.lines as string[]).map((t: string) =>
@@ -215,14 +218,14 @@ function buildRows(
 
 /**
     Runs the row-wrapping pass: builds rows, retries label-free if it overflows,
-    then distributes row `y` offsets. Returns the resolved `spaceNeeded`.
+    then distributes row `y` offsets. Returns the widest row's width, or
+    `false` when even label-free swatches overflow the available space.
 */
 export function wrapLegendRows(
   legend: Legend,
   availableWidth: number,
   availableHeight: number,
-  spaceNeeded: number,
-): number {
+): number | false {
   const state: WrapState = {
     lines: 1,
     newRows: [],
@@ -240,12 +243,6 @@ export function wrapLegendRows(
     sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
       availableHeight
   ) {
-    spaceNeeded =
-      sum(
-        legend._lineData.map(
-          (d: Record<string, unknown>) => (d.shapeWidth as number) + legend.schema.padding,
-        ),
-      ) - legend.schema.padding;
     for (let i = 0; i < legend._lineData.length; i++) {
       legend._lineData[i].width = 0;
       legend._lineData[i].height = 0;
@@ -254,24 +251,30 @@ export function wrapLegendRows(
   }
 
   if (
-    state.newRows.length &&
-    sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding <
+    !state.newRows.length ||
+    sum(state.newRows, legend._rowHeight.bind(legend)) + legend.schema.padding >
       availableHeight
-  ) {
-    state.newRows.forEach((row: Record<string, unknown>[], i: number) => {
-      row.forEach((d: Record<string, unknown>) => {
-        if (i) {
-          d.y = sum(state.newRows.slice(0, i), legend._rowHeight.bind(legend));
-        }
-      });
-    });
-    spaceNeeded = max(
-      state.newRows,
-      legend._rowWidth.bind(legend),
-    ) as unknown as number;
-  }
+  )
+    return false;
 
-  return spaceNeeded;
+  state.newRows.forEach((row: Record<string, unknown>[], i: number) => {
+    row.forEach((d: Record<string, unknown>) => {
+      if (i) {
+        d.y = sum(state.newRows.slice(0, i), legend._rowHeight.bind(legend));
+      }
+    });
+  });
+  return max(state.newRows, legend._rowWidth.bind(legend)) as unknown as number;
+}
+
+/**
+    Empties a legend whose swatches don't fit: no title, no shapes, and zero
+    outer bounds, so a parent chart claims no margin for it.
+*/
+export function clearLegend(legend: Legend): void {
+  legend._titleClass.data([]);
+  legend._shapes = [];
+  Object.assign(legend._outerBounds, {width: 0, height: 0, x: 0, y: 0});
 }
 
 /** Computes `_outerBounds` (size + aligned x/y offset) from the laid-out rows. */
@@ -315,14 +318,41 @@ export function renderLegendTitle(legend: Legend): void {
     .render();
 }
 
-/** Builds the per-shape data and renders the Circle/Rect swatch groups. */
+/** A Line swatch's dot radius, as a share of its size: its stroke pokes out either side. */
+const LINE_DOT = 0.3;
+
+/** A Line swatch's stroke thickness, in pixels. */
+const LINE_STROKE = 2;
+
+/**
+    Per-shape overrides that draw a "Line" legend entry as a line glyph: a
+    short stroke (in the Rect group, which also carries the item's label and
+    hover target) through a small dot (in the Circle group).
+*/
+function lineSwatchConfig(legend: Legend, shapeName: string): Record<string, unknown> {
+  type Wrapped = {shape?: unknown; data: DataPoint; i: number};
+  const isLine = (d: Wrapped) => d.shape === "Line";
+  const fetch = (key: string, d: Wrapped) => legend._fetchConfig(key, d.data, d.i);
+  const line = (d: Wrapped) => legend._lineData[d.i];
+  return shapeName === "Rect"
+    ? {
+      width: (d: Wrapped) => (isLine(d) ? line(d).shapeWidth : fetch("width", d)),
+      height: (d: Wrapped) => (isLine(d) ? LINE_STROKE : fetch("height", d)),
+    }
+    : {
+      r: (d: Wrapped) => (isLine(d) ? (line(d).shapeHeight as number) * LINE_DOT : fetch("r", d)),
+      label: (d: Wrapped & {label?: unknown}) => (isLine(d) ? false : d.label),
+      hitArea: (d: Wrapped) => (isLine(d) ? null : fetch("hitArea", d)),
+    };
+}
+
+/** Builds the per-shape data and renders the Circle/Rect swatch groups (Line entries draw in both). */
 export function renderLegendShapes(legend: Legend): void {
   legend._shapes = [];
   const baseConfig = configPrep.bind(legend as unknown as VizContext)(legend.schema.shapeConfig, "legend"),
     config = {
       id: (d: Record<string, unknown>) => d.id,
       label: (d: Record<string, unknown>) => d.label,
-      lineHeight: (d: Record<string, unknown>) => d.lH,
     };
 
   const data = legend._data.map((d: DataPoint, i: number) => {
@@ -332,7 +362,6 @@ export function renderLegendShapes(legend: Legend): void {
       i,
       id: legend.schema.id(d, i),
       label: legend._lineData[i].width ? legend.schema.label(d, i) : false,
-      lH: legend._fetchConfig("lineHeight", d, i),
       shape: legend.schema.shape(d, i),
     };
 
@@ -347,12 +376,14 @@ export function renderLegendShapes(legend: Legend): void {
       new (shapes as unknown as Record<string, new () => Shape>)[shapeName]()
         .renderMode("compute")
         .parent(legend)
-        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName))
+        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName || d.shape === "Line"))
         .duration(legend.schema.duration)
         .labelConfig({padding: 0})
         .select(legend._shapeGroup.node())
         .verticalAlign("top")
-        .config(assign({}, baseConfig, config))
+        .config(baseConfig)
+        .config(config)
+        .config(lineSwatchConfig(legend, shapeName))
         .render(),
     );
   });

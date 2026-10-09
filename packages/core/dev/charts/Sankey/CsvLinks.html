@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>CsvLinks · Sankey</title>
+    <meta name="description" content="Multi-step Sankey built from a CSV edge list with custom source/target keys.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+  </head>
+
+  <body></body>
+
+  <script>
+    new d3plus.Sankey()
+      .links("./nodelist3.csv", resp => {
+        let nodes = [];
+        const counted = [];
+        const links = resp.reduce((arr, link) => {
+          const step = parseInt(link.step, 10);
+          const source = `${link["Source.key1"]}-${link["Source.key2"]}-${step}`;
+          const target = `${link["Target.key1"]}-${link["Target.key2"]}-${
+            step + 1
+          }`;
+          if (!nodes.includes(source)) nodes.push(source);
+          if (!nodes.includes(target)) nodes.push(target);
+          arr.push({
+            origin: source,
+            destination: target,
+            weight: parseInt(link.weight, 10),
+          });
+          return arr;
+        }, []);
+        nodes = nodes.map(id => ({id}));
+        return links;
+      })
+      .linksSource("origin")
+      .linksTarget("destination")
+      .nodeAlign("left")
+      // .nodeSort((a, b) => {
+      //   console.log(a, b);
+      //   return 0;
+      // })
+      .render();
+  </script>
+</html>

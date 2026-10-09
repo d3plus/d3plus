@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Elem</title>
+  <meta name="description" content="elem() enter and update transforms on a reused element.">
+  <script src="/umd/d3plus-dom.full.js"></script>
+
+</head>
+
+<body>
+
+  <script>
+
+    // Prints each logged value into the page as well as the console.
+    const output = document.body.appendChild(document.createElement("pre"));
+    const log = (...args) => {
+      console.log(...args);
+      const text = args.map(a => {
+        if (typeof a === "string") return a;
+        try {
+          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+        } catch {
+          return String(a);
+        }
+      });
+      output.textContent += `${text.join(" ")}\n`;
+    };
+
+    const config = {enter: {transform: "translate(0,0)"}, update: {transform: "translate(0,100)"}};
+    let svg = d3plus.elem("svg.className", config);
+    
+    log(svg.attr("transform"));
+  
+    svg = d3plus.elem("svg.className", config);
+
+    log(svg.attr("transform"));
+
+  </script>
+
+</body>
+
+</html>

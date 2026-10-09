@@ -4,7 +4,10 @@
 <head>
 
   <meta charset="utf-8">
-  <script src="../../umd/d3plus-core.full.js"></script>
+  <title>Counties · Geomap</title>
+  <meta name="description" content="US county choropleth with a bucketed colorScale and the geoAlbersUsaTerritories projection.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
 
   <style>
 
@@ -23,50 +26,25 @@
 
 <script>
 
-  // const myProjection = d3.geoAlbersUsaTerritories();
-  // console.log(myProjection);
-
-  var activeThings = [];
-  // console.time("first");
-  var chart = new d3plus.Geomap()
-    .data("https://datausa.io/tesseract/data.jsonrecords?cube=pums_5&measures=Total Population&drilldowns=County&year=2023", function(d) { return d.data; })
+  new d3plus.Geomap()
+    .data("./county-population.json")
     .topojson("./County.json")
-    // .projection("geoAlbersUsa")
     .projection("geoAlbersUsaTerritories")
-    .colorScale("Total Population")
+    .colorScale("Population")
     .colorScaleConfig({
       buckets: [0, 100000, 500000, 1000000],
-      bucketFormat: function(tick, i, ticks) {
-        return tick;
-      },
       scale: "buckets"
     })
     .groupBy("County ID")
+    .label(d => d.County)
     .ocean("transparent")
-    // .label(d => d.County)
-    // .tooltipConfig({
-    //   tbody: [
-    //     ["Year", d => d.Year],
-    //     ["Population", d => d.Population]
-    //   ]
-    // })
     .shapeConfig({
       activeOpacity: 0.25,
       Path: {
-        fillOpacity: 0.75,
-        // stroke: d => activeThings.includes(d["ID County"]) ? "red" : "transparent",
-        // strokeOpacity: 1
+        fillOpacity: 0.75
       }
     })
     .render();
-
-  // setTimeout(() => {
-  //   activeThings.push("05000US06037");
-  //   console.time("second");
-  //   chart
-  //     // .shapeConfig({Path: {stroke: d => activeThings.includes(d.id) ? "red" : "transparent"}})
-  //     .render(() => console.timeEnd("second"));
-  // }, 5000);
 
 </script>
 

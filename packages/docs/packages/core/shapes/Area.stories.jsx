@@ -36,3 +36,28 @@ BasicExample.args = {
   fill: "#3a7ca5", fillOpacity: 0.5
 };
 BasicExample.parameters = {controls: {include: ["curve"]}, docs: {description: {story: "The six points share one `id`, so they join into a single filled area; `fillOpacity` renders it as a translucent band, and the `curve` control changes how the vertices are interpolated."}}};
+
+export const Band = Template.bind({});
+Band.args = {
+  data: [
+    {id: "range", x: 40, top: 60, bottom: 120}, {id: "range", x: 160, top: 120, bottom: 220},
+    {id: "range", x: 280, top: 70, bottom: 150}, {id: "range", x: 400, top: 150, bottom: 240},
+    {id: "range", x: 520, top: 50, bottom: 130}, {id: "range", x: 640, top: 110, bottom: 200}
+  ],
+  fill: "#3a7ca5", fillOpacity: 0.35,
+  y0: funcify(d => d.top, "d => d.top"),
+  y1: funcify(d => d.bottom, "d => d.bottom")
+};
+Band.parameters = {controls: {include: ["y0", "y1"]}, docs: {description: {story: "Setting both `y0` and `y1` draws a band between two edges instead of filling down to a baseline, which is how confidence intervals and min/max envelopes are drawn behind a line."}}};
+
+export const CurveAndSeries = Template.bind({});
+CurveAndSeries.args = {
+  data: [
+    {id: "a", x: 40, y: 120}, {id: "a", x: 200, y: 200}, {id: "a", x: 360, y: 90}, {id: "a", x: 520, y: 180}, {id: "a", x: 680, y: 110},
+    {id: "b", x: 40, y: 220}, {id: "b", x: 200, y: 150}, {id: "b", x: 360, y: 240}, {id: "b", x: 520, y: 130}, {id: "b", x: 680, y: 210}
+  ],
+  curve: "monotoneX",
+  fill: funcify(d => (d.id === "a" ? "#3a7ca5" : "#cc4b4b"), 'd => d.id === "a" ? "#3a7ca5" : "#cc4b4b"'),
+  fillOpacity: 0.45
+};
+CurveAndSeries.parameters = {controls: {include: ["curve", "fill"]}, docs: {description: {story: "Each distinct `id` becomes its own area, and `curve` picks the d3 interpolation between points; `monotoneX` rounds the corners without overshooting the data."}}};

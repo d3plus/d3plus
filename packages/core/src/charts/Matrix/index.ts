@@ -10,7 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {Axis} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
@@ -39,7 +39,7 @@ const localeCompare = (
 export const matrixDef: ChartDefinition = {
   name: "Matrix",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyMatrixLayout,
   emit: matrixEmit,
 
@@ -57,12 +57,14 @@ export const matrixDef: ChartDefinition = {
       if (colorScaleBucketOf(x) || colorScaleBucketOf(d)) return;
       const row = getProp.bind(viz)("row", d, i);
       const column = getProp.bind(viz)("column", d, i);
+      // Without a colorScale every cell has a value to highlight.
+      const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
       type HoverFn = (fn: (h: DataPoint, ii: number) => boolean) => unknown;
       (viz as VizInstance & {hover: HoverFn}).hover(
         (h: DataPoint, ii: number) =>
           (getProp.bind(viz)("row", h, ii) === row ||
             getProp.bind(viz)("column", h, ii) === column) &&
-          typeof (viz.schema.colorScale as (d: DataPoint, i: number) => unknown)(h, ii) === "number",
+          (typeof colorScale !== "function" || typeof colorScale(h, ii) === "number"),
       );
     };
   },

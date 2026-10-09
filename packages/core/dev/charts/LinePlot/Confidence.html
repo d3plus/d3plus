@@ -1,0 +1,61 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Confidence · LinePlot</title>
+  <meta name="description" content="LinePlot with confidence bands on a discrete time axis.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var data = [
+    {id: "alpha", time: 4, value: 250},
+    {id: "alpha", time: 5, value: 120},
+    {id: "alpha", time: 6, value: 180},
+    {id: "delta", time: 4, value: 40},
+    {id: "delta", time: 5, value: 20},
+    {id: "delta", time: 7, value: 80}
+  ];
+
+  data.forEach(d => {
+    d.value *= 10000000000;
+    d.lci = d.value - (d.value * Math.random() / 10);
+    d.hci = d.value + (d.value * Math.random() / 10);
+  });
+
+  data.forEach(d => {
+    d.time = 2010 + d.time;
+  });
+
+  new d3plus.LinePlot()
+    .confidence([d => d.lci, d => d.hci])
+    .data(data)
+    .groupBy("id")
+    .legend(false)
+    .sizeMin(20)
+    .time("time")
+    .x("time")
+    .discrete("x")
+    .y("value")
+    .yConfig({scale: "auto"})
+    .render();
+
+</script>
+
+</html>

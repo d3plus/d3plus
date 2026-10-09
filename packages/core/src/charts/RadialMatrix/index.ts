@@ -13,7 +13,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {TextBox} from "../../components/index.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -37,7 +37,7 @@ interface LabelDatum {
 export const radialMatrixDef: ChartDefinition = {
   name: "RadialMatrix",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRadialMatrixLayout,
   emit: radialMatrixEmit,
 
@@ -47,6 +47,17 @@ export const radialMatrixDef: ChartDefinition = {
       viz.ctx.radialMatrixWidth as number,
       viz.ctx.radialMatrixHeight as number,
     ),
+
+  // RadialMatrix's chartTransform centers the origin — arc cells are drawn
+  // in [-radialMatrixWidth/2, radialMatrixWidth/2] × [-radialMatrixHeight/2,
+  // radialMatrixHeight/2], not the top-left-origin box the default
+  // chartBodyRect assumes (see Pie/index.ts, which documents/fixes the
+  // identical issue for its own centered layout).
+  chartBodyRect: (viz: VizInstance) => {
+    const w = (viz.ctx.radialMatrixWidth as number) ?? 0;
+    const h = (viz.ctx.radialMatrixHeight as number) ?? 0;
+    return {x: -w / 2, y: -h / 2, width: w, height: h};
+  },
 
   setup: (viz: VizInstance) => {
     const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
@@ -104,7 +115,7 @@ export const radialMatrixDef: ChartDefinition = {
               const bg = viz._select
                 ? backgroundColor(viz._select.node())
                 : "rgb(255, 255, 255)";
-              return colorContrast(bg);
+              return colorContrast(bg, viz.schema.colorDefaults);
             },
             padding: 5,
             textAnchor: (d: LabelDatum) =>

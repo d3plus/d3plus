@@ -65,3 +65,98 @@ MultipleSeries.parameters = {
   controls: {include: ["metric", "value"]},
   docs: {description: {story: "Two series overlaid on the same axes, one filled polygon per group."}}
 };
+
+const skillData = ["Analyst", "Engineer", "Designer"].flatMap((group, g) =>
+  ["Research", "Writing", "Coding", "Design", "Testing", "Planning", "Presenting", "Mentoring"].map((metric, m) => ({
+    group,
+    metric,
+    value: 3 + ((m * 3 + g * 5) % 7),
+  })),
+);
+
+export const MoreMetrics = Template.bind({});
+MoreMetrics.args = {
+  data: skillData,
+  groupBy: "group",
+  metric: "metric",
+  value: "value"
+};
+MoreMetrics.parameters = {controls: {include: ["metric", "value"]}, docs: {description: {story: "Eight `metric` values make eight evenly spaced spokes, and three `groupBy` series become three overlaid polygons, which is the typical skills-profile use of a radar."}}};
+
+export const LevelsAndPadding = Template.bind({});
+LevelsAndPadding.args = {
+  data: skillData,
+  groupBy: "group",
+  levels: 3,
+  metric: "metric",
+  outerPadding: 90,
+  value: "value"
+};
+LevelsAndPadding.parameters = {controls: {include: ["levels", "outerPadding"]}, docs: {description: {story: "`levels` sets roughly how many concentric rings are drawn behind the polygons (three here instead of the default six). Like axis ticks, the rings land on round values, so the count is a target rather than an exact number. By default the web is sized to fit its metric labels; a number for `outerPadding` (90 here) reserves exactly that many pixels around the web for them instead."}}};
+
+const scoreData = ["2024", "2025"].flatMap((group, g) =>
+  ["Speed", "Power", "Range", "Comfort", "Safety", "Price", "Design", "Support"].map((metric, m) => ({
+    group,
+    metric,
+    value: 30 + ((m * 23 + g * 37) % 65),
+  })),
+);
+
+export const LevelLabels = Template.bind({});
+LevelLabels.args = {
+  data: scoreData,
+  groupBy: "group",
+  levelFormat: funcify(
+    d => `${d}%`,
+    "d => `${d}%`"
+  ),
+  levels: [0, 25, 50, 75, 100],
+  metric: "metric",
+  value: "value"
+};
+LevelLabels.parameters = {controls: {include: ["levels", "levelFormat", "levelLabels"]}, docs: {description: {story: "Each ring is labeled with its value along the vertical axis. Passing an array to `levels` sets the exact ring values (here a 0–100 scale), and `levelFormat` formats each label. Set `levelLabels` to `false` to hide them."}}};
+
+export const LevelLabelStyling = Template.bind({});
+LevelLabelStyling.args = {
+  data: skillData,
+  groupBy: "group",
+  levelLabelAngle: 22.5,
+  levelLabelConfig: {
+    fontSize: 11,
+    fontWeight: 600
+  },
+  levels: 4,
+  metric: "metric",
+  value: "value"
+};
+LevelLabelStyling.parameters = {controls: {include: ["levelLabelAngle", "levelLabelConfig", "levels"]}, docs: {description: {story: "`levelLabelAngle` turns the labels to any direction, in degrees clockwise from 12 o'clock — 22.5 runs them between the top two spokes instead of along one. `levelLabelConfig` styles the label text. The labels sit beneath the polygons, so data drawn over a ring covers its label."}}};
+
+const kpiData = ["Team A", "Team B"].flatMap((group, g) =>
+  [
+    "Customer Satisfaction Index", "Revenue", "Net Promoter Score (Trailing 12 Months)", "Churn",
+    "Average Handling Time", "Employee Engagement", "Market Share", "Gross Margin Percentage"
+  ].map((metric, m) => ({group, metric, value: 20 + ((m * 13 + g * 31) % 70)})),
+);
+
+export const LongMetricLabels = Template.bind({});
+LongMetricLabels.args = {
+  data: kpiData,
+  groupBy: "group",
+  metric: "metric",
+  value: "value"
+};
+LongMetricLabels.parameters = {controls: {include: ["outerPadding"]}, docs: {description: {story: "With the default `outerPadding: \"auto\"`, the web takes the largest radius at which every metric label fits inside the chart. A label too long for that wraps onto two lines (truncating only if it still doesn't fit) instead of shrinking the web below half its largest possible size."}}};
+
+export const AxisStyles = Template.bind({});
+AxisStyles.args = {
+  axisConfig: {
+    barConfig: {stroke: "#495057", strokeWidth: 2},
+    gridConfig: {strokeDasharray: "4 3"},
+    shapeConfig: {stroke: "#adb5bd"}
+  },
+  data: skillData,
+  groupBy: "group",
+  metric: "metric",
+  value: "value"
+};
+AxisStyles.parameters = {controls: {include: ["axisConfig"]}, docs: {description: {story: "The rings and spokes are styled like a Plot axis: `axisConfig.gridConfig` styles the inner rings (faint gridlines by default), `axisConfig.barConfig` the outer ring (the axis line), and `axisConfig.shapeConfig` the spokes and their labels."}}};

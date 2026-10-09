@@ -5,8 +5,11 @@ import {
   BarChart as BarChartClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Chord as ChordClass,
   Donut as DonutClass,
+  Gauge as GaugeClass,
   Geomap as GeomapClass,
+  Histogram as HistogramClass,
   LinePlot as LinePlotClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
@@ -14,6 +17,7 @@ import {
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
+  Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
   Rings as RingsClass,
@@ -30,6 +34,7 @@ import {
   ColorScale as ColorScaleClass,
   Legend as LegendClass,
   Message as MessageClass,
+  SizeLegend as SizeLegendClass,
   TextBox as TextBoxClass,
   Timeline as TimelineClass,
   Tooltip as TooltipClass,
@@ -68,13 +73,25 @@ export const BoxWhisker = (props: D3plusComponentProps) => (
 export const BumpChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BumpChartClass} {...props} />
 );
+/** React component for rendering a d3plus Chord visualization. */
+export const Chord = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ChordClass} {...props} />
+);
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={DonutClass} {...props} />
 );
+/** React component for rendering a d3plus Gauge visualization. */
+export const Gauge = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={GaugeClass} {...props} />
+);
 /** React component for rendering a d3plus Geomap visualization. */
 export const Geomap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={GeomapClass} {...props} />
+);
+/** React component for rendering a d3plus Histogram visualization. */
+export const Histogram = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={HistogramClass} {...props} />
 );
 /** React component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = (props: D3plusComponentProps) => (
@@ -103,6 +120,10 @@ export const Plot = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Priestley visualization. */
 export const Priestley = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={PriestleyClass} {...props} />
+);
+/** React component for rendering a d3plus Pyramid visualization. */
+export const Pyramid = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={PyramidClass} {...props} />
 );
 /** React component for rendering a d3plus Radar visualization. */
 export const Radar = (props: D3plusComponentProps) => (
@@ -168,6 +189,10 @@ export const Legend = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Message. */
 export const Message = (props: D3plusComponentProps) => (
   <Renderer className="component" constructor={MessageClass} {...props} />
+);
+/** React component for rendering a d3plus SizeLegend. */
+export const SizeLegend = (props: D3plusComponentProps) => (
+  <Renderer className="component" constructor={SizeLegendClass} {...props} />
 );
 /** React component for rendering a d3plus TextBox. */
 export const TextBox = (props: D3plusComponentProps) => (

@@ -14,7 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {backFeature, subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
+import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -23,21 +23,34 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyPackLayout} from "./applyLayout.js";
 import {packEmit} from "./emit.js";
 import {recursionCircles} from "./recursionCircles.js";
+import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
 type SortFn = (a: HierarchyCircularNode<DataPoint>, b: HierarchyCircularNode<DataPoint>) => number;
 type HoverFn = (fn: (h: DataPoint) => boolean) => unknown;
 
+/** A merged field's values: an array as-is, or a single value wrapped. */
+const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
+
 export const packDef: ChartDefinition = {
   name: "Pack",
 
-  features: [backFeature, titleFeature, subtitleFeature, totalFeature],
+  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPackLayout,
   emit: packEmit,
+  insetRegion: sceneInsetRegion,
 
   chartTransform: (viz: VizInstance) => ({
     x: viz._margin.left + ((viz.ctx.packOffsetX as number) ?? 0),
     y: viz._margin.top + ((viz.ctx.packOffsetY as number) ?? 0),
   }),
+
+  // Pack's body isn't the full chart area (chartTransform centers a
+  // diameter-sized square within it, via packOffsetX/Y) — the drill-down
+  // morph's fractions need that square, not the default chartBounds() rect.
+  chartBodyRect: (viz: VizInstance) => {
+    const d = (viz.ctx.packDiameter as number) ?? 0;
+    return {x: 0, y: 0, width: d, height: d};
+  },
 
   // `hover` shadows the prototype method per-instance so it also drives
   // the legend's hover state. Method shadowing doesn't fit the field
@@ -130,12 +143,11 @@ export const packDef: ChartDefinition = {
             const ids = viz._ids(d, i);
             const hoverData = recursionCircles(d);
             callHover(h => {
+              // Every data field of `h` falls within the legend entry's merged
+              // values (a single value, or an array of them).
               const matches = Object.keys(h)
-                .filter(key => key !== "value")
-                .every(key => {
-                  const v = d[key];
-                  return v != null && (v as unknown as unknown[]).includes(h[key]);
-                });
+                .filter(key => key !== "value" && !key.startsWith("__d3plus"))
+                .every(key => d[key] != null && asArray(h[key]).every(v => asArray(d[key]).includes(v)));
               if (matches) hoverData.push(h);
               else if (ids.includes(h.key as string)) {
                 hoverData.push(...recursionCircles(h, [h]));
