@@ -708,11 +708,20 @@ it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through me
     chart.config({shapeConfig: {fill: RESET}});
     await new Promise(resolve => chart.render(resolve));
     const shadedAfterReset = fill();
+    chart.shapeConfig({fill: () => "#654321"});
+    chart.shapeConfig({fill: RESET});
+    await new Promise(resolve => chart.render(resolve));
+    const shadedAfterDirectReset = fill();
 
     chart.tooltipConfig({title: () => "Custom"});
     const rowsAfterTitle = await parentRow();
     chart.config({tooltipConfig: RESET});
     const rowsAfterReset = await parentRow();
+    chart.tooltipConfig({footer: "Mine"});
+    chart.tooltipConfig({footer: RESET});
+    const rowsAfterDirect = await parentRow();
+    chart.tooltipConfig(RESET);
+    const rowsAfterDirectReset = await parentRow();
 
     // Every story's config, through the public setters.
     for (const config of [
@@ -728,8 +737,11 @@ it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through me
       shadedAfterStroke,
       userFill,
       shadedAfterReset,
+      shadedAfterDirectReset,
       rowsAfterTitle,
       rowsAfterReset,
+      rowsAfterDirect,
+      rowsAfterDirectReset,
       warnings,
     };
   });
@@ -758,6 +770,21 @@ it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through me
     out.rowsAfterReset,
     ["Share", "Share of Parent"],
     "RESET restores them",
+  );
+  assert.strictEqual(
+    out.shadedAfterDirectReset,
+    colorLighter(out.top, 0.22),
+    "a direct shapeConfig({fill: RESET}) restores the shaded default",
+  );
+  assert.deepStrictEqual(
+    out.rowsAfterDirect,
+    ["Share", "Share of Parent"],
+    "direct tooltipConfig merges keep the Share rows",
+  );
+  assert.deepStrictEqual(
+    out.rowsAfterDirectReset,
+    ["Share", "Share of Parent"],
+    "a direct tooltipConfig(RESET) restores them",
   );
   assert.deepStrictEqual(out.warnings, [], "no config warnings");
 });

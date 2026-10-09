@@ -24,6 +24,17 @@ const tree = [
   {parent: "Group 2", id: "delta", value: 29},
   {parent: "Group 2", id: "eta", value: 25},
 ];
+const codebase = [
+  {area: "Frontend", module: "Components", file: "Button", size: 120},
+  {area: "Frontend", module: "Components", file: "Table", size: 410},
+  {area: "Frontend", module: "Pages", file: "Dashboard", size: 520},
+  {area: "Frontend", module: "Pages", file: "Settings", size: 180},
+  {area: "Backend", module: "API", file: "Users", size: 330},
+  {area: "Backend", module: "API", file: "Orders", size: 460},
+  {area: "Backend", module: "Jobs", file: "Email", size: 20},
+  {area: "Docs", module: "Guides", file: "Theming", size: 40},
+];
+const sunburst = {data: codebase, groupBy: ["area", "module", "file"], sum: "size"};
 const links = [
   {source: "alpha", target: "beta", value: 5},
   {source: "alpha", target: "gamma", value: 3},
@@ -123,6 +134,11 @@ const charts = [
   ["Rings", {links, center: "alpha"}],
   ["Sankey", {links}],
   ["StackedArea", {...plot, ...titled}],
+  ["Sunburst", {data: tree, groupBy: ["parent", "id"], sum: "value"}],
+  ["Sunburst", {...sunburst, title: "Title", subtitle: "Subtitle", total: "size"}],
+  ["Sunburst", {...sunburst, shade: false, threshold: 0.05, thresholdName: "Files"}],
+  ["Sunburst", {...sunburst, ringSize: "area", padPixel: 2, innerRadius: 0, shadeConfig: {step: 0.3, max: 0.5}}],
+  ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
   ["BarChart", {...plot, shapeConfig: {Bar: image}}],
@@ -186,6 +202,50 @@ for (const renderer of ["svg", "canvas"]) {
   it(`renders and hovers every chart type without config warnings (${renderer})`, async function () {
     this.timeout(120000);
     const warnings = await render("", renderAndHover, {charts, renderer});
+    assert.deepStrictEqual(warnings, []);
+  });
+}
+
+/**
+    Zooms a Sunburst into an arc and back out twice — through its center disc
+    and through the Back control — and returns every warning logged.
+*/
+const zoomAndBack = async ({config, renderer}) => {
+  const warnings = [];
+  const warn = console.warn;
+  console.warn = msg => warnings.push(String(msg));
+  const wait = ms => new Promise(r => setTimeout(r, ms));
+  try {
+    const el = document.createElement("div");
+    el.style.cssText = "width:500px;height:400px";
+    document.body.appendChild(el);
+    const viz = new window.d3plus.Sunburst().select(el).config(config).renderer(renderer).duration(0);
+    await new Promise(r => viz.render(r));
+    const arc = path => viz._chartScene.find(n => n.type === "path" && n.key === `sunburst-${JSON.stringify(path)}`);
+    const click = node => viz._routeSceneEvent({
+      type: "click", point: [1, 1], pick: {node, datum: node.datum, index: node.index},
+      nativeEvent: {stopPropagation() {}, clientX: 10, clientY: 10},
+    });
+    click(arc(["Backend"]));
+    await wait(100);
+    click(arc(["Backend"]));
+    await wait(100);
+    click(arc(["Frontend"]));
+    await wait(100);
+    el.querySelector(".back-control").click();
+    await wait(100);
+    el.remove();
+  }
+  finally {
+    console.warn = warn;
+  }
+  return warnings;
+};
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`zooms a Sunburst in and back out without config warnings (${renderer})`, async function () {
+    this.timeout(60000);
+    const warnings = await render("", zoomAndBack, {config: sunburst, renderer});
     assert.deepStrictEqual(warnings, []);
   });
 }
