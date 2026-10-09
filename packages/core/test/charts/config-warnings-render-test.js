@@ -39,6 +39,13 @@ const nodes = [
   {id: "epsilon", x: 3, y: 3},
   {id: "zeta", x: 0, y: 3},
 ];
+const radarMetrics = names => ["alpha", "beta"].flatMap((id, g) =>
+  names.map((metric, m) => ({id, metric, value: 20 + ((m * 13 + g * 31) % 70)})));
+const radar = radarMetrics(["Speed", "Power", "Range", "Comfort", "Safety", "Price"]);
+const radarLong = radarMetrics([
+  "Customer Satisfaction Index", "Revenue", "Net Promoter Score (Trailing 12 Months)", "Churn",
+  "Average Handling Time", "Employee Engagement", "Market Share", "Gross Margin Percentage",
+]);
 const plot = {data: series, groupBy: "id", x: "x", y: "y"};
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
 const topojson = {
@@ -75,6 +82,15 @@ const charts = [
   ["Plot", {...plot, size: "y"}],
   ["Priestley", {data: [{id: "a", start: 2004, end: 2007}, {id: "b", start: 2005, end: 2010}], start: "start", end: "end"}],
   ["Radar", {data: series, groupBy: "id", metric: "x", value: "y"}],
+  ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", levels: [0, 25, 50, 75, 100]}, {fns: {levelFormat: "d => `${d}%`"}}],
+  ["Radar", {
+    data: radar, groupBy: "id", metric: "metric", value: "value", levels: 4, levelLabelAngle: 22.5,
+    levelLabelConfig: {fontColor: "#6b7280", fontSize: 11, fontWeight: 600},
+    axisConfig: {barConfig: {stroke: "#495057", strokeWidth: 2}, gridConfig: {"stroke-width": 1, strokeDasharray: "4 3"}, shapeConfig: {stroke: "#adb5bd"}},
+  }],
+  ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", levelLabels: false, outerPadding: 80}],
+  ["Radar", {data: radarLong, groupBy: "id", metric: "metric", value: "value"}],
+  ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value"}, {style: "background:rgb(20, 20, 20)"}],
   ["RadialMatrix", {data: [{row: "R1", column: "C1", value: 10}, {row: "R2", column: "C2", value: 30}], groupBy: ["row", "column"], row: "row", column: "column", colorScale: "value"}],
   ["Rings", {links, center: "alpha"}],
   ["Sankey", {links}],
@@ -84,7 +100,9 @@ const charts = [
 ];
 
 /**
-    Renders `[name, config]` into a fresh element with the given backend,
+    Renders `[name, config, opts?]` into a fresh element with the given
+    backend (`opts.style` adds CSS to the element; `opts.fns` maps config
+    keys to function source, since functions can't cross into the page),
     sweeps synthetic pointer events across it (shapes, legend, timeline, the
     plot's hover surface), and returns every warning logged along the way.
 */
@@ -93,11 +111,18 @@ const renderAndHover = async ({charts, renderer}) => {
   const warn = console.warn;
   console.warn = msg => warnings.push(String(msg));
   try {
-    for (const [name, config] of charts) {
+    for (const [name, config, opts = {}] of charts) {
       const el = document.createElement("div");
-      el.style.cssText = "width:500px;height:400px";
+      el.style.cssText = `width:500px;height:400px;${opts.style ?? ""}`;
       document.body.appendChild(el);
-      const viz = new window.d3plus[name]().select(el).config(config).renderer(renderer).duration(0);
+      const fns = Object.fromEntries(
+        Object.entries(opts.fns ?? {}).map(([key, src]) => [key, new Function(`return (${src});`)()]),
+      );
+      const viz = new window.d3plus[name]()
+        .select(el)
+        .config({...config, ...fns})
+        .renderer(renderer)
+        .duration(0);
       await new Promise(r => viz.render(r));
       const box = el.getBoundingClientRect();
       for (let j = 0; j < 8; j++)
