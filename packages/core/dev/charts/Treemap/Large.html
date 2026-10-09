@@ -4,7 +4,10 @@
 <head>
 
   <meta charset="utf-8">
-  <script src="../../../umd/d3plus-core.full.js"></script>
+  <title>Large · Treemap</title>
+  <meta name="description" content="Treemap of US state populations with a timeline.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
 
 </head>
 
@@ -14,56 +17,13 @@
 
 <script>
 
-var dataURL = "https://api.datausa.io/tesseract/data.jsonrecords?cube=pums_5&drilldowns=State,Year&measures=Total+Population";
-
-function dataFormat(response) {
-
-  var latestData = response.data
-    .filter(function(d) {
-      return d.Year === "2018";
-    });
-  var prevData = response.data
-    .filter(function(d) {
-      return d.Year === "2017";
-    });
-
-  latestData
-    .forEach(function(d) {
-      var prev = prevData.filter(function(p) {
-        return p["ID State"] === d["ID State"];
-      })[0];
-      d.Previous = prev.Population;
-      d.Growth = (d.Population - d.Previous) / d.Previous * 100;
-    });
-
-  return latestData;
-
-}
-
-  const viz = new d3plus.Treemap()
-    .data(dataURL)
+  // US state populations by year (ACS PUMS, via datausa.io).
+  new d3plus.Treemap()
+    .data("./state-population.json")
     .config({
-      // aggs: {
-      //   "Growth": function(arr, callback) {
-      //     var current = arr.reduce(function(sum, d) {
-      //       return sum + d.Population;
-      //     }, 0);
-      //     var previous = arr.reduce(function(sum, d) {
-      //       return sum + d.Previous;
-      //     }, 0);
-      //     return (current - previous) / previous * 100;
-      //   }
-      // },
-      // colorScale: "Growth",
-      // colorScaleConfig: {
-      //   data: [{Growth: -2}, {Growth: 2}]
-      // },
       groupBy: "State",
-      // renderer: "canvas",
       sum: "Total Population",
-      time: "Year",
-      // threshold: 0.0025,
-      // thresholdName: "Counties"
+      time: "Year"
     })
     .render();
 

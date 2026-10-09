@@ -1,0 +1,115 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Gauge</title>
+  <meta name="description" content="Gauge needle, progress, multi-needle, multi-ring and canvas variants, with an animated needle.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 20px;
+    }
+
+    .viz {
+      height: 360px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="viz" id="needle"></div>
+  <div class="viz" id="progress"></div>
+  <div class="viz" id="needles"></div>
+  <div class="viz" id="rings"></div>
+  <div class="viz" id="canvas"></div>
+</body>
+
+<script>
+
+  var bands = [
+    {max: 60, color: "#2f9e44"},
+    {max: 85, color: "#f59f00"},
+    {color: "#e03131"}
+  ];
+
+  var needle = new d3plus.Gauge()
+    .select("#needle")
+    .config({
+      data: [{id: "Speed", value: 72}],
+      domain: [0, 100],
+      bands: bands,
+      title: "Needle"
+    })
+    .render();
+
+  new d3plus.Gauge()
+    .select("#progress")
+    .config({
+      data: [{id: "CPU", value: 64}],
+      domain: [0, 100],
+      bands: bands,
+      indicator: "progress",
+      valueFormat: function(d) { return d + "%"; },
+      title: "Progress"
+    })
+    .render();
+
+  new d3plus.Gauge()
+    .select("#needles")
+    .config({
+      data: [
+        {id: "North", value: 42},
+        {id: "South", value: 77},
+        {id: "East", value: 120},
+        {id: "West", value: -5}
+      ],
+      domain: [0, 100],
+      bands: bands,
+      title: "One needle per row (values outside the domain clamp)"
+    })
+    .render();
+
+  new d3plus.Gauge()
+    .select("#rings")
+    .config({
+      data: [
+        {id: "Memory", value: 48},
+        {id: "CPU", value: 72},
+        {id: "Disk", value: 91}
+      ],
+      domain: [0, 100],
+      bands: bands,
+      indicator: "progress",
+      title: "One progress track per row"
+    })
+    .render();
+
+  new d3plus.Gauge()
+    .select("#canvas")
+    .config({
+      data: [{id: "Pressure", value: 3.4}],
+      startAngle: -90,
+      endAngle: 90,
+      renderer: "canvas",
+      title: "Canvas, 180° sweep"
+    })
+    .render();
+
+  // Animates the needle to a new value every few seconds.
+  setInterval(function() {
+    needle.data([{id: "Speed", value: Math.round(Math.random() * 100)}]).render();
+  }, 3000);
+
+</script>
+
+</html>

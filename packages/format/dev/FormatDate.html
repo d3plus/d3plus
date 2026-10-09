@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>FormatDate</title>
+  <meta name="description" content="formatDate() for days, months and quarters.">
+  <script src="/umd/d3plus-format.full.js"></script>
+
+</head>
+
+<body>
+</body>
+
+<script>
+
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
+  const days = [], months = [];
+  for (let i = 4; i <= 12; i++) {
+    days.push(new Date(`01/${i < 10 ? `0${i}` : i}/2020`));
+    months.push(new Date(`${i < 10 ? `0${i}` : i}/01/2020`));
+  }
+
+  log(d3plus.formatDate(days[0], days));
+  log(d3plus.formatDate(months[4], months));
+
+  const quarters = [
+    new Date("03/31/2020"),
+    new Date("06/30/2020"),
+    new Date("09/30/2020"),
+    new Date("12/31/2020"),
+    new Date("03/31/2021")
+  ];
+
+  log(d3plus.formatDate(quarters[4], quarters));
+
+</script>
+
+</html>

@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>BoxWhisker</title>
+  <meta name="description" content="BoxWhisker chart of two groups with outliers.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+  </style>
+
+</head>
+
+<body></body>
+
+<script>
+
+  var data = [
+    {id: "alpha", sub: 300, value: 300},
+    {id: "alpha", sub: 150, value: 150},
+    {id: "alpha", sub: 150, value: 150},
+    {id: "alpha", sub: 150, value: 150},
+    {id: "alpha", sub: 150, value: 150},
+    {id: "alpha", sub: 20, value: 20},
+    {id: "alpha", sub: 180, value: 180},
+    {id: "alpha", sub: 40, value: 40},
+    {id: "alpha", sub: 170, value: 170},
+    {id: "alpha", sub: 125, value: 125},
+    {id: "alpha", sub: 74, value: 74},
+    {id: "alpha", sub: 80, value: 80},
+    {id: "beta", sub: 180, value: 180},
+    {id: "beta", sub: 30, value: 30},
+    {id: "beta", sub: 120, value: 120},
+    {id: "beta", sub: 50, value: 50},
+    {id: "beta", sub: 140, value: 140},
+    {id: "beta", sub: 115, value: 115},
+    {id: "beta", sub: 20, value: 20},
+    {id: "beta", sub: 30, value: 30}
+  ];
+
+    new d3plus.BoxWhisker()
+      .data(data)
+      .groupBy(["id", "value"])
+      .x("id")
+      .y("value")
+      .render();
+
+</script>
+
+</html>

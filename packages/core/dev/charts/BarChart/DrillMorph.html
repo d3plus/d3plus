@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DrillMorph · BarChart</title>
+    <meta name="description" content="Click a bar to drill into its sub-categories; children grow out of the clicked bar (issue #166).">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        padding: 10px;
+        font: 13px sans-serif;
+      }
+      #viz {
+        display: block;
+        height: calc(100vh - 50px);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      <span id="durationLabel">600ms</span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // Issue #166 manual check, BarChart variant: click a top-level bar to
+    // drill into its sub-categories — they should start at the clicked bar's
+    // rect and grow/spread into place, instead of fading in in place.
+    // "Back" should mirror this — the sub-bars shrink back into the
+    // reappearing parent bar's rect.
+    var data = [
+      {group: "Fruits", sub: "Apples", value: 10},
+      {group: "Fruits", sub: "Bananas", value: 24},
+      {group: "Fruits", sub: "Oranges", value: 6},
+      {group: "Vegetables", sub: "Carrots", value: 18},
+      {group: "Vegetables", sub: "Peas", value: 9},
+      {group: "Vegetables", sub: "Spinach", value: 14},
+      {group: "Grains", sub: "Rice", value: 30},
+      {group: "Grains", sub: "Wheat", value: 22},
+    ];
+
+    var chart = new d3plus.BarChart()
+      .data(data)
+      .groupBy(["group", "sub"])
+      .x("group")
+      .y("value")
+      .depth(0)
+      .duration(600)
+      .select("#viz")
+      .render();
+
+    document.getElementById("duration").addEventListener("input", function (e) {
+      var v = +e.target.value;
+      document.getElementById("durationLabel").textContent = v + "ms";
+      chart.duration(v);
+    });
+  </script>
+</html>

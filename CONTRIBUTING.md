@@ -69,15 +69,17 @@ To start testing code live in a browser, with auto-compiling and hot reloading, 
 pnpm --filter @d3plus/<package_name> run dev
 ```
 
-If everything is set up correctly, your default browser will open `http://localhost:4000/` and show the contents of the `dev` directory, including the `umd` directory which stores a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo). 
+If everything is set up correctly, `http://localhost:4000/` shows an index of every page in the package's `dev` directory, grouped by folder with a one-line description of each. The server also serves a `umd` directory with a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo).
 
-Most packages contain HTML files to copy/modify for testing, but here is the minimum boilerplate HTML that needs to be there:
+Most packages contain HTML files to copy/modify for testing, but here is the minimum boilerplate HTML that needs to be there (the `<title>` and description feed the index page, which `pnpm run dev:index` regenerates):
 
 ```html
 <!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
+    <title>MyTopic</title>
+    <meta name="description" content="What this page tests, in one line.">
     <script src="/umd/d3plus-<package_name>.full.js"></script>
   </head>
   <body>

@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>IsObject</title>
+  <meta name="description" content="isObject() results for objects, strings, elements, arrays and globals.">
+  <script src="/umd/d3plus-dom.full.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+</body>
+
+<script>
+
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
+  log(d3plus.isObject({}));
+  log(d3plus.isObject("string"));
+  log(d3plus.isObject(document.body));
+  log(d3plus.isObject([1, 2, 3]));
+  log(d3plus.isObject(undefined));
+  log(d3plus.isObject(window));
+  log(d3plus.isObject(document));
+
+</script>
+
+</html>

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Performance · Tooltip</title>
+  <meta name="description" content="One Tooltip following the mouse across 3,000 rects.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+    }
+
+    .box {
+      fill: #cc0000;
+      stroke: #880000;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="testerdiv">
+    <svg id="tester" width="100%" height="200"></svg>
+  </div>
+</body>
+
+<script>
+
+  // One Tooltip instance re-rendered on every mousemove over 3,000 rects.
+  var tooltip = new d3plus.Tooltip()
+    .title(d => d.id);
+
+  const svg = document.getElementById("tester");
+  const parent = document.querySelector(".testerdiv");
+  const size = 5;
+
+  for (let i = 1; i < 3000; i++) {
+    const d = {id: `${i}`};
+    const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rect.setAttribute("class", "box");
+    rect.setAttribute("width", size);
+    rect.setAttribute("height", 200);
+    rect.setAttribute("x", (i - 1) * size);
+    rect.addEventListener("mousemove", event => {
+      tooltip
+        .data([d])
+        .position([event.clientX, event.clientY])
+        .parent(parent)
+        .render();
+    });
+    svg.appendChild(rect);
+  }
+
+  svg.addEventListener("mouseleave", () => tooltip.data([]).render());
+
+</script>
+
+</html>

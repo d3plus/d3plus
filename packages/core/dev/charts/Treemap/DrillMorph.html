@@ -2,7 +2,10 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <script src="../../../umd/d3plus-core.full.js"></script>
+    <title>DrillMorph · Treemap</title>
+    <meta name="description" content="Click a cell to drill in; children grow out of the clicked cell (issue #166). Includes a zoom toggle.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
     <style>
       html, body {
         height: 100vh;
@@ -37,7 +40,7 @@
     // fill the chart, instead of fading in in place. Click "Back" to see the
     // mirror: the reappearing cells should shrink back into the parent's rect.
     var chart = new d3plus.Treemap()
-      .data("../../data.json")
+      .data("./data.json")
       .groupBy(["group", "item"])
       .sum("value")
       .depth(0)

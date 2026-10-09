@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Monthly · LinePlot</title>
+    <meta name="description" content="Monthly time axis spanning three decades of bank deposits.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Saudi bank deposits by month (SAMA, via datasaudi.sa).
+    new d3plus.LinePlot()
+      .data("./bank-deposits.json", resp =>
+        resp.map(d => ({...d, Month: `${d.Month}-01 00:00:00`})),
+      )
+      .config({
+        x: "Month",
+        y: "Million SAR",
+        groupBy: "Group",
+        time: "Month",
+      })
+      .render();
+  </script>
+</html>

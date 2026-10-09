@@ -1,0 +1,66 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Sparkline · LinePlot</title>
+  <meta name="description" content="A row of small sparkline LinePlots.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    .sparklines {
+      display: flex;
+    }
+
+    .sparklines > div {
+      flex: 1;
+      height: 150px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="sparklines" id="sparklines"></div>
+
+</body>
+
+<script>
+
+  // Synthetic yearly rates for four states, one small LinePlot each.
+  const states = {Massachusetts: 2.1, Michigan: 1.6, Minnesota: 0.9, Mississippi: 0.7};
+  const measure = "Opioid Overdose Death Rate Per 100,000 Age-Adjusted";
+
+  Object.entries(states).forEach(([state, growth], i) => {
+    const data = [];
+    for (let year = 2010; year <= 2020; year++) {
+      const t = year - 2010;
+      data.push({State: state, "ID Year": year, [measure]: Math.round((4 + growth * t + Math.sin(t + i) * 1.5) * 10) / 10});
+    }
+
+    const div = document.createElement("div");
+    div.id = `sparkline-${i}`;
+    document.getElementById("sparklines").appendChild(div);
+
+    new d3plus.LinePlot()
+      .data(data)
+      .config({
+        groupBy: "State",
+        title: state,
+        x: "ID Year",
+        y: measure
+      })
+      .select(`#sparkline-${i}`)
+      .duration(1000)
+      .xCutoff(100000)
+      .render();
+  });
+
+</script>
+
+</html>

@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>SharedHover · Shape</title>
+  <meta name="description" content="Hover state shared between a Rect and a Circle shape.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 20px;
+      overflow: hidden;
+    }
+
+    .shapes {
+      display: inline-block;
+      height: 200px;
+      width: 400px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+
+  <div class="shapes" id="test-rects"></div>
+  <div class="shapes" id="test-circles"></div>
+
+</body>
+
+<script>
+
+  const width = 100;
+
+  var rect = new d3plus.Rect()
+    .on("mouseenter", function(d) {
+      rect.hover(x => x === d);
+      circle.hover(x => x === d);
+    })
+    .on("mouseleave", function(d) {
+      setTimeout(() => {
+        if (rect.hover()(d)) rect.hover(false);
+        if (circle.hover()(d)) circle.hover(false);
+      }, 100);
+    })
+    .config({
+      data: [{id: 1}],
+      fill: "#4281A4",
+      x: d => d.id * width,
+      y: width,
+      width: width,
+      height: width,
+      select: "#test-rects"
+    })
+    .render();
+
+var circle = new d3plus.Circle()
+  .on("mouseenter", function(d) {
+    rect.hover(x => x === d);
+    circle.hover(x => x === d);
+  })
+  .on("mouseleave", function(d) {
+    setTimeout(() => {
+      if (rect.hover()(d)) rect.hover(false);
+      if (circle.hover()(d)) circle.hover(false);
+    }, 100);
+  })
+  .config({
+    data: [{id: 2}, {id: 3}],
+    fill: "#F6AE2D",
+    x: d => (d.id - 1) * width,
+    y: width,
+    r: width / 2,
+    select: "#test-circles"
+  })
+  .render();
+
+</script>
+
+</html>

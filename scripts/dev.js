@@ -3,10 +3,11 @@ import {join} from "node:path";
 import {spawn} from "node:child_process";
 import http from "node:http";
 import chokidar from "chokidar";
+import {writeIndex} from "./dev-index.js";
 import rollup from "./utils/rollup.js";
 import Logger from "./utils/log.js";
 const log = Logger("development environment");
-const port = 4000;
+const port = Number(process.env.DEV_PORT) || 4000;
 
 process.on("SIGINT", () => {
   process.stdout.write("\x1B[?25h"); // restore cursor visibility
@@ -150,6 +151,9 @@ if (name === "docs") {
     ".map": "application/json",
     ".svg": "image/svg+xml",
     ".png": "image/png",
+    ".jpg": "image/jpeg",
+    ".csv": "text/csv",
+    ".woff2": "font/woff2",
   };
 
   /**
@@ -166,15 +170,15 @@ if (name === "docs") {
   };
 
   const server = http.createServer((req, res) => {
-    const url = decodeURIComponent(req.url);
+    const url = decodeURIComponent(req.url.split("?")[0]);
 
     // live-reload event stream: held open, written to on each rebuild.
     // The `?p=...` query is the tab's pathname so HTML/CSS-change
     // reloads can be scoped to the matching tab(s) only.
     if (url.startsWith("/__livereload")) {
-      const qIdx = url.indexOf("?");
+      const qIdx = req.url.indexOf("?");
       const path = qIdx >= 0
-        ? new URLSearchParams(url.slice(qIdx + 1)).get("p") || null
+        ? new URLSearchParams(req.url.slice(qIdx + 1)).get("p") || null
         : null;
       res.writeHead(200, {
         "Content-Type": "text/event-stream",
@@ -242,24 +246,30 @@ if (name === "docs") {
     res.end("Not found");
   });
 
-  // reload the browser whenever a dev page (HTML/CSS) is edited directly.
-  // Only the tab(s) viewing that exact path (or the CSS-importing page)
-  // get the reload signal, so editing dev/charts/Treemap/Simple.html
-  // doesn't unnecessarily reload every other open chart dev page.
+  // dev/index.html lists every page with its description; regenerate it now
+  // and whenever a page is added, removed or edited.
+  writeIndex(process.cwd());
+
+  // reload the browser whenever a dev page (HTML/CSS/JS) is edited directly.
+  // Only the tab(s) viewing that exact path get the reload signal for an
+  // HTML change, so editing dev/charts/Treemap/Treemap.html doesn't
+  // unnecessarily reload every other open chart dev page.
   chokidar
     .watch("dev", {
       ignoreInitial: true,
       ignored: (path, stats) =>
         path.includes("/umd/") ||
-        (stats?.isFile() && !/\.(html|css)$/.test(path)),
+        (stats?.isFile() && !/\.(html|css|js)$/.test(path)),
     })
     .on("all", (event, path) => {
+      if (path === join("dev", "index.html")) return;
       log.update(`change detected in ${path}`);
+      if (path.endsWith(".html")) writeIndex(process.cwd());
       // Normalize disk path → URL path. Files live under `dev/`; the URL
-      // is the path relative to dev/. CSS changes don't carry a clean
+      // is the path relative to dev/. CSS and JS changes don't carry a clean
       // "which HTML page imports this" hint so they still broadcast.
-      const isCss = path.endsWith(".css");
-      if (isCss) {
+      const isShared = !path.endsWith(".html");
+      if (isShared) {
         triggerReload();
       } else {
         const rel = path.replace(/^dev/, "");

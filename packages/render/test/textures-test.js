@@ -52,6 +52,24 @@ it("patternTileSvg builds standalone SVG for a texture tile", () => {
   assert.doesNotMatch(out.svg, /NaN|undefined/, "tile geometry is fully resolved (no NaN/undefined)");
 });
 
+const customToken = `pattern:${JSON.stringify({texture: "paths", d: "M 0,15 l 10,-10 l 10,10", background: "#f00"})}`;
+
+it("SvgRenderer draws a custom path texture", () => {
+  const r = new SvgRenderer();
+  r.mount({container: document.body, width: 100, height: 100});
+  r.drawScene(scene(customToken));
+
+  const path = document.querySelector("pattern path");
+  assert.strictEqual(path.getAttribute("d"), "M 0,15 l 10,-10 l 10,10", "the pattern draws the custom path");
+
+  r.destroy();
+});
+
+it("patternTileSvg draws a custom path texture", () => {
+  const out = patternTileSvg(customToken);
+  assert.match(out.svg, /d="M 0,15 l 10,-10 l 10,10"/, "embeds the custom path");
+});
+
 it("patternTileSvg returns null for non-pattern or malformed tokens", () => {
   assert.strictEqual(patternTileSvg("#ff0000"), null, "plain color");
   assert.strictEqual(patternTileSvg("gradient:{}"), null, "gradient token");

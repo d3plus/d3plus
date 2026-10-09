@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DrillMorph · StackedArea</title>
+    <meta name="description" content="Click a band to drill in; sub-series grow out of the clicked band (issue #166).">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      html, body {
+        height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+      #controls {
+        padding: 10px;
+        font: 13px sans-serif;
+      }
+      #viz {
+        display: block;
+        height: calc(100vh - 50px);
+        width: 100%;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      <span id="durationLabel">600ms</span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    // Issue #166 manual check, StackedArea variant: click a top-level band
+    // to drill into its sub-series — they should start at the clicked
+    // band's bounding box and grow into place, instead of fading in in
+    // place. This is the one shape whose scene representation is a `path`
+    // (shapeType "Area"), not a rect/circle — the render layer's
+    // collapse/collapseTo special-case that keeps working here is the thing
+    // most worth eyeballing on this page.
+    var years = [2018, 2019, 2020, 2021, 2022];
+    var series = [
+      {group: "Fruits", sub: "Apples", base: 10},
+      {group: "Fruits", sub: "Bananas", base: 18},
+      {group: "Vegetables", sub: "Carrots", base: 14},
+      {group: "Vegetables", sub: "Peas", base: 8},
+      {group: "Grains", sub: "Rice", base: 22},
+      {group: "Grains", sub: "Wheat", base: 16},
+    ];
+    var data = [];
+    series.forEach(function (s) {
+      years.forEach(function (year, i) {
+        data.push({group: s.group, sub: s.sub, year: year, value: s.base + i * (s.base / 5)});
+      });
+    });
+
+    var chart = new d3plus.StackedArea()
+      .data(data)
+      .groupBy(["group", "sub"])
+      .x("year")
+      .y("value")
+      .depth(0)
+      .duration(600)
+      .select("#viz")
+      .render();
+
+    document.getElementById("duration").addEventListener("input", function (e) {
+      var v = +e.target.value;
+      document.getElementById("durationLabel").textContent = v + "ms";
+      chart.duration(v);
+    });
+  </script>
+</html>

@@ -1,5 +1,6 @@
 import {select} from "d3-selection";
 import textures from "textures";
+import {configureTexture} from "../textureConfig.js";
 
 const SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -34,16 +35,7 @@ export function patternTileSvg(
   delete config.texture;
 
   const t = textures[textureClass]();
-  for (const k in config) {
-    // NB: textures.js accessors are setters only — calling one with no args
-    // (e.g. `t.size()`) writes `undefined`, so never read through them. Always
-    // pass the configured value.
-    if (k in t) {
-      const v = config[k];
-      if (Array.isArray(v)) t[k](...v);
-      else t[k](v);
-    }
-  }
+  configureTexture(t, config);
 
   const svg = select(document.createElementNS(SVG_NS, "svg"));
   // textures.js appends a `<defs><pattern width height …>` into the selection,
