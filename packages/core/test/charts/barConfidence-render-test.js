@@ -72,7 +72,7 @@ it("vertical grouped bars — one capped error bar per bar, centered on it", asy
     assert.strictEqual(e.type, "path");
     assert.strictEqual(e.shapeType, "Bar", "stamped as part of its bar");
     assert.strictEqual(e.paint.fill, "none");
-    assert.strictEqual(e.paint.strokeWidth, 1.5);
+    assert.strictEqual(e.paint.strokeWidth, 2);
     assert.notStrictEqual(e.paint.stroke, bar.fill, "a shade darker than the bar");
     const [stem, lowerCap, upperCap] = segments(e.d);
     const center = bar.x + bar.width / 2;

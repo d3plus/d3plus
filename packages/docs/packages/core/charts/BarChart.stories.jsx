@@ -605,14 +605,13 @@ ErrorBarsHorizontal.args = {
   confidence: ["lower", "upper"],
   confidenceConfig: {
     capWidth: 10,
-    stroke: "#343a40",
-    strokeWidth: 2
+    stroke: "#343a40"
   },
   discrete: "y",
   x: "pct",
   y: "region"
 };
-ErrorBarsHorizontal.parameters = {controls: {include: ["confidence", "confidenceConfig", "discrete"]}, docs: {description: {story: "Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `\"50%\"`)."}}};
+ErrorBarsHorizontal.parameters = {controls: {include: ["confidence", "confidenceConfig", "discrete"]}, docs: {description: {story: "Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar, 2px wide), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `\"50%\"`)."}}};
 
 export const ErrorBarsStacked = Template.bind({});
 ErrorBarsStacked.args = {

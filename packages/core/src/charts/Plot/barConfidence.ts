@@ -207,7 +207,7 @@ function errorBarDefaults(viz: Viz): Record<string, unknown> {
       const col = color(c as string);
       return col ? col.darker(1.5).formatHex() : c;
     },
-    strokeWidth: 1.5,
+    strokeWidth: 2,
   };
 }
 
