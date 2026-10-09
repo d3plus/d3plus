@@ -5,6 +5,8 @@ publicHoistPattern:
   - "*typescript*"
   - "*storybook*"
   - "*webpack*"
+overrides:
+  browserslist: '>=4.28.7 <4.29'
 allowBuilds:
   '@parcel/watcher': true
   '@swc/core': true
