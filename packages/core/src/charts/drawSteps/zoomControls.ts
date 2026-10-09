@@ -20,6 +20,7 @@ import {
   zoomControlsHtml,
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
+import {startsOnBrush} from "./zoomGesture.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -332,13 +333,15 @@ function isZoomedIn(viz: Viz): boolean {
     too), and a one-finger touch scrolls the page while a two-finger pinch
     zooms — until the chart is zoomed in, when one finger pans it. d3-zoom
     registers every current touch when a gesture starts, so skipping the
-    first finger still gives a full pinch. Everything else follows d3-zoom's
+    first finger still gives a full pinch. A press on a brush (the timeline)
+    is left to the brush (see `startsOnBrush`). Everything else follows d3-zoom's
     default filter (no Ctrl + drag, primary button only).
     @private
 */
 function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
   const modifier = viz.schema.zoomScroll === "modifier";
   if (event.type === "wheel") return !modifier || event.ctrlKey || event.metaKey;
+  if (startsOnBrush(event)) return false;
   if (event.type === "touchstart" && modifier)
     return (event.touches?.length ?? 0) > 1 || isZoomedIn(viz);
   return !event.ctrlKey && !event.button;
