@@ -17,19 +17,18 @@ export const beeswarmDef: ChartDefinition = {
   paintDriven: true,
   features: [titleFeature, subtitleFeature, totalFeature],
 
-  setup: viz => {
-    // Swarm circles are too small to carry labels, and repacking moves them
-    // short distances that would leave motion trails.
-    viz.schema.shapeConfig.Circle = {
-      ...viz.schema.shapeConfig.Circle,
-      label: false,
-      trail: false,
-    };
-  },
-
   ctx: {},
 
-  fields: [{key: "swarm", default: true}],
+  fields: [
+    // Swarm circles are too small to carry labels, and repacking moves them
+    // short distances that would leave motion trails.
+    {
+      key: "shapeConfig",
+      merge: true,
+      default: {Circle: {label: false, trail: false}},
+    },
+    {key: "swarm", default: true},
+  ],
 };
 
 /**
