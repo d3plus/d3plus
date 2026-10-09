@@ -3,7 +3,7 @@ import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
-import {assign, backgroundColor, elem} from "@d3plus/dom";
+import {backgroundColor, elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
@@ -15,7 +15,7 @@ import {Axis, TextBox} from "../index.js";
 import {Rect} from "../../shapes/index.js";
 import {accessor, BaseClass, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import Legend from "../Legend/Legend.js";
@@ -302,7 +302,7 @@ export default class ColorScale extends BaseClass {
   axisConfig(_: Record<string, unknown>): this;
   axisConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.axisConfig = assign(this.schema.axisConfig, _!)), this)
+      ? ((this.schema.axisConfig = mergeConfigBag(this, "axisConfig", _)), this)
       : this.schema.axisConfig;
   }
 
@@ -322,7 +322,7 @@ export default class ColorScale extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
       : this.schema.labelConfig;
   }
 
@@ -351,7 +351,7 @@ export default class ColorScale extends BaseClass {
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.legendConfig = assign(this.schema.legendConfig, _!)), this)
+      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)), this)
       : this.schema.legendConfig;
   }
 
@@ -371,7 +371,7 @@ export default class ColorScale extends BaseClass {
   rectConfig(_: Record<string, unknown>): this;
   rectConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.rectConfig = assign(this.schema.rectConfig, _!)), this)
+      ? ((this.schema.rectConfig = mergeConfigBag(this, "rectConfig", _)), this)
       : this.schema.rectConfig;
   }
 
@@ -386,3 +386,5 @@ export default class ColorScale extends BaseClass {
       : this._select;
   }
 }
+
+resolvesReset(ColorScale.prototype, "axisConfig", "labelConfig", "legendConfig", "rectConfig");

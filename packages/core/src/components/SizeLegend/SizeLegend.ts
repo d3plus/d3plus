@@ -7,7 +7,7 @@ import type {GroupNode, SceneNode, SvgRenderer} from "@d3plus/render";
 import {fontFamily as defaultFontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {BaseClass, paintComponentScene} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {computeSizeLegend, emptySizeLegendLayout} from "./sizeLegendLayout.js";
@@ -106,7 +106,7 @@ export default class SizeLegend extends BaseClass {
   labelConfig(_: SizeLegendTextConfig): this;
   labelConfig(_?: SizeLegendTextConfig): SizeLegendTextConfig | this {
     return arguments.length
-      ? ((this.schema.labelConfig = {...this.schema.labelConfig, ..._}), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
       : this.schema.labelConfig;
   }
 
@@ -117,7 +117,7 @@ export default class SizeLegend extends BaseClass {
   lineConfig(_: SizeLegendLineConfig): this;
   lineConfig(_?: SizeLegendLineConfig): SizeLegendLineConfig | this {
     return arguments.length
-      ? ((this.schema.lineConfig = {...this.schema.lineConfig, ..._}), this)
+      ? ((this.schema.lineConfig = mergeConfigBag(this, "lineConfig", _)), this)
       : this.schema.lineConfig;
   }
 
@@ -128,7 +128,7 @@ export default class SizeLegend extends BaseClass {
   shapeConfig(_: SizeLegendShapeConfig): this;
   shapeConfig(_?: SizeLegendShapeConfig): SizeLegendShapeConfig | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = {...this.schema.shapeConfig, ..._}), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
       : this.schema.shapeConfig;
   }
 
@@ -139,7 +139,7 @@ export default class SizeLegend extends BaseClass {
   titleConfig(_: SizeLegendTextConfig): this;
   titleConfig(_?: SizeLegendTextConfig): SizeLegendTextConfig | this {
     return arguments.length
-      ? ((this.schema.titleConfig = {...this.schema.titleConfig, ..._}), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
       : this.schema.titleConfig;
   }
 
@@ -286,3 +286,5 @@ export default class SizeLegend extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(SizeLegend.prototype, "labelConfig", "lineConfig", "shapeConfig", "titleConfig");

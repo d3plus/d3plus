@@ -30,12 +30,12 @@ export default function validateShapeConfig(owner: string, config: Record<string
   const all = shapeInstances();
   for (const key of Object.keys(config)) {
     const nested = all[key];
-    if (nested && isObject(config[key])) {
+    if (nested) {
+      if (!isObject(config[key])) continue;
       for (const k of Object.keys(config[key] as object)) {
         if (!(k in nested)) warnUnknownConfig(label, `${key}.${k}`);
       }
-    }
-    else if (!Object.values(all).some(shape => key in shape)) {
+    } else if (!Object.values(all).some(shape => key in shape)) {
       warnUnknownConfig(label, key);
     }
   }

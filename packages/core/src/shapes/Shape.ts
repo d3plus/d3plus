@@ -4,7 +4,7 @@ import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {assign, getSize} from "@d3plus/dom";
+import {getSize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import {SvgRenderer} from "@d3plus/render";
@@ -13,7 +13,7 @@ import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
 import type {AccessorFn, D3plusConfig} from "../utils/index.js";
-import {installFluent} from "../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import {hitAreaNode} from "./hitAreaNode.js";
@@ -619,7 +619,7 @@ export default class Shape extends BaseClass {
   activeStyle(_: Record<string, unknown>): this;
   activeStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.activeStyle = assign({}, this.schema.activeStyle, _!)),
+      ? ((this.schema.activeStyle = mergeConfigBag(this, "activeStyle", _)),
         this)
       : this.schema.activeStyle;
   }
@@ -654,7 +654,7 @@ export default class Shape extends BaseClass {
   hoverStyle(_: Record<string, unknown>): this;
   hoverStyle(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.hoverStyle = assign({}, this.schema.hoverStyle, _!)), this)
+      ? ((this.schema.hoverStyle = mergeConfigBag(this, "hoverStyle", _)), this)
       : this.schema.hoverStyle;
   }
 
@@ -665,7 +665,7 @@ export default class Shape extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.labelConfig = assign(this.schema.labelConfig, _!)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
       : this.schema.labelConfig;
   }
 
@@ -700,7 +700,7 @@ export default class Shape extends BaseClass {
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.textureDefault = assign(this.schema.textureDefault, _!)),
+      ? ((this.schema.textureDefault = mergeConfigBag(this, "textureDefault", _)),
         this)
       : this.schema.textureDefault;
   }
@@ -718,3 +718,5 @@ export default class Shape extends BaseClass {
     return this;
   }
 }
+
+resolvesReset(Shape.prototype, "activeStyle", "hoverStyle", "labelConfig", "textureDefault");

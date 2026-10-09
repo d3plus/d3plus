@@ -3,7 +3,7 @@ import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
-import {assign, backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
+import {backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import type {GroupNode} from "@d3plus/render";
@@ -24,7 +24,7 @@ import {
 } from "./axisRender.js";
 import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 /** Axis's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
@@ -453,7 +453,7 @@ export default class Axis extends BaseClass {
   barConfig(_: Record<string, unknown>): this;
   barConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.barConfig = Object.assign(this.schema.barConfig, _)), this)
+      ? ((this.schema.barConfig = mergeConfigBag(this, "barConfig", _)), this)
       : this.schema.barConfig;
   }
 
@@ -473,7 +473,7 @@ export default class Axis extends BaseClass {
   breakConfig(_: Record<string, unknown>): this;
   breakConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.breakConfig = Object.assign(this.schema.breakConfig, _)), this)
+      ? ((this.schema.breakConfig = mergeConfigBag(this, "breakConfig", _)), this)
       : this.schema.breakConfig;
   }
 
@@ -493,7 +493,7 @@ export default class Axis extends BaseClass {
   baselineBreakConfig(_: Record<string, unknown>): this;
   baselineBreakConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.baselineBreakConfig = Object.assign(this.schema.baselineBreakConfig, _)), this)
+      ? ((this.schema.baselineBreakConfig = mergeConfigBag(this, "baselineBreakConfig", _)), this)
       : this.schema.baselineBreakConfig;
   }
 
@@ -513,7 +513,7 @@ export default class Axis extends BaseClass {
   gridConfig(_: Record<string, unknown>): this;
   gridConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.gridConfig = Object.assign(this.schema.gridConfig, _)), this)
+      ? ((this.schema.gridConfig = mergeConfigBag(this, "gridConfig", _)), this)
       : this.schema.gridConfig;
   }
 
@@ -609,7 +609,7 @@ export default class Axis extends BaseClass {
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.shapeConfig = assign(this.schema.shapeConfig, _ as Record<string, unknown>)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
       : this.schema.shapeConfig;
   }
 
@@ -620,7 +620,7 @@ export default class Axis extends BaseClass {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.titleConfig = Object.assign(this.schema.titleConfig, _)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
       : this.schema.titleConfig;
   }
 }
@@ -675,6 +675,16 @@ export function computeAxisLayout(axis: Axis): AxisLayout {
     margin: axis._margin,
   };
 }
+
+resolvesReset(
+  Axis.prototype,
+  "barConfig",
+  "breakConfig",
+  "baselineBreakConfig",
+  "gridConfig",
+  "shapeConfig",
+  "titleConfig",
+);
 
 // Re-export the standalone `measureAxis` and its result type so consumers
 // can import them from the same module as the Axis class.

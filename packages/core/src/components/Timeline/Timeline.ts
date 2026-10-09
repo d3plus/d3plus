@@ -9,7 +9,7 @@ import type {GroupNode} from "@d3plus/render";
 
 import {Axis, TextBox} from "../index.js";
 import {constant} from "../../utils/index.js";
-import {installFluent} from "../../fluent.js";
+import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {initTimelineDefaults} from "./timelineConfig.js";
@@ -617,7 +617,7 @@ export default class Timeline extends Axis {
   handleConfig(_: Record<string, unknown>): this;
   handleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.handleConfig = assign(this.schema.handleConfig, _!)), this)
+      ? ((this.schema.handleConfig = mergeConfigBag(this, "handleConfig", _)), this)
       : this.schema.handleConfig;
   }
 
@@ -649,7 +649,7 @@ export default class Timeline extends Axis {
   playButtonConfig(_: Record<string, unknown>): this;
   playButtonConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.playButtonConfig = assign(this.schema.playButtonConfig, _!)), this)
+      ? ((this.schema.playButtonConfig = mergeConfigBag(this, "playButtonConfig", _)), this)
       : this.schema.playButtonConfig;
   }
 
@@ -660,7 +660,9 @@ export default class Timeline extends Axis {
   selectionConfig(_: Record<string, unknown>): this;
   selectionConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.selectionConfig = assign(this.schema.selectionConfig, _!)), this)
+      ? ((this.schema.selectionConfig = mergeConfigBag(this, "selectionConfig", _)), this)
       : this.schema.selectionConfig;
   }
 }
+
+resolvesReset(Timeline.prototype, "handleConfig", "playButtonConfig", "selectionConfig");

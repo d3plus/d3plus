@@ -72,6 +72,15 @@ function setExpanded(node: HTMLElement, open: boolean): void {
   node.style.padding = open ? "4px 6px" : "2px";
 }
 
+/** Swaps each entry still at its light default for the dark default. */
+function darkAttributionStyle(style: Record<string, unknown>): Record<string, unknown> {
+  const light: Record<string, unknown> = attributionStyleDefault;
+  const dark: Record<string, unknown> = attributionStyleDarkDefault;
+  const out = {...style};
+  for (const key of Object.keys(dark)) if (out[key] === light[key]) out[key] = dark[key];
+  return out;
+}
+
 export const attributionFeature: FeatureModule = {
   name: "attribution",
   configFields: ["attribution", "attributionIcon", "attributionStyle"],
@@ -87,10 +96,9 @@ export const attributionFeature: FeatureModule = {
 
     attr.exit().remove();
 
-    const style =
-      viz.schema.attributionStyle === attributionStyleDefault && viz._basemapDark
-        ? attributionStyleDarkDefault
-        : viz.schema.attributionStyle;
+    const style = viz._basemapDark
+      ? darkAttributionStyle(viz.schema.attributionStyle)
+      : viz.schema.attributionStyle;
 
     attr = attr
       .merge(attrEnter as never)
