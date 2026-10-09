@@ -110,6 +110,9 @@ export const sunburstDef: DataDrivenChartDefinition = {
     );
   },
 
+  // Small-multiple panels as close to square as the grid allows.
+  facet: {aspect: 1},
+
   ctx: {},
 
   fields: [
