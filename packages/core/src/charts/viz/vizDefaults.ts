@@ -15,6 +15,7 @@ import {accessor, constant} from "../../utils/index.js";
 import {markDefault} from "../../utils/configDefault.js";
 import {installFluent} from "../../fluent.js";
 
+import {legendCategoryOf} from "../features/legendCategory.js";
 import {legendLabel} from "../features/legendLabel.js";
 import clickShape from "../events/click.shape.js";
 import clickLegend from "../events/click.legend.js";
@@ -209,6 +210,7 @@ function initDataDefaults(viz: Viz): void {
 */
 function initLegendDefaults(viz: Viz): void {
   viz.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
+    if (viz._legendCategories) return arr.length > 1;
     const maxGrouped = max(arr, (d: DataPoint, i: number) => {
       const id = viz.schema.groupBy[viz._legendDepth].bind(viz)(d, i);
       return id instanceof Array ? id.length : 1;
@@ -234,8 +236,10 @@ function initLegendDefaults(viz: Viz): void {
   viz.schema.legendPadding = defaultPadding;
   viz.schema.legendPosition = () =>
     viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+  const sortLabel = (d: DataPoint): string =>
+    legendCategoryOf(viz as unknown as VizInstance, d) ?? viz._drawLabel(d);
   viz.schema.legendSort = (a: DataPoint, b: DataPoint) =>
-    viz._drawLabel(a).localeCompare(viz._drawLabel(b));
+    sortLabel(a).localeCompare(sortLabel(b));
   viz.schema.legendTooltip = {};
   viz._sizeLegendClass = new SizeLegend();
   Object.assign(viz.schema, {sizeLegend: sizeLegendFits, sizeLegendConfig: {}, sizeLegendPosition: "right"});

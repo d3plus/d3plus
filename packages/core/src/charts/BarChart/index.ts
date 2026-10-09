@@ -35,6 +35,8 @@ export const barChartDef: ChartDefinition = {
           arr: DataPoint[],
         ) => unknown;
         return (config: VizInstance, arr: DataPoint[]) => {
+          // Color-category entries never repeat the bars' own ids.
+          if (viz._legendCategories) return base.call(viz, config, arr);
           const legendIds = arr
             .map(viz.schema.groupBy[viz._legendDepth!].bind(viz))
             .sort()

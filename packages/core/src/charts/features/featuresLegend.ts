@@ -4,8 +4,6 @@
     (rollup + sort + legend-depth) and `renderLegendFeature` (positioning,
     render, margin claim) so each stays a readable unit.
 */
-import {rollup} from "d3-array";
-
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {elem} from "@d3plus/dom";
@@ -25,6 +23,8 @@ import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
+import {legendCategories, legendMergesIds} from "./legendCategory.js";
+import type {LegendEntry} from "./legendCategory.js";
 
 interface LegendData {
   legendData: DataPoint[];
@@ -33,8 +33,9 @@ interface LegendData {
 }
 
 /**
-    Rolls filtered legend data up by paint attributes, sorts it, and computes
-    `viz._legendDepth` (the lowest groupBy level whose values are unique).
+    Rolls filtered legend data up by paint attributes, computes
+    `viz._legendDepth` (the lowest groupBy level whose values are unique) and
+    `viz._legendCategories` (see `legendCategory.ts`), then sorts it.
     Returns the `legendData` array plus the `fill`/`getAttr` accessors the
     render step reuses.
 */
@@ -42,7 +43,6 @@ export function buildLegendData(viz: VizInstance): LegendData {
   // Source: `_legendData` from the rollupAndFilter pipeline stage — same
   // arg drawLegend received via `drawLegend.bind(this)(this._legendData)`.
   const data: DataPoint[] = viz._legendData || [];
-  const legendData: DataPoint[] = [];
 
   const getAttr = (d: DataPoint, i: number, attr: string): string => {
     const shape = viz.schema.shape(d, i);
@@ -54,17 +54,14 @@ export function buildLegendData(viz: VizInstance): LegendData {
     return typeof value === "function" ? value.bind(viz)(d, i) : value;
   };
 
-  // Legend grouping key. Historically this was the resolved paint string
-  // (fill+opacity+texture): distinct categories that the ordinal color scale
-  // recycled onto the same hex collapsed into one scrambled entry (#788). Key
-  // on the color *encoding* input instead — categories keep their own entry
-  // even when two resolve to the same hex — while opacity/texture still split
-  // entries that differ on those secondary encodings. Falls back to the
-  // resolved fill when there's no color accessor to key on (e.g. `.color(false)`
-  // with a custom `shapeConfig.fill`).
-  const legendKey = (d: DataPoint, i: number): string => {
-    const c =
-      typeof viz.schema.color === "function" ? viz.schema.color(d, i) : undefined;
+  // Legend grouping key: the color *encoding* input, so categories keep their
+  // own entry even when two resolve to the same hex (#788), while
+  // opacity/texture still split entries that differ on those secondary
+  // encodings. Falls back to the resolved fill when there's no color accessor
+  // to key on (e.g. `.color(false)` with a custom `shapeConfig.fill`).
+  const colorOf = (d: DataPoint, i: number): unknown =>
+    typeof viz.schema.color === "function" ? viz.schema.color(d, i) : undefined;
+  const keyOf = (d: DataPoint, i: number, c: unknown): string => {
     const colorKey =
       c === undefined || c === null
         ? getAttr(d, i, "fill")
@@ -75,36 +72,33 @@ export function buildLegendData(viz: VizInstance): LegendData {
       "_",
     );
   };
+  const legendKey = (d: DataPoint, i: number): string => keyOf(d, i, colorOf(d, i));
 
   const rollupData = viz.schema.colorScale
     ? data.filter(
         (d: DataPoint, i: number) => viz.schema.colorScale(d, i) === undefined,
       )
     : data;
-  rollup(
-    rollupData,
-    (leaves: DataPoint[]) =>
-      legendData.push(merge(leaves, viz.schema.aggs) as unknown as DataPoint),
-    legendKey,
-  );
+  const groups = new Map<string, {leaves: DataPoint[]; color: unknown}>();
+  rollupData.forEach((d: DataPoint, i: number) => {
+    const c = colorOf(d, i);
+    const key = keyOf(d, i, c);
+    const group = groups.get(key);
+    if (group) group.leaves.push(d);
+    else groups.set(key, {leaves: [d], color: c});
+  });
+  const entries: LegendEntry[] = Array.from(groups.values(), ({leaves, color}) => ({
+    datum: merge(leaves, viz.schema.aggs) as unknown as DataPoint,
+    color,
+  }));
+  const legendData: DataPoint[] = entries.map(e => e.datum);
 
-  legendData.sort(viz.schema.legendSort);
-
+  // viz._legendDepth: the lowest groupBy level whose values are unique.
+  // Intra-feature state, written before the Legend renders because
+  // `legendLabel` reads it live to format each entry.
   const labels = legendData.map((d: DataPoint, i: number) =>
     viz._ids(d, i).slice(0, viz._drawDepth + 1),
   );
-  // viz._legendDepth: the legend's drill-down depth (lowest unique
-  // groupBy level). Computed and written here BEFORE the
-  // `viz._legendClass!.render()` call below, because that render
-  // invokes `legendLabel.bind(viz)` (Viz.ts:217) which reads
-  // `viz._legendDepth` live to format each legend entry. The write
-  // is INTRA-FEATURE state — it's owned by legendFeature, consumed
-  // by legendFeature's own component instance. `FeatureLayout.vizUpdate`
-  // is the CROSS-feature publishing channel (for state OTHER features
-  // need); intra-feature writes that the same feature reads in its own
-  // body legitimately live on viz directly, which is what's happening
-  // here. Downstream consumers (BarChart.ts:28, Viz.ts:210, legendLabel)
-  // observe the value after layout completes — same as before.
   viz._legendDepth = 0;
   for (let x = 0; x <= viz._drawDepth; x++) {
     const values = labels.map((l: string[]) => l[x]);
@@ -116,6 +110,13 @@ export function buildLegendData(viz: VizInstance): LegendData {
       break;
     }
   }
+
+  // Entries that each merge several ids are labelled by their color category.
+  viz._legendCategories = legendMergesIds(viz, legendData)
+    ? legendCategories(entries)
+    : undefined;
+
+  legendData.sort(viz.schema.legendSort);
 
   return {legendData, legendKey, getAttr};
 }
