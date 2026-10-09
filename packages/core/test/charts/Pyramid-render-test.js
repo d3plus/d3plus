@@ -461,5 +461,5 @@ it("Pyramid renders its stories' configs without warnings", async function () {
     };
     next(0);
   }), [rows]);
-  assert.deepStrictEqual(warnings.filter(w => !/Line\.config\(\) received unknown property/.test(w)), []);
+  assert.deepStrictEqual(warnings, []);
 });

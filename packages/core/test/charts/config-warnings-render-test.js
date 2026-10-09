@@ -48,6 +48,13 @@ const radarLong = radarMetrics([
 ]);
 const plot = {data: series, groupBy: "id", x: "x", y: "y"};
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
+const population = ["0-9", "10-19", "20-29"].flatMap((age, b) => [2020, 2021].flatMap(year => [
+  {age, sex: "Male", area: "Urban", pop: 60 - b * 10, before: 55, year},
+  {age, sex: "Male", area: "Rural", pop: 30 - b * 5, before: 25, year},
+  {age, sex: "Female", area: "Urban", pop: 62 - b * 10, before: 50, year},
+  {age, sex: "Female", area: "Rural", pop: 31 - b * 5, before: 30, year},
+]));
+const pyramid = {data: population, groupBy: "sex", x: "pop", y: "age"};
 const topojson = {
   type: "Topology",
   objects: {c: {type: "GeometryCollection", geometries: [{type: "Polygon", arcs: [[0]], id: "x"}]}},
@@ -81,6 +88,11 @@ const charts = [
   ["Pie", {data: tree, groupBy: "id", value: "value"}],
   ["Plot", {...plot, size: "y"}],
   ["Priestley", {data: [{id: "a", start: 2004, end: 2007}, {id: "b", start: 2005, end: 2010}], start: "start", end: "end"}],
+  ["Pyramid", {...pyramid, ...titled}],
+  ["Pyramid", {...pyramid, categoryPosition: "left"}],
+  ["Pyramid", {...pyramid, groupBy: ["sex", "area"]}],
+  ["Pyramid", {...pyramid, percent: true, comparison: "before", sideTitleConfig: {fontSize: 12}, comparisonConfig: {strokeWidth: 2}}],
+  ["Pyramid", {...pyramid, time: "year", axisPersist: true}],
   ["Radar", {data: series, groupBy: "id", metric: "x", value: "y"}],
   ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", levels: [0, 25, 50, 75, 100]}, {fns: {levelFormat: "d => `${d}%`"}}],
   ["Radar", {

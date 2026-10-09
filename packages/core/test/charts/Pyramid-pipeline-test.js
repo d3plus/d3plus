@@ -176,3 +176,14 @@ it("Pyramid stacks the same sub-group nearest the center on both sides", () => {
   assert.deepStrictEqual(segment("Female", "Urban"), [0, 90]);
   assert.deepStrictEqual(segment("Female", "Rural"), [90, 120]);
 });
+
+it("Pyramid keeps updating its domain after another xConfig set", () => {
+  const viz = pyramid();
+  viz._preDraw();
+  viz.xConfig({title: "People"});
+  viz.data(rows.map(d => ({...d, pop: d.pop * 2})))._preDraw();
+  assert.deepStrictEqual(viz._xConfig.domain, [-240, 240], "the copied domain is still the chart's");
+  assert.strictEqual(viz._xConfig.title, "People");
+  viz.xConfig({domain: [-500, 500]})._preDraw();
+  assert.deepStrictEqual(viz._xConfig.domain, [-500, 500], "a user domain is left alone");
+});

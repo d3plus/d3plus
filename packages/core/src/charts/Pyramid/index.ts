@@ -131,6 +131,10 @@ function syncTickFormat(viz: VizInstance, state: PyramidState): void {
   }
 }
 
+/** Whether two arrays hold the same values in the same order. */
+const sameValues = (a: unknown, b: unknown): boolean =>
+  Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+
 /**
     The largest single-side category total (with comparison values): over
     every frame with `axisPersist`, else the current one.
@@ -161,7 +165,8 @@ function valueExtent(viz: VizInstance, state: PyramidState): number {
 /** Centers the value axis on zero: `[-extent, extent]` across both sides (and the gutter). */
 function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void {
   const config = viz._xConfig!;
-  const ours = config.domain !== undefined && config.domain === state.domain;
+  // Compared by value: setting `xConfig` copies the bag, arrays included.
+  const ours = config.domain !== undefined && sameValues(config.domain, state.domain);
   if (config.domain !== undefined && !ours) return;
   if (!viz.schema.symmetric || viz.schema.xDomain) {
     if (ours) delete config.domain;
