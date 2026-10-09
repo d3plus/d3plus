@@ -57,9 +57,9 @@ function calculateStep(
   let step = Math.floor(stepScale(size));
 
   if (this.schema.scale === "time") {
-    if (this._data && this._data.length) {
-      const dataExtent = extent(this._data as number[]);
-      const distance = this._data.reduce(
+    if (this._scaleData.length) {
+      const dataExtent = extent(this._scaleData as number[]);
+      const distance = this._scaleData.reduce(
         (n: number, d: unknown, i: number, arr: unknown[]) => {
           if (i) {
             const dist = Math.abs((d as number) - (arr[i - 1] as number));
@@ -97,8 +97,8 @@ export function calculateTicks(
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
-  if (this.schema.scale === "time" && this._data.length) {
-    const newDomain = extent(this._data as number[]) as number[];
+  if (this.schema.scale === "time" && this._scaleData.length) {
+    const newDomain = extent(this._scaleData as number[]) as number[];
     const range = newDomain.map(d => scale(d));
     scaleClone.domain(newDomain).range(range);
   }
@@ -160,8 +160,8 @@ export function calculateTicks(
   }
 
   // for time scale, if data array has been provided, filter out ticks that are not in the array
-  if (this.schema.scale === "time" && this._data.length) {
-    const dataNumbers = this._data.map(Number);
+  if (this.schema.scale === "time" && this._scaleData.length) {
+    const dataNumbers = this._scaleData.map(Number);
     ticks = ticks.filter((t: unknown) => {
       const tn = +(t as number);
       return dataNumbers.find(
@@ -270,7 +270,7 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
           ? size
           : ticks.includes(d)
             ? Math.ceil(size / 2)
-            : axis._data.find((t: unknown) => +(t as number) === d)
+            : axis._scaleData.find((t: unknown) => +(t as number) === d)
               ? Math.ceil(size / 4)
               : 0,
       text:

@@ -37,6 +37,7 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
+import {axisScaleData} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -86,6 +87,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  axis._scaleData = axisScaleData(axis);
 
   let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
 

@@ -3,7 +3,7 @@ import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
-import {backgroundColor, date, elem, rtl as detectRTL} from "@d3plus/dom";
+import {backgroundColor, elem, rtl as detectRTL} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import type {GroupNode} from "@d3plus/render";
@@ -77,6 +77,8 @@ export default class Axis extends BaseClass {
   [key: string]: any;
   _select!: D3Selection;
   _data: unknown[];
+  /** The `data` values the scale reads, set by the layout pass (see `axisScaleData`). */
+  _scaleData: unknown[] = [];
   _labelRotation: boolean | undefined;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
@@ -317,12 +319,10 @@ export default class Axis extends BaseClass {
   _getTicks(): unknown[] {
     if (
       ["band", "ordinal", "point", "time"].includes(this.schema.scale) &&
-      this._data.length &&
-      this._data.length < this.schema.width / 4
+      this._scaleData.length &&
+      this._scaleData.length < this.schema.width / 4
     ) {
-      return this.schema.scale === "time"
-        ? this._data.map(d => date(d as string | number | false))
-        : this._data;
+      return this._scaleData;
     }
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative)
