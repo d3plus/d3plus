@@ -12,7 +12,6 @@ import type {SceneNode} from "@d3plus/render";
 import {fontFamily as defaultFontFamily, fontFamilyStringify, textWrap} from "@d3plus/text";
 
 import TextBox from "../../components/TextBox.js";
-import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {emitLabels, shapeLabelDefaults} from "../../shapes/emitLabels.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
@@ -181,26 +180,16 @@ export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode
   return out;
 }
 
-/** The default inner-ring (grid) and outer-ring (axis line) styles. */
-export function radarRingDefaults(viz: Viz): {grid: RadarRingStyle; outer: RadarRingStyle} {
-  const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
-  return {
-    grid: {stroke: gridStroke(node, viz.schema.colorDefaults), strokeWidth: 1},
-    outer: {stroke: backgroundInk(viz), strokeWidth: 1},
-  };
-}
-
-/** Builds the level rings, with user `gridConfig`/`barConfig` over the defaults. */
+/** Builds the level rings from `axisConfig.gridConfig` (inner) and `barConfig` (outer). */
 export function radarRingNodes(viz: Viz, {domain, ticks}: RadarLevels, radius: number): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
-  const defaults = radarRingDefaults(viz);
   const rings = ticks.map(value => ({value, r: radarRadius(value, domain, radius)}));
   return emitRadarRings(
     rings,
     radius,
     domain[1],
-    radarRingStyle(defaults.grid, axisConfig.gridConfig),
-    radarRingStyle(defaults.outer, axisConfig.barConfig),
+    radarRingStyle({}, axisConfig.gridConfig),
+    radarRingStyle({}, axisConfig.barConfig),
   );
 }
 

@@ -25,11 +25,15 @@ const probe = ([rows, configSrc]) =>
   new Promise((resolve, reject) => {
     try {
       const config = new Function(`return (${configSrc});`)();
+      const warnings = [];
+      const warn = console.warn;
+      console.warn = (...args) => warnings.push(args.join(" "));
       const viz = new window.d3plus.Radar()
         .config({data: rows, groupBy: "id", metric: "axis", value: "number", ...config})
         .duration(0)
         .select("#viz");
       viz.render(() => {
+        console.warn = warn;
         const scene = viz._chartScene;
         const rings = scene.find(n => n.key === "radar-radial-circles");
         const spokes = scene.find(n => n.key === "radar-axis-spokes");
@@ -56,6 +60,7 @@ const probe = ([rows, configSrc]) =>
           labels,
           radius: Math.max(...rings.children.map(c => c.r)),
           size: Math.min(viz.schema.width - m.left - m.right, viz.schema.height - m.top - m.bottom),
+          warnings,
         });
       });
     } catch (err) {
@@ -109,6 +114,7 @@ it("axisConfig gridConfig / barConfig / shapeConfig override the ring and spoke 
   assert.strictEqual(outer.paint.stroke, "blue");
   assert.strictEqual(outer.paint.strokeWidth, 3);
   r.spokes.forEach(s => assert.strictEqual(s.paint.stroke, "green"));
+  assert.deepStrictEqual(r.warnings, [], "no config warnings");
 });
 
 it("rings and spokes are chrome: non-interactive and datum-free", async function () {
@@ -204,8 +210,9 @@ it("auto outerPadding wraps long labels and keeps them inside the chart", async 
     "Customer Satisfaction Index", "Revenue", "Net Promoter Score (Trailing 12 Months)", "Churn",
     "Average Handling Time", "Employee Engagement", "Market Share", "Gross Margin Percentage",
   ];
-  const r = await render(box(), probe, [metricData(names), "{legend: false}"]);
+  const r = await render(box(), probe, [metricData(names), "{legend: false, shapeConfig: {Path: {opacity: 0.7}}}"]);
   assertInside(r, "long labels");
+  assert.deepStrictEqual(r.warnings, [], "no config warnings");
   assert.ok(r.radius >= r.size / 4 - 0.5, `radius ${r.radius} keeps at least half its maximum`);
   // Short labels leave a much bigger web than the old fixed 100px padding.
   const short = await render(box(), probe, [metricData(["A", "B", "C", "D", "E"]), "{legend: false}"]);

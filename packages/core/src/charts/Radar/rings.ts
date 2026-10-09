@@ -1,8 +1,8 @@
 /**
     Radar's level rings, styled like a Plot axis: the inner rings are
-    gridlines (`axisConfig.gridConfig`, the same faint stroke Plot's
-    gridlines use) and the outer ring is the axis line
-    (`axisConfig.barConfig`, the chart's background ink). Rings are chart
+    gridlines (`axisConfig.gridConfig`, defaulting to the same faint stroke
+    Plot's gridlines use) and the outer ring is the axis line
+    (`axisConfig.barConfig`, defaulting to the chart's background ink). Rings are chart
     chrome: they carry no datum and ignore the pointer, so they never show a
     tooltip or dim on hover.
 */

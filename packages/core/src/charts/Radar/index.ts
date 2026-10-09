@@ -16,6 +16,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -68,6 +69,14 @@ export const radarDef: ChartDefinition = {
       key: "axisConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
+        // The outer ring: Plot's axis line.
+        barConfig: {stroke: () => backgroundInk(viz), strokeWidth: 1},
+        // The inner rings: Plot's gridlines.
+        gridConfig: {
+          stroke: () => gridStroke(viz._select?.node(), viz.schema.colorDefaults),
+          strokeWidth: 1,
+        },
+        // The spokes and metric labels: Plot's ticks.
         shapeConfig: {
           fill: constant("none"),
           labelConfig: {
