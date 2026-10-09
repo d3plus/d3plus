@@ -21,6 +21,7 @@ import {
 } from "./zoomControlsMarkup.js";
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
+import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -135,9 +136,9 @@ export const zoomFeature: FeatureModule = {
       .extent(area)
       .scaleExtent([1, zoomMax(viz, width, height)])
       .translateExtent(area)
-      .on("zoom", (event: {transform: unknown}) =>
-        zoomed.bind(viz)(event.transform),
-      );
+      .on("zoom", (event: {transform: unknown}) => {
+        if (!showsTransform(viz, event.transform)) zoomed.bind(viz)(event.transform);
+      });
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
 
@@ -277,6 +278,7 @@ export function tileZoomTransform(viz: Viz): ZoomTransform {
 */
 function resetZoom(viz: Viz): void {
   viz._zoomTransform = undefined;
+  forgetTransform(viz);
   const tgt = viz._zoomEventTarget || viz._container;
   if (tgt && tgt.node()) tgt.property("__zoom", zoomIdentity);
 }
@@ -404,12 +406,14 @@ function zoomed(
     // collapse-to-zero scale, or pan transform at origin) doesn't get
     // silently rewritten to the default.
     const state = {k: t.k ?? 1, x: t.x ?? 0, y: t.y ?? 0};
+    recordTransform(this, state);
     // A chart can zoom its own way (Plot rescales its axes); otherwise the
     // transform scales the rendered picture via `Viz.toScene`.
     if (this._zoomRescale && this._zoomRescale(state, duration)) this._zoomTransform = undefined;
     else this._zoomTransform = {x: state.x, y: state.y, scale: state.k};
   } else if (t === false) {
     this._zoomTransform = undefined;
+    forgetTransform(this);
   }
   // Repaint the scene so the new transform takes effect. Pass the
   // caller's `duration` through — d3-zoom dispatches `"zoom"` events
