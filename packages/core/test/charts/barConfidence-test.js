@@ -196,3 +196,24 @@ it("inAxisBreak — a value strictly inside a break's range", () => {
   assert.strictEqual(inAxisBreak(undefined, 850), false);
   assert.strictEqual(inAxisBreak(breaks, undefined), false);
 });
+
+it("confidenceConfig — deep-merges, keeping nested siblings", () => {
+  const viz = new BarChart();
+  viz.confidenceConfig({Bar: {stroke: "red", strokeWidth: 3}, capWidth: 8});
+  viz.confidenceConfig({Bar: {stroke: "green"}});
+  assert.deepStrictEqual(viz.confidenceConfig().Bar, {stroke: "green", strokeWidth: 3});
+  assert.strictEqual(viz.confidenceConfig().capWidth, 8);
+  assert.strictEqual(typeof viz.confidenceConfig().fill, "function", "the band default survives");
+});
+
+it("confidenceConfig — RESET at any depth restores the default", () => {
+  const viz = new BarChart();
+  const defaults = viz.confidenceConfig();
+  viz.config({confidenceConfig: {Bar: {stroke: "red", strokeWidth: 3}, fillOpacity: 0.2}});
+  viz.config({confidenceConfig: {Bar: {stroke: RESET}, fillOpacity: RESET}});
+  assert.deepStrictEqual(viz.confidenceConfig().Bar, {strokeWidth: 3}, "a nested RESET removes a key with no default");
+  assert.strictEqual(viz.confidenceConfig().fillOpacity, defaults.fillOpacity, "a top-level RESET restores its default");
+  viz.config({confidenceConfig: RESET});
+  assert.deepStrictEqual(Object.keys(viz.confidenceConfig()).sort(), ["fill", "fillOpacity"]);
+  assert.notStrictEqual(viz.confidenceConfig(), defaults, "a fresh object");
+});
