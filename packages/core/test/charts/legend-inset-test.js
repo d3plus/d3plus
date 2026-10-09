@@ -138,12 +138,17 @@ it("clicking a swatch in an inset legend still hides its group", async () => {
           const rect = document.querySelector("#viz svg").getBoundingClientRect();
           const target = document.elementFromPoint(rect.left + p.x + margin + 8, rect.top + p.y + margin + 8);
           target.dispatchEvent(new MouseEvent("click", {bubbles: true}));
-          window.setTimeout(() => resolve({key: p.key, hidden: viz._hidden.slice()}), 300);
+          window.setTimeout(() => resolve({
+            key: p.key,
+            hidden: viz._hidden.slice(),
+            drawn: [...new Set(viz._filteredData.map(d => d.id))].sort(),
+          }), 300);
         } catch (e) {
           reject(e);
         }
       });
     }), scatter());
   assert.strictEqual(r.key, "legend");
-  assert.deepStrictEqual(r.hidden, [0, 1], "the first swatch hides group a (keys 0 and 1)");
+  assert.deepStrictEqual(r.hidden, ["0", "1"], "the first swatch hides group a (keys 0 and 1)");
+  assert.deepStrictEqual(r.drawn, ["b", "c"], "group a's points are gone");
 });

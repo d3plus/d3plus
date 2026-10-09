@@ -126,13 +126,17 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
   const snapThresholdName = viz.schema.thresholdName;
   const snapLocale = viz.schema.locale;
 
+  // groupBy values are string|number for id/keying purposes (numbers are
+  // stringified so numeric and string ids never collide), including each id
+  // in a merged datum's array.
+  const keyId = (v: unknown): unknown => (typeof v === "number" ? `${v}` : v);
   const id = (d: DataPoint, i: number): string | number => {
     const groupByDrawDepth = accessorFetch(snapGroupBy[drawDepth], d, i);
-    // groupBy values are string|number for id/keying purposes (numbers are
-    // stringified so numeric and string ids never collide).
-    return typeof groupByDrawDepth === "number"
-      ? `${groupByDrawDepth}`
-      : (groupByDrawDepth as string | number);
+    return (
+      Array.isArray(groupByDrawDepth)
+        ? groupByDrawDepth.map(keyId)
+        : keyId(groupByDrawDepth)
+    ) as string | number;
   };
 
   const ids = (d: DataPoint, i: number) =>

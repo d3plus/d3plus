@@ -478,3 +478,23 @@ LegendInset.args = {
   y: "y"
 };
 LegendInset.parameters = {controls: {include: ["legendInset", "legendInsetConfig", "size"]}, docs: {description: {story: "When the points leave a corner of the plot empty, the legend is drawn there, over a translucent box, instead of taking a margin. If the chart also sizes its points, the size legend gets the first try at that space and the legend goes back to its margin. Points that enclose an empty area never get a legend placed inside them."}}};
+
+const countryRegions = [
+  ["Kenya", "Africa", 3.1, 62], ["Nigeria", "Africa", 2.4, 53], ["Egypt", "Africa", 4.2, 71],
+  ["Ghana", "Africa", 2.9, 64], ["Brazil", "Americas", 5.6, 76], ["Canada", "Americas", 8.9, 82],
+  ["Chile", "Americas", 6.3, 80], ["Mexico", "Americas", 5.2, 75], ["China", "Asia", 6.1, 78],
+  ["India", "Asia", 3.4, 70], ["Japan", "Asia", 8.1, 84], ["Vietnam", "Asia", 4.6, 74],
+  ["France", "Europe", 8.4, 83], ["Germany", "Europe", 8.8, 81], ["Poland", "Europe", 7.2, 78],
+  ["Spain", "Europe", 7.8, 83], ["Australia", "Oceania", 8.7, 83], ["Fiji", "Oceania", 4.9, 68],
+  ["New Zealand", "Oceania", 8.3, 82], ["Samoa", "Oceania", 4.4, 73]
+];
+
+export const ColorByCategory = Template.bind({});
+ColorByCategory.args = {
+  data: countryRegions.map(([country, region, income, life]) => ({country, region, income, life})),
+  groupBy: "country",
+  color: "region",
+  x: "income",
+  y: "life"
+};
+ColorByCategory.parameters = {controls: {include: ["color", "groupBy", "legend", "legendPosition"]}, docs: {description: {story: "When `color` is a category that isn't one of the `groupBy` levels, here each country's point is colored by its region, the legend shows one entry per category, labelled by the category. Click an entry to hide every point in that region (click again to bring them back), shift+click it to show only that region, or hover it to highlight the region's points. When `color` returns actual CSS colors there is no category to name, so the legend stays hidden."}}};

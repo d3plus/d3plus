@@ -87,6 +87,7 @@ const charts = [
   ["Pack", {data: tree, groupBy: ["parent", "id"], sum: "value"}],
   ["Pie", {data: tree, groupBy: "id", value: "value"}],
   ["Plot", {...plot, size: "y"}],
+  ["Plot", {data: series.map(d => ({...d, kind: d.id === "alpha" ? "odd" : "even", key: `${d.id}-${d.year}`})), groupBy: "key", color: "kind", x: "x", y: "y"}],
   ["Priestley", {data: [{id: "a", start: 2004, end: 2007}, {id: "b", start: 2005, end: 2010}], start: "start", end: "end"}],
   ["Pyramid", {...pyramid, ...titled}],
   ["Pyramid", {...pyramid, categoryPosition: "left"}],

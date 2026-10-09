@@ -416,6 +416,8 @@ export interface VizInstance {
   _legendPosition?: (config: VizInstance) => string | false;
   _legend?: ((config: VizInstance, data: DataPoint[]) => boolean) | boolean;
   _legendDepth?: number;
+  /** The color category each legend entry stands for, when the legend is labelled by color rather than groupBy. */
+  _legendCategories?: WeakMap<DataPoint, string>;
   _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
   _title?: ((data: DataPoint[]) => string | false) | string | false;

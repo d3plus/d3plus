@@ -549,7 +549,8 @@ export interface D3plusConfig {
       Controls legend visibility. Pass `false` to hide it, `true` to always
       show it, or a `(config, data) => boolean` accessor to decide dynamically
       — the chart defaults use an accessor to auto-hide the legend when it
-      would be redundant.
+      would be redundant, and to show it with one entry per category when
+      `color` is a category that isn't a `groupBy` level.
   */
   legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
   /** Configuration for the legend component. */

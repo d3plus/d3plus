@@ -242,7 +242,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.",
+      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.\n\nWhen the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `\"country\"` and colored by `\"region\"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -651,7 +651,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether to display the legend.",
+      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.",
       table: {
         defaultValue: {
           summary: "undefined"
