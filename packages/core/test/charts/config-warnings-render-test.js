@@ -95,6 +95,21 @@ const charts = [
   ["Beeswarm", {...swarm, height: 120}],
   ["BarChart", {...plot, stacked: true, time: "year"}],
   ["BarChart", {...faceted, ...titled, facetConfig: {columns: 2, titleConfig: {fontSize: 14}}}],
+  ["BarChart", {...plot, confidence: ["lci", "hci"]}],
+  ["BarChart", {...plot, discrete: "y", x: "y", y: "x", confidence: ["lci", "hci"]}],
+  ["BarChart", {...plot, stacked: true, confidence: ["lci", "hci"]}],
+  ["BarChart", {
+    ...plot,
+    confidence: [false, "hci"],
+    confidenceConfig: {capWidth: 6, tooltip: false, strokeDasharray: "2 2", Bar: {stroke: "#333", strokeWidth: 2}},
+  }],
+  ["BarChart", {
+    data: [
+      {id: "alpha", x: "a", y: 42, lci: 38, hci: 47},
+      {id: "beta", x: "b", y: 960, lci: 850, hci: 990},
+    ],
+    groupBy: "id", x: "x", y: "y", yBreak: [80, 900], confidence: ["lci", "hci"],
+  }],
   ["BoxWhisker", {data: series, groupBy: ["id", "y"], x: "id", y: "y"}],
   ["BumpChart", {...plot, discrete: "x"}],
   ["Chord", {links}],
