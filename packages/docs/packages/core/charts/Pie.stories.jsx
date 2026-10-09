@@ -67,3 +67,29 @@ DrillDownOnClick.parameters = {
   controls: {include: ["depth", "groupBy"]},
   docs: {description: {story: "A hierarchical `groupBy` ([\"category\", \"id\"]) renders the top level first; click a slice to drill into its children. A back button appears automatically to return."}}
 };
+
+/** A three-stripe flag as an inline SVG data URI. */
+const flag = ([a, b, c]) => `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="20"><rect width="10" height="20" fill="${a}"/><rect x="10" width="10" height="20" fill="${b}"/><rect x="20" width="10" height="20" fill="${c}"/></svg>`,
+)}`;
+
+export const BackgroundImages = Template.bind({});
+BackgroundImages.args = {
+  data: [
+    {id: "France", value: 68, stripes: ["#0055a4", "#ffffff", "#ef4135"]},
+    {id: "Italy", value: 59, stripes: ["#009246", "#ffffff", "#ce2b37"]},
+    {id: "Belgium", value: 12, stripes: ["#000000", "#fdda24", "#ef3340"]},
+    {id: "Ireland", value: 5, stripes: ["#169b62", "#ffffff", "#ff883e"]}
+  ],
+  groupBy: "id",
+  shapeConfig: {
+    Path: {
+      backgroundImage: funcify(
+        d => flag(d.stripes),
+        "d => flag(d.stripes)"
+      )
+    }
+  },
+  value: "value"
+};
+BackgroundImages.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Set under a shape's name (`shapeConfig.Path.backgroundImage`), the image applies to that shape kind only. Each flag covers its wedge's bounding box and is clipped to the wedge's outline."}}};

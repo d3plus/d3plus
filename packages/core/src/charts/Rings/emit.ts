@@ -5,7 +5,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {arrowEnds, arrowNode, arrowSizeFor, straightEdgeArrows} from "../features/edgeArrows.js";
@@ -17,6 +17,7 @@ import {
   shapeConfigFor,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -99,6 +100,25 @@ function ringsEdgeArrows(
   return out;
 }
 
+/** One node's Circle or Rect SceneNode (origin-centered, placed by `transform`), or null for any other shape kind. */
+function ringsNode(
+  shapeKind: string,
+  d: RingsNode,
+  merged: Record<string, unknown>,
+  base: {datum: DataPoint; paint: Paint; transform: Transform; aria: {label: string}},
+  i: number,
+): SceneNode | null {
+  const key = `rings-${shapeKind}-${d.id}`;
+  if (shapeKind === "Circle")
+    return {type: "circle", key, cx: 0, cy: 0, r: d.r, ...base};
+  if (shapeKind === "Rect") {
+    const w = Number(resolveAccessor<number>(merged.width, base.datum, i) ?? d.r * 2);
+    const h = Number(resolveAccessor<number>(merged.height, base.datum, i) ?? d.r * 2);
+    return {type: "rect", key, x: -w / 2, y: -h / 2, width: w, height: h, ...base};
+  }
+  return null;
+}
+
 export const ringsEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.ringsCtx as RingsCtx | undefined;
   if (!c) return [];
@@ -138,6 +158,7 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       if (!values.length) continue;
       const vizCfg = shapeConfigFor(viz, shapeKind);
       const merged = {...vizCfg, ...c.nodeShapeConfig};
+      const images: SceneNode[] = [];
 
       for (let i = 0; i < values.length; i++) {
         const d = values[i];
@@ -151,36 +172,14 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
         const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
         const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
-        if (shapeKind === "Circle") {
-          out.push({
-            type: "circle",
-            key: `rings-${shapeKind}-${d.id}`,
-            cx: 0,
-            cy: 0,
-            r: d.r,
-            datum,
-            paint,
-            transform,
-            aria,
-          } as SceneNode);
-        } else if (shapeKind === "Rect") {
-          const w = Number(resolveAccessor<number>(merged.width, datum, d.i ?? i) ?? d.r * 2);
-          const h = Number(resolveAccessor<number>(merged.height, datum, d.i ?? i) ?? d.r * 2);
-          out.push({
-            type: "rect",
-            key: `rings-${shapeKind}-${d.id}`,
-            x: -w / 2,
-            y: -h / 2,
-            width: w,
-            height: h,
-            datum,
-            paint,
-            transform,
-            aria,
-          } as SceneNode);
-        }
+        const node = ringsNode(shapeKind, d, merged, {datum, paint, transform, aria}, d.i ?? i);
         // Other shape kinds: skipped (Rings's default is Circle).
+        if (!node) continue;
+        out.push(node);
+        const image = backgroundImageNode(merged, node, datum, d.i ?? i);
+        if (image) images.push(image);
       }
+      out.push(...images);
 
       if (nodeCfg.label && nodeCfg.labelBounds) {
         const labelFn = nodeCfg.label;

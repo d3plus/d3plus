@@ -12,6 +12,7 @@ import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 function resolveAccessor<T>(
@@ -253,5 +254,7 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
 
   stampLabelFlip(labelNodes, flipSource);
 
-  return [...pathNodes, ...labelNodes];
+  const imageNodes = backgroundImageNodes(sc, pathNodes, k => [slices[k].data as DataPoint, slices[k].i ?? 0]);
+
+  return [...pathNodes, ...imageNodes, ...labelNodes];
 };

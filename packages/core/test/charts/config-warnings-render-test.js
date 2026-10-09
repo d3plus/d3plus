@@ -47,6 +47,8 @@ const radarLong = radarMetrics([
   "Average Handling Time", "Employee Engagement", "Market Share", "Gross Margin Percentage",
 ]);
 const plot = {data: series, groupBy: "id", x: "x", y: "y"};
+const flag = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='2'%3E%3Crect width='3' height='2' fill='%23c00'/%3E%3C/svg%3E";
+const image = {backgroundImage: flag};
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
 const population = ["0-9", "10-19", "20-29"].flatMap((age, b) => [2020, 2021].flatMap(year => [
   {age, sex: "Male", area: "Urban", pop: 60 - b * 10, before: 55, year},
@@ -110,6 +112,17 @@ const charts = [
   ["StackedArea", {...plot, ...titled}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  ["BarChart", {...plot, shapeConfig: {Bar: image}}],
+  ["Chord", {links, shapeConfig: image}],
+  ["Gauge", {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: image}],
+  ["Geomap", {data: [{id: "x", value: 3}], tiles: false, topojson, shapeConfig: {Path: image}}],
+  ["Matrix", {data: [{row: "R1", column: "C1", value: 10}, {row: "R2", column: "C2", value: 30}], groupBy: ["row", "column"], row: "row", column: "column", shapeConfig: {Rect: image}}],
+  ["Network", {links, nodes, shapeConfig: image}],
+  ["Pack", {data: tree, groupBy: ["parent", "id"], sum: "value", shapeConfig: {Circle: {...image, backgroundImageFit: "contain"}}}],
+  ["Pie", {data: tree, groupBy: "id", value: "value", shapeConfig: {Path: image}}],
+  ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", shapeConfig: image}],
+  ["Sankey", {links, shapeConfig: {Rect: image}}],
+  ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", shapeConfig: {...image, backgroundImageFit: "contain"}}],
 ];
 
 /**

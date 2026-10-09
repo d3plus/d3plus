@@ -57,7 +57,15 @@ export interface BaseShapeConfig {
 
   /** ARIA label per datum (accessibility). */
   ariaLabel?: ConstOrAccessor<string>;
-  /** Optional background image per datum (url or accessor returning a url). */
+  /**
+      An image drawn inside each shape: a URL (or `data:` URI), or an accessor
+      returning one per datum (a falsy value draws none). Every chart's data
+      shapes support it except links, Chord ribbons, and Gauge needles. Set it
+      for all shapes in `shapeConfig`, or for one shape kind under its name
+      (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the
+      shape's outline, sized by `backgroundImageFit`, and drawn over the
+      shape's fill and under its label.
+  */
   backgroundImage?: ConstOrAccessor<string>;
   /**
       How a `backgroundImage` fits its shape: `"cover"` (default) fills the

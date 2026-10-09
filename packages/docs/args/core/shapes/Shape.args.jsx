@@ -79,7 +79,7 @@ export const argTypes = assign(
     },
     backgroundImage: {
       control: {},
-      description: "Optional background image per datum (url or accessor returning a url).",
+      description: "An image drawn inside each shape: a URL (or `data:` URI), or an accessor\nreturning one per datum (a falsy value draws none). Every chart's data\nshapes support it except links, Chord ribbons, and Gauge needles. Set it\nfor all shapes in `shapeConfig`, or for one shape kind under its name\n(like `shapeConfig.Rect.backgroundImage`). The image is clipped to the\nshape's outline, sized by `backgroundImageFit`, and drawn over the\nshape's fill and under its label.",
       table: {
         defaultValue: {
           summary: "undefined"

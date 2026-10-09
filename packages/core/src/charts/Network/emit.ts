@@ -5,7 +5,7 @@
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {Paint, SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
@@ -18,6 +18,7 @@ import {
   shapeConfigFor,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -98,6 +99,25 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
   return out;
 }
 
+/** One node's Circle or Rect SceneNode, or null for any other shape kind. */
+function networkNode(
+  shapeKind: string,
+  d: NetworkNode,
+  merged: Record<string, unknown>,
+  base: {datum: DataPoint; paint: Paint; aria: {label: string}},
+  i: number,
+): SceneNode | null {
+  const key = `network-${shapeKind}-${d.id}`;
+  if (shapeKind === "Circle")
+    return {type: "circle", key, cx: d.x, cy: d.y, r: d.r, ...base};
+  if (shapeKind === "Rect") {
+    const w = Number(d.width ?? resolveAccessor<number>(merged.width, base.datum, i) ?? 0);
+    const h = Number(d.height ?? resolveAccessor<number>(merged.height, base.datum, i) ?? 0);
+    return {type: "rect", key, x: d.x - w / 2, y: d.y - h / 2, width: w, height: h, ...base};
+  }
+  return null;
+}
+
 export const networkEmit: ChartEmit = ({viz}) => {
   const c = viz.ctx.networkCtx as NetworkCtx | undefined;
   if (!c) return [];
@@ -110,6 +130,7 @@ export const networkEmit: ChartEmit = ({viz}) => {
       if (!values.length) continue;
       const vizCfg = shapeConfigFor(viz, shapeKind);
       const merged = {...vizCfg, ...c.nodeShapeConfig};
+      const images: SceneNode[] = [];
 
       for (let i = 0; i < values.length; i++) {
         const d = values[i];
@@ -122,34 +143,14 @@ export const networkEmit: ChartEmit = ({viz}) => {
         const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
         const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
         const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
-        if (shapeKind === "Circle") {
-          out.push({
-            type: "circle",
-            key: `network-${shapeKind}-${d.id}`,
-            cx: d.x,
-            cy: d.y,
-            r: d.r,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        } else if (shapeKind === "Rect") {
-          const w = Number(d.width ?? resolveAccessor<number>(merged.width, datum, d.i ?? i) ?? 0);
-          const h = Number(d.height ?? resolveAccessor<number>(merged.height, datum, d.i ?? i) ?? 0);
-          out.push({
-            type: "rect",
-            key: `network-${shapeKind}-${d.id}`,
-            x: d.x - w / 2,
-            y: d.y - h / 2,
-            width: w,
-            height: h,
-            datum,
-            paint,
-            aria,
-          } as SceneNode);
-        }
+        const node = networkNode(shapeKind, d, merged, {datum, paint, aria}, d.i ?? i);
         // Other shape kinds: skipped (Network's default is Circle).
+        if (!node) continue;
+        out.push(node);
+        const image = backgroundImageNode(merged, node, datum, d.i ?? i);
+        if (image) images.push(image);
       }
+      out.push(...images);
 
       // Labels via the chart-specific label fn. labelBounds is the
       // shape's aes (r for circles, width/height for rects).

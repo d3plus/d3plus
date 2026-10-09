@@ -8,6 +8,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {paintFromShapeConfig} from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface RadarGroupDatum {
@@ -35,5 +36,6 @@ export const radarEmit: ChartEmit = ({viz}) => {
       aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode);
   }
-  return out;
+  const images = backgroundImageNodes(pathConfig, out, k => [(groupData[k].data ?? groupData[k]) as DataPoint, k]);
+  return [...out, ...images];
 };

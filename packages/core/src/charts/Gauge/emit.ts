@@ -13,6 +13,7 @@ import type {SceneNode} from "@d3plus/render";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {
   paintFromShapeConfig,
   resolveAccessor,
@@ -99,7 +100,8 @@ interface IndicatorCtx {
 function indicatorNodes(g: GaugeDatum, ctx: IndicatorCtx): SceneNode[] {
   const {viz, layout, shared, single} = ctx;
   const key = `gauge-${viz._ids(g.data, g.i).join("-")}`;
-  const paint = paintFromShapeConfig(shapeConfigFor(viz, "Path"), g.data, g.i);
+  const sc = shapeConfigFor(viz, "Path");
+  const paint = paintFromShapeConfig(sc, g.data, g.i);
   const valueFormat = viz.schema.valueFormat as (
     v: number,
     d: DataPoint,
@@ -136,17 +138,18 @@ function indicatorNodes(g: GaugeDatum, ctx: IndicatorCtx): SceneNode[] {
       startAngle: shared.start,
       endAngle: g.angle,
     };
-    return [
-      hit,
-      {
-        type: "path",
-        key: `${key}-indicator`,
-        d: arcPath(arc),
-        arc,
-        paint,
-        ...common,
-      },
-    ];
+    const indicator: SceneNode = {
+      type: "path",
+      key: `${key}-indicator`,
+      d: arcPath(arc),
+      arc,
+      paint,
+      ...common,
+    };
+    // A progress arc is a filled band, so it takes a background image; a
+    // needle and its hub are pointers and don't.
+    const image = backgroundImageNode(sc, indicator, g.data, g.i);
+    return image ? [hit, indicator, image] : [hit, indicator];
   }
   const needle: SceneNode = {
     type: "path",

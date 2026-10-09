@@ -15,6 +15,7 @@ import {
   shapeConfigFor,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 interface ShapeGroup {
@@ -122,6 +123,7 @@ export const treeEmit: ChartEmit = ({viz}) => {
 
     type Node = DataPoint & {x?: number; y?: number; data?: DataPoint; i?: number; depth?: number};
     const nodes: Node[] = values as unknown as Node[];
+    const images: SceneNode[] = [];
 
     for (let i = 0; i < nodes.length; i++) {
       const d = nodes[i];
@@ -130,14 +132,18 @@ export const treeEmit: ChartEmit = ({viz}) => {
       if (!g) continue;
       const id = chartShapeConfig.id(d, i);
       const paint = paintFromShapeConfig(merged, datum, i);
-      out.push({
+      const node = {
         ...g.geom,
         key: `tree-${shapeKind}-${id}`,
         datum,
         paint,
         aria: {label: `${viz._drawLabel(datum, i)}.`},
-      } as SceneNode);
+      } as SceneNode;
+      out.push(node);
+      const image = backgroundImageNode(merged, node, datum, i);
+      if (image) images.push(image);
     }
+    out.push(...images);
 
     // Labels via the chart-specific labelBounds/label/labelConfig.
     const labelNodes = emitLabels({

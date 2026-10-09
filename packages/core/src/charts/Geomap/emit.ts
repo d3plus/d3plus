@@ -9,6 +9,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {resolveThemed} from "./basemapTheme.js";
 import type {Themed} from "./basemapTheme.js";
@@ -74,6 +75,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");
     const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
+    const start = out.length;
     for (let i = 0; i < c.topoData.length; i++) {
       const d = c.topoData[i];
       const datum = (d.data ?? d) as DataPoint;
@@ -91,11 +93,16 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         aria: {label: `${viz._drawLabel(datum, i)}${validColorScale}.`},
       } as SceneNode);
     }
+    out.push(...backgroundImageNodes(pathConfig, out.slice(start), k => {
+      const d = c.topoData[k];
+      return [(d.data ?? d) as DataPoint, k];
+    }));
   }
 
   if (c.pointData && c.pointData.length) {
     const circleConfig = shapeConfigFor(viz, "Circle");
     const points = c.pointSort ? [...c.pointData].sort(c.pointSort) : c.pointData;
+    const start = out.length;
     for (let i = 0; i < points.length; i++) {
       const d = points[i];
       const paint = paintFromShapeConfig(circleConfig, d, i);
@@ -121,6 +128,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         ...(circleConfig.trailPersist ? {trailPersist: circleConfig.trailPersist} : {}),
       } as SceneNode);
     }
+    out.push(...backgroundImageNodes(circleConfig, out.slice(start), k => [points[k], k]));
   }
 
   return out;

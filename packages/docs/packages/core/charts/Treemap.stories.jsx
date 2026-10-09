@@ -79,3 +79,27 @@ SmallDataThreshold.args = {
   thresholdName: "States"
 };
 SmallDataThreshold.parameters = {controls: {include: ["threshold", "thresholdName"]}, docs: {description: {story: "`threshold: 0.0025` merges every state below 0.25% of the total sum into one catch-all rectangle labeled by `thresholdName` (\"States\"), keeping tiny slivers from cluttering the layout."}}};
+
+/** A three-stripe flag as an inline SVG data URI. */
+const flag = ([a, b, c]) => `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="30" height="20"><rect width="10" height="20" fill="${a}"/><rect x="10" width="10" height="20" fill="${b}"/><rect x="20" width="10" height="20" fill="${c}"/></svg>`,
+)}`;
+
+export const BackgroundImages = Template.bind({});
+BackgroundImages.args = {
+  data: [
+    {id: "France", value: 68, stripes: ["#0055a4", "#ffffff", "#ef4135"]},
+    {id: "Italy", value: 59, stripes: ["#009246", "#ffffff", "#ce2b37"]},
+    {id: "Belgium", value: 12, stripes: ["#000000", "#fdda24", "#ef3340"]},
+    {id: "Ireland", value: 5, stripes: ["#169b62", "#ffffff", "#ff883e"]}
+  ],
+  groupBy: "id",
+  shapeConfig: {
+    backgroundImage: funcify(
+      d => flag(d.stripes),
+      "d => flag(d.stripes)"
+    )
+  },
+  sum: "value"
+};
+BackgroundImages.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "`shapeConfig.backgroundImage` draws an image inside each shape: here an accessor returns a flag per country (`flag` builds a small SVG data URI). The image covers the rectangle, is clipped to it, and sits under the labels. Set `backgroundImageFit: \"contain\"` to show the whole image instead."}}};

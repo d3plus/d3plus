@@ -12,6 +12,7 @@ import type {SceneNode} from "@d3plus/render";
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
 
@@ -118,5 +119,7 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
   // which is never stamped this way and so never flip-morphs.
   for (const n of labelNodes) (n as {shapeType?: string}).shapeType = "Label";
 
-  return [...rectNodes, ...labelNodes];
+  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [nodes[k].data, nodes[k].i]);
+
+  return [...rectNodes, ...imageNodes, ...labelNodes];
 };
