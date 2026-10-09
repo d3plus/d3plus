@@ -34,9 +34,8 @@ let browserPromise;
 
 /**
  * Builds the full UMD bundle (once) and returns its source.
- * @private
  */
-function bundle() {
+export function bundle() {
   if (!bundlePromise) {
     bundlePromise = new Promise((resolve, reject) => {
       const child = spawn("node", [buildScript], {cwd: coreDir, stdio: "ignore"});

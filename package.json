@@ -27,7 +27,8 @@
     "pretest": "pnpm -r --if-present run build:esm",
     "release": "node scripts/release.js",
     "test": "pnpm -r --if-present run test",
-    "test:coverage": "pnpm -r --if-present run test:coverage"
+    "test:coverage": "pnpm -r --if-present run test:coverage",
+    "test:dev-pages": "pnpm --filter @d3plus/core run test:dev-pages"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
