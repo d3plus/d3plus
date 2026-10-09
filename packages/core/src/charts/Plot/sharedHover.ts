@@ -7,7 +7,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {InteractionPoint, SceneEvent, SceneNode} from "@d3plus/render";
 
-import {nodeColor, visibleColor} from "../features/tooltipSwatch.js";
+import {nodeColor, ownerNode, visibleColor} from "../features/tooltipSwatch.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -318,7 +318,8 @@ function resolveHover(
     const column = nearestColumn(columns, target, id);
     return column ? single(column, id, column.px) : null;
   }
-  return single(null, id, nodeCenter(pick, axis), wrapped);
+  // A bar's error bar snaps to the bar's own center.
+  return single(null, id, nodeCenter(ownerNode(viz, pick) ?? pick, axis), wrapped);
 }
 
 /**

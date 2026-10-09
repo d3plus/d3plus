@@ -341,10 +341,11 @@ export const argTypes = assign(
     },
     confidence: {
       control: {},
-      description: "The confidence interval as an array of [lower, upper] bounds.",
+      defaultValue: false,
+      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.",
       table: {
         defaultValue: {
-          summary: "undefined"
+          summary: false
         }
       },
       type: {
@@ -355,7 +356,7 @@ export const argTypes = assign(
     confidenceConfig: {
       control: {},
       defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-      description: "Configuration object for shapes rendered as confidence intervals.",
+      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",

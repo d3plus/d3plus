@@ -18,6 +18,7 @@ export interface TranslationStrings {
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
+  "Lower Bound": string;
   Match: string;
   Matches: string;
   more: string;
@@ -39,6 +40,7 @@ export interface TranslationStrings {
   "Shift+Click to Highlight": string;
   Total: string;
   "Trend Line": string;
+  "Upper Bound": string;
   Value: string;
   Values: string;
   "Zoom In": string;
@@ -74,6 +76,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
     Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
+    "Lower Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
@@ -99,6 +102,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
+    "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
@@ -124,6 +128,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
+    "Lower Bound": "L\u00edmite Inferior",
     Match: "Coincidencia",
     Matches: "Coincidencias",
     more: "m\u00e1s",
@@ -145,6 +150,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
+    "Upper Bound": "L\u00edmite Superior",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Acercar",
@@ -170,6 +176,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
+    "Lower Bound": "Limite Inferior",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     more: "mais",
@@ -191,6 +198,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
+    "Upper Bound": "Limite Superior",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Aproximar",
@@ -216,6 +224,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
+    "Lower Bound": "\u4e0b\u9650",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     more: "\u66f4\u591a",
@@ -237,6 +246,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
+    "Upper Bound": "\u4e0a\u9650",
     Value: "\u503c",
     Values: "\u503c",
     "Zoom In": "\u653e\u5927",

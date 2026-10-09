@@ -62,6 +62,7 @@ import {
 } from "./stackHelpers.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
+import {resolveConfidence, validateConfidenceConfig} from "./confidenceConfig.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
@@ -115,6 +116,7 @@ export default class Plot extends Viz {
     };
     this.schema.barPadding = defaults.barPadding as number;
     this._buffer = assign({}, defaultBuffers, {Bar: false, Line: false});
+    this._confidence = false;
     this._confidenceConfig = {
       // A line's colour is its stroke, so the confidence band fills with that
       // same colour (at the reduced opacity below). Prefer a per-Line stroke
@@ -517,7 +519,7 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       The confidence interval as an array of [lower, upper] bounds.
+       The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
@@ -528,27 +530,23 @@ Additionally, each config object can also contain an optional "layer" key, which
        // Or static keys
        .confidence(["lci", "hci"])
 */
-  confidence(_?: unknown): this | [number, number] | false {
-    if (arguments.length && _ instanceof Array) {
-      this._confidence = [];
-      const lower = _[0];
-      this._confidence[0] =
-        typeof lower === "function" || !lower ? lower : accessor(lower);
-      const upper = _[1];
-      this._confidence[1] =
-        typeof upper === "function" || !upper ? upper : accessor(upper);
-
-      return this;
-    } else return this._confidence;
+  confidence(_?: unknown): this | VizInstance["_confidence"] {
+    if (!arguments.length) return this._confidence;
+    this._confidence = resolveConfidence(_);
+    return this;
   }
 
   /**
-       Configuration object for shapes rendered as confidence intervals.
+       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
+
+@example
+       .confidenceConfig({Bar: {stroke: "#333", capWidth: 8}, tooltip: false})
 */
   confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
-    return arguments.length
-      ? ((this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig)), this)
-      : this._confidenceConfig;
+    if (!arguments.length) return this._confidenceConfig;
+    validateConfidenceConfig(this.constructor.name, _);
+    this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig);
+    return this;
   }
 
   /**

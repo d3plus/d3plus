@@ -28,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import type {Shape} from "../../shapes/index.js";
 
+import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
@@ -141,7 +142,16 @@ function finishShape(
   if (override) s.config(override(userConfig));
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
   s.render();
-  return collectComputed(s);
+  const nodes = collectComputed(s);
+  if (key !== "Bar") return nodes;
+  // Error bars paint over their bars but under the bar labels.
+  const errorBars = emitBarConfidence(ctx, nodes);
+  if (!errorBars.length) return nodes;
+  let last = -1;
+  nodes.forEach((n, i) => {
+    if (n.shapeType === "Bar") last = i;
+  });
+  return [...nodes.slice(0, last + 1), ...errorBars, ...nodes.slice(last + 1)];
 }
 
 /** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */
@@ -314,14 +324,14 @@ const lineEmit: ShapeEmitter = ctx => {
       viz._confidenceConfig,
     );
 
-    area
-      .config(
-        assign(
-          shapeConfigFor(viz, "Line", confidenceConfig),
-          shapeConfigFor(viz, "Area", confidenceConfig),
-        ),
-      )
-      .render();
+    const bandConfig = assign(
+      shapeConfigFor(viz, "Line", confidenceConfig),
+      shapeConfigFor(viz, "Area", confidenceConfig),
+    );
+    // Error-bar and tooltip keys aren't Area styles.
+    delete bandConfig.capWidth;
+    delete bandConfig.tooltip;
+    area.config(bandConfig).render();
 
     out.push(...collectComputed(area));
   }

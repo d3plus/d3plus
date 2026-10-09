@@ -7,9 +7,9 @@
       group totals, sorts axisData by discrete-then-group-sum-then-opp,
       builds `discreteKeys`/`stackKeys`/`stackData`, fills in missing Area
       filler points, runs d3-stack with the configured order/offset, then
-      derives `domains` from the stack extents. Each stacked row and its
-      source datum also gets its share of its stack's total (see
-      `stampShare`).
+      derives `domains` from the stack extents (widened to fit any bar error
+      bars around their stacked ends). Each stacked row and its source datum
+      also gets its share of its stack's total (see `stampShare`).
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
       either the data values (for the discrete axis or user-sorted axes) or
       extent (for continuous).
@@ -23,8 +23,10 @@ import * as d3Shape from "d3-shape";
 
 import type {DataPoint} from "@d3plus/data";
 
+import type {PlotDatum} from "../features/plotPaint.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import {stampShare} from "../features/shareKey.js";
+import {stackedConfidenceValues} from "./barConfidence.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -181,7 +183,12 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     }) as never) as unknown as (data: Row[][]) => number[][][])(stackGroupsData);
 
   const discreteData = (viz.schema.discrete === "x" ? xData : yData) as DomainValue[];
-  const trend = trendDomainValues(viz._trendFits || []);
+  // Trend fits and bar error bars (on their stacked ends) widen the stack's extent.
+  const widen = trendDomainValues(viz._trendFits || []);
+  if (viz._confidence && (opp === "x" || opp === "y"))
+    widen.push(...stackedConfidenceValues(
+      axisData as PlotDatum[], opp, stackData, stackKeys, discreteKeys,
+    ));
   const discreteTime = viz.schema.discrete === "x" ? viz._xTime : viz._yTime;
 
   const domains: Record<string, DomainValue[]> = {
@@ -193,11 +200,11 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     [opp as string]: [
       min([
         ...stackData.map((g: number[][]) => min(g.map((p: number[]) => p[0])) as number),
-        ...trend,
+        ...widen,
       ]) as number,
       max([
         ...stackData.map((g: number[][]) => max(g.map((p: number[]) => p[1])) as number),
-        ...trend,
+        ...widen,
       ]) as number,
     ],
   };
