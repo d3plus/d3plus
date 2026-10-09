@@ -56,6 +56,9 @@ const swarmRows = Array.from({length: 40}, (_, i) => ({
   size: 1 + (i % 5),
 }));
 const swarm = {data: swarmRows, groupBy: "id", x: "value"};
+// Small multiples: the same series in two panels.
+const regional = ["east", "west"].flatMap((region, r) => series.map(d => ({...d, region, y: d.y + r * 5})));
+const faceted = {...plot, data: regional, facet: "region"};
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
 const population = ["0-9", "10-19", "20-29"].flatMap((age, b) => [2020, 2021].flatMap(year => [
   {age, sex: "Male", area: "Urban", pop: 60 - b * 10, before: 55, year},
@@ -80,14 +83,17 @@ const charts = [
   ["Beeswarm", {...swarm, y: "group", xBreak: [45, 75]}],
   ["Beeswarm", {...swarm, height: 120}],
   ["BarChart", {...plot, stacked: true, time: "year"}],
+  ["BarChart", {...faceted, ...titled, facetConfig: {columns: 2, titleConfig: {fontSize: 14}}}],
   ["BoxWhisker", {data: series, groupBy: ["id", "y"], x: "id", y: "y"}],
   ["BumpChart", {...plot, discrete: "x"}],
   ["Chord", {links}],
   ["Donut", {data: tree, groupBy: "id", value: "value"}],
   ["Gauge", {data: [{id: "Speed", value: 72}], domain: [0, 100]}],
+  ["Gauge", {data: [{id: "Speed", value: 72, region: "east"}, {id: "Speed", value: 40, region: "west"}], domain: [0, 100], facet: "region"}],
   ["Geomap", {data: [{id: "x", value: 3}], colorScale: "value", tiles: false, topojson}],
   ["Histogram", {data: series, groupBy: "id", value: "y", binWidth: 5}],
   ["LinePlot", {...plot, lineLabels: true, lineMarkers: true, confidence: ["lci", "hci"]}],
+  ["LinePlot", {...faceted, facetConfig: {scales: "independent", sort: "descending"}}],
   ["LinePlot", {
     ...plot,
     annotations: [
@@ -100,6 +106,7 @@ const charts = [
   ["Network", {links, nodes, size: "value"}],
   ["Pack", {data: tree, groupBy: ["parent", "id"], sum: "value"}],
   ["Pie", {data: tree, groupBy: "id", value: "value"}],
+  ["Pie", {data: tree, groupBy: "id", value: "value", facet: "parent"}],
   ["Plot", {...plot, size: "y"}],
   ["Plot", {data: series.map(d => ({...d, kind: d.id === "alpha" ? "odd" : "even", key: `${d.id}-${d.year}`})), groupBy: "key", color: "kind", x: "x", y: "y"}],
   ["Plot", {...plot, swarm: true, shapeConfig: {Circle: {trail: false}}}],
