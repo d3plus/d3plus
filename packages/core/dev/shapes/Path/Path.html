@@ -45,7 +45,7 @@
   const path = new d3plus.Path()
     .data(data)
     .d(d => d.d)
-    .backgroundImage("https://oec.world/images/icons/country/country_usa.png")
+    .backgroundImage("../usa.png")
     .select("#path")
     .label(d => `${d.id} Long Title`)
     .labelConfig({fontColor: "red"})

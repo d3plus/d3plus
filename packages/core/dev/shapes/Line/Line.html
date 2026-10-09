@@ -8,7 +8,6 @@
   <meta name="description" content="Dashed Line shape with hover, click-to-activate and a long transition.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
-  <script src="https://d3js.org/d3.v5.min.js"></script>
   <style>
 
     body {
@@ -49,7 +48,6 @@
   ];
 
   const width = 690;
-  console.time("timer");
   var line = new d3plus.Line()
     // .discrete("x")
     .data(data)
@@ -57,7 +55,6 @@
     .label("An Example D3plus Line")
     .on("mousemove", function(d, i) {
       line.hover(x => x.id === d.id);
-      console.log(i, d.x);
     })
     .on("mouseleave", function(d) {
       line.hover(false);
@@ -65,7 +62,7 @@
     .on("click", function(d) {
       line.active(x => x.id === d.id);
     })
-    .curve(c => (console.log(c), "monotoneX"))
+    .curve("monotoneX")
     .stroke((d, i) => d.id === "epsilon" ? "purple" : i === 0 ? "red" : i === 4 ? "green" : "blue")
     .strokeWidth(10)
     .strokeDasharray(function(d) {
@@ -81,39 +78,7 @@
     })
     .duration(width * 1.25)
     // .duration(0)
-    .render(() => {
-      console.timeEnd("timer");
-    });
-
-  // setTimeout(() => {
-  //   line.data([
-  //     {id: "epsilon", x: 10,   y0: 200, y1: 200},
-  //     {id: "epsilon", x: 120, y0: 100, y1: 0},
-  //     {id: "epsilon", x: 450, y0: 80, y1: 180},
-  //     {id: "epsilon", x: 700, y0: 280, y1: 40},
-  //     {id: "alpha", x: 10,   y0: 200, y1: 200},
-  //     {id: "alpha", x: 150, y0: 120, y1: 0},
-  //     {id: "alpha", x: 450, y0: 150, y1: 180},
-  //     {id: "alpha", x: 700, y0: 110, y1: 40}
-  //   ]).render();
-  // }, 2000);
-
-  // var data = d3.range(6000);
-  // var duration = 0;
-
-  // var divs = d3.select("body").selectAll("div")
-  //   .data(data);
-
-
-  // console.time("timer");
-
-  // divs.enter().append("div")
-  //   .attr("class", "box")
-  //   // .style("background", "transparent")
-  //   // .transition(duration)
-  //     .style("background", "red");
-
-  // console.timeEnd("timer");
+    .render();
 
 </script>
 

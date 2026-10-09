@@ -27,8 +27,8 @@
 <script>
 
   var data = [
-    {text: "Box #1", r: 50, x: 210, y: 275,  color: "cornflowerblue"},
-    {text: "Box #2", r: 50, x: 585, y: 500, color: "firebrick"}
+    {text: "Box #1", x: 210, y: 275, color: "cornflowerblue"},
+    {text: "Box #2", x: 585, y: 150, color: "firebrick"}
   ];
 
   var actives = [];
@@ -41,6 +41,7 @@
     .data([data[0]])
     .label(d => d.text)
     .y0(400)
+    .width(50)
     // .duration(0)
     // .labelBounds(d => {
     //   return {

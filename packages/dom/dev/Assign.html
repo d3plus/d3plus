@@ -12,7 +12,6 @@
 
     body {
       margin: 0;
-      overflow: hidden;
     }
 
   </style>
@@ -25,19 +24,34 @@
 
 <script>
 
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
 
   var clone = d3plus.assign(
     {},
     {colorScaleConfig: {color: ["red", "blue"]}},
     {colorScaleConfig: {tickFormat: d => d * 100}, thing: window, other: document}
   );
-  console.log(clone);
+  log(clone);
 
   var w = d3plus.assign({}, window);
-  console.log(w);
+  log(w);
 
   var d = d3plus.assign({}, document);
-  console.log(d);
+  log(d);
 
 </script>
 

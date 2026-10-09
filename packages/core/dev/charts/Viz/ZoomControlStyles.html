@@ -56,7 +56,7 @@
   </div>
 
   <div class="demo">
-    <h3>Tailwind (utility classes)</h3>
+    <h3>Tailwind 2 (prebuilt utility classes)</h3>
     <iframe id="viz-tailwind"></iframe>
   </div>
 
@@ -182,7 +182,7 @@ ${head}
   });
 
   mountPanel("viz-tailwind", {
-    head: '<script src="https://cdn.tailwindcss.com"><\/script>',
+    head: '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">',
     zoomConfig: `.zoomControlClassName("icon-btn rounded bg-indigo-600 px-2 py-1 text-xs font-semibold text-white shadow hover:bg-indigo-700")`,
   });
 

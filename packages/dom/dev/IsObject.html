@@ -7,13 +7,11 @@
   <title>IsObject</title>
   <meta name="description" content="isObject() results for objects, strings, elements, arrays and globals.">
   <script src="/umd/d3plus-dom.full.js"></script>
-  <script src="https://d3js.org/d3-selection.v1.min.js"></script>
 
   <style>
 
     body {
       margin: 0;
-      overflow: hidden;
     }
 
   </style>
@@ -26,13 +24,28 @@
 
 <script>
 
-  console.log(d3plus.isObject({}));
-  console.log(d3plus.isObject("string"));
-  console.log(d3plus.isObject(d3.select("body").node()));
-  console.log(d3plus.isObject([1, 2, 3]));
-  console.log(d3plus.isObject(undefined));
-  console.log(d3plus.isObject(window));
-  console.log(d3plus.isObject(document));
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
+  log(d3plus.isObject({}));
+  log(d3plus.isObject("string"));
+  log(d3plus.isObject(document.body));
+  log(d3plus.isObject([1, 2, 3]));
+  log(d3plus.isObject(undefined));
+  log(d3plus.isObject(window));
+  log(d3plus.isObject(document));
 
 </script>
 

@@ -9,7 +9,7 @@
 
     <style>
       body {
-        margin: 50px;
+        margin: 0;
         overflow: hidden;
       }
     </style>
@@ -31,39 +31,18 @@
       {id: "04000US56", population: 579679, growth: 5},
     ];
 
-    // var diverging = ["#AC0D0D", "#F48B29", "#FFAB73", "#F0C929", "#EDE682", "#ADE498", "#40A8C4", "#07689F"];
-    // var sequential = ["#EDE682", "#ADE498", "#40A8C4", "#07689F"];
-
-    var chart = new d3plus.Geomap()
+    // topojson accepts a request object: everything besides `url` is passed
+    // to fetch() as its init options.
+    new d3plus.Geomap()
       .config({
-        // colorScale: "population",
-        // colorScaleConfig: {
-        //   color: sequential,
-        //   scale: "linear"
-        // },
-        // colorScalePosition: "bottom",
-        // data: popData,
-        // height: 600,
+        colorScale: "population",
+        data: popData,
         projection: "geoAlbersUsa",
-        // shapeConfig: {
-        //   fill: "D3PLUS-COMMON-RESET",
-        // },
-        // topojson: "https://datausa.io/topojson/State.json",
-        // groupBy: "State",
-        // data: [
-        //   {State: "Massachusetts", Population: 10},
-        //   {State: "Vermont", Population: 6},
-        // ],
-        // topojsonId: d => d.properties.id,
         topojson: {
           method: "POST",
           headers: {"Content-Type": "application/json"},
-          url: "http://localhost:4000/v1/geographies/topojson",
-          body: JSON.stringify([
-            {country: "USA", level: 1},
-            // {country: "USA", level: 1, name: "Massachusetts"},
-            // {country: "USA", level: 1, name: "Vermont"},
-          ]),
+          url: "./State.json",
+          body: JSON.stringify([{country: "USA", level: 1}]),
         },
       })
       .render();

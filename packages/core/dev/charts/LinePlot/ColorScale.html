@@ -18,42 +18,45 @@
   <body></body>
 
   <script>
+    // Synthetic yearly exports (in USD) for a few large exporters.
+    const countries = {
+      China: [0.33, 0.24],
+      "United States": [0.69, 0.07],
+      Germany: [0.61, 0.08],
+      Japan: [0.42, 0.03],
+      France: [0.33, 0.04],
+      Netherlands: [0.24, 0.08],
+    };
+    const data = [];
+    Object.entries(countries).forEach(([country, [start, growth]]) => {
+      for (let year = 2002; year <= 2020; year++) {
+        const dip = year === 2009 ? 0.8 : 1;
+        data.push({
+          Country: country,
+          Year: year,
+          "Trade Value": start * 1e12 * Math.pow(1 + growth, year - 2002) * dip,
+        });
+      }
+    });
+
+    // Colors every line by the series' most recent value, not its first.
+    const latest = {};
+    data.forEach(d => {
+      if (!latest[d.Country] || d.Year > latest[d.Country].Year) latest[d.Country] = d;
+    });
+    data.forEach(d => (d["Latest Trade Value"] = latest[d.Country]["Trade Value"]));
+
     new d3plus.LinePlot()
       .config({
-        // aggs: {
-        //   "Trade Value": (arr, cb) => (console.log(arr), Math.max(...arr.map(cb)))
-        // },
         baseline: 0,
         axisPersist: true,
-        colorScale: "Trade Value",
+        colorScale: "Latest Trade Value",
+        data,
         groupBy: "Country",
         x: "Year",
         y: "Trade Value",
         time: "Year",
-        shapeConfig: {
-          Line: {
-            stroke: null,
-          },
-          stroke(d, i) {
-            // find most recent data point for the given line
-            // (d3plus only returns the first/oldest data point to this function)
-            const latestData = this._filteredData
-              .filter(f => f.Country === d.Country)
-              .sort((a, b) => b.Year - a.Year)[0];
-
-            // get the number we need
-            const c = this._colorScale(latestData);
-
-            // get the color
-            const scale = this._colorScaleClass._colorScale;
-            return scale(c);
-          },
-        },
       })
-      .data(
-        "https://oec.world/olap-proxy/data.jsonrecords?cube=trade_i_baci_a_02&drilldowns=Exporter+Country%2CYear&measures=Trade+Value&token=6e892a3d38a0399d3cce19f94cd18f60",
-        resp => resp.data.filter(d => d["Trade Value"] > 1000000000000)
-      )
       .render();
   </script>
 </html>

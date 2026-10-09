@@ -36,12 +36,11 @@
     bigData.push({id: i + "", value: 10});
   }
   const testWidth = 50;
-  console.time("timer")
   var rect = new d3plus.Rect()
     // .config({
     //   fill: function(d) { return d.color; }
     // })
-    .backgroundImage("https://oec.world/images/icons/country/country_usa.png")
+    .backgroundImage("../usa.png")
     // .data(data)
     // .label(function(d) { return d.text; })
     // .ariaLabel(d => d.text)
@@ -65,7 +64,7 @@
     //   rect.active(x => x === d);
     // })
     // .duration(0)
-    .render(() => console.timeEnd("timer"));
+    .render();
 
   // setTimeout(() => {
   //   rect.data(bigData.slice(50, 150)).render();

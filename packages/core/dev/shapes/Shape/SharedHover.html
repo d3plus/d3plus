@@ -16,16 +16,20 @@
       overflow: hidden;
     }
 
+    .shapes {
+      display: inline-block;
+      height: 200px;
+      width: 400px;
+    }
+
   </style>
 
 </head>
 
 <body>
 
-  <svg>
-    <g id="test-rects"></g>
-    <g id="test-circles"></g>
-  </svg>
+  <div class="shapes" id="test-rects"></div>
+  <div class="shapes" id="test-circles"></div>
 
 </body>
 
@@ -46,6 +50,7 @@
     })
     .config({
       data: [{id: 1}],
+      fill: "#4281A4",
       x: d => d.id * width,
       y: width,
       width: width,
@@ -67,10 +72,11 @@ var circle = new d3plus.Circle()
   })
   .config({
     data: [{id: 2}, {id: 3}],
-    x: d => d.id * width,
+    fill: "#F6AE2D",
+    x: d => (d.id - 1) * width,
     y: width,
     r: width / 2,
-      select: "#test-rects"
+    select: "#test-circles"
   })
   .render();
 

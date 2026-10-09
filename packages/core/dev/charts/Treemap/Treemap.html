@@ -6,10 +6,6 @@
     <meta name="description" content="Nested Treemap loaded from JSON, drawn with the canvas renderer.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
-      rel="stylesheet"
-    />
     <style>
       html,
       body {
@@ -55,6 +51,6 @@
       .sum("value")
       // .select("#viz")
       .renderer("canvas")
-      .render(() => console.log("callback!"));
+      .render();
   </script>
 </html>

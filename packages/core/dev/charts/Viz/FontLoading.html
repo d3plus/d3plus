@@ -92,9 +92,10 @@
 
     <script>
 
-      // "X-Late" is a real web font (Pacifico, from Google Fonts) registered
-      // under a made-up family name, so it can't already be installed locally
-      // and its glyphs look nothing like the sans-serif fallback.
+      // "X-Late" is a real web font (Pathway Gothic One, saved next to this
+      // page) registered under a made-up family name, so it can't already be
+      // installed locally and its glyphs look nothing like the sans-serif
+      // fallback.
       const family = "X-Late";
       const mode = new URLSearchParams(location.search).get("mode") || "late";
       document.getElementById(`mode-${mode}`).classList.add("active");
@@ -146,15 +147,8 @@
         return viz;
       };
 
-      /** Resolves the URL of Pacifico's latin woff2 file from the Google Fonts CSS API. */
-      const fontUrl = fetch("https://fonts.googleapis.com/css2?family=Pacifico&display=swap")
-        .then(res => res.text())
-        .then(css => {
-          const blocks = css.split("/*").filter(b => b.startsWith(" latin */"));
-          const match = (blocks[0] || css).match(/url\(([^)]+)\)/);
-          if (!match) throw new Error("no font url in Google Fonts CSS");
-          return match[1];
-        });
+      /** A local woff2 (Pathway Gothic One), so loading never needs the network. */
+      const fontUrl = Promise.resolve("./PathwayGothicOne-Latin.woff2");
 
       let face;
       const loadFont = () => {
@@ -212,8 +206,6 @@
           drawCharts();
         });
       }
-
-      fontUrl.catch(e => log(`could not reach Google Fonts: ${e.message}`));
 
       document.getElementById("load-now").addEventListener("click", loadFont);
       document.getElementById("rerender").addEventListener("click", () =>

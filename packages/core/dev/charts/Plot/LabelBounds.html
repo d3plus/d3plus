@@ -26,7 +26,6 @@
       fill: d => d.is_explicit ? "red" : "green",
       label: d => `${d.artist_name} - ${d.track_name}`,
       labelBounds: (d, i, x) => {
-        console.log(d, i, x);
         const height = 40;
         const width = 200;
         const s = x.r || x.width / 2;

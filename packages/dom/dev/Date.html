@@ -12,7 +12,6 @@
 
     body {
       margin: 0;
-      overflow: hidden;
     }
 
   </style>
@@ -25,18 +24,33 @@
 
 <script>
 
+  // Prints each logged value into the page as well as the console.
+  const output = document.body.appendChild(document.createElement("pre"));
+  const log = (...args) => {
+    console.log(...args);
+    const text = args.map(a => {
+      if (typeof a === "string") return a;
+      try {
+        return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+      } catch {
+        return String(a);
+      }
+    });
+    output.textContent += `${text.join(" ")}\n`;
+  };
+
 
   var date = d3plus.date("1987-02");
-  console.log(date);
+  log(date);
 
   var date = d3plus.date("1987-02-01");
-  console.log(date);
+  log(date);
 
   var date = d3plus.date("02/01/1987");
-  console.log(date);
+  log(date);
 
   var date = d3plus.date("02-01-1987");
-  console.log(date);
+  log(date);
   
 
 </script>

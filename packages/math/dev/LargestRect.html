@@ -12,7 +12,6 @@
 
     body {
       margin: 0;
-      overflow: hidden;
     }
 
   </style>
@@ -25,12 +24,27 @@
 
 <script>
 
+    // Prints each logged value into the page as well as the console.
+    const output = document.body.appendChild(document.createElement("pre"));
+    const log = (...args) => {
+      console.log(...args);
+      const text = args.map(a => {
+        if (typeof a === "string") return a;
+        try {
+          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+        } catch {
+          return String(a);
+        }
+      });
+      output.textContent += `${text.join(" ")}\n`;
+    };
+
     const poly = [[40, 0], [80, 40], [40, 80], [0, 40], [40, 0]];
 
     const rect = d3plus.largestRect(poly, {angle: 0});
     const expected = [[21, 21], [59, 21], [59, 59], [21, 59], [21, 21]];
-    console.log(rect);
-    console.log(expected);
+    log(rect);
+    log(expected);
     // assert.strictEqual(JSON.stringify(expected), JSON.stringify(rect.points.map(d => d.map(Math.round))), "angle option");
 
 </script>

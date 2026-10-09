@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html>
 
@@ -9,7 +8,6 @@
   <meta name="description" content="BumpChart of fruit rankings over three years with line labels.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
-  <!-- <script src="https://d3plus.org/js/d3plus-plot.v1.0.full.min.js"></script> -->
 
 </head>
 
@@ -34,36 +32,12 @@ var data = [
 ];
 
 new d3plus.BumpChart()
-  // .data(data)
-  // .groupBy("fruit")
-  // // .label(function(d) {
-  // //     return d.label;
-  // //   })
-  // .x("year")
-  // .y("rank")
-  // .lineLabels(true)
-  .config({
-    "data": "https://pytesseract-dev.oec.world/tesseract/data.jsonrecords?cube=complexity_eci_a_hs96_hs6&drilldowns=Country%2CYear%2CECI+Rank&locale=en&measures=ECI",
-    "groupBy": "Country",
-    // "lineLabels": true,
-    "legend": false,
-    "baseline": 1,
-    "time": "Year",
-    "timeline": true,
-    "title": "Economic Complexity (Trade)",
-    "x": "Year",
-    "xConfig": {
-        "title": false
-    },
-    "yConfig": {
-        "title": "ECI Rank"
-    },
-    "y": "ECI Rank",
-    // "yDomain": [
-    //     104,
-    //     1
-    // ]
-  })
+  .data(data)
+  .groupBy("fruit")
+  .label(d => d.label)
+  .x("year")
+  .y("rank")
+  .lineLabels(true)
   .render();
 
 </script>

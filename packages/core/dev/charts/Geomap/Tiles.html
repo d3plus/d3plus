@@ -11,10 +11,9 @@
 
   <style>
 
-    /* body {
-      margin: 50px;
-      overflow: hidden;
-    } */
+    body {
+      margin: 0;
+    }
 
     #tile-switcher {
       font-size: 16px;
@@ -63,9 +62,10 @@ var map = new d3plus.Geomap()
     height: 700,
 
     // fits the max viewport to the boundaries of all
-    // of the countries except Antarctica ("anata")
-    fitObject: "https://oec.world/topojson/world-50m.json",
-    fitFilter: function(d) { return d.id !== "anata"; },
+    // of the countries except Antarctica ("ata")
+    fitObject: "./countries.json",
+    fitKey: "countries",
+    fitFilter: function(d) { return d.id !== "ata"; },
 
     // removes outer padding around the default fit
     projectionPadding: 0

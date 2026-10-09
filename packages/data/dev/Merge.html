@@ -14,12 +14,27 @@
 
   <script>
 
+    // Prints each logged value into the page as well as the console.
+    const output = document.body.appendChild(document.createElement("pre"));
+    const log = (...args) => {
+      console.log(...args);
+      const text = args.map(a => {
+        if (typeof a === "string") return a;
+        try {
+          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+        } catch {
+          return String(a);
+        }
+      });
+      output.textContent += `${text.join(" ")}\n`;
+    };
+
     var parent = {parent: true};
 
     var obj1 = {name: "Dave", value: 10, parent};
     var obj2 = {name: "Dave", value: 20, parent};
     var merged = d3plus.merge([obj1, obj2]);
-    console.log(merged);
+    log(merged);
 
   </script>
 

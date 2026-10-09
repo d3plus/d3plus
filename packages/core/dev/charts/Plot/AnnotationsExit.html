@@ -46,14 +46,11 @@ var plot = new d3plus.Plot()
    		strokeWidth: 2
 		}
 	])
-	.data([
-      'https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=economy_foreign_trade_ent&drilldowns=State&measures=Trade+Value&parents=false&sparse=false',
-      'https://api.datamexico.org/tesseract/data.jsonrecords?Year=2020&cube=complexity_eci&drilldowns=State&measures=ECI&parents=false&sparse=false'
-	])
+	// two files merged into one dataset by their shared keys
+	.data(["./trade-value.json", "./eci.json"])
   .groupBy('State ID')
   .label(d => d.State)
   .legend(false)
-  // change to 'Circle' to see the magic hahaha
   .shape('Rect')
   .x('Trade Value')
   .xConfig({

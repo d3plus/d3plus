@@ -1,0 +1,257 @@
+[
+  {
+    "State ID": "04000US01",
+    "State": "Alabama",
+    "Diabetes Prevalence": 0.14499999582767487
+  },
+  {
+    "State ID": "04000US02",
+    "State": "Alaska",
+    "Diabetes Prevalence": 0.08299999684095383
+  },
+  {
+    "State ID": "04000US04",
+    "State": "Arizona",
+    "Diabetes Prevalence": 0.09600000083446503
+  },
+  {
+    "State ID": "04000US05",
+    "State": "Arkansas",
+    "Diabetes Prevalence": 0.13500000536441803
+  },
+  {
+    "State ID": "04000US06",
+    "State": "California",
+    "Diabetes Prevalence": 0.08799999952316284
+  },
+  {
+    "State ID": "04000US08",
+    "State": "Colorado",
+    "Diabetes Prevalence": 0.06599999964237213
+  },
+  {
+    "State ID": "04000US09",
+    "State": "Connecticut",
+    "Diabetes Prevalence": 0.09200000017881393
+  },
+  {
+    "State ID": "04000US10",
+    "State": "Delaware",
+    "Diabetes Prevalence": 0.11800000071525574
+  },
+  {
+    "State ID": "04000US11",
+    "State": "District of Columbia",
+    "Diabetes Prevalence": 0.08100000023841858
+  },
+  {
+    "State ID": "04000US12",
+    "State": "Florida",
+    "Diabetes Prevalence": 0.1080000028014183
+  },
+  {
+    "State ID": "04000US13",
+    "State": "Georgia",
+    "Diabetes Prevalence": 0.11999999731779099
+  },
+  {
+    "State ID": "04000US15",
+    "State": "Hawaii",
+    "Diabetes Prevalence": 0.11100000143051147
+  },
+  {
+    "State ID": "04000US16",
+    "State": "Idaho",
+    "Diabetes Prevalence": 0.09300000220537186
+  },
+  {
+    "State ID": "04000US17",
+    "State": "Illinois",
+    "Diabetes Prevalence": 0.0989999994635582
+  },
+  {
+    "State ID": "04000US18",
+    "State": "Indiana",
+    "Diabetes Prevalence": 0.12099999934434891
+  },
+  {
+    "State ID": "04000US19",
+    "State": "Iowa",
+    "Diabetes Prevalence": 0.0989999994635582
+  },
+  {
+    "State ID": "04000US20",
+    "State": "Kansas",
+    "Diabetes Prevalence": 0.10499999672174454
+  },
+  {
+    "State ID": "04000US21",
+    "State": "Kentucky",
+    "Diabetes Prevalence": 0.12700000405311584
+  },
+  {
+    "State ID": "04000US22",
+    "State": "Louisiana",
+    "Diabetes Prevalence": 0.12999999523162842
+  },
+  {
+    "State ID": "04000US23",
+    "State": "Maine",
+    "Diabetes Prevalence": 0.10400000214576721
+  },
+  {
+    "State ID": "04000US24",
+    "State": "Maryland",
+    "Diabetes Prevalence": 0.11100000143051147
+  },
+  {
+    "State ID": "04000US25",
+    "State": "Massachusetts",
+    "Diabetes Prevalence": 0.08699999749660492
+  },
+  {
+    "State ID": "04000US26",
+    "State": "Michigan",
+    "Diabetes Prevalence": 0.10999999940395355
+  },
+  {
+    "State ID": "04000US27",
+    "State": "Minnesota",
+    "Diabetes Prevalence": 0.08500000089406967
+  },
+  {
+    "State ID": "04000US28",
+    "State": "Mississippi",
+    "Diabetes Prevalence": 0.1459999978542328
+  },
+  {
+    "State ID": "04000US29",
+    "State": "Missouri",
+    "Diabetes Prevalence": 0.11400000005960464
+  },
+  {
+    "State ID": "04000US30",
+    "State": "Montana",
+    "Diabetes Prevalence": 0.08900000154972076
+  },
+  {
+    "State ID": "04000US31",
+    "State": "Nebraska",
+    "Diabetes Prevalence": 0.10000000149011612
+  },
+  {
+    "State ID": "04000US32",
+    "State": "Nevada",
+    "Diabetes Prevalence": 0.10499999672174454
+  },
+  {
+    "State ID": "04000US33",
+    "State": "New Hampshire",
+    "Diabetes Prevalence": 0.09600000083446503
+  },
+  {
+    "State ID": "04000US34",
+    "State": "New Jersey",
+    "Diabetes Prevalence": 0.0989999994635582
+  },
+  {
+    "State ID": "04000US35",
+    "State": "New Mexico",
+    "Diabetes Prevalence": 0.0949999988079071
+  },
+  {
+    "State ID": "04000US36",
+    "State": "New York",
+    "Diabetes Prevalence": 0.10100000351667404
+  },
+  {
+    "State ID": "04000US37",
+    "State": "North Carolina",
+    "Diabetes Prevalence": 0.11500000208616257
+  },
+  {
+    "State ID": "04000US38",
+    "State": "North Dakota",
+    "Diabetes Prevalence": 0.09399999678134918
+  },
+  {
+    "State ID": "04000US39",
+    "State": "Ohio",
+    "Diabetes Prevalence": 0.12200000137090683
+  },
+  {
+    "State ID": "04000US40",
+    "State": "Oklahoma",
+    "Diabetes Prevalence": 0.12300000339746475
+  },
+  {
+    "State ID": "04000US41",
+    "State": "Oregon",
+    "Diabetes Prevalence": 0.09700000286102295
+  },
+  {
+    "State ID": "04000US42",
+    "State": "Pennsylvania",
+    "Diabetes Prevalence": 0.10999999940395355
+  },
+  {
+    "State ID": "04000US44",
+    "State": "Rhode Island",
+    "Diabetes Prevalence": 0.10100000351667404
+  },
+  {
+    "State ID": "04000US45",
+    "State": "South Carolina",
+    "Diabetes Prevalence": 0.13300000131130219
+  },
+  {
+    "State ID": "04000US46",
+    "State": "South Dakota",
+    "Diabetes Prevalence": 0.10100000351667404
+  },
+  {
+    "State ID": "04000US47",
+    "State": "Tennessee",
+    "Diabetes Prevalence": 0.125
+  },
+  {
+    "State ID": "04000US48",
+    "State": "Texas",
+    "Diabetes Prevalence": 0.10199999809265137
+  },
+  {
+    "State ID": "04000US49",
+    "State": "Utah",
+    "Diabetes Prevalence": 0.07500000298023224
+  },
+  {
+    "State ID": "04000US50",
+    "State": "Vermont",
+    "Diabetes Prevalence": 0.08799999952316284
+  },
+  {
+    "State ID": "04000US51",
+    "State": "Virginia",
+    "Diabetes Prevalence": 0.10700000077486038
+  },
+  {
+    "State ID": "04000US53",
+    "State": "Washington",
+    "Diabetes Prevalence": 0.09300000220537186
+  },
+  {
+    "State ID": "04000US54",
+    "State": "West Virginia",
+    "Diabetes Prevalence": 0.1509999930858612
+  },
+  {
+    "State ID": "04000US55",
+    "State": "Wisconsin",
+    "Diabetes Prevalence": 0.0949999988079071
+  },
+  {
+    "State ID": "04000US56",
+    "State": "Wyoming",
+    "Diabetes Prevalence": 0.09000000357627869
+  }
+]
