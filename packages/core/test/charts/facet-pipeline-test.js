@@ -1,6 +1,6 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, Pie, Treemap} from "../../es/index.js";
+import {BarChart, Pie, RESET, Treemap} from "../../es/index.js";
 import {
   computeFilteredData,
   computeTimeFilter,
@@ -41,6 +41,29 @@ it("facetConfig: merges into the current config", () => {
   assert.deepStrictEqual(chart.facetConfig(), {});
   chart.facetConfig({columns: 3, sort: ["b", "a"]}).facetConfig({padding: 8});
   assert.deepStrictEqual(chart.facetConfig(), {columns: 3, sort: ["b", "a"], padding: 8});
+});
+
+it("facetConfig: deep-merges into a fresh object, nested values keeping their siblings", () => {
+  const chart = new Treemap().facetConfig({titleConfig: {fontSize: 20, fontWeight: 300}, sort: ["b", "a"]});
+  const before = chart.facetConfig();
+  chart.facetConfig({titleConfig: {fontSize: 9}, sort: ["c"]});
+  const after = chart.facetConfig();
+  assert.notStrictEqual(after, before, "a fresh object");
+  assert.deepStrictEqual(after.titleConfig, {fontSize: 9, fontWeight: 300});
+  assert.deepStrictEqual(after.sort, ["c"], "arrays replace");
+  assert.deepStrictEqual(before.titleConfig, {fontSize: 20, fontWeight: 300}, "the old value is untouched");
+});
+
+it("facetConfig: RESET restores the default, at the top or at any depth", () => {
+  const chart = new Treemap().config({facetConfig: {columns: 2, titleConfig: {fontSize: 20, fontWeight: 300}}});
+  chart.config({facetConfig: {titleConfig: {fontSize: RESET}}});
+  assert.deepStrictEqual(chart.facetConfig(), {columns: 2, titleConfig: {fontWeight: 300}});
+  chart.config({facetConfig: {columns: RESET}});
+  assert.deepStrictEqual(chart.facetConfig(), {titleConfig: {fontWeight: 300}});
+  chart.config({facetConfig: RESET});
+  assert.deepStrictEqual(chart.facetConfig(), {});
+  chart.config({facet: "region"}).config({facet: RESET});
+  assert.strictEqual(chart.facet(), undefined, "facet resets to off");
 });
 
 it("computeFilteredData: rolls up the rows it's given, indexing them in the chart's data", () => {

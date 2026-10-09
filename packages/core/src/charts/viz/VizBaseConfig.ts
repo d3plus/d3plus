@@ -312,9 +312,9 @@ Defaults to an empty array (`[]`).
   facetConfig(): FacetConfig;
   facetConfig(_: FacetConfig): this;
   facetConfig(_?: FacetConfig): this | FacetConfig {
-    return arguments.length
-      ? ((this.schema.facetConfig = assign({}, this.schema.facetConfig, _ as Record<string, unknown>)), this)
-      : this.schema.facetConfig;
+    if (!arguments.length) return this.schema.facetConfig;
+    this.schema.facetConfig = mergeConfigBag(this, "facetConfig", _);
+    return this;
   }
 
   /**
@@ -592,6 +592,7 @@ resolvesReset(
   "attributionStyle",
   "backConfig",
   "colorScaleConfig",
+  "facetConfig",
   "legendConfig",
   "legendInsetConfig",
   "legendTooltip",
