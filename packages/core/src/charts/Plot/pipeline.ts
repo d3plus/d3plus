@@ -19,6 +19,7 @@ import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
+import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
@@ -121,6 +122,7 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
 export const formatPlotData: TransformStage = ({viz}) => {
   if (!viz._filteredData || !viz._filteredData.length) {
     viz._sizeLegendFinal = null;
+    viz._swarm = null;
     return {plotFormattedData: [], plotAxisData: [], x2Exists: false, y2Exists: false};
   }
 
@@ -182,6 +184,12 @@ export const formatPlotData: TransformStage = ({viz}) => {
   const axisData = viz._axisPersist
     ? viz._data.map(prepData).filter(isPlottableRow)
     : formattedData;
+
+  const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));
+  if (swarm) {
+    applySwarmLanes(formattedData, swarm);
+    if (axisData !== formattedData) applySwarmLanes(axisData, swarm);
+  }
 
   viz._sizeScaleD3 = viz._size
     ? plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
@@ -309,7 +317,7 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
   const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = plotConfigScales!;
   const xScale = plotScales!.xScale, yScale = plotScales!.yScale;
 
-  const oppScale = viz.schema.discrete === "x" ? yScale : xScale;
+  const oppScale = viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,
@@ -382,11 +390,11 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const showX =
     viz.schema.discrete === "x"
       ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
-      : viz.schema.width > viz.schema.xCutoff;
+      : viz.schema.width > viz.schema.xCutoff && !swarmHidesAxis(viz, "x");
   const showY =
     viz.schema.discrete === "y"
       ? viz.schema.height > viz._discreteCutoff && viz.schema.height > viz.schema.yCutoff
-      : viz.schema.height > viz.schema.yCutoff;
+      : viz.schema.height > viz.schema.yCutoff && !swarmHidesAxis(viz, "y");
 
   const yC: Record<string, unknown> = {
     data: yData,
@@ -395,7 +403,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     scalePadding: y.padding ? y.padding() : 0,
     ...baselineBreakAxisConfig(viz, "y"),
   };
-  if (!showX && showY) {
+  if (!showX && showY && !viz._swarm) {
     yC.barConfig = {stroke: "transparent"};
     yC.tickSize = 0;
     yC.shapeConfig = {
@@ -510,7 +518,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`]
+      : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
     const domain = viz.schema[`${axis}Domain`]

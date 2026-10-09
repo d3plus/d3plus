@@ -1,6 +1,7 @@
 import {
   AreaPlot,
   BarChart,
+  Beeswarm,
   BoxWhisker,
   BumpChart,
   Chord,
@@ -64,6 +65,7 @@ export {D3plusElement, globalConfig, setGlobalConfig} from "./src/D3plusElement.
 export const CLASSES: Record<string, new (...args: any[]) => any> = {
   AreaPlot,
   BarChart,
+  Beeswarm,
   BoxWhisker,
   BumpChart,
   Chord,

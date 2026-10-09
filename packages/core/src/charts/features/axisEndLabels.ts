@@ -16,6 +16,7 @@ import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 
 import type Axis from "../../components/Axis/Axis.js";
 import TextBox from "../../components/TextBox.js";
+import {swarmHidesAxis} from "../Plot/swarm.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /**
@@ -77,10 +78,13 @@ interface LabelConfig {
 /**
     Whether a Plot labels its x axis with its two ends: the x axis shows, the
     y axis is hidden (the chart is no taller than `yCutoff`), and the user
-    hasn't chosen the x labels with `xConfig.labels`.
+    hasn't chosen the x labels with `xConfig.labels`. A single-lane swarm hides
+    its y axis whatever the chart's height, and keeps a full x axis unless the
+    chart is that short too.
 */
 export function labelsXEnds(viz: Viz, showX: boolean, showY: boolean): boolean {
-  return showX && !showY && viz._xConfig?.labels === undefined;
+  const short = !showY && !(swarmHidesAxis(viz, "y") && viz.schema.height > viz.schema.yCutoff);
+  return showX && short && viz._xConfig?.labels === undefined;
 }
 
 /**

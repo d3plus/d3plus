@@ -51,8 +51,19 @@ export {
   dashArray,
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
+export {
+  closestFreeOffset,
+  fitSwarms,
+  swarmExtent,
+  swarmFitScale,
+  swarmLayout,
+} from "./src/charts/Plot/swarmLayout.js";
+export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
+export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
+export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
+export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";

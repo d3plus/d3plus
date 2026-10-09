@@ -23,9 +23,9 @@ export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string
   return own ? mergeConfig({...base, ...own}, user) : {...base, ...user};
 }
 
-/** The value (non-discrete) axis of a Plot. */
+/** The value (non-discrete) axis of a Plot; a swarm's own value axis when swarming. */
 export const valueAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "x" : "y";
+  viz._swarm ? viz._swarm.axis : viz.schema.discrete === "y" ? "x" : "y";
 
 /**
     The baseline-break settings for one of Plot's primary axes. Only the value

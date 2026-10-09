@@ -1403,6 +1403,42 @@ export const argTypes = assign(
         summary: "boolean | function"
       }
     },
+    swarm: {
+      control: {
+        type: "radio"
+      },
+      defaultValue: "auto",
+      description: "Packs a Plot's circles into a beeswarm: each circle keeps its value along\none axis and is placed beside its neighbors along the other, so none\noverlap. `\"x\"` or `\"y\"` names the value axis; `true` uses x when its\nvalues are numeric, else y; `false` draws a plain scatter. When the other\naxis holds categories (strings), each category gets its own swarm in its\nown band; otherwise that axis's values are ignored and its axis is hidden.\nCircles keep their ids, so switching a chart between `false` and `true`\nanimates each circle between its scatter and swarm position. The default,\n`\"auto\"`, swarms only when every mark is a Circle and every row lacks a y\n(or x) value.",
+      options: [
+        "x",
+        "y",
+        "auto"
+      ],
+      table: {
+        defaultValue: {
+          summary: "auto"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | \"x\" | \"y\" | \"auto\""
+      }
+    },
+    swarmConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Options for `swarm`: `padding`, the minimum pixel gap between circles\n(default `1`), and `overflow`, what happens when a swarm is wider than\nits band — `\"shrink\"` (default) scales every circle down until each\nswarm fits, `\"clamp\"` keeps the sizes and holds outlying circles at the\nband's edge, and `\"visible\"` lets swarms spill past their band.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "object"
+      }
+    },
     tableViewClassName: {
       control: {
         type: "text"
@@ -1861,11 +1897,11 @@ export const argTypes = assign(
     },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"x\" || this._swarm?.cross === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"x\" || this._swarm?.cross === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },
@@ -2007,11 +2043,11 @@ export const argTypes = assign(
     },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
+      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"y\" || this._swarm?.cross === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
       description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete && this.schema.discrete.charAt(0) === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
+          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"y\" || this._swarm?.cross === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
           summary: "function"
         }
       },

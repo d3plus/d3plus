@@ -1,5 +1,6 @@
 export {default as AreaPlot} from "./AreaPlot/index.js";
 export {default as BarChart} from "./BarChart/index.js";
+export {default as Beeswarm} from "./Beeswarm/index.js";
 export {default as BoxWhisker} from "./BoxWhisker/index.js";
 export {default as BumpChart} from "./BumpChart/index.js";
 export {default as Chord} from "./Chord/index.js";

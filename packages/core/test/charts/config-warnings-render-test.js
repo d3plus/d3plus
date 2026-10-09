@@ -49,6 +49,13 @@ const radarLong = radarMetrics([
 const plot = {data: series, groupBy: "id", x: "x", y: "y"};
 const flag = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='3' height='2'%3E%3Crect width='3' height='2' fill='%23c00'/%3E%3C/svg%3E";
 const image = {backgroundImage: flag};
+const swarmRows = Array.from({length: 40}, (_, i) => ({
+  id: `s${i}`,
+  group: ["north", "south"][i % 2],
+  value: i % 7 === 0 ? 80 + i : (i * 37) % 40,
+  size: 1 + (i % 5),
+}));
+const swarm = {data: swarmRows, groupBy: "id", x: "value"};
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
 const population = ["0-9", "10-19", "20-29"].flatMap((age, b) => [2020, 2021].flatMap(year => [
   {age, sex: "Male", area: "Urban", pop: 60 - b * 10, before: 55, year},
@@ -67,6 +74,11 @@ const charts = [
   ["AreaPlot", plot],
   ["AreaPlot", {...plot, confidence: ["lci", "hci"]}],
   ["BarChart", {...plot, ...titled}],
+  ["Beeswarm", swarm],
+  ["Beeswarm", {...swarm, y: "group", color: "group", ...titled}],
+  ["Beeswarm", {...swarm, x: "group", y: "value", size: "size", swarmConfig: {overflow: "clamp"}}],
+  ["Beeswarm", {...swarm, y: "group", xBreak: [45, 75]}],
+  ["Beeswarm", {...swarm, height: 120}],
   ["BarChart", {...plot, stacked: true, time: "year"}],
   ["BoxWhisker", {data: series, groupBy: ["id", "y"], x: "id", y: "y"}],
   ["BumpChart", {...plot, discrete: "x"}],
@@ -90,6 +102,7 @@ const charts = [
   ["Pie", {data: tree, groupBy: "id", value: "value"}],
   ["Plot", {...plot, size: "y"}],
   ["Plot", {data: series.map(d => ({...d, kind: d.id === "alpha" ? "odd" : "even", key: `${d.id}-${d.year}`})), groupBy: "key", color: "kind", x: "x", y: "y"}],
+  ["Plot", {...plot, swarm: true, shapeConfig: {Circle: {trail: false}}}],
   ["Priestley", {data: [{id: "a", start: 2004, end: 2007}, {id: "b", start: 2005, end: 2010}], start: "start", end: "end"}],
   ["Pyramid", {...pyramid, ...titled}],
   ["Pyramid", {...pyramid, categoryPosition: "left"}],

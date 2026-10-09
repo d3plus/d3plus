@@ -31,6 +31,8 @@ const plotSchema = [
   {key: "sizeMin", coerce: "identity" as const},
   {key: "sizeScale", coerce: "identity" as const},
   {key: "stacked", coerce: "identity" as const},
+  {key: "swarm", coerce: "identity" as const, default: "auto"},
+  {key: "swarmConfig", merge: true, factory: () => ({padding: 1, overflow: "shrink"})},
   {key: "tooltipShared", coerce: "identity" as const},
   {key: "xBreak", coerce: "identity" as const},
   {key: "xCutoff", coerce: "identity" as const},
@@ -180,7 +182,7 @@ export default class Plot extends Viz {
     this._xConfig = {
       gridConfig: {
         stroke: (d: {id: string}) => {
-          if (this.schema.discrete && this.schema.discrete.charAt(0) === "x")
+          if (this.schema.discrete?.charAt(0) === "x" || this._swarm?.cross === "x")
             return "transparent";
           const range = this._xAxis.range();
           const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
@@ -203,7 +205,7 @@ export default class Plot extends Viz {
     this._yConfig = {
       gridConfig: {
         stroke: (d: {id: string}) => {
-          if (this.schema.discrete && this.schema.discrete.charAt(0) === "y")
+          if (this.schema.discrete?.charAt(0) === "y" || this._swarm?.cross === "y")
             return "transparent";
           const range = this._yAxis.range();
           const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);

@@ -754,6 +754,27 @@ export interface D3plusConfig {
     | ((d: DataPoint) => unknown);
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
+  /**
+      Packs a Plot's circles into a beeswarm: each circle keeps its value along
+      one axis and is placed beside its neighbors along the other, so none
+      overlap. `"x"` or `"y"` names the value axis; `true` uses x when its
+      values are numeric, else y; `false` draws a plain scatter. When the other
+      axis holds categories (strings), each category gets its own swarm in its
+      own band; otherwise that axis's values are ignored and its axis is hidden.
+      Circles keep their ids, so switching a chart between `false` and `true`
+      animates each circle between its scatter and swarm position. The default,
+      `"auto"`, swarms only when every mark is a Circle and every row lacks a y
+      (or x) value.
+  */
+  swarm?: boolean | "auto" | "x" | "y";
+  /**
+      Options for `swarm`: `padding`, the minimum pixel gap between circles
+      (default `1`), and `overflow`, what happens when a swarm is wider than
+      its band — `"shrink"` (default) scales every circle down until each
+      swarm fits, `"clamp"` keeps the sizes and holds outlying circles at the
+      band's edge, and `"visible"` lets swarms spill past their band.
+  */
+  swarmConfig?: {padding?: number; overflow?: "shrink" | "clamp" | "visible"};
   /** Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   subtitlePadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for treemaps and aggregation. */

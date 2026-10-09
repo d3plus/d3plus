@@ -23,6 +23,7 @@
 
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
+import type {SwarmState} from "../Plot/swarm.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
@@ -391,6 +392,8 @@ export interface VizInstance {
   _trendLineConfig?: Record<string, unknown>;
   /** The trend lines fit by `computePlotTrendFits` for the current draw. */
   _trendFits?: TrendFit[];
+  /** The swarm resolved by `formatPlotData` for the current draw, or null when off. */
+  _swarm?: SwarmState | null;
   _xCutoff?: number;
   _yCutoff?: number;
   _discreteCutoff?: number;

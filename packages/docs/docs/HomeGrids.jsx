@@ -4,6 +4,7 @@ import {useTheme} from "storybook/theming";
 
 const charts = [
   ["Bar Chart", "barchart"],
+  ["Beeswarm", "beeswarm"],
   ["Box & Whisker", "boxwhisker"],
   ["Bump Chart", "bumpchart"],
   ["Chord", "chord"],
