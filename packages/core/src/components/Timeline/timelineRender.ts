@@ -10,6 +10,7 @@ import type {GroupNode} from "@d3plus/render";
 import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
+import {parseTimeValues} from "../Axis/timeValues.js";
 import type {VizContext} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
@@ -47,8 +48,8 @@ export function prepareTicks(tl: Timeline): {
   ticks: unknown[];
   tickFormat: (d: Date) => string;
 } {
-  if (tl.schema.ticks) tl.schema.ticks = (tl.schema.ticks as (string | number | false | undefined)[]).map(date);
-  if (tl._data) tl._data = (tl._data as (string | number | false | undefined)[]).map(date);
+  if (tl.schema.ticks) tl.schema.ticks = parseTimeValues(tl.schema.ticks);
+  if (tl._data) tl._data = parseTimeValues(tl._data);
 
   let ticks = tl.schema.ticks ? tl.schema.ticks : tl.schema.domain.map(date);
   if (!tl.schema.ticks) {

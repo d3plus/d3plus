@@ -8,7 +8,6 @@ import {max, range as d3Range, min, sum} from "d3-array";
 import * as scales from "d3-scale";
 import {timeFormat} from "d3-time-format";
 
-import {date} from "@d3plus/dom";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import {formatLocale} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
@@ -16,6 +15,7 @@ import {closest} from "@d3plus/math";
 import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
+import {axisTimeDomain, parseTimeValues} from "./timeValues.js";
 import type {D3Scale} from "../../utils/index.js";
 
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
@@ -50,12 +50,9 @@ export function buildTickFormat(
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          const refData = (
-            (axis._data.length ? axis._data : axis.schema.domain) as unknown[]
-          )
-            .map((v: unknown) => date(v as string | number | false))
-            .filter((d: Date | false | undefined): d is Date => d instanceof Date)
-            .sort((a: Date, b: Date) => +a - +b);
+          const refData = parseTimeValues(
+            axis._scaleData.length ? axis._scaleData : axis.schema.domain,
+          ).sort((a: Date, b: Date) => +a - +b);
           return formatDate(d as Date, refData, timeFormat).replace(
             /^Q/g,
             timeLocaleObj.quarter as string,
@@ -262,7 +259,7 @@ function applyRounding(axis: Axis, initialDomain: number[]): void {
 /** Splits a log scale into positive/negative sub-scales when it spans zero. */
 function applyLogScaleSplit(axis: Axis): void {
   const domain = axis._d3Scale!.domain() as number[];
-  const data = axis._data as number[];
+  const data = axis._scaleData as number[];
   if (domain[0] === 0) {
     const smallestNumber = min([min(data)!, Math.abs(domain[1])]);
     domain[0] =
@@ -337,7 +334,7 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   let ticks = (
     axis.schema.ticks
       ? axis.schema.scale === "time"
-        ? (axis.schema.ticks as (string | number | false | undefined)[]).map(date)
+        ? parseTimeValues(axis.schema.ticks)
         : axis.schema.ticks
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getTicks()
@@ -346,7 +343,7 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   let labels = (
     axis.schema.labels
       ? axis.schema.scale === "time"
-        ? (axis.schema.labels as (string | number | false | undefined)[]).map(date)
+        ? parseTimeValues(axis.schema.labels)
         : axis.schema.labels
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getLabels()
@@ -429,7 +426,7 @@ export function setAxisScale(
 
   axis._d3Scale = (scales as unknown as Record<string, () => D3Scale>)[scale]()
     .domain(
-      axis.schema.scale === "time" ? initialDomain.map(date) : initialDomain,
+      axis.schema.scale === "time" ? axisTimeDomain(axis) : initialDomain,
     )
     .range(range);
 
