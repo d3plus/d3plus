@@ -159,6 +159,7 @@ const charts = [
   ["Sunburst", {data: tree, groupBy: ["parent", "id"], sum: "value"}],
   ["Sunburst", {...sunburst, title: "Title", subtitle: "Subtitle", total: "size"}],
   ["Sunburst", {...sunburst, shade: false, threshold: 0.05, thresholdName: "Files"}],
+  ["Sunburst", {...sunburst, groupBy: ["module", "file"], facet: "area"}],
   ["Sunburst", {...sunburst, ringSize: "area", padPixel: 2, innerRadius: 0, shadeConfig: {step: 0.3, max: 0.5}}],
   ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
