@@ -11,6 +11,7 @@ import {enterStart, reconcileExit} from "./svgFlip.js";
 import {clockedTransition, trackTransition} from "./svgClock.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
+import {configureTexture} from "../textureConfig.js";
 import {
   applyOverlayToElement,
   createOverlayHost,
@@ -280,13 +281,7 @@ export default class SvgRenderer implements Renderer {
       const textureClass = config.texture;
       delete (config as Record<string, unknown>).texture;
       const t = textures[textureClass]();
-      for (const k in config) {
-        if (k in t) {
-          const v = config[k];
-          if (Array.isArray(v)) t[k](...v);
-          else t[k](v);
-        }
-      }
+      configureTexture(t, config);
       select(this._svg).call(t);
       def = t;
       this._textureDefs.set(key, def);
