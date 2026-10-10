@@ -42,7 +42,7 @@ import {
   type AxisRestore,
   type CategoryPosition,
 } from "./gutter.js";
-import {pyramidScene} from "./scene.js";
+import {pyramidPanelScene, pyramidScene, type PyramidSceneInput} from "./scene.js";
 import {pyramidStackOrder} from "./stackOrder.js";
 
 /** Per-instance state kept on `viz.ctx.pyramid`. */
@@ -268,6 +268,22 @@ function tooltipRows(viz: VizInstance, d: DataPoint, i: number): [string, string
   return rows;
 }
 
+/** What `pyramidScene` draws for the chart (or small-multiples panel) just drawn. */
+function sceneInput(viz: VizInstance): PyramidSceneInput {
+  const state = pyramidState(viz);
+  return {
+    sides: state.sides,
+    labels: sideLabels(viz, state.sides),
+    side: sideOf(viz),
+    comparison: viz.schema.comparison as RowAccessor | undefined,
+    divisor: viz.schema.percent ? state.comparisonTotal : 1,
+    titleBox: state.titleBox,
+    showTitles: !!viz.schema.sideTitles,
+    inset: state.inset,
+    gutter: state.inset ? edges => gutterLabels(viz, state.labelBox, edges) : undefined,
+  };
+}
+
 export const pyramidDef: ChartDefinition = {
   name: "Pyramid",
   paintDriven: true,
@@ -313,20 +329,14 @@ export const pyramidDef: ChartDefinition = {
     };
     const toScene = (viz.toScene as unknown as () => Scene).bind(viz);
     (viz as unknown as {toScene: () => Scene}).toScene = () => {
-      const state = pyramidState(viz);
-      const comparison = viz.schema.comparison as RowAccessor | undefined;
-      return pyramidScene(viz, toScene(), {
-        sides: state.sides,
-        labels: sideLabels(viz, state.sides),
-        side: sideOf(viz),
-        comparison,
-        divisor: viz.schema.percent ? state.comparisonTotal : 1,
-        titleBox: state.titleBox,
-        showTitles: !!viz.schema.sideTitles,
-        inset: state.inset,
-        gutter: state.inset ? edges => gutterLabels(viz, state.labelBox, edges) : undefined,
-      });
+      const scene = toScene();
+      // Small multiples add these to each panel as it draws (see `facet` below).
+      return viz._facetPanels ? scene : pyramidScene(viz, scene, sceneInput(viz));
     };
+  },
+
+  facet: {
+    scene: (viz, nodes) => pyramidPanelScene(viz, nodes, sceneInput(viz)),
   },
 
   ctx: {},

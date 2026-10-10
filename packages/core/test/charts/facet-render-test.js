@@ -498,3 +498,34 @@ it("sharePlotScales spans every panel's stacks and categories", async function (
   assert.strictEqual(out.y[1], Math.max(...out.totals), "the tallest stack in any panel");
   assert.ok(Math.max(...out.padded) >= out.y[1], "the padded domain still covers it");
 });
+
+it("a chart's scene hook adds its own nodes to every panel as it draws", async function () {
+  this.timeout(60000);
+  const out = await page(`
+    const chart = new d3plus.Treemap().select("#viz").data(rows)
+      .groupBy("product").sum("sales").facet("region").duration(0);
+    const calls = [];
+    chart._facetHooks = () => ({
+      scene: (viz, nodes) => {
+        calls.push({rows: viz._filteredData.length, step: viz._facetStep, chart: nodes === viz._chartScene});
+        return [...nodes, {type: "group", key: "extra", children: []}];
+      },
+    });
+    await done(chart);
+    const extras = [];
+    walk(chart._chartScene, n => {
+      if (String(n.key).endsWith("/extra")) extras.push(n.key);
+    });
+    return {
+      calls,
+      extras,
+      kept: chart._facetPanels.map(p => p.scene.some(n => n.key === "extra")),
+      zoomShapes: chart._zoomShapes.some(n => n.key === "extra"),
+    };
+  `);
+  assert.strictEqual(out.calls.length, 4, "once per panel");
+  out.calls.forEach(c => assert.deepStrictEqual(c, {rows: 4, step: "panel", chart: true}, "with the panel's draw (its four products) in place"));
+  assert.deepStrictEqual(out.extras, ["facet-East/extra", "facet-North/extra", "facet-South/extra", "facet-West/extra"]);
+  assert.deepStrictEqual(out.kept, [true, true, true, true], "each panel's state keeps the nodes it composes");
+  assert.strictEqual(out.zoomShapes, false, "the added nodes are not data shapes");
+});
