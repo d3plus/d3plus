@@ -12,6 +12,7 @@
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
+export {applyFunnelLayout} from "./src/charts/Funnel/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
@@ -67,10 +68,46 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  conversionRates,
+  monotoneSlopes,
+  profileKnots,
+  profileSlice,
+  segmentWidth,
+  sliceExtent,
+  slicePath,
+  stageSpans,
+  stageWidths,
+} from "./src/charts/Funnel/funnelGeometry.js";
+export type {
+  FunnelCurve,
+  FunnelOrient,
+  ProfileKnot,
+  ProfilePoint,
+  StageSpan,
+} from "./src/charts/Funnel/funnelGeometry.js";
+export {
+  conversionModes,
+  fitFontSize,
+  lineBoxes,
+  planLabel,
+} from "./src/charts/Funnel/funnelLabels.js";
+export type {LabelBox, LabelPlan, LabelSizing} from "./src/charts/Funnel/funnelLabels.js";
+export {funnelCurve, funnelOrient} from "./src/charts/Funnel/applyLayout.js";
+export type {FunnelShared, FunnelStage} from "./src/charts/Funnel/applyLayout.js";
+export {funnelEmit, neckPaint, stageAria} from "./src/charts/Funnel/emit.js";
+export {
+  funnelLabelNodes,
+  percentText,
+  stageBoxes,
+  stageLines,
+} from "./src/charts/Funnel/labelNodes.js";
+export {funnelTooltipRows} from "./src/charts/Funnel/index.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {funnelDef} from "./src/charts/Funnel/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";

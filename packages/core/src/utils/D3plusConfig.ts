@@ -518,11 +518,19 @@ export interface D3plusConfig {
       keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
+  /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
+  connector?: boolean;
+  /** Funnel: paint for the necks between stages (`fill`, `opacity`, `stroke`, `strokeWidth`), each optionally a function of the stage the neck leads into. */
+  connectorConfig?: Record<string, unknown>;
+  /** Funnel: the conversion rates each stage's label shows: `"first"`, `"previous"`, `"both"` (or `true`), or `false`. */
+  conversion?: boolean | "first" | "previous" | "both" | ("first" | "previous")[];
   /**
       Paint for the shared tooltip's crosshair guide line (`stroke`,
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
   */
   crosshairConfig?: Record<string, unknown>;
+  /** Funnel: how the width changes between stages, `"linear"` (straight sides) or `"smooth"` (curved). */
+  curve?: "linear" | "smooth";
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /** Active depth level for nested groupings. */
@@ -754,6 +762,8 @@ export interface D3plusConfig {
       width.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
+  stagePadding?: number;
   /** Whether to stack series. */
   stacked?: boolean;
   /**
@@ -827,6 +837,8 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Funnel: narrows each stage toward the next stage's width, drawing a continuous funnel instead of flat bars. */
+  taper?: boolean;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
@@ -888,6 +900,8 @@ export interface D3plusConfig {
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Funnel and Gauge: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
+  valueFormat?: (value: number, d: DataPoint) => string;
   /** Overall width of the visualization in pixels. */
   width?: number;
   /** Key, index, or accessor function for x-axis values. */

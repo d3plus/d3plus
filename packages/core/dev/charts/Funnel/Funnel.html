@@ -1,0 +1,166 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Funnel</title>
+  <meta name="description" content="Funnel stages with necks, conversion labels, tapered and smooth outlines, horizontal orientation, groupBy color, and small multiples.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 20px;
+    }
+
+    .viz {
+      height: 400px;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="viz" id="basic"></div>
+  <div class="viz" id="conversion"></div>
+  <div class="viz" id="taper"></div>
+  <div class="viz" id="smooth"></div>
+  <div class="viz wide" id="horizontal"></div>
+  <div class="viz" id="phases"></div>
+  <div class="viz" id="update"></div>
+  <div class="viz wide" id="facet"></div>
+</body>
+
+<script>
+
+  var stages = [
+    {id: "Visited Site", value: 12400},
+    {id: "Viewed Pricing", value: 6900},
+    {id: "Started Trial", value: 3100},
+    {id: "Activated", value: 1850},
+    {id: "Subscribed", value: 760}
+  ];
+
+  var phases = [
+    {phase: "Awareness", stage: "Impressions", value: 52000},
+    {phase: "Awareness", stage: "Clicks", value: 21000},
+    {phase: "Consideration", stage: "Product Views", value: 11800},
+    {phase: "Consideration", stage: "Added to Cart", value: 4200},
+    {phase: "Conversion", stage: "Checkout", value: 2600},
+    {phase: "Conversion", stage: "Purchased", value: 1900}
+  ];
+
+  var channels = [];
+  [
+    ["Search", [9800, 5200, 2600, 1500, 690]],
+    ["Social", [14200, 4900, 1700, 820, 240]],
+    ["Email", [4300, 3100, 1900, 1350, 720]]
+  ].forEach(function(row) {
+    row[1].forEach(function(value, i) {
+      channels.push({channel: row[0], id: stages[i].id, value: value});
+    });
+  });
+
+  new d3plus.Funnel()
+    .select("#basic")
+    .config({
+      data: stages,
+      title: "Stages with straight necks"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#conversion")
+    .config({
+      data: stages,
+      conversion: "both",
+      curve: "smooth",
+      title: "Curved necks, conversion \"both\" (lines drop to fit)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#taper")
+    .config({
+      data: stages,
+      taper: true,
+      stagePadding: 0.06,
+      connector: false,
+      conversion: "first",
+      title: "Straight-sided funnel (taper)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#smooth")
+    .config({
+      data: stages,
+      taper: true,
+      curve: "smooth",
+      stagePadding: 0.04,
+      conversion: "previous",
+      title: "Smooth funnel (taper + smooth)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#horizontal")
+    .config({
+      data: stages,
+      orient: "horizontal",
+      conversion: "first",
+      title: "Horizontal"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#phases")
+    .config({
+      data: phases,
+      groupBy: ["phase", "stage"],
+      conversion: "previous",
+      connectorConfig: {fill: "#ced4da", opacity: 0.6},
+      title: "Colored by the first groupBy level"
+    })
+    .render();
+
+  var update = new d3plus.Funnel()
+    .select("#update")
+    .config({
+      data: stages,
+      conversion: "first",
+      title: "Updates every few seconds"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#facet")
+    .config({
+      data: channels,
+      facet: "channel",
+      conversion: "first",
+      title: "Small multiples by channel"
+    })
+    .render();
+
+  setInterval(function() {
+    var value = 12400;
+    update.data(stages.map(function(d, i) {
+      if (i) value = Math.round(value * (0.3 + Math.random() * 0.6));
+      return {id: d.id, value: value};
+    })).render();
+  }, 3000);
+
+</script>
+
+</html>
