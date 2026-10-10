@@ -76,10 +76,15 @@ export {
 } from "./src/charts/Lollipop/stemLayout.js";
 export type {BarBox, StemLayout, StemPoint} from "./src/charts/Lollipop/stemLayout.js";
 export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
+export {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "./src/charts/Dumbbell/emit.js";
+export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
+export {categoryGaps, gapComparator, syncGapSort} from "./src/charts/Dumbbell/gapSort.js";
+export type {CategoryComparator, GapSort, GapSortState} from "./src/charts/Dumbbell/gapSort.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";

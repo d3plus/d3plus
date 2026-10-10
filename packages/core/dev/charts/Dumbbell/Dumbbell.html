@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Dumbbell</title>
+    <meta name="description" content="Dumbbell variants: horizontal two-series dumbbells, sorted by gap both ways, vertical with three points per category, styled connectors, and small multiples on canvas.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 480px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid">
+      <div><h3>Horizontal (default)</h3><div class="viz" id="basic"></div></div>
+      <div><h3>gapSort("descending")</h3><div class="viz" id="sorted"></div></div>
+      <div><h3>gapSort("ascending"), styled connectors</h3><div class="viz" id="styled"></div></div>
+      <div><h3>Vertical (discrete: "x"), three points per category</h3><div class="viz" id="vertical"></div></div>
+      <div><h3>Small multiples (facet: "continent"), canvas</h3><div class="viz" id="facet"></div></div>
+    </div>
+
+  </body>
+
+  <script>
+
+    const countries = [
+      ["Japan", "Asia", 81.1, 84.5],
+      ["Switzerland", "Europe", 79.7, 83.9],
+      ["Australia", "Oceania", 79.2, 83.3],
+      ["United Kingdom", "Europe", 77.7, 80.7],
+      ["United States", "Americas", 76.6, 76.4],
+      ["China", "Asia", 71.4, 78.2],
+      ["Brazil", "Americas", 70.1, 72.8],
+      ["Russia", "Europe", 65.3, 69.4],
+      ["India", "Asia", 62.7, 67.2],
+      ["South Africa", "Africa", 55.9, 62.3],
+      ["Ethiopia", "Africa", 50.7, 65.0],
+      ["Nigeria", "Africa", 46.3, 52.7],
+    ];
+    const life = [];
+    countries.forEach(([country, continent, before, after]) => {
+      life.push({country, continent, year: "2000", "Life Expectancy": before});
+      life.push({country, continent, year: "2021", "Life Expectancy": after});
+    });
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const lows = [-3, -2, 2, 7, 12, 17, 20, 19, 15, 9, 4, -1];
+    const highs = [4, 6, 11, 17, 22, 27, 30, 29, 25, 18, 11, 6];
+    const temperatures = [];
+    months.forEach((month, i) => {
+      temperatures.push({month, stat: "Low", "°C": lows[i]});
+      temperatures.push({month, stat: "Mean", "°C": Math.round((lows[i] + highs[i]) / 2 * 10) / 10});
+      temperatures.push({month, stat: "High", "°C": highs[i]});
+    });
+
+    new d3plus.Dumbbell()
+      .select("#basic")
+      .data(life)
+      .groupBy("year")
+      .x("Life Expectancy")
+      .y("country")
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#sorted")
+      .data(life)
+      .groupBy("year")
+      .x("Life Expectancy")
+      .y("country")
+      .gapSort("descending")
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#styled")
+      .data(life)
+      .groupBy("year")
+      .x("Life Expectancy")
+      .y("country")
+      .gapSort("ascending")
+      .shapeConfig({Circle: {r: 7}, Line: {stroke: "#adb5bd", strokeWidth: 8, strokeLinecap: "round"}})
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#vertical")
+      .data(temperatures)
+      .groupBy("stat")
+      .discrete("x")
+      .x("month")
+      .y("°C")
+      .color(d => ({Low: "#4c6ef5", Mean: "#868e96", High: "#f03e3e"})[d.stat])
+      .render();
+
+    new d3plus.Dumbbell()
+      .select("#facet")
+      .renderer("canvas")
+      .data(life.filter(d => d.continent !== "Oceania"))
+      .groupBy("year")
+      .facet("continent")
+      .facetConfig({scales: "independent"})
+      .x("Life Expectancy")
+      .y("country")
+      .gapSort("descending")
+      .render();
+
+  </script>
+
+</html>
