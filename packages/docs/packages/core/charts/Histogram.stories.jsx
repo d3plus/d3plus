@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a histogram from an array of raw observations.",
+        component: "Creates a histogram from an array of raw observations: the value of each\nrow is binned along a linear x axis, and bar heights show each bin's\ncount (or density / relative frequency via binNormalize). Series set by\ngroupBy share bin edges and are stacked.",
       },
     },
   }
 };
 
 const Template = (args) => <Histogram config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

@@ -68,7 +68,17 @@ export const pieDef: DataDrivenChartDefinition = {
   },
 
   fields: [
+    /**
+        The inner radius of the Pie, in pixels, or a function that returns one;
+        a nonzero value makes a Donut.
+        @type {number | function}
+    */
     {key: "innerRadius", default: 0},
+    /**
+        The padding between each arc, in radians. When set, takes precedence
+        over `padPixel`.
+        @type {number}
+    */
     {key: "padAngle"},
     // Not used for the default wedge-to-wedge gap (see shapeConfig's
     // stroke/strokeWidth below) — an angular gap's LINEAR width is
@@ -76,12 +86,25 @@ export const pieDef: DataDrivenChartDefinition = {
     // approaches the pie's center, which a full (non-donut) Pie always
     // touches. Left at 0; still available for a user who explicitly wants
     // the angular look anyway.
+    /**
+        The padding between each arc, in pixels, converted to an angle at the
+        outer radius. Ignored when `padAngle` is set.
+    */
     {key: "padPixel", default: 0},
+    /**
+        The accessor function or key for each data point's value, which sizes
+        its slice.
+        @type {string | function}
+    */
     {
       key: "value",
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        A comparator function that sorts the Pie slices. Defaults to descending
+        by `value`.
+    */
     {
       key: "sort",
       factory: (viz: VizInstance) => {

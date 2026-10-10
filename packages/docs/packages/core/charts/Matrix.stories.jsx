@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a simple rows/columns Matrix view of any dataset. See [this example](https://d3plus.org/examples/d3plus-matrix/getting-started/) for help getting started using the Matrix class.",
+        component: "Creates a simple rows/columns Matrix view of any dataset.",
       },
     },
   }

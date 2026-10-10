@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a priestley timeline based on an array of data.",
+        component: "Creates a Priestley timeline based on an array of data.",
       },
     },
   }

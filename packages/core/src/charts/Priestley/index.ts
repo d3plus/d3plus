@@ -43,13 +43,28 @@ export const priestleyDef: ChartDefinition = {
   },
 
   fields: [
+    /**
+        The [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) of the
+        band scale that sets each bar's height: the space between neighboring bars,
+        as a ratio from 0 to 1.
+    */
     {key: "paddingInner", default: 0.05},
+    /**
+        The [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) of the
+        band scale that sets each bar's height: the space before the first bar and
+        after the last, as a ratio from 0 to 1.
+    */
     {key: "paddingOuter", default: 0.05},
     {
       key: "axisConfig",
       merge: true,
       default: {scale: "time"},
     },
+    /**
+        Accessor function or string key for the end date of each data point. A
+        key also aggregates grouped rows by their latest end.
+        @type {string | function}
+    */
     {
       key: "end",
       default: accessor("end"),
@@ -60,6 +75,11 @@ export const priestleyDef: ChartDefinition = {
         if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = max;
       },
     },
+    /**
+        Accessor function or string key for the start date of each data point. A
+        key also aggregates grouped rows by their earliest start.
+        @type {string | function}
+    */
     {
       key: "start",
       default: accessor("start"),

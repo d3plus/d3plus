@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Uses the [d3 treemap layout](https://github.com/mbostock/d3/wiki/Treemap-Layout) to creates SVG rectangles based on an array of data. See [this example](https://d3plus.org/examples/d3plus-hierarchy/getting-started/) for help getting started using the treemap generator.",
+        component: "Uses the d3 treemap layout to create SVG rectangles based on an array of data.",
       },
     },
   }

@@ -78,6 +78,9 @@ export function typeToNames(type) {
     type.typeArguments?.length
   )
     return [...typeToNames(type.typeArguments[0]), "Function"];
+  // `DataPointAccessor<T>` — a data key or a `(datum) => T` accessor.
+  if (type.type === "reference" && type.name === "DataPointAccessor")
+    return ["string", "Function"];
   if (type.type === "union") {
     return type.types.map(t => typeToString(t));
   }

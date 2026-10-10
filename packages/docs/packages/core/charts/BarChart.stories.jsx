@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a bar chart based on an array of data.",
+        component: "Creates a bar chart based on an array of data. When stacked, each bar's\nfraction of its stack total is available to tooltip accessors as share\n(unless the data has its own share field).",
       },
     },
   }

@@ -15,109 +15,237 @@ export const argTypes = assign(
    * overrides any defaults that have been changed in Chord
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(zoom.*|shape)$/))
+    .filter(k => !k.match(/^(shape)$/))
     .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * Chord-specific methods
    */
-
+  
   {
     arcThickness: {
-      control: {type: "number"},
+      control: {
+        type: "number"
+      },
       defaultValue: 20,
       description: "The pixel thickness of the group arcs around the circle.",
-      table: {defaultValue: {summary: 20}},
-      type: {required: false, summary: "number"}
-    },
-    arrows: {
-      control: {},
-      defaultValue: false,
-      description: "Toggles directional arrowheads on the ribbons. Accepts `false`, `true` (equivalent to `\"target\"`), `\"target\"`, `\"source\"`, `\"both\"`, or an accessor function returning one of those per link. A truthy value renders each ribbon with a `d3.ribbonArrow` head on its target end.",
-      table: {defaultValue: {summary: false}},
-      type: {required: false, summary: "boolean | string | function"}
+      table: {
+        defaultValue: {
+          summary: "20"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
     },
     arrowSize: {
-      control: {},
-      description: "The size of the ribbon arrowheads, as a pixel Number or an accessor function. When unset, an automatic size based on the arc thickness is used.",
-      table: {defaultValue: {summary: "undefined"}},
-      type: {required: false, summary: "number | function"}
+      control: {
+        type: "number"
+      },
+      description: "The pixel size of the ribbon arrowheads. When unset, the size is derived from the arc thickness.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    arrows: {
+      control: {
+        type: "select"
+      },
+      defaultValue: false,
+      description: "Toggles directional arrowheads on the ribbons: `false`, `true`, `\"target\"`, `\"both\"`, or an accessor function. Any of these but `false` draws each ribbon with a `d3.ribbonArrow` head on its target end, the only end d3's ribbonArrow can draw; `\"source\"` alone draws no arrows.",
+      options: [
+        true,
+        false,
+        "target",
+        "source",
+        "both"
+      ],
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | \"target\" | \"source\" | \"both\" | function"
+      }
     },
     chordOpacity: {
-      control: {type: "number"},
+      control: {
+        type: "number"
+      },
       defaultValue: 0.6,
       description: "The fill opacity of each ribbon (chord).",
-      table: {defaultValue: {summary: 0.6}},
-      type: {required: false, summary: "number"}
+      table: {
+        defaultValue: {
+          summary: "0.6"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
     },
     directed: {
-      control: {type: "boolean"},
+      control: {
+        type: "boolean"
+      },
       defaultValue: true,
-      description: "When `true` (default), uses `d3.chordDirected` so each `source` → `target` flow is a distinct ribbon colored by its source group. Set to `false` to use the classic undirected `d3.chord` layout, which merges both directions of a pair into a single ribbon (useful for symmetric/co-occurrence data).",
-      table: {defaultValue: {summary: true}},
-      type: {required: false, summary: "boolean"}
+      description: "When `true` (default), uses `d3.chordDirected`, so each `source` → `target` flow is a distinct ribbon colored by its source group. Set to `false` to use the undirected `d3.chord` layout, which merges both directions of a pair into a single ribbon (useful for symmetric or co-occurrence data).",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
     },
     links: {
-      control: {},
-      defaultValue: "[  ]",
-      description: "A predefined *Array* of edges that connect the nodes. The `source` and `target` keys in each link map to node ids (see [linksSource](#linksSource)/[linksTarget](#linksTarget)). The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded. An optional formatting function can be passed as a second argument.",
-      table: {defaultValue: {summary: "[  ]"}},
-      type: {required: true, summary: "any"}
+      control: {
+        type: "object"
+      },
+      description: "The edges that connect the nodes. The `source` and `target` keys in each link (see `linksSource`/`linksTarget`) map to node ids. Accepts an *Array* of data or a *String* filepath or URL to load; an optional formatting function can be passed as a second argument.",
+      table: {
+        defaultValue: {
+          summary: "\"links\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "DataPoint[] | string"
+      }
     },
     linksSource: {
-      control: {type: "text"},
+      control: {
+        type: "text"
+      },
       defaultValue: "source",
       description: "The key used in each link *Object* to reference the source node's id.",
-      table: {defaultValue: {summary: "source"}},
-      type: {required: false, summary: "string"}
+      table: {
+        defaultValue: {
+          summary: "source"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
     },
     linksTarget: {
-      control: {type: "text"},
+      control: {
+        type: "text"
+      },
       defaultValue: "target",
       description: "The key used in each link *Object* to reference the target node's id.",
-      table: {defaultValue: {summary: "target"}},
-      type: {required: false, summary: "string"}
-    },
-    nodeId: {
-      control: {},
-      defaultValue: "id",
-      description: "The accessor function or key used to determine the unique id of each node. Link `source`/`target` values are matched against these ids.",
-      table: {defaultValue: {summary: "id"}},
-      type: {required: false, summary: "string | function"}
-    },
-    nodes: {
-      control: {},
-      defaultValue: "[  ]",
-      description: "The list of nodes (groups) drawn as arcs around the circle. When omitted, the nodes are inferred from the unique `source`/`target` ids in the [links](#links). The value passed should either be an *Array* of data or a *String* representing a filepath or URL to be loaded.",
-      table: {defaultValue: {summary: "[  ]"}},
-      type: {required: false, summary: "any"}
+      table: {
+        defaultValue: {
+          summary: "target"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string"
+      }
     },
     noDataMessage: {
-      control: {type: "boolean"},
       defaultValue: false,
-      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
-      table: {defaultValue: {summary: false}},
-      type: {required: false, summary: "boolean"}
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      }
+    },
+    nodeId: {
+      control: {
+        type: "text"
+      },
+      description: "The accessor function or key that gives each node's unique id. Link `source`/`target` values are matched against these ids.",
+      table: {
+        defaultValue: {
+          summary: "\"id\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
+    },
+    nodes: {
+      control: {
+        type: "object"
+      },
+      description: "The nodes (groups) drawn as arcs around the circle. When omitted, the nodes are inferred from the unique `source`/`target` ids in `links`. Accepts an *Array* of data or a *String* filepath or URL to load; an optional formatting function can be passed as a second argument.",
+      table: {
+        defaultValue: {
+          summary: "\"nodes\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "DataPoint[] | string"
+      }
     },
     padAngle: {
-      control: {type: "number"},
-      description: "The angular padding (in radians) between adjacent group arcs. When unset, the padding is derived from [padPixel](#padPixel).",
-      table: {defaultValue: {summary: "undefined"}},
-      type: {required: false, summary: "number"}
+      control: {
+        type: "number"
+      },
+      description: "The angular padding, in radians, between adjacent group arcs. When unset, the padding is derived from `padPixel`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
     },
     padPixel: {
-      control: {type: "number"},
+      control: {
+        type: "number"
+      },
       defaultValue: 2,
-      description: "The approximate pixel gap between adjacent group arcs, converted to an angle based on the chart radius. Ignored when [padAngle](#padAngle) is set.",
-      table: {defaultValue: {summary: 2}},
-      type: {required: false, summary: "number"}
+      description: "The approximate pixel gap between adjacent group arcs, converted to an angle from the chart radius. Ignored when `padAngle` is set.",
+      table: {
+        defaultValue: {
+          summary: "2"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
+    shapeConfig: {
+      table: {
+        defaultValue: {
+          summary: "{Path: {label: false}}"
+        }
+      }
     },
     value: {
-      control: {},
-      defaultValue: 1,
-      description: "The accessor for the numeric flow value of each link, used to size the ribbons and arcs. Defaults to a constant `1` (every link counts equally).",
-      table: {defaultValue: {summary: 1}},
-      type: {required: false, summary: "number | function"}
+      control: {
+        type: "text"
+      },
+      description: "The accessor function or key for each link's numeric flow value, which sizes the ribbons and arcs. Defaults to a constant `1`, so every link counts equally.",
+      table: {
+        defaultValue: {
+          summary: "1"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
     }
   }
 );

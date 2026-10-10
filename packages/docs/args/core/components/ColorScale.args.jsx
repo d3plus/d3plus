@@ -513,7 +513,9 @@ export const argTypes = assign(
       }
     },
     value: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "Value accessor for the visualization.",
       table: {
         defaultValue: {
@@ -522,7 +524,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "datapointaccessor"
+        summary: "string | function"
       }
     },
     width: {

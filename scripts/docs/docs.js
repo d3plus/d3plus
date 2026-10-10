@@ -41,6 +41,24 @@ function injectChartConfig(readme, defMap) {
 }
 
 /**
+ * Documents each `makeChart(...)` chart as the class it constructs. TypeDoc
+ * sees the export as a variable typed `VizCtor` (kind "member"), with no
+ * members and no superclass, so it would get no Storybook args or story.
+ * Marks it a class extending its ChartDefinition's base and attaches the def,
+ * whose `fields` supply the chart's own config.
+ */
+function promoteCharts(docs, defMap) {
+  for (const doc of docs) {
+    const def = defMap[doc.name];
+    if (doc.memberof || doc.kind !== "member" || !def) continue;
+    if (!/[/\\]charts[/\\]/.test(doc.meta.path)) continue;
+    doc.kind = "class";
+    doc.augments = [def.base];
+    doc.chartDef = def;
+  }
+}
+
+/**
  * Imports a package's built ESM entry and returns the Set of its export names,
  * or null when the build is missing. Node caches the import, so this is free
  * after collectConfigDefaults has loaded the same module.
@@ -161,6 +179,21 @@ async function collectConfigDefaults(folder, stories) {
         }
         if (val === schema[key]) surface[key] = val;
       }
+      // A chart's `setup` can install accessors on the instance itself, which
+      // `config()` doesn't reflect. Read each through its getter; skip
+      // instance overrides of prototype methods (e.g. `toScene`).
+      if (story.chartDef)
+        for (const key of Object.keys(inst)) {
+          if (key.startsWith("_") || key in surface) continue;
+          if (key in Object.getPrototypeOf(inst)) continue;
+          if (typeof inst[key] !== "function") continue;
+          try {
+            const val = inst[key]();
+            if (val !== inst) surface[key] = val;
+          } catch {
+            // Not a zero-argument getter.
+          }
+        }
       out[story.name] = surface;
     } catch {
       // Class can't be constructed headless — skip; its args stay JSDoc-only.
@@ -424,7 +457,8 @@ async function generateMarkdown() {
     // `VizCtor` variables with no config. Read each chart's ChartDefinition and
     // replace that useless type line with the base it extends + its declared
     // config fields (full inherited config stays documented on the base class).
-    readme = injectChartConfig(readme, chartDefMap(`${folder}/src/charts`));
+    const chartDefs = chartDefMap(`${folder}/src/charts`);
+    readme = injectChartConfig(readme, chartDefs);
 
     // Copy the generated README back to the package folder
     fs.writeFileSync(`${folder}/README.md`, readme);
@@ -444,6 +478,7 @@ async function generateMarkdown() {
     });
 
     const publicDocs = buildPublicDocs(reflections, folder);
+    promoteCharts(publicDocs, chartDefs);
     const stories = publicDocs.filter(d => !d.memberof);
 
     // Runtime config surface per class (installFluent accessors TypeDoc misses).

@@ -191,6 +191,17 @@ function setupNetworkEvents(viz: VizInstance, v: NetworkViz) {
 
 /** Installs the per-instance fluent methods (links/nodes/nodeGroupBy/size/x/y/hover). */
 function setupNetworkFluent(v: NetworkViz) {
+  /**
+      The edges that connect the `nodes`. The `source` and `target` of each
+      link refer to a node in one of three ways: its index in the `nodes`
+      array, the node object itself (matched by its `id`), or a string
+      matching the node's `id`.
+
+      Accepts an array of links, or a URL/filepath string to load them from.
+      An optional formatting function can be passed as a second argument; it
+      receives the loaded data and returns the final links array.
+      @type {object[] | string}
+  */
   v.links = function(this: VizInstance, _: unknown, f?: unknown) {
     if (arguments.length) {
       (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
@@ -198,6 +209,13 @@ function setupNetworkFluent(v: NetworkViz) {
     }
     return this.schema.links;
   };
+  /**
+      The nodes to draw. Accepts an array of node objects, or a URL/filepath
+      string to load them from. An optional formatting function can be passed
+      as a second argument; it receives the loaded data and returns the final
+      nodes array.
+      @type {object[] | string}
+  */
   v.nodes = function(this: VizInstance, _: unknown, f?: unknown) {
     if (arguments.length) {
       (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
@@ -205,6 +223,12 @@ function setupNetworkFluent(v: NetworkViz) {
     }
     return this.schema.nodes;
   };
+  /**
+      The key(s) or accessor(s) that identify each object passed to `nodes`,
+      one per `groupBy` depth, used in place of `groupBy` for nodes that the
+      data doesn't cover. Defaults to each node's `id`.
+      @type {string | function | (string | function)[]}
+  */
   v.nodeGroupBy = function(this: VizInstance, _?: unknown) {
     if (!arguments.length) return this.schema.nodeGroupBy;
     const keys = (_ instanceof Array ? _ : [_]) as unknown[];
@@ -223,6 +247,12 @@ function setupNetworkFluent(v: NetworkViz) {
     });
     return this;
   };
+  /**
+      Sizes each node: a data key or an accessor function whose values are
+      scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset,
+      every node is drawn at the same size.
+      @type {string | function}
+  */
   v.size = function(this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._size;
     this._size = ((typeof _ === "function" || !_)
@@ -231,6 +261,12 @@ function setupNetworkFluent(v: NetworkViz) {
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
+  /**
+      The x position of each node: a key in the data or `nodes`, or an
+      accessor function. Defaults to `"x"`. When any node has no x/y
+      position, every node is placed by a force simulation instead.
+      @type {string | function}
+  */
   v.x = function(this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._x;
     if (typeof _ === "function") {
@@ -242,6 +278,12 @@ function setupNetworkFluent(v: NetworkViz) {
     }
     return this;
   };
+  /**
+      The y position of each node: a key in the data or `nodes`, or an
+      accessor function. Defaults to `"y"`. When any node has no x/y
+      position, every node is placed by a force simulation instead.
+      @type {string | function}
+  */
   v.y = function(this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._y;
     if (typeof _ === "function") {
@@ -308,15 +350,38 @@ export const networkDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /**
+        Draws arrowheads on the links: `true` (or `"target"`) at each link's
+        target end, `"source"` at its source end, `"both"`, or `false` for
+        none. Also accepts an accessor function returning one of those per
+        link.
+        @type {boolean | "target" | "source" | "both" | function}
+    */
     {key: "arrows", default: false},
+    /**
+        The arrowhead size in pixels, or an accessor function returning one
+        per link. Defaults to three times the link's stroke width (at least 6).
+        @type {number | function}
+    */
     {key: "arrowSize"},
     {key: "links", default: []},
+    /**
+        The thickness of each link: a pixel number used for every link, or an
+        accessor function whose values are scaled between `linkSizeMin` and
+        the smallest node radius (see `linkSizeScale`).
+        @type {number | function}
+    */
     {
       key: "linkSize",
       default: constant(1),
       coerce: v => (typeof v === "function" ? v : constant(v as number)),
     },
+    /** The minimum pixel stroke width used when sizing links. */
     {key: "linkSizeMin", default: 1},
+    /**
+        The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)
+        used to size links (e.g. `"linear"`, `"sqrt"`, `"log"`).
+    */
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodeGroupBy", default: [accessor("id")]},
@@ -333,8 +398,18 @@ export const networkDef: ChartDefinition = {
       }),
     },
     {key: "nodes", default: []},
+    /**
+        The maximum pixel radius used when sizing nodes. Defaults to half the
+        distance between the two closest nodes.
+        @type {number}
+    */
     {key: "sizeMax"},
+    /** The minimum pixel radius used when sizing nodes. */
     {key: "sizeMin", default: 5},
+    /**
+        The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)
+        used to size nodes (e.g. `"linear"`, `"sqrt"`, `"log"`).
+    */
     {key: "sizeScale", default: "sqrt"},
     {key: "shape", default: constant("Circle"), coerce: "const"},
     {

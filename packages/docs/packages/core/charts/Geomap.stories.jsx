@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points. See [this example](https://d3plus.org/examples/d3plus-geomap/getting-started/) for help getting started.",
+        component: "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.",
       },
     },
   }

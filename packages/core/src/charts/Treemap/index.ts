@@ -79,7 +79,15 @@ export const treemapDef: ChartDefinition = {
   },
 
   fields: [
+    /**
+        The padding, in pixels, inside each parent rectangle and between sibling
+        rectangles.
+    */
     {key: "layoutPadding", default: 1},
+    /**
+        Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to
+        descending by summed value, with any threshold bucket last.
+    */
     {
       key: "sort",
       default: ((a, b) => (b.value ?? 0) - (a.value ?? 0)) as SortFn,
@@ -92,12 +100,23 @@ export const treemapDef: ChartDefinition = {
         }) as SortFn;
       },
     },
+    /**
+        Accessor function or string key for the value each rectangle's area is
+        proportional to. Parent rectangles sum their children.
+        @type {string | function}
+    */
     {
       key: "sum",
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
       onSet: (viz, v) => { viz.schema.thresholdKey = v; },
     },
+    /**
+        The [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling) that
+        sizes and places the rectangles: the name of a d3-hierarchy method
+        (`"squarify"` by default) or a custom function with the same signature.
+        @type {"binary" | "dice" | "resquarify" | "slice" | "sliceDice" | "squarify" | function}
+    */
     {
       key: "tile",
       default: treemapSquarify,
