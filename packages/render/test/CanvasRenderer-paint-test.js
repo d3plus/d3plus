@@ -13,15 +13,18 @@ function scene(children, meta) {
   return {width: 200, height: 120, meta, root: {type: "group", key: "root", children}};
 }
 
-/** Installs the napi backend + global Path2D for the duration of `run`. */
-async function headless(run) {
+/**
+    Installs the napi backend + global Path2D for the duration of `run`.
+    `loadImage` overrides the backend's decoder.
+*/
+async function headless(run, loadImage = src => napi.loadImage(src)) {
   const hadPath2D = Object.prototype.hasOwnProperty.call(globalThis, "Path2D");
   const prevPath2D = globalThis.Path2D;
   globalThis.Path2D = napi.Path2D;
   setCanvasBackend({
     dom: false,
     createCanvas: (w, h) => napi.createCanvas(w, h),
-    loadImage: src => napi.loadImage(src),
+    loadImage,
   });
   try {
     await run();
@@ -37,6 +40,14 @@ function mounted(pixelRatio = 1) {
   const renderer = new CanvasRenderer();
   renderer.mount({width: 200, height: 120, pixelRatio});
   return renderer;
+}
+
+/** RGBA of every pixel in the w×h CSS-pixel box at (x, y), at ratio 1. */
+function pixels(renderer, x, y, w, h) {
+  const data = renderer.toCanvas().getContext("2d").getImageData(x, y, w, h).data;
+  const out = [];
+  for (let i = 0; i < data.length; i += 4) out.push(Array.from(data.slice(i, i + 4)));
+  return out;
 }
 
 /** RGBA of the CSS-pixel (x, y) on the renderer's canvas. */
@@ -160,10 +171,44 @@ it("headless CanvasRenderer resolves gradient and pattern fills", () => headless
   assert.deepStrictEqual(pixel(renderer, 120, 20), [0, 0, 255, 255], "userSpaceOnUse gradient");
   assert.deepStrictEqual(pixel(renderer, 170, 20), [255, 0, 0, 255], "gradientBounds anchors the gradient");
   assert.deepStrictEqual(pixel(renderer, 20, 80), [255, 0, 0, 255], "unboxed gradient falls back to its first stop");
+  const green = ([r, g, b, a]) => r === 0 && g === 255 && b === 0 && a === 255;
+  const dark = ([r, g, b, a]) => r < 64 && g < 64 && b < 64 && a === 255;
+  assert.ok(pixels(renderer, 100, 60, 40, 40).every(green), "pattern paints its solid background until rasterized");
   await renderer.whenSettled();
-  assert.strictEqual(pixel(renderer, 120, 80)[3], 255, "pattern tile painted once rasterized");
+  const tiled = pixels(renderer, 100, 60, 40, 40);
+  assert.ok(tiled.some(dark), "pattern strokes painted once rasterized");
+  assert.ok(tiled.some(green), "pattern background painted once rasterized");
   renderer.destroy();
 }));
+
+it("headless CanvasRenderer requests a failed image or pattern decode only once", () => {
+  const calls = new Map();
+  const failing = src => {
+    const kind = src.startsWith("data:image/svg+xml") ? "pattern" : "image";
+    calls.set(kind, (calls.get(kind) || 0) + 1);
+    return new Promise((_, reject) => setTimeout(() => reject(new Error("decode failed"))));
+  };
+  return headless(async() => {
+    const pattern = "pattern:" + JSON.stringify({texture: "lines", background: "#00ff00", stroke: "#000"});
+    const renderer = mounted();
+    const draw = () => renderer.drawScene(scene([
+      {type: "image", key: "img", x: 0, y: 0, width: 40, height: 40, href: solidPng("#ff0000")},
+      {type: "rect", key: "pat", x: 100, y: 0, width: 40, height: 40, paint: {fill: pattern}},
+    ]));
+    try {
+      draw();
+      await renderer.whenSettled();
+      draw();
+      await renderer.whenSettled();
+      assert.deepStrictEqual(Object.fromEntries(calls), {image: 1, pattern: 1}, "each decode requested once");
+      assert.strictEqual(pixel(renderer, 20, 20)[3], 0, "a failed image never draws");
+      assert.deepStrictEqual(pixel(renderer, 120, 20), [0, 255, 0, 255], "a failed pattern keeps its solid fallback");
+    }
+    finally {
+      renderer.destroy();
+    }
+  }, failing);
+});
 
 it("headless CanvasRenderer picks through rotated and scaled transforms", () => headless(() => {
   const renderer = mounted(2);
