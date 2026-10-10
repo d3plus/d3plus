@@ -6,6 +6,7 @@
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import type {SceneEvent} from "@d3plus/render";
 
+import {parseTime} from "../../components/Axis/timeValues.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
@@ -25,13 +26,31 @@ export function axisName(viz: VizInstance, k: Axis): string {
 }
 
 /**
-    Formats a value for an axis: the axis's `tickFormat` when set, else dates
-    through d3plus's date formatter, continuous-axis numbers abbreviated, and
-    anything else (e.g. a numeric year on the discrete axis) as-is.
+    A time axis's value (a Date, timestamp, or date string) as a Date labeled
+    by that axis's own tick formatter, so it reads like the axis's ticks;
+    undefined when the axis isn't a time axis or the value doesn't parse.
+*/
+function timeValue(viz: VizInstance, k: Axis, value: unknown): string | undefined {
+  if (!viz[`_${k}Time`]) return undefined;
+  const parsed = parseTime(value);
+  if (!parsed) return undefined;
+  const axis = viz[`_${k}Axis`];
+  return axis && axis.schema.scale === "time" && axis._labelFormat
+    ? axis._labelFormat(parsed)
+    : formatDate(parsed, [parsed]);
+}
+
+/**
+    Formats a value for an axis: the axis's `tickFormat` when set, else a time
+    axis's values the way its ticks read, other dates through d3plus's date
+    formatter, continuous-axis numbers abbreviated, and anything else (e.g. a
+    numeric year on the discrete axis) as-is.
 */
 export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   const config = viz[`_${k}Config`] as {tickFormat?: (d: unknown) => string} | undefined;
   if (config && typeof config.tickFormat === "function") return config.tickFormat(value);
+  const time = timeValue(viz, k, value);
+  if (time !== undefined) return time;
   if (value instanceof Date) return formatDate(value, [value]);
   if (typeof value === "number" && k !== viz.schema.discrete)
     return formatAbbreviate(value, viz.schema.locale);
