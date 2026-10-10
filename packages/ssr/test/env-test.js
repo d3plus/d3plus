@@ -28,3 +28,17 @@ it("installDom accepts an injected window", async () => {
   assert.strictEqual(globalThis.window, window, "uses the injected window");
   env.teardown();
 });
+
+it("installDom keeps Node's native btoa and atob working", async () => {
+  const nativeBtoa = globalThis.btoa;
+  const nativeAtob = globalThis.atob;
+  const env = await installDom({});
+  try {
+    assert.strictEqual(globalThis.btoa("<svg/>"), "PHN2Zy8+", "btoa encodes");
+    assert.strictEqual(globalThis.atob("PHN2Zy8+"), "<svg/>", "atob decodes");
+  } finally {
+    env.teardown();
+  }
+  assert.strictEqual(globalThis.btoa, nativeBtoa, "btoa restored");
+  assert.strictEqual(globalThis.atob, nativeAtob, "atob restored");
+});

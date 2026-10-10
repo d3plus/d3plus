@@ -13,19 +13,40 @@ const defaultHTML =
 export default function jsdomit(message, html, run) {
   if (arguments.length < 3) ((run = html), (html = defaultHTML));
   return it(message, async () => {
+    const dom = new JSDOM(html);
+
+    // Globals to mirror from jsdom's window. Deduplicated because
+    // "window"/"document" also appear in KEYS.
+    const globalKeys = [...new Set(["window", "document", ...KEYS])];
+
+    // Capture each global's original state up front so it is restored exactly
+    // afterwards; deleting instead would remove Node natives (e.g. `URL`,
+    // `Event`) for the rest of the run.
+    const originals = globalKeys.map(key => ({
+      key,
+      had: Object.prototype.hasOwnProperty.call(global, key),
+      value: global[key],
+    }));
+
     try {
-      const dom = new JSDOM(html);
-      global.window = dom.window;
-      global.document = dom.window.document;
-      KEYS.forEach(function (key) {
-        global[key] = window[key];
+      globalKeys.forEach(key => {
+        try {
+          global[key] = dom.window[key];
+        } catch {
+          /* read-only native global; leave as-is */
+        }
       });
       await run();
     } finally {
-      delete global.window;
-      delete global.document;
-      KEYS.forEach(function (key) {
-        delete global[key];
+      originals.forEach(({key, had, value}) => {
+        if (!had) delete global[key];
+        else {
+          try {
+            global[key] = value;
+          } catch {
+            /* read-only native; leave as-is */
+          }
+        }
       });
     }
   });
@@ -161,12 +182,14 @@ var LIVING_KEYS = [
   "URL",
 ];
 
+// `atob`, `btoa` and the timer functions stay Node's natives: jsdom's versions
+// call the global ones, so mirroring them would make each call itself.
 var OTHER_KEYS = [
   "addEventListener",
   "alert",
-  "atob",
+  /* 'atob', */
   "blur",
-  "btoa",
+  /* 'btoa', */
   /* 'clearInterval', */
   /* 'clearTimeout', */
   "close",
