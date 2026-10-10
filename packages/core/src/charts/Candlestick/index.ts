@@ -99,7 +99,7 @@ export const candlestickDef: ChartDefinition = {
     viz._xKey = "date";
     interceptAccessors(viz);
     viz._buffer = {...viz._buffer, [CANDLESTICK_SHAPE]: candlestickBuffer};
-    viz._plotEmitters = {[CANDLESTICK_SHAPE]: emitCandlesticks};
+    viz._plotShapeEmitters = {[CANDLESTICK_SHAPE]: emitCandlesticks};
     // The tooltip's own rows list the period and its values.
     viz._tooltipAxisRows = false;
     // The value axis spans every period's range, so it takes no title from `close`.

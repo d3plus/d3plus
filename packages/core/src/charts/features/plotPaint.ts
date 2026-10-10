@@ -492,7 +492,7 @@ function emitShapeExits(viz: Viz, shapeData: [string, DataPoint[]][], shapeConfi
   }
   // A chart's own emitters draw with registry shapes, so their keys have nothing to exit.
   const exitShapes = viz._previousShapes!.filter(
-    d => !dataShapes.includes(d) && !viz._plotEmitters?.[d],
+    d => !dataShapes.includes(d) && !viz._plotShapeEmitters?.[d],
   );
 
   // Run exits in compute mode so Box/Whisker/Shape don't fall through
