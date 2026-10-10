@@ -10,6 +10,7 @@ export {
   Geomap,
   Histogram,
   LinePlot,
+  Marimekko,
   Matrix,
   Network,
   Pack,

@@ -1,0 +1,130 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Marimekko</title>
+  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, horizontal bars, small multiples, and a variable-width BarChart.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 400px; }
+    .wide { grid-column: span 2; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Default (width = each region's total, segments stacked to 100%)</h3><div class="viz" id="basic"></div></div>
+    <div><h3>barWidth("Market Size") with aggs max, groupPadding(6)</h3><div class="viz" id="measure"></div></div>
+    <div><h3>stackOffset("none"): absolute heights</h3><div class="viz" id="absolute"></div></div>
+    <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
+    <div><h3>BarChart with barWidth (width = population, height = GDP per capita)</h3><div class="viz" id="barchart"></div></div>
+    <div><h3>xSort by width, descending</h3><div class="viz" id="sorted"></div></div>
+    <div class="wide"><h3>Small multiples: facet("Year")</h3><div class="viz" id="facet"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // Illustrative smartphone revenue ($B) by region and brand.
+  const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
+  const regions = {
+    "North America": [62, 24, 1, 1, 9],
+    "Europe": [38, 30, 12, 6, 14],
+    "Asia Pacific": [70, 34, 40, 38, 58],
+    "Latin America": [6, 14, 7, 3, 8],
+    "Middle East & Africa": [8, 12, 6, 5, 16],
+  };
+  const sizes = {"North America": 120, "Europe": 110, "Asia Pacific": 260, "Latin America": 40, "Middle East & Africa": 50};
+  const sales = Object.entries(regions).flatMap(([region, values]) =>
+    values.map((revenue, i) => ({Region: region, Brand: brands[i], Revenue: revenue, "Market Size": sizes[region]})),
+  );
+  const byYear = [2022, 2023, 2024].flatMap((year, y) =>
+    sales.map((d, i) => ({...d, Year: year, Revenue: Math.round(d.Revenue * (0.8 + 0.15 * y + ((i * 7) % 5) * 0.04))})),
+  );
+
+  new d3plus.Marimekko()
+    .select("#basic")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#measure")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .barWidth("Market Size")
+    // Every row repeats its region's market size, so merge it with max.
+    .aggs({"Market Size": (rows, value) => Math.max(...rows.map(value))})
+    .groupPadding(6)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#absolute")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .stackOffset("none")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#horizontal")
+    .data(sales)
+    .groupBy("Brand")
+    .discrete("y")
+    .x("Revenue")
+    .y("Region")
+    .render();
+
+  const countries = [
+    {Country: "United States", Population: 335, "GDP per Capita": 81},
+    {Country: "China", Population: 1410, "GDP per Capita": 12.6},
+    {Country: "India", Population: 1430, "GDP per Capita": 2.5},
+    {Country: "Japan", Population: 124, "GDP per Capita": 33.8},
+    {Country: "Germany", Population: 84, "GDP per Capita": 52.7},
+    {Country: "Brazil", Population: 216, "GDP per Capita": 10.3},
+  ];
+
+  new d3plus.BarChart()
+    .select("#barchart")
+    .data(countries)
+    .groupBy("Country")
+    .x("Country")
+    .y("GDP per Capita")
+    .barWidth("Population")
+    .groupPadding(2)
+    .legend(false)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#sorted")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .xSort((a, b) => b.Revenue - a.Revenue)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#facet")
+    .data(byYear)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .facet("Year")
+    .render();
+
+</script>
+
+</html>
