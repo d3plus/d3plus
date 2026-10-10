@@ -19,6 +19,7 @@ import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import Legend from "../Legend/Legend.js";
+import {formatYear, isYearLike} from "../Axis/yearValues.js";
 import {computeColorScale} from "./colorScaleScale.js";
 import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
@@ -105,7 +106,9 @@ export default class ColorScale extends BaseClass {
     ): string => {
       const format = (this.schema.axisConfig.tickFormat
         ? this.schema.axisConfig.tickFormat
-        : formatAbbreviate) as (v: number | undefined) => string;
+        : isYearLike(allValues)
+          ? (v: number) => formatYear(v, this.schema.locale)
+          : formatAbbreviate) as (v: number | undefined) => string;
 
       const next = ticks[i + 1];
       const prev = i ? ticks[i - 1] : false;

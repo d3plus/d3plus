@@ -7,6 +7,7 @@ import {formatAbbreviate, formatDate, formatDateFull} from "@d3plus/format";
 import type {SceneEvent} from "@d3plus/render";
 
 import {axisDateLabel, parseTime} from "../../components/Axis/timeValues.js";
+import {axisIsYearLike, formatYear} from "../../components/Axis/yearValues.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
@@ -44,8 +45,9 @@ function timeValue(viz: VizInstance, k: Axis, value: unknown): string | undefine
 /**
     Formats a value for an axis: the axis's `tickFormat` when set, else a time
     axis's values at its tick interval with the year, other dates through
-    d3plus's date formatter, continuous-axis numbers abbreviated, and anything
-    else (e.g. a numeric year on the discrete axis) as-is.
+    d3plus's date formatter, continuous-axis numbers abbreviated (in full on an
+    axis of years, matching its tick labels), and anything else (e.g. a numeric
+    year on the discrete axis) as-is.
 */
 export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   const config = viz[`_${k}Config`] as {tickFormat?: (d: unknown) => string} | undefined;
@@ -53,8 +55,12 @@ export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   const time = timeValue(viz, k, value);
   if (time !== undefined) return time;
   if (value instanceof Date) return formatDate(value, [value]);
-  if (typeof value === "number" && k !== viz.schema.discrete)
-    return formatAbbreviate(value, viz.schema.locale);
+  if (typeof value === "number" && k !== viz.schema.discrete) {
+    const axis = viz[`_${k}Axis`];
+    return axis && axisIsYearLike(axis)
+      ? formatYear(value, viz.schema.locale)
+      : formatAbbreviate(value, viz.schema.locale);
+  }
   return String(value);
 }
 
