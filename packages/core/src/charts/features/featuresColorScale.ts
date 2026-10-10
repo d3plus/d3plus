@@ -64,11 +64,13 @@ function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean
     transform: `translate(${frame.x}, ${frame.y})`,
   };
 
+  // Set without a transition: ColorScale.toScene reads this translate back
+  // as soon as the draw finishes, and the scene renderer does the animating.
   const scaleGroup = elem("g.d3plus-viz-colorScale", {
     condition: show && !viz.schema.colorScaleConfig.select,
     enter: transform,
     parent: viz._select as unknown as D3Selection,
-    duration: viz.schema.duration,
+    duration: 0,
     update: transform,
   }).node();
 
