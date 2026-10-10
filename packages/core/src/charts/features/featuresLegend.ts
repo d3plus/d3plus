@@ -197,12 +197,14 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
   // The Legend instance renders into a `g.d3plus-viz-legend` group as a
   // child of the chart's svg. This group is created via the `elem` helper
   // so the Legend has a DOM `_select` (its `toScene()` walks from there).
-  // Once Legend is fully compute-only the elem wrapper can go.
+  // Once Legend is fully compute-only the elem wrapper can go. The translate
+  // is set without a transition: Legend.toScene reads it back as soon as the
+  // draw finishes, and the scene renderer does the animating.
   const legendGroup = elem("g.d3plus-viz-legend", {
     condition: frame.visible && !viz.schema.legendConfig.select,
     enter: transform,
     parent: viz._select as unknown as D3Selection,
-    duration: viz.schema.duration,
+    duration: 0,
     update: transform,
   }).node();
 
@@ -280,7 +282,7 @@ export function paintLegendInset(
 
 /**
     Positions and renders the legend, then returns the margin claim derived
-    from the previous render's outerBounds. Claims nothing while the legend
+    from the outerBounds it just measured. Claims nothing while the legend
     is being laid out for the chart's interior.
 */
 function renderLegendFeature(
@@ -296,10 +298,6 @@ function renderLegendFeature(
     return {panel: null, margin: {}};
   }
 
-  // The margin *claim* uses the previous render's outerBounds; on first
-  // render it's zero and the Legend re-flows on the second render with the
-  // real space.
-  const legendBounds = viz._legendClass!.outerBounds();
   const config = resolveSpec(viz);
   const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
   const wide = ["top", "bottom"].includes(position as string);
@@ -327,10 +325,7 @@ function renderLegendFeature(
     visible: legendVisible(viz, built),
   });
 
-  // Margin claim from the *previous* render's outerBounds:
-  // `outerBounds()` reads stored state, so on the first render the claim
-  // is zero and Legend overlaps the chart for one frame; the next render
-  // flows with full margin.
+  const legendBounds = viz._legendClass!.outerBounds();
   const margin: MarginClaim = {};
   if (!viz.schema.legendConfig.select && legendBounds.height) {
     if (wide)
