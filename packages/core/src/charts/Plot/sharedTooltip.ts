@@ -6,6 +6,7 @@
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 import type {SceneEvent} from "@d3plus/render";
 
+import {axisIsYearLike, formatYear} from "../../components/Axis/yearValues.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
@@ -26,15 +27,20 @@ export function axisName(viz: VizInstance, k: Axis): string {
 
 /**
     Formats a value for an axis: the axis's `tickFormat` when set, else dates
-    through d3plus's date formatter, continuous-axis numbers abbreviated, and
-    anything else (e.g. a numeric year on the discrete axis) as-is.
+    through d3plus's date formatter, continuous-axis numbers abbreviated (in
+    full on an axis of years, matching its tick labels), and anything else
+    (e.g. a numeric year on the discrete axis) as-is.
 */
 export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   const config = viz[`_${k}Config`] as {tickFormat?: (d: unknown) => string} | undefined;
   if (config && typeof config.tickFormat === "function") return config.tickFormat(value);
   if (value instanceof Date) return formatDate(value, [value]);
-  if (typeof value === "number" && k !== viz.schema.discrete)
-    return formatAbbreviate(value, viz.schema.locale);
+  if (typeof value === "number" && k !== viz.schema.discrete) {
+    const axis = viz[`_${k}Axis`];
+    return axis && axisIsYearLike(axis)
+      ? formatYear(value, viz.schema.locale)
+      : formatAbbreviate(value, viz.schema.locale);
+  }
   return String(value);
 }
 
