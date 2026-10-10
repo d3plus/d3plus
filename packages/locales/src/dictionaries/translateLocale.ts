@@ -1,6 +1,7 @@
 export interface TranslationStrings {
   and: string;
   Back: string;
+  "Bar Total": string;
   "Brush Zoom": string;
   Clear: string;
   "Click to Expand": string;
@@ -43,6 +44,7 @@ export interface TranslationStrings {
   "Upper Bound": string;
   Value: string;
   Values: string;
+  Width: string;
   "Zoom In": string;
   "Zoom Out": string;
 }
@@ -54,6 +56,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "ar-SA": {
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
+    "Bar Total": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0645\u0648\u062f",
     "Brush Zoom": "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Clear: "\u0645\u0633\u062d",
     "Click to Expand":
@@ -105,12 +108,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
+    Width: "\u0627\u0644\u0639\u0631\u0636",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
   },
   "es-ES": {
     and: "y",
     Back: "Atr\u00e1s",
+    "Bar Total": "Total de la Barra",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Clear: "Borrar",
     "Click to Expand": "Clic para Ampliar",
@@ -153,12 +158,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "L\u00edmite Superior",
     Value: "Valor",
     Values: "Valores",
+    Width: "Ancho",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
   },
   "pt-BR": {
     and: "e",
     Back: "Voltar",
+    "Bar Total": "Total da Barra",
     "Brush Zoom": "Zoom de Seleção",
     Clear: "Limpar",
     "Click to Expand": "Clique para Expandir",
@@ -201,12 +208,14 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "Limite Superior",
     Value: "Valor",
     Values: "Valores",
+    Width: "Largura",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
   },
   "zh-CN": {
     and: "\u548c",
     Back: "\u540e\u9762",
+    "Bar Total": "\u67f1\u603b\u8ba1",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Clear: "\u6e05\u9664",
     "Click to Expand": "\u5355\u51fb\u5c55\u5f00",
@@ -249,6 +258,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "\u4e0a\u9650",
     Value: "\u503c",
     Values: "\u503c",
+    Width: "\u5bbd\u5ea6",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
   },

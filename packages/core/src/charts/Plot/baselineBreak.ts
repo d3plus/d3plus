@@ -5,12 +5,14 @@
     that keeps bars inside the plot area.
 */
 import {mergeConfig} from "../../fluent.js";
+import {barSpanAxisConfig} from "./barWidth.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
     A primary axis's user config (`xConfig`/`yConfig`) with the Plot's
     `xBreak`/`yBreak` folded in as the axis `break`, over any axis config the
-    chart itself supplies (`_plotAxisDefaults`). The break is always set, so
+    chart itself supplies (`_plotAxisDefaults`, and a variable-width axis's
+    category labels). The break is always set, so
     clearing `yBreak` clears it from a reused axis; a `break` inside `yConfig`
     wins.
 */
@@ -18,9 +20,12 @@ export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string
   const brk = viz.schema[`${axis}Break`];
   const base = {break: brk === undefined ? false : brk};
   const user = viz[`_${axis}Config`] as Record<string, unknown>;
-  const own = viz._plotAxisDefaults?.[axis];
-  // The user's config deep-merges over the chart's, so a nested key keeps its siblings.
-  return own ? mergeConfig({...base, ...own}, user) : {...base, ...user};
+  const own = {...barSpanAxisConfig(viz, axis), ...viz._plotAxisDefaults?.[axis]};
+  if (!Object.keys(own).length) return {...base, ...user};
+  // The user's config deep-merges over the chart's, so a nested key keeps its
+  // siblings; an unset (undefined) user key leaves the chart's value in place.
+  const set = Object.fromEntries(Object.entries(user).filter(([, v]) => v !== undefined));
+  return mergeConfig({...base, ...own}, set);
 }
 
 /** The value (non-discrete) axis of a Plot; a swarm's own value axis when swarming. */

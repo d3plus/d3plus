@@ -10,6 +10,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
+import {barWidthAccessor, barWidthTooltipRows} from "../Plot/barWidth.js";
 import {stackShareTooltipConfig} from "../Plot/stackShareTooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -21,11 +22,26 @@ export const barChartDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /**
+        Makes each bar as wide as its own measure (a data key or accessor),
+        read off the merge of the bar's rows, so stacked segments add up
+        unless `aggs` says otherwise. The bars sit end to end along a
+        continuous discrete axis of cumulative width, labeled at their centers.
+        Off (`undefined`) by default.
+    */
+    {key: "barWidth", coerce: barWidthAccessor},
     {key: "baseline", default: 0},
     {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Bar"), coerce: "const"},
-    {key: "tooltipConfig", merge: true, factory: stackShareTooltipConfig},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => {
+        const share = stackShareTooltipConfig(viz);
+        return {tbody: (d: DataPoint) => [...barWidthTooltipRows(viz, d), ...share.tbody()]};
+      },
+    },
     {
       key: "legend",
       coerce: "const",

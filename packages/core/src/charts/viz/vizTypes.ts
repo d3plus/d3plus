@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {BarSpanLayout} from "../Plot/barWidth.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
@@ -425,6 +426,8 @@ export interface VizInstance {
   _discreteCutoff?: number;
   /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
   _discreteExtent?: (d: DataPoint) => [number, number];
+  /** The `barWidth` layout of the current draw: each bar's span along the discrete axis (see Plot/barWidth.ts). */
+  _barSpans?: BarSpanLayout;
   /** The series part of a stacked row's stack group; by default every groupBy level above the leaf. */
   _stackGroup?: (d: DataPoint, i: number) => string;
   /** Extra room (px) reserved above a Plot's chart area, inside its margins. */

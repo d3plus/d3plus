@@ -17,6 +17,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
+import {applyBarWidths} from "./barWidth.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
@@ -179,12 +180,13 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return newD;
   };
 
-  const formattedData = (viz._formattedData = viz._filteredData
-    .map(prepData)
-    .filter(isPlottableRow));
-  const axisData = viz._axisPersist
-    ? viz._data.map(prepData).filter(isPlottableRow)
-    : formattedData;
+  const plotted = viz._filteredData.map(prepData).filter(isPlottableRow);
+  const [formattedData, axisData] = applyBarWidths(
+    viz,
+    plotted,
+    viz._axisPersist ? viz._data.map(prepData).filter(isPlottableRow) : plotted,
+  );
+  viz._formattedData = formattedData;
 
   const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));
   if (swarm) {
@@ -521,7 +523,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
+      : (!isSpanAxis(viz, axis) && (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
     const domain = viz.schema[`${axis}Domain`]

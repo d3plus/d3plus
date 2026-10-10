@@ -448,6 +448,15 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
+      BarChart/Marimekko: makes each bar as wide as its own measure (a data
+      key or accessor, read off the merge of the bar's rows, so numbers sum
+      unless `aggs` says otherwise). The bars sit end to end along a
+      continuous axis of cumulative width, each labeled at its center, and
+      tooltips show each bar's width and its share of the total. Marimekko
+      defaults to each bar's total; `false` turns it off.
+  */
+  barWidth?: string | false | ((d: DataPoint, i?: number) => number);
+  /**
       The baseline value: where a Plot's bars and areas start, and the value
       an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
   */
