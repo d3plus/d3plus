@@ -26,6 +26,7 @@ export {
   Tree,
   Treemap,
   Viz,
+  Waterfall,
 } from "./src/charts/index.js";
 
 export {

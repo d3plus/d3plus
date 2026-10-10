@@ -496,6 +496,10 @@ export interface D3plusConfig {
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
   comparisonConfig?: Record<string, unknown>;
+  /** Waterfall: line styles for the connectors between bars (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the row the connector leaves and its index. */
+  connectorConfig?: Record<string, unknown>;
+  /** Waterfall: draws a thin line from the end of each bar to the start of the next. */
+  connectors?: boolean;
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
@@ -525,6 +529,8 @@ export interface D3plusConfig {
   crosshairConfig?: Record<string, unknown>;
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
+  /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
+  decreaseColor?: string;
   /** Active depth level for nested groupings. */
   depth?: number;
   /** Sets orientation of main category axis. */
@@ -560,6 +566,8 @@ export interface D3plusConfig {
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
+  increaseColor?: string;
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
   /**
@@ -776,6 +784,12 @@ export interface D3plusConfig {
     | string[]
     | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
     | ((d: DataPoint) => unknown);
+  /**
+      Waterfall: marks subtotal rows (a data key or accessor; truthy marks the
+      row). A subtotal bar draws from zero to the running total; when the row
+      has its own value, the running total resets to that value.
+  */
+  subtotal?: string | ((d: DataPoint, i: number) => unknown);
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
@@ -884,6 +898,8 @@ export interface D3plusConfig {
   topojsonFill?: string;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
+  totalColor?: string;
   /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */

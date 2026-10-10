@@ -24,4 +24,5 @@ export {default as StackedArea} from "./StackedArea/index.js";
 export {default as Sunburst} from "./Sunburst/index.js";
 export {default as Tree} from "./Tree/index.js";
 export {default as Treemap} from "./Treemap/index.js";
+export {default as Waterfall} from "./Waterfall/index.js";
 export {default as Viz} from "./viz/Viz.js";

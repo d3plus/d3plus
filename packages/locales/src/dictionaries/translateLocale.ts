@@ -11,10 +11,12 @@ export interface TranslationStrings {
   "Click to Zoom Out": string;
   Comparison: string;
   Count: string;
+  Decrease: string;
   Density: string;
   Download: string;
   Equation: string;
   Exponential: string;
+  Increase: string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -33,6 +35,7 @@ export interface TranslationStrings {
   Range: string;
   "Relative Frequency": string;
   "Reset Zoom": string;
+  "Running Total": string;
   Search: string;
   Share: string;
   "Share of Parent": string;
@@ -68,10 +71,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
+    Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     Download: "\u062a\u062d\u0645\u064a\u0644",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
+    Increase: "\u0632\u064a\u0627\u062f\u0629",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -93,6 +98,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
     "Relative Frequency": "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a",
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    "Running Total": "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
     "Share of Parent": "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -121,10 +127,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clic para Alejar",
     Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
+    Decrease: "Disminuci\u00f3n",
     Density: "Densidad",
     Download: "Descargar",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
+    Increase: "Aumento",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -143,6 +151,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "Rango",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
+    "Running Total": "Total Acumulado",
     Search: "Buscar",
     Share: "Porcentaje",
     "Share of Parent": "Porcentaje del Nivel Superior",
@@ -169,10 +178,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "Clique para Afastar",
     Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
+    Decrease: "Redu\u00e7\u00e3o",
     Density: "Densidade",
     Download: "Baixar",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
+    Increase: "Aumento",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -191,6 +202,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "Intervalo",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
+    "Running Total": "Total Acumulado",
     Search: "Pesquisar",
     Share: "Porcentagem",
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
@@ -217,10 +229,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
     Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
+    Decrease: "\u51cf\u5c11",
     Density: "\u5bc6\u5ea6",
     Download: "\u4e0b\u8f7d",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
+    Increase: "\u589e\u52a0",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
@@ -239,6 +253,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "\u8303\u56f4",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
+    "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
     Share: "\u5171\u4eab",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",

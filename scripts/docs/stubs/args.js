@@ -33,6 +33,7 @@ const hiddenMethods = {
   StackedArea: ["shape"],
   Sunburst: ["shape"],
   Treemap: ["shape"],
+  Waterfall: ["shape", "stacked", "stackOffset", "stackOrder"],
 };
 
 function isWrappedInQuotes(str) {

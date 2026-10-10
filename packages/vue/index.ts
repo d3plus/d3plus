@@ -25,6 +25,7 @@ import {
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Waterfall as WaterfallClass,
   Viz as VizClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
@@ -106,6 +107,8 @@ export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 export const Tree = createD3plusComponent(TreeClass, "chart");
 /** Vue component for rendering a d3plus Treemap visualization. */
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
+/** Vue component for rendering a d3plus Waterfall visualization. */
+export const Waterfall = createD3plusComponent(WaterfallClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */
 export const Viz = createD3plusComponent(VizClass, "chart");
 

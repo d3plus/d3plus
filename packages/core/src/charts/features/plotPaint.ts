@@ -594,7 +594,9 @@ export function plotEmit(
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
+    const shapesStart = out.length;
     emitShapeLoop(viz, out, pCtx, mCtx, shapeConfig);
+    if (viz._plotUnderlay) out.splice(shapesStart, 0, ...viz._plotUnderlay(out.slice(shapesStart), x, y));
 
     emitShapeExits(viz, shapeData, shapeConfig);
 

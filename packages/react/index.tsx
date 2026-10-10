@@ -27,6 +27,7 @@ import {
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Waterfall as WaterfallClass,
   Viz as VizClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
@@ -162,6 +163,10 @@ export const Tree = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Treemap visualization. */
 export const Treemap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreemapClass} {...props} />
+);
+/** React component for rendering a d3plus Waterfall visualization. */
+export const Waterfall = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={WaterfallClass} {...props} />
 );
 /** React component for rendering a base d3plus Viz instance. */
 export const Viz = (props: D3plusComponentProps) => (

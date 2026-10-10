@@ -28,6 +28,7 @@ const charts = [
   ["Sunburst", "sunburst"],
   ["Tree", "tree"],
   ["Treemap", "treemap"],
+  ["Waterfall", "waterfall"],
 ];
 
 const sites = [
