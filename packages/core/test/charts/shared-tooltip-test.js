@@ -229,6 +229,14 @@ it("shared tooltip — a single-mark tooltip adds the rows a tbody accessor reso
     "the stacked BarChart's Share row follows the x/y rows");
 });
 
+it("shared tooltip — tooltipShared(false): hovering a stacked bar's label reads as hovering its bar", async () => {
+  const r = await run("BarChart", {stacked: true, tooltipShared: false}, data, 0.1, '[data-key="Beta_2010_0"]');
+  assert.strictEqual(r.title, "Beta");
+  assert.deepStrictEqual(texts(r.cells), [["year", "2010"], ["value", "20"], ["Share", "33.3%"]],
+    "the label's tooltip keeps its bar's x/y rows");
+  assert.strictEqual(r.markers, 0, "no point marker on a bar");
+});
+
 it("shared tooltip — BoxWhisker keeps its default tooltip (a box has no single value)", async () => {
   const rows = [];
   ["Alpha", "Beta"].forEach((group, g) => ["Q1", "Q2"].forEach(x => {
