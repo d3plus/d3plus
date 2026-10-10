@@ -433,7 +433,7 @@ export interface VizInstance {
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
-  /** Shape emitters a chart supplies in place of Plot's own, by shape key (see `features/shapeEmit.ts`). */
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
   _plotShapeEmitters?: Record<string, ShapeEmitter>;
 
   /* 9. Feature/component class references */
