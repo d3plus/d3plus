@@ -16,6 +16,7 @@ import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
 import {axisTimeDomain, parseTimeValues} from "./timeValues.js";
+import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
 
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
@@ -41,6 +42,7 @@ export function buildTickFormat(
   timeLocaleObj: Record<string, unknown>,
   getTicks: () => unknown[],
 ): (d: unknown) => string {
+  let years: boolean | undefined;
   return axis.schema.tickFormat
     ? axis.schema.tickFormat
     : (d: unknown): string => {
@@ -95,7 +97,11 @@ export function buildTickFormat(
                   ? axis.schema.roundingInsideMaxSuffix
                   : ""
               : "";
-          return `${prefix}${formatAbbreviate(d as number, axis.schema.locale)}${suffix}`;
+          years ??= axisIsYearLike(axis);
+          const number = years
+            ? formatYear(d as number, axis.schema.locale)
+            : formatAbbreviate(d as number, axis.schema.locale);
+          return `${prefix}${number}${suffix}`;
         }
       };
 }

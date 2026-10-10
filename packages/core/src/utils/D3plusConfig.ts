@@ -132,7 +132,7 @@ export interface AxisConfig {
   range?: (number | undefined)[];
   /** Scale of the axis. */
   scale?: AxisScale;
-  /** Tick formatter. */
+  /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
   /** Tick values of the axis. */
   ticks?: unknown[];
