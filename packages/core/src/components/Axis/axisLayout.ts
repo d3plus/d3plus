@@ -26,8 +26,6 @@
 import {max} from "d3-array";
 import {timeFormatDefaultLocale} from "d3-time-format";
 
-import {locale} from "@d3plus/locales";
-
 import type Axis from "./Axis.js";
 import {
   applyTitleMargin,
@@ -37,7 +35,7 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
-import {axisScaleData} from "./timeValues.js";
+import {axisScaleData, axisTimeLocale} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -67,8 +65,7 @@ export interface AxisLayoutResult {
     the instance afterward.
 */
 export function measureAxis(axis: Axis): AxisLayoutResult {
-  const timeLocaleObj =
-    axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"];
+  const timeLocaleObj = axisTimeLocale(axis);
   timeFormatDefaultLocale(
     timeLocaleObj as Parameters<typeof timeFormatDefaultLocale>[0],
   );

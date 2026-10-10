@@ -9,13 +9,13 @@ import * as scales from "d3-scale";
 import {timeFormat} from "d3-time-format";
 
 import {formatAbbreviate, formatDate} from "@d3plus/format";
-import {formatLocale} from "@d3plus/locales";
+import {formatLocale, type TimeLocaleDefinition} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
 
 import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
-import {axisTimeDomain, parseTimeValues} from "./timeValues.js";
+import {axisTimeDomain, axisTimeReference, parseTimeValues} from "./timeValues.js";
 import type {D3Scale} from "../../utils/index.js";
 
 const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
@@ -38,7 +38,7 @@ const fixFloat = (d: number): number => {
 /** Builds the tick label formatter (user-supplied or scale-derived). */
 export function buildTickFormat(
   axis: Axis,
-  timeLocaleObj: Record<string, unknown>,
+  timeLocaleObj: TimeLocaleDefinition,
   getTicks: () => unknown[],
 ): (d: unknown) => string {
   return axis.schema.tickFormat
@@ -50,12 +50,9 @@ export function buildTickFormat(
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          const refData = parseTimeValues(
-            axis._scaleData.length ? axis._scaleData : axis.schema.domain,
-          ).sort((a: Date, b: Date) => +a - +b);
-          return formatDate(d as Date, refData, timeFormat).replace(
+          return formatDate(d as Date, axisTimeReference(axis), timeFormat).replace(
             /^Q/g,
-            timeLocaleObj.quarter as string,
+            timeLocaleObj.quarter,
           );
         } else if (
           axis.schema.scale === "linear" &&
