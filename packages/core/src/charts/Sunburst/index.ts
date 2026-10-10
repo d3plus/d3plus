@@ -117,39 +117,65 @@ export const sunburstDef: DataDrivenChartDefinition = {
 
   fields: [
     /**
-        The center slot's radius: pixels, or a function of the outer radius.
-        Defaults to one ring's thickness (see `ringSize`).
+        The radius of the center slot, in pixels, or a function that receives
+        the outer radius and returns one. The center is hollow until a click
+        zooms into a node, which then fills it. Defaults to one ring's
+        thickness (see `ringSize`).
+        @type {number | function}
     */
     {key: "innerRadius"},
-    /** Angular gap between neighboring arcs, in radians; overrides `padPixel`. */
+    /**
+        The angular gap between neighboring arcs, in radians. When set, takes
+        precedence over `padPixel`.
+    */
     {key: "padAngle", default: 0},
-    /** Gap between neighboring arcs, in pixels, kept even across rings. */
+    /**
+        The gap between neighboring arcs, in pixels, kept the same width in
+        every ring.
+    */
     {key: "padPixel", default: 0},
     /**
-        Ring radii: `"equal"` gives every ring the same thickness; `"area"`
-        gives every ring the same area.
+        How the rings divide the radius: `"equal"` (default) gives every ring
+        the same thickness, so label room is uniform from the center out;
+        `"area"` gives every ring the same area, so the outer rings don't
+        outweigh the inner ones.
+        @type {"equal" | "area"}
     */
     {key: "ringSize", default: "equal"},
     /**
         Lightens each ring below the top one a step more than the ring inside
-        it (see `shadeConfig`). Applies only to the default colors: a custom
-        `color`, `shapeConfig.fill`, or `colorScale` is drawn as given.
+        it (see `shadeConfig`), so the rings read apart while each branch keeps
+        its top-level color. Applies only to the default colors: a custom
+        `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels
+        keep their automatic contrast color.
     */
     {key: "shade", default: true},
     /**
         Shading strengths, as `colorLighter` amounts (0–1): `step` per
-        `groupBy` level below the top ring, up to `max`.
+        `groupBy` level below the top ring, up to `max`, which keeps the
+        deepest rings in their branch's hue.
+        @type {{step?: number, max?: number}}
     */
     {
       key: "shadeConfig",
       merge: true,
       factory: () => ({...sunburstShadeDefaults}),
     },
+    /**
+        Comparator for sibling arcs, given two d3-hierarchy nodes. Defaults to
+        descending by summed value, with any threshold bucket last.
+        @type {function}
+    */
     {
       key: "sort",
       default: ((a, b) => (b.value ?? 0) - (a.value ?? 0)) as SunburstSort,
       decorate: (_viz, base) => sunburstSort(base as SunburstSort),
     },
+    /**
+        Accessor function or string key for the value each arc's angle is
+        proportional to. Parent arcs sum their children.
+        @type {string | function}
+    */
     {
       key: "sum",
       default: accessor("value"),

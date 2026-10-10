@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a beeswarm from an array of data: each circle sits at its value along one axis, packed beside its neighbors so none overlap.",
+        component: "Creates a beeswarm from an array of data: each circle sits at its value\nalong the axis set by x (or y), packed beside its neighbors so none\noverlap. Set the other axis to a categorical key to draw one swarm per\ncategory. Any Plot can switch between a scatter and a beeswarm with\nswarm; see swarmConfig for spacing and overflow.",
       },
     },
   }
 };
 
 const Template = (args) => <Beeswarm config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a population pyramid: horizontal bars for two groups (the first `groupBy` level, e.g. Male / Female) extending in opposite directions from a shared center line, one row per `y` category (e.g. age band).",
+        component: "Creates a population pyramid: horizontal bars for two groups (the first\ngroupBy level, e.g. Male / Female) extending in opposite directions\nfrom a shared center line, one row per y category (e.g. age band).\nValues stay positive — the left side is mirrored internally and the value\naxis reads magnitudes on both halves. The category labels run down a\ngutter between the halves (or beside the chart, with categoryPosition).\nDeeper groupBy levels stack within each side.",
       },
     },
   }
 };
 
 const Template = (args) => <Pyramid config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

@@ -38,7 +38,19 @@ export const treeDef: ChartDefinition = {
   },
 
   fields: [
+    /**
+        The orientation of the whole tree: `"vertical"` (top to bottom) or
+        `"horizontal"` (left to right).
+        @type {"vertical" | "horizontal"}
+    */
     {key: "orient", default: "vertical"},
+    /**
+        The [separation](https://github.com/d3/d3-hierarchy#tree_separation) between
+        neighboring nodes: a function of two nodes `a` and `b` that returns their
+        relative spacing. The nodes are usually siblings, but may be more distant
+        relatives placed side by side. Defaults to `1` for siblings and `2` for
+        other neighbors.
+    */
     {
       key: "separation",
       default: (a: {parent: unknown}, b: {parent: unknown}) =>

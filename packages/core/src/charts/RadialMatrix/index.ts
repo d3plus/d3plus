@@ -88,26 +88,62 @@ export const radialMatrixDef: ChartDefinition = {
   },
 
   fields: [
+    /** The pixel padding between neighboring cells. */
     {key: "cellPadding", default: 2},
+    /**
+        The column each data point falls in (one slice of the circle): a key
+        present in every data point, or an accessor function that receives a
+        data point and its index and returns its column value.
+        @type {string | function}
+    */
     {
       key: "column",
       default: accessor("column"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        The row each data point falls in (one ring): a key present in every
+        data point, or an accessor function that receives a data point and its
+        index and returns its row value.
+        @type {string | function}
+    */
     {
       key: "row",
       default: accessor("row"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        A manual list of column values to draw, in place of the unique
+        `column` values found in the data. Sorted by `columnSort`.
+        @type {(string | number | boolean)[]}
+    */
     {key: "columnList"},
+    /**
+        A manual list of row values to draw, in place of the unique `row`
+        values found in the data. Sorted by `rowSort`.
+        @type {(string | number | boolean)[]}
+    */
     {key: "rowList"},
+    /** A sort comparator run on the unique set of column values. */
     {key: "columnSort", default: localeCompare},
+    /** A sort comparator run on the unique set of row values. */
     {key: "rowSort", default: localeCompare},
+    /**
+        The pixel radius of the empty center: a number, or a function that
+        receives the outer radius and returns one. Defaults to a fifth of the
+        outer radius.
+        @type {number | function}
+    */
     {
       key: "innerRadius",
       default: (r: number) => r / 5,
       coerce: v => (typeof v === "function" ? v : constant(v as number)),
     },
+    /**
+        Config for the column labels drawn around the circle:
+        `shapeConfig.labelConfig` styles them (a `TextBox` config), and
+        `labels`, an array of column values, limits which ones are drawn.
+    */
     {
       key: "columnConfig",
       merge: true,

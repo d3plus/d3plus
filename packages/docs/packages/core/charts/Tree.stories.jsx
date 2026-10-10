@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Uses d3's [tree layout](https://github.com/d3/d3-hierarchy#tree) to create a tidy tree chart based on an array of data.",
+        component: "Uses d3's tree layout to create a tidy tree chart based on an array of data.",
       },
     },
   }

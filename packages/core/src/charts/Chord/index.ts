@@ -152,22 +152,76 @@ export const chordDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /** The pixel thickness of the group arcs around the circle. */
     {key: "arcThickness", default: 20},
-    // `"source"` alone is a no-op — d3's ribbonArrow can only draw the
-    // arrowhead at a ribbon's target end (see applyLayout.ts). Use `true`,
-    // `"target"`, or `"both"`.
+    /**
+        Toggles directional arrowheads on the ribbons: `false`, `true`,
+        `"target"`, `"both"`, or an accessor function. Any of these but `false`
+        draws each ribbon with a `d3.ribbonArrow` head on its target end, the
+        only end d3's ribbonArrow can draw; `"source"` alone draws no arrows.
+        @type {boolean | "target" | "source" | "both" | function}
+    */
     {key: "arrows", default: false},
+    /**
+        The pixel size of the ribbon arrowheads. When unset, the size is derived
+        from the arc thickness.
+        @type {number}
+    */
     {key: "arrowSize"},
+    /** The fill opacity of each ribbon (chord). */
     {key: "chordOpacity", default: 0.6},
+    /**
+        When `true` (default), uses `d3.chordDirected`, so each `source` →
+        `target` flow is a distinct ribbon colored by its source group. Set to
+        `false` to use the undirected `d3.chord` layout, which merges both
+        directions of a pair into a single ribbon (useful for symmetric or
+        co-occurrence data).
+    */
     {key: "directed", default: true},
+    /**
+        The edges that connect the nodes. The `source` and `target` keys in
+        each link (see `linksSource`/`linksTarget`) map to node ids. Accepts an
+        *Array* of data or a *String* filepath or URL to load; an optional
+        formatting function can be passed as a second argument.
+        @type {DataPoint[] | string}
+    */
     {key: "links", default: accessor("links")},
+    /** The key used in each link *Object* to reference the source node's id. */
     {key: "linksSource", default: "source"},
+    /** The key used in each link *Object* to reference the target node's id. */
     {key: "linksTarget", default: "target"},
     {key: "noDataMessage", default: false},
+    /**
+        The nodes (groups) drawn as arcs around the circle. When omitted, the
+        nodes are inferred from the unique `source`/`target` ids in `links`.
+        Accepts an *Array* of data or a *String* filepath or URL to load; an
+        optional formatting function can be passed as a second argument.
+        @type {DataPoint[] | string}
+    */
     {key: "nodes", default: accessor("nodes")},
+    /**
+        The accessor function or key that gives each node's unique id. Link
+        `source`/`target` values are matched against these ids.
+        @type {string | function}
+    */
     {key: "nodeId", default: accessor("id")},
+    /**
+        The angular padding, in radians, between adjacent group arcs. When
+        unset, the padding is derived from `padPixel`.
+        @type {number}
+    */
     {key: "padAngle"},
+    /**
+        The approximate pixel gap between adjacent group arcs, converted to an
+        angle from the chart radius. Ignored when `padAngle` is set.
+    */
     {key: "padPixel", default: 2},
+    /**
+        The accessor function or key for each link's numeric flow value, which
+        sizes the ribbons and arcs. Defaults to a constant `1`, so every link
+        counts equally.
+        @type {string | function}
+    */
     {key: "value", default: constant(1)},
     {key: "shape", default: constant("Path"), coerce: "const"},
     {

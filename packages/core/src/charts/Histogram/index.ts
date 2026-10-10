@@ -130,16 +130,26 @@ export const histogramDef: ChartDefinition = {
         Bin edges: a bin count, an array of interior edges, or a d3-array
         threshold generator such as `thresholdSturges` (the default),
         `thresholdScott`, or `thresholdFreedmanDiaconis`.
+        @type {number | number[] | function}
     */
     {key: "binThresholds"},
-    /** `[min, max]` to bin across. Defaults to the nicely rounded extent of the values. */
+    /**
+        `[min, max]` to bin across. Defaults to the nicely rounded extent of the
+        values.
+        @type {[number, number]}
+    */
     {key: "binDomain"},
-    /** A uniform bin width. When set, takes precedence over `binThresholds`. */
+    /**
+        A uniform bin width, with edges at multiples of the width. When set,
+        takes precedence over `binThresholds`.
+        @type {number}
+    */
     {key: "binWidth"},
     /**
         What each bar's height measures: `"count"` (default), `"density"`
         (count ÷ (total × bin width), so the bars' area sums to 1), or
         `"relative"` (count ÷ total, so the heights sum to 1).
+        @type {"count" | "density" | "relative"}
     */
     {key: "binNormalize", default: "count"},
     {key: "discrete", default: "x"},
@@ -172,7 +182,10 @@ export const histogramDef: ChartDefinition = {
         };
       },
     },
-    /** Accessor for each row's numeric observation. */
+    /**
+        Accessor function or string key for each row's numeric observation.
+        @type {string | function}
+    */
     {
       key: "value",
       default: keyedAccessor("value"),

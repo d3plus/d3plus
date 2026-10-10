@@ -75,16 +75,34 @@ export const packDef: ChartDefinition = {
   },
 
   fields: [
+    /**
+        The padding, in pixels, between sibling circles and inside each parent
+        circle.
+    */
     {key: "layoutPadding", default: 1},
+    /**
+        Comparator for sibling circles, given two d3-hierarchy nodes. Defaults to
+        descending by summed value.
+    */
     {
       key: "sort",
       default: ((a, b) => (b.value ?? 0) - (a.value ?? 0)) as SortFn,
     },
+    /**
+        Accessor function or string key for the value each circle's area is
+        proportional to. Parent circles sum their children.
+        @type {string | function}
+    */
     {
       key: "sum",
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        The opacity of the parent circles that enclose nested circles: a number or
+        a function of the data point and its index. Leaf circles stay opaque.
+        @type {number | function}
+    */
     {
       key: "packOpacity",
       default: constant(0.25),
