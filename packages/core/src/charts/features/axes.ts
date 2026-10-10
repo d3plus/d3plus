@@ -258,19 +258,14 @@ function measureXTestAxes(
 
   const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
 
-  if (showX) {
-    xTest.range([xOffsetLeft, undefined]).measure();
-  }
-
   const yLabelConfig = yTest.shapeConfig().labelConfig as {fontSize: () => number};
   const topOffset = (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
 
-  const xOffsetRight = max([
-    0,
+  const xOffsetRight = xRightInset(
+    {xTest, x2Test, showX, x2Exists, xRangeMax, width},
+    xOffsetLeft,
     y2Width,
-    width - xTestRange[1],
-    width - x2TestRange[1],
-  ] as number[])!;
+  );
   const xBounds = xTest.outerBounds() as AxisBounds;
   const endSpace = ends ? endLabelSpace(measureEndLabels(xTest), height - x2Height) : 0;
   const xHeight = ends ? endSpace : xBounds.height + (showY || showX ? xTest.padding() : 0);
@@ -289,6 +284,34 @@ function measureXTestAxes(
     xHeight,
     xLabelMode,
   };
+}
+
+/**
+    The room the plot leaves on its right for the y2 axis and for the x/x2
+    axes' last labels, once those axes start at `xOffsetLeft`. The x and x2
+    test axes are re-measured from there: where an axis starts decides its
+    ticks, and so which label is last and how far it reaches past the
+    range's end.
+*/
+function xRightInset(
+  axes: {
+    xTest: Axis;
+    x2Test: Axis;
+    showX: boolean;
+    x2Exists: boolean;
+    xRangeMax: number | undefined;
+    width: number;
+  },
+  xOffsetLeft: number,
+  y2Width: number | undefined,
+): number {
+  const {xTest, x2Test, showX, x2Exists, width} = axes;
+  const xRangeMax = axes.xRangeMax || undefined;
+  if (showX) xTest.range([xOffsetLeft, xRangeMax]).measure();
+  if (x2Exists) x2Test.range([xOffsetLeft, xRangeMax]).measure();
+  const xEnd = (xTest._getRange() as number[])[1];
+  const x2End = (x2Test._getRange() as number[])[1];
+  return max([0, y2Width, width - xEnd, width - x2End] as number[])!;
 }
 
 /**
@@ -372,12 +395,7 @@ function solveFinalYAxes(
   const y2Width = y2Bounds.width
     ? y2Bounds.width + y2Test.padding()
     : undefined;
-  xOffsetRight = max([
-    0,
-    y2Width,
-    width - xTestRange[1],
-    width - x2TestRange[1],
-  ] as number[])!;
+  xOffsetRight = xRightInset(pCtx, xOffsetLeft, y2Width);
 
   return {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight};
 }
