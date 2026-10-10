@@ -19,6 +19,7 @@ import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
+import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
@@ -285,6 +286,7 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.lci));
       if (viz._confidence[1])
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.hci));
+      myData = myData.concat(extraBandValues(viz, localData));
     }
 
     return myData;

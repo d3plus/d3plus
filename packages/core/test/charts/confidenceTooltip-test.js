@@ -2,10 +2,12 @@ import assert from "assert";
 import it from "../jsdom.js";
 import {BarChart, LinePlot} from "../../es/index.js";
 import {
+  bandRows,
   confidenceRows,
   confidenceSuffix,
   confidenceTooltipEnabled,
   rangeSuffix,
+  rangeText,
   rowConfidence,
 } from "../../es/src/charts/Plot/confidenceTooltip.js";
 
@@ -57,4 +59,38 @@ it("confidenceSuffix — a row's range, unless off", () => {
   viz.confidenceConfig({tooltip: false});
   assert.strictEqual(confidenceSuffix(viz, {lo: 1, hi: 4}, 0, fmt), "");
   assert.strictEqual(confidenceSuffix(new LinePlot(), {lo: 1, hi: 4}, 0, fmt), "", "confidence off");
+});
+
+// #212: nested bands list one range row per band.
+
+it("rangeText — the bare range, without the suffix's parentheses", () => {
+  assert.strictEqual(rangeText(1, 4, fmt), "<1> – <4>");
+  assert.strictEqual(rangeText(1, undefined, fmt), "≥ <1>");
+  assert.strictEqual(rangeText(undefined, 4, fmt), "≤ <4>");
+  assert.strictEqual(rangeText(NaN, undefined, fmt), "");
+});
+
+it("bandRows — a [label, range] row per band with a bound, outermost first", () => {
+  const viz = new LinePlot().confidence([["p5", "p95", "90%"], ["p25", "p75"], ["p40", false, "20%"]]);
+  const d = {p5: 1, p95: 9, p25: 3, p75: 7};
+  assert.deepStrictEqual(bandRows(viz, d, 0, fmt), [
+    ["90%", "<1> – <9>"],
+    ["Band 2", "<3> – <7>"],
+  ], "a band without bounds on the row is skipped");
+  assert.deepStrictEqual(bandRows(viz, {p40: 2}, 0, fmt), [["20%", "≥ <2>"]], "one-sided");
+});
+
+it("confidenceRows — nested bands list their ranges; a lone band keeps Lower/Upper Bound", () => {
+  const nested = new LinePlot().confidence([["lo", "hi", "90%"], ["mlo", "mhi", "50%"]]);
+  const d = {lo: 1, hi: 9, mlo: 4, mhi: 6};
+  assert.deepStrictEqual(confidenceRows(nested, d, 0, fmt), [["90%", "<1> – <9>"], ["50%", "<4> – <6>"]]);
+  const single = new LinePlot().confidence([["lo", "hi", "90%"]]);
+  assert.deepStrictEqual(confidenceRows(single, d, 0, fmt), [["Lower Bound", "<1>"], ["Upper Bound", "<9>"]]);
+  nested.confidenceConfig({tooltip: false});
+  assert.deepStrictEqual(confidenceRows(nested, d, 0, fmt), [], "opted out");
+});
+
+it("confidenceSuffix — nested bands show the outermost band's range", () => {
+  const viz = new LinePlot().confidence([["lo", "hi"], ["mlo", "mhi"]]);
+  assert.strictEqual(confidenceSuffix(viz, {lo: 1, hi: 9, mlo: 4, mhi: 6}, 0, fmt), " (<1> – <9>)");
 });
