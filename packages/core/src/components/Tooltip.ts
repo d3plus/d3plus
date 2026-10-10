@@ -136,6 +136,17 @@ function resolvePortal(that: Tooltip): D3Selection {
 }
 
 /**
+    The DOM id of a tooltip (or of its `cat` child element): prefixed with the
+    Tooltip instance's uuid so that ids stay unique across charts, then keyed
+    per datum by the `id` accessor.
+    @private
+*/
+function elementId(that: Tooltip, d: DataPoint, i: number, cat?: string): string {
+  const prefix = cat ? `d3plus-tooltip-${cat}` : "d3plus-tooltip";
+  return `${prefix}-${that._uuid}-${d ? that.schema.id(d, i) : ""}`;
+}
+
+/**
     Creates DIV elements with a unique class and styles.
     @private
 */
@@ -148,11 +159,7 @@ function divElement(
   enter
     .append("div")
     .attr("class", `d3plus-tooltip-${cat}`)
-    .attr(
-      "id",
-      ((d: DataPoint, i: number) =>
-        `d3plus-tooltip-${cat}-${d ? that.schema.id(d, i) : ""}`) as never,
-    );
+    .attr("id", ((d: DataPoint, i: number) => elementId(that, d, i, cat)) as never);
 
   const div = update
     .select(`.d3plus-tooltip-${cat}`)
@@ -261,17 +268,15 @@ function bindTooltips(
   tooltips: D3Selection,
 ): void {
   enter
-    .attr(
-      "id",
-      ((d: DataPoint, i: number) =>
-        `d3plus-tooltip-${d ? that.schema.id(d, i) : ""}`) as never,
-    )
+    .attr("id", ((d: DataPoint, i: number) => elementId(that, d, i)) as never)
     .style("visibility", "hidden")
     .call(box => boxStyles(that, box as never))
-    .each(function (this: unknown, d: DataPoint, i: number) {
+    .each(function (this: HTMLElement, d: DataPoint, i: number) {
       const id = that.schema.id(d, i);
-      const tooltip = document.getElementById(`d3plus-tooltip-${id}`)!;
-      const arrowEl = document.getElementById(`d3plus-tooltip-arrow-${id}`)!;
+      // Read the entered node and its own arrow, never a document-wide id
+      // lookup: another Tooltip's element could answer to the same id.
+      const tooltip = this;
+      const arrowEl = tooltip.querySelector<HTMLElement>(".d3plus-tooltip-arrow")!;
       const arrowHeight = arrowEl.offsetHeight;
       const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
       arrowEl.style.bottom = `-${arrowHeight / 2}px`;
@@ -404,9 +409,14 @@ export default class Tooltip extends BaseClass {
   render(callback?: (...args: unknown[]) => unknown): this {
     const that = this;
 
-    const portal = resolvePortal(this);
-    const tooltips = portal
-      .selectAll(`.${this.schema.className}`)
+    // Join only this instance's tooltips: Tooltips without a parent() share
+    // the global portal, and each must leave the others' elements alone.
+    const ownPrefix = `d3plus-tooltip-${this._uuid}-`;
+    const tooltips = resolvePortal(this)
+      .selectAll<HTMLElement, DataPoint>(`.${this.schema.className}`)
+      .filter(function (this: HTMLElement) {
+        return this.id.startsWith(ownPrefix);
+      })
       .data(this._data, this.schema.id) as unknown as D3Selection;
 
     const enter = tooltips.enter().append("div").attr("class", this.schema.className) as unknown as D3Selection;
