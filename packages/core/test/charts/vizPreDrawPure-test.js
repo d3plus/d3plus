@@ -52,3 +52,22 @@ it("vizPostThresholdCtx returns noDataMessage + hoverOverride", () => {
   // Empty data + noDataMessage=false default → false (default config).
   // The point is the contract returns the field.
 });
+
+it("vizPreDrawPure passes rows the chart has already filtered without running filter on them", () => {
+  const seen = [];
+  const chart = new BarChart()
+    .data([
+      {id: "a", x: 1, y: 10},
+      {id: "b", x: 2, y: 20},
+      {id: "c", x: 3, y: 15},
+    ])
+    .groupBy("id")
+    .filter(d => {
+      seen.push(d.id);
+      return d.id === "c";
+    });
+  chart._filterApplied = d => d.id === "a";
+  const ctx = vizPreDrawPure(chart);
+  assert.deepStrictEqual(ctx.filteredData.map(d => d.id), ["a", "c"]);
+  assert.deepStrictEqual(seen, ["b", "c"], "filter runs only on the rows not already filtered");
+});
