@@ -1,0 +1,189 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Bullet</title>
+  <meta name="description" content="Bullet graphs: per-row KPI bullets with threshold bands and targets, a shared domain with forecasts, vertical bullets, colored bands on a dark background, a compact list without axes, negative values, and regional small multiples.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      display: grid;
+      font-family: sans-serif;
+      gap: 24px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 20px;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px;
+    }
+
+    .viz {
+      height: 360px;
+    }
+
+    .dark {
+      background: #1f2328;
+    }
+
+    .wide {
+      grid-column: 1 / -1;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div><h3>KPIs with per-row bands, targets, and units</h3><div class="viz" id="kpis"></div></div>
+  <div><h3>Shared domain with forecasts</h3><div class="viz" id="shared"></div></div>
+  <div><h3>Vertical</h3><div class="viz" id="vertical"></div></div>
+  <div><h3>Colored bands on a dark background</h3><div class="viz dark" id="dark"></div></div>
+  <div><h3>Compact: no axes, one target for every row</h3><div class="viz" id="compact"></div></div>
+  <div><h3>Negative values</h3><div class="viz" id="negative"></div></div>
+  <div class="wide"><h3>Small multiples by region</h3><div class="viz" id="facet"></div></div>
+</body>
+
+<script>
+
+  var kpis = [
+    {id: "Revenue", unit: "US$, in thousands", value: 270, target: 250, ranges: [150, 225, 300]},
+    {id: "Profit", unit: "%", value: 22.5, target: 27, ranges: [20, 25, 30]},
+    {id: "Order Size", unit: "US$, average", value: 410, target: 550, ranges: [350, 500, 600]},
+    {id: "New Customers", unit: "count", value: 1650, target: 2100, ranges: [1400, 2000, 2500]},
+    {id: "Satisfaction", unit: "out of 5", value: 4.5, target: 4.2, ranges: [3.5, 4.25, 5]}
+  ];
+
+  new d3plus.Bullet()
+    .select("#kpis")
+    .config({
+      data: kpis,
+      bands: function(d) { return d.ranges.slice(0, -1); },
+      domain: function(d) { return [0, d.ranges[d.ranges.length - 1]]; },
+      subLabel: "unit"
+    })
+    .render();
+
+  new d3plus.Bullet()
+    .select("#shared")
+    .config({
+      data: [
+        {id: "Q1", value: 42, target: 55, forecast: 58},
+        {id: "Q2", value: 61, target: 60, forecast: 70},
+        {id: "Q3", value: 38, target: 65, forecast: 52},
+        {id: "Q4", value: 74, target: 70, forecast: 80}
+      ],
+      bands: [40, 70],
+      domain: [0, 100],
+      sharedDomain: true,
+      valueFormat: function(d) { return d + "%"; },
+      tickFormat: function(d) { return d + "%"; }
+    })
+    .render();
+
+  new d3plus.Bullet()
+    .select("#vertical")
+    .config({
+      data: [
+        {id: "North", value: 72, target: 80},
+        {id: "South", value: 88, target: 75},
+        {id: "East", value: 54, target: 70},
+        {id: "West", value: 63, target: 60}
+      ],
+      bands: [50, 75],
+      domain: [0, 100],
+      orient: "vertical"
+    })
+    .render();
+
+  new d3plus.Bullet()
+    .select("#dark")
+    .config({
+      data: [
+        {id: "CPU", value: 64, target: 75},
+        {id: "Memory", value: 81, target: 75},
+        {id: "Disk", value: 37, target: 75}
+      ],
+      bands: [
+        {max: 60, color: "#2b8a3e"},
+        {max: 85, color: "#e67700"},
+        {color: "#c92a2a"}
+      ],
+      domain: [0, 100],
+      shapeConfig: {fill: "#f1f3f5"},
+      targetConfig: {stroke: "#1f2328"},
+      valueFormat: function(d) { return d + "%"; }
+    })
+    .render();
+
+  new d3plus.Bullet()
+    .select("#compact")
+    .config({
+      data: [
+        {id: "Uptime", value: 97.2},
+        {id: "Tests passing", value: 92.5},
+        {id: "Coverage", value: 81.4},
+        {id: "Docs complete", value: 68},
+        {id: "Accessibility", value: 88.9},
+        {id: "Performance", value: 74.3}
+      ],
+      bands: [70, 85],
+      bulletSize: 18,
+      domain: [0, 100],
+      target: 90,
+      ticks: false
+    })
+    .render();
+
+  new d3plus.Bullet()
+    .select("#negative")
+    .config({
+      data: [
+        {id: "Margin", value: -4.2, target: 3, forecast: 1.5},
+        {id: "Growth", value: 6.8, target: 5, forecast: 8.1},
+        {id: "Churn change", value: -1.1, target: -2}
+      ],
+      subLabel: function() { return "% vs. last year"; },
+      bands: [{max: 0}, {}]
+    })
+    .render();
+
+  var regions = ["Africa", "Americas", "Asia", "Europe"];
+  var metrics = [
+    {id: "Revenue", base: 240, target: 250, ranges: [150, 225]},
+    {id: "Profit", base: 24, target: 27, ranges: [20, 25]},
+    {id: "Orders", base: 1500, target: 1800, ranges: [1200, 1700]}
+  ];
+  var facetData = [];
+  regions.forEach(function(region, r) {
+    metrics.forEach(function(m, k) {
+      var swing = 0.75 + ((r * 3 + k * 5) % 7) / 10;
+      facetData.push({
+        id: m.id,
+        region: region,
+        value: Math.round(m.base * swing * 10) / 10,
+        target: m.target,
+        ranges: m.ranges
+      });
+    });
+  });
+
+  new d3plus.Bullet()
+    .select("#facet")
+    .config({
+      data: facetData,
+      bands: function(d) { return d.ranges; },
+      facet: "region"
+    })
+    .render();
+
+</script>
+
+</html>

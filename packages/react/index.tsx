@@ -5,6 +5,7 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Chord as ChordClass,
   Donut as DonutClass,
@@ -74,6 +75,10 @@ export const Beeswarm = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BoxWhiskerClass} {...props} />
+);
+/** React component for rendering a d3plus Bullet visualization. */
+export const Bullet = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={BulletClass} {...props} />
 );
 /** React component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = (props: D3plusComponentProps) => (

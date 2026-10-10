@@ -11,6 +11,7 @@
 */
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
+export {applyBulletLayout, bulletExtents} from "./src/charts/Bullet/applyLayout.js";
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
@@ -28,6 +29,8 @@ export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
+export {bulletStack} from "./src/charts/Bullet/bulletLayout.js";
+export {fitAxis as bulletAxis, normalizeBands as bulletBands} from "./src/charts/Bullet/bulletGeometry.js";
 export {
   absoluteFormat,
   frameTotals,
@@ -70,6 +73,7 @@ export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {bulletDef} from "./src/charts/Bullet/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
