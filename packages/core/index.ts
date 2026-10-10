@@ -92,8 +92,10 @@ export type {
   ConstOrAccessor,
   ImageConfig,
   LineConfig,
+  Orient,
   PathConfig,
   RectConfig,
+  SideOrient,
   StringOrAccessor,
   WhiskerConfig,
 } from "./src/shapes/shapeConfig.js";

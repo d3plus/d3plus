@@ -34,6 +34,12 @@ import type {AccessorFn} from "../utils/index.js";
 */
 export type ConstOrAccessor<T = unknown> = T | AccessorFn;
 
+/** Layout direction of a chart or Box shape. */
+export type Orient = "horizontal" | "vertical";
+
+/** Side a Whisker shape points toward. */
+export type SideOrient = "top" | "bottom" | "left" | "right";
+
 /**
     A value that can be a function, a string key (wrapped in `accessor`),
     or a literal (wrapped in `constant`). Mirrors the "accessor" coerce.
@@ -239,7 +245,7 @@ export interface BoxConfig {
   data?: DataPoint[];
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
-  orient?: ConstOrAccessor<string>;
+  orient?: ConstOrAccessor<Orient>;
   /** Outlier accessor (per-datum predicate). */
   outlier?: ConstOrAccessor<string>;
   outlierConfig?: Record<string, unknown>;
@@ -264,7 +270,8 @@ export interface WhiskerConfig {
   /** Whisker length in pixels. */
   length?: ConstOrAccessor<number>;
   lineConfig?: Record<string, unknown>;
-  orient?: ConstOrAccessor<string>;
+  /** Side the whisker points toward. */
+  orient?: ConstOrAccessor<SideOrient>;
   select?: string | HTMLElement | SVGElement | null;
   x?: ConstOrAccessor<number>;
   y?: ConstOrAccessor<number>;

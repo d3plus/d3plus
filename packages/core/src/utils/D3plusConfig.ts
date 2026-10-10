@@ -5,6 +5,7 @@ import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {AccessorFn} from "./AccessorFn.js";
+import type {ConstOrAccessor, Orient, SideOrient} from "../shapes/shapeConfig.js";
 import type {
   SizeLegendLineConfig,
   SizeLegendShapeConfig,
@@ -672,6 +673,13 @@ export interface D3plusConfig {
   ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
   on?: Record<string, (event: Event) => void>;
+  /**
+      Layout direction. Charts that can be drawn either way take
+      `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
+      side they point toward: `"top"`, `"bottom"`, `"left"`, or `"right"`.
+      Shapes also accept a per-datum accessor.
+  */
+  orient?: ConstOrAccessor<Orient | SideOrient>;
   /**
       Room (px) the Radar reserves around its web for the metric labels.
       `"auto"` (the default) measures the labels and gives the web the largest
