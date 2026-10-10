@@ -13,6 +13,7 @@ export interface TranslationStrings {
   Count: string;
   Density: string;
   Download: string;
+  "Drag to Filter": string;
   Equation: string;
   Exponential: string;
   Linear: string;
@@ -70,6 +71,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
     Download: "\u062a\u062d\u0645\u064a\u0644",
+    "Drag to Filter": "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Linear: "\u062e\u0637\u064a",
@@ -123,6 +125,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Recuento",
     Density: "Densidad",
     Download: "Descargar",
+    "Drag to Filter": "Arrastrar para Filtrar",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Linear: "Lineal",
@@ -171,6 +174,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Contagem",
     Density: "Densidade",
     Download: "Baixar",
+    "Drag to Filter": "Arraste para Filtrar",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Linear: "Linear",
@@ -219,6 +223,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u8ba1\u6570",
     Density: "\u5bc6\u5ea6",
     Download: "\u4e0b\u8f7d",
+    "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Linear: "\u7ebf\u6027",

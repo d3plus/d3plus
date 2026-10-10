@@ -522,7 +522,7 @@ export default class Viz extends VizBase {
     applyZoomPointerEvents(this);
     if (this._select && kind === "canvas")
       this._select
-        .select("g.d3plus-viz-timeline")
+        .selectAll("g.d3plus-viz-timeline, g.d3plus-viz-brush")
         .style("pointer-events", "auto");
     if (kind === "canvas") bindCanvasZoom(this);
 
@@ -541,9 +541,10 @@ export default class Viz extends VizBase {
         ? host.querySelector(":scope > g.d3plus-viz-timeline")
         : null;
       if (tlGroup) host!.appendChild(tlGroup);
-      // Likewise the zoom brush, so its selection box draws over the shapes.
-      const zoomBrush = host ? host.querySelector(":scope > g.d3plus-zoom-brush") : null;
-      if (zoomBrush && zoomBrush !== host!.lastElementChild) host!.appendChild(zoomBrush);
+      // Likewise the zoom brush and any chart-owned brush layer (`g.d3plus-viz-brush`), so their selections draw over the shapes.
+      host?.querySelectorAll(":scope > g.d3plus-zoom-brush, :scope > g.d3plus-viz-brush").forEach(layer => {
+        if (layer !== host.lastElementChild) host.appendChild(layer);
+      });
     }
   }
 

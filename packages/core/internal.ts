@@ -19,6 +19,7 @@ export {applyNetworkLayout} from "./src/charts/Network/applyLayout.js";
 export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
+export {applyParallelLayout} from "./src/charts/ParallelCoordinates/applyLayout.js";
 export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
@@ -67,6 +68,39 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  autoLineOpacity,
+  axisPositions,
+  detectDimensions,
+  dimensionDomain,
+  dimensionType,
+  isMissing,
+  isNumeric,
+  resolveDimensions,
+  sharedDomains,
+} from "./src/charts/ParallelCoordinates/dimensions.js";
+export type {DimensionType, ParallelDimension} from "./src/charts/ParallelCoordinates/dimensions.js";
+export {
+  brushFromPixels,
+  hasBrushes,
+  isNumericRange,
+  pixelsFromBrush,
+  rowPasses,
+  valuePasses,
+} from "./src/charts/ParallelCoordinates/brushFilter.js";
+export type {BrushAxis} from "./src/charts/ParallelCoordinates/brushFilter.js";
+export {linePoints, parallelPath} from "./src/charts/ParallelCoordinates/paths.js";
+export type {LineAxis, ParallelCurve, ParallelOrient} from "./src/charts/ParallelCoordinates/paths.js";
+export {axisDomain, dimensionAxisConfig, dimensionTitleStyle, layoutAxes} from "./src/charts/ParallelCoordinates/axes.js";
+export type {AxesLayout, PlacedAxis} from "./src/charts/ParallelCoordinates/axes.js";
+export {brushTarget, parallelDimensionKeys, parallelOrient} from "./src/charts/ParallelCoordinates/applyLayout.js";
+export {stripLength, stripSelection, syncBrushDom} from "./src/charts/ParallelCoordinates/brushDom.js";
+export type {BrushTarget} from "./src/charts/ParallelCoordinates/brushDom.js";
+export {lineAriaLabel, parallelEmit, resolveLineOpacity} from "./src/charts/ParallelCoordinates/emit.js";
+export type {ParallelLine} from "./src/charts/ParallelCoordinates/emit.js";
+export {applyLineStates, grayscale} from "./src/charts/ParallelCoordinates/lineStates.js";
+export {dimensionTooltipRows, formatDimensionValue} from "./src/charts/ParallelCoordinates/format.js";
+export {titleHeight, titleNodes, titleWidths} from "./src/charts/ParallelCoordinates/titles.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -79,6 +113,7 @@ export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {packDef} from "./src/charts/Pack/index.js";
+export {parallelCoordinatesDef, resolveBrushStyle} from "./src/charts/ParallelCoordinates/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
