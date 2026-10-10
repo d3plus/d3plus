@@ -56,7 +56,7 @@ export interface RadarAxisConfig {
 type FontAccessor<T> = (d: DataPoint, i: number) => T;
 
 /** Resolves the font a metric label renders with, the way its TextBox will. */
-const labelFont = (viz: Viz, text: string, datum: DataPoint, i: number) => {
+export const labelFont = (viz: Viz, text: string, datum: DataPoint, i: number) => {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const tb = new TextBox().config({
     ...shapeLabelDefaults,
@@ -180,10 +180,18 @@ export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode
   return out;
 }
 
-/** Builds the level rings from `axisConfig.gridConfig` (inner) and `barConfig` (outer). */
-export function radarRingNodes(viz: Viz, {domain, ticks}: RadarLevels, radius: number): SceneNode[] {
+/**
+    Builds the level rings from `axisConfig.gridConfig` (inner) and `barConfig`
+    (outer). `toRadius` maps a ring value onto its radius (linear by default).
+*/
+export function radarRingNodes(
+  viz: Viz,
+  {domain, ticks}: RadarLevels,
+  radius: number,
+  toRadius: (value: number) => number = v => radarRadius(v, domain, radius),
+): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
-  const rings = ticks.map(value => ({value, r: radarRadius(value, domain, radius)}));
+  const rings = ticks.map(value => ({value, r: toRadius(value)}));
   return emitRadarRings(
     rings,
     radius,
@@ -193,11 +201,15 @@ export function radarRingNodes(viz: Viz, {domain, ticks}: RadarLevels, radius: n
   );
 }
 
-/** Resolves `levelLabelConfig` + `levelFormat` and builds the level label nodes. */
+/**
+    Resolves `levelLabelConfig` + `levelFormat` and builds the level label
+    nodes. `toRadius` maps a ring value onto its radius (linear by default).
+*/
 export function radarLevelLabelNodes(
   viz: Viz,
   {domain, ticks}: RadarLevels,
   radius: number,
+  toRadius?: (value: number) => number,
 ): SceneNode[] {
   if (!viz.schema.levelLabels) return [];
   const cfg = (viz.schema.levelLabelConfig ?? {}) as NonNullable<D3plusConfig["levelLabelConfig"]>;
@@ -220,6 +232,7 @@ export function radarLevelLabelNodes(
     format,
     measure: text => textWidth(text, style),
     fontSize,
+    toRadius,
   });
   return emitRadarLevelLabels(labels, {
     fontColor: cfg.fontColor ?? backgroundInk(viz),

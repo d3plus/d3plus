@@ -1,0 +1,160 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>PolarArea</title>
+    <meta name="description" content="PolarArea (Nightingale rose): stacked causes of death by month, one wedge per row, a linear scale with an inner radius, 48 crowded categories with labels along the spokes, small multiples, and a dark background.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      #dark {
+        background: #212529;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid">
+      <section>
+        <h3>metric("month") + groupBy("cause"): stacked Nightingale rose</h3>
+        <div class="viz" id="rose"></div>
+      </section>
+      <section>
+        <h3>One wedge per row (no metric)</h3>
+        <div class="viz" id="simple"></div>
+      </section>
+      <section>
+        <h3>radialScale("linear") + innerRadius(50) + padPixel(3) + levels([0, 5, 10, 15, 20])</h3>
+        <div class="viz" id="linear"></div>
+      </section>
+      <section>
+        <h3>48 half-hours: crowded labels turn along their spokes</h3>
+        <div class="viz" id="hours"></div>
+      </section>
+      <section class="wide">
+        <h3>facet("region")</h3>
+        <div class="viz" id="facet"></div>
+      </section>
+      <section>
+        <h3>Dark background + levelLabelAngle(15) + startAngle(-15)</h3>
+        <div class="viz" id="dark"></div>
+      </section>
+    </div>
+
+    <script>
+
+      // Deaths in the British Army in the East, April 1854 – March 1855 (after Nightingale).
+      const months = ["Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"];
+      const deaths = {
+        "Disease": [1, 12, 11, 359, 828, 788, 503, 844, 1725, 2761, 2120, 1205],
+        "Wounds": [0, 0, 0, 0, 1, 81, 132, 287, 114, 83, 42, 32],
+        "Other": [5, 9, 6, 23, 30, 70, 128, 106, 131, 324, 361, 172],
+      };
+      const crimea = Object.keys(deaths).flatMap(cause =>
+        months.map((month, m) => ({cause, month, deaths: deaths[cause][m]})));
+
+      new d3plus.PolarArea()
+        .select("#rose")
+        .data(crimea)
+        .groupBy("cause")
+        .metric("month")
+        .value("deaths")
+        .color(d => ({Disease: "#4c6ef5", Wounds: "#e03131", Other: "#868e96"})[d.cause])
+        .render();
+
+      const winds = [
+        {direction: "N", days: 42}, {direction: "NE", days: 27}, {direction: "E", days: 18},
+        {direction: "SE", days: 31}, {direction: "S", days: 64}, {direction: "SW", days: 88},
+        {direction: "W", days: 57}, {direction: "NW", days: 38},
+      ];
+
+      new d3plus.PolarArea()
+        .select("#simple")
+        .data(winds)
+        .groupBy("direction")
+        .value("days")
+        .render();
+
+      new d3plus.PolarArea()
+        .select("#linear")
+        .data([
+          {skill: "Python", years: 12}, {skill: "SQL", years: 9}, {skill: "R", years: 6},
+          {skill: "Go", years: 3}, {skill: "TypeScript", years: 7}, {skill: "Rust", years: 2},
+        ])
+        .groupBy("skill")
+        .value("years")
+        .radialScale("linear")
+        .innerRadius(50)
+        .padPixel(3)
+        .levels([0, 5, 10, 15, 20])
+        .render();
+
+      new d3plus.PolarArea()
+        .select("#hours")
+        .data(Array.from({length: 48}, (_v, k) => {
+          const h = k / 2;
+          return {
+            hour: `${String(Math.floor(h)).padStart(2, "0")}:${k % 2 ? "30" : "00"}`,
+            trips: Math.round(40 + 200 * Math.exp(-((h - 8) ** 2) / 6) + 160 * Math.exp(-((h - 18) ** 2) / 8)),
+          };
+        }))
+        .groupBy("hour")
+        .value("trips")
+        .render();
+
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      const products = ["Hardware", "Software", "Services"];
+      const regions = ["North", "South", "East"];
+      const sales = regions.flatMap((region, r) => products.flatMap((product, p) =>
+        quarters.map((quarter, q) => ({region, product, quarter, sales: 20 + ((r * 17 + p * 29 + q * 13) % 45)}))));
+
+      new d3plus.PolarArea()
+        .select("#facet")
+        .data(sales)
+        .groupBy("product")
+        .metric("quarter")
+        .value("sales")
+        .facet("region")
+        .render();
+
+      new d3plus.PolarArea()
+        .select("#dark")
+        .data(crimea.filter(d => d.cause !== "Disease"))
+        .groupBy("cause")
+        .metric("month")
+        .value("deaths")
+        .levelLabelAngle(15)
+        .startAngle(-15)
+        .render();
+
+    </script>
+
+  </body>
+
+</html>

@@ -20,8 +20,10 @@ export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
 export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
+export {applyPolarAreaLayout, polarAreaSlotOf} from "./src/charts/PolarArea/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
+export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
 export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
@@ -67,6 +69,33 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  polarInnerRadius,
+  polarLevels,
+  polarPadAngle,
+  polarRadius,
+  polarSlots,
+  polarStack,
+} from "./src/charts/polar/geometry.js";
+export type {PolarDomainInput, PolarScale, PolarSlot, PolarStackSegment} from "./src/charts/polar/geometry.js";
+export {
+  polarHorizontalLayout,
+  polarLabelFitRadius,
+  polarLabelPlacement,
+  polarLabelRoom,
+  polarLabelsCollide,
+  polarSpokeRotation,
+} from "./src/charts/polar/labels.js";
+export {polarCategoryLayout, polarCategoryNodes, polarLevelNodes} from "./src/charts/polar/chrome.js";
+export {polarAxisConfig, polarLegend, polarValueRow, polarWedgeNodes} from "./src/charts/polar/config.js";
+export {polarSlotArc, polarWedgeLayout} from "./src/charts/polar/wedgeLayout.js";
+export type {PolarFrame, PolarWedge, PolarWedgeOptions} from "./src/charts/polar/wedgeLayout.js";
+export {polarAreaEmit} from "./src/charts/PolarArea/emit.js";
+export {radialBarRows} from "./src/charts/RadialBar/applyLayout.js";
+export {radialBarEmit} from "./src/charts/RadialBar/emit.js";
+export {radialBarFootprint, radialBarLabelRoom, radialBarTracks} from "./src/charts/RadialBar/tracks.js";
+export {radialBarTrackLayout} from "./src/charts/RadialBar/trackLayout.js";
+export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -80,9 +109,11 @@ export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {packDef} from "./src/charts/Pack/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
+export {polarAreaDef} from "./src/charts/PolarArea/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
+export {radialBarDef} from "./src/charts/RadialBar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
