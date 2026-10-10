@@ -22,6 +22,7 @@ export interface TranslationStrings {
   Match: string;
   Matches: string;
   more: string;
+  "No Data": string;
   "No Data Available": string;
   "No Matches": string;
   Observations: string;
@@ -77,6 +78,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
     Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
     "Lower Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
+    "No Data": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
@@ -132,6 +134,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "Coincidencia",
     Matches: "Coincidencias",
     more: "m\u00e1s",
+    "No Data": "Sin Datos",
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
     Observations: "Observaciones",
@@ -180,6 +183,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     more: "mais",
+    "No Data": "Sem Dados",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
     Observations: "Observa\u00e7\u00f5es",
@@ -228,6 +232,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     more: "\u66f4\u591a",
+    "No Data": "\u65e0\u6570\u636e",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
     Observations: "\u89c2\u6d4b\u6570",

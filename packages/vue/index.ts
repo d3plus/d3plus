@@ -4,6 +4,7 @@ import {
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Calendar as CalendarClass,
   Chord as ChordClass,
   Donut as DonutClass,
   Gauge as GaugeClass,
@@ -64,6 +65,8 @@ export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
+/** Vue component for rendering a d3plus Calendar visualization. */
+export const Calendar = createD3plusComponent(CalendarClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */

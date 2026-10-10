@@ -16,6 +16,8 @@ import {isFluentAccessor} from "../../es/src/fluent.js";
     semantics must be covered by that method, since user calls reach the method.
 */
 const SEED_ONLY = {
+  colorScale: "seeds an accessor function, the form VizBaseConfig.colorScale stores a key as",
+  groupBy: "seeds an array of accessor functions, the form VizBaseConfig.groupBy stores keys as",
   label: "coerce \"const\" matches VizBaseConfig.label (function, else constant)",
   legend: "coerce \"const\" matches VizBaseConfig.legend (function, else constant)",
   legendTooltip: "merge seeds the bag; VizBaseConfig.legendTooltip deep-merges sets",

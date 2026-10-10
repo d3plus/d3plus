@@ -468,6 +468,17 @@ export interface D3plusConfig {
   baselineBreak?: boolean;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
+  calendarLabelConfig?: {
+    fontColor?: string;
+    fontFamily?: string | string[];
+    fontSize?: number;
+    fontWeight?: number | string;
+  };
+  /** Matrix and Calendar: the gap between neighboring cells, in pixels. */
+  cellPadding?: number;
+  /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
+  cellRadius?: number;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -525,12 +536,21 @@ export interface D3plusConfig {
   crosshairConfig?: Record<string, unknown>;
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
+  /**
+      Calendar: the day each row falls on, as a data key or accessor returning
+      a `Date`, a millisecond timestamp, or a date string (a bare
+      `"YYYY-MM-DD"` is read as that local day). Defaults to the row's `date`,
+      else its `time`.
+  */
+  date?: string | ((d: DataPoint, i: number) => Date | number | string);
   /** Active depth level for nested groupings. */
   depth?: number;
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
+  emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
@@ -663,6 +683,16 @@ export interface D3plusConfig {
   minimap?: boolean;
   /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
   minimapClassName?: string;
+  /**
+      Calendar: formats the month names along year blocks and the titles of
+      month blocks — a d3-time-format specifier read in the chart's `locale`,
+      a function of the month's first day, or `false` for none.
+  */
+  monthFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: whether to outline each month inside year blocks. Defaults to `true`. */
+  monthOutline?: boolean;
+  /** Calendar: styles the month outlines (`stroke`, `strokeWidth`, `strokeDasharray`). */
+  monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
@@ -691,6 +721,8 @@ export interface D3plusConfig {
   outerPadding?: number | "auto";
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
+  /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
+  period?: "year" | "month";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */
@@ -888,6 +920,10 @@ export interface D3plusConfig {
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Calendar: formats the weekday names — a d3-time-format specifier read in the chart's `locale` (default `"%a"`), a function of a date on that weekday, or `false` for none. */
+  weekdayFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: the first day of the week, `0` (Sunday) through `6` (Saturday) or a day name such as `"monday"`. Defaults to the first day of the week in the `locale`'s region. */
+  weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
   /** Key, index, or accessor function for x-axis values. */
@@ -927,6 +963,8 @@ export interface D3plusConfig {
   ySort?: (a: DataPoint, b: DataPoint) => number;
   /** Defines a custom sorting comparator function for discrete y2 axes. */
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
+  /** Calendar: formats the year beside each year block — a d3-time-format specifier (default `"%Y"`), a function of the year's first day, or `false` for none. */
+  yearFormat?: string | ((date: Date) => string) | false;
   /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
   zoom?: boolean;
   /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */
