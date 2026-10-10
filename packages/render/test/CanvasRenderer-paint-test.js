@@ -78,6 +78,22 @@ it("headless CanvasRenderer paints and picks path nodes", () => headless(() => {
   renderer.destroy();
 }));
 
+it("headless CanvasRenderer rounds rect corners by rx/ry", () => headless(() => {
+  const renderer = mounted();
+  renderer.drawScene(scene([
+    {type: "rect", key: "round", x: 10, y: 10, width: 60, height: 60, rx: 20, paint: {fill: "#ff0000"}},
+    {type: "rect", key: "square", x: 100, y: 10, width: 60, height: 60, paint: {fill: "#0000ff"}},
+    {type: "rect", key: "pill", x: 10, y: 90, width: 100, height: 20, rx: 50, ry: 50, paint: {fill: "#00ff00"}},
+  ]));
+  assert.strictEqual(pixel(renderer, 11, 11)[3], 0, "a rounded corner is cut away");
+  assert.deepStrictEqual(pixel(renderer, 40, 40), [255, 0, 0, 255], "the rounded rect's middle is filled");
+  assert.deepStrictEqual(pixel(renderer, 40, 11), [255, 0, 0, 255], "its straight edge is filled");
+  assert.deepStrictEqual(pixel(renderer, 101, 11), [0, 0, 255, 255], "a rect without rx keeps square corners");
+  assert.strictEqual(pixel(renderer, 11, 91)[3], 0, "radii clamp to half the side");
+  assert.deepStrictEqual(pixel(renderer, 60, 100), [0, 255, 0, 255], "the clamped pill is filled");
+  renderer.destroy();
+}));
+
 it("headless CanvasRenderer clips groups to rect and path shapes", () => headless(() => {
   const renderer = mounted();
   renderer.drawScene(scene([
