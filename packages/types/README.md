@@ -55,6 +55,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Sunburst`](#sunburst) | Draws a hierarchy as concentric rings, one per `groupBy` level, where each |
 | [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
 | [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
+| [`Waffle`](#waffle) | Draws a grid of unit cells filled by category in proportion to each |
 
 | Classes | Description |
 | --- | --- |
@@ -27513,6 +27514,24 @@ Uses d3's tree layout to create a tidy tree chart based on an array of data.
 Defined in: core/types/src/charts/Treemap/index.d.ts:17
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
+
+#### Returns
+
+`any`
+
+***
+
+<a id="waffle"></a>
+
+### Waffle
+
+> `const` **Waffle**: () => `any`
+
+Defined in: core/types/src/charts/Waffle/index.d.ts:19
+
+Draws a grid of unit cells filled by category in proportion to each
+category's value — 1% per cell by default, or a fixed value per cell
+with `unit`.
 
 #### Returns
 

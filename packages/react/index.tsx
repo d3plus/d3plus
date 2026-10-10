@@ -28,6 +28,7 @@ import {
   Tree as TreeClass,
   Treemap as TreemapClass,
   Viz as VizClass,
+  Waffle as WaffleClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
   AxisLeft as AxisLeftClass,
@@ -166,6 +167,10 @@ export const Treemap = (props: D3plusComponentProps) => (
 /** React component for rendering a base d3plus Viz instance. */
 export const Viz = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={VizClass} {...props} />
+);
+/** React component for rendering a d3plus Waffle visualization. */
+export const Waffle = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={WaffleClass} {...props} />
 );
 
 /** React component for rendering a d3plus Axis. */
