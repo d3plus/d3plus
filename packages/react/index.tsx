@@ -27,6 +27,7 @@ import {
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Violin as ViolinClass,
   Viz as VizClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
@@ -162,6 +163,10 @@ export const Tree = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Treemap visualization. */
 export const Treemap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreemapClass} {...props} />
+);
+/** React component for rendering a d3plus Violin visualization. */
+export const Violin = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ViolinClass} {...props} />
 );
 /** React component for rendering a base d3plus Viz instance. */
 export const Viz = (props: D3plusComponentProps) => (

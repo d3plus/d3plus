@@ -25,6 +25,7 @@ export {
   Sunburst,
   Tree,
   Treemap,
+  Violin,
   Viz,
 } from "./src/charts/index.js";
 
