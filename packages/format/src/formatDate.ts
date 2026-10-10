@@ -29,7 +29,73 @@ export default function formatDate(
   const labelIndex = dataArray.findIndex(a => +a === +d);
   const firstOrLast = labelIndex === 0 || labelIndex === dataArray.length - 1;
   const smallArray = dataArray.length <= 5;
+  const withYear = +timeYear(d) === +d || firstOrLast || smallArray;
+  const interval = dateInterval(dataArray);
 
+  return (
+    interval === "year"
+      ? formatYear
+      : interval === "quarter"
+        ? withYear ? formatQuarterYear : formatQuarter
+        : interval === "month"
+          ? withYear ? formatMonthYear : formatMonth
+          : interval === "day"
+            ? withYear ? formatMonthDayYear : formatMonthDay
+            : interval === "hour"
+              ? firstOrLast || smallArray
+                ? formatMonthDayYear
+                : +timeMonth(d) === +d
+                  ? formatMonthDay
+                  : formatHour
+              : timeSecond(d) < d
+                ? formatMillisecond
+                : timeMinute(d) < d
+                  ? formatSecond
+                  : timeHour(d) < d
+                    ? formatMinute
+                    : (_d: Date) => _d.toString()
+  )(d);
+}
+
+/**
+    Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day.
+    @param d The date to format.
+    @param dataArray The full array of ordered Date Objects.
+    @param formatter Optional custom format string or function.
+*/
+export function formatDateFull(
+  d: Date,
+  dataArray: Date[],
+  formatter: DateFormatter = timeFormat,
+): string {
+  const interval = dateInterval(dataArray);
+  const specifier =
+    interval === "year"
+      ? "%Y"
+      : interval === "quarter"
+        ? "Q%q %Y"
+        : interval === "month"
+          ? "%b %Y"
+          : interval === "day"
+            ? "%b %-d, %Y"
+            : interval === "hour"
+              ? "%b %-d, %Y %-I %p"
+              : timeSecond(d) < d
+                ? "%b %-d, %Y %-I:%M:%S.%L %p"
+                : timeMinute(d) < d
+                  ? "%b %-d, %Y %-I:%M:%S %p"
+                  : "%b %-d, %Y %-I:%M %p";
+  return formatter(specifier)(d);
+}
+
+/**
+    The coarsest interval every step between consecutive dates is a whole multiple of: "year", "quarter", "month", "day", or "hour", else undefined for finer steps.
+    @param dataArray The full array of ordered Date Objects.
+    @private
+*/
+function dateInterval(
+  dataArray: Date[],
+): "year" | "quarter" | "month" | "day" | "hour" | undefined {
   const [yearlySteps, monthlySteps, dailySteps, hourlySteps] = dataArray.reduce<
     [number[], number[], number[], number[]]
   >(
@@ -46,36 +112,19 @@ export default function formatDate(
     },
     [[], [], [], []],
   );
-
-  return (
-    yearlySteps.every(s => s >= 1 && !(s % 1)) // Yearly Data
-      ? formatYear
-      : monthlySteps.every(s => s >= 3 && !(s % 3)) // Quarterly Data
-        ? +timeYear(d) === +d || firstOrLast || smallArray
-          ? formatQuarterYear
-          : formatQuarter
-        : monthlySteps.every(s => s >= 1 && !(s % 1)) // Monthly Data
-          ? +timeYear(d) === +d || firstOrLast || smallArray
-            ? formatMonthYear
-            : formatMonth
-          : dailySteps.every(s => s >= 1 && !(s % 1)) // Daily Data
-            ? +timeYear(d) === +d || firstOrLast || smallArray
-              ? formatMonthDayYear
-              : formatMonthDay
-            : hourlySteps.every(s => s >= 1 && !(s % 1)) // Hourly Data
-              ? firstOrLast || smallArray
-                ? formatMonthDayYear
-                : +timeMonth(d) === +d
-                  ? formatMonthDay
-                  : formatHour
-              : timeSecond(d) < d
-                ? formatMillisecond
-                : timeMinute(d) < d
-                  ? formatSecond
-                  : timeHour(d) < d
-                    ? formatMinute
-                    : (_d: Date) => _d.toString()
-  )(d);
+  const whole = (steps: number[], size = 1) =>
+    steps.every(s => s >= size && !(s % size));
+  return whole(yearlySteps)
+    ? "year"
+    : whole(monthlySteps, 3)
+      ? "quarter"
+      : whole(monthlySteps)
+        ? "month"
+        : whole(dailySteps)
+          ? "day"
+          : whole(hourlySteps)
+            ? "hour"
+            : undefined;
 }
 
 /**

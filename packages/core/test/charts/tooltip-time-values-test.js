@@ -3,8 +3,9 @@ import assert from "assert";
 import {render, closeBrowser} from "../playwright.js";
 
 /**
-    A Plot's tooltips label a time axis's values the way the axis labels its
-    ticks, whether the data holds date strings, Dates, or timestamps; a
+    A Plot's tooltips label a time axis's values at the interval the axis
+    labels its ticks, always with the year, whether the data holds date
+    strings, Dates, or timestamps; an axis `tickFormat` still wins, and a
     category axis's strings read as given. Driven in Chromium through real
     pointer events, on both renderers.
 */
@@ -21,12 +22,15 @@ const sources = {
 
 /**
     Renders a chart over the values `xs` builds (one series for "single", two
-    for "shared"), hovers the third discrete position, and reads the tooltip
-    and the discrete axis's tick labels.
+    for "shared"), hovers the discrete position at `index` (else the third of
+    four), and reads the tooltip and the discrete axis's tick labels.
 */
-const probe = ([kind, xs, config, renderer, series]) =>
+const probe = ([kind, xs, config, renderer, series, index]) =>
   new Promise(resolve => {
     const values = new Function(`return (${xs})();`)();
+    // A `tickFormat` arrives as a function body (functions don't cross into the page).
+    const format = config.xConfig && config.xConfig.tickFormat;
+    if (typeof format === "string") config = {...config, xConfig: {tickFormat: new Function("d", format)}};
     const data = [];
     ["Alpha", "Beta"].slice(0, series).forEach((id, s) =>
       values.forEach((date, k) => data.push({id, date, value: 10 * (s + 1) + k})),
@@ -50,7 +54,12 @@ const probe = ([kind, xs, config, renderer, series]) =>
       const bar = discrete === "y" && host.querySelector('rect[data-key*="Jul 01 2026"]');
       const box = bar && bar.getBoundingClientRect();
       const at = discrete === "x"
-        ? [r.left + c.x + a.x + a.width * 0.66, r.top + c.y + a.y + 4]
+        ? [
+          index === undefined
+            ? r.left + c.x + a.x + a.width * 0.66
+            : r.left + c.x + viz._xFunc(viz._xAxis._scaleData[index]),
+          r.top + c.y + a.y + 4,
+        ]
         : box
           ? [box.left + 4, box.top + box.height / 2]
           : [r.left + c.x + a.x + 4, r.top + c.y + viz._yFunc(new Date(`${values[2]}T00:00`))];
@@ -76,8 +85,32 @@ const probe = ([kind, xs, config, renderer, series]) =>
     });
   });
 
-const run = (kind, xs, config, renderer, series) =>
-  render('<div id="viz" style="width:600px;height:400px"></div>', probe, [kind, xs, config, renderer, series]);
+const run = (kind, xs, config, renderer, series, index) =>
+  render('<div id="viz" style="width:600px;height:400px"></div>', probe, [kind, xs, config, renderer, series, index]);
+
+const shortMonths = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+    Longer series whose middle ticks drop the year. Each `label(k)` is the
+    tooltip label of the k-th value (k read back from the hovered row's value).
+*/
+const spans = {
+  monthly: {
+    xs: "() => Array.from({length: 36}, (_, i) => new Date(2024, i, 1))",
+    index: 14,
+    label: k => `${shortMonths[k % 12]} ${2024 + Math.floor(k / 12)}`,
+  },
+  daily: {
+    xs: "() => Array.from({length: 20}, (_, i) => `2026-03-${String(i + 1).padStart(2, \"0\")}`)",
+    index: 9,
+    label: k => `Mar ${k + 1}, 2026`,
+  },
+  quarterly: {
+    xs: "() => Array.from({length: 12}, (_, i) => `${2024 + Math.floor(i / 4)}-${String((i % 4) * 3 + 1).padStart(2, \"0\")}-01`)",
+    index: 6,
+    label: k => `Q${(k % 4) + 1} ${2024 + Math.floor(k / 4)}`,
+  },
+};
 
 for (const renderer of ["svg", "canvas"]) {
   for (const [name, xs] of Object.entries(sources)) {
@@ -91,6 +124,28 @@ for (const renderer of ["svg", "canvas"]) {
       assert.deepStrictEqual(single.tbody[0], ["date", "Q3 2026"], "the single tooltip's x row names the hovered date");
     });
   }
+
+  for (const [name, {xs, index, label}] of Object.entries(spans)) {
+    it(`LinePlot (${renderer}) — ${name} tooltips keep the year the axis drops from its middle ticks`, async function () {
+      this.timeout(60000);
+      const shared = await run("LinePlot", xs, {time: "date"}, renderer, 2, index);
+      assert.ok(shared.ticks.some(t => !/\d{4}/.test(t)), `some middle ticks drop the year (got ${shared.ticks})`);
+      const alpha = shared.tbody.find(row => row[0] === "Alpha");
+      const k = +alpha[1] - 10;
+      assert.ok(Math.abs(k - index) <= 1, `hovered a middle value (${k})`);
+      assert.deepStrictEqual(shared.thead, [["date", label(k)]], "the shared header has the year");
+      const single = await run("LinePlot", xs, {time: "date"}, renderer, 1, index);
+      const j = +single.tbody[1][1] - 10;
+      assert.deepStrictEqual(single.tbody[0], ["date", label(j)], "the single tooltip's x row has the year");
+    });
+  }
+
+  it(`LinePlot (${renderer}) — an xConfig tickFormat labels time values in the tooltip`, async function () {
+    this.timeout(60000);
+    const config = {time: "date", xConfig: {tickFormat: "return `@${d}`;"}};
+    const shared = await run("LinePlot", sources["date strings"], config, renderer, 2);
+    assert.deepStrictEqual(shared.thead, [["date", "@2026-07-01"]]);
+  });
 
   it(`BarChart (${renderer}) — date strings on a time y axis read like the axis ticks in the tooltip`, async function () {
     this.timeout(60000);

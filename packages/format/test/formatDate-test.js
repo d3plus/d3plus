@@ -1,6 +1,6 @@
 import assert from "assert";
-import {default as formatDate} from "../es/src/formatDate.js";
-import {timeFormat, timeFormatDefaultLocale} from "d3-time-format";
+import {default as formatDate, formatDateFull} from "../es/src/formatDate.js";
+import {timeFormat, timeFormatDefaultLocale, timeFormatLocale} from "d3-time-format";
 
 const spanish = {
   dateTime: "%A, %e de %B de %Y, %X",
@@ -188,4 +188,34 @@ it("formatDate", () => {
   ];
   const minResult = formatDate(minutes[1], minutes);
   assert.ok(minResult.length > 0, "minute-level data formatted");
+});
+
+it("formatDateFull", () => {
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const years = range(8, i => new Date(2018 + i, 0, 1));
+  const quarters = range(12, i => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1));
+  const months = range(36, i => new Date(2024, i, 1));
+  const days = range(20, i => new Date(2026, 2, 1 + i));
+  const hours = range(12, i => new Date(2026, 2, 3, i));
+  const minutes = range(6, i => new Date(2026, 2, 3, 12, i * 15));
+  const seconds = range(6, i => new Date(2026, 2, 3, 12, 0, i * 30));
+  const millis = range(6, i => new Date(2026, 2, 3, 12, 0, 0, i * 250));
+
+  assert.strictEqual(formatDateFull(years[3], years), "2021", "yearly data reads as the year");
+  assert.strictEqual(formatDateFull(quarters[6], quarters), "Q3 2025", "a middle quarter keeps its year");
+  assert.strictEqual(formatDate(quarters[6], quarters), "Q3", "where formatDate drops it");
+  assert.strictEqual(formatDateFull(months[14], months), "Mar 2025", "a middle month keeps its year");
+  assert.strictEqual(formatDate(months[14], months), "Mar", "where formatDate drops it");
+  assert.strictEqual(formatDateFull(days[9], days), "Mar 10, 2026", "a middle day keeps its year");
+  assert.strictEqual(formatDateFull(hours[5], hours), "Mar 3, 2026 5 AM", "hourly data adds the hour");
+  assert.strictEqual(formatDateFull(minutes[1], minutes), "Mar 3, 2026 12:15 PM", "minute data adds the minute");
+  assert.strictEqual(formatDateFull(minutes[0], minutes), "Mar 3, 2026 12:00 PM", "an on-the-hour value in minute data");
+  assert.strictEqual(formatDateFull(seconds[1], seconds), "Mar 3, 2026 12:00:30 PM", "second data adds the second");
+  assert.strictEqual(formatDateFull(millis[1], millis), "Mar 3, 2026 12:00:00.250 PM", "subsecond data adds the millisecond");
+  assert.strictEqual(formatDateFull(months[14], [months[14]]), "2025", "a lone date reads as its year");
+  assert.strictEqual(
+    formatDateFull(months[16], months, timeFormatLocale(spanish).format),
+    "may 2025",
+    "custom formatter for localization",
+  );
 });
