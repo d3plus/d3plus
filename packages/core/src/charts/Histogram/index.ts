@@ -25,6 +25,8 @@ interface HistogramState {
   raw: DataPoint[];
   /** The last binned rows written to `viz._data`. */
   bins: DataPoint[];
+  /** The bin rows among `bins`, all binned from rows that passed `filter`. */
+  binned: Set<DataPoint>;
   /** The axis titles last set automatically, so user titles are left alone. */
   xTitle?: string;
   yTitle?: string;
@@ -78,16 +80,18 @@ function drawnTimeFilter(viz: VizInstance, rows: DataPoint[]) {
 
 /**
     Re-bins the raw rows before Plot's pre-draw aggregates them. Only the rows
-    in the selected time period are binned, and each facet panel is binned
-    on its own rows (sharing edges when the panels share scales), so every
-    panel draws the histogram of exactly the rows it shows.
+    in the selected time period that pass `filter` are binned, and each facet
+    panel is binned on its own rows (sharing edges when the panels share
+    scales), so every panel draws the histogram of exactly the rows it shows.
 */
 function binBeforePreDraw(viz: VizInstance) {
   const state = viz.ctx.histogram as HistogramState;
   if (viz._data !== state.bins) state.raw = viz._data;
 
   const timeFilter = drawnTimeFilter(viz, state.raw);
-  const drawn = timeFilter ? state.raw.filter(timeFilter) : state.raw;
+  const filter = viz.schema.filter as ((d: DataPoint, i: number) => boolean) | undefined;
+  const period = timeFilter ? state.raw.filter(timeFilter) : state.raw;
+  const drawn = filter ? period.filter(filter) : period;
   const facet = facetActive(viz) ? (viz.schema.facet as FacetAccessor) : undefined;
 
   const groupBy = viz.schema.groupBy as ((d: DataPoint, i: number) => unknown)[];
@@ -111,9 +115,10 @@ function binBeforePreDraw(viz: VizInstance) {
   });
   // Rows outside the selected period stay in the data unbinned: the time
   // filter drops them from the draw, while the timeline still lists their
-  // periods and the facet grid keeps their panels.
+  // periods and the facet grid keeps the panels of those that pass `filter`.
   const offstage = timeFilter ? state.raw.filter((d, i) => !timeFilter(d, i)) : [];
   state.bins = viz._data = offstage.length ? [...bins, ...offstage] : bins;
+  state.binned = new Set(bins);
 
   const yTitle = viz.schema.translate(yTitles[viz.schema.binNormalize as BinNormalize] ?? yTitles.count);
   autoTitle(viz._yConfig!, state.yTitle, yTitle);
@@ -129,7 +134,11 @@ export const histogramDef: ChartDefinition = {
   defaults: {groupPadding: 1},
 
   setup: viz => {
-    viz.ctx.histogram = {raw: [], bins: []} satisfies HistogramState;
+    const state: HistogramState = {raw: [], bins: [], binned: new Set()};
+    viz.ctx.histogram = state;
+    // `filter` selects raw rows before they're binned, so the pipeline
+    // doesn't run it on the bins.
+    viz._filterApplied = d => state.binned.has(d);
     // Each bin is its own stacked series; ordering by key keeps every group
     // at the same stack level from bin to bin.
     (viz as unknown as Plot).stackOrder("key");

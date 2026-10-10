@@ -142,6 +142,12 @@ export interface VizInstance {
   _hidden: (string | number)[];
   _solo: (string | number)[];
   _filter?: (d: DataPoint, i: number) => boolean;
+  /**
+      Whether the chart has already run `filter` over a row of `_data`
+      (Histogram's bins, binned from rows that passed it). The pipeline
+      passes such rows without running `filter` on them again.
+  */
+  _filterApplied?: (d: DataPoint) => boolean;
   _timeFilter?: (d: DataPoint, i: number) => boolean;
   _noDataMessage?: false | string | ((config: VizInstance) => string);
 
