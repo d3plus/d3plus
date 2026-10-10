@@ -19,6 +19,7 @@ import {
   Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
+  Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
   StackedArea as StackedAreaClass,
@@ -95,6 +96,8 @@ export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 export const Radar = createD3plusComponent(RadarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
+/** Vue component for rendering a d3plus Ridgeline visualization. */
+export const Ridgeline = createD3plusComponent(RidgelineClass, "chart");
 /** Vue component for rendering a d3plus Rings visualization. */
 export const Rings = createD3plusComponent(RingsClass, "chart");
 /** Vue component for rendering a d3plus Sankey visualization. */

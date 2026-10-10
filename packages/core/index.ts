@@ -19,6 +19,7 @@ export {
   Pyramid,
   Radar,
   RadialMatrix,
+  Ridgeline,
   Rings,
   Sankey,
   StackedArea,

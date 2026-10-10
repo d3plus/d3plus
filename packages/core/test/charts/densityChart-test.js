@@ -9,6 +9,7 @@ import {
   unwrapRow,
 } from "../../es/src/charts/helpers/densityChart.js";
 import {violinDef} from "../../es/src/charts/Violin/index.js";
+import {ridgelineDef} from "../../es/src/charts/Ridgeline/index.js";
 
 /** The default `value` accessor from a density chart's fields. */
 const field = (def, key) => def.fields.find(f => f.key === key);
@@ -231,8 +232,8 @@ it("densityTooltipRows: a distribution, or a raw observation's value", () => {
   assert.deepStrictEqual(densityTooltipRows(viz, {id: "a"}, 0), [], "no value, no rows");
 });
 
-it("densityFields: ctx and fields close the def, accessors before config bags", () => {
-  for (const def of [violinDef]) {
+it("densityFields: ctx and fields close both defs, accessors before config bags", () => {
+  for (const def of [violinDef, ridgelineDef]) {
     const keys = Object.keys(def);
     assert.deepStrictEqual(keys.slice(-2), ["ctx", "fields"], def.name);
     const bags = def.fields.map(f => Boolean(f.merge));
@@ -240,4 +241,5 @@ it("densityFields: ctx and fields close the def, accessors before config bags", 
     assert.ok(bags.slice(firstBag).every(Boolean), `${def.name}: config bags last`);
   }
   assert.strictEqual(field(violinDef, "densityConfig").default.cut, 2);
+  assert.strictEqual(field(ridgelineDef, "densityConfig").default.cut, 3);
 });

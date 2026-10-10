@@ -101,6 +101,7 @@ export type {ViolinPoint, ViolinSide, ViolinSlot, ViolinSlotOptions} from "./src
 export {emitInner, innerSet} from "./src/charts/Violin/inner.js";
 export type {InnerFrame, PlacedViolin, ViolinInner} from "./src/charts/Violin/inner.js";
 export {VIOLIN_PADDING, violinEmit} from "./src/charts/Violin/emit.js";
+export {ridgelineEmit, ridgelinePadding, ridgeOverlap} from "./src/charts/Ridgeline/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -118,6 +119,7 @@ export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";

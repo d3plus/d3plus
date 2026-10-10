@@ -6,6 +6,7 @@ import {
   violinSlots,
 } from "../../es/src/charts/Violin/violinLayout.js";
 import {innerSet} from "../../es/src/charts/Violin/inner.js";
+import {ridgelinePadding, ridgeOverlap} from "../../es/src/charts/Ridgeline/emit.js";
 
 it("categoryStep: matches a d3 point scale's step", () => {
   assert.strictEqual(categoryStep(600, 3, 0.5), 200);
@@ -78,4 +79,19 @@ it("innerSet: reads a single overlay, a list, or nothing", () => {
   assert.deepStrictEqual([...innerSet(["points", "quartiles", "nope"])], ["points", "quartiles"]);
   assert.strictEqual(innerSet(false).size, 0);
   assert.strictEqual(innerSet(undefined).size, 0);
+});
+
+it("ridgeOverlap: a non-negative number", () => {
+  const viz = overlap => ({schema: {overlap}});
+  assert.strictEqual(ridgeOverlap(viz(1.5)), 1.5);
+  assert.strictEqual(ridgeOverlap(viz("2")), 2);
+  assert.strictEqual(ridgeOverlap(viz(-1)), 0);
+  assert.strictEqual(ridgeOverlap(viz(NaN)), 0);
+  assert.strictEqual(ridgeOverlap(viz(undefined)), 0);
+});
+
+it("ridgelinePadding: headroom for the top ridge only", () => {
+  assert.deepStrictEqual(ridgelinePadding(1.5), [0.75, 1]);
+  assert.deepStrictEqual(ridgelinePadding(1), [0.5, 1]);
+  assert.deepStrictEqual(ridgelinePadding(0), [0, 0.5]);
 });

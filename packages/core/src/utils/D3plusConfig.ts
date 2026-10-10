@@ -713,6 +713,12 @@ export interface D3plusConfig {
   */
   orient?: ConstOrAccessor<Orient | SideOrient>;
   /**
+      How far Ridgeline's tallest ridge rises, in category steps (default
+      1.5): 1 reaches the next baseline up, larger values overlap the ridges
+      above.
+  */
+  overlap?: number;
+  /**
       Room (px) the Radar reserves around its web for the metric labels.
       `"auto"` (the default) measures the labels and gives the web the largest
       radius at which every label fits inside the chart, wrapping long labels

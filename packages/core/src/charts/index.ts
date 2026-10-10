@@ -18,6 +18,7 @@ export {default as Priestley} from "./Priestley/index.js";
 export {default as Pyramid} from "./Pyramid/index.js";
 export {default as Radar} from "./Radar/index.js";
 export {default as RadialMatrix} from "./RadialMatrix/index.js";
+export {default as Ridgeline} from "./Ridgeline/index.js";
 export {default as Rings} from "./Rings/index.js";
 export {default as Sankey} from "./Sankey/index.js";
 export {default as StackedArea} from "./StackedArea/index.js";
