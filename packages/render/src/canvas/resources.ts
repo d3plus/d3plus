@@ -3,6 +3,29 @@ import {patternTileSvg} from "./patternTile.js";
 
 type Ctx = CanvasRenderingContext2D;
 
+const BASE64 =
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/**
+    Base64-encodes a string's UTF-8 bytes. The tile is passed as a base64
+    `data:` URI because native decoders (`@napi-rs/canvas`) read a non-base64
+    payload as raw bytes without percent-decoding it. Self-contained rather than
+    `btoa`, which headless DOM shims can replace on the global scope.
+*/
+function base64Utf8(text: string): string {
+  const bytes = new TextEncoder().encode(text);
+  let out = "";
+  for (let i = 0; i < bytes.length; i += 3) {
+    const b1 = i + 1 < bytes.length ? bytes[i + 1] : 0;
+    const b2 = i + 2 < bytes.length ? bytes[i + 2] : 0;
+    const n = (bytes[i] << 16) | (b1 << 8) | b2;
+    out += BASE64[(n >> 18) & 63] + BASE64[(n >> 12) & 63];
+    out += i + 1 < bytes.length ? BASE64[(n >> 6) & 63] : "=";
+    out += i + 2 < bytes.length ? BASE64[n & 63] : "=";
+  }
+  return out;
+}
+
 /**
     @class CanvasResources
     Owns the Canvas backend's async resources — decoded `<image>` bitmaps and
@@ -10,7 +33,9 @@ type Ctx = CanvasRenderingContext2D;
 
     Both decode asynchronously: the first paint that needs a resource kicks off
     its load and paints a fallback (nothing for images, the texture's solid color
-    for patterns); a repaint follows once the resource is ready. That live
+    for patterns); a repaint follows once the resource is ready. A resource that
+    fails to decode is remembered and never re-requested, so its fallback stays
+    and repaints don't restart the load. That live
     warm-up-then-repaint model is invisible in the browser. A server render, which
     reads pixels once and stops, instead awaits {@link whenSettled} so every
     resource is present before encoding.
@@ -22,6 +47,9 @@ export class CanvasResources {
   readonly patterns = new Map<string, CanvasPattern>();
   private readonly imagesPending = new Set<string>();
   private readonly patternsPending = new Set<string>();
+  /** hrefs / tokens whose decode failed; they keep their fallback. */
+  private readonly imagesFailed = new Set<string>();
+  private readonly patternsFailed = new Set<string>();
   private readonly pending = new Set<Promise<unknown>>();
 
   /**
@@ -61,7 +89,7 @@ export class CanvasResources {
   imageFor(href: string): HTMLImageElement | null {
     const img = this.images.get(href);
     if (img) return img;
-    if (!this.imagesPending.has(href)) {
+    if (!this.imagesPending.has(href) && !this.imagesFailed.has(href)) {
       this.imagesPending.add(href);
       this.track(
         getCanvasBackend()
@@ -71,7 +99,7 @@ export class CanvasResources {
               this.images.set(href, loaded);
             },
             () => {
-              /* broken image — never enters the ready map */
+              this.imagesFailed.add(href);
             },
           )
           .finally(() => {
@@ -92,14 +120,15 @@ export class CanvasResources {
   resolvePattern(token: string): CanvasPattern | null {
     const cached = this.patterns.get(token);
     if (cached) return cached;
-    if (this.patternsPending.has(token)) return null;
+    if (this.patternsPending.has(token) || this.patternsFailed.has(token))
+      return null;
 
     const tile = patternTileSvg(token);
     if (!tile) return null;
 
     const backend = getCanvasBackend();
     this.patternsPending.add(token);
-    const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(tile.svg)}`;
+    const src = `data:image/svg+xml;base64,${base64Utf8(tile.svg)}`;
     this.track(
       backend
         .loadImage(src)
@@ -116,7 +145,7 @@ export class CanvasResources {
             }
           },
           () => {
-            /* decode failed — the solid fallback stays */
+            this.patternsFailed.add(token);
           },
         )
         .finally(() => {
@@ -131,8 +160,10 @@ export class CanvasResources {
   clear(): void {
     this.images.clear();
     this.imagesPending.clear();
+    this.imagesFailed.clear();
     this.patterns.clear();
     this.patternsPending.clear();
+    this.patternsFailed.clear();
     this.pending.clear();
   }
 }
