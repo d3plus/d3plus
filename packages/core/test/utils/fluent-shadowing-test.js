@@ -18,6 +18,7 @@ import {isFluentAccessor} from "../../es/src/fluent.js";
 const SEED_ONLY = {
   label: "coerce \"const\" matches VizBaseConfig.label (function, else constant)",
   legend: "coerce \"const\" matches VizBaseConfig.legend (function, else constant)",
+  legendConfig: "merge seeds the bag; VizBaseConfig.legendConfig deep-merges sets",
   legendTooltip: "merge seeds the bag; VizBaseConfig.legendTooltip deep-merges sets",
   noDataMessage: "identity matches VizBase.noDataMessage",
   on: "merge seeds the handler map; BaseClass.on registers on(typename, fn) and merges on({…})",

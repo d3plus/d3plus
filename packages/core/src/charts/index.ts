@@ -9,6 +9,7 @@ export {default as Gauge} from "./Gauge/index.js";
 export {default as Geomap} from "./Geomap/index.js";
 export {default as Histogram} from "./Histogram/index.js";
 export {default as LinePlot} from "./LinePlot/index.js";
+export {default as Lollipop} from "./Lollipop/index.js";
 export {default as Matrix} from "./Matrix/index.js";
 export {default as Network} from "./Network/index.js";
 export {default as Pack} from "./Pack/index.js";

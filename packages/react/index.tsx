@@ -12,6 +12,7 @@ import {
   Geomap as GeomapClass,
   Histogram as HistogramClass,
   LinePlot as LinePlotClass,
+  Lollipop as LollipopClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
@@ -102,6 +103,10 @@ export const Histogram = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={LinePlotClass} {...props} />
+);
+/** React component for rendering a d3plus Lollipop visualization. */
+export const Lollipop = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={LollipopClass} {...props} />
 );
 /** React component for rendering a d3plus Matrix visualization. */
 export const Matrix = (props: D3plusComponentProps) => (

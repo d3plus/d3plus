@@ -10,6 +10,7 @@ export {
   Geomap,
   Histogram,
   LinePlot,
+  Lollipop,
   Matrix,
   Network,
   Pack,

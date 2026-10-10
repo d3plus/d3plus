@@ -67,6 +67,15 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  largestRadius,
+  lollipopBuffer,
+  STEM_KEY_SUFFIX,
+  stemFromBar,
+  stemPoints,
+} from "./src/charts/Lollipop/stemLayout.js";
+export type {BarBox, StemLayout, StemPoint} from "./src/charts/Lollipop/stemLayout.js";
+export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -74,6 +83,7 @@ export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";

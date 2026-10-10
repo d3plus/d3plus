@@ -47,6 +47,7 @@ import type {InsetKey, InsetPlacement, InsetRegion} from "../features/insetState
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
@@ -431,6 +432,8 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
+  _plotShapeEmitters?: Record<string, ShapeEmitter>;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

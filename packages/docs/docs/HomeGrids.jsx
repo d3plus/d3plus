@@ -13,6 +13,7 @@ const charts = [
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
   ["Line Plot", "lineplot"],
+  ["Lollipop", "lollipop"],
   ["Matrix", "matrix"],
   ["Network", "network"],
   ["Pack", "pack"],
