@@ -1,0 +1,362 @@
+import assert from "assert";
+import {scaleLinear, scalePoint, scaleTime} from "d3-scale";
+import {
+  candleChange,
+  candleDirection,
+  candlePath,
+  candleWidth,
+  finiteValue,
+  ohlcBarPath,
+  ohlcExtent,
+  periodSpacing,
+  pixelCenter,
+  readOhlc,
+} from "../../es/src/charts/Candlestick/ohlc.js";
+import {
+  candlestickBuffer,
+  ohlcAccessors,
+  padPeriods,
+  widenDomain,
+} from "../../es/src/charts/Candlestick/buffer.js";
+import {
+  bandAxisDefaults,
+  formatPeriod,
+  PERIOD_UNITS,
+  periodBoundaries,
+  periodDate,
+  periodLabel,
+  periodTicks,
+  unitIndex,
+} from "../../es/src/charts/Candlestick/periods.js";
+import {
+  candleAriaLabel,
+  candleTooltipRows,
+  formatChange,
+  formatPrice,
+} from "../../es/src/charts/Candlestick/tooltip.js";
+import {CANDLESTICK_SHAPE, layoutCandles} from "../../es/src/charts/Candlestick/emit.js";
+
+const key = k => d => d[k];
+const accessors = {open: key("open"), high: key("high"), low: key("low"), close: key("close")};
+const row = (open, high, low, close) => ({open, high, low, close});
+
+/** A stand-in for the chart, with just what the helpers read. */
+function fakeViz({schema = {}, ...rest} = {}) {
+  return {
+    schema: {
+      ...accessors,
+      bodyWidth: 0.7,
+      locale: "en-US",
+      translate: s => s,
+      variant: "candlestick",
+      width: 800,
+      ...schema,
+    },
+    _drawLabel: d => d.symbol,
+    _filteredData: [],
+    _margin: {top: 0, right: 0, bottom: 0, left: 0},
+    _x: key("date"),
+    _xConfig: {},
+    _xKey: "date",
+    _yConfig: {},
+    ...rest,
+  };
+}
+
+it("Candlestick finiteValue keeps finite numbers and numeric strings", () => {
+  assert.strictEqual(finiteValue(3), 3);
+  assert.strictEqual(finiteValue("2.5"), 2.5);
+  [NaN, Infinity, null, undefined, "", "abc", true, false].forEach(v =>
+    assert.strictEqual(finiteValue(v), undefined, `${v}`),
+  );
+});
+
+it("Candlestick readOhlc fills a missing open, high, or low and stretches the range to the open and close", () => {
+  assert.deepStrictEqual(readOhlc(row(10, 12, 9, 11), 0, accessors), {open: 10, high: 12, low: 9, close: 11});
+  assert.deepStrictEqual(readOhlc({close: 5}, 0, accessors), {open: 5, high: 5, low: 5, close: 5});
+  assert.deepStrictEqual(readOhlc({open: 4, close: 6}, 0, accessors), {open: 4, high: 6, low: 4, close: 6});
+  assert.deepStrictEqual(
+    readOhlc(row(10, 9, 11, 12), 0, accessors),
+    {open: 10, high: 12, low: 10, close: 12},
+    "a high below the close or a low above the open is widened",
+  );
+  assert.strictEqual(readOhlc(row(10, 12, 9, null), 0, accessors), undefined);
+  assert.strictEqual(readOhlc(row(10, 12, 9, "n/a"), 0, accessors), undefined);
+});
+
+it("Candlestick candleDirection reads a flat period as up", () => {
+  assert.strictEqual(candleDirection(10, 11), "up");
+  assert.strictEqual(candleDirection(10, 10), "up");
+  assert.strictEqual(candleDirection(10, 9), "down");
+});
+
+it("Candlestick candleChange is the open-to-close change as a fraction of the open", () => {
+  assert.strictEqual(candleChange(100, 105), 0.05);
+  assert.strictEqual(candleChange(200, 150), -0.25);
+  assert.strictEqual(candleChange(-10, -5), 0.5, "relative to the open's magnitude");
+  assert.strictEqual(candleChange(0, 5), undefined);
+  assert.strictEqual(candleChange(NaN, 5), undefined);
+});
+
+it("Candlestick ohlcExtent spans every finite row's low and high", () => {
+  const rows = [row(10, 12, 9, 11), row(11, 15, 10, 14), {close: null}, row(14, 14, 3, 5)].map((d, i) => ({d, i}));
+  assert.deepStrictEqual(ohlcExtent(rows, accessors), [3, 15]);
+  assert.strictEqual(ohlcExtent([{d: {close: null}, i: 0}], accessors), undefined);
+  assert.strictEqual(ohlcExtent([], accessors), undefined);
+});
+
+it("Candlestick periodSpacing is the smallest gap between distinct positions", () => {
+  assert.strictEqual(periodSpacing([30, 10, 20, 50, 20], 99), 10);
+  assert.strictEqual(periodSpacing([5, 5], 40), 40, "one distinct position falls back");
+  assert.strictEqual(periodSpacing([], 40), 40);
+  assert.strictEqual(periodSpacing([0, NaN, 4], 40), 4, "non-finite positions are skipped");
+});
+
+it("Candlestick candleWidth fills a clamped share of the room, at least 1px", () => {
+  assert.strictEqual(candleWidth(10, 0.7), 7);
+  assert.strictEqual(candleWidth(10, 2), 10);
+  assert.strictEqual(candleWidth(10, -1), 1);
+  assert.strictEqual(candleWidth(1, 0.7), 1);
+  assert.strictEqual(candleWidth(10, NaN), 7, "an unusable share uses 0.7");
+});
+
+it("Candlestick pixelCenter rounds to a pixel's center", () => {
+  assert.strictEqual(pixelCenter(10), 10.5);
+  assert.strictEqual(pixelCenter(10.4), 10.5);
+  assert.strictEqual(pixelCenter(10.9), 10.5);
+  assert.strictEqual(pixelCenter(11.1), 11.5);
+});
+
+it("Candlestick candlePath draws the wick around a closed body", () => {
+  // Pixels: high 10, open 20, close 30, low 40 (a falling candle).
+  assert.strictEqual(
+    candlePath(50, 6, {open: 20, high: 10, low: 40, close: 30}),
+    "M50,10V20M50,30V40M47,20H53V30H47Z",
+  );
+  // A rising candle (close above the open) draws the same box.
+  assert.strictEqual(
+    candlePath(50, 6, {open: 30, high: 10, low: 40, close: 20}),
+    "M50,10V20M50,30V40M47,20H53V30H47Z",
+  );
+  // No wick past a body that reaches the high and low.
+  assert.strictEqual(candlePath(5, 2, {open: 1, high: 1, low: 9, close: 9}), "M4,1H6V9H4Z");
+  // A flat period is a line.
+  assert.strictEqual(candlePath(5, 2, {open: 4, high: 2, low: 6, close: 4}), "M5,2V4M5,4V6M4,4H6V4H4Z");
+});
+
+it("Candlestick ohlcBarPath ticks the open left and the close right", () => {
+  assert.strictEqual(
+    ohlcBarPath(50, 6, {open: 20, high: 10, low: 40, close: 30}),
+    "M50,10V40M47,20H50M50,30H53",
+  );
+});
+
+it("Candlestick ohlcAccessors reads the chart's four accessors", () => {
+  const viz = fakeViz();
+  const out = ohlcAccessors(viz);
+  assert.deepStrictEqual(Object.keys(out).sort(), ["close", "high", "low", "open"]);
+  assert.strictEqual(out.high(row(1, 2, 0, 1)), 2);
+});
+
+it("Candlestick widenDomain reaches the extent plus a pixel buffer", () => {
+  const scale = scaleLinear().domain([20, 10]).range([0, 100]);
+  const [lo, hi] = widenDomain([10, 20], [5, 25], scale, 10);
+  // 10px on this scale is 1 unit.
+  assert.ok(Math.abs(lo - 4) < 1e-9, `${lo}`);
+  assert.ok(Math.abs(hi - 26) < 1e-9, `${hi}`);
+  assert.deepStrictEqual(widenDomain([0, 100], [40, 60], scale, 0), [0, 100], "never narrows");
+  const noInvert = Object.assign(v => v, {});
+  assert.deepStrictEqual(widenDomain([0, 1], [-1, 2], noInvert, 5), [-1, 2], "no invert: the bare extent");
+});
+
+it("Candlestick padPeriods pads a category scale a full step and a time scale its smallest gap", () => {
+  const point = scalePoint().domain(["a", "b", "c"]).range([0, 100]);
+  padPeriods(point, []);
+  assert.strictEqual(point.padding(), 1);
+  const day = 864e5;
+  const t0 = Date.UTC(2024, 0, 1);
+  const time = scaleTime().domain([new Date(t0), new Date(t0 + 4 * day)]);
+  padPeriods(time, [t0, t0 + day, t0 + 3 * day, t0 + 4 * day]);
+  assert.deepStrictEqual(time.domain().map(Number), [t0 - day, t0 + 5 * day]);
+  const lone = scaleTime().domain([new Date(t0), new Date(t0)]);
+  padPeriods(lone, [t0]);
+  assert.deepStrictEqual(lone.domain().map(Number), [t0, t0], "one period: unchanged");
+});
+
+it("Candlestick candlestickBuffer widens y to the highs and lows and pads x", () => {
+  const viz = fakeViz();
+  const data = [row(10, 30, 5, 12), row(12, 14, 11, 13)].map((d, i) => ({data: d, i, x: i, y: d.close}));
+  const x = scalePoint().domain([0, 1]).range([0, 100]);
+  const y = scaleLinear().domain([13, 12]).range([0, 100]);
+  const [x2, y2] = candlestickBuffer.call(viz, {data, x, y});
+  assert.strictEqual(x2, x);
+  assert.strictEqual(x.padding(), 1);
+  const [top, bottom] = y2.domain();
+  assert.ok(top >= 30 && bottom <= 5, `${top}, ${bottom}`);
+  const untouched = scaleLinear().domain([2, 1]);
+  candlestickBuffer.call(viz, {data, x: scalePoint(), y: untouched, x2: true});
+  assert.deepStrictEqual(untouched.domain(), [2, 1], "secondary axes are left alone");
+  const empty = scaleLinear().domain([2, 1]);
+  candlestickBuffer.call(viz, {data: [{data: {close: null}, i: 0}], x: scalePoint(), y: empty});
+  assert.deepStrictEqual(empty.domain(), [2, 1], "rows without a close leave y alone");
+});
+
+it("Candlestick periodDate parses strings and numbers into Dates", () => {
+  const d = new Date(2024, 0, 2);
+  assert.strictEqual(periodDate(d), d);
+  assert.ok(periodDate("2024-01-02") instanceof Date);
+  assert.strictEqual(+periodDate("01/02/2024"), +d);
+  assert.strictEqual(+periodDate(+d), +d);
+  assert.strictEqual(periodDate("not a date"), "not a date");
+  assert.strictEqual(periodDate(null), null);
+});
+
+it("Candlestick formatPeriod shows the full date, and the time when it isn't midnight", () => {
+  assert.strictEqual(formatPeriod(new Date(2024, 0, 2)), "Jan 2, 2024");
+  assert.strictEqual(formatPeriod(new Date(2024, 0, 2, 14, 30)), "Jan 2, 2024 2:30 PM");
+});
+
+it("Candlestick unitIndex groups dates by calendar unit", () => {
+  assert.deepStrictEqual(PERIOD_UNITS, ["day", "week", "month", "quarter", "year"]);
+  const fri = new Date(2024, 0, 5), mon = new Date(2024, 0, 8), tue = new Date(2024, 0, 9);
+  assert.notStrictEqual(unitIndex(fri, "week"), unitIndex(mon, "week"));
+  assert.strictEqual(unitIndex(mon, "week"), unitIndex(tue, "week"));
+  assert.notStrictEqual(unitIndex(mon, "day"), unitIndex(tue, "day"));
+  assert.strictEqual(unitIndex(new Date(2024, 0, 31), "month"), unitIndex(new Date(2024, 0, 1), "month"));
+  assert.strictEqual(unitIndex(new Date(2024, 2, 31), "quarter"), unitIndex(new Date(2024, 0, 1), "quarter"));
+  assert.notStrictEqual(unitIndex(new Date(2024, 3, 1), "quarter"), unitIndex(new Date(2024, 2, 1), "quarter"));
+  assert.strictEqual(unitIndex(new Date(2024, 11, 31), "year"), 2024);
+});
+
+/** Weekdays from `start`, `n` of them. */
+function weekdays(start, n) {
+  const out = [];
+  const d = new Date(start);
+  while (out.length < n) {
+    if (d.getDay() % 6) out.push(new Date(d));
+    d.setDate(d.getDate() + 1);
+  }
+  return out;
+}
+
+it("Candlestick periodBoundaries ticks the first period of each unit after the first", () => {
+  const dates = weekdays(new Date(2024, 0, 15), 40);
+  const months = periodBoundaries(dates, "month");
+  assert.deepStrictEqual(months.map(d => d.getMonth()), [1, 2]);
+  assert.ok(months.every(d => dates.includes(d)), "ticks are the periods' own dates");
+  assert.deepStrictEqual(months.map(d => d.getDate()), [1, 1]);
+  assert.deepStrictEqual(periodBoundaries(dates.slice(0, 3), "month"), [dates[0]], "one unit: its first period");
+  assert.deepStrictEqual(periodBoundaries([], "month"), []);
+});
+
+it("Candlestick periodTicks picks the finest unit that fits, then thins years", () => {
+  const dates = weekdays(new Date(2023, 0, 2), 500);
+  assert.strictEqual(periodTicks(dates, 1000).unit, "day");
+  assert.strictEqual(periodTicks(dates, 120).unit, "week");
+  assert.strictEqual(periodTicks(dates, 30).unit, "month");
+  const quarters = periodTicks(dates, 10);
+  assert.strictEqual(quarters.unit, "quarter");
+  assert.ok(quarters.ticks.length <= 10);
+  assert.strictEqual(periodTicks(dates, 2).unit, "year");
+  const decades = weekdays(new Date(1990, 0, 1), 260 * 30).filter((d, i) => i % 5 === 0);
+  const thinned = periodTicks(decades, 4);
+  assert.strictEqual(thinned.unit, "year");
+  assert.ok(thinned.ticks.length <= 4, `${thinned.ticks.length}`);
+  assert.ok(thinned.ticks.every(d => d.getFullYear() % 10 === 0), "every 10th year");
+  assert.ok(periodTicks(dates, 0).ticks.length <= 1, "room for at least one tick");
+});
+
+it("Candlestick periodLabel names years at year starts and months or days otherwise", () => {
+  const jan = new Date(2024, 0, 2), feb = new Date(2024, 1, 1), mar = new Date(2024, 2, 1);
+  assert.strictEqual(periodLabel(feb, undefined, "month"), "Feb 2024");
+  assert.strictEqual(periodLabel(jan, undefined, "month"), "2024");
+  assert.strictEqual(periodLabel(mar, feb, "month"), "Mar");
+  assert.strictEqual(periodLabel(jan, new Date(2023, 11, 1), "quarter"), "2024");
+  assert.strictEqual(periodLabel(feb, undefined, "week"), "Feb 1, 2024");
+  assert.strictEqual(periodLabel(new Date(2024, 1, 8), feb, "day"), "Feb 8");
+  assert.strictEqual(periodLabel(jan, new Date(2023, 11, 29), "week"), "Jan 2, 2024");
+  assert.strictEqual(periodLabel(jan, new Date(2020, 0, 1), "year"), "2024");
+});
+
+it("Candlestick bandAxisDefaults ticks and labels the rows' calendar boundaries", () => {
+  const dates = weekdays(new Date(2024, 0, 15), 60);
+  const viz = fakeViz({_filteredData: dates.map(date => ({date})), _x: key("date")});
+  viz.schema.width = 600;
+  const config = bandAxisDefaults(viz);
+  assert.deepStrictEqual(config.ticks, config.labels);
+  assert.deepStrictEqual(config.ticks.map(d => d.getMonth()), [1, 2, 3]);
+  assert.deepStrictEqual(config.ticks.map(config.tickFormat), ["Feb 2024", "Mar", "Apr"]);
+  assert.strictEqual(config.tickFormat(dates[3]), "Jan 18, 2024", "an untick'd period formats in full");
+  assert.strictEqual(config.tickFormat("x"), "x");
+  const empty = bandAxisDefaults(fakeViz());
+  assert.deepStrictEqual(empty.ticks, []);
+});
+
+it("Candlestick formatPrice keeps two decimals at 1 and above, three digits below", () => {
+  assert.strictEqual(formatPrice(129.1), "129.10");
+  assert.strictEqual(formatPrice(1234.5), "1,234.50");
+  assert.strictEqual(formatPrice(42), "42.00");
+  assert.strictEqual(formatPrice(-3.456), "-3.46");
+  assert.strictEqual(formatPrice(0.012345), "0.0123");
+  assert.strictEqual(formatPrice(1234.5, "es-ES"), "1.234,50");
+});
+
+it("Candlestick formatChange signs a percentage", () => {
+  assert.strictEqual(formatChange(0.0128), "+1.28%");
+  assert.strictEqual(formatChange(-0.0145), "-1.45%");
+  assert.strictEqual(formatChange(0), "0%");
+});
+
+it("Candlestick candleTooltipRows lists the period, open, high, low, close, and change", () => {
+  const viz = fakeViz({schema: {translate: s => `[${s}]`}});
+  const d = {symbol: "ACME", date: "2024-01-02", ...row(100, 104, 99.5, 103)};
+  assert.deepStrictEqual(candleTooltipRows(viz, d, 0), [
+    ["date", "Jan 2, 2024"],
+    ["[Open]", "100.00"],
+    ["[High]", "104.00"],
+    ["[Low]", "99.50"],
+    ["[Close]", "103.00"],
+    ["[Change]", "+3%"],
+  ]);
+  assert.deepStrictEqual(candleTooltipRows(viz, {close: null}, 0), []);
+  const zeroOpen = candleTooltipRows(viz, {date: "2024-01-02", ...row(0, 1, 0, 1)}, 0);
+  assert.ok(!zeroOpen.some(r => r[0] === "[Change]"), "no change from a zero open");
+  const formatted = fakeViz({
+    _xConfig: {tickFormat: d => `T${d.getDate()}`, title: "Day"},
+    _yConfig: {tickFormat: v => `$${v}`},
+  });
+  const rows = candleTooltipRows(formatted, d, 0);
+  assert.deepStrictEqual(rows[0], ["Day", "T2"]);
+  assert.deepStrictEqual(rows[1], ["Open", "$100"]);
+});
+
+it("Candlestick candleAriaLabel reads the label, period, and values", () => {
+  const viz = fakeViz();
+  const d = {symbol: "ACME", date: "2024-01-02", ...row(100, 104, 99.5, 103)};
+  assert.strictEqual(
+    candleAriaLabel(viz, d, 0),
+    "ACME, Jan 2, 2024: Open 100.00, High 104.00, Low 99.50, Close 103.00, Change +3%.",
+  );
+});
+
+it("Candlestick layoutCandles centers each period and draws candles or OHLC bars", () => {
+  const rows = [row(10, 12, 9, 11), row(11, 11.5, 8, 9), {close: null}].map((data, i) => ({data, i, x: i, id: "a"}));
+  const x = v => v * 20 + 10;
+  const y = v => 100 - v * 5;
+  const viz = fakeViz();
+  const layouts = layoutCandles(viz, rows, x, y, [0, 60]);
+  assert.strictEqual(layouts.size, 2, "the row without a close is skipped");
+  const [up, down] = [layouts.get(rows[0]), layouts.get(rows[1])];
+  assert.strictEqual(up.direction, "up");
+  assert.strictEqual(down.direction, "down");
+  assert.strictEqual(up.cx, 10.5);
+  assert.strictEqual(up.width, 14, "70% of the 20px gap");
+  assert.deepStrictEqual(up.px, {open: 50.5, high: 40.5, low: 55.5, close: 45.5});
+  assert.strictEqual(up.d, candlePath(up.cx, up.width, up.px));
+  viz.schema.variant = "ohlc";
+  const bars = layoutCandles(viz, rows, x, y, [0, 60]);
+  assert.strictEqual(bars.get(rows[0]).d, ohlcBarPath(10.5, 14, bars.get(rows[0]).px));
+  const lone = layoutCandles(fakeViz(), rows.slice(0, 1), x, y, [0, 600]);
+  assert.strictEqual(lone.get(rows[0]).width, 28, "a lone period gets 40px of room");
+  assert.strictEqual(CANDLESTICK_SHAPE, "Candlestick");
+});

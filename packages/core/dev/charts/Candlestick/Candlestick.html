@@ -1,0 +1,119 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Candlestick</title>
+  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, and a dark background.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .wide { grid-column: 1 / -1; }
+    .viz { height: 360px; }
+    .tall { height: 520px; }
+    .dark { background: #1a1b1e; color: #e9ecef; padding: 8px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Default: hollow up candles, evenly spaced trading days</h3><div class="viz" id="basic"></div></div>
+    <div><h3>variant: "ohlc"</h3><div class="viz" id="ohlc"></div></div>
+    <div><h3>skipGaps: false (weekend gaps), hollow: false, custom colors</h3><div class="viz" id="gaps"></div></div>
+    <div class="dark"><h3>Dark background</h3><div class="viz" id="dark"></div></div>
+    <div class="wide"><h3>500 trading days on canvas</h3><div class="viz" id="dense"></div></div>
+    <div class="wide"><h3>Tickers as small multiples (facet, independent scales)</h3><div class="tall" id="facet"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // A seeded random walk of trading days (weekdays only), so the page renders
+  // identically every load.
+  function prices(symbol, days, start, seed) {
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const rows = [];
+    const day = new Date(Date.UTC(2023, 0, 2));
+    let close = start;
+    while (rows.length < days) {
+      const weekday = day.getUTCDay();
+      if (weekday !== 0 && weekday !== 6) {
+        const open = close * (1 + (random() - 0.5) * 0.02);
+        close = open * (1 + (random() - 0.48) * 0.04);
+        const high = Math.max(open, close) * (1 + random() * 0.015);
+        const low = Math.min(open, close) * (1 - random() * 0.015);
+        const round = v => Math.round(v * 100) / 100;
+        rows.push({
+          symbol,
+          date: day.toISOString().slice(0, 10),
+          open: round(open),
+          high: round(high),
+          low: round(low),
+          close: round(close),
+        });
+      }
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+    return rows;
+  }
+
+  const acme = prices("ACME", 60, 120, 11);
+
+  new d3plus.Candlestick()
+    .select("#basic")
+    .data(acme)
+    .groupBy("symbol")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#ohlc")
+    .data(acme)
+    .groupBy("symbol")
+    .variant("ohlc")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#gaps")
+    .data(acme.slice(0, 30))
+    .groupBy("symbol")
+    .skipGaps(false)
+    .hollow(false)
+    .upColor("#1c7ed6")
+    .downColor("#e8590c")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#dark")
+    .data(acme)
+    .groupBy("symbol")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#dense")
+    .renderer("canvas")
+    .data(prices("ACME", 500, 80, 29))
+    .groupBy("symbol")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#facet")
+    .data([
+      ...prices("ACME", 90, 120, 11),
+      ...prices("BOLT", 90, 42, 23),
+      ...prices("CORE", 90, 310, 37),
+      ...prices("DYNO", 90, 8, 53),
+    ])
+    .groupBy("symbol")
+    .facet("symbol")
+    .facetConfig({scales: "independent"})
+    .render();
+
+</script>
+
+</html>

@@ -62,6 +62,35 @@ export {
 export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
+export {
+  candleChange,
+  candleDirection,
+  candlePath,
+  candleWidth,
+  finiteValue,
+  ohlcBarPath,
+  ohlcExtent,
+  periodSpacing,
+  pixelCenter,
+  readOhlc,
+} from "./src/charts/Candlestick/ohlc.js";
+export type {
+  CandleDirection,
+  CandlestickVariant,
+  Ohlc,
+  OhlcAccessor,
+  OhlcAccessors,
+} from "./src/charts/Candlestick/ohlc.js";
+export {candlestickBuffer, ohlcAccessors, widenDomain} from "./src/charts/Candlestick/buffer.js";
+export {CANDLESTICK_SHAPE, emitCandlesticks, layoutCandles} from "./src/charts/Candlestick/emit.js";
+export type {CandleLayout} from "./src/charts/Candlestick/emit.js";
+export {bandAxisDefaults, periodDate} from "./src/charts/Candlestick/periods.js";
+export {
+  candleAriaLabel,
+  candleTooltipRows,
+  formatChange,
+  formatPrice,
+} from "./src/charts/Candlestick/tooltip.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
@@ -70,6 +99,7 @@ export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";

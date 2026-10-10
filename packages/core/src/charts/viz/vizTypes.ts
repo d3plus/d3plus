@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
@@ -377,6 +378,8 @@ export interface VizInstance {
   _sharedHoverActive?: boolean;
   /** The tooltip's own `arrow`/`thead`/`tbody`, held while the shared tooltip replaces them. */
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
+  /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
+  _tooltipAxisRows?: boolean;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
@@ -432,6 +435,8 @@ export interface VizInstance {
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
+  /** Plot shape emitters a chart supplies for its own shape keys (see `emitShape`). */
+  _plotEmitters?: Record<string, ShapeEmitter>;
 
   /* 9. Feature/component class references */
   _legendClass?: Legend;

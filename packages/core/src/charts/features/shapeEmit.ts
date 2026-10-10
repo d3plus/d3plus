@@ -402,7 +402,10 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
   Line: lineEmit,
 };
 
-/** Dispatch a shape group to its emitter (falling back to the generic path). */
+/**
+    Dispatch a shape group to its emitter: the chart's own (`viz._plotEmitters`),
+    else the registry's, else the generic path.
+*/
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (shapeEmitters[key] ?? genericEmit)(ctx, key);
+  return (ctx.viz._plotEmitters?.[key] ?? shapeEmitters[key] ?? genericEmit)(ctx, key);
 }
