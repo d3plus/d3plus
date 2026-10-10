@@ -8,9 +8,13 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
+import {facetActive, resolveFacetConfig} from "../facet/facetConfig.js";
+import type {FacetAccessor, FacetConfig} from "../facet/facetConfig.js";
+import {facetKey, toFacetValue} from "../facet/facetData.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {computeTimeFilter} from "../pipeline/vizPreDrawPure.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import binData, {type BinNormalize, type BinRow} from "./binData.js";
@@ -56,16 +60,43 @@ function autoTitle(config: Record<string, unknown>, previous: string | undefined
   if (config.title === undefined || config.title === previous) config.title = next;
 }
 
-/** Re-bins the raw rows before Plot's pre-draw aggregates them. */
+/**
+    The time filter the draw applies: the configured `timeFilter` or, with a
+    `time` key, the latest period in `rows`.
+*/
+function drawnTimeFilter(viz: VizInstance, rows: DataPoint[]) {
+  if (viz.schema.timeFilter) return viz.schema.timeFilter as (d: DataPoint, i: number) => boolean;
+  const data = viz._data;
+  viz._data = rows;
+  try {
+    return computeTimeFilter(viz);
+  }
+  finally {
+    viz._data = data;
+  }
+}
+
+/**
+    Re-bins the raw rows before Plot's pre-draw aggregates them. Only the rows
+    in the selected time period are binned, and each facet panel is binned
+    on its own rows (sharing edges when the panels share scales), so every
+    panel draws the histogram of exactly the rows it shows.
+*/
 function binBeforePreDraw(viz: VizInstance) {
   const state = viz.ctx.histogram as HistogramState;
   if (viz._data !== state.bins) state.raw = viz._data;
 
+  const timeFilter = drawnTimeFilter(viz, state.raw);
+  const drawn = timeFilter ? state.raw.filter(timeFilter) : state.raw;
+  const facet = facetActive(viz) ? (viz.schema.facet as FacetAccessor) : undefined;
+
   const groupBy = viz.schema.groupBy as ((d: DataPoint, i: number) => unknown)[];
   const valueKey = valueKeys.get(viz.schema.value);
-  const bins = binData(state.raw, {
+  const bins = binData(drawn, {
     value: viz.schema.value,
     group: (d, i) => groupBy.map(g => `${g(d, i)}`).join("_"),
+    panel: facet ? (d, i) => facetKey(toFacetValue(facet(d, i))) : undefined,
+    sharedEdges: resolveFacetConfig(viz.schema.facetConfig as FacetConfig | undefined).scales === "shared",
     thresholds: viz.schema.binThresholds,
     domain: viz.schema.binDomain,
     width: viz.schema.binWidth,
@@ -78,7 +109,11 @@ function binBeforePreDraw(viz: VizInstance) {
     if (valueKey) delete b[valueKey];
     if (ungrouped) b.id = valueKey ?? viz.schema.translate("Value");
   });
-  state.bins = viz._data = bins;
+  // Rows outside the selected period stay in the data unbinned: the time
+  // filter drops them from the draw, while the timeline still lists their
+  // periods and the facet grid keeps their panels.
+  const offstage = timeFilter ? state.raw.filter((d, i) => !timeFilter(d, i)) : [];
+  state.bins = viz._data = offstage.length ? [...bins, ...offstage] : bins;
 
   const yTitle = viz.schema.translate(yTitles[viz.schema.binNormalize as BinNormalize] ?? yTitles.count);
   autoTitle(viz._yConfig!, state.yTitle, yTitle);
