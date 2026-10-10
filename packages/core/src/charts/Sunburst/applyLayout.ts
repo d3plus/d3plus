@@ -11,6 +11,14 @@ import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {stampShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  partitionFocus,
+  partitionRemoved,
+  partitionRenderBase,
+  partitionReturning,
+  partitionZoomOutFocus,
+} from "../partition/zoom.js";
+import type {PartitionFocus} from "../partition/zoom.js";
 
 import {sunburstCollapse, sunburstRadii} from "./geometry.js";
 import type {SunburstArc, SunburstRingSize} from "./geometry.js";
@@ -18,28 +26,14 @@ import {sunburstLayout} from "./partition.js";
 import type {SunburstKey, SunburstNode, SunburstSort} from "./partition.js";
 
 /** The drill-down focus: the `groupBy` level and key path of the node drawn at the center. */
-export interface SunburstFocus {
-  level: number;
-  path: unknown[];
-}
+export type SunburstFocus = PartitionFocus;
 
 /**
-    The node a click zoomed into, read from the drill-down history: the latest
-    entry's `groupDepth` is the clicked node's `groupBy` level, and every drawn
-    row shares that node's keys (the drill-down filtered to them). Level -1
-    (an empty path) means the whole hierarchy is drawn around a hollow center.
+    The node a click zoomed into, read from the drill-down history (see
+    `partitionFocus`). Level -1 (an empty path) means the whole hierarchy is
+    drawn around a hollow center.
 */
-export function sunburstFocus(viz: VizInstance): SunburstFocus {
-  const entry = viz._history?.[viz._history.length - 1];
-  const data = (viz._filteredData ?? []) as DataPoint[];
-  const groupBy = viz.schema.groupBy as SunburstKey[];
-  if (!entry || entry.groupDepth === undefined || !data.length)
-    return {level: -1, path: []};
-  const level = Math.min(entry.groupDepth, viz._drawDepth - 1);
-  if (level < 0) return {level: -1, path: []};
-  const path = groupBy.slice(0, level + 1).map(g => g(data[0], 0));
-  return {level, path};
-}
+export const sunburstFocus = partitionFocus;
 
 /** An arc a zoom removed, folding away from its last drawn geometry (see `sunburstCollapse`). */
 export interface SunburstGhost {
@@ -67,38 +61,24 @@ export function sunburstGhosts(
   origin: SunburstZoomOrigin,
   radii: [number, number][],
 ): SunburstGhost[] {
-  const kept = new Set(next.map(n => n.id));
-  return previous
-    .filter(n => !kept.has(n.id))
-    .map(n => ({
-      id: n.id,
-      datum: n.datum,
-      i: n.i,
-      level: n.level,
-      arc: sunburstCollapse(n, n.depth, origin, radii),
-    }));
+  return partitionRemoved(previous, next).map(n => ({
+    id: n.id,
+    datum: n.datum,
+    i: n.i,
+    level: n.level,
+    arc: sunburstCollapse(n, n.depth, origin, radii),
+  }));
 }
 
 /**
     The node a zoom-out comes back through: the previous center disc, now a
     ring arc of the new layout (or, for a jump of several levels, its nearest
     drawn ancestor). Undefined for any other change of layout.
-    @param previous The previous draw's nodes.
-    @param next This draw's nodes.
 */
-export function sunburstZoomOutFocus(
+export const sunburstZoomOutFocus: (
   previous: SunburstNode[],
   next: SunburstNode[],
-): SunburstNode | undefined {
-  const center = previous.find(n => n.depth === 0);
-  if (!center) return undefined;
-  const isPrefix = (n: SunburstNode) =>
-    n.path.length <= center.path.length &&
-    n.path.every((k, j) => k === center.path[j]);
-  return next
-    .filter(n => n.depth > 0 && isPrefix(n))
-    .sort((a, b) => b.path.length - a.path.length)[0];
-}
+) => SunburstNode | undefined = partitionZoomOutFocus;
 
 /**
     Gives every arc a zoom-out brings back the start it sweeps in from: the
@@ -115,20 +95,18 @@ export function sunburstReturning(
   next: SunburstNode[],
   previousRadii: [number, number][],
 ): Map<string, SunburstArc> {
-  const enter = new Map<string, SunburstArc>();
-  const focus = sunburstZoomOutFocus(previous, next);
-  if (!focus) return enter;
-  const drawn = new Set(previous.map(n => n.id));
-  const origin = {
-    startAngle: focus.startAngle,
-    endAngle: focus.endAngle,
-    depth: focus.depth,
-  };
-  for (const n of next) {
-    if (!drawn.has(n.id))
-      enter.set(n.id, sunburstCollapse(n, n.depth, origin, previousRadii));
-  }
-  return enter;
+  return partitionReturning(previous, next, (n, focus) =>
+    sunburstCollapse(
+      n,
+      n.depth,
+      {
+        startAngle: focus.startAngle,
+        endAngle: focus.endAngle,
+        depth: focus.depth,
+      },
+      previousRadii,
+    ),
+  );
 }
 
 /** The layout a render animates from: the last one drawn before it, plus a pending zoom-in origin. */
@@ -138,25 +116,17 @@ interface SunburstRenderBase {
   origin?: SunburstZoomOrigin;
 }
 
-/**
-    The layout this render animates from. A render can lay the chart out more
-    than once (placing the legend inside the chart redraws it), so the base is
-    taken on the first pass — recognized by a fresh `_filteredData` — and
-    every later pass of the same render reuses it, instead of animating from
-    the pass before it.
-*/
+/** The layout this render animates from, taken once per render (see `partitionRenderBase`). */
 export function renderBase(viz: VizInstance): SunburstRenderBase {
-  const pass = viz.ctx.sunburstPass as
-    {data: unknown; base: SunburstRenderBase} | undefined;
-  if (pass && pass.data === viz._filteredData) return pass.base;
-  const base: SunburstRenderBase = {
-    laid: viz.ctx.sunburstLaid as SunburstNode[] | undefined,
-    radii: viz.ctx.sunburstRadii as [number, number][] | undefined,
-    origin: viz.ctx.sunburstZoomOrigin as SunburstZoomOrigin | undefined,
-  };
-  viz.ctx.sunburstZoomOrigin = undefined;
-  viz.ctx.sunburstPass = {data: viz._filteredData, base};
-  return base;
+  return partitionRenderBase(viz, "sunburstPass", () => {
+    const base: SunburstRenderBase = {
+      laid: viz.ctx.sunburstLaid as SunburstNode[] | undefined,
+      radii: viz.ctx.sunburstRadii as [number, number][] | undefined,
+      origin: viz.ctx.sunburstZoomOrigin as SunburstZoomOrigin | undefined,
+    };
+    viz.ctx.sunburstZoomOrigin = undefined;
+    return base;
+  });
 }
 
 /** The center slot's radius from the `innerRadius` config: a pixel value, or a function of the outer radius. */

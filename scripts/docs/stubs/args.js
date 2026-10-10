@@ -28,6 +28,7 @@ const hiddenMethods = {
   Chord: ["shape"],
   Donut: ["shape"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
+  Icicle: ["shape"],
   LinePlot: ["shape"],
   Pyramid: ["shape", "discrete", "stacked"],
   StackedArea: ["shape"],

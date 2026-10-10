@@ -7,14 +7,23 @@
     never reads upside down.
 */
 
-import {textSplit} from "@d3plus/text";
+import {
+  labelFitDefaults,
+  largestFontSize,
+  wrapLineCount,
+} from "../partition/labelWords.js";
+import type {LabelFitOptions, LabelMetrics} from "../partition/labelWords.js";
 
 import {degrees, radialRotation, tangentialRotation} from "./geometry.js";
 import type {SunburstArc} from "./geometry.js";
 
+export {
+  partitionSplit as sunburstSplit,
+  wrapLineCount,
+} from "../partition/labelWords.js";
+
 const TAU = Math.PI * 2;
 const EPSILON = 1e-6;
-const SOFT_HYPHEN = "­";
 
 /** Where an arc's label goes: a box centered at (x, y), rotated `rotate` degrees about its center. */
 export interface SunburstLabelBox {
@@ -29,39 +38,9 @@ export interface SunburstLabelBox {
 }
 
 /** A label's words measured at a 1px font size, so any size is a multiplication away. */
-export interface SunburstLabelMetrics {
-  words: number[];
-  space: number;
-}
+export type SunburstLabelMetrics = LabelMetrics;
 
-export interface SunburstLabelFitOptions {
-  /** Smallest font size worth drawing (px). Default 8. */
-  fontMin?: number;
-  /** Largest font size to try (px). Default 24. */
-  fontMax?: number;
-  /** Inner padding of the label box (px). Default 2. */
-  padding?: number;
-  /** Line height as a multiple of the font size. Default 1.2. */
-  lineHeight?: number;
-  /** Most lines a label may wrap to. Default 3. */
-  maxLines?: number;
-}
-
-/**
-    Splits a label into words at spaces only — the shared splitter, with its
-    hyphenated syllables joined back into whole words, so a long word is never
-    broken across lines.
-*/
-export function sunburstSplit(sentence: string): string[] {
-  const words: string[] = [];
-  let joining = false;
-  for (const part of textSplit(sentence)) {
-    if (joining) words[words.length - 1] += part.replace(SOFT_HYPHEN, "");
-    else words.push(part.replace(SOFT_HYPHEN, ""));
-    joining = part.endsWith(SOFT_HYPHEN);
-  }
-  return words;
-}
+export type SunburstLabelFitOptions = LabelFitOptions;
 
 /** A box (centered at x, y and rotated `rotate` degrees) to test against an arc. */
 interface Box {
@@ -147,29 +126,6 @@ export function maxBoxWidth(
   return lo;
 }
 
-/**
-    How many lines a label wraps to at `fontSize` within `width`, breaking only
-    between words; Infinity when a single word is wider than the line.
-*/
-export function wrapLineCount(
-  metrics: SunburstLabelMetrics,
-  fontSize: number,
-  width: number,
-): number {
-  let lines = 1;
-  let current = 0;
-  for (const word of metrics.words) {
-    const w = word * fontSize;
-    if (w > width + EPSILON) return Infinity;
-    const next = current ? current + metrics.space * fontSize + w : w;
-    if (next > width + EPSILON) {
-      lines++;
-      current = w;
-    } else current = next;
-  }
-  return lines;
-}
-
 /** The box a label fits at `fontSize` in one rotation, trying 1 to `maxLines` lines; null when none fits. */
 function fitAt(
   arc: SunburstArc,
@@ -201,17 +157,15 @@ export function fitRotation(
   metrics: SunburstLabelMetrics,
   options: SunburstLabelFitOptions = {},
 ): {fontSize: number; width: number; height: number} | null {
-  const opts = withDefaults(options);
-  if (!fitAt(arc, center, rotate, metrics, opts.fontMin, opts)) return null;
-  let lo = opts.fontMin;
-  let hi = Math.max(opts.fontMin, opts.fontMax);
-  while (lo < hi) {
-    const mid = Math.ceil((lo + hi) / 2);
-    if (fitAt(arc, center, rotate, metrics, mid, opts)) lo = mid;
-    else hi = mid - 1;
-  }
-  const box = fitAt(arc, center, rotate, metrics, lo, opts)!;
-  return {fontSize: lo, ...box};
+  const opts = labelFitDefaults(options);
+  const fontSize = largestFontSize(
+    size => Boolean(fitAt(arc, center, rotate, metrics, size, opts)),
+    opts.fontMin,
+    opts.fontMax,
+  );
+  if (fontSize === null) return null;
+  const box = fitAt(arc, center, rotate, metrics, fontSize, opts)!;
+  return {fontSize, ...box};
 }
 
 /**
@@ -224,19 +178,6 @@ export function labelRotations(a: number): {
   radial: number;
 } {
   return {tangential: tangentialRotation(a), radial: radialRotation(a)};
-}
-
-function withDefaults(
-  options: SunburstLabelFitOptions,
-): Required<SunburstLabelFitOptions> {
-  return {
-    fontMin: 8,
-    fontMax: 24,
-    padding: 2,
-    lineHeight: 1.2,
-    maxLines: 3,
-    ...options,
-  };
 }
 
 /**
@@ -264,7 +205,7 @@ export function sunburstLabelBox(
     !(arc.outerRadius > arc.innerRadius)
   )
     return null;
-  const opts = withDefaults(options);
+  const opts = labelFitDefaults(options);
 
   if (arc.innerRadius <= 0 && span >= TAU - EPSILON) {
     const fit = fitRotation(arc, [0, 0], 0, metrics, opts);

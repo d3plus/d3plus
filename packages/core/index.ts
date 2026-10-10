@@ -9,6 +9,7 @@ export {
   Gauge,
   Geomap,
   Histogram,
+  Icicle,
   LinePlot,
   Matrix,
   Network,
