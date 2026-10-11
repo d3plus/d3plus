@@ -1,6 +1,9 @@
 import {extent} from "d3-array";
+import {timeFormatLocale} from "d3-time-format";
 
 import {date} from "@d3plus/dom";
+import {formatDateFull} from "@d3plus/format";
+import {locale, type TimeLocaleDefinition} from "@d3plus/locales";
 
 import type Axis from "./Axis.js";
 
@@ -42,4 +45,32 @@ export function axisTimeDomain(axis: Axis): Date[] {
   if (domain.some(d => d === undefined) && data.length)
     return extent(data) as [Date, Date];
   return domain as Date[];
+}
+
+/**
+    The time locale an axis labels dates in: its `timeLocale`, else the one for its `locale`, else en-US.
+    @private
+*/
+export function axisTimeLocale(axis: Axis): TimeLocaleDefinition {
+  return axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"];
+}
+
+/**
+    The ordered Dates a time axis picks its label interval from: its parsed `data`, else its domain.
+    @private
+*/
+export function axisTimeReference(axis: Axis): Date[] {
+  return parseTimeValues(
+    axis._scaleData.length ? axis._scaleData : axis.schema.domain,
+  ).sort((a: Date, b: Date) => +a - +b);
+}
+
+/**
+    A date labeled to be read on its own (e.g. in a tooltip): the label interval the time axis uses for its ticks, always with the year, in the axis's time locale.
+    @private
+*/
+export function axisDateLabel(axis: Axis, d: Date): string {
+  const timeLocale = axisTimeLocale(axis);
+  return formatDateFull(d, axisTimeReference(axis), timeFormatLocale(timeLocale).format)
+    .replace(/^Q/, timeLocale.quarter);
 }

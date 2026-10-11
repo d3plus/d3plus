@@ -2,8 +2,11 @@ import assert from "assert";
 import {date} from "@d3plus/dom";
 import {AxisBottom, AxisLeft, Timeline} from "../../es/index.js";
 import {
+  axisDateLabel,
   axisScaleData,
   axisTimeDomain,
+  axisTimeLocale,
+  axisTimeReference,
   parseTime,
   parseTimeValues,
 } from "../../es/src/components/Axis/timeValues.js";
@@ -224,6 +227,37 @@ it("non-time Axis data is used as given", () => {
     .duration(0)
     .render();
   assert.strictEqual(linearAxis._scaleData, nums, "linear data is not parsed");
+});
+
+it("axisTimeLocale: the axis's timeLocale, else its locale's, else en-US", () => {
+  assert.strictEqual(axisTimeLocale(new AxisBottom()).quarter, "Q", "en-US by default");
+  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("es-ES")).quarter, "T", "the locale's");
+  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("xx-XX")).quarter, "Q", "en-US for an unknown locale");
+  const custom = {...axisTimeLocale(new AxisBottom()), quarter: "K"};
+  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("es-ES").timeLocale(custom)), custom, "timeLocale wins");
+});
+
+it("axisTimeReference: a time axis's parsed data in order, else its domain", () => {
+  const data = draw({data: ["2026-03-01", "2026-01-01", "2026-02-01"], domain: ["2026-01-01", "2026-03-01"]});
+  assert.deepStrictEqual(axisTimeReference(data.axis).map(Number), ["2026-01-01", "2026-02-01", "2026-03-01"].map(d => +date(d)));
+  const domain = draw({domain: ["2024-01-01", "2020-01-01"]});
+  assert.deepStrictEqual(axisTimeReference(domain.axis).map(Number), ["2020-01-01", "2024-01-01"].map(d => +date(d)));
+});
+
+it("axisDateLabel: a date at the axis's tick interval, always with the year, in its locale", () => {
+  const months = Array.from({length: 36}, (_, i) => new Date(2024, i, 1));
+  const monthly = draw({data: months, domain: ends(months)});
+  assert.ok(monthly.labels.includes("Apr"), `middle ticks drop the year (got ${monthly.labels})`);
+  assert.strictEqual(axisDateLabel(monthly.axis, months[15]), "Apr 2025");
+  assert.strictEqual(axisDateLabel(monthly.axis, months[0]), "Jan 2024");
+
+  const quarters = Array.from({length: 12}, (_, i) => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1));
+  const quarterly = draw({data: quarters, domain: ends(quarters), locale: "es-ES"});
+  assert.strictEqual(axisDateLabel(quarterly.axis, quarters[6]), "T3 2025", "the locale's quarter prefix");
+
+  const days = Array.from({length: 20}, (_, i) => `2026-03-${String(i + 1).padStart(2, "0")}`);
+  const daily = draw({data: days, domain: ends(days)});
+  assert.strictEqual(axisDateLabel(daily.axis, date(days[9])), "Mar 10, 2026");
 });
 
 it("Timeline: string data with unparseable values draws without NaN", function* () {
