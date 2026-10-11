@@ -27,11 +27,39 @@ export function pathHit(
   return ctx.isPointInStroke(p, lx, ly);
 }
 
+/** Traces a rect with elliptical corners, radii clamped to half its sides as SVG does. */
+function roundedRect(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rx: number,
+  ry: number,
+): void {
+  rx = Math.min(Math.abs(rx), w / 2);
+  ry = Math.min(Math.abs(ry), h / 2);
+  ctx.moveTo(x + rx, y);
+  ctx.lineTo(x + w - rx, y);
+  ctx.ellipse(x + w - rx, y + ry, rx, ry, 0, -Math.PI / 2, 0);
+  ctx.lineTo(x + w, y + h - ry);
+  ctx.ellipse(x + w - rx, y + h - ry, rx, ry, 0, 0, Math.PI / 2);
+  ctx.lineTo(x + rx, y + h);
+  ctx.ellipse(x + rx, y + h - ry, rx, ry, 0, Math.PI / 2, Math.PI);
+  ctx.lineTo(x, y + ry);
+  ctx.ellipse(x + rx, y + ry, rx, ry, 0, Math.PI, (Math.PI * 3) / 2);
+  ctx.closePath();
+}
+
 export function pathFor(ctx: Ctx, node: SceneNode): void {
   switch (node.type) {
     case "rect":
       ctx.beginPath();
-      ctx.rect(node.x, node.y, node.width, node.height);
+      if (node.rx || node.ry) {
+        const rx = node.rx || node.ry || 0;
+        const ry = node.ry || node.rx || 0;
+        roundedRect(ctx, node.x, node.y, node.width, node.height, rx, ry);
+      } else ctx.rect(node.x, node.y, node.width, node.height);
       break;
     case "circle":
       ctx.beginPath();
