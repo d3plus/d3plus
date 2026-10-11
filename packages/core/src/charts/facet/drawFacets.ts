@@ -120,17 +120,19 @@ function drawPanel(
   if (!data.length || area.width <= 0 || area.height <= 0) return {scene: [], zoomShapes: [], state: {}};
   const undo = plan.hooks.panel ? plan.hooks.panel(viz, ctx) : undefined;
   viz._facetStep = "panel";
+  let nodes: SceneNode[] = [], scene: SceneNode[] = [];
   try {
     viz._draw();
+    nodes = viz._chartScene || [];
+    scene = plan.hooks.scene ? plan.hooks.scene(viz, nodes) : nodes;
   }
   finally {
     viz._facetStep = undefined;
     if (undo) undo();
   }
-  const scene = viz._chartScene || [];
   return {
     scene,
-    zoomShapes: viz._zoomShapes || scene,
+    zoomShapes: viz._zoomShapes || nodes,
     chartTransform: viz._chartTransform,
     chartClip: viz._chartClip,
     state: plan.hooks.capture ? plan.hooks.capture(viz) : {},

@@ -149,21 +149,30 @@ export function sideTitleNodes(box: TextBox, titles: SideTitle[], config: Record
   return [{type: "group", key: "pyramid-side-titles", interactionGroup: "axis", children: group.children ?? []} as SceneNode];
 }
 
-/** Returns a copy of `scene` with `outlines` added above the bars and `titles` on top. */
+/**
+    Returns a copy of a chart body's `children` with `outlines` added above
+    the bars (inside the zoom content group, when there is one) and `titles`
+    on top.
+*/
+export function withPyramidChildren(children: SceneNode[], outlines: SceneNode[], titles: SceneNode[]): SceneNode[] {
+  const next = children.slice();
+  const content = next.findIndex(n => n.key === PLOT_ZOOM_CONTENT_KEY);
+  if (content >= 0 && outlines.length) {
+    const group = next[content];
+    if (group.type === "group") next[content] = {...group, children: [...group.children, ...outlines]};
+  } else next.push(...outlines);
+  next.push(...titles);
+  return next;
+}
+
+/** Returns `scene` with `outlines` added above the bars and `titles` on top of its chart body. */
 export function withPyramidNodes(scene: Scene, outlines: SceneNode[], titles: SceneNode[]): Scene {
   if (!outlines.length && !titles.length) return scene;
   const cells = scene.root.children.find(n => n.key === "viz-chart-cells");
   const zoom = cells && "children" in cells ? cells.children.find(n => n.key === "viz-zoom") : undefined;
   const body = zoom && "children" in zoom ? zoom.children.find(n => n.key === "viz-chart-body") : undefined;
   if (!body || body.type !== "group") return scene;
-  const content = body.children.findIndex(n => n.key === PLOT_ZOOM_CONTENT_KEY);
-  const children = body.children.slice();
-  if (content >= 0 && outlines.length) {
-    const group = children[content];
-    if (group.type === "group") children[content] = {...group, children: [...group.children, ...outlines]};
-  } else children.push(...outlines);
-  children.push(...titles);
-  body.children = children;
+  body.children = withPyramidChildren(body.children, outlines, titles);
   return scene;
 }
 
@@ -182,12 +191,22 @@ export interface PyramidSceneInput {
   gutter?: (edges: [number, number]) => SceneNode[];
 }
 
-/** Adds the side titles and comparison outline to the painted Plot scene. */
-export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidSceneInput): Scene {
+/** Pyramid's nodes for the chart just drawn: the comparison outlines, and the gutter labels and side titles. */
+export interface PyramidNodes {
+  outlines: SceneNode[];
+  overlays: SceneNode[];
+}
+
+/**
+    The comparison outlines, gutter labels, and side titles for the chart (or
+    small-multiples panel) just drawn, in its chart body's coordinates; empty
+    before the plot has scales or rows.
+*/
+export function pyramidNodes(viz: VizInstance, input: PyramidSceneInput): PyramidNodes {
   const x = viz._xFunc as ((v: number) => number) | undefined;
   const y = viz._yFunc as ((v: unknown) => number) | undefined;
   const area = viz._plotArea;
-  if (!x || !y || !area || !viz._filteredData?.length) return scene;
+  if (!x || !y || !area || !viz._filteredData?.length) return {outlines: [], overlays: []};
 
   const outlines = input.comparison
     ? comparisonNodes({
@@ -225,5 +244,21 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
       : [];
 
   const labels = input.gutter ? input.gutter(edges) : [];
-  return withPyramidNodes(scene, outlines, [...labels, ...titles]);
+  return {outlines, overlays: [...labels, ...titles]};
+}
+
+/** Adds the side titles, gutter labels, and comparison outline to the painted Plot scene. */
+export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidSceneInput): Scene {
+  const {outlines, overlays} = pyramidNodes(viz, input);
+  return withPyramidNodes(scene, outlines, overlays);
+}
+
+/**
+    Adds the side titles, gutter labels, and comparison outline to one
+    small-multiples panel's chart nodes, drawn against that panel's scales
+    (see `FacetHooks.scene`).
+*/
+export function pyramidPanelScene(viz: VizInstance, nodes: SceneNode[], input: PyramidSceneInput): SceneNode[] {
+  const {outlines, overlays} = pyramidNodes(viz, input);
+  return outlines.length || overlays.length ? withPyramidChildren(nodes, outlines, overlays) : nodes;
 }

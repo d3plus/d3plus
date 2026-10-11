@@ -114,6 +114,14 @@ export interface FacetHooks {
       `facet/facetGutter.ts`).
   */
   insets?: (viz: VizInstance) => FacetSides;
+  /**
+      Adds the chart's own nodes to a panel's chart nodes, right after the
+      panel draws (with its state still in place), and returns the panel's
+      nodes. For chrome a chart layers onto its scene outside `_chartScene`
+      (in a `toScene` override), which the composed small-multiples scene
+      would otherwise draw once for the whole chart, or not at all.
+  */
+  scene?: (viz: VizInstance, nodes: SceneNode[]) => SceneNode[];
   /** Captures the chart state (viz slots, by name) a panel puts back while the pointer is over it, for hover and tooltips (see `facet/facetPanel.ts`). */
   capture?: (viz: VizInstance) => Record<string, unknown>;
 }
