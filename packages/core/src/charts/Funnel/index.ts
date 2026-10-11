@@ -81,14 +81,16 @@ export const funnelDef: DataDrivenChartDefinition = {
     /**
         Which conversion rates each stage's label shows beneath its value:
         `"first"` (its value as a share of the first stage's), `"previous"`
-        (as a share of the stage before it), `"both"`, or `false` for none.
-        Tooltips always show both.
+        (as a share of the stage before it), `"both"` (or `true`), or `false`
+        for none. Tooltips always show both.
+        @type {boolean | "first" | "previous" | "both" | ("first" | "previous")[]}
     */
     {key: "conversion", default: false},
     /**
         How the funnel's width changes from one stage to the next:
         `"linear"` (straight sides) or `"smooth"` (curved sides that ease
         into each stage).
+        @type {"linear" | "smooth"}
     */
     {key: "curve", default: "linear"},
     /** Hides the legend when every stage would be its own entry (stages are labeled), including across small multiples. */
@@ -126,7 +128,10 @@ export const funnelDef: DataDrivenChartDefinition = {
         flat bars. The last stage keeps its own width.
     */
     {key: "taper", default: false},
-    /** Accessor for each stage's value. */
+    /**
+        Accessor function or string key for each stage's value.
+        @type {string | function}
+    */
     {
       key: "value",
       default: accessor("value"),
@@ -155,6 +160,10 @@ export const funnelDef: DataDrivenChartDefinition = {
         leads into. `fill` defaults to that stage's fill.
     */
     {key: "connectorConfig", merge: true, default: {opacity: 0.35}},
+    /**
+        Tooltip rows show each stage's value, then its share of the first
+        and of the previous stage.
+    */
     {
       key: "tooltipConfig",
       merge: true,
