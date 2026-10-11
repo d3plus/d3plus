@@ -14,15 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component:
-          "Draws a hierarchy as concentric rings, one per `groupBy` level, where each node's arc angle is proportional to its summed value. Click an arc to zoom into it; click the center (or Back) to zoom out.",
+        component: "Draws a hierarchy as concentric rings, one per groupBy level, where each\nnode's arc angle is proportional to its summed value. Click an arc to zoom\ninto it; click the center (or Back) to zoom out.",
       },
     },
-  },
+  }
 };
 
-const Template = args => <Sunburst config={configify(args, argTypes)} />;
-
+const Template = (args) => <Sunburst config={configify(args, argTypes)} />;
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

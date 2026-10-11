@@ -11,18 +11,21 @@ export const Gauge = ({ config }) => <D3plusGauge config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Viz primitive.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in Gauge
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(zoom.*)$/))
     .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * Gauge-specific methods
    */
+  
   {
     axisConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Styles the dial: `shapeConfig.fill` colors the track, `shapeConfig.stroke`/`strokeWidth` the tick marks, and `shapeConfig.labelConfig` (`fontColor`, `fontFamily`, `fontSize`) the tick, value, and name labels. Unset colors follow the chart's background, so the dial reads on light and dark themes alike.",
       table: {
         defaultValue: {
@@ -35,7 +38,10 @@ export const argTypes = assign(
       }
     },
     bands: {
-      control: {},
+      control: {
+        type: "object"
+      },
+      defaultValue: [],
       description: "Colored zones along the dial, in order: `[{max: 60, color: \"#2f9e44\"}, {max: 85, color: \"#f59f00\"}, {color: \"#e03131\"}]`. Each band starts at its own `min`, else where the previous band ended; it ends at its own `max`, else the domain's maximum. Bands are drawn on the track behind the needles, or as a thin strip inside the progress tracks.",
       table: {
         defaultValue: {
@@ -48,7 +54,9 @@ export const argTypes = assign(
       }
     },
     domain: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The `[min, max]` the dial spans. Either end may be left `undefined` to come from the data (and any band edges), rounded outward to nice numbers and always including zero. Values outside the domain pin the indicator to the nearest end.",
       table: {
         defaultValue: {
@@ -64,6 +72,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      defaultValue: 120,
       description: "The angle, in degrees clockwise from 12 o'clock, where the dial ends.",
       table: {
         defaultValue: {
@@ -79,11 +88,15 @@ export const argTypes = assign(
       control: {
         type: "radio"
       },
-      options: ["needle", "progress"],
+      defaultValue: "needle",
       description: "How each row shows its value: `\"needle\"` (default) points a needle at it; `\"progress\"` fills a track from the minimum up to it, with one concentric track per row stepping inward.",
+      options: [
+        "needle",
+        "progress"
+      ],
       table: {
         defaultValue: {
-          summary: "\"needle\""
+          summary: "needle"
         }
       },
       type: {
@@ -95,6 +108,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
+      defaultValue: true,
       description: "Whether to draw unlabeled minor ticks between the major ticks.",
       table: {
         defaultValue: {
@@ -106,10 +120,19 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
+    shapeConfig: {
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nOutlines each needle (and a single needle's hub) in the chart's background color, so a needle stays distinct over a band of its own color. Progress arcs sit in their own tracks and get no outline. Set `shapeConfig.stroke`/`strokeWidth` to override; hovering a needle swaps the outline for the usual darker, wider one.",
+      table: {
+        defaultValue: {
+          summary: "{stroke: () => chartBackground(viz), strokeWidth: () => viz.schema.indicator === \"progress\" ? 0 : NEEDLE_OUTLINE}"
+        }
+      }
+    },
     startAngle: {
       control: {
         type: "number"
       },
+      defaultValue: -120,
       description: "The angle, in degrees clockwise from 12 o'clock, where the dial starts.",
       table: {
         defaultValue: {
@@ -125,6 +148,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      defaultValue: 0.2,
       description: "The track's thickness, as a fraction of the dial's radius.",
       table: {
         defaultValue: {
@@ -141,7 +165,7 @@ export const argTypes = assign(
       description: "Formats the tick labels. Defaults to the locale's abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "formatAbbreviate"
+          summary: "function"
         }
       },
       type: {
@@ -150,7 +174,9 @@ export const argTypes = assign(
       }
     },
     ticks: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The major ticks: a target count, an explicit array of values, or `false` for none. Counted ticks always label both ends of the domain.",
       table: {
         defaultValue: {
@@ -166,7 +192,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor function or string key for each row's value.",
+      description: "Accessor function or string key for each row's value (a number is used as a constant value for every row).",
       table: {
         defaultValue: {
           summary: "\"value\""
@@ -182,12 +208,21 @@ export const argTypes = assign(
       description: "Formats the value shown under the hub and in each tooltip, as `(value, datum) => string`. Defaults to the locale's abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "formatAbbreviate"
+          summary: "function"
         }
       },
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    zoom: {
+      defaultValue: false,
+      description: "Enables pan/zoom with zoom-control buttons. On by default for every chart.\n\nZooming and panning don't help read a dial, so they're off by default.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
       }
     }
   }

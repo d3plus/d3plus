@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a Chord diagram based on a defined set of nodes and links. Groups are laid out as arcs around a circle and connected by ribbons sized by the flow between them.",
+        component: "Creates a Chord diagram based on a defined set of nodes and links.",
       },
     },
   }
 };
 
 const Template = (args) => <Chord config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

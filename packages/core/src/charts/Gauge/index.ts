@@ -43,6 +43,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
         `shapeConfig.labelConfig` (`fontColor`, `fontFamily`, `fontSize`) the
         tick, value, and name labels. Unset colors follow the chart's
         background, so the dial reads on light and dark themes alike.
+        @type {{shapeConfig: {fill, stroke, strokeWidth, labelConfig}}}
     */
     {key: "axisConfig", merge: true},
     /**
@@ -51,6 +52,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
         its own `min`, else where the previous band ended; it ends at its own
         `max`, else the domain's maximum. Bands are drawn on the track behind the
         needles, or as a thin strip inside the progress tracks.
+        @type {GaugeBand[]}
     */
     {key: "bands", default: []},
     /**
@@ -58,6 +60,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
         be left `undefined` to come from the data (and any band edges), rounded
         outward to nice numbers and always including zero. Values outside the
         domain pin the indicator to the nearest end.
+        @type {[number, number]}
     */
     {key: "domain"},
     /** The angle, in degrees clockwise from 12 o'clock, where the dial ends. */
@@ -66,6 +69,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
         How each row shows its value: `"needle"` (default) points a needle at
         it; `"progress"` fills a track from the minimum up to it, with one
         concentric track per row stepping inward.
+        @type {"needle" | "progress"}
     */
     {key: "indicator", default: "needle"},
     /** Whether to draw unlabeled minor ticks between the major ticks. */
@@ -83,6 +87,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
     /**
         The major ticks: a target count, an explicit array of values, or
         `false` for none. Counted ticks always label both ends of the domain.
+        @type {number | number[] | false}
     */
     {key: "ticks"},
     /**
@@ -123,7 +128,11 @@ export const gaugeDef: DataDrivenChartDefinition = {
         ],
       }),
     },
-    /** Accessor for each row's value. */
+    /**
+        Accessor function or string key for each row's value (a number is used
+        as a constant value for every row).
+        @type {string | function}
+    */
     {
       key: "value",
       default: accessor("value"),

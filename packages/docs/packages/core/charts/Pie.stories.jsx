@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Uses the [d3 pie layout](https://github.com/d3/d3-shape#pies) to creates SVG arcs based on an array of data.",
+        component: "Uses the d3 pie layout to create SVG arcs based on an array of data.",
       },
     },
   }

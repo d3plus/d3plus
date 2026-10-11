@@ -98,6 +98,14 @@ export const sankeyDef: ChartDefinition = {
       });
     };
 
+    /**
+        The flows between `nodes`. Each link's `linksSource` and `linksTarget`
+        values match a node's `nodeId`, and its width comes from `value`.
+        Accepts an array of links, or a URL/filepath string to load them from.
+        An optional formatting function can be passed as a second argument; it
+        receives the loaded data and returns the final links array.
+        @type {object[] | string}
+    */
     v.links = function(this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
         (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
@@ -105,6 +113,14 @@ export const sankeyDef: ChartDefinition = {
       }
       return this.schema.links;
     };
+    /**
+        The nodes to draw. When empty, the nodes are the unique source and
+        target values in `links`. Accepts an array of node objects, or a
+        URL/filepath string to load them from. An optional formatting function
+        can be passed as a second argument; it receives the loaded data and
+        returns the final nodes array.
+        @type {object[] | string}
+    */
     v.nodes = function(this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
         (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
@@ -112,6 +128,12 @@ export const sankeyDef: ChartDefinition = {
       }
       return this.schema.nodes;
     };
+    /**
+        How nodes are aligned horizontally: `"justify"` (default), `"left"`,
+        `"right"`, or `"center"`, or a custom d3-sankey
+        [alignment function](https://github.com/d3/d3-sankey#sankey_nodeAlign).
+        @type {"justify" | "left" | "right" | "center" | function}
+    */
     v.nodeAlign = function(this: VizInstance, _: unknown) {
       return arguments.length
         ? ((this.schema.nodeAlign = typeof _ === "function"
@@ -119,6 +141,11 @@ export const sankeyDef: ChartDefinition = {
             : (sankeyAligns as unknown as Record<string, unknown>)[_ as string]), this)
         : this.schema.nodeAlign;
     };
+    /**
+        The unique id of each node, as a key or an accessor function. Link
+        sources and targets are matched against these ids.
+        @type {string | function}
+    */
     v.nodeId = function(this: VizInstance, _: unknown) {
       return arguments.length
         ? ((this.schema.nodeId = typeof _ === "function"
@@ -126,6 +153,12 @@ export const sankeyDef: ChartDefinition = {
             : accessor(_ as string)), this)
         : this.schema.nodeId;
     };
+    /**
+        The value of each link, which sets its width: a key or an accessor
+        function that receives the link and its index. Defaults to `1` for
+        every link.
+        @type {string | function}
+    */
     v.value = function(this: VizInstance, _: unknown) {
       if (!arguments.length) return this.schema.value;
       this.schema.value = (typeof _ === "function"
@@ -153,19 +186,51 @@ export const sankeyDef: ChartDefinition = {
   },
 
   fields: [
+    /**
+        Draws arrowheads on the links: `true` (or `"target"`) where each link
+        enters its target, `"source"` where it leaves its source, `"both"`,
+        or `false` for none. Also accepts an accessor function returning one
+        of those per link.
+        @type {boolean | "target" | "source" | "both" | function}
+    */
     {key: "arrows", default: false},
+    /**
+        The arrowhead size in pixels, or an accessor function returning one
+        per link. Defaults to the link's width, kept between 8 and 28.
+        @type {number | function}
+    */
     {key: "arrowSize"},
+    /**
+        The number of relaxation iterations d3-sankey runs to position the
+        nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).
+    */
     {key: "iterations", default: 6},
     {key: "links", default: accessor("links")},
+    /**
+        A comparator that orders the links at each node, passed to d3-sankey's
+        [linkSort](https://github.com/d3/d3-sankey#sankey_linkSort). When
+        unset, links are ordered by the position of the node at their other end.
+        @type {function}
+    */
     {key: "linkSort"},
+    /** The key in each link object that holds its source node's id. */
     {key: "linksSource", default: "source"},
+    /** The key in each link object that holds its target node's id. */
     {key: "linksTarget", default: "target"},
     {key: "noDataMessage", default: false},
     {key: "nodes", default: accessor("nodes")},
     {key: "nodeAlign", default: sankeyJustify},
     {key: "nodeId", default: accessor("id")},
+    /** The vertical gap between nodes in the same column, in pixels. */
     {key: "nodePadding", default: 8},
+    /**
+        A comparator that orders the nodes in each column, passed to
+        d3-sankey's [nodeSort](https://github.com/d3/d3-sankey#sankey_nodeSort).
+        When unset, d3-sankey orders them to reduce link crossings.
+        @type {function}
+    */
     {key: "nodeSort"},
+    /** The width of each node, in pixels. */
     {key: "nodeWidth", default: 30},
     {key: "value", default: constant(1)},
     {key: "shape", default: constant("Rect"), coerce: "const"},

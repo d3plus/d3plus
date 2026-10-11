@@ -232,6 +232,12 @@ function setupGeomapFluent(viz: VizInstance): void {
 /** Installs the fit/point fluent accessors. */
 function setupGeomapFitFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
+  /**
+      Limits which features the initial fit frames: a single feature id, an
+      array of ids, or a filter function over the features of `fitObject` (or of
+      `topojson` when no `fitObject` is set).
+      @type {string | string[] | ((feature: object) => boolean)}
+  */
   v.fitFilter = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this._zoomSet = false;
@@ -245,6 +251,11 @@ function setupGeomapFitFluent(viz: VizInstance): void {
     }
     return this.schema.fitFilter;
   };
+  /**
+      The key of the object in `fitObject` (its `objects` map) to fit. Defaults to
+      the first object.
+      @type {string}
+  */
   v.fitKey = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.fitKey = _ as string | undefined;
@@ -253,6 +264,15 @@ function setupGeomapFitFluent(viz: VizInstance): void {
     }
     return this.schema.fitKey;
   };
+  /**
+      The topojson the initial projection fits its extent to
+      ([`fitExtent`](https://github.com/d3/d3-geo#projection_fitExtent)): a
+      topojson object, or a filepath or URL to load. An optional formatting
+      function, passed as a second argument, receives the loaded data and returns
+      the final topojson object. Defaults to `topojson`, or to the coordinate
+      points when there is none.
+      @type {string | object | false}
+  */
   v.fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
     if (arguments.length) {
       (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "fitObject");
@@ -261,11 +281,23 @@ function setupGeomapFitFluent(viz: VizInstance): void {
     }
     return this.schema.fitObject;
   };
+  /**
+      Accessor function for each data point's coordinates, as
+      `[longitude, latitude]` (d3's coordinate order), or one coordinate for
+      every point. Defaults to each row's `point` key. Rows with a coordinate are
+      drawn as points; the rest are matched to `topojson` shapes.
+      @type {number[] | function}
+  */
   v.point = function(this: VizInstance, _?: unknown) {
     return arguments.length
       ? ((this.schema.point = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
       : this.schema.point;
   };
+  /**
+      Accessor (or constant) for the value that sizes each coordinate point,
+      scaled by `pointSizeScale` onto `[pointSizeMin, pointSizeMax]` pixels.
+      @type {number | function}
+  */
   v.pointSize = function(this: VizInstance, _?: unknown) {
     return arguments.length
       ? ((this.schema.pointSize = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
@@ -276,6 +308,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
 /** Installs the projection fluent accessors. */
 function setupGeomapProjectionFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
+  /**
+      The map projection for the topojson and coordinate points: any projection
+      from [d3-geo](https://github.com/d3/d3-geo#projections), as its name (e.g.
+      `"geoMercator"`) or the projection itself. Map tiles only line up with
+      Mercator (the default), so any other projection turns `tiles` off.
+      @type {string | function}
+  */
   v.projection = function(this: VizInstance, _?: unknown) {
     if (arguments.length && _ !== "geoMercator") v.tiles(false);
     return arguments.length
@@ -288,11 +327,24 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
         this)
       : this.schema.projection;
   };
+  /**
+      The outer padding between the edge of the visualization and the map's
+      shapes: one number for every side, or a CSS-style string (e.g.
+      `"20px 0 10px"`).
+      @type {number | string}
+  */
   v.projectionPadding = function(this: VizInstance, _?: unknown) {
     return arguments.length
       ? ((this.schema.projectionPadding = parseSides(_ as Parameters<typeof parseSides>[0])), this)
       : this.schema.projectionPadding;
   };
+  /**
+      Rotates the projection, as d3-geo's
+      [`projection.rotate`](https://github.com/d3/d3-geo#projection_rotate) angles
+      `[lambda, phi, gamma]` in degrees. Turns `tiles` off, since rotated tiles
+      no longer line up.
+      @type {[number, number] | [number, number, number]}
+  */
   v.projectionRotate = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.projection.rotate(_);
@@ -307,6 +359,11 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
 /** Installs the tile fluent accessors. */
 function setupGeomapTileFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
+  /**
+      Whether to draw map tiles behind the shapes, from `tileUrl`. On by default;
+      a non-Mercator `projection` or `projectionRotate` turns it off.
+      @type {boolean}
+  */
   v.tiles = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.tiles = _ as boolean;
@@ -315,6 +372,13 @@ function setupGeomapTileFluent(viz: VizInstance): void {
     }
     return this.schema.tiles;
   };
+  /**
+      The tile URL template, with `{x}`, `{y}`, and `{z}` placeholders, or a
+      `{light, dark}` pair of templates chosen by the chart's backdrop. Defaults to
+      Esri's light and dark Canvas basemaps. The tile credit in `attribution`
+      follows the active URL unless the attribution was set by hand.
+      @type {string | {light: string, dark: string}}
+  */
   v.tileUrl = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.tileUrl = _ as Themed<string>;
@@ -329,6 +393,12 @@ function setupGeomapTileFluent(viz: VizInstance): void {
 /** Installs the topojson fluent accessors. */
 function setupGeomapTopojsonFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
+  /**
+      The topojson to draw as geographic paths: a topojson object, or a filepath
+      or URL to load. An optional formatting function, passed as a second
+      argument, receives the loaded data and returns the final topojson object.
+      @type {string | object | false}
+  */
   v.topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
     if (arguments.length) {
       (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "topojson");
@@ -337,11 +407,23 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
     }
     return this.schema.topojson;
   };
+  /**
+      The fill for topojson shapes that have no data (or no `colorScale` value):
+      a CSS color or a function of the feature. Defaults to a quiet light gray, or
+      its dark counterpart over a dark basemap.
+      @type {string | function}
+  */
   v.topojsonFill = function(this: VizInstance, _?: unknown) {
     return arguments.length
       ? ((this.schema.topojsonFill = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
       : this.schema.topojsonFill;
   };
+  /**
+      Hides topojson features: a single feature id to remove, an array of ids, or
+      a filter function that keeps the features it returns true for. Defaults to
+      hiding Antarctica (id `"010"`).
+      @type {string | string[] | ((feature: object) => boolean)}
+  */
   v.topojsonFilter = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this._zoomSet = false;
@@ -355,6 +437,11 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
     }
     return this.schema.topojsonFilter;
   };
+  /**
+      The key of the object in `topojson` (its `objects` map) to draw. Defaults to
+      the first object.
+      @type {string}
+  */
   v.topojsonKey = function(this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.topojsonKey = _ as string | undefined;
@@ -363,6 +450,12 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
     }
     return this.schema.topojsonKey;
   };
+  /**
+      The accessor, or key, that reads each topojson feature's id, which is
+      matched against each data point's id (its `groupBy` value) to join the
+      data to the map.
+      @type {string | function}
+  */
   v.topojsonId = function(this: VizInstance, _?: unknown) {
     return arguments.length
       ? ((this.schema.topojsonId = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : accessor(_ as string)), this)
@@ -411,11 +504,28 @@ export const geomapDef: ChartDefinition = {
   fields: [
     {key: "fitObject", default: false},
     {key: "noDataMessage", default: false},
+    /**
+        The color behind the map's shapes and tiles: any CSS color (including
+        `"transparent"`), or a `{light, dark}` pair chosen by the chart's backdrop.
+        Defaults to the default basemap's own water colors, which mask the tiles
+        while they load.
+        @type {string | {light: string, dark: string}}
+    */
     {key: "ocean", default: DEFAULT_OCEAN},
     {key: "point", default: accessor("point")},
     {key: "pointSize", default: constant(1)},
+    /**
+        The largest coordinate point radius, in pixels.
+    */
     {key: "pointSizeMax", default: 10},
+    /**
+        The smallest coordinate point radius, in pixels.
+    */
     {key: "pointSizeMin", default: 5},
+    /**
+        The [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)
+        that sizes coordinate points from `pointSize`, by name (e.g. `"sqrt"`).
+    */
     {key: "pointSizeScale", default: "linear"},
     {key: "projection", default: d3Geo.geoMercator()},
     {key: "projectionPadding", default: parseSides(20)},

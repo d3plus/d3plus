@@ -56,6 +56,11 @@ export const radarDef: ChartDefinition = {
     {key: "levelLabelConfig", default: {}, merge: true},
     {key: "levelLabels", default: true},
     {key: "levels", default: 6},
+    /**
+        Accessor function or string key for each data point's metric: every unique
+        metric becomes one spoke (axis) of the radar.
+        @type {string | function}
+    */
     {
       key: "metric",
       default: accessor("metric"),
@@ -63,6 +68,11 @@ export const radarDef: ChartDefinition = {
     },
     {key: "outerPadding", default: "auto"},
     {key: "shape", default: constant("Path"), coerce: "const"},
+    /**
+        Accessor function or string key for each data point's value, which sets its
+        distance from the center along its metric's spoke.
+        @type {string | function}
+    */
     {
       key: "value",
       default: accessor("value"),

@@ -11,26 +11,40 @@ export const Pyramid = ({ config }) => <D3plusPyramid config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from BarChart; a Pyramid is always a
-   * horizontal, stacked bar chart.
+   * Filters out unused argTypes from the BarChart primitive and
+   * overrides any defaults that have been changed in Pyramid
    */
   Object.keys(barChartArgTypes)
-    .filter(k => !k.match(/^(shape|discrete|stacked|zoom.*)$/))
+    .filter(k => !k.match(/^(shape|discrete|stacked)$/))
     .reduce((obj, k) => (obj[k] = barChartArgTypes[k], obj), {}),
 
   /**
    * Pyramid-specific methods
    */
+  
   {
+    baselineBreak: {
+      defaultValue: false,
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.\n\nBoth halves meet at the center line, so the value axis never breaks away from zero.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      }
+    },
     categoryPosition: {
       control: {
         type: "radio"
       },
-      options: ["center", "left"],
+      defaultValue: "center",
       description: "Where the category labels (e.g. age bands) are drawn: `\"center\"` (default) down a gutter between the two halves, as wide as the widest label, with each half reading outward from zero at its edge; or `\"left\"`, on a regular category axis beside the chart.",
+      options: [
+        "center",
+        "left"
+      ],
       table: {
         defaultValue: {
-          summary: "\"center\""
+          summary: "center"
         }
       },
       type: {
@@ -50,26 +64,29 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "string | false | function"
       }
     },
     comparisonConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Line styles for the comparison outline: `stroke`, `strokeWidth`, `strokeOpacity`, and `strokeDasharray`. Each may be a function of the side value and its index (0 = left).",
       table: {
         defaultValue: {
-          summary: "{stroke: backgroundInk, strokeDasharray: \"4 3\", strokeOpacity: 1, strokeWidth: 1.5}"
+          summary: "{stroke: () => backgroundInk(viz), strokeDasharray: \"4 3\", strokeOpacity: 1, strokeWidth: 1.5}"
         }
       },
       type: {
         required: false,
-        summary: "object"
+        summary: "record"
       }
     },
     percent: {
       control: {
         type: "boolean"
       },
+      defaultValue: false,
       description: "Draws each value as a fraction of the current frame's total (both sides together), with the value axis and tooltip reading percentages.",
       table: {
         defaultValue: {
@@ -86,18 +103,19 @@ export const argTypes = assign(
       description: "TextBox styles for the side titles.",
       table: {
         defaultValue: {
-          summary: "{fontSize: 14, fontWeight: 600, padding: 2, textAnchor: \"middle\", verticalAlign: \"middle\"}"
+          summary: "{fontColor: () => backgroundInk(viz), fontSize: 14, fontWeight: 600, padding: 2, textAnchor: \"middle\", verticalAlign: \"middle\"}"
         }
       },
       type: {
         required: false,
-        summary: "object"
+        summary: "textboxconfig"
       }
     },
     sideTitles: {
       control: {
         type: "boolean"
       },
+      defaultValue: true,
       description: "Draws the name of each side centered above its half of the chart.",
       table: {
         defaultValue: {
@@ -110,7 +128,9 @@ export const argTypes = assign(
       }
     },
     sides: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The side values (from the first `groupBy` level) as `[left, right]`. Unlisted values are drawn on the right. Defaults to the order sides first appear in the data.",
       table: {
         defaultValue: {
@@ -119,13 +139,14 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown[]"
+        summary: "array.&lt;unknown&gt;"
       }
     },
     symmetric: {
       control: {
         type: "boolean"
       },
+      defaultValue: true,
       description: "Centers the value axis on zero so both halves share one scale, sized to the largest single side. Set to `false` to fit the data instead. Ignored when `xDomain` or `xConfig.domain` is set.",
       table: {
         defaultValue: {
@@ -135,6 +156,13 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: (d: DataPoint, i: number) => tooltipRows(viz, d, i)}"
+        }
       }
     }
   }

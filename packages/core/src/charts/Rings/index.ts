@@ -48,21 +48,51 @@ function installRingsAccessors(viz: VizInstance): void {
       f as Parameters<typeof addToQueue>[1],
       key!,
     );
+  /**
+      The edges that connect the `nodes`. The `source` and `target` of each
+      link refer to a node by its `id`, by the node object itself (matched by
+      its `id`), or by its index in the `nodes` array. Links to a node that
+      doesn't exist are dropped.
+
+      Accepts an array of links, or a URL/filepath string to load them from.
+      An optional formatting function can be passed as a second argument; it
+      receives the loaded data and returns the final links array.
+      @type {object[] | string}
+  */
   v.links = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
     if (!arguments.length) return this.schema.links;
     queue(this, _, f, "links");
     return this;
   };
+  /**
+      The nodes to draw. When empty, the nodes are the unique `source` and
+      `target` values in `links`. Accepts an array of node objects, or a
+      URL/filepath string to load them from. An optional formatting function
+      can be passed as a second argument; it receives the loaded data and
+      returns the final nodes array.
+      @type {object[] | string}
+  */
   v.nodes = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
     if (!arguments.length) return this.schema.nodes;
     queue(this, _, f, "nodes");
     return this;
   };
+  /**
+      The thickness of each link: a pixel number used for every link, or an
+      accessor function whose values are scaled between `linkSizeMin` and the
+      smallest node radius (see `linkSizeScale`).
+      @type {number | function}
+  */
   v.linkSize = function(this: VizInstance, _?: RingsAccessor) {
     return arguments.length
       ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_ as never)), this)
       : this.schema.linkSize;
   };
+  /**
+      The key(s) or accessor(s) that identify each object passed to `nodes`,
+      one per `groupBy` depth. When unset, nodes are identified by `groupBy`.
+      @type {string | function | (string | function)[]}
+  */
   v.nodeGroupBy = function(
     this: VizInstance,
     _?: string | string[] | ((d: DataPoint, i: number) => unknown),
@@ -82,6 +112,12 @@ function installRingsAccessors(viz: VizInstance): void {
     });
     return this;
   };
+  /**
+      Sizes each node, the center included: a data key or an accessor
+      function whose values are scaled between `sizeMin` and `sizeMax` (see
+      `sizeScale`). When unset, each ring draws its nodes at one fixed size.
+      @type {string | function}
+  */
   v.size = function(this: VizInstance, _?: RingsAccessor) {
     if (!arguments.length) return this._size;
     this._size = (typeof _ === "function" || !_
@@ -181,8 +217,26 @@ export const ringsDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /**
+        Draws arrowheads on the links: `true` (or `"target"`) at each link's
+        target end, `"source"` at its source end, `"both"`, or `false` for
+        none. Also accepts an accessor function returning one of those per
+        link.
+        @type {boolean | "target" | "source" | "both" | function}
+    */
     {key: "arrows", default: false},
+    /**
+        The arrowhead size in pixels, or an accessor function returning one
+        per link. Defaults to three times the link's stroke width (at least 6).
+        @type {number | function}
+    */
     {key: "arrowSize"},
+    /**
+        The `id` of the node drawn at the center, with the nodes linked to it
+        on the inner ring and their other links on the outer ring. Clicking a
+        node re-centers the chart on it.
+        @type {string | number}
+    */
     {key: "center"},
     {
       key: "tooltipConfig",
@@ -198,12 +252,27 @@ export const ringsDef: ChartDefinition = {
     },
     {key: "links", default: []},
     {key: "linkSize", default: constant(1)},
+    /** The minimum pixel stroke width used when sizing links. */
     {key: "linkSizeMin", default: 1},
+    /**
+        The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)
+        used to size links (e.g. `"linear"`, `"sqrt"`, `"log"`).
+    */
     {key: "linkSizeScale", default: "sqrt"},
     {key: "noDataMessage", default: false},
     {key: "nodes", default: []},
+    /**
+        The maximum pixel radius of a node. Defaults to the largest radius
+        that keeps neighboring nodes from overlapping.
+        @type {number}
+    */
     {key: "sizeMax"},
+    /** The minimum pixel radius of a node. */
     {key: "sizeMin", default: 5},
+    /**
+        The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales)
+        used to size nodes by `size` (e.g. `"linear"`, `"sqrt"`, `"log"`).
+    */
     {key: "sizeScale", default: "sqrt"},
     {key: "shape", default: constant("Circle"), coerce: "const"},
     {

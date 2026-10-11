@@ -11,25 +11,45 @@ export const Beeswarm = ({ config }) => <D3plusBeeswarm config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Plot primitive; Beeswarm always
-   * draws circles and has no discrete axis.
+   * Filters out unused argTypes from the Plot primitive and
+   * overrides any defaults that have been changed in Beeswarm
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape|discrete|discreteCutoff|barPadding|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig)$/))
     .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
 
   /**
-   * Beeswarm-specific defaults
+   * Beeswarm-specific methods
    */
+  
   {
+    shapeConfig: {
+      table: {
+        defaultValue: {
+          summary: "{Circle: {label: false, trail: false}}"
+        }
+      }
+    },
     swarm: {
-      ...plotArgTypes.swarm,
+      control: {
+        type: "radio"
+      },
       defaultValue: true,
-      options: [true, false, "x", "y"],
+      description: "Packs a Plot's circles into a beeswarm: each circle keeps its value along\none axis and is placed beside its neighbors along the other, so none\noverlap. `\"x\"` or `\"y\"` names the value axis; `true` uses x when its\nvalues are numeric, else y; `false` draws a plain scatter. When the other\naxis holds categories (strings), each category gets its own swarm in its\nown band; otherwise that axis's values are ignored and its axis is hidden.\nCircles keep their ids, so switching a chart between `false` and `true`\nanimates each circle between its scatter and swarm position. The default,\n`\"auto\"`, swarms only when every mark is a Circle and every row lacks a y\n(or x) value.\n\nBeeswarm swarms by default (`true`): along x when its values are numeric, else along y.",
+      options: [
+        true,
+        false,
+        "x",
+        "y"
+      ],
       table: {
         defaultValue: {
           summary: "true"
         }
+      },
+      type: {
+        required: false,
+        summary: "boolean | \"x\" | \"y\""
       }
     }
   }

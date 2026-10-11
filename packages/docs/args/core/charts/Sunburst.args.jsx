@@ -6,143 +6,176 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Sunburst as D3plusSunburst} from "@d3plus/react";
-export const Sunburst = ({config}) => <D3plusSunburst config={config} />;
+export const Sunburst = ({ config }) => <D3plusSunburst config={config} />;
 
 export const argTypes = assign(
+
   /**
-   * Filters out unused argTypes from the Viz primitive; Sunburst draws every
-   * node as an arc.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in Sunburst
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(shape|zoom.*)$/))
-    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
+    .filter(k => !k.match(/^(shape)$/))
+    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * Sunburst-specific methods
    */
+  
   {
     innerRadius: {
-      control: {},
-      description:
-        "The radius of the center slot, in pixels, or a function that receives the outer radius and returns one. The center is hollow until a click zooms into a node, which then fills it. Defaults to one ring's thickness.",
+      control: {
+        type: "number"
+      },
+      description: "The radius of the center slot, in pixels, or a function that receives the outer radius and returns one. The center is hollow until a click zooms into a node, which then fills it. Defaults to one ring's thickness (see `ringSize`).",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "number | function",
-      },
+        summary: "number | function"
+      }
+    },
+    legend: {
+      table: {
+        defaultValue: {
+          summary: "function"
+        }
+      }
+    },
+    legendSort: {
+      table: {
+        defaultValue: {
+          summary: "function"
+        }
+      }
+    },
+    legendTooltip: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: []}"
+        }
+      }
     },
     padAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The angular gap between neighboring arcs, in radians. When set, takes precedence over `padPixel`.",
+      defaultValue: 0,
+      description: "The angular gap between neighboring arcs, in radians. When set, takes precedence over `padPixel`.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     padPixel: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The gap between neighboring arcs, in pixels, kept the same width in every ring.",
+      defaultValue: 0,
+      description: "The gap between neighboring arcs, in pixels, kept the same width in every ring.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     ringSize: {
       control: {
-        type: "radio",
+        type: "radio"
       },
-      options: ["equal", "area"],
-      description:
-        'How the rings divide the radius: `"equal"` (default) gives every ring the same thickness, so label room is uniform from the center out; `"area"` gives every ring the same area, so the outer rings don\'t outweigh the inner ones.',
+      defaultValue: "equal",
+      description: "How the rings divide the radius: `\"equal\"` (default) gives every ring the same thickness, so label room is uniform from the center out; `\"area\"` gives every ring the same area, so the outer rings don't outweigh the inner ones.",
+      options: [
+        "equal",
+        "area"
+      ],
       table: {
         defaultValue: {
-          summary: '"equal"',
-        },
+          summary: "equal"
+        }
       },
       type: {
         required: false,
-        summary: '"equal" | "area"',
-      },
+        summary: "\"equal\" | \"area\""
+      }
     },
     shade: {
       control: {
-        type: "boolean",
+        type: "boolean"
       },
-      description:
-        "Lightens each ring below the top one a step more than the ring inside it, so the rings read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
+      defaultValue: true,
+      description: "Lightens each ring below the top one a step more than the ring inside it (see `shadeConfig`), so the rings read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
       table: {
         defaultValue: {
-          summary: true,
-        },
+          summary: "true"
+        }
       },
       type: {
         required: false,
-        summary: "boolean",
-      },
+        summary: "boolean"
+      }
     },
     shadeConfig: {
-      control: {},
-      description:
-        "Shading strengths, as `colorLighter` amounts (0–1): `step` per `groupBy` level below the top ring, up to `max`, which keeps the deepest rings in their branch's hue.",
+      control: {
+        type: "object"
+      },
+      description: "Shading strengths, as `colorLighter` amounts (0–1): `step` per `groupBy` level below the top ring, up to `max`, which keeps the deepest rings in their branch's hue.",
       table: {
         defaultValue: {
-          summary: "{step: 0.22, max: 0.6}",
-        },
+          summary: "{step: 0.22, max: 0.6}"
+        }
       },
       type: {
         required: false,
-        summary: "{step?: number, max?: number}",
-      },
+        summary: "{step?: number, max?: number}"
+      }
     },
     sort: {
       control: {},
-      description:
-        "Comparator for sibling arcs, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
+      description: "Comparator for sibling arcs, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
       table: {
         defaultValue: {
-          summary: "function",
-        },
+          summary: "function"
+        }
       },
       type: {
         required: false,
-        summary: "function",
-      },
+        summary: "function"
+      }
     },
     sum: {
       control: {
-        type: "text",
+        type: "text"
       },
-      description:
-        "Accessor function or string key for the value each arc's angle is proportional to. Parent arcs sum their children.",
+      description: "Accessor function or string key for the value each arc's angle is proportional to. Parent arcs sum their children.",
       table: {
         defaultValue: {
-          summary: '"value"',
-        },
+          summary: "\"value\""
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
+        summary: "string | function"
+      }
     },
-  },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: [shareRow(viz)]}"
+        }
+      }
+    }
+  }
 );

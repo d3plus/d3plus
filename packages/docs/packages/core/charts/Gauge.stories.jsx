@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a gauge (speedometer) from an array of data: a single dial that reads each row's `value` against its `domain`. One row shows its value under the hub; several rows each get a needle (or a progress track), identified by the legend and tooltips.",
+        component: "Creates a gauge (speedometer) from an array of data: a single dial that\nreads each row's value against its domain. One row shows its value\nunder the hub; several rows each get a needle (or a progress track),\nidentified by the legend and tooltips.",
       },
     },
   }
 };
 
 const Template = (args) => <Gauge config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

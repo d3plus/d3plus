@@ -342,6 +342,7 @@ export const pyramidDef: ChartDefinition = {
         (default) down a gutter between the two halves, as wide as the widest
         label, with each half reading outward from zero at its edge; or
         `"left"`, on a regular category axis beside the chart.
+        @type {"center" | "left"}
     */
     {key: "categoryPosition", default: "center"},
     /**

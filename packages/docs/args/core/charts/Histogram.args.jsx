@@ -11,19 +11,30 @@ export const Histogram = ({ config }) => <D3plusHistogram config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Plot primitive; Histogram derives
-   * its bars' shape and x/y positions from the binned data.
+   * Filters out unused argTypes from the Plot primitive and
+   * overrides any defaults that have been changed in Histogram
    */
   Object.keys(plotArgTypes)
-    .filter(k => !k.match(/^(shape|x|x2|y|y2|discrete|zoom.*)$/))
+    .filter(k => !k.match(/^(shape|x|x2|y|y2|discrete)$/))
     .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
 
   /**
    * Histogram-specific methods
    */
+  
   {
+    baseline: {
+      defaultValue: 0,
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      }
+    },
     binDomain: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "`[min, max]` to bin across. Defaults to the nicely rounded extent of the values.",
       table: {
         defaultValue: {
@@ -39,11 +50,16 @@ export const argTypes = assign(
       control: {
         type: "radio"
       },
-      options: ["count", "density", "relative"],
+      defaultValue: "count",
       description: "What each bar's height measures: `\"count\"` (default), `\"density\"` (count ÷ (total × bin width), so the bars' area sums to 1), or `\"relative\"` (count ÷ total, so the heights sum to 1).",
+      options: [
+        "count",
+        "density",
+        "relative"
+      ],
       table: {
         defaultValue: {
-          summary: "\"count\""
+          summary: "count"
         }
       },
       type: {
@@ -52,11 +68,13 @@ export const argTypes = assign(
       }
     },
     binThresholds: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Bin edges: a bin count, an array of interior edges, or a d3-array threshold generator such as `thresholdSturges` (the default), `thresholdScott`, or `thresholdFreedmanDiaconis`.",
       table: {
         defaultValue: {
-          summary: "thresholdSturges"
+          summary: "undefined"
         }
       },
       type: {
@@ -79,6 +97,21 @@ export const argTypes = assign(
         summary: "number"
       }
     },
+    stacked: {
+      defaultValue: true,
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "function"
+        }
+      }
+    },
     value: {
       control: {
         type: "text"
@@ -86,7 +119,7 @@ export const argTypes = assign(
       description: "Accessor function or string key for each row's numeric observation.",
       table: {
         defaultValue: {
-          summary: "\"value\""
+          summary: "keyedAccessor(\"value\")"
         }
       },
       type: {

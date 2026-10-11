@@ -78,22 +78,49 @@ export const matrixDef: ChartDefinition = {
   },
 
   fields: [
+    /** The pixel padding between neighboring cells. */
     {key: "cellPadding", default: 2},
+    /**
+        The column each data point falls in: a key present in every data
+        point, or an accessor function that receives a data point and its
+        index and returns its column value.
+        @type {string | function}
+    */
     {
       key: "column",
       default: accessor("column"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        The row each data point falls in: a key present in every data point,
+        or an accessor function that receives a data point and its index and
+        returns its row value.
+        @type {string | function}
+    */
     {
       key: "row",
       default: accessor("row"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        A manual list of column values to draw, in place of the unique
+        `column` values found in the data. Sorted by `columnSort`.
+        @type {(string | number | boolean)[]}
+    */
     {key: "columnList"},
+    /**
+        A manual list of row values to draw, in place of the unique `row`
+        values found in the data. Sorted by `rowSort`.
+        @type {(string | number | boolean)[]}
+    */
     {key: "rowList"},
+    /** A sort comparator run on the unique set of column values. */
     {key: "columnSort", default: localeCompare},
+    /** A sort comparator run on the unique set of row values. */
     {key: "rowSort", default: localeCompare},
+    /** Config for the `Axis` that draws the row labels, merged over the defaults. */
     {key: "rowConfig", merge: true, default: {orient: "left", ...defaultAxisConfig}},
+    /** Config for the `Axis` that draws the column labels, merged over the defaults. */
     {key: "columnConfig", merge: true, default: {orient: "top", ...defaultAxisConfig}},
     {
       key: "label",

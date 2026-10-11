@@ -2,15 +2,36 @@ import fs from "node:fs";
 import path from "node:path";
 import {parseSync, printSync} from "@swc/core";
 
+// Inherited config each chart fixes for itself, left out of its args. Each
+// entry is matched against the whole key (it may be a regex, e.g. "zoom.*").
 const hiddenMethods = {
   AreaPlot: ["shape"],
   BarChart: ["shape"],
+  Beeswarm: [
+    "shape",
+    "discrete",
+    "discreteCutoff",
+    "barPadding",
+    "groupPadding",
+    "stacked",
+    "stackOffset",
+    "stackOrder",
+    "lineLabels",
+    "lineMarkers",
+    "lineMarkerConfig",
+    "labelConnectorConfig",
+    "confidence",
+    "confidenceConfig",
+  ],
   BoxWhisker: ["shape"],
   BumpChart: ["shape"],
   Chord: ["shape"],
   Donut: ["shape"],
+  Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
   LinePlot: ["shape"],
+  Pyramid: ["shape", "discrete", "stacked"],
   StackedArea: ["shape"],
+  Sunburst: ["shape"],
   Treemap: ["shape"],
 };
 
@@ -67,7 +88,12 @@ export default function (
               .split("/")
               .map(() => "..")
               .join("/")}/../${parentModule}/${parentPath}`;
+  }
 
+  // A class's default overrides come from the `this.method(value)` calls in
+  // its constructor; a makeChart chart has no constructor (its overrides are
+  // def fields, handled below).
+  if (parentClass && !story.chartDef) {
     const storyPath = path.join(story.meta.path, story.meta.filename);
     const fileContent = fs.readFileSync(storyPath, {encoding: "utf8"});
     const {body} = parseSync(fileContent, {
@@ -134,8 +160,9 @@ export default function (
 
   const disabledMethods = hiddenMethods[name] || [];
 
-  const myMethods =
-    story.kind === "class"
+  const myMethods = story.chartDef
+    ? []
+    : story.kind === "class"
       ? allMethods
           .filter(
             d =>
@@ -224,16 +251,29 @@ export default function (
     (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
   const ifaceMerged = interfaceDocs.merged || {};
   const hideRe = disabledMethods.length
-    ? new RegExp(`^(${disabledMethods.join("|")}.*)$`)
+    ? new RegExp(`^(${disabledMethods.join("|")})$`)
     : null;
-  for (const key of Object.keys(ownConfig)) {
-    const cleanKey = key.replace(/\*/g, "");
-    if (cleanKey in parentConfig) continue;
-    if (formattedMethods[cleanKey]) continue;
-    if (hideRe && hideRe.test(cleanKey)) continue;
-    const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
-    formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
-  }
+  if (story.chartDef)
+    Object.assign(
+      formattedMethods,
+      chartArgTypes(story, {
+        allMethods,
+        stories,
+        ownConfig,
+        parentConfig,
+        interfaceDocs,
+        hideRe,
+      }),
+    );
+  else
+    for (const key of Object.keys(ownConfig)) {
+      const cleanKey = key.replace(/\*/g, "");
+      if (cleanKey in parentConfig) continue;
+      if (formattedMethods[cleanKey]) continue;
+      if (hideRe && hideRe.test(cleanKey)) continue;
+      const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
+      formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
+    }
 
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
     /"([^"^.]+)":/g,
@@ -269,7 +309,7 @@ ${
   Object.keys(${lower(parentClass)}ArgTypes)${
     disabledMethods.length
       ? `
-    .filter(k => !k.match(/^(${disabledMethods.join("|")}.*)$/))`
+    .filter(k => !k.match(/^(${disabledMethods.join("|")})$/))`
       : ""
   }
     .reduce((obj, k) => (obj[k] = ${lower(parentClass)}ArgTypes[k], obj), {}),
@@ -283,6 +323,184 @@ ${methodJSON.replace(/^/gm, "  ")}
     : `export const argTypes = ${methodJSON};`
 }
 `;
+}
+
+/**
+ * Renders a runtime default for a docs table: primitives, arrays, and plain
+ * objects built from them (e.g. `{step: 0.22, max: 0.6}`). Returns null for
+ * anything holding a function or class instance, or that renders too long.
+ */
+function renderValue(value) {
+  const render = v => {
+    if (v === null || ["number", "string", "boolean"].includes(typeof v))
+      return JSON.stringify(v);
+    if (Array.isArray(v)) {
+      const items = v.map(render);
+      return items.includes(null) ? null : `[${items.join(", ")}]`;
+    }
+    if (v && Object.getPrototypeOf(v) === Object.prototype) {
+      const entries = Object.entries(v).map(([k, x]) => {
+        const r = render(x);
+        return r == null ? null : `${k}: ${r}`;
+      });
+      return entries.includes(null) ? null : `{${entries.join(", ")}}`;
+    }
+    return null;
+  };
+  const out = render(value);
+  return out && out.length <= 80 ? out : null;
+}
+
+const isPlainDefault = v =>
+  v !== undefined &&
+  (Array.isArray(v) || ["number", "string", "boolean"].includes(typeof v));
+
+/** Splits a TypeScript type on its top-level `|`s. */
+function typeUnion(type) {
+  const parts = [];
+  let depth = 0;
+  let quote = null;
+  let start = 0;
+  for (let i = 0; i < type.length; i++) {
+    const c = type[i];
+    if (quote) {
+      if (c === quote) quote = null;
+    } else if (c === '"' || c === "'") quote = c;
+    else if ("{[(<".includes(c)) depth++;
+    else if ("}])>".includes(c)) depth--;
+    else if (c === "|" && !depth) {
+      parts.push(type.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  parts.push(type.slice(start).trim());
+  return parts.filter(Boolean);
+}
+
+/**
+ * The type, control, and options for a config key documented with an
+ * `@type {…}` tag. Literal members (`"area"`, `true`, `false`) become the
+ * options of a radio/select control.
+ */
+function typedArg(type) {
+  const names = typeUnion(type);
+  const arg = {
+    type: {required: false, summary: names.join(" | ")},
+    control: {type: undefined},
+  };
+  if (names.some(isWrappedInQuotes)) {
+    const literal = n =>
+      n === "boolean"
+        ? [true, false]
+        : n === "true" || n === "false"
+          ? [n === "true"]
+          : isWrappedInQuotes(n)
+            ? [removeStartEndQuotes(n)]
+            : [];
+    arg.options = names.flatMap(literal);
+    arg.control.type = arg.options.length < 5 ? "radio" : "select";
+  } else {
+    const lower = names.map(n => n.toLowerCase());
+    const structured = n =>
+      n === "object" || n.startsWith("{") || n.startsWith("[") || n.endsWith("[]");
+    if (lower.some(structured)) arg.control.type = "object";
+    else if (lower.includes("number")) arg.control.type = "number";
+    else if (lower.includes("string")) arg.control.type = "text";
+    else if (lower.includes("boolean")) arg.control.type = "boolean";
+  }
+  return arg;
+}
+
+/**
+ * A docs-table summary for a chart's default: its runtime value when that
+ * renders plainly, else its source (`"value"` for `accessor("value")`).
+ */
+function defaultSummary(value, field) {
+  if (value !== undefined) {
+    const rendered = renderValue(value);
+    if (rendered) return rendered;
+  }
+  if (field && field.defaultText) return field.defaultText;
+  return typeof value === "function" ? "function" : null;
+}
+
+/**
+ * Builds the argTypes for a makeChart chart's own config: its ChartDefinition
+ * `fields` plus any accessors its `setup` installs. Each is documented by the
+ * JSDoc comment above it, whose optional `@type {…}` tag sets the type and
+ * control; otherwise both come from `D3plusConfig` (else the runtime default).
+ *
+ * A key the parent chart doesn't have becomes a full argType. A field that
+ * overrides an inherited key becomes a partial argType that `assign` merges
+ * over the parent's: its new default, its own `@type`, and its comment
+ * appended to the inherited description.
+ */
+function chartArgTypes(
+  story,
+  {allMethods, stories, ownConfig, parentConfig, interfaceDocs, hideRe},
+) {
+  const {fields, accessors} = story.chartDef;
+  const typed = (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
+  const merged = interfaceDocs.merged || {};
+  const inheritedDescription = key => {
+    let ancestor = stories.find(d => d.name === hasParent(story));
+    while (ancestor) {
+      const method = allMethods.find(
+        d => d.memberof === ancestor.name && d.name === key,
+      );
+      if (method && method.description) return method.description;
+      ancestor = stories.find(d => d.name === hasParent(ancestor));
+    }
+    return (typed[key] || merged[key] || {}).description || "";
+  };
+
+  const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
+  const keys = [...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)])];
+  const out = {};
+  for (const key of keys) {
+    if (hideRe && hideRe.test(key)) continue;
+    const field = fieldsByKey[key];
+    const doc = {...(accessors[key] || {})};
+    if (field && field.description) doc.description = field.description;
+    if (field && field.type) doc.type = field.type;
+    const value = ownConfig[key];
+
+    if (key in parentConfig) {
+      if (!field && !doc.description) continue;
+      const arg = doc.type ? typedArg(doc.type) : {};
+      if (doc.description) {
+        const inherited = inheritedDescription(key);
+        arg.description = inherited
+          ? `${inherited}\n\n${doc.description}`
+          : doc.description;
+      }
+      const rendered = renderValue(value);
+      const inheritsDefault =
+        value === parentConfig[key] ||
+        (rendered !== null && rendered === renderValue(parentConfig[key]));
+      if (!inheritsDefault) {
+        if (isPlainDefault(value)) withDefault(arg, value);
+        else {
+          const summary = defaultSummary(value, field);
+          if (summary) arg.table = {defaultValue: {summary}};
+        }
+      }
+      if (Object.keys(arg).length) out[key] = arg;
+      continue;
+    }
+
+    const iface = typed[key] || merged[key];
+    const arg = doc.type
+      ? withDefault(typedArg(doc.type), value)
+      : configArgType(value, iface);
+    arg.description = doc.description || (iface && iface.description) || "";
+    if (arg.defaultValue === undefined) {
+      const summary = defaultSummary(value, field);
+      if (summary) arg.table = {defaultValue: {summary}};
+    }
+    out[key] = arg;
+  }
+  return out;
 }
 
 /**

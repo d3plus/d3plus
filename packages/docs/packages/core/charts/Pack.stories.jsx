@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Uses the [d3 pack layout](https://github.com/d3/d3-hierarchy#pack) to creates Circle Packing chart based on an array of data.",
+        component: "Uses the d3 pack layout to create a Circle Packing chart based on an array of data.",
       },
     },
   }

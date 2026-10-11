@@ -27,6 +27,11 @@ export const beeswarmDef: ChartDefinition = {
       merge: true,
       default: {Circle: {label: false, trail: false}},
     },
+    /**
+        Beeswarm swarms by default (`true`): along x when its values are
+        numeric, else along y.
+        @type {boolean | "x" | "y"}
+    */
     {key: "swarm", default: true},
   ],
 };
