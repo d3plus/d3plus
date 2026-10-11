@@ -6,9 +6,7 @@
 
 import {gaugeDomain, gaugeTicks} from "../Gauge/gaugeGeometry.js";
 import type {GaugeBand, GaugeDomainInput} from "../Gauge/gaugeGeometry.js";
-
-/** Which way the bullets run: values grow rightward, or upward. */
-export type BulletOrient = "horizontal" | "vertical";
+import type {Orient} from "../../shapes/shapeConfig.js";
 
 /** A `bands` entry: a threshold value, or a Gauge-style band object. */
 export type BulletBandInput = number | GaugeBand;
@@ -23,7 +21,7 @@ export interface BulletRect {
 
 /** Where a bullet's value axis runs: its start pixel (the domain minimum) and length. */
 export interface BulletTrack {
-  orient: BulletOrient;
+  orient: Orient;
   /** The band's rectangle; values run along its long side. */
   band: BulletRect;
   domain: [number, number];

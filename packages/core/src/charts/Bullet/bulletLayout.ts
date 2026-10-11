@@ -4,14 +4,15 @@
     label block at the start and room for its value axis.
 */
 
-import type {BulletOrient, BulletRect} from "./bulletGeometry.js";
+import type {Orient} from "../../shapes/shapeConfig.js";
+import type {BulletRect} from "./bulletGeometry.js";
 
 /** Which bullets draw a value axis: each one, only one (a shared domain), or none. */
 export type BulletAxisMode = "row" | "shared" | false;
 
 /** Measured inputs to `bulletStack`. */
 export interface BulletStackOptions {
-  orient: BulletOrient;
+  orient: Orient;
   width: number;
   height: number;
   /** How many bullets to place. */

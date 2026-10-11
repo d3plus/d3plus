@@ -9,6 +9,7 @@
 import type {DataPoint} from "@d3plus/data";
 import {textWidth} from "@d3plus/dom";
 
+import type {Orient} from "../../shapes/shapeConfig.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {hasName} from "../Gauge/applyLayout.js";
@@ -28,7 +29,6 @@ import {
 } from "./bulletGeometry.js";
 import type {
   BulletExtent,
-  BulletOrient,
   BulletRect,
   BulletTrack,
 } from "./bulletGeometry.js";
@@ -62,7 +62,7 @@ export interface BulletDatum {
 
 /** Settings every bullet shares, stored on `viz.ctx.bullet`. */
 export interface BulletShared {
-  orient: BulletOrient;
+  orient: Orient;
   style: BulletStyle;
   nameFontSize: number;
   subFontSize: number;
@@ -214,7 +214,7 @@ function labelMetrics(
 export const applyBulletLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
   const data = (viz._filteredData ?? []) as DataPoint[];
-  const orient: BulletOrient =
+  const orient: Orient =
     viz.schema.orient === "vertical" ? "vertical" : "horizontal";
   const style = bulletStyle(viz, data[0] ?? {}, 0);
   const family = style.fontFamily;
