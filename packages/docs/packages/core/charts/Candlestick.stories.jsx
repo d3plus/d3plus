@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a candlestick (or OHLC bar) chart of financial periods, from rows with a date and open, high, low, and close values.",
+        component: "Creates a candlestick (or OHLC bar) chart of financial periods, from rows\nwith a date and open, high, low, and close values. Each row's date is read\nby x (default \"date\"): a Date, a timestamp, or a date string.",
       },
     },
   }
 };
 
 const Template = (args) => <Candlestick config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

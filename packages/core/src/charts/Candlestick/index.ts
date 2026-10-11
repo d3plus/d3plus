@@ -188,6 +188,7 @@ export const candlestickDef: ChartDefinition = {
 
 /**
     Creates a candlestick (or OHLC bar) chart of financial periods, from rows
-    with a date and open, high, low, and close values.
+    with a date and open, high, low, and close values. Each row's date is read
+    by `x` (default `"date"`): a Date, a timestamp, or a date string.
 */
 export default makeChart(candlestickDef, Plot);

@@ -8,27 +8,11 @@ import {assign} from "@d3plus/dom";
 import {Candlestick as D3plusCandlestick} from "@d3plus/react";
 export const Candlestick = ({ config }) => <D3plusCandlestick config={config} />;
 
-const accessor = (name, key) => ({
-  control: {
-    type: "text"
-  },
-  description: `Accessor (or data key) for each period's ${name} value. Defaults to \`"${key}"\`.`,
-  table: {
-    defaultValue: {
-      summary: `"${key}"`
-    }
-  },
-  type: {
-    required: false,
-    summary: "string | function"
-  }
-});
-
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Plot primitive; a Candlestick always
-   * draws candles along a discrete time axis, unstacked.
+   * Filters out unused argTypes from the Plot primitive and
+   * overrides any defaults that have been changed in Candlestick
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape|discrete|discreteCutoff|barPadding|baseline|baselineBreak|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|labelPosition|confidence|confidenceConfig|swarm|swarmConfig|size|sizeLegend|sizeLegendConfig|sizeLegendPosition|sizeMax|sizeMin|sizeScale|trendLine|trendLineConfig)$/))
@@ -37,16 +21,14 @@ export const argTypes = assign(
   /**
    * Candlestick-specific methods
    */
+  
   {
     bodyWidth: {
       control: {
-        type: "range",
-        min: 0,
-        max: 1,
-        step: 0.05
+        type: "number"
       },
       defaultValue: 0.7,
-      description: "The share of each period's room the candle body (or OHLC ticks) spans, from 0 to 1.",
+      description: "The share of each period's room the candle body (or OHLC ticks) spans, from 0 to 1. Defaults to 0.7.",
       table: {
         defaultValue: {
           summary: "0.7"
@@ -58,18 +40,29 @@ export const argTypes = assign(
       }
     },
     close: {
-      ...accessor("closing", "close"),
-      description: "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it."
+      control: {
+        type: "text"
+      },
+      description: "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it.",
+      table: {
+        defaultValue: {
+          summary: "\"close\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
     },
     downColor: {
       control: {
-        type: "color"
+        type: "text"
       },
       defaultValue: "#e03131",
-      description: "The color of periods that closed below their open: a color string, or an accessor of the row.",
+      description: "The color of periods that closed below their open: a color string, or an accessor of the row. Defaults to red.",
       table: {
         defaultValue: {
-          summary: "\"#e03131\""
+          summary: "#e03131"
         }
       },
       type: {
@@ -78,15 +71,26 @@ export const argTypes = assign(
       }
     },
     high: {
-      ...accessor("highest", "high"),
-      description: "Accessor (or data key) for each period's highest value. Defaults to `\"high\"`; the high always reaches the open and close."
+      control: {
+        type: "text"
+      },
+      description: "Accessor (or data key) for each period's highest value. Defaults to `\"high\"`; the high always reaches the open and close.",
+      table: {
+        defaultValue: {
+          summary: "\"high\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
     },
     hollow: {
       control: {
         type: "boolean"
       },
       defaultValue: true,
-      description: "Draws rising candles as outlines and falling candles filled, so direction reads without relying on color; `false` fills both. OHLC bars are never filled.",
+      description: "Draws rising candles as outlines and falling candles filled (default `true`), so direction reads without relying on color; `false` fills both. OHLC bars are never filled.",
       table: {
         defaultValue: {
           summary: "true"
@@ -97,20 +101,49 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
+    legend: {
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      }
+    },
     low: {
-      ...accessor("lowest", "low"),
-      description: "Accessor (or data key) for each period's lowest value. Defaults to `\"low\"`; the low always reaches the open and close."
+      control: {
+        type: "text"
+      },
+      description: "Accessor (or data key) for each period's lowest value. Defaults to `\"low\"`; the low always reaches the open and close.",
+      table: {
+        defaultValue: {
+          summary: "\"low\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
     },
     open: {
-      ...accessor("opening", "open"),
-      description: "Accessor (or data key) for each period's opening value. Defaults to `\"open\"`; a row without one opens at its close."
+      control: {
+        type: "text"
+      },
+      description: "Accessor (or data key) for each period's opening value. Defaults to `\"open\"`; a row without one opens at its close.",
+      table: {
+        defaultValue: {
+          summary: "\"open\""
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | function"
+      }
     },
     skipGaps: {
       control: {
         type: "boolean"
       },
       defaultValue: true,
-      description: "Places periods one slot apart in date order, so days without data (weekends, holidays) leave no gap, with ticks on calendar boundaries; `false` places each period at its date on a continuous time axis.",
+      description: "Places periods one slot apart in date order (default `true`), so days without data (weekends, holidays) leave no gap; `false` places each period at its date on a continuous time axis.",
       table: {
         defaultValue: {
           summary: "true"
@@ -121,15 +154,30 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
-    upColor: {
-      control: {
-        type: "color"
-      },
-      defaultValue: "#2f9e44",
-      description: "The color of periods that closed at or above their open: a color string, or an accessor of the row.",
+    timeline: {
+      defaultValue: false,
       table: {
         defaultValue: {
-          summary: "\"#2f9e44\""
+          summary: "false"
+        }
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: (d: DataPoint, i: number) => candleTooltipRows(viz, d, i)}"
+        }
+      }
+    },
+    upColor: {
+      control: {
+        type: "text"
+      },
+      defaultValue: "#2f9e44",
+      description: "The color of periods that closed at or above their open: a color string, or an accessor of the row. Defaults to green.",
+      table: {
+        defaultValue: {
+          summary: "#2f9e44"
         }
       },
       type: {
@@ -142,28 +190,19 @@ export const argTypes = assign(
         type: "radio"
       },
       defaultValue: "candlestick",
-      description: "How each period draws: `\"candlestick\"`, a wick from the high to the low around a body from the open to the close; or `\"ohlc\"`, a line from the high to the low with the open ticked to the left and the close ticked to the right.",
+      description: "How each period draws: `\"candlestick\"` (default), a wick from the high to the low around a body from the open to the close; or `\"ohlc\"`, a line from the high to the low with the open ticked to the left and the close ticked to the right.",
       options: [
         "candlestick",
         "ohlc"
       ],
       table: {
         defaultValue: {
-          summary: "\"candlestick\""
+          summary: "candlestick"
         }
       },
       type: {
         required: false,
         summary: "\"candlestick\" | \"ohlc\""
-      }
-    },
-    x: {
-      ...plotArgTypes.x,
-      description: "Accessor (or data key) for each period's date: a Date, a timestamp, or a date string. Defaults to `\"date\"`.",
-      table: {
-        defaultValue: {
-          summary: "\"date\""
-        }
       }
     }
   }
