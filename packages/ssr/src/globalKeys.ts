@@ -141,11 +141,13 @@ const LIVING_KEYS: string[] = [
   "URL",
 ];
 
-/** Non-constructor `window` members some code paths read directly. */
+/**
+    Non-constructor `window` members some code paths read directly. `atob` and
+    `btoa` are left out: jsdom's versions call the global ones, so mirroring
+    them would make each call itself. Node's natives serve instead.
+*/
 const OTHER_KEYS: string[] = [
   "addEventListener",
-  "atob",
-  "btoa",
   "dispatchEvent",
   "getComputedStyle",
   "innerHeight",

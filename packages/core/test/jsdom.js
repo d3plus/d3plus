@@ -273,12 +273,14 @@ var LIVING_KEYS = [
   "URL",
 ];
 
+// `atob`, `btoa` and the timer functions stay Node's natives: jsdom's versions
+// call the global ones, so mirroring them would make each call itself.
 var OTHER_KEYS = [
   "addEventListener",
   "alert",
-  "atob",
+  /* 'atob', */
   "blur",
-  "btoa",
+  /* 'btoa', */
   /* 'clearInterval', */
   /* 'clearTimeout', */
   "close",
