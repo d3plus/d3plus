@@ -263,6 +263,23 @@ const isMark = (node?: ShapeNode): node is ShapeNode =>
   !!node && !!node.shapeType && !!node.datum && !node.interactionGroup && node.interactive !== false;
 
 /**
+    The mark a picked shape label belongs to (a label's record carries its
+    mark's datum as `data`), so hovering a label reads as hovering its mark.
+*/
+export function labeledMark(viz: VizInstance, node?: ShapeNode): ShapeNode | undefined {
+  const owner = (node?.datum as Wrapped | undefined)?.data;
+  if (!owner || isMark(node)) return undefined;
+  let found: ShapeNode | undefined;
+  const walk = (n: ShapeNode): void => {
+    if (found) return;
+    if (isMark(n) && n.datum === owner) found = n;
+    else if (n.children) n.children.forEach(child => walk(child as ShapeNode));
+  };
+  (viz._chartScene || []).forEach(n => walk(n as ShapeNode));
+  return found;
+}
+
+/**
     Resolves the snapped hover for an event. Inside the plot area with
     `tooltipShared` on, the column nearest the cursor lists every series there
     ("shared", needs two or more). Otherwise a hovered mark — or the lone
@@ -284,7 +301,8 @@ function resolveHover(
   const columns = collectColumns(viz, axis, found);
   if (found.box) return null;
   const layer = found.area ? "front" : "back";
-  const pick = event.pick ? (event.pick.node as ShapeNode) : undefined;
+  const picked = event.pick ? (event.pick.node as ShapeNode) : undefined;
+  const pick = labeledMark(viz, picked) ?? picked;
   const onMark = isMark(pick) && pick.shapeType !== "Box";
   const single = (column: Column | null, id: string, px: number, wrapped?: Wrapped): SharedHover | null => {
     const member = column?.members.get(id)
