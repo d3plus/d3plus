@@ -109,9 +109,9 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     const {height: dHeight, position, rotate, width: dWidth} = datum;
     const compPosition = index ? rangeOuter[1] : rangeOuter[0];
     const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
-    if (Math.abs(position - compPosition) >= halfSpace) return 0;
-    const spill = halfSpace - (position - compPosition);
-    return Math.abs(spill);
+    // Room between the label's tick and the end of the range it faces.
+    const room = index ? compPosition - position : position - compPosition;
+    return room >= halfSpace ? 0 : halfSpace - room;
   });
 
   const [first, last] = range;
