@@ -141,6 +141,25 @@ function calculateLabelSize(
   return res;
 }
 
+/**
+    A measured label's text extent along its axis, which the overlap pass
+    spaces at least the label's padding apart. Text running along the axis
+    spans its measured width. Stacked across the axis, it spans its lines'
+    glyphs: every line but the last at full line height, plus one font size.
+    The measured `height` also holds the label's padding (see
+    `calculateLabelSize`) and the leading above and below the text, which this
+    leaves out, so neighbors are spaced by their padding alone, as they are
+    along a horizontal axis.
+*/
+export function labelExtent(
+  datum: Pick<AxisTextDatum, "fP" | "fS" | "height" | "lineHeight" | "lines" | "rotate" | "width">,
+  horizontal: boolean,
+): number {
+  if (Boolean(datum.rotate) !== horizontal) return datum.width;
+  const lines = datum.lines.length;
+  return lines ? (lines - 1) * datum.lineHeight + datum.fS : 0;
+}
+
 /** Assigns vertical offsets to alternating labels that would overlap. */
 function calculateOffset(arr: AxisTextDatum[] = [], horizontal: boolean): void {
   let offset = 0;
@@ -247,26 +266,23 @@ export function createTextData(
   const reverseTextData = textData.slice().reverse();
   textData.forEach((datum: AxisTextDatum) => {
     const {fP, i, position} = datum;
-    const sizeName =
-      (datum.rotate && horizontal) || (!datum.rotate && !horizontal)
-        ? "height"
-        : "width";
+    const extent = (t: AxisTextDatum) => labelExtent(t, horizontal);
     let prev: AxisTextDatum | undefined = i
       ? reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated)
       : undefined;
     if (i === textData.length - 1) {
       while (
         prev &&
-        position - datum[sizeName] / 2 - fP <
-          prev.position + prev[sizeName] / 2
+        position - extent(datum) / 2 - fP <
+          prev.position + extent(prev) / 2
       ) {
         prev.truncated = true;
         prev = reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated);
       }
     }
     datum.truncated = prev
-      ? position - datum[sizeName] / 2 - fP <
-        prev.position + prev[sizeName] / 2
+      ? position - extent(datum) / 2 - fP <
+        prev.position + extent(prev) / 2
       : false;
   });
 
