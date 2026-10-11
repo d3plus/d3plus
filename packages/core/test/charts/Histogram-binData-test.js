@@ -66,3 +66,26 @@ it("Histogram binData: drops non-finite values and handles a single value", () =
 
   assert.deepStrictEqual(binData([], {value}), []);
 });
+
+it("Histogram binData: panels bin and normalize their own rows", () => {
+  const data = [
+    ...[1, 2, 3, 12].map(value => ({p: "a", g: "x", value})),
+    ...[21, 22, 33].map(value => ({p: "b", g: "x", value})),
+    {p: "b", g: "y", value: 24},
+  ];
+  const panel = d => d.p, group = d => d.g;
+  const own = binData(data, {value, group, panel, width: 10, normalize: "relative"});
+  const a = own.filter(b => b.p === "a"), b = own.filter(b => b.p === "b");
+  assert.deepStrictEqual(edgesOf(a), [0, 10, 20]);
+  assert.deepStrictEqual(a.map(d => d.count), [3, 1]);
+  assert.deepStrictEqual(a.map(d => d.y), [0.75, 0.25]);
+  const bx = b.filter(d => d.g === "x"), by = b.filter(d => d.g === "y");
+  assert.deepStrictEqual(edgesOf(bx), [20, 30, 40]);
+  assert.deepStrictEqual(edgesOf(by), [20, 30, 40], "a panel's groups share its edges");
+  assert.deepStrictEqual(bx.map(d => d.y), [0.5, 0.25]);
+  assert.deepStrictEqual(by.map(d => d.y), [0.25, 0], "a panel normalizes across its groups");
+
+  const shared = binData(data, {value, panel, width: 10, sharedEdges: true});
+  for (const p of ["a", "b"]) assert.deepStrictEqual(edgesOf(shared.filter(d => d.p === p)), [0, 10, 20, 30, 40]);
+  assert.deepStrictEqual(shared.filter(d => d.p === "b").map(d => d.count), [0, 0, 3, 1]);
+});
