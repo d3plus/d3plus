@@ -527,10 +527,7 @@ export interface D3plusConfig {
   dataCutoff?: number;
   /** Active depth level for nested groupings. */
   depth?: number;
-  /**
-      Sets orientation of main category axis. RadialBar takes `"radius"`
-      (concentric tracks) or `"angle"` (a circular bar chart).
-  */
+  /** Sets orientation of main category axis. */
   discrete?: "x" | "y" | "radius" | "angle";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;

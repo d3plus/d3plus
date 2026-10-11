@@ -6,229 +6,289 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {PolarArea as D3plusPolarArea} from "@d3plus/react";
-export const PolarArea = ({config}) => <D3plusPolarArea config={config} />;
+export const PolarArea = ({ config }) => <D3plusPolarArea config={config} />;
 
 export const argTypes = assign(
+
   /**
-   * Filters out unused argTypes from the Viz primitive; PolarArea draws every row as a wedge.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in PolarArea
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
+    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * PolarArea-specific methods
    */
+  
   {
-    domain: {
-      control: {},
-      description:
-        "The `[min, max]` the radius spans. Either end may be left `undefined` to come from the data, rounded out to nice numbers and including zero.",
+    axisConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Styles the chrome like a Plot axis: `gridConfig` the inner value rings, `barConfig` the outer ring, and `shapeConfig.labelConfig` the category labels.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "polarAxisConfig"
+        }
       },
       type: {
         required: false,
-        summary: "[number, number]",
+        summary: "object"
+      }
+    },
+    discrete: {
+      defaultValue: "metric",
+      table: {
+        defaultValue: {
+          summary: "metric"
+        }
+      }
+    },
+    domain: {
+      control: {
+        type: "object"
       },
+      description: "The `[min, max]` the radius spans. Either end may be left `undefined` to come from the data, rounded out to nice numbers and including zero.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "[number, number]"
+      }
     },
     innerRadius: {
-      control: {},
-      description:
-        "The radius of the empty center, in pixels, or a function that receives the outer radius and returns one.",
+      control: {
+        type: "number"
+      },
+      defaultValue: 0,
+      description: "The radius of the empty center, in pixels, or a function of the outer radius.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number | function",
-      },
+        summary: "number | function"
+      }
+    },
+    legend: {
+      table: {
+        defaultValue: {
+          summary: "polarLegend"
+        }
+      }
+    },
+    legendTooltip: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: []}"
+        }
+      }
     },
     levelFormat: {
       control: {},
-      description:
-        "Formats the ring value labels. Receives a ring's value and returns its label. Defaults to the abbreviated number format the axes use.",
+      description: "Formats the ring value labels. Defaults to the abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "function",
-      },
+        summary: "function"
+      }
     },
     levelLabelAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "Direction of the ring value labels, in degrees clockwise from 12 o'clock.",
+      defaultValue: 0,
+      description: "Direction of the ring value labels, in degrees clockwise from 12 o'clock.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     levelLabelConfig: {
-      control: {},
-      description:
-        "Styles the ring value labels: `fontColor`, `fontFamily`, `fontOpacity`, `fontSize`, and `fontWeight`.",
+      control: {
+        type: "object"
+      },
+      description: "Styles the ring value labels: `fontColor`, `fontFamily`, `fontOpacity`, `fontSize`, `fontWeight`.",
       table: {
         defaultValue: {
-          summary: "{}",
-        },
+          summary: "{}"
+        }
       },
       type: {
         required: false,
-        summary: "object",
-      },
+        summary: "object"
+      }
     },
     levelLabels: {
       control: {
-        type: "boolean",
+        type: "boolean"
       },
+      defaultValue: true,
       description: "Whether each value ring is labeled with its value.",
       table: {
         defaultValue: {
-          summary: true,
-        },
+          summary: "true"
+        }
       },
       type: {
         required: false,
-        summary: "boolean",
-      },
+        summary: "boolean"
+      }
     },
     levels: {
-      control: {},
-      description:
-        "The value rings: an approximate count (the domain rounds out to nice values and the rings sit on its ticks), or an array of exact ring values.",
+      control: {
+        type: "object"
+      },
+      defaultValue: 4,
+      description: "The value rings: an approximate count (the domain rounds out to nice values and the rings sit on its ticks), or an array of exact values.",
       table: {
         defaultValue: {
-          summary: 4,
-        },
+          summary: "4"
+        }
       },
       type: {
         required: false,
-        summary: "number | number[]",
-      },
+        summary: "number | number[]"
+      }
     },
     metric: {
       control: {
-        type: "text",
+        type: "text"
       },
-      description:
-        "The category each wedge belongs to. Rows sharing a `metric` share one slice of the circle, with their `groupBy` groups stacked outward from the center (a Nightingale rose). Unset, every row is its own category.",
+      description: "The category each wedge belongs to. Rows sharing a `metric` share one slice of the circle, their `groupBy` groups stacked outward from the center in data order. Unset, every row is its own category.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
+        summary: "string | function"
+      }
     },
     outerPadding: {
-      control: {},
-      description:
-        'Room (px) reserved around the circle for the category labels, or `"auto"` to size the circle to the measured labels.',
+      control: {
+        type: "radio"
+      },
+      defaultValue: "auto",
+      description: "Room (px) reserved around the circle for the category labels, or `\"auto\"` to size the circle to the measured labels.",
+      options: [
+        "auto"
+      ],
       table: {
         defaultValue: {
-          summary: '"auto"',
-        },
+          summary: "auto"
+        }
       },
       type: {
         required: false,
-        summary: 'number | "auto"',
-      },
+        summary: "number | \"auto\""
+      }
     },
     padAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The angular gap between neighboring wedges, in radians. When set, takes precedence over `padPixel`.",
+      defaultValue: 0,
+      description: "Angular gap between neighboring wedges, in radians; overrides `padPixel`.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     padPixel: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description: "The gap between neighboring wedges, in pixels.",
+      defaultValue: 0,
+      description: "Gap between neighboring wedges, in pixels.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     radialScale: {
       control: {
-        type: "radio",
+        type: "radio"
       },
-      options: ["sqrt", "linear"],
-      description:
-        'How values map onto radii: `"sqrt"` (default) makes each wedge\'s area proportional to its value, so the eye reads area honestly; `"linear"` makes its radius proportional.',
+      defaultValue: "sqrt",
+      description: "How values map onto radii: `\"sqrt\"` (default) makes each wedge's area proportional to its value; `\"linear\"` makes its radius proportional.",
+      options: [
+        "linear",
+        "sqrt"
+      ],
       table: {
         defaultValue: {
-          summary: '"sqrt"',
-        },
+          summary: "sqrt"
+        }
       },
       type: {
         required: false,
-        summary: '"sqrt" | "linear"',
-      },
+        summary: "\"linear\" | \"sqrt\""
+      }
     },
     startAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "Where the first category starts, in degrees clockwise from 12 o'clock.",
+      defaultValue: 0,
+      description: "Where the first category starts, in degrees clockwise from 12 o'clock.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "function"
+        }
+      }
     },
     value: {
       control: {
-        type: "text",
+        type: "text"
       },
-      description: "Accessor function or string key for each row's value.",
+      description: "Accessor for each row's value.",
       table: {
         defaultValue: {
-          summary: '"value"',
-        },
+          summary: "\"value\""
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
-    },
-  },
+        summary: "string | function"
+      }
+    }
+  }
 );

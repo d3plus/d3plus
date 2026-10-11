@@ -6,318 +6,368 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {RadialBar as D3plusRadialBar} from "@d3plus/react";
-export const RadialBar = ({config}) => <D3plusRadialBar config={config} />;
+export const RadialBar = ({ config }) => <D3plusRadialBar config={config} />;
 
 export const argTypes = assign(
+
   /**
-   * Filters out unused argTypes from the Viz primitive; RadialBar draws every row as an arc.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in RadialBar
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
+    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * RadialBar-specific methods
    */
+  
   {
+    axisConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Styles the chrome like a Plot axis: `gridConfig` the value gridlines (spokes across the tracks, or the inner rings of the circular bar chart), `barConfig` its outer ring, and `shapeConfig.labelConfig` the track, tick, and category labels.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "object"
+      }
+    },
     discrete: {
       control: {
-        type: "radio",
+        type: "radio"
       },
-      options: ["radius", "angle"],
-      description:
-        'Which polar dimension holds the categories: `"radius"` (default) gives each row a concentric track whose arc length shows its value; `"angle"` gives each row an equal slice of the circle, with a bar whose length shows its value (a circular bar chart).',
+      defaultValue: "radius",
+      description: "Sets orientation of main category axis.\n\nWhich polar dimension holds the categories: `\"radius\"` (default) gives each row a concentric track whose arc length shows its value; `\"angle\"` gives each row an equal slice of the circle, with a bar whose length shows its value (a circular bar chart).",
+      options: [
+        "radius",
+        "angle"
+      ],
       table: {
         defaultValue: {
-          summary: '"radius"',
-        },
+          summary: "radius"
+        }
       },
       type: {
         required: false,
-        summary: '"radius" | "angle"',
-      },
+        summary: "\"radius\" | \"angle\""
+      }
     },
     domain: {
-      control: {},
-      description:
-        "The `[min, max]` the bars span. Either end may be left `undefined` to come from the data, rounded out to nice numbers and including zero.",
+      control: {
+        type: "object"
+      },
+      description: "The `[min, max]` the bars span. Either end may be left `undefined` to come from the data, rounded out to nice numbers and including zero.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "[number, number]",
-      },
+        summary: "[number, number]"
+      }
     },
     innerRadius: {
-      control: {},
-      description:
-        "The radius of the empty center, in pixels, or a function that receives the outer radius and returns one. Defaults to a quarter of the outer radius.",
+      control: {
+        type: "number"
+      },
+      description: "The radius of the empty center, in pixels, or a function of the outer radius.",
       table: {
         defaultValue: {
-          summary: "function",
-        },
+          summary: "outer / 4"
+        }
       },
       type: {
         required: false,
-        summary: "number | function",
-      },
+        summary: "number | function"
+      }
+    },
+    legend: {
+      table: {
+        defaultValue: {
+          summary: "polarLegend"
+        }
+      }
     },
     levelFormat: {
       control: {},
-      description:
-        "Formats the circular bar chart's ring value labels. Receives a ring's value and returns its label. Defaults to the abbreviated number format the axes use.",
+      description: "Formats the circular bar chart's ring value labels.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "function",
-      },
+        summary: "function"
+      }
     },
     levelLabelAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "Direction of the circular bar chart's ring value labels, in degrees clockwise from 12 o'clock.",
+      defaultValue: 0,
+      description: "Direction of the circular bar chart's ring value labels, in degrees clockwise from 12 o'clock.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     levelLabelConfig: {
-      control: {},
-      description:
-        "Styles the circular bar chart's ring value labels: `fontColor`, `fontFamily`, `fontOpacity`, `fontSize`, and `fontWeight`.",
+      control: {
+        type: "object"
+      },
+      description: "Styles the circular bar chart's ring value labels.",
       table: {
         defaultValue: {
-          summary: "{}",
-        },
+          summary: "{}"
+        }
       },
       type: {
         required: false,
-        summary: "object",
-      },
+        summary: "object"
+      }
     },
     levelLabels: {
       control: {
-        type: "boolean",
+        type: "boolean"
       },
-      description:
-        "Whether each of the circular bar chart's value rings is labeled with its value.",
+      defaultValue: true,
+      description: "Whether the circular bar chart labels each value ring with its value.",
       table: {
         defaultValue: {
-          summary: true,
-        },
+          summary: "true"
+        }
       },
       type: {
         required: false,
-        summary: "boolean",
-      },
+        summary: "boolean"
+      }
     },
     levels: {
-      control: {},
-      description:
-        "The circular bar chart's value rings: an approximate count (the domain rounds out to nice values and the rings sit on its ticks), or an array of exact ring values.",
+      control: {
+        type: "object"
+      },
+      defaultValue: 4,
+      description: "The circular bar chart's value rings: an approximate count, or an array of exact values.",
       table: {
         defaultValue: {
-          summary: 4,
-        },
+          summary: "4"
+        }
       },
       type: {
         required: false,
-        summary: "number | number[]",
-      },
+        summary: "number | number[]"
+      }
     },
     maxAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The sweep the chart spans, in degrees from `startAngle`. Defaults to 270 for tracks, leaving the quarter before the start for the track labels, and 360 for the circular bar chart.",
+      description: "The sweep the chart spans, in degrees from `startAngle`. Defaults to 270 for tracks, leaving the quarter before the start for the track labels, and 360 for the circular bar chart.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     outerPadding: {
-      control: {},
-      description:
-        'Room (px) reserved around the circular bar chart for its category labels, or `"auto"`.',
+      control: {
+        type: "radio"
+      },
+      defaultValue: "auto",
+      description: "Room (px) reserved around the circular bar chart for its category labels, or `\"auto\"`.",
+      options: [
+        "auto"
+      ],
       table: {
         defaultValue: {
-          summary: '"auto"',
-        },
+          summary: "auto"
+        }
       },
       type: {
         required: false,
-        summary: 'number | "auto"',
-      },
+        summary: "number | \"auto\""
+      }
     },
     padAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The angular gap between neighboring bars of the circular bar chart, in radians. When set, takes precedence over `padPixel`.",
+      defaultValue: 0,
+      description: "Angular gap between neighboring bars of the circular bar chart, in radians; overrides `padPixel`.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     padPixel: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The gap between neighboring bars of the circular bar chart, in pixels.",
+      defaultValue: 0,
+      description: "Gap between neighboring bars of the circular bar chart, in pixels.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
+    },
+    shapeConfig: {
+      table: {
+        defaultValue: {
+          summary: "{stroke: () => backgroundColor(viz._select?.node()), strokeWidth: 1}"
+        }
+      }
     },
     sort: {
       control: {},
-      description:
-        "Orders the rows: the outermost track, or the first bar, comes first. Defaults to descending value; `null` keeps the data's order.",
+      description: "Orders the rows (outermost track, or first bar, first). Defaults to descending value; `null` keeps data order.",
       table: {
         defaultValue: {
-          summary: "function",
-        },
+          summary: "function"
+        }
       },
       type: {
         required: false,
-        summary: "function | null",
-      },
+        summary: "function | null"
+      }
     },
     startAngle: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "Where the sweep starts, in degrees clockwise from 12 o'clock.",
+      defaultValue: 0,
+      description: "Where the sweep starts, in degrees clockwise from 12 o'clock.",
       table: {
         defaultValue: {
-          summary: 0,
-        },
+          summary: "0"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     tickFormat: {
       control: {},
-      description:
-        "Formats the value tick labels around the tracks. Defaults to the abbreviated number format.",
+      description: "Formats the value tick labels around the tracks. Defaults to the abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "function",
-        },
+          summary: "function"
+        }
       },
       type: {
         required: false,
-        summary: "function",
-      },
+        summary: "function"
+      }
     },
     ticks: {
-      control: {},
-      description:
-        "The value ticks around the tracks: a target count, an explicit array of values, or `false` for none. Counted ticks always include both ends of the domain.",
+      control: {
+        type: "object"
+      },
+      description: "The value ticks around the tracks: a target count, an explicit array of values, or `false` for none. Counted ticks always include both ends.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "number | number[] | false",
-      },
+        summary: "number | number[] | false"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: [polarValueRow(viz)]}"
+        }
+      }
     },
     track: {
       control: {
-        type: "boolean",
+        type: "boolean"
       },
+      defaultValue: true,
       description: "Whether to draw a background track behind every bar.",
       table: {
         defaultValue: {
-          summary: true,
-        },
+          summary: "true"
+        }
       },
       type: {
         required: false,
-        summary: "boolean",
-      },
+        summary: "boolean"
+      }
     },
     trackConfig: {
-      control: {},
-      description:
-        "Paints the background tracks: `fill`, `opacity`, `stroke`, and `strokeWidth`, each a value or a `(d, i) => value` accessor. The fill defaults to a faint tint of the chart's text color.",
+      control: {
+        type: "object"
+      },
+      description: "Paints the background tracks: `fill`, `opacity`, `stroke`, `strokeWidth`.",
       table: {
         defaultValue: {
-          summary: "{fill: function}",
-        },
+          summary: "{fill: () => dialDefaults(viz).track}"
+        }
       },
       type: {
         required: false,
-        summary: "object",
-      },
+        summary: "object"
+      }
     },
     trackPadding: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The share of each track (or each bar's slice of the circle) left as a gap between neighbors.",
+      defaultValue: 0.25,
+      description: "Share of each track (or each bar's slice of the circle) left as a gap between neighbors.",
       table: {
         defaultValue: {
-          summary: 0.25,
-        },
+          summary: "0.25"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     value: {
       control: {
-        type: "text",
+        type: "text"
       },
-      description: "Accessor function or string key for each row's value.",
+      description: "Accessor for each row's value.",
       table: {
         defaultValue: {
-          summary: '"value"',
-        },
+          summary: "\"value\""
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
-    },
-  },
+        summary: "string | function"
+      }
+    }
+  }
 );

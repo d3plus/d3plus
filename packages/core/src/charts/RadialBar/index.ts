@@ -67,14 +67,20 @@ export const radialBarDef: DataDrivenChartDefinition = {
         each row a concentric track whose arc length shows its value;
         `"angle"` gives each row an equal slice of the circle, with a bar
         whose length shows its value (a circular bar chart).
+        @type {"radius" | "angle"}
     */
     {key: "discrete", default: "radius"},
     /**
         The `[min, max]` the bars span. Either end may be left `undefined` to
         come from the data, rounded out to nice numbers and including zero.
+        @type {[number, number]}
     */
     {key: "domain"},
-    /** The radius of the empty center, in pixels, or a function of the outer radius. */
+    /**
+        The radius of the empty center, in pixels, or a function of the outer
+        radius.
+        @type {number | function}
+    */
     {key: "innerRadius", default: (outer: number) => outer / 4},
     /** Formats the circular bar chart's ring value labels. */
     {key: "levelFormat"},
@@ -82,7 +88,11 @@ export const radialBarDef: DataDrivenChartDefinition = {
     {key: "levelLabelAngle", default: 0},
     /** Whether the circular bar chart labels each value ring with its value. */
     {key: "levelLabels", default: true},
-    /** The circular bar chart's value rings: an approximate count, or an array of exact values. */
+    /**
+        The circular bar chart's value rings: an approximate count, or an array
+        of exact values.
+        @type {number | number[]}
+    */
     {key: "levels", default: 4},
     /**
         The sweep the chart spans, in degrees from `startAngle`. Defaults to
@@ -115,6 +125,7 @@ export const radialBarDef: DataDrivenChartDefinition = {
     /**
         The value ticks around the tracks: a target count, an explicit array
         of values, or `false` for none. Counted ticks always include both ends.
+        @type {number | number[] | false}
     */
     {key: "ticks"},
     /** Whether to draw a background track behind every bar. */
@@ -151,7 +162,11 @@ export const radialBarDef: DataDrivenChartDefinition = {
           },
         }),
     },
-    /** Paints the background tracks: `fill`, `opacity`, `stroke`, `strokeWidth`. */
+    /**
+        Paints the background tracks: `fill`, `opacity`, `stroke`,
+        `strokeWidth`.
+        @type {object}
+    */
     {
       key: "trackConfig",
       merge: true,

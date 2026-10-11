@@ -53,14 +53,19 @@ export const polarAreaDef: DataDrivenChartDefinition = {
   ctx: {},
 
   fields: [
-    /** Nests rows by `metric`, so each category keeps one row per group. */
+    // Nests rows by `metric`, so each category keeps one row per group.
     {key: "discrete", default: "metric"},
     /**
         The `[min, max]` the radius spans. Either end may be left `undefined`
         to come from the data, rounded out to nice numbers and including zero.
+        @type {[number, number]}
     */
     {key: "domain"},
-    /** The radius of the empty center, in pixels, or a function of the outer radius. */
+    /**
+        The radius of the empty center, in pixels, or a function of the outer
+        radius.
+        @type {number | function}
+    */
     {key: "innerRadius", default: 0},
     /** Formats the ring value labels. Defaults to the abbreviated number format. */
     {key: "levelFormat"},
@@ -71,12 +76,14 @@ export const polarAreaDef: DataDrivenChartDefinition = {
     /**
         The value rings: an approximate count (the domain rounds out to nice
         values and the rings sit on its ticks), or an array of exact values.
+        @type {number | number[]}
     */
     {key: "levels", default: 4},
     /**
         The category each wedge belongs to. Rows sharing a `metric` share one
         slice of the circle, their `groupBy` groups stacked outward from the
         center in data order. Unset, every row is its own category.
+        @type {string | function}
     */
     {
       key: "metric",
