@@ -8,7 +8,7 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatDate} from "@d3plus/format";
 
-import {computeFilteredData, computeTimeFilter} from "../pipeline/vizPreDrawPure.js";
+import {computeFilteredData, computeTimeFilter, dataFilter} from "../pipeline/vizPreDrawPure.js";
 import type {VizPreDrawResult} from "../pipeline/vizPreDrawPure.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FacetAccessor, FacetSort, FacetValue} from "./facetConfig.js";
@@ -82,7 +82,7 @@ export function facetGroups(viz: VizInstance, sort: FacetSort): FacetGroup[] {
   const facet = viz.schema.facet as FacetAccessor | undefined;
   if (!facet) return [];
   const data = viz._data || [];
-  const filter = viz.schema.filter as ((d: DataPoint, i: number) => boolean) | undefined;
+  const filter = dataFilter(viz);
   const rows = filter ? data.filter(filter) : data;
   return groupFacets(rows, facet, sort);
 }

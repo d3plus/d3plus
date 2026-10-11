@@ -180,6 +180,16 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
 }
 
 /**
+    The `filter` the pipeline runs over `viz._data`: the configured `filter`,
+    passing the rows the chart has already filtered (see `_filterApplied`).
+*/
+export function dataFilter(viz: Viz): ((d: DataPoint, i: number) => boolean) | undefined {
+  const filter = viz.schema.filter as ((d: DataPoint, i: number) => boolean) | undefined;
+  const applied = viz._filterApplied;
+  return filter && applied ? (d, i) => applied(d) || filter(d, i) : filter;
+}
+
+/**
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
     data exists; returns undefined otherwise.
 */
@@ -235,7 +245,8 @@ export function computeFilteredData(
     flatData = effectiveTimeFilter
       ? data.filter(effectiveTimeFilter)
       : data;
-    if (viz.schema.filter) flatData = flatData.filter(viz.schema.filter);
+    const filter = dataFilter(viz);
+    if (filter) flatData = flatData.filter(filter);
 
     const nestKeys: ((
       d: DataPoint,
