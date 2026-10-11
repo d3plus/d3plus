@@ -55,7 +55,6 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`Sunburst`](#sunburst) | Draws a hierarchy as concentric rings, one per `groupBy` level, where each |
 | [`Tree`](#tree) | Uses d3's tree layout to create a tidy tree chart based on an array of data. |
 | [`Treemap`](#treemap) | Uses the d3 treemap layout to create SVG rectangles based on an array of data. |
-| [`Waffle`](#waffle) | Draws a grid of unit cells filled by category in proportion to each |
 
 | Classes | Description |
 | --- | --- |
@@ -25902,38 +25901,6 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 Defined in: [charts/Treemap/index.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L180)
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
-
-***
-
-<a id="waffle"></a>
-
-### Waffle
-
-Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides these defaults:
-
-| Method | Default |
-| --- | --- |
-| `cellPadding` | `2` |
-| `cellShape` | `"square"` |
-| `columns` | `10` |
-| `fillDirection` | `"row"` |
-| `fillStart` | `"top-left"` |
-| `icon` | — |
-| `rows` | `10` |
-| `sort` | — |
-| `sum` | `accessor(…)` |
-| `unit` | — |
-| `zoom` | `false` |
-| `tooltipConfig` | — |
-| `legendTooltip` | — |
-| `legendSort` | — |
-
-
-Defined in: [charts/Waffle/index.ts:161](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waffle/index.ts#L161)
-
-Draws a grid of unit cells filled by category in proportion to each
-category's value — 1% per cell by default, or a fixed value per cell
-with `unit`.
 
 ## Interfaces
 
