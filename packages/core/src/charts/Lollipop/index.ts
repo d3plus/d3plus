@@ -37,13 +37,30 @@ export const lollipopDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /** Stems rise from zero unless the value axis breaks away from it. */
     {key: "baseline", default: 0},
+    /**
+        Lets the value axis break away from zero when every value sits far
+        from it, so stems start at the axis's edge instead.
+    */
     {key: "baselineBreak", default: true},
+    /**
+        The category axis: `"x"` (default) draws vertical stems, `"y"`
+        horizontal ones.
+        @type {"x" | "y"}
+    */
     {key: "discrete", default: "x"},
+    /** BarChart's legend, hiding entries that only repeat the category axis. */
     barLegend,
-    // Rows are laid out as bars, then drawn as stems and heads.
+    /** Rows are laid out as bars, then drawn as stems and heads. */
     {key: "shape", default: constant("Bar"), coerce: "const"},
+    /** Legend swatches are drawn as circles, matching the heads. */
     {key: "legendConfig", merge: true, default: {shape: "Circle"}},
+    /**
+        Stems are styled by `shapeConfig.Line` (`stroke`, `strokeWidth`,
+        `strokeDasharray`, …; the stroke defaults to the head's color) and
+        heads by `shapeConfig.Circle` (`r`, `fill`, …).
+    */
     {
       key: "shapeConfig",
       merge: true,

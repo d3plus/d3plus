@@ -2,7 +2,7 @@
 // the source JSDOC comments using the npm run docs script.
 
 import React from "react";
-import {argTypes as barChartArgTypes} from "./BarChart.args.jsx";
+import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Lollipop as D3plusLollipop} from "@d3plus/react";
@@ -11,20 +11,71 @@ export const Lollipop = ({ config }) => <D3plusLollipop config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from BarChart; a Lollipop always draws its
-   * rows as stems topped by circles.
+   * Filters out unused argTypes from the Plot primitive and
+   * overrides any defaults that have been changed in Lollipop
    */
-  Object.keys(barChartArgTypes)
+  Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|swarm|swarmConfig)$/))
-    .reduce((obj, k) => (obj[k] = barChartArgTypes[k], obj), {}),
+    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
 
   /**
-   * Lollipop-specific defaults
+   * Lollipop-specific methods
    */
+  
   {
+    baseline: {
+      defaultValue: 0,
+      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.\n\nStems rise from zero unless the value axis breaks away from it.",
+      table: {
+        defaultValue: {
+          summary: "0"
+        }
+      }
+    },
+    baselineBreak: {
+      defaultValue: true,
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.\n\nLets the value axis break away from zero when every value sits far from it, so stems start at the axis's edge instead.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      }
+    },
+    discrete: {
+      control: {
+        type: "radio"
+      },
+      defaultValue: "x",
+      description: "Sets orientation of main category axis.\n\nThe category axis: `\"x\"` (default) draws vertical stems, `\"y\"` horizontal ones.",
+      options: [
+        "x",
+        "y"
+      ],
+      table: {
+        defaultValue: {
+          summary: "x"
+        }
+      },
+      type: {
+        required: false,
+        summary: "\"x\" | \"y\""
+      }
+    },
+    legendConfig: {
+      description: "Configuration object passed to the legend's config method.\n\nLegend swatches are drawn as circles, matching the heads.",
+      table: {
+        defaultValue: {
+          summary: "{shape: \"Circle\"}"
+        }
+      }
+    },
     shapeConfig: {
-      ...barChartArgTypes.shapeConfig,
-      description: "Styles for the chart's marks. Stems are styled by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeDasharray`, …; the stroke defaults to the head's color) and heads by `shapeConfig.Circle` (`r`, `fill`, …).",
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nStems are styled by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeDasharray`, …; the stroke defaults to the head's color) and heads by `shapeConfig.Circle` (`r`, `fill`, …).",
+      table: {
+        defaultValue: {
+          summary: "{Bar: {label: false}, Circle: {label: false, trail: false}, Line: {label: false, stroke: fillOf(viz)}}"
+        }
+      }
     }
   }
 );

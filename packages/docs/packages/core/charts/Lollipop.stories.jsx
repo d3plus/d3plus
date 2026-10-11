@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a lollipop chart from an array of data: each row draws a thin stem from the baseline to a circle at its value.",
+        component: "Creates a lollipop chart from an array of data: each row draws a thin stem\nfrom the baseline (or the value axis's break) to a circle at its value,\nwith a category axis set by discrete (\"x\" draws vertical stems, \"y\"\nhorizontal ones). Rows sharing a category but differing in groupBy sit\nside by side, as grouped bars do. Stems are styled by shapeConfig.Line\n(stroke, strokeWidth, …) and heads by shapeConfig.Circle (r,\nfill, …); a size accessor scales the heads.",
       },
     },
   }
 };
 
 const Template = (args) => <Lollipop config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

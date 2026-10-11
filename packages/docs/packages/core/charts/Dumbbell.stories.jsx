@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a dumbbell (range dot) chart from an array of data with one row per category and series, joining each category's points with a connector.",
+        component: "Creates a dumbbell (range dot) chart from an array of data with one row per\ncategory and series, such as a country's value in 2010 and in 2020. Each\ncategory, read from the axis named by discrete (\"y\" by default, for\nhorizontal dumbbells), draws a circle per row at its value, colored by\ngroupBy, with a connector between the category's smallest and largest\nvalues. Circles are styled by shapeConfig.Circle and connectors by\nshapeConfig.Line; gapSort orders the categories by the size of their\ngap.",
       },
     },
   }
 };
 
 const Template = (args) => <Dumbbell config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

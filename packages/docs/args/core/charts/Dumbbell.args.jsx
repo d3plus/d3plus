@@ -11,24 +11,28 @@ export const Dumbbell = ({ config }) => <D3plusDumbbell config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Plot primitive; a Dumbbell always
-   * draws circles joined by a connector per category.
+   * Filters out unused argTypes from the Plot primitive and
+   * overrides any defaults that have been changed in Dumbbell
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape|barPadding|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig|swarm|swarmConfig|baseline|baselineBreak)$/))
     .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
 
   /**
-   * Dumbbell-specific methods and defaults
+   * Dumbbell-specific methods
    */
+  
   {
     discrete: {
       control: {
         type: "radio"
       },
       defaultValue: "y",
-      options: ["x", "y"],
-      description: "The category axis: `\"y\"` (default) draws horizontal dumbbells, `\"x\"` vertical ones.",
+      description: "Sets orientation of main category axis.\n\nThe category axis: `\"y\"` (default) draws horizontal dumbbells, `\"x\"` vertical ones.",
+      options: [
+        "x",
+        "y"
+      ],
       table: {
         defaultValue: {
           summary: "y"
@@ -43,8 +47,13 @@ export const argTypes = assign(
       control: {
         type: "radio"
       },
-      options: [false, "ascending", "descending"],
+      defaultValue: false,
       description: "Orders the categories by their gap, the distance between each category's smallest and largest value: `\"descending\"` puts the widest gap first (at the top of horizontal dumbbells, at the left of vertical ones), `\"ascending\"` the narrowest. `false` (default) keeps the category axis's own order. A `ySort` (or `xSort`) comparator on the category axis takes precedence.",
+      options: [
+        false,
+        "ascending",
+        "descending"
+      ],
       table: {
         defaultValue: {
           summary: "false"
@@ -56,8 +65,12 @@ export const argTypes = assign(
       }
     },
     shapeConfig: {
-      ...plotArgTypes.shapeConfig,
-      description: "Styles for the chart's marks. Points are styled by `shapeConfig.Circle` (`r`, `fill`, …) and connectors by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeLinecap`, …; a 3px gray line by default)."
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nPoints are styled by `shapeConfig.Circle` (`r`, `fill`, …) and connectors by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeLinecap`, …; a 3px gray line by default).",
+      table: {
+        defaultValue: {
+          summary: "{Circle: {label: false, trail: false}, Line: {label: false, stroke: () => connectorStroke(viz), strokeWidth: 3}}"
+        }
+      }
     }
   }
 );

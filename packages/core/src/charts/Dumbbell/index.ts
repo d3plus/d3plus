@@ -46,6 +46,11 @@ export const dumbbellDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    /**
+        The category axis: `"y"` (default) draws horizontal dumbbells, `"x"`
+        vertical ones.
+        @type {"x" | "y"}
+    */
     {key: "discrete", default: "y"},
     /**
         Orders the categories by their gap, the distance between each
@@ -54,8 +59,14 @@ export const dumbbellDef: ChartDefinition = {
         ones), `"ascending"` the narrowest. `false` (default) keeps the
         category axis's own order. A `ySort` (or `xSort`) comparator on the
         category axis takes precedence.
+        @type {false | "ascending" | "descending"}
     */
     {key: "gapSort", default: false},
+    /**
+        Points are styled by `shapeConfig.Circle` (`r`, `fill`, …) and
+        connectors by `shapeConfig.Line` (`stroke`, `strokeWidth`,
+        `strokeLinecap`, …; a 3px gray line by default).
+    */
     {
       key: "shapeConfig",
       merge: true,
