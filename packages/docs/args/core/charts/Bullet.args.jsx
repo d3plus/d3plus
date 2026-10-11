@@ -11,18 +11,21 @@ export const Bullet = ({ config }) => <D3plusBullet config={config} />;
 export const argTypes = assign(
 
   /**
-   * Filters out unused argTypes from the Viz primitive.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in Bullet
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(zoom.*)$/))
     .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * Bullet-specific methods
    */
+  
   {
     axisConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Styles the bullets' static parts: `shapeConfig.fill` colors the empty track, `shapeConfig.stroke`/`strokeWidth` the tick marks, and `shapeConfig.labelConfig` (`fontColor`, `fontFamily`, `fontSize`) the tick and row labels. Unset colors follow the chart's background, so the bullets read on light and dark themes alike.",
       table: {
         defaultValue: {
@@ -35,7 +38,10 @@ export const argTypes = assign(
       }
     },
     bands: {
-      control: {},
+      control: {
+        type: "object"
+      },
+      defaultValue: [],
       description: "The qualitative ranges behind each measure (e.g. poor / satisfactory / good). Either threshold values, `[60, 85]`, which split the domain into three bands, or Gauge-style band objects, `[{max: 60}, {max: 85, color: \"#ffd43b\"}, {}]`. Bands without a `color` are shades of one hue, contrasting most with the background first and stepping lighter. A function `(d, i) => bands` gives each row its own bands.",
       table: {
         defaultValue: {
@@ -51,6 +57,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
+      defaultValue: 40,
       description: "The largest thickness of each bullet's band, in pixels.",
       table: {
         defaultValue: {
@@ -63,7 +70,9 @@ export const argTypes = assign(
       }
     },
     domain: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The `[min, max]` each bullet spans, or a function `(d, i) => [min, max]` for per-row domains. Either end may be left `undefined` to come from the row's values (measure, target, forecast) and band edges, rounded outward to nice numbers and always including zero.",
       table: {
         defaultValue: {
@@ -77,7 +86,7 @@ export const argTypes = assign(
     },
     forecast: {
       control: {
-        type: "text"
+        type: "number"
       },
       description: "Accessor for each row's forecast (or other comparative measure), drawn as a wider, paler bar behind the measure. A data key, a function, a number shared by every row, or `false` for none.",
       table: {
@@ -91,7 +100,9 @@ export const argTypes = assign(
       }
     },
     forecastConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Styles the forecast bar: `size` (its thickness as a fraction of the band's), `opacity`, and `fill` (the row's color by default), each a value or a `(d, i)` accessor.",
       table: {
         defaultValue: {
@@ -100,13 +111,22 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "object"
+        summary: "{size, opacity, fill}"
+      }
+    },
+    legend: {
+      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nEach bullet is labeled at its start, so the legend only shows when its entries group the bullets (e.g. colored by a coarser category).",
+      table: {
+        defaultValue: {
+          summary: "function"
+        }
       }
     },
     measureSize: {
       control: {
         type: "number"
       },
+      defaultValue: 0.35,
       description: "The measure bar's thickness, as a fraction of the band's thickness.",
       table: {
         defaultValue: {
@@ -122,11 +142,15 @@ export const argTypes = assign(
       control: {
         type: "radio"
       },
-      options: ["horizontal", "vertical"],
+      defaultValue: "horizontal",
       description: "Which way the bullets run: `\"horizontal\"` (default) stacks them as rows with values growing rightward; `\"vertical\"` lines them up as columns with values growing upward.",
+      options: [
+        "horizontal",
+        "vertical"
+      ],
       table: {
         defaultValue: {
-          summary: "\"horizontal\""
+          summary: "horizontal"
         }
       },
       type: {
@@ -134,10 +158,19 @@ export const argTypes = assign(
         summary: "\"horizontal\" | \"vertical\""
       }
     },
+    shapeConfig: {
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nOutlines each measure bar in the chart's background color, so a bar stays distinct over a band of a similar color. Set `shapeConfig.stroke`/`strokeWidth` to override.",
+      table: {
+        defaultValue: {
+          summary: "{stroke: () => chartBackground(viz), strokeWidth: MEASURE_OUTLINE}"
+        }
+      }
+    },
     sharedDomain: {
       control: {
         type: "boolean"
       },
+      defaultValue: false,
       description: "Whether every bullet reads against one shared domain, labeled by a single value axis, instead of each bullet fitting its own.",
       table: {
         defaultValue: {
@@ -153,6 +186,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
+      defaultValue: false,
       description: "Accessor for a smaller second label under each row's name, such as its unit.",
       table: {
         defaultValue: {
@@ -166,7 +200,7 @@ export const argTypes = assign(
     },
     target: {
       control: {
-        type: "text"
+        type: "number"
       },
       description: "Accessor for each row's target, drawn as a marker across the band. A data key, a function, a number shared by every row, or `false` for none.",
       table: {
@@ -180,7 +214,9 @@ export const argTypes = assign(
       }
     },
     targetConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Styles the target marker: `size` (its length as a fraction of the band's thickness), `stroke` (the text color by default), and `strokeWidth`, each a value or a `(d, i)` accessor.",
       table: {
         defaultValue: {
@@ -189,7 +225,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "object"
+        summary: "{size, stroke, strokeWidth}"
       }
     },
     tickFormat: {
@@ -197,7 +233,7 @@ export const argTypes = assign(
       description: "Formats the tick labels. Defaults to the locale's abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "formatAbbreviate"
+          summary: "function"
         }
       },
       type: {
@@ -206,7 +242,9 @@ export const argTypes = assign(
       }
     },
     ticks: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The value axis ticks: a target count, an explicit array of values, or `false` for no axis. By default each axis fits as many ticks as its labels allow, always labeling both ends of the domain.",
       table: {
         defaultValue: {
@@ -218,11 +256,19 @@ export const argTypes = assign(
         summary: "number | number[] | false"
       }
     },
+    tooltipConfig: {
+      description: "Configuration object for the tooltip.\n\nLists each row's Value, Target, and Forecast in the tooltip body.",
+      table: {
+        defaultValue: {
+          summary: "{tbody: (d: DataPoint, i: number) => bulletTooltipRows(viz, d, i)}"
+        }
+      }
+    },
     value: {
       control: {
         type: "text"
       },
-      description: "Accessor for each row's measure.",
+      description: "Accessor for each row's measure: a data key or a function.",
       table: {
         defaultValue: {
           summary: "\"value\""
@@ -238,12 +284,21 @@ export const argTypes = assign(
       description: "Formats the values in tooltips and aria labels, as `(value, datum) => string`. Defaults to the locale's abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "formatAbbreviate"
+          summary: "function"
         }
       },
       type: {
         required: false,
         summary: "function"
+      }
+    },
+    zoom: {
+      defaultValue: false,
+      description: "Enables pan/zoom with zoom-control buttons. On by default for every chart.\n\nZooming and panning don't help read a bullet, so they're off by default.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
       }
     }
   }

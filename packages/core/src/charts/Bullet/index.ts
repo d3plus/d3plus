@@ -105,6 +105,7 @@ export const bulletDef: DataDrivenChartDefinition = {
         `shapeConfig.labelConfig` (`fontColor`, `fontFamily`, `fontSize`) the
         tick and row labels. Unset colors follow the chart's background, so
         the bullets read on light and dark themes alike.
+        @type {{shapeConfig: {fill, stroke, strokeWidth, labelConfig}}}
     */
     {key: "axisConfig", merge: true},
     /**
@@ -114,6 +115,7 @@ export const bulletDef: DataDrivenChartDefinition = {
         color: "#ffd43b"}, {}]`. Bands without a `color` are shades of one
         hue, contrasting most with the background first and stepping lighter.
         A function `(d, i) => bands` gives each row its own bands.
+        @type {(number | GaugeBand)[] | function}
     */
     {key: "bands", default: []},
     /** The largest thickness of each bullet's band, in pixels. */
@@ -123,12 +125,14 @@ export const bulletDef: DataDrivenChartDefinition = {
         max]` for per-row domains. Either end may be left `undefined` to come
         from the row's values (measure, target, forecast) and band edges,
         rounded outward to nice numbers and always including zero.
+        @type {[number, number] | function}
     */
     {key: "domain"},
     /**
         Accessor for each row's forecast (or other comparative measure), drawn
         as a wider, paler bar behind the measure. A data key, a function, a
         number shared by every row, or `false` for none.
+        @type {string | number | function | false}
     */
     {key: "forecast", default: accessor("forecast"), coerce: rowAccessor},
     /**
@@ -157,6 +161,7 @@ export const bulletDef: DataDrivenChartDefinition = {
         Which way the bullets run: `"horizontal"` (default) stacks them as
         rows with values growing rightward; `"vertical"` lines them up as
         columns with values growing upward.
+        @type {"horizontal" | "vertical"}
     */
     {key: "orient", default: "horizontal"},
     /**
@@ -164,11 +169,16 @@ export const bulletDef: DataDrivenChartDefinition = {
         single value axis, instead of each bullet fitting its own.
     */
     {key: "sharedDomain", default: false},
-    /** Accessor for a smaller second label under each row's name, such as its unit. */
+    /**
+        Accessor for a smaller second label under each row's name, such as
+        its unit.
+        @type {string | function | false}
+    */
     {key: "subLabel", default: false, coerce: rowAccessor},
     /**
         Accessor for each row's target, drawn as a marker across the band. A
         data key, a function, a number shared by every row, or `false` for none.
+        @type {string | number | function | false}
     */
     {key: "target", default: accessor("target"), coerce: rowAccessor},
     /** Formats the tick labels. Defaults to the locale's abbreviated number format. */
@@ -181,9 +191,13 @@ export const bulletDef: DataDrivenChartDefinition = {
         The value axis ticks: a target count, an explicit array of values, or
         `false` for no axis. By default each axis fits as many ticks as its
         labels allow, always labeling both ends of the domain.
+        @type {number | number[] | false}
     */
     {key: "ticks"},
-    /** Accessor for each row's measure. */
+    /**
+        Accessor for each row's measure: a data key or a function.
+        @type {string | function}
+    */
     {
       key: "value",
       default: accessor("value"),
@@ -205,6 +219,7 @@ export const bulletDef: DataDrivenChartDefinition = {
         Styles the forecast bar: `size` (its thickness as a fraction of the
         band's), `opacity`, and `fill` (the row's color by default), each a
         value or a `(d, i)` accessor.
+        @type {{size, opacity, fill}}
     */
     {key: "forecastConfig", merge: true, default: {opacity: 0.35, size: 0.6}},
     /**
@@ -224,8 +239,10 @@ export const bulletDef: DataDrivenChartDefinition = {
         Styles the target marker: `size` (its length as a fraction of the
         band's thickness), `stroke` (the text color by default), and
         `strokeWidth`, each a value or a `(d, i)` accessor.
+        @type {{size, stroke, strokeWidth}}
     */
     {key: "targetConfig", merge: true, default: {size: 0.75, strokeWidth: 3}},
+    /** Lists each row's Value, Target, and Forecast in the tooltip body. */
     {
       key: "tooltipConfig",
       merge: true,

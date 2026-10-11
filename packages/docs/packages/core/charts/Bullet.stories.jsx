@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a bullet graph from an array of data: one compact bar per row reading its `value` against qualitative `bands`, with a `target` marker, an optional `forecast` bar, and a value axis. Rows stack top to bottom, or side by side with `orient(\"vertical\")`.",
+        component: "Creates a bullet graph from an array of data: one compact bar per row\nreading its value against qualitative bands, with a target marker,\nan optional forecast bar, and a value axis. Rows stack top to bottom,\nor side by side with orient(\"vertical\").",
       },
     },
   }
 };
 
 const Template = (args) => <Bullet config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
