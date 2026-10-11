@@ -14,15 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component:
-          "Draws a grid of unit cells filled in order by category, each category getting cells in proportion to its value. By default the grid is 10 × 10, so each cell is 1% of the total; set `unit` to make each cell a fixed amount instead. Hover a cell to highlight its whole category.",
+        component: "Draws a grid of unit cells filled in order by category, each category\ngetting cells in proportion to its value. By default the grid is 10 × 10,\nso each cell is 1% of the total; set unit to make each cell a fixed\namount instead. Hover a cell to highlight its whole category.",
       },
     },
-  },
+  }
 };
 
-const Template = args => <Waffle config={configify(args, argTypes)} />;
-
+const Template = (args) => <Waffle config={configify(args, argTypes)} />;
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

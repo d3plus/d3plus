@@ -6,178 +6,220 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Waffle as D3plusWaffle} from "@d3plus/react";
-export const Waffle = ({config}) => <D3plusWaffle config={config} />;
+export const Waffle = ({ config }) => <D3plusWaffle config={config} />;
 
 export const argTypes = assign(
+
   /**
-   * Filters out unused argTypes from the Viz primitive; Waffle draws every
-   * cell itself and does not zoom.
+   * Filters out unused argTypes from the Viz primitive and
+   * overrides any defaults that have been changed in Waffle
    */
   Object.keys(vizArgTypes)
-    .filter(k => !k.match(/^(shape|zoom.*)$/))
-    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
+    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
 
   /**
    * Waffle-specific methods
    */
+  
   {
     cellPadding: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The gap between neighboring cells, in pixels. It shrinks on small grids (such as small multiples) so the cells stay visible.",
+      defaultValue: 2,
+      description: "The gap between neighboring cells, in pixels. It shrinks on small grids (such as small multiples) so the cells stay visible.",
       table: {
         defaultValue: {
-          summary: 2,
-        },
+          summary: "2"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     cellShape: {
       control: {
-        type: "radio",
+        type: "radio"
       },
-      options: ["square", "rounded", "circle"],
-      description:
-        'How each cell is drawn: `"square"`, `"rounded"` (a square with rounded corners), or `"circle"`.',
+      defaultValue: "square",
+      description: "How each cell is drawn: `\"square\"`, `\"rounded\"` (a square with rounded corners), or `\"circle\"`.",
+      options: [
+        "square",
+        "rounded",
+        "circle"
+      ],
       table: {
         defaultValue: {
-          summary: '"square"',
-        },
+          summary: "square"
+        }
       },
       type: {
         required: false,
-        summary: '"square" | "rounded" | "circle"',
-      },
+        summary: "\"square\" | \"rounded\" | \"circle\""
+      }
     },
     columns: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The number of columns in the grid. With `unit`, a row-wise fill keeps this many columns and adds rows as needed.",
+      defaultValue: 10,
+      description: "The number of columns in the grid. With `unit`, a row-wise fill keeps this many columns and adds rows as needed.",
       table: {
         defaultValue: {
-          summary: 10,
-        },
+          summary: "10"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     fillDirection: {
       control: {
-        type: "radio",
+        type: "radio"
       },
-      options: ["row", "column"],
-      description:
-        'The order cells fill the grid: `"row"` fills along each row, `"column"` down each column.',
+      defaultValue: "row",
+      description: "The order cells fill the grid: `\"row\"` fills along each row, `\"column\"` down each column.",
+      options: [
+        "row",
+        "column"
+      ],
       table: {
         defaultValue: {
-          summary: '"row"',
-        },
+          summary: "row"
+        }
       },
       type: {
         required: false,
-        summary: '"row" | "column"',
-      },
+        summary: "\"row\" | \"column\""
+      }
     },
     fillStart: {
       control: {
-        type: "select",
+        type: "radio"
       },
-      options: ["top-left", "top-right", "bottom-left", "bottom-right"],
+      defaultValue: "top-left",
       description: "The corner of the grid the first cell sits in.",
+      options: [
+        "top-left",
+        "top-right",
+        "bottom-left",
+        "bottom-right"
+      ],
       table: {
         defaultValue: {
-          summary: '"top-left"',
-        },
+          summary: "top-left"
+        }
       },
       type: {
         required: false,
-        summary: '"top-left" | "top-right" | "bottom-left" | "bottom-right"',
-      },
+        summary: "\"top-left\" | \"top-right\" | \"bottom-left\" | \"bottom-right\""
+      }
     },
     icon: {
-      control: {},
-      description:
-        "Draws an icon in every cell in place of its fill (a pictogram): an image URL, or an accessor `(d, i) => url` returning one per category. The icon fits inside its cell and dims with it on hover.",
+      control: {
+        type: "text"
+      },
+      description: "Draws an icon in every cell in place of its fill (a pictogram): an image URL, or an accessor `(d, i) => url` returning one per category. The icon fits inside its cell and dims with it on hover.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
+        summary: "string | function"
+      }
+    },
+    legendSort: {
+      description: "Custom sort comparator for legend items.\n\nLists the legend in the order the categories fill the grid (see `sort`).",
+      table: {
+        defaultValue: {
+          summary: "fillOrder(viz)"
+        }
+      }
+    },
+    legendTooltip: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: waffleTooltipRows(viz)}"
+        }
+      }
     },
     rows: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The number of rows in the grid. With `unit` and a column-wise fill, the grid keeps this many rows and adds columns as needed.",
+      defaultValue: 10,
+      description: "The number of rows in the grid. With `unit` and a column-wise fill, the grid keeps this many rows and adds columns as needed.",
       table: {
         defaultValue: {
-          summary: 10,
-        },
+          summary: "10"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
     sort: {
       control: {},
-      description:
-        "Comparator for the order categories fill the grid, given two rows. Defaults to descending by `sum`, with any threshold bucket last; `false` keeps the data order.",
+      description: "Comparator for the order categories fill the grid, given two rows. Defaults to descending by `sum`, with any threshold bucket last; `false` keeps the data order.",
       table: {
         defaultValue: {
-          summary: "function",
-        },
+          summary: "bySum(viz)"
+        }
       },
       type: {
         required: false,
-        summary: "false | function",
-      },
+        summary: "false | function"
+      }
     },
     sum: {
       control: {
-        type: "text",
+        type: "text"
       },
-      description:
-        "Accessor function or string key for each category's value. The categories get cells in proportion to it, allocated by the largest-remainder method so the cells always add up to the grid.",
+      description: "Accessor function or string key for each category's value. The categories get cells in proportion to it, allocated by the largest-remainder method so the cells always add up to the grid.",
       table: {
         defaultValue: {
-          summary: '"value"',
-        },
+          summary: "\"value\""
+        }
       },
       type: {
         required: false,
-        summary: "string | function",
-      },
+        summary: "string | function"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: waffleTooltipRows(viz)}"
+        }
+      }
     },
     unit: {
       control: {
-        type: "number",
+        type: "number"
       },
-      description:
-        "The value one cell stands for. By default the categories share every cell of the `rows` × `columns` grid, so each cell is a fixed share of the total (1% for 10 × 10); with a `unit`, each cell counts `unit` of the value and the grid grows to fit the total.",
+      description: "The value one cell stands for. By default the categories share every cell of the `rows` × `columns` grid, so each cell is a fixed share of the total (1% for 10 × 10); with a `unit`, each cell counts `unit` of the value and the grid grows to fit the total.",
       table: {
         defaultValue: {
-          summary: "undefined",
-        },
+          summary: "undefined"
+        }
       },
       type: {
         required: false,
-        summary: "number",
-      },
+        summary: "number"
+      }
     },
-  },
+    zoom: {
+      defaultValue: false,
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      }
+    }
+  }
 );

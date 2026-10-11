@@ -74,37 +74,53 @@ export const waffleDef: DataDrivenChartDefinition = {
   ctx: {},
 
   fields: [
-    /** The gap between neighboring cells, in pixels. */
+    /**
+        The gap between neighboring cells, in pixels. It shrinks on small grids
+        (such as small multiples) so the cells stay visible.
+        @type {number}
+    */
     {key: "cellPadding", default: 2},
-    /** How each cell is drawn: `"square"`, `"rounded"`, or `"circle"`. */
+    /**
+        How each cell is drawn: `"square"`, `"rounded"` (a square with rounded
+        corners), or `"circle"`.
+        @type {"square" | "rounded" | "circle"}
+    */
     {key: "cellShape", default: "square"},
     /**
         The number of columns in the grid. With `unit`, a row-wise fill keeps
         this many columns and adds rows as needed.
+        @type {number}
     */
     {key: "columns", default: 10},
-    /** The order cells fill the grid: `"row"` (along each row) or `"column"` (down each column). */
+    /**
+        The order cells fill the grid: `"row"` fills along each row, `"column"`
+        down each column.
+        @type {"row" | "column"}
+    */
     {key: "fillDirection", default: "row"},
     /**
-        The corner the first cell sits in: `"top-left"`, `"top-right"`,
-        `"bottom-left"`, or `"bottom-right"`.
+        The corner of the grid the first cell sits in.
+        @type {"top-left" | "top-right" | "bottom-left" | "bottom-right"}
     */
     {key: "fillStart", default: "top-left"},
     /**
-        Draws an icon in every cell in place of its fill: an image URL, or an
-        accessor `(d, i) => url` returning one per category. The icon fits
-        inside its cell and dims with it on hover.
+        Draws an icon in every cell in place of its fill (a pictogram): an
+        image URL, or an accessor `(d, i) => url` returning one per category.
+        The icon fits inside its cell and dims with it on hover.
+        @type {string | function}
     */
     {key: "icon"},
     /**
         The number of rows in the grid. With `unit` and a column-wise fill,
         the grid keeps this many rows and adds columns as needed.
+        @type {number}
     */
     {key: "rows", default: 10},
     /**
-        Comparator for the categories' fill order, given two rows. Defaults to
-        descending by `sum`, with any threshold bucket last; `false` keeps the
-        data order.
+        Comparator for the order categories fill the grid, given two rows.
+        Defaults to descending by `sum`, with any threshold bucket last; `false`
+        keeps the data order.
+        @type {false | function}
     */
     {
       key: "sort",
@@ -118,7 +134,12 @@ export const waffleDef: DataDrivenChartDefinition = {
         }) as SortFn;
       },
     },
-    /** Accessor function or string key for each category's value. */
+    /**
+        Accessor function or string key for each category's value. The
+        categories get cells in proportion to it, allocated by the
+        largest-remainder method so the cells always add up to the grid.
+        @type {string | function}
+    */
     {
       key: "sum",
       default: accessor("value"),
@@ -130,8 +151,9 @@ export const waffleDef: DataDrivenChartDefinition = {
     /**
         The value one cell stands for. By default the categories share every
         cell of the `rows` × `columns` grid, so each cell is a fixed share of
-        the total; with a `unit`, each cell counts `unit` of the value and the
-        grid grows to fit the total.
+        the total (1% for 10 × 10); with a `unit`, each cell counts `unit` of
+        the value and the grid grows to fit the total.
+        @type {number}
     */
     {key: "unit"},
     {key: "zoom", default: false},
@@ -154,8 +176,9 @@ export const waffleDef: DataDrivenChartDefinition = {
 };
 
 /**
-    Draws a grid of unit cells filled by category in proportion to each
-    category's value — 1% per cell by default, or a fixed value per cell
-    with `unit`.
+    Draws a grid of unit cells filled in order by category, each category
+    getting cells in proportion to its value. By default the grid is 10 × 10,
+    so each cell is 1% of the total; set `unit` to make each cell a fixed
+    amount instead. Hover a cell to highlight its whole category.
 */
 export default makeChart(waffleDef);
