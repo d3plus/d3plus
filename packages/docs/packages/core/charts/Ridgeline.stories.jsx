@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a ridgeline (joyplot) from an array of raw observations: the value of each row is summarized per group as a kernel density estimate, and each group's curve rises from its own baseline down the y axis, sharing the x axis. overlap sets how far ridges rise into the ones above; medianSort orders them by median.",
+        component: "Creates a ridgeline (joyplot) from an array of raw observations: the\nvalue of each row is summarized per group as a kernel density estimate,\nand each group's curve rises from its own baseline down the y axis,\nsharing the x axis. overlap sets how far ridges rise into the ones\nabove; medianSort orders them by median.",
       },
     },
   }
 };
 
 const Template = (args) => <Ridgeline config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

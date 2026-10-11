@@ -28,13 +28,18 @@ export const violinDef: ChartDefinition = {
   ctx: {},
 
   fields: [
-    /** The category axis: `"x"` (default) draws vertical violins, `"y"` horizontal ones. */
+    /**
+        The category axis: `"x"` (default) draws vertical violins, `"y"`
+        horizontal ones.
+        @type {"x" | "y"}
+    */
     {key: "discrete", default: "x"},
     /**
         What to draw inside each violin: `"box"` (default; a narrow box plot),
         `"quartiles"` (a solid line at the median and dashed lines at the
         quartiles), `"points"` (the observations packed into a swarm), an
         array of several, or `false` for nothing.
+        @type {false | "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[]}
     */
     {key: "inner", default: "box"},
     /**
@@ -48,6 +53,7 @@ export const violinDef: ChartDefinition = {
     /**
         Styles for the `inner` overlays: `box` (Box config), `quartiles` (Line
         config), and `points` (Circle config).
+        @type {{box?: object, quartiles?: object, points?: object}}
     */
     {key: "innerConfig", merge: true, default: {box: {}, quartiles: {}, points: {}}},
     {

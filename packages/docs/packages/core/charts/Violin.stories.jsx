@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a violin plot from an array of raw observations: the value of each row is summarized per group as a kernel density estimate, drawn as a mirrored curve around the group's category. Set discrete(\"y\") for horizontal violins, inner for the overlay inside each violin, and densityScale for how widths compare across violins.",
+        component: "Creates a violin plot from an array of raw observations: the value of\neach row is summarized per group as a kernel density estimate, drawn as a\nmirrored curve around the group's category. Set discrete(\"y\") for\nhorizontal violins, inner for the overlay inside each violin, and\ndensityScale for how widths compare across violins.",
       },
     },
   }
 };
 
 const Template = (args) => <Violin config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

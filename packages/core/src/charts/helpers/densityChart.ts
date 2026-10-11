@@ -236,17 +236,26 @@ export function densityTooltipRows(viz: VizInstance, d: DataPoint, i: number): [
 export function densityAccessorFields(): ConfigField[] {
   return [
     /**
-        How curves are scaled against each other: `"area"` (default; every
-        shape has the same area), `"count"` (areas proportional to each
-        group's observations), or `"width"` (each shape spans the full width).
+        How curves are sized against each other: `"area"` (default) gives
+        every shape the same area, `"count"` makes areas proportional to each
+        group's observations, and `"width"` scales every shape to the full
+        width (Violin) or height (Ridgeline).
+        @type {"area" | "count" | "width"}
     */
     {key: "densityScale", default: "area"},
-    /** Orders categories by median: `false` (data order), `"ascending"`, or `"descending"`. */
+    /**
+        Orders categories by median: `false` (default; data order),
+        `"ascending"`, or `"descending"`.
+        @type {false | "ascending" | "descending"}
+    */
     {key: "medianSort", default: false},
     {key: "shape", default: constant("Area"), coerce: "const"},
     // A distribution has no single value to share across categories.
     {key: "tooltipShared", default: false},
-    /** Accessor for each row's numeric observation. */
+    /**
+        Accessor function or string key for each row's numeric observation.
+        @type {string | function}
+    */
     {
       key: "value",
       default: keyedAccessor("value"),
@@ -263,9 +272,11 @@ export function densityConfigFields(cut: number): ConfigField[] {
   return [
     /**
         Kernel density options for every curve: `kernel` (`"gaussian"` or
-        `"epanechnikov"`), `bandwidth` (data units; Silverman's rule of thumb
-        per group by default), `points` (samples per curve), and `cut` (how far
-        each curve runs past its group's extent, in bandwidths).
+        `"epanechnikov"`), `bandwidth` (in data units; each group's own
+        Silverman rule-of-thumb bandwidth by default), `points` (how many
+        values each curve is evaluated at), and `cut` (how far each curve runs
+        past its group's smallest and largest value, in bandwidths).
+        @type {{kernel?: "gaussian" | "epanechnikov" | function, bandwidth?: number | function, points?: number, cut?: number}}
     */
     {key: "densityConfig", merge: true, default: {kernel: "gaussian", points: 80, cut}},
     {
