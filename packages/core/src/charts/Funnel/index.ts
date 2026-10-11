@@ -112,6 +112,7 @@ export const funnelDef: DataDrivenChartDefinition = {
     /**
         The direction stages run: `"vertical"` (top to bottom, widths
         across) or `"horizontal"` (left to right, heights across).
+        @type {"vertical" | "horizontal"}
     */
     {key: "orient", default: "vertical"},
     /**

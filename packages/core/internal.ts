@@ -81,7 +81,6 @@ export {
 } from "./src/charts/Funnel/funnelGeometry.js";
 export type {
   FunnelCurve,
-  FunnelOrient,
   ProfileKnot,
   ProfilePoint,
   StageSpan,

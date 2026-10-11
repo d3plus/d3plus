@@ -6,11 +6,10 @@
     the slice of that profile over its own span.
 */
 
+import type {Orient} from "../../shapes/shapeConfig.js";
+
 /** How the profile's width changes between two knots. */
 export type FunnelCurve = "linear" | "smooth";
-
-/** The funnel's direction: stages top to bottom, or left to right. */
-export type FunnelOrient = "vertical" | "horizontal";
 
 /** One stage's span along the stage order. */
 export interface StageSpan {
@@ -191,7 +190,7 @@ const round = (v: number): number => Math.round(v * 100) / 100;
 export function slicePath(
   points: ProfilePoint[],
   center: number,
-  orient: FunnelOrient,
+  orient: Orient,
 ): string {
   if (points.length < 2) return "";
   const xy = (s: number, c: number): string =>

@@ -10,6 +10,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
+import type {Orient} from "../../shapes/shapeConfig.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -21,11 +22,7 @@ import {
   stageSpans,
   stageWidths,
 } from "./funnelGeometry.js";
-import type {
-  FunnelCurve,
-  FunnelOrient,
-  ProfilePoint,
-} from "./funnelGeometry.js";
+import type {FunnelCurve, ProfilePoint} from "./funnelGeometry.js";
 
 /** One laid-out stage. */
 export interface FunnelStage {
@@ -51,7 +48,7 @@ export interface FunnelStage {
 
 /** The frame every stage is drawn in, stored on `viz.ctx.funnel`. */
 export interface FunnelShared {
-  orient: FunnelOrient;
+  orient: Orient;
   curve: FunnelCurve;
   /** The cross-axis position of the funnel's center line. */
   center: number;
@@ -72,7 +69,7 @@ export const PREVIOUS_KEY = "__d3plusFunnelPrevious";
 export const STROKE_BUFFER = 2;
 
 /** The funnel's orientation, from the `orient` setting. */
-export function funnelOrient(viz: VizInstance): FunnelOrient {
+export function funnelOrient(viz: VizInstance): Orient {
   return viz.schema.orient === "horizontal" ? "horizontal" : "vertical";
 }
 

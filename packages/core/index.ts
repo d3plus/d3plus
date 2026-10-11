@@ -83,7 +83,7 @@ export type {
   FunnelConversion,
   FunnelConversionOption,
 } from "./src/charts/Funnel/funnelLabels.js";
-export type {FunnelCurve, FunnelOrient} from "./src/charts/Funnel/funnelGeometry.js";
+export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
