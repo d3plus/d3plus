@@ -17,6 +17,14 @@ import {pyramidStackOrder} from "../Pyramid/stackOrder.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {marimekkoAxisDefaults} from "./axis.js";
 
+/** Each bar's total along the value axis, labeled "Bar Total" in tooltips. */
+function barTotal(viz: VizInstance) {
+  return labelBarWidth((d: DataPoint, i?: number) => {
+    const value = viz.schema.discrete === "y" ? viz._x : viz._y;
+    return value ? value(d, i ?? 0) : undefined;
+  }, "Bar Total");
+}
+
 export const marimekkoDef: ChartDefinition = {
   name: "Marimekko",
   paintDriven: true,
@@ -40,19 +48,10 @@ export const marimekkoDef: ChartDefinition = {
 
   fields: [
     /**
-        Each bar's width: a data key or accessor, read off the merge of the
-        bar's rows. Defaults to the bar's total (its rows' summed `y`, or `x`
-        when the bars run along `y`).
+        Marimekko defaults to each bar's total: its rows' summed `y`, or `x`
+        when the bars run along `y`, shown as "Bar Total" in tooltips.
     */
-    {
-      key: "barWidth",
-      coerce: barWidthAccessor,
-      factory: (viz: VizInstance) =>
-        labelBarWidth((d: DataPoint, i?: number) => {
-          const value = viz.schema.discrete === "y" ? viz._x : viz._y;
-          return value ? value(d, i ?? 0) : undefined;
-        }, "Bar Total"),
-    },
+    {key: "barWidth", coerce: barWidthAccessor, factory: barTotal},
     {key: "stacked", default: true},
     // Each segment's tooltip shows its own width, value, and share.
     {key: "tooltipShared", default: false},

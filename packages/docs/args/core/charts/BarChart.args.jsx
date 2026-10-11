@@ -23,6 +23,21 @@ export const argTypes = assign(
    */
   
   {
+    barWidth: {
+      control: {
+        type: "text"
+      },
+      description: "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | false | function"
+      }
+    },
     baseline: {
       defaultValue: 0,
       table: {
@@ -57,7 +72,7 @@ export const argTypes = assign(
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "stackShareTooltipConfig"
+          summary: "barTooltipConfig"
         }
       }
     }

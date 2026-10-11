@@ -452,8 +452,8 @@ export interface D3plusConfig {
       key or accessor, read off the merge of the bar's rows, so numbers sum
       unless `aggs` says otherwise). The bars sit end to end along a
       continuous axis of cumulative width, each labeled at its center, and
-      tooltips show each bar's width and its share of the total. Marimekko
-      defaults to each bar's total; `false` turns it off.
+      tooltips show each bar's width and its share of the total. Off by
+      default on BarChart; on Marimekko, `false` turns it off.
   */
   barWidth?: string | false | ((d: DataPoint, i?: number) => number);
   /**

@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a Marimekko (mosaic) chart from an array of data: one bar per discrete value (`x`), as wide as its `barWidth` (by default its total), with the bar's `groupBy` segments stacked to 100% of its height.",
+        component: "Creates a Marimekko (mosaic) chart from an array of data: one bar per\ndiscrete value (x), as wide as its barWidth (by default its total),\nwith the bar's groupBy segments stacked to 100% of its height. Tooltips\nshow each segment's value, its share of the bar, and the bar's width and\nshare of the total width. Set stackOffset(\"none\") to stack absolute\nvalues instead.",
       },
     },
   }
 };
 
 const Template = (args) => <Marimekko config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
