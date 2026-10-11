@@ -341,7 +341,10 @@ function computeTextBoxDatum(
     }
   }
 
-  if (w > fMin && (h > lH || (resize && h > fMin * lHRatio))) {
+  // A resized font can't shrink below fontMin, so a box narrower than that
+  // holds nothing; a fixed font is wrapped as given and keeps whatever fits.
+  const minWidth = resize ? fMin : 0;
+  if (w > minWidth && (h > lH || (resize && h > fMin * lHRatio))) {
     if (resize) fS = resizeFontSize(fS, w, h, lH, words, style, shape);
     checkSize();
   }
