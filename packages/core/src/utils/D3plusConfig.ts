@@ -54,9 +54,10 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
-      The value the axis's `baselineBreak` returns to. Defaults to `0`. A
-      Plot passes its own `baseline` here; set the chart's `baseline` (not
-      this one) to start a Plot's value axis at a value.
+      The value the axis's `baselineBreak` returns to: the tick kept below
+      (or above) the break. Defaults to `0`. To start a Plot's value axis at
+      a value, set the chart's `baseline` instead, which sets the axis's
+      minimum exactly like `yDomain([n])`, break back to this tick included.
   */
   baseline?: number;
   /**
@@ -459,16 +460,16 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
-      The value axis's starting value (the x axis for horizontal charts).
-      Setting it acts exactly like setting just that end of `yDomain` (or
-      `xDomain`): the axis starts at the baseline with no rounding below it,
-      bars and areas grow from it, and values past it are cut off at the axis
-      as by a domain minimum. When every value sits at or below the baseline,
-      it ends the axis instead, like a domain maximum. A bound given in
-      `yDomain`/`yConfig.domain` wins, and `baselineBreak` then draws the
-      stretch between them. BarChart, AreaPlot, and Histogram default to `0`,
-      which only marks where bars and areas start (the axis still reaches
-      values on either side of it).
+      Starts a Plot's value axis (the x axis for horizontal charts) at a
+      value: `baseline(n)` renders exactly like `yDomain([n])` (or
+      `xDomain([n])`). Bars and areas still grow from the chart's own `0`
+      (BarChart, AreaPlot, StackedArea, and Histogram), so with
+      `baselineBreak` on (their default) the axis breaks back to a `0` tick
+      and bars run through the break, and with it off the axis stretches
+      down to `0`. As with `yDomain`, the far end isn't rounded and values
+      past `n` are cut off at the axis. When every value sits at or below
+      `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound
+      given in `yDomain`/`xDomain` wins.
   */
   baseline?: number;
   /**

@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The value axis's starting value (the x axis for horizontal charts).\nSetting it acts exactly like setting just that end of `yDomain` (or\n`xDomain`): the axis starts at the baseline with no rounding below it,\nbars and areas grow from it, and values past it are cut off at the axis\nas by a domain minimum. When every value sits at or below the baseline,\nit ends the axis instead, like a domain maximum. A bound given in\n`yDomain`/`yConfig.domain` wins, and `baselineBreak` then draws the\nstretch between them. BarChart, AreaPlot, and Histogram default to `0`,\nwhich only marks where bars and areas start (the axis still reaches\nvalues on either side of it).",
+      description: "Starts a Plot's value axis (the x axis for horizontal charts) at a\nvalue: `baseline(n)` renders exactly like `yDomain([n])` (or\n`xDomain([n])`). Bars and areas still grow from the chart's own `0`\n(BarChart, AreaPlot, StackedArea, and Histogram), so with\n`baselineBreak` on (their default) the axis breaks back to a `0` tick\nand bars run through the break, and with it off the axis stretches\ndown to `0`. As with `yDomain`, the far end isn't rounded and values\npast `n` are cut off at the axis. When every value sits at or below\n`n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound\ngiven in `yDomain`/`xDomain` wins.",
       table: {
         defaultValue: {
           summary: "undefined"

@@ -42,11 +42,17 @@ export function baselineBreakAxisConfig(viz: VizInstance, axis: "x" | "y"): Reco
     Whether a user-supplied `xDomain`/`yDomain` deliberately stops short of the
     baseline on a breaking value axis. Plot then leaves the domain as given
     (rather than stretching it to the baseline) and the axis draws a break.
+    `domain` is the user's domain once a set `baseline` has filled it in (see
+    `userAxisDomain`); it defaults to the `xDomain`/`yDomain` as given.
 */
-export function userDomainBreaksBaseline(viz: VizInstance, axis: string, configScale: string): boolean {
+export function userDomainBreaksBaseline(
+  viz: VizInstance,
+  axis: string,
+  configScale: string,
+  domain: unknown[] | undefined = viz.schema[`${axis}Domain`],
+): boolean {
   if (!viz.schema.baselineBreak || axis !== valueAxis(viz) || configScale !== "linear") return false;
   const {baseline} = viz.schema;
-  const domain = viz.schema[`${axis}Domain`] as unknown[] | undefined;
   if (typeof baseline !== "number" || !Array.isArray(domain)) return false;
   const [lo, hi] = domain;
   return (typeof lo === "number" && lo > baseline) || (typeof hi === "number" && hi < baseline);

@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <title>Baseline · Plot</title>
-    <meta name="description" content="A set baseline starts the value axis like a domain minimum: baseline(980) next to yDomain([980]) on bars, areas, lines and stacks, plus values past the baseline.">
+    <meta name="description" content="baseline(n) renders exactly like yDomain([n]): each row draws baseline(980) next to yDomain([980]), break to 0 included, on bars, areas, stacks, lines and horizontal bars.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -16,7 +16,7 @@
       }
       .grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 16px;
         padding: 16px;
       }
@@ -49,22 +49,26 @@
       // Every value sits below -80.
       const negative = rows((i, j) => (j ? -90 - i * 5 : -100 - i * 8));
 
-      const examples = [
-        ["BarChart · baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.baseline(980)],
-        ["BarChart · yDomain([980])", "BarChart", above.filter(d => d.region === "North"), c => c.yDomain([980])],
-        ["AreaPlot · baseline(980)", "AreaPlot", above, c => c.baseline(980)],
-        ["AreaPlot · yDomain([980])", "AreaPlot", above, c => c.yDomain([980])],
-        ["LinePlot · baseline(980)", "LinePlot", above, c => c.baseline(980)],
-        ["LinePlot · yDomain([980])", "LinePlot", above, c => c.yDomain([980])],
-        ["StackedArea · baseline(980)", "StackedArea", above, c => c.baseline(980)],
-        ["StackedArea · yDomain([980])", "StackedArea", above, c => c.yDomain([980])],
-        ["BarChart · values below baseline(980) are cut off", "BarChart", crossing.filter(d => d.region === "North"), c => c.baseline(980)],
-        ["LinePlot · values below baseline(980)", "LinePlot", crossing, c => c.baseline(980)],
-        ["BarChart · baseline(-80) above every value ends the axis", "BarChart", negative.filter(d => d.region === "North"), c => c.baseline(-80)],
-        ["BarChart · yDomain([990]) wins over baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.yDomain([990]).baseline(980)],
-        ["BarChart · horizontal, baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.discrete("y").x("value").y("quarter").baseline(980)],
-        ["StackedArea · horizontal, baseline(980)", "StackedArea", above, c => c.discrete("y").x("value").y("quarter").baseline(980)],
+      const north = above.filter(d => d.region === "North");
+      const sideways = c => c.discrete("y").x("value").y("quarter");
+
+      // Each row: [type, data, label, baseline setup, label, domain setup].
+      // The two charts in a row should look identical.
+      const pairs = [
+        ["BarChart", north, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["AreaPlot", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["StackedArea", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["LinePlot", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["BarChart", north, "horizontal, baseline(980)", c => sideways(c).baseline(980), "horizontal, xDomain([980])", c => sideways(c).xDomain([980])],
+        ["BarChart", north, "baselineBreak(false).baseline(980)", c => c.baselineBreak(false).baseline(980), "baselineBreak(false).yDomain([980])", c => c.baselineBreak(false).yDomain([980])],
+        ["BarChart", crossing.filter(d => d.region === "North"), "values below baseline(980)", c => c.baseline(980), "values below yDomain([980])", c => c.yDomain([980])],
+        ["BarChart", negative.filter(d => d.region === "North"), "baseline(-80) above every value", c => c.baseline(-80), "yDomain([undefined, -80])", c => c.yDomain([undefined, -80])],
+        ["BarChart", north, "yDomain([990]).baseline(980): the domain wins", c => c.yDomain([990]).baseline(980), "yDomain([990])", c => c.yDomain([990])],
       ];
+      const examples = pairs.flatMap(([type, data, a, setA, b, setB]) => [
+        [`${type} · ${a}`, type, data, setA],
+        [`${type} · ${b}`, type, data, setB],
+      ]);
 
       const grid = document.getElementById("grid");
       examples.forEach(([title, type, data, configure], i) => {

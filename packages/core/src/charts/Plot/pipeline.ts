@@ -492,6 +492,7 @@ function applyOppDomains(
   domains: Record<string, DomainValue[]>,
   opps: string[],
   configScales: {x: string; y: string},
+  user: Record<string, DomainValue[] | undefined>,
 ): void {
   opps.forEach(o => {
     if (viz[`_${o}Config`].domain) {
@@ -504,7 +505,7 @@ function applyOppDomains(
     } else if (
       o &&
       viz.schema.baseline !== void 0 &&
-      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y)
+      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y, user[o])
     ) {
       const b = viz.schema.baseline;
       if (domains[o] && domains[o][0] > b) domains[o][0] = b;
@@ -537,6 +538,11 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     ? viz.schema.discrete === "x" ? "y2" : "x2"
     : undefined;
   const opps = [opp, opp2].filter(d => d) as string[];
+  // The user's value domains, with a set `baseline` filling the end it bounds.
+  const user: Record<string, DomainValue[] | undefined> = {
+    x: userAxisDomain(viz, "x", domains.x),
+    y: userAxisDomain(viz, "y", domains.y),
+  };
 
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
@@ -544,8 +550,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
       : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
-    const user = userAxisDomain(viz, axis, domains[axis]);
-    const domain = user ? userDomain(user, viz[`_${axis}Time`]) : domains[axis],
+    const domain = user[axis] ? userDomain(user[axis]!, viz[`_${axis}Time`]) : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
         ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
@@ -606,7 +611,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     }
   });
 
-  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale});
+  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale}, user);
 
   const x = scaleConstructors[`scale${xScale}`]()
     .domain(domains.x)

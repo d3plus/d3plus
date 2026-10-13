@@ -571,7 +571,7 @@ Baseline.args = {
   x: "year",
   y: "starts"
 };
-Baseline.parameters = {controls: {include: ["baseline", "yDomain"]}, docs: {description: {story: "Setting `baseline` acts exactly like setting just the minimum of `yDomain`: the y axis starts at `1200` with no rounding below it, and the bars grow from there, with no break back to zero. A `yDomain` minimum still wins, and when every value sits below the baseline it ends the axis instead, like a domain maximum. BarChart's own baseline of `0` only marks where bars start, so bars with negative values still hang below it."}}};
+Baseline.parameters = {controls: {include: ["baseline", "baselineBreak"]}, docs: {description: {story: "`baseline(1200)` renders exactly like `yDomain([1200])`: the y axis starts at `1200` with no rounding, then breaks back to a `0` tick, and the bars still grow from that `0` through the break. Turn `baselineBreak` off and the axis stretches down to `0`, just as a `yDomain` minimum does. A `yDomain` bound wins over the baseline, and when every value sits below the baseline it ends the axis instead, like `yDomain([undefined, n])`."}}};
 
 export const OutlierBarBreak = Template.bind({});
 OutlierBarBreak.args = {

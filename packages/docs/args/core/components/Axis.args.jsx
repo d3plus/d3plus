@@ -56,7 +56,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "The value the axis's `baselineBreak` returns to. Defaults to `0`. A\nPlot passes its own `baseline` here; set the chart's `baseline` (not\nthis one) to start a Plot's value axis at a value.",
+      description: "The value the axis's `baselineBreak` returns to: the tick kept below\n(or above) the break. Defaults to `0`. To start a Plot's value axis at\na value, set the chart's `baseline` instead, which sets the axis's\nminimum exactly like `yDomain([n])`, break back to this tick included.",
       table: {
         defaultValue: {
           summary: "0"

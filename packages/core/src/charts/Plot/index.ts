@@ -17,9 +17,9 @@ import {
   AxisTop,
 } from "../../components/index.js";
 import {accessor, constant} from "../../utils/index.js";
-import RESET from "../../utils/RESET.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
+import {baselineValue, setBaseline} from "./baselineDomain.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
@@ -495,19 +495,13 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      The value axis's starting value (the x axis for horizontal charts). Setting it acts exactly like setting just that end of `yDomain` (or `xDomain`): the axis starts at the baseline with no rounding below it, bars and areas grow from it, and values past it are cut off at the axis as by a domain minimum. When every value sits at or below the baseline, it ends the axis instead, like a domain maximum. A bound given in `yDomain`/`yConfig.domain` wins, and `baselineBreak` then draws the stretch between them. BarChart, AreaPlot, and Histogram default to `0`, which only marks where bars and areas start (the axis still reaches values on either side of it).
+      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain`, the far end isn't rounded and values past `n` are cut off at the axis. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
 */
   baseline(): number | undefined;
   baseline(_: number | undefined): this;
   baseline(_?: number): this | number | undefined {
-    if (!arguments.length) return this.schema.baseline;
-    if ((_ as unknown) === RESET) {
-      this.schema.baseline = this._defaultConfig().baseline;
-      this._baselineSet = false;
-    } else {
-      this.schema.baseline = _;
-      this._baselineSet = _ !== undefined;
-    }
+    if (!arguments.length) return baselineValue(this as unknown as VizInstance);
+    setBaseline(this as unknown as VizInstance, _);
     return this;
   }
 
