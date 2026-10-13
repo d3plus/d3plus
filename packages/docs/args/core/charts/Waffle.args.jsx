@@ -121,7 +121,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Draws an icon in every cell in place of its fill (a pictogram): an image URL, or an accessor `(d, i) => url` returning one per category. The icon fits inside its cell and dims with it on hover.",
+      description: "Draws an icon in every cell in place of its fill (a pictogram): an image URL, or an accessor `(d, i) => url` returning one per category. The icon fits inside its cell and dims with it on hover. A cell whose icon resolves to nothing (e.g. `null`) draws as in plain mode: its fill, `shapeConfig.texture`, and `shapeConfig.backgroundImage`.",
       table: {
         defaultValue: {
           summary: "undefined"

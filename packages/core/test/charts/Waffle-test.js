@@ -207,3 +207,55 @@ it("Waffle: renders on Canvas and hit-tests a real hover", async function () {
   assert.strictEqual(out.svgCells, 0, "no SVG cells");
   assert.strictEqual(out.hovered, 16, "every Coal cell");
 });
+
+it("Waffle: shapeConfig texture and backgroundImage reach every cell and legend swatch, on SVG and Canvas", async function () {
+  this.timeout(60000);
+  const image = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'/>");
+  const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>");
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await page(async ({renderer: r, image: img, icon: ico}) => {
+      const probe = async config => {
+        const chart = await window.build({
+          renderer: r,
+          config: {...config, shapeConfig: {texture: "lines", backgroundImage: img}},
+        });
+        const leaves = [];
+        const walk = (n, anc) =>
+          n.type === "group"
+            ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
+            : leaves.push({...n, anc});
+        walk(chart._lastSceneRendered.root, "");
+        const images = new Map(leaves.filter(n => n.type === "image").map(n => [n.key, n]));
+        const mark = n => {
+          const image = images.get(`${n.key}-bgimage-img`);
+          return {
+            source: n.datum.source,
+            textured: String(n.paint.fill).startsWith("pattern:"),
+            href: image ? image.href : null,
+            fit: image ? image.preserveAspectRatio : null,
+          };
+        };
+        const swatches = leaves.filter(n =>
+          ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
+          !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
+        return {cells: window.cells(chart).map(mark), swatches: swatches.map(mark)};
+      };
+      return {
+        plain: await probe({}),
+        // Gas has an icon; every other category's icon resolves to nothing.
+        picto: await probe({icon: d => (d.source === "Gas" ? ico : null)}),
+      };
+    }, {renderer, image, icon});
+    const {plain, picto} = out;
+    assert.strictEqual(plain.cells.length, 100, `${renderer}: 100 cells`);
+    assert.deepStrictEqual(plain.cells.filter(m => !m.textured || m.href !== image), [], `${renderer}: every cell takes both`);
+    assert.strictEqual(plain.swatches.length, 7, `${renderer}: a swatch per source`);
+    assert.deepStrictEqual(plain.swatches.filter(m => !m.textured || m.href !== image), [], `${renderer}: every swatch takes both`);
+    const gas = picto.cells.filter(m => m.source === "Gas");
+    const rest = picto.cells.filter(m => m.source !== "Gas");
+    assert.ok(gas.length && gas.every(m => !m.textured && m.href === icon), `${renderer}: icon cells draw their icon`);
+    assert.ok(gas.every(m => m.fit !== plain.cells[0].fit), `${renderer}: an icon is contained, an image covers`);
+    assert.deepStrictEqual(rest.filter(m => !m.textured || m.href !== image || m.fit !== plain.cells[0].fit), [], `${renderer}: cells without an icon keep their texture and backgroundImage`);
+    assert.deepStrictEqual(picto.swatches.filter(m => !m.textured || m.href !== image), [], `${renderer}: pictogram swatches take both`);
+  }
+});

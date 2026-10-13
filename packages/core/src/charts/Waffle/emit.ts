@@ -64,9 +64,12 @@ export const waffleEmit: ChartEmit = ({viz, shapeData}) => {
   const sum = viz.schema.sum as (d: DataPoint, i: number) => number;
   const locale = viz.schema.locale as string;
 
+  const iconOf = (d: DataPoint, i: number): unknown =>
+    icon ? resolveAccessor<unknown>(icon, d, i) : undefined;
+
   const nodes: SceneNode[] = cells.map(cell => {
     const {data: d, i} = cell;
-    const iconUrl = icon ? resolveAccessor<unknown>(icon, d, i) : undefined;
+    const iconUrl = iconOf(d, i);
     const fill = resolveAccessor<unknown>(sc.fill, d, i);
     const paint = iconUrl
       ? {fill: "transparent"}
@@ -89,8 +92,18 @@ export const waffleEmit: ChartEmit = ({viz, shapeData}) => {
     } as SceneNode;
   });
 
+  // A cell whose icon resolves to nothing keeps its fill (and texture), and
+  // its `shapeConfig.backgroundImage` at the shape config's own fit.
   const imageConfig = icon
-    ? {...sc, backgroundImage: icon, backgroundImageFit: "contain"}
+    ? {
+        ...sc,
+        backgroundImage: (d: DataPoint, i: number) =>
+          iconOf(d, i) || resolveAccessor<unknown>(sc.backgroundImage, d, i),
+        backgroundImageFit: (d: DataPoint, i: number) =>
+          iconOf(d, i)
+            ? "contain"
+            : resolveAccessor<unknown>(sc.backgroundImageFit, d, i),
+      }
     : sc;
   const images = backgroundImageNodes(imageConfig, nodes, k => [
     cells[k].data,

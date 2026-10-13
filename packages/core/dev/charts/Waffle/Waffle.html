@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Waffle</title>
-  <meta name="description" content="Waffle charts: a 10×10 percent grid, circle and rounded cells, column-wise fill from a corner, one-cell-per-unit counts, person-icon pictograms, and faceted small multiples.">
+  <meta name="description" content="Waffle charts: a 10×10 percent grid, circle and rounded cells, column-wise fill from a corner, one-cell-per-unit counts, person-icon pictograms, textures and background images (with icon-less pictogram cells keeping theirs), and faceted small multiples.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
 
@@ -35,6 +35,8 @@
   <div class="viz" id="circles"></div>
   <div class="viz" id="units"></div>
   <div class="viz" id="icons"></div>
+  <div class="viz" id="textured"></div>
+  <div class="viz" id="iconFallback"></div>
   <div class="viz wide" id="facet"></div>
 </body>
 
@@ -123,6 +125,39 @@
       columns: 10,
       cellPadding: 4,
       title: "How 30 Colleagues Commute"
+    })
+    .render();
+
+  new d3plus.Waffle()
+    .select("#textured")
+    .config({
+      data: energy,
+      groupBy: "source",
+      sum: "share",
+      shapeConfig: {
+        texture: function(d) { return d.source === "Nuclear" ? "lines" : d.source === "Coal" ? "grid" : false; },
+        backgroundImage: function(d) { return d.source === "Natural Gas" ? "./Landscape.svg" : false; }
+      },
+      title: "shapeConfig texture + backgroundImage"
+    })
+    .render();
+
+  new d3plus.Waffle()
+    .select("#iconFallback")
+    .config({
+      data: commute,
+      groupBy: "mode",
+      sum: "people",
+      color: "color",
+      icon: function(d) { return d.mode === "Drove" || d.mode === "Transit" ? d.icon : null; },
+      unit: 1,
+      columns: 10,
+      cellPadding: 4,
+      shapeConfig: {
+        texture: function(d) { return d.mode === "Biked" ? "lines" : false; },
+        backgroundImage: function(d) { return d.mode === "Remote" ? "./Landscape.svg" : false; }
+      },
+      title: "Icons for two modes; the rest keep texture and backgroundImage"
     })
     .render();
 
