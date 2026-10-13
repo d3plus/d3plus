@@ -303,6 +303,27 @@ ConfidenceIntervals.args = {
 };
 ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent. Hovering lists each line's bounds after its value."}}};
 
+export const NestedConfidenceBands = Template.bind({});
+NestedConfidenceBands.args = {
+  data: [
+    {id: "alpha", year: 2020, value: 40, p10: 34, p90: 47, p25: 37, p75: 43},
+    {id: "alpha", year: 2021, value: 46, p10: 38, p90: 55, p25: 42, p75: 50},
+    {id: "alpha", year: 2022, value: 44, p10: 35, p90: 54, p25: 40, p75: 49},
+    {id: "alpha", year: 2023, value: 51, p10: 40, p90: 63, p25: 46, p75: 57},
+    {id: "alpha", year: 2024, value: 55, p10: 42, p90: 69, p25: 49, p75: 62},
+    {id: "beta", year: 2020, value: 22, p10: 18, p90: 27, p25: 20, p75: 24},
+    {id: "beta", year: 2021, value: 25, p10: 19, p90: 31, p25: 22, p75: 28},
+    {id: "beta", year: 2022, value: 30, p10: 23, p90: 37, p25: 27, p75: 33},
+    {id: "beta", year: 2023, value: 28, p10: 20, p90: 36, p25: 24, p75: 32},
+    {id: "beta", year: 2024, value: 33, p10: 24, p90: 43, p25: 29, p75: 38}
+  ],
+  groupBy: "id",
+  confidence: [["p10", "p90", "80%"], ["p25", "p75", "50%"]],
+  x: "year",
+  y: "value"
+};
+NestedConfidenceBands.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Give `confidence` a list of bands, outermost first, to nest several intervals around each line. Each band is a `[lower, upper]` pair, optionally with a label third; the widest draws lightest and the narrowest darkest (see `confidenceConfig.bandOpacity`). Hovering a single point lists each band's range under its label."}}};
+
 export const TrendLine = Template.bind({});
 TrendLine.args = {
   data: [
@@ -458,6 +479,53 @@ CustomLineColors.args = {
   y: "price"
 };
 CustomLineColors.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a color per series from `shapeConfig.Line.stroke` to override the automatic palette with your own meaningful hues."}}};
+
+export const FillBetween = Template.bind({});
+FillBetween.args = {
+  data: [
+    {id: "Exports", year: 2016, value: 120}, {id: "Imports", year: 2016, value: 132},
+    {id: "Exports", year: 2017, value: 131}, {id: "Imports", year: 2017, value: 136},
+    {id: "Exports", year: 2018, value: 145}, {id: "Imports", year: 2018, value: 139},
+    {id: "Exports", year: 2019, value: 152}, {id: "Imports", year: 2019, value: 141},
+    {id: "Exports", year: 2020, value: 138}, {id: "Imports", year: 2020, value: 129},
+    {id: "Exports", year: 2021, value: 141}, {id: "Imports", year: 2021, value: 150},
+    {id: "Exports", year: 2022, value: 149}, {id: "Imports", year: 2022, value: 166},
+    {id: "Exports", year: 2023, value: 163}, {id: "Imports", year: 2023, value: 170},
+    {id: "Exports", year: 2024, value: 181}, {id: "Imports", year: 2024, value: 172}
+  ],
+  groupBy: "id",
+  fillBetween: ["Exports", "Imports"],
+  x: "year",
+  y: "value"
+};
+FillBetween.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "`fillBetween` shades the area between two lines in the color of whichever is higher, switching exactly where they cross, so a trade surplus and deficit read at a glance. Name the pair by series id, pass `true` for the first two series, or give a list of pairs."}}};
+
+export const TemperatureRange = Template.bind({});
+TemperatureRange.args = {
+  data: [
+    ["Jan", -3, -12], ["Feb", -1, -11], ["Mar", 5, -5], ["Apr", 13, 2], ["May", 20, 8], ["Jun", 25, 14],
+    ["Jul", 28, 17], ["Aug", 27, 16], ["Sep", 22, 11], ["Oct", 14, 5], ["Nov", 6, -1], ["Dec", -1, -8]
+  ].flatMap(([month, high, low]) => [
+    {id: "High", month, temperature: high},
+    {id: "Low", month, temperature: low}
+  ]),
+  groupBy: "id",
+  color: funcify(
+    d => (d.id === "High" ? "#e8590c" : "#1c7ed6"),
+    "d => (d.id === \"High\" ? \"#e8590c\" : \"#1c7ed6\")"
+  ),
+  fillBetween: true,
+  fillBetweenConfig: {
+    fill: funcify(
+      d => (d.above === "High" ? "#868e96" : "#e03131"),
+      "d => (d.above === \"High\" ? \"#868e96\" : \"#e03131\")"
+    ),
+    fillOpacity: 0.2
+  },
+  x: "month",
+  y: "temperature"
+};
+TemperatureRange.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "A min/max range: `fillBetween: true` fills between the first two series. `fillBetweenConfig` styles the fill, and its accessors receive the higher series' row with `above` and `below` keys naming the pair, so the A > B and B > A regions can be colored apart (here gray, or red if the low ever rose above the high)."}}};
 
 export const SortingLines = Template.bind({});
 SortingLines.args = {

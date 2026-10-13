@@ -98,6 +98,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   };
   tl.schema.height = 100;
   tl.schema.labelOffset = false;
+  tl._labelRotationSetting = false;
   tl.schema.on = {};
   tl.orient("bottom");
   tl._playButtonClass = buildPlayButton();

@@ -211,7 +211,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick;\nturned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -342,7 +342,7 @@ export const argTypes = assign(
     confidence: {
       control: {},
       defaultValue: false,
-      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.",
+      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.\n\nPass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label (\"Band 1\", \"Band 2\", … when unlabeled), and bars draw the first band's error bar.",
       table: {
         defaultValue: {
           summary: false
@@ -356,7 +356,7 @@ export const argTypes = assign(
     confidenceConfig: {
       control: {},
       defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
+      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
@@ -529,6 +529,37 @@ export const argTypes = assign(
         summary: "facetconfig"
       }
     },
+    fillBetween: {
+      control: {
+        type: "object"
+      },
+      defaultValue: false,
+      description: "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | array.&lt;(string|number)&gt; | array.&lt;array.&lt;(string|number)&gt;&gt;"
+      }
+    },
+    fillBetweenConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     fontFamily: {
       control: {
         type: "text"
@@ -607,7 +638,7 @@ export const argTypes = assign(
     },
     hiddenColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {

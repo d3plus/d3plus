@@ -32,10 +32,14 @@ const toAccessor = (
 
 /** Box's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const boxSchema: ConfigField[] = [
+  {key: "backgroundImage", coerce: "const"},
+  {key: "backgroundImageFit", coerce: "const"},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
   {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
   {key: "rectWidth", coerce: "const", default: constant(50)},
   {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "texture", coerce: "const"},
+  {key: "textureDefault", coerce: "identity"},
   {
     key: "whiskerMode",
     coerce: v => (Array.isArray(v) ? v : [v, v]),
@@ -44,6 +48,32 @@ const boxSchema: ConfigField[] = [
   {key: "x", coerce: toAccessor, default: accessor("x", 250)},
   {key: "y", coerce: toAccessor, default: accessor("y", 250)},
 ];
+
+/** The Box's own fill styling that its box Rect takes unless `rectConfig` sets it. */
+const boxRectKeys = ["backgroundImage", "backgroundImageFit", "texture", "textureDefault"];
+
+/**
+    The box Rect's config: `rectConfig`, plus the Box's own `texture`,
+    `textureDefault`, `backgroundImage`, and `backgroundImageFit` where
+    `rectConfig` leaves them unset. Accessors resolve against the box's merged
+    datum, the same one `orient` and `rectWidth` see.
+*/
+export function boxRectConfig(
+  schema: Record<string, unknown>,
+  rectConfig: Record<string, unknown>,
+): Record<string, unknown> {
+  const config: Record<string, unknown> = {};
+  for (const key of boxRectKeys) {
+    const value = schema[key];
+    if (value === undefined || key in rectConfig) continue;
+    config[key] =
+      typeof value === "function"
+        ? (d: DataPoint) =>
+            (value as (d: DataPoint, i: number) => unknown)(d.data as DataPoint, d.i as number)
+        : value;
+  }
+  return {...config, ...rectConfig};
+}
 
 /**
     Resolves the lower/upper whisker limits on `d` from the configured
@@ -330,7 +360,12 @@ export default class Box extends BaseClass {
       .y((d: DataPoint) => d.y)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box") as never)
-      .config(configPrep.bind(this as unknown as VizContext)(this.schema.rectConfig, "shape")!)
+      .config(
+        boxRectConfig(
+          this.schema,
+          configPrep.bind(this as unknown as VizContext)(this.schema.rectConfig, "shape")!,
+        ),
+      )
       .render();
 
     // Draw median.

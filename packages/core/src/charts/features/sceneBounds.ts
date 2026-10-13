@@ -12,7 +12,7 @@ import type {SceneNode, TextNode, Transform} from "@d3plus/render";
 type Point = [number, number];
 
 /** Maps a point through a node transform: rotate (about its anchor), scale, then translate. */
-function applyTransform([px, py]: Point, t: Transform | undefined): Point {
+export function applyTransform([px, py]: Point, t: Transform | undefined): Point {
   if (!t) return [px, py];
   let x = px, y = py;
   if (t.rotate) {
