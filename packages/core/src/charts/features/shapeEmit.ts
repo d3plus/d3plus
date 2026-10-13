@@ -31,6 +31,7 @@ import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
+import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
@@ -298,6 +299,9 @@ const lineEmit: ShapeEmitter = ctx => {
     .renderMode("compute")
     .config(buildInner(ctx, "Line"))
     .data(values);
+
+  // Fills between series sit behind the lines and their confidence bands.
+  if (viz.schema.fillBetween) out.push(...emitFillBetween(ctx));
 
   s.duration(width * 1.5);
 
