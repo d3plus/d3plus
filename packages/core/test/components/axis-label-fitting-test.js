@@ -65,6 +65,13 @@ it("rotatesLabels — only an axis of named categories rotates on its own", () =
   assert.strictEqual(rotatesLabels(band, ["2001", "2002"]), false, "numeric strings too");
   assert.strictEqual(rotatesLabels(band, [new Date(2001, 0, 1)]), false, "dates too");
   assert.strictEqual(rotatesLabels({schema: {scale: "linear"}}, ["Tokyo"]), false, "continuous scales thin");
+  const names = new Map([[5, "Tokyo"], [15, "Delhi"]]);
+  const spans = {schema: {scale: "linear", labels: [5, 15]}};
+  assert.strictEqual(rotatesLabels(spans, [5, 15], d => names.get(d)), true,
+    "a continuous axis labeled at given values with names rotates");
+  assert.strictEqual(rotatesLabels(spans, [5, 15], d => `${d}`), false, "numbered ones thin");
+  assert.strictEqual(rotatesLabels({schema: {scale: "linear"}}, [5, 15], d => names.get(d)), false,
+    "ticks the axis picked itself thin");
 });
 
 it("labelMisses — counts labels cut short or hidden", () => {

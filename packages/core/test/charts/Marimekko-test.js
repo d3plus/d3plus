@@ -267,8 +267,6 @@ it("Marimekko: width shares keep every category label the name alone keeps, at t
   const cases = [
     [{width: 618, height: 400}, sales],
     [{width: 618, height: 400, discrete: "y", x: "v", y: "cat"}, sales],
-    [{width: 1260, height: 400, facet: "year"}, byYear],
-    [{width: 1260, height: 400, facet: "year", facetConfig: {scales: "independent"}}, byYear],
   ];
   for (const [config, rows] of cases) {
     const shared = await render("", draw, ["Marimekko", config, rows]);
@@ -277,9 +275,29 @@ it("Marimekko: width shares keep every category label the name alone keeps, at t
     const labeled = Object.values(shared.axes).flat();
     assert.ok(labeled.some(l => /%/.test(l) && /[A-Z]/.test(l)), `shares drawn: ${labeled}`);
   }
+  // Rotated where the narrowest bars need it, every region keeps its label, share included.
+  const vertical = await render("", draw, ["Marimekko", cases[0][0], sales]);
+  assert.deepStrictEqual(vertical.xLabels.map(l => l.split("\n")[0]).sort(), Object.keys(regions).sort());
+  assert.ok(vertical.xLabels.every(l => /\n[\d.]+%$/.test(l)), `each with its share: ${vertical.xLabels}`);
   // Along a vertical axis, every region keeps its label.
   const horizontal = await render("", draw, ["Marimekko", cases[1][0], sales]);
   assert.deepStrictEqual(horizontal.yLabels.map(l => l.replace(/ \(.*\)$/, "")).sort(), Object.keys(regions).sort());
+});
+
+it("Marimekko: in the dev page's small multiples, a rotated share line costs a panel at most its narrowest label", async function () {
+  this.timeout(120000);
+  for (const config of [
+    {width: 1260, height: 400, facet: "year"},
+    {width: 1260, height: 400, facet: "year", facetConfig: {scales: "independent"}},
+  ]) {
+    const shared = names(await render("", draw, ["Marimekko", config, byYear]));
+    const plain = names(await render("", draw, ["Marimekko", {...config, barWidthShare: false}, byYear]));
+    Object.entries(plain).forEach(([key, labels]) => {
+      if (!/x-axis$/.test(key)) return;
+      assert.ok(shared[key].every(l => labels.includes(l)), `${key}: ${shared[key]} within ${labels}`);
+      assert.ok(shared[key].length >= labels.length - 1, `${key}: ${shared[key]} vs ${labels}`);
+    });
+  }
 });
 
 it("BarChart: width shares keep every category label at the dev page's size", async function () {

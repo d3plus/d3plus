@@ -109,7 +109,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   // Left to decide, a horizontal axis of categories rotates its labels when
   // that leaves fewer of them cut short or hidden.
-  if (setting === undefined && horizontal && rotatesLabels(axis, labels)) {
+  if (setting === undefined && horizontal && rotatesLabels(axis, labels, tickFormat)) {
     const misses = labelMisses(textData);
     if (misses) {
       axis._labelRotation = true;
@@ -206,12 +206,20 @@ function layoutLabels(
 
 /**
     Whether the axis may rotate its labels on its own: one label per category
-    (a discrete scale), naming things rather than numbers or dates, which
-    read in sequence even with every other one left out.
+    naming things rather than numbers or dates, which read in sequence even
+    with every other one left out. That's a discrete scale's values, or a
+    continuous axis labeled at a given list of values whose formatted text
+    names them (a variable-width bar axis, see `Plot/barWidth.ts`).
 */
-export function rotatesLabels(axis: Axis, labels: unknown[]): boolean {
-  return isDiscreteScale(axis.schema.scale) &&
-    labels.some((d: unknown) => !(d instanceof Date) && isNaN(d as number));
+export function rotatesLabels(
+  axis: Axis,
+  labels: unknown[],
+  tickFormat?: (d: unknown) => string,
+): boolean {
+  const named = (d: unknown) => !(d instanceof Date) && isNaN(d as number);
+  if (isDiscreteScale(axis.schema.scale)) return labels.some(named);
+  return Array.isArray(axis.schema.labels) && !!tickFormat &&
+    labels.some((d: unknown) => named(tickFormat(d)));
 }
 
 /** How many labels don't fit whole, or are hidden to make room for others. */
