@@ -34,6 +34,13 @@ import type {AccessorFn} from "../utils/index.js";
 */
 export type ConstOrAccessor<T = unknown> = T | AccessorFn;
 
+/**
+    A CSS color string, like `"#4d79a7"`, `"rgb(77, 121, 167)"`, or
+    `"transparent"`. Any string is accepted; the intersection only keeps the
+    name, so docs and editors show the setting takes a color.
+*/
+export type CssColor = string & Record<never, never>;
+
 /** Layout direction of a chart or Box shape. */
 export type Orient = "horizontal" | "vertical";
 
@@ -65,8 +72,9 @@ export interface BaseShapeConfig {
   ariaLabel?: ConstOrAccessor<string>;
   /**
       An image drawn inside each shape: a URL (or `data:` URI), or an accessor
-      returning one per datum (a falsy value draws none). Every chart's data
-      shapes support it except links, Chord ribbons, and Gauge needles. Set it
+      returning one per datum (a falsy value draws none). Every chart's filled
+      data shapes support it; stroked marks like lines and links, and Gauge
+      needles, don't. Set it
       for all shapes in `shapeConfig`, or for one shape kind under its name
       (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the
       shape's outline, sized by `backgroundImageFit`, and drawn over the
@@ -87,7 +95,7 @@ export interface BaseShapeConfig {
   duration?: number;
 
   /** Fill color or accessor returning one. */
-  fill?: ConstOrAccessor<string>;
+  fill?: ConstOrAccessor<CssColor>;
   /** Fill opacity (0..1). */
   fillOpacity?: ConstOrAccessor<number>;
 
@@ -142,7 +150,7 @@ export interface BaseShapeConfig {
   sort?: ((a: DataPoint, b: DataPoint) => number) | null;
 
   /** Stroke color. */
-  stroke?: ConstOrAccessor<string>;
+  stroke?: ConstOrAccessor<CssColor>;
   /** SVG `stroke-dasharray`. */
   strokeDasharray?: ConstOrAccessor<string>;
   /** SVG `stroke-linecap`. */
@@ -242,6 +250,10 @@ export interface ImageConfig {
 
 /** Box-specific config (whisker + median + outliers; subset of Shape). */
 export interface BoxConfig {
+  /** An image drawn inside each box (see `ShapeConfig.backgroundImage`); `rectConfig.backgroundImage` overrides it. */
+  backgroundImage?: ConstOrAccessor<string>;
+  /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
+  backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
   data?: DataPoint[];
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
@@ -252,6 +264,10 @@ export interface BoxConfig {
   rectConfig?: Record<string, unknown>;
   rectWidth?: ConstOrAccessor<number>;
   select?: string | HTMLElement | SVGElement | null;
+  /** Texture (per textures.js) filling each box; `rectConfig.texture` overrides it. */
+  texture?: ConstOrAccessor<string | Record<string, unknown>>;
+  /** Default texture config merged into the box's texture. */
+  textureDefault?: Record<string, unknown>;
   whiskerConfig?: Record<string, unknown>;
   /** Whisker mode: single mode string/number or [low, high] pair. */
   whiskerMode?: (string | number)[] | string | number;

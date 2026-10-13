@@ -123,7 +123,7 @@ export const argTypes = assign(
     },
     fontColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "The font color as an accessor function or static string. Inferred from the DOM selection by default.",
       table: {
@@ -133,7 +133,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "csscolor | function"
       }
     },
     fontFamily: {
@@ -228,7 +228,7 @@ export const argTypes = assign(
     },
     fontStroke: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "The font stroke color for the rendered text.",
       table: {
@@ -238,7 +238,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "csscolor | function"
       }
     },
     fontStrokeWidth: {
