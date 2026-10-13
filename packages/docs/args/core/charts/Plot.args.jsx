@@ -544,6 +544,36 @@ export const argTypes = assign(
         summary: "string | array.&lt;string&gt;"
       }
     },
+    forecast: {
+      control: {
+        type: "number"
+      },
+      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | number | boolean | date | function"
+      }
+    },
+    forecastConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     groupBy: {
       control: {
         type: "text"
