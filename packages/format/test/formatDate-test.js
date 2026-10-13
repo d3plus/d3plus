@@ -188,6 +188,21 @@ it("formatDate", () => {
   ];
   const minResult = formatDate(minutes[1], minutes);
   assert.ok(minResult.length > 0, "minute-level data formatted");
+
+  // Steps finer than an hour label a date on the hour as its hour, and one at
+  // midnight as its day, never as the raw Date string.
+  const halfHours = [
+    new Date(2020, 0, 1, 23, 0),
+    new Date(2020, 0, 1, 23, 30),
+    new Date(2020, 0, 2, 0, 0),
+    new Date(2020, 0, 2, 0, 30),
+    new Date(2020, 0, 2, 1, 0),
+    new Date(2020, 0, 2, 1, 30),
+  ];
+  assert.strictEqual(formatDate(halfHours[1], halfHours), "11:30", "a half hour reads as its time");
+  assert.strictEqual(formatDate(halfHours[4], halfHours), "01 AM", "an hour reads as its hour");
+  assert.strictEqual(formatDate(halfHours[2], halfHours), "Jan 2", "midnight reads as its day");
+  assert.strictEqual(formatDate(halfHours[0], halfHours), "11 PM", "the first date on the hour reads as its hour");
 });
 
 it("formatDateFull", () => {

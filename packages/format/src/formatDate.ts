@@ -1,4 +1,4 @@
-import {timeYear, timeMonth, timeHour, timeMinute, timeSecond} from "d3-time";
+import {timeYear, timeMonth, timeDay, timeHour, timeMinute, timeSecond} from "d3-time";
 import {timeFormat} from "d3-time-format";
 
 type DateFormatter = (specifier: string) => (date: Date) => string;
@@ -53,7 +53,11 @@ export default function formatDate(
                   ? formatSecond
                   : timeHour(d) < d
                     ? formatMinute
-                    : (_d: Date) => _d.toString()
+                    : timeDay(d) < d
+                      ? formatHour
+                      : withYear
+                        ? formatMonthDayYear
+                        : formatMonthDay
   )(d);
 }
 
@@ -106,7 +110,8 @@ function dateInterval(
         arr[2].push(
           Math.round((+d - +dataArray[i - 1]) / (1000 * 60 * 60 * 24)),
         );
-        arr[3].push(Math.round((+d - +dataArray[i - 1]) / (1000 * 60 * 60)));
+        // Unrounded: an hour is a fixed span, so a half-hour step is not hourly.
+        arr[3].push((+d - +dataArray[i - 1]) / (1000 * 60 * 60));
       }
       return arr;
     },

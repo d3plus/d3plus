@@ -15,7 +15,14 @@ import {closest} from "@d3plus/math";
 import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
-import {axisTimeDomain, axisTimeReference, parseTimeValues} from "./timeValues.js";
+import {
+  axisDateCategories,
+  axisTimeDomain,
+  axisTimeReference,
+  isCategoryAxis,
+  isValidDate,
+  parseTimeValues,
+} from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
 
@@ -43,10 +50,14 @@ export function buildTickFormat(
   getTicks: () => unknown[],
 ): (d: unknown) => string {
   let years: boolean | undefined;
+  let dates: Date[] | undefined;
   return axis.schema.tickFormat
     ? axis.schema.tickFormat
     : (d: unknown): string => {
-        if (
+        if (isValidDate(d) && isCategoryAxis(axis)) {
+          dates ??= axisDateCategories(axis);
+          return formatDate(d, dates, timeFormat).replace(/^Q/g, timeLocaleObj.quarter);
+        } else if (
           isNaN(d as number) ||
           ["band", "ordinal", "point"].includes(axis.schema.scale)
         ) {

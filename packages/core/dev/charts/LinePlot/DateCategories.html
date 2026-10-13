@@ -1,0 +1,95 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DateCategories · LinePlot</title>
+    <meta name="description" content="Date x values without time() on a category axis: monthly, daily, yearly, hourly, a tickFormat override and a facet.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        font: 12px sans-serif;
+        gap: 8px 16px;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        margin: 0;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 12px;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 240px;
+      }
+      #facet {
+        height: 320px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div><h3>Monthly LinePlot</h3><div class="viz" id="monthly"></div></div>
+    <div><h3>Daily LinePlot</h3><div class="viz" id="daily"></div></div>
+    <div><h3>Yearly BarChart</h3><div class="viz" id="yearly"></div></div>
+    <div><h3>Hourly LinePlot</h3><div class="viz" id="hourly"></div></div>
+    <div><h3>Quarterly BarChart, xConfig.tickFormat</h3><div class="viz" id="custom"></div></div>
+    <div><h3>Monthly BarChart (horizontal)</h3><div class="viz" id="horizontal"></div></div>
+    <div class="wide"><h3>Monthly LinePlot, facet by region</h3><div id="facet"></div></div>
+  </body>
+
+  <script>
+    // Date x values without time(): the x axis stays a category (point/band)
+    // axis, and its labels and tooltips read as dates at the step the data
+    // takes, in the chart's locale.
+    const series = (dates, ids = ["Alpha", "Beta"]) =>
+      ids.flatMap((id, s) =>
+        dates.map((date, k) => ({id, date, value: Math.round(40 + 20 * s + 15 * Math.sin(k / 2) + k)})),
+      );
+    const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+
+    const chart = (Chart, selector, data, config = {}) =>
+      new d3plus[Chart]()
+        .select(selector)
+        .data(data)
+        .groupBy("id")
+        .x("date")
+        .y("value")
+        .config(config)
+        .render();
+
+    chart("LinePlot", "#monthly", series(range(30, i => new Date(2023, i, 1))));
+    chart("LinePlot", "#daily", series(range(14, i => new Date(2026, 2, 1 + i))));
+    chart("BarChart", "#yearly", series(range(8, i => new Date(2016 + i, 0, 1)), ["Alpha"]));
+    chart("LinePlot", "#hourly", series(range(12, i => new Date(2026, 2, 3, 6 + i))));
+    chart("BarChart", "#custom", series(range(6, i => new Date(2025, i * 3, 1)), ["Alpha"]), {
+      xConfig: {tickFormat: d => `FY${String(d.getFullYear()).slice(2)}·${Math.floor(d.getMonth() / 3) + 1}`},
+    });
+    chart("BarChart", "#horizontal", series(range(6, i => new Date(2025, i, 1)), ["Alpha"]), {
+      discrete: "y",
+      x: "value",
+      y: "date",
+    });
+
+    const regional = ["North", "South", "East"].flatMap((region, r) =>
+      range(30, m => ({
+        date: new Date(2023, m, 1),
+        id: region,
+        region,
+        value: Math.round((120 + m * 4 + Math.sin(m / 3) * 20) * (0.7 + r * 0.25)),
+      })),
+    );
+    new d3plus.LinePlot()
+      .select("#facet")
+      .data(regional)
+      .groupBy("id")
+      .facet("region")
+      .x("date")
+      .y("value")
+      .legend(false)
+      .render();
+  </script>
+</html>
