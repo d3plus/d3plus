@@ -173,9 +173,15 @@ export const waterfallDef: ChartDefinition = {
     {key: "baseline", default: 0},
     /** Draws a thin line from the end of each bar to the start of the next. */
     {key: "connectors", default: true},
-    /** Fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
+    /**
+        Fill for bars that lower the running total. Defaults to `colorDefaults.off`.
+        @type {CssColor | function}
+    */
     {key: "decreaseColor"},
-    /** Fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
+    /**
+        Fill for bars that raise the running total. Defaults to `colorDefaults.on`.
+        @type {CssColor | function}
+    */
     {key: "increaseColor"},
     /** Shows the legend when it has more than one kind of bar. */
     {
@@ -194,7 +200,10 @@ export const waterfallDef: ChartDefinition = {
       key: "subtotal",
       coerce: v => (typeof v === "string" ? accessor(v) : typeof v === "function" ? v : undefined),
     },
-    /** Fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
+    /**
+        Fill for subtotal bars. Defaults to `colorDefaults.sequential`.
+        @type {CssColor | function}
+    */
     {key: "totalColor"},
     /**
         Line styles for the connectors: `stroke`, `strokeWidth`,
