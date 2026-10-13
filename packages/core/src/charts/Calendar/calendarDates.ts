@@ -6,6 +6,8 @@
     shifts never move a day into the wrong cell.
 */
 
+import {findWeekStart} from "@d3plus/locales";
+
 /** A block of consecutive days drawn as one grid: a whole year or a whole month. */
 export interface CalendarBlock {
   /** `"2024"` for a year block, `"2024-03"` for a month block. */
@@ -106,41 +108,11 @@ const dayNames = [
   "saturday",
 ];
 
-// CLDR week data: regions whose weeks start on Sunday or Saturday; every
-// other region starts on Monday.
-const sundayRegions = new Set(
-  (
-    "AG AS BD BR BS BT BW BZ CA CN CO DM DO ET GT GU HK HN ID IL IN JM JP KE " +
-    "KH KR LA MH MM MO MT MX MZ NI NP PA PE PH PK PR PT PY SA SG SV TH TT TW " +
-    "UM US VE VI WS YE ZA ZW"
-  ).split(" "),
-);
-const saturdayRegions = new Set(
-  "AE AF BH DJ DZ EG IQ IR JO KW LY OM QA SD SY".split(" "),
-);
-
-/**
-    The first day of the week (0 = Sunday … 6 = Saturday) in a locale's
-    region, per CLDR: `"en-US"` → 0, `"de-DE"` → 1, `"ar-EG"` → 6. A locale
-    without a region starts on Monday.
-*/
-export function localeWeekStart(locale: unknown): number {
-  const tag = typeof locale === "string" ? locale : "";
-  const region = tag
-    .split(/[-_]/)
-    .slice(1)
-    .find(part => /^[A-Za-z]{2}$/.test(part))
-    ?.toUpperCase();
-  if (!region) return 1;
-  if (sundayRegions.has(region)) return 0;
-  if (saturdayRegions.has(region)) return 6;
-  return 1;
-}
-
 /**
     Resolves the `weekStart` config to a weekday number (0 = Sunday …
     6 = Saturday): a number, or an English day name (`"sunday"`, `"Mon"`).
-    Anything else falls back to the locale's first day of the week.
+    Anything else falls back to the locale's first day of the week
+    (`findWeekStart` from @d3plus/locales).
 */
 export function resolveWeekStart(weekStart: unknown, locale: unknown): number {
   if (typeof weekStart === "number" && Number.isFinite(weekStart)) {
@@ -151,7 +123,7 @@ export function resolveWeekStart(weekStart: unknown, locale: unknown): number {
     const index = dayNames.findIndex(d => d.startsWith(name));
     if (index >= 0) return index;
   }
-  return localeWeekStart(locale);
+  return findWeekStart(typeof locale === "string" ? locale : "");
 }
 
 /** The earliest and latest of `dates`, or `null` when there are none. */

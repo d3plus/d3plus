@@ -84,7 +84,6 @@ export {
   calendarDayKey,
   dateExtent,
   daysBetween,
-  localeWeekStart,
   parseCalendarDate,
   resolveWeekStart,
   startOfDay,

@@ -8,7 +8,6 @@ import {
   calendarDayKey,
   dateExtent,
   daysBetween,
-  localeWeekStart,
   parseCalendarDate,
   resolveWeekStart,
   startOfDay,
@@ -144,31 +143,6 @@ it("Calendar dates: blockDays slots each day by week and weekday", () => {
   assert.deepStrictEqual([days[30].key, days[30].week, days[30].day], ["2024-03-31", 5, 0]);
 });
 
-it("Calendar dates: localeWeekStart follows CLDR regions", () => {
-  const expected = {
-    "en-US": 0,
-    "en-GB": 1,
-    "de-DE": 1,
-    "es-ES": 1,
-    "es-MX": 0,
-    "fr-FR": 1,
-    "it-IT": 1,
-    "pt-BR": 0,
-    "zh-CN": 0,
-    "ar-SA": 0,
-    "ar-EG": 6,
-    "fa-IR": 6,
-    "sr-Latn-RS": 1,
-    "en_CA": 0,
-  };
-  for (const [locale, start] of Object.entries(expected)) {
-    assert.strictEqual(localeWeekStart(locale), start, locale);
-  }
-  assert.strictEqual(localeWeekStart("en"), 1, "no region → Monday");
-  assert.strictEqual(localeWeekStart(undefined), 1);
-  assert.strictEqual(localeWeekStart({}), 1);
-});
-
 it("Calendar dates: resolveWeekStart reads numbers and day names, else the locale", () => {
   assert.strictEqual(resolveWeekStart(1, "en-US"), 1);
   assert.strictEqual(resolveWeekStart(7, "en-US"), 0, "wraps");
@@ -181,6 +155,9 @@ it("Calendar dates: resolveWeekStart reads numbers and day names, else the local
   assert.strictEqual(resolveWeekStart("someday", "en-US"), 0, "unknown → locale");
   assert.strictEqual(resolveWeekStart(undefined, "en-GB"), 1);
   assert.strictEqual(resolveWeekStart(NaN, "en-US"), 0);
+  assert.strictEqual(resolveWeekStart(undefined, "ar-EG"), 6, "Saturday region");
+  assert.strictEqual(resolveWeekStart(undefined, "en_CA"), 0, "underscore locale");
+  assert.strictEqual(resolveWeekStart(undefined, {}), 1, "non-string locale → Monday");
 });
 
 it("Calendar dates: dateExtent finds the first and last day", () => {
