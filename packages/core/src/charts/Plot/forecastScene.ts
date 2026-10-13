@@ -15,6 +15,8 @@ import type {
 } from "@d3plus/render";
 
 import {parseDash} from "../../shapes/Shape.js";
+import {textureKey} from "../../shapes/textureKey.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {curvePolyline, splitDash, splitLength} from "./curveLength.js";
@@ -162,21 +164,22 @@ export function emitForecast(
   const ink = inkColor(viz);
   const regionLo = Math.min(from, far),
     size = Math.abs(far - from);
+  const region: RectNode = {
+    type: "rect",
+    key: `${FORECAST_KEY}-region`,
+    x: horizontal ? regionLo : cross[0],
+    y: horizontal ? cross[0] : regionLo,
+    width: horizontal ? size : cross[1] - cross[0],
+    height: horizontal ? cross[1] - cross[0] : size,
+    paint: {
+      fill: (config.fill as string) || ink,
+      fillOpacity: num(config.fillOpacity, 0.05),
+    },
+    interactive: false,
+  };
   const children: SceneNode[] = [];
-  if (config.fill !== false && config.fill !== "none")
-    children.push({
-      type: "rect",
-      key: `${FORECAST_KEY}-region`,
-      x: horizontal ? regionLo : cross[0],
-      y: horizontal ? cross[0] : regionLo,
-      width: horizontal ? size : cross[1] - cross[0],
-      height: horizontal ? cross[1] - cross[0] : size,
-      paint: {
-        fill: (config.fill as string) || ink,
-        fillOpacity: num(config.fillOpacity, 0.05),
-      },
-      interactive: false,
-    } as RectNode);
+  if (config.fill !== false && config.fill !== "none") children.push(region);
+  children.push(...backdropDecor(config, region, ink));
   if (visible && config.stroke !== false && config.stroke !== "none") {
     const paint: Paint = {
       fill: "none",
@@ -217,6 +220,50 @@ export function emitForecast(
   return children.length
     ? [{type: "group", key: FORECAST_KEY, interactive: false, children}]
     : [];
+}
+
+/**
+    The backdrop's `texture` and `backgroundImage`, drawn over its shade. The
+    backdrop is chart chrome with no data row, so the chart's own
+    `shapeConfig.texture` and `backgroundImage` leave it plain; these come
+    from `forecastConfig` alone, and are off by default. The texture is drawn
+    in the backdrop's color (`fill`, or the chart's text color) on a
+    transparent ground at `textureOpacity` (default `0.3`), so the shade
+    still shows through it.
+    @param config The `forecastConfig`.
+    @param region The backdrop's rect.
+    @param ink The chart's text color for its background.
+*/
+export function backdropDecor(
+  config: Record<string, unknown>,
+  region: RectNode,
+  ink: string,
+): SceneNode[] {
+  const out: SceneNode[] = [];
+  const color = typeof config.fill === "string" && config.fill !== "none" ? config.fill : ink;
+  const texture = textureKey(
+    config.texture,
+    () => "transparent",
+    () => color,
+    (config.textureDefault as Record<string, unknown>) || undefined,
+  );
+  if (texture)
+    out.push({
+      ...region,
+      key: `${FORECAST_KEY}-texture`,
+      paint: {fill: `pattern:${texture}`, opacity: num(config.textureOpacity, 0.3)},
+    } as RectNode);
+  const url = config.backgroundImage;
+  const image =
+    typeof url === "string" &&
+    backgroundImageNode(
+      {backgroundImage: url, backgroundImageFit: config.backgroundImageFit},
+      {...region, paint: {}},
+      undefined as unknown as DataPoint,
+      0,
+    );
+  if (image) out.push(image);
+  return out;
 }
 
 /** The backdrop's label: `forecastConfig.label`, or "Forecast" in the chart's locale. */

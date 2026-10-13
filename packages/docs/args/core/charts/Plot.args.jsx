@@ -211,7 +211,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick;\nturned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -529,6 +529,37 @@ export const argTypes = assign(
         summary: "facetconfig"
       }
     },
+    fillBetween: {
+      control: {
+        type: "object"
+      },
+      defaultValue: false,
+      description: "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | array.&lt;(string|number)&gt; | array.&lt;array.&lt;(string|number)&gt;&gt;"
+      }
+    },
+    fillBetweenConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     fontFamily: {
       control: {
         type: "text"
@@ -563,7 +594,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background.",
+      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -607,7 +638,7 @@ export const argTypes = assign(
     },
     hiddenColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {

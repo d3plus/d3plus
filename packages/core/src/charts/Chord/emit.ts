@@ -3,8 +3,8 @@
     labels, from `chordCtx` stashed on `viz.ctx`. Emits flat SceneNodes directly.
 
     Ribbons are emitted first so the arcs paint on top of their attach points.
-    Ribbon fill is resolved against the *source* node so each flow reads as
-    leaving its origin; arc fill is the node's own color.
+    Ribbon fill, texture, and backgroundImage are resolved against the *source*
+    node so each flow reads as leaving its origin; an arc's are the node's own.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -15,9 +15,10 @@ import {
   paintFromShapeConfig,
   resolveAccessor,
   shapeConfigFor,
+  textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
-import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {backgroundImageNode, backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
@@ -30,6 +31,7 @@ export const chordEmit: ChartEmit = ({viz}) => {
   const chordOpacity = (viz.schema.chordOpacity as number) ?? 0.6;
 
   // Ribbons (chords) first.
+  const ribbonImages: SceneNode[] = [];
   for (let i = 0; i < c.chords.length; i++) {
     const ch = c.chords[i];
     const src = c.nodes[ch.source.index];
@@ -42,7 +44,7 @@ export const chordEmit: ChartEmit = ({viz}) => {
     // and an undefined target clears the attribute at once, so the ribbon
     // would pop in while the arcs fade.
     const opacity = resolveAccessor<number>(pathCfg.opacity, src.data, src.i);
-    out.push({
+    const ribbon = {
       type: "path",
       shapeType: "Chord",
       key: `chord-ribbon-${src.id}-${tgt.id}`,
@@ -53,7 +55,7 @@ export const chordEmit: ChartEmit = ({viz}) => {
       datum: {source: {id: src.id}, target: {id: tgt.id}, value: ch.source.value} as unknown as DataPoint,
       index: i,
       paint: {
-        fill: color,
+        fill: textureFill(pathCfg, src.data, src.i, fill),
         fillOpacity: chordOpacity,
         stroke: color,
         strokeOpacity: 1,
@@ -62,8 +64,19 @@ export const chordEmit: ChartEmit = ({viz}) => {
       aria: {
         label: `${viz._drawLabel(src.data, src.i)} to ${viz._drawLabel(tgt.data, tgt.i)}, ${ch.source.value}.`,
       },
-    } as SceneNode);
+    } as SceneNode;
+    out.push(ribbon);
+    // The image is as see-through as the ribbon's fill, so crossing ribbons
+    // still show through each other.
+    const image = backgroundImageNode(
+      pathCfg,
+      {...ribbon, paint: {...ribbon.paint, opacity: (ribbon.paint?.opacity ?? 1) * chordOpacity}},
+      src.data,
+      src.i,
+    );
+    if (image) ribbonImages.push(image);
   }
+  out.push(...ribbonImages);
 
   // Arcs (groups).
   const arcNodes: SceneNode[] = [];

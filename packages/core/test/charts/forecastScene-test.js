@@ -2,6 +2,7 @@ import assert from "assert";
 import it from "../jsdom.js";
 import {LinePlot} from "../../es/index.js";
 import {
+  backdropDecor,
   discreteDirection,
   emitForecast,
   FORECAST_KEY,
@@ -183,4 +184,49 @@ it("forecastRows — every plotted row, and whether they are bars", () => {
   assert.deepStrictEqual(forecastRows([["Bar", bar], ["Line", line]]), {rows: [...bar, ...line], slots: false});
   assert.deepStrictEqual(forecastRows([["Area", area]]), {rows: area, slots: false});
   assert.deepStrictEqual(forecastRows([]), {rows: [], slots: false});
+});
+
+it("emitForecast — the backdrop's own texture and backgroundImage, off by default", () => {
+  const keys = nodes => nodes[0].children.map(n => n.key);
+  assert.deepStrictEqual(keys(emitForecast(chart(), rows, frame)), [
+    `${FORECAST_KEY}-region`, `${FORECAST_KEY}-rule`, `${FORECAST_KEY}-label`,
+  ], "plain by default");
+  const image = "data:image/svg+xml,%3Csvg%2F%3E";
+  const styled = emitForecast(chart("auto", {fill: "red", texture: "lines", textureDefault: {size: 8}, backgroundImage: image}), rows, frame);
+  assert.deepStrictEqual(keys(styled), [
+    `${FORECAST_KEY}-region`, `${FORECAST_KEY}-texture`, `${FORECAST_KEY}-region-bgimage`, `${FORECAST_KEY}-rule`, `${FORECAST_KEY}-label`,
+  ], "the texture and image sit over the shade, under the rule and label");
+  const region = byKey(styled, "region");
+  assert.strictEqual(region.paint.fill, "red", "the shade keeps its color");
+  const texture = byKey(styled, "texture");
+  assert.deepStrictEqual([texture.x, texture.y, texture.width, texture.height], [region.x, region.y, region.width, region.height]);
+  assert.strictEqual(texture.interactive, false);
+  assert.strictEqual(texture.paint.opacity, 0.3, "softened by default");
+  assert.ok(texture.paint.fill.startsWith("pattern:"));
+  const pattern = JSON.parse(texture.paint.fill.slice("pattern:".length));
+  assert.deepStrictEqual(
+    [pattern.texture, pattern.background, pattern.stroke, pattern.size],
+    ["lines", "transparent", "red", 8],
+    "drawn in the backdrop's color on a transparent ground, with textureDefault",
+  );
+  const group = byKey(styled, "region-bgimage");
+  assert.strictEqual(group.interactive, false);
+  assert.deepStrictEqual(
+    [group.children[0].href, group.children[0].x, group.children[0].width, group.children[0].height],
+    [image, region.x, region.width, region.height],
+    "the image covers the backdrop",
+  );
+});
+
+it("backdropDecor — ink-colored, without a shade, contained, or off", () => {
+  const region = {type: "rect", key: `${FORECAST_KEY}-region`, x: 10, y: 0, width: 200, height: 100, paint: {fill: "#444", fillOpacity: 0.05}, interactive: false};
+  const [texture] = backdropDecor({fill: false, texture: {texture: "circles", radius: 2}, textureOpacity: 0.8}, region, "#444");
+  assert.strictEqual(texture.paint.opacity, 0.8, "textureOpacity sets its opacity");
+  assert.strictEqual(texture.key, `${FORECAST_KEY}-texture`, "draws with the shade hidden");
+  const pattern = JSON.parse(texture.paint.fill.slice("pattern:".length));
+  assert.deepStrictEqual([pattern.texture, pattern.radius, pattern.fill], ["circles", 2, "#444"], "a textures.js config, in the ink color");
+  const [contained] = backdropDecor({backgroundImage: "a.png", backgroundImageFit: "contain"}, region, "#444");
+  assert.strictEqual(contained.children[0].preserveAspectRatio, "xMidYMid meet");
+  assert.deepStrictEqual(backdropDecor({}, region, "#444"), [], "off by default");
+  assert.deepStrictEqual(backdropDecor({texture: false, backgroundImage: () => "a.png"}, region, "#444"), [], "the backdrop has no row for an accessor");
 });

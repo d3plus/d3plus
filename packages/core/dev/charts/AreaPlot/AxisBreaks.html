@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>AxisBreaks · AreaPlot</title>
+    <meta name="description" content="AreaPlot and StackedArea keep a user value-domain minimum and break the axis back to the 0 baseline, like BarChart.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 300px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      const data = quarters.flatMap((quarter, i) => [
+        {quarter, region: "North", value: 1000 + i * 8},
+        {quarter, region: "South", value: 990 + i * 5},
+      ]);
+
+      const examples = [
+        ["AreaPlot · yDomain([980])", "AreaPlot", c => c.yDomain([980])],
+        ["StackedArea · yDomain([980])", "StackedArea", c => c.yDomain([980])],
+        ["StackedArea · yConfig({domain: [900, 2100]})", "StackedArea", c => c.yConfig({domain: [900, 2100]})],
+        ["AreaPlot · horizontal, xDomain([980])", "AreaPlot", c => c.discrete("y").x("value").y("quarter").xDomain([980])],
+        ["StackedArea · horizontal, xDomain([980])", "StackedArea", c => c.discrete("y").x("value").y("quarter").xDomain([980])],
+        ["AreaPlot · baselineBreak(false): yDomain stretches to 0", "AreaPlot", c => c.yDomain([980]).baselineBreak(false)],
+      ];
+
+      const grid = document.getElementById("grid");
+      examples.forEach(([title, type, configure], i) => {
+        const section = document.createElement("section");
+        section.innerHTML = `<h3>${title}</h3><div class="viz" id="viz${i}"></div>`;
+        grid.appendChild(section);
+        const chart = new d3plus[type]()
+          .select(`#viz${i}`)
+          .data(data)
+          .groupBy("region")
+          .x("quarter")
+          .y("value")
+          .legend(false);
+        configure(chart).render();
+      });
+
+    </script>
+
+  </body>
+
+</html>

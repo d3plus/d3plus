@@ -411,7 +411,7 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       The fill for topojson shapes that have no data (or no `colorScale` value):
       a CSS color or a function of the feature. Defaults to a quiet light gray, or
       its dark counterpart over a dark basemap.
-      @type {string | function}
+      @type {CssColor | function}
   */
   v.topojsonFill = function(this: VizInstance, _?: unknown) {
     return arguments.length

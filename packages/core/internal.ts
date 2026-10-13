@@ -66,6 +66,7 @@ export {
 } from "./src/charts/Plot/forecast.js";
 export type {ForecastRow, ForecastSetting, ForecastStart} from "./src/charts/Plot/forecast.js";
 export {
+  backdropDecor,
   discreteDirection,
   emitForecast,
   forecastDashOr,
@@ -75,6 +76,16 @@ export {
   slotEdge,
 } from "./src/charts/Plot/forecastScene.js";
 export type {ForecastFrame} from "./src/charts/Plot/forecastScene.js";
+export {
+  betweenPoints,
+  emitFillBetween,
+  fillBetweenDefaults,
+  fillBetweenPairs,
+  inheritedFillStyle,
+  sideClip,
+  valueDirection,
+} from "./src/charts/Plot/fillBetween.js";
+export type {BetweenPoint, FillBetweenSetting} from "./src/charts/Plot/fillBetween.js";
 export {
   closestFreeOffset,
   fitSwarms,
@@ -199,6 +210,13 @@ export {
   valueAxis,
   valueAxisExtent,
 } from "./src/charts/Plot/baselineBreak.js";
+export {
+  clipToPlotArea,
+  DOMAIN_CLIP_KEY,
+  isDomainClip,
+  unwrapDomainClips,
+} from "./src/charts/Plot/domainClip.js";
+export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {

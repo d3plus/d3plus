@@ -249,3 +249,62 @@ it("forecast on a zoomable plot follows the zoom", async function () {
   assert.notDeepStrictEqual(time.after.dashes.Sales, time.before.dashes.Sales, "the dash is measured along the zoomed line");
   assert.strictEqual(time.nan, 0);
 });
+
+it("the forecast backdrop takes forecastConfig's texture and backgroundImage, not shapeConfig's, on both backends", async function () {
+  this.timeout(120000);
+  const out = await run(async () => {
+    const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+    const probe = async (renderer, configure) => {
+      const {el, viz} = await window.__draw("BarChart", v => {
+        v.data(window.__years()).groupBy("id").x("year").y("value").forecast(2022).renderer(renderer);
+        configure(v);
+      });
+      const leaves = [];
+      const walk = (n, anc) => {
+        if (n.type === "group") (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`));
+        else leaves.push({...n, anc});
+      };
+      walk(viz._lastSceneRendered.root, "");
+      const images = new Set(leaves.filter(n => n.type === "image").map(n => n.key));
+      const patterned = n => `${n.paint && n.paint.fill}`.startsWith("pattern:");
+      const marks = leaves.filter(n => n.type === "rect" && n.datum && !/::hit$/.test(`${n.key}`));
+      const bars = marks.filter(n => n.anc.includes("viz-chart-cells"));
+      const legend = marks.filter(n => n.anc.includes("viz-legend"));
+      const svg = el.querySelector("svg.d3plus-render-svg");
+      return {
+        backdrop: leaves.filter(n => /plot-forecast-(region|texture)$/.test(`${n.key}`)).map(n => ({key: n.key.replace(/.*plot-forecast-/, ""), patterned: patterned(n)})),
+        backdropImage: images.has("plot-forecast-region-bgimage-img"),
+        bars: [bars.length, bars.filter(patterned).length, bars.filter(n => images.has(`${n.key}-bgimage-img`)).length],
+        legend: [legend.length, legend.filter(patterned).length, legend.filter(n => images.has(`${n.key}-bgimage-img`)).length],
+        domPatterns: svg ? svg.querySelectorAll("[fill^='url(#']").length : null,
+        domImages: svg ? svg.querySelectorAll("image").length : null,
+        nan: window.__nan(el),
+      };
+    };
+    const result = {};
+    for (const renderer of ["svg", "canvas"]) {
+      result[renderer] = {
+        // The data marks take shapeConfig's styles; the backdrop is chrome and stays plain.
+        shapes: await probe(renderer, v => v.shapeConfig({texture: "lines", backgroundImage: image})),
+        // forecastConfig styles the backdrop alone.
+        own: await probe(renderer, v => v.forecastConfig({texture: "lines", backgroundImage: image})),
+      };
+    }
+    return result;
+  });
+  for (const renderer of ["svg", "canvas"]) {
+    const {shapes, own} = out[renderer];
+    assert.deepStrictEqual(shapes.backdrop, [{key: "region", patterned: false}], `${renderer}: shapeConfig leaves the backdrop plain`);
+    assert.strictEqual(shapes.backdropImage, false, `${renderer}: and without an image`);
+    const [bars, barsTextured, barsImaged] = shapes.bars;
+    assert.ok(bars > 0 && barsTextured === bars && barsImaged === bars, `${renderer}: every bar takes shapeConfig's styles (${shapes.bars})`);
+    assert.deepStrictEqual(shapes.legend, [2, 2, 2], `${renderer}: and so does every legend swatch`);
+    assert.deepStrictEqual(own.backdrop, [{key: "region", patterned: false}, {key: "texture", patterned: true}], `${renderer}: forecastConfig.texture overlays the shade`);
+    assert.strictEqual(own.backdropImage, true, `${renderer}: forecastConfig.backgroundImage draws in the backdrop`);
+    assert.deepStrictEqual([own.bars[1], own.bars[2]], [0, 0], `${renderer}: the bars stay plain`);
+    assert.deepStrictEqual(own.legend, [2, 0, 0], `${renderer}: and so do the legend swatches`);
+    assert.strictEqual(own.nan + shapes.nan, 0);
+  }
+  assert.strictEqual(out.svg.own.domPatterns, 1, "SVG draws the backdrop's pattern");
+  assert.strictEqual(out.svg.own.domImages, 1, "and its image");
+});
