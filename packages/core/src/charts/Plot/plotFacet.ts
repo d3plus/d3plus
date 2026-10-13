@@ -61,9 +61,16 @@ function panelDomains(viz: VizInstance, rows: DataPoint[]) {
     The domains (and size scale) that fit every panel's rows: a category axis
     lists every panel's categories, in the order one chart of all the rows
     would; a continuous axis spans every panel's extent, stacks included.
+    Variable-width bars (`barWidth`) also share their combined width, so a
+    bar's width share reads the same in every panel.
 */
 export function sharePlotScales(viz: VizInstance, panels: DataPoint[][]): PlotFacetScales {
-  const drawn = panels.filter(rows => rows.length).map(rows => panelDomains(viz, rows));
+  let barTotal: number | undefined;
+  const drawn = panels.filter(rows => rows.length).map(rows => {
+    const panel = panelDomains(viz, rows);
+    if (viz._barSpans) barTotal = (barTotal ?? 0) + viz._barSpans.total;
+    return panel;
+  });
   const formatted = drawn.flatMap(d => d.formatted);
   const lists = runStages({viz, plotFormattedData: formatted, plotAxisData: formatted}, [computePlotAxisValues]);
   const domains: Record<string, DomainValue[]> = {};
@@ -80,7 +87,7 @@ export function sharePlotScales(viz: VizInstance, panels: DataPoint[][]): PlotFa
   }
   const sizes = viz._size ? formatted.map(d => viz._size!(d.data as DataPoint)) : [];
   const size = sizes.length ? plotSizeScale(viz, sizes) : undefined;
-  return {domains, size, padded: paddedDomains(viz, formatted, domains, size)};
+  return {domains, size, padded: paddedDomains(viz, formatted, domains, size), barTotal};
 }
 
 /**
@@ -168,5 +175,6 @@ export const plotFacetHooks: FacetHooks = {
     _xFunc: viz._xFunc,
     _yFunc: viz._yFunc,
     _trendFits: viz._trendFits,
+    _barSpans: viz._barSpans,
   }),
 };

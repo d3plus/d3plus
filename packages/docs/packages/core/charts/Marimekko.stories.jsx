@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a Marimekko (mosaic) chart from an array of data: one bar per\ndiscrete value (x), as wide as its barWidth (by default its total),\nwith the bar's groupBy segments stacked to 100% of its height. Tooltips\nshow each segment's value, its share of the bar, and the bar's width and\nshare of the total width. Set stackOffset(\"none\") to stack absolute\nvalues instead.",
+        component: "Creates a Marimekko (mosaic) chart from an array of data: one bar per\ndiscrete value (x), as wide as its barWidth (by default its total),\nwith the bar's groupBy segments stacked to 100% of its height. Each\ncategory's label shows its bar's share of the total width, and tooltips\nshow each segment's value, its share of the bar, and the bar's width and\nshare of the total width. Set stackOffset(\"none\") to stack absolute\nvalues instead.",
       },
     },
   }
@@ -66,7 +66,17 @@ BasicExample.args = {
   x: "Region",
   y: "Revenue",
 };
-BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
+BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market beneath its name. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
+
+export const WithoutWidthShares = Template.bind({});
+WithoutWidthShares.args = {
+  data: sales,
+  groupBy: "Brand",
+  x: "Region",
+  y: "Revenue",
+  barWidthShare: false,
+};
+WithoutWidthShares.parameters = {controls: {include: ["barWidthShare"]}, docs: {description: {story: "`barWidthShare(false)` labels each region by name alone, leaving each bar's share of the total width to its tooltip."}}};
 
 export const BarWidthMeasure = Template.bind({});
 BarWidthMeasure.args = {
@@ -118,7 +128,7 @@ SmallMultiples.args = {
   y: "Revenue",
   facet: "Year",
 };
-SmallMultiples.parameters = {controls: {include: ["facet"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market."}}};
+SmallMultiples.parameters = {controls: {include: ["facet"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, and each region's label shows its share of every year's combined total."}}};
 
 export const VariableWidthBarChart = (args) => <BarChart config={configify(args, barChartArgTypes)} />;
 VariableWidthBarChart.args = {
@@ -138,3 +148,26 @@ VariableWidthBarChart.args = {
   legend: false,
 };
 VariableWidthBarChart.parameters = {controls: {include: ["barWidth"]}, docs: {description: {story: "Any BarChart takes `barWidth`. Here each country's bar is as wide as its population and as tall as its GDP per capita, so its area is its total GDP."}}};
+
+export const SideBySideSeries = (args) => <BarChart config={configify(args, barChartArgTypes)} />;
+SideBySideSeries.args = {
+  data: [
+    {Sector: "Retail", Year: "2023", Revenue: 42, Employees: 30},
+    {Sector: "Retail", Year: "2024", Revenue: 48, Employees: 30},
+    {Sector: "Technology", Year: "2023", Revenue: 55, Employees: 12},
+    {Sector: "Technology", Year: "2024", Revenue: 70, Employees: 12},
+    {Sector: "Energy", Year: "2023", Revenue: 38, Employees: 6},
+    {Sector: "Energy", Year: "2024", Revenue: 33, Employees: 6},
+    {Sector: "Healthcare", Year: "2023", Revenue: 30, Employees: 18},
+    {Sector: "Healthcare", Year: "2024", Revenue: 36, Employees: 18},
+  ],
+  groupBy: "Year",
+  x: "Sector",
+  y: "Revenue",
+  barWidth: "Employees",
+  aggs: {Employees: funcify((rows, value) => Math.max(...rows.map(value)), "(rows, value) => Math.max(...rows.map(value))")},
+  barWidthShare: true,
+  barPadding: 2,
+  groupPadding: 8,
+};
+SideBySideSeries.parameters = {controls: {include: ["barWidth", "barWidthShare", "barPadding", "groupPadding"]}, docs: {description: {story: "Unstacked series split each variable-width bar side by side, spaced by `barPadding`, the way grouped bars split a category. Each sector's bar is as wide as its employees, and `barWidthShare` adds each sector's share of them to its label."}}};

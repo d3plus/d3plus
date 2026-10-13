@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Marimekko</title>
-  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, horizontal bars, small multiples, and variable-width BarCharts.">
+  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels, horizontal bars, small multiples, and variable-width BarCharts.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -26,7 +26,8 @@
     <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
     <div><h3>BarChart with barWidth (width = population, height = GDP per capita)</h3><div class="viz" id="barchart"></div></div>
     <div><h3>xSort by width, descending</h3><div class="viz" id="sorted"></div></div>
-    <div class="wide"><h3>BarChart with barWidth and unstacked series side by side</h3><div class="viz" id="series"></div></div>
+    <div><h3>barWidthShare(false): category names without width shares</h3><div class="viz" id="noshare"></div></div>
+    <div><h3>BarChart with barWidth and unstacked series, barWidthShare(true)</h3><div class="viz" id="series"></div></div>
     <div class="wide"><h3>Small multiples: facet("Year")</h3><div class="viz" id="facet"></div></div>
   </div>
 </body>
@@ -117,6 +118,15 @@
     .xSort((a, b) => b.Revenue - a.Revenue)
     .render();
 
+  new d3plus.Marimekko()
+    .select("#noshare")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .barWidthShare(false)
+    .render();
+
   // Illustrative revenue ($B) by sector and year; width = employees (M), the same on every row.
   const sectors = {Retail: [42, 48, 30], Technology: [55, 70, 12], Energy: [38, 33, 6], Healthcare: [30, 36, 18]};
   const sectorRows = Object.entries(sectors).flatMap(([Sector, [a, b, Employees]]) => [
@@ -132,6 +142,7 @@
     .y("Revenue")
     .barWidth("Employees")
     .aggs({Employees: (rows, value) => Math.max(...rows.map(value))})
+    .barWidthShare(true)
     .barPadding(2)
     .groupPadding(8)
     .render();

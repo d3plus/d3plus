@@ -44,6 +44,11 @@ export interface BarSpanLayout {
   spans: BarSpan[];
   /** The sum of every bar's width. */
   total: number;
+  /**
+      What each bar's width share is a share of: `total`, or the combined
+      total of every panel when faceted panels share their scales.
+  */
+  shareTotal: number;
   /** Each plotted source datum's bar. */
   byDatum: WeakMap<object, BarSpan>;
 }
@@ -158,10 +163,12 @@ export function applyBarWidths(viz: VizInstance, formattedData: Row[], axisData:
   const placed = place(formattedData);
   const placedAxis = axisData === formattedData ? placed : place(axisData);
 
+  const total = spans.length ? spans[spans.length - 1].end : 0;
   const layout: BarSpanLayout = {
     axis,
     spans,
-    total: spans.length ? spans[spans.length - 1].end : 0,
+    total,
+    shareTotal: viz._plotFacetScales?.barTotal ?? total,
     byDatum,
   };
   viz._barSpans = layout;
@@ -182,14 +189,36 @@ function categoryLabel(value: unknown): string {
   return value instanceof Date ? formatDate(value, [value]) : String(value);
 }
 
+/** A bar's width as a locale-formatted share of `layout.shareTotal`; empty without a total. */
+export function widthShareText(layout: BarSpanLayout, span: BarSpan, locale?: string): string {
+  return layout.shareTotal ? `${formatAbbreviate((span.size / layout.shareTotal) * 100, locale)}%` : "";
+}
+
+/**
+    A category's axis label with its bar's width share: on a second line
+    beneath the name along a horizontal axis, after it in parentheses along
+    a vertical one. Either way the share adds nothing to the label's extent
+    along the axis, so it never crowds a neighboring label out.
+*/
+export function shareLabel(name: string, share: string, axis: "x" | "y"): string {
+  if (!share) return name;
+  return axis === "x" ? `${name}\n${share}` : `${name} (${share})`;
+}
+
 /**
     Axis config for a variable-width discrete axis: each category labeled at
-    its bar's center. Empty for any other axis.
+    its bar's center, with its width share when `barWidthShare` is on. Empty
+    for any other axis.
 */
 export function barSpanAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
   const layout = viz._barSpans;
   if (!layout || layout.axis !== axis) return {};
-  const labels = new Map(layout.spans.map(s => [s.mid, categoryLabel(s.value)]));
+  const locale = viz.schema.locale;
+  const text = (s: BarSpan) =>
+    viz.schema.barWidthShare
+      ? shareLabel(categoryLabel(s.value), widthShareText(layout, s, locale), axis)
+      : categoryLabel(s.value);
+  const labels = new Map(layout.spans.map(s => [s.mid, text(s)]));
   return {
     labels: layout.spans.map(s => s.mid),
     tickFormat: (v: number) => labels.get(v) ?? "",
@@ -206,15 +235,16 @@ export function barWidthLabel(viz: VizInstance): string {
 
 /**
     The tooltip row for a variable-width bar's datum: its width measure and
-    that width's share of every bar's combined width. Empty when `d` isn't a
-    plotted bar datum.
+    that width's share of every bar's combined width (every panel's, when
+    faceted panels share their scales). Empty when `d` isn't a plotted bar
+    datum.
 */
 export function barWidthTooltipRows(viz: VizInstance, d: DataPoint): [string, string][] {
   const layout = viz._barSpans;
   const span = layout && d && typeof d === "object" ? layout.byDatum.get(d) : undefined;
   if (!layout || !span) return [];
   const locale = viz.schema.locale;
-  const share = layout.total ? `${formatAbbreviate((span.size / layout.total) * 100, locale)}%` : "";
+  const share = widthShareText(layout, span, locale);
   return [[barWidthLabel(viz), `${formatAbbreviate(span.size, locale)}${share ? ` (${share})` : ""}`]];
 }
 

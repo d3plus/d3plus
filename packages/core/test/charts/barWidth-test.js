@@ -11,6 +11,8 @@ import {
   layoutBarSpans,
   measureBars,
   seriesSlot,
+  shareLabel,
+  widthShareText,
 } from "../../es/src/charts/Plot/barWidth.js";
 import {plotAxisConfig} from "../../es/src/charts/Plot/baselineBreak.js";
 
@@ -181,6 +183,46 @@ it("barWidth: plotAxisConfig puts the category labels beneath the user's axis co
   assert.deepStrictEqual(plotAxisConfig(viz, "x").labels, [], "a user's own labels win");
   viz._yConfig = {title: "v"};
   assert.deepStrictEqual(plotAxisConfig(viz, "y"), {break: false, title: "v"});
+});
+
+it("barWidth: applyBarWidths shares widths of the panel's total, or every panel's when shared", () => {
+  const viz = fakeViz({barWidth: barWidthAccessor("v")});
+  const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  applyBarWidths(viz, data, data);
+  assert.strictEqual(viz._barSpans.shareTotal, 4);
+  viz._plotFacetScales = {domains: {}, padded: {}, barTotal: 16};
+  const again = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  applyBarWidths(viz, again, again);
+  assert.strictEqual(viz._barSpans.total, 4);
+  assert.strictEqual(viz._barSpans.shareTotal, 16);
+  assert.deepStrictEqual(barWidthTooltipRows(viz, again[1].data), [["v", "3 (18.8%)"]]);
+});
+
+it("barWidth: widthShareText formats a bar's share of the share total", () => {
+  const span = {value: "A", size: 1, start: 0, end: 1, mid: 0.5};
+  assert.strictEqual(widthShareText({shareTotal: 3, spans: [span]}, span, "en-US"), "33.3%");
+  assert.strictEqual(widthShareText({shareTotal: 4, spans: [span]}, span, "en-US"), "25%");
+  assert.strictEqual(widthShareText({shareTotal: 0, spans: [span]}, span, "en-US"), "");
+});
+
+it("barWidth: shareLabel puts the share beneath a horizontal axis label and after a vertical one", () => {
+  assert.strictEqual(shareLabel("Retail", "50%", "x"), "Retail\n50%");
+  assert.strictEqual(shareLabel("Retail", "50%", "y"), "Retail (50%)");
+  assert.strictEqual(shareLabel("Retail", "", "x"), "Retail");
+});
+
+it("barWidth: barSpanAxisConfig adds width shares with barWidthShare", () => {
+  const viz = fakeViz({barWidth: barWidthAccessor("v"), barWidthShare: true});
+  const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  applyBarWidths(viz, data, data);
+  const config = barSpanAxisConfig(viz, "x");
+  assert.strictEqual(config.tickFormat(0.5), "A\n25%");
+  assert.strictEqual(config.tickFormat(2.5), "B\n75%");
+
+  const vertical = fakeViz({barWidth: barWidthAccessor("v"), barWidthShare: true, discrete: "y"});
+  const rows = [{y: "A", data: {v: 1}}, {y: "B", data: {v: 3}}];
+  applyBarWidths(vertical, rows, rows);
+  assert.strictEqual(barSpanAxisConfig(vertical, "y").tickFormat(0.5), "A (25%)");
 });
 
 it("barWidth: barSeries lists side-by-side series only when a bar holds more than one", () => {

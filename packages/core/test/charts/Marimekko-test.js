@@ -46,8 +46,17 @@ const draw = ([kind, config, rows, hoverKey]) =>
           const b = r.getBoundingClientRect();
           return {key: r.getAttribute("data-key"), left: b.left, right: b.right, top: b.top, bottom: b.bottom};
         });
+      // A multi-line label's lines, joined by newlines.
+      const lines = t => {
+        const spans = [...t.querySelectorAll("tspan")];
+        return spans.length ? spans.map(s => s.textContent).join("\n") : t.textContent;
+      };
       const text = selector =>
-        [...el.querySelectorAll(`${selector} text`)].map(t => t.textContent).filter(Boolean);
+        [...el.querySelectorAll(`${selector} text`)].map(lines).filter(Boolean);
+      const axes = {};
+      el.querySelectorAll("[data-key$='plot-x-axis'], [data-key$='plot-y-axis']").forEach(a => {
+        axes[a.getAttribute("data-key")] = [...a.querySelectorAll("text")].map(lines).filter(Boolean);
+      });
       const sceneRects = [];
       const walk = node => {
         if (!node) return;
@@ -63,6 +72,7 @@ const draw = ([kind, config, rows, hoverKey]) =>
         sceneRects,
         nan,
         canvas: el.querySelectorAll("canvas").length,
+        axes,
         xLabels: text("[data-key$='plot-x-axis']"),
         yLabels: text("[data-key$='plot-y-axis']"),
         spans: viz._barSpans ? viz._barSpans.spans.map(s => [s.value, s.start, s.end]) : null,
@@ -117,7 +127,7 @@ it("Marimekko: bars as wide as their totals, segments stacked to 100%", async fu
   const heights = a.segments.map(s => s.bottom - s.top).sort((x, y) => x - y);
   near(heights[1] / heights[0], 2, 0.1, "segment height ∝ share");
 
-  assert.deepStrictEqual(out.xLabels, ["A", "B"], "categories labeled");
+  assert.deepStrictEqual(out.xLabels, ["A\n75%", "B\n25%"], "categories labeled with their width shares");
   assert.ok(out.yLabels.includes("100%") && out.yLabels.includes("0%"), `percent ticks: ${out.yLabels}`);
 
   const rows = Object.fromEntries(out.tooltip);
@@ -174,7 +184,7 @@ it("Marimekko: horizontal bars span the y axis", async function () {
   assert.strictEqual(sizes.length, 2);
   near(sizes[1] / sizes[0], 3, 0.15, "height ∝ total");
   assert.ok(out.xLabels.includes("100%"), "percent value axis");
-  assert.deepStrictEqual(out.yLabels.slice().sort(), ["A", "B"]);
+  assert.deepStrictEqual(out.yLabels.slice().sort(), ["A (75%)", "B (25%)"], "shares follow the names");
 });
 
 it("BarChart: barWidth makes each bar as wide as its measure", async function () {
@@ -208,8 +218,80 @@ it("Marimekko: facet draws one mosaic per panel", async function () {
   assert.strictEqual(out.nan, 0);
   assert.ok(out.sceneRects.length >= 8, `segments in both panels (${out.sceneRects.length})`);
   // Each panel labels its bars by category, not by cumulative width.
-  const xLabels = [...out.xLabels].sort();
+  const xLabels = out.xLabels.map(l => l.split("\n")[0]).sort();
   assert.deepStrictEqual(xLabels, ["A", "A", "B", "B"], `panel category labels: ${out.xLabels}`);
+});
+
+it("Marimekko: barWidthShare(false) labels categories by name alone", async function () {
+  this.timeout(60000);
+  const out = await render("", draw, ["Marimekko", {barWidthShare: false}, data]);
+  assert.deepStrictEqual(out.xLabels, ["A", "B"]);
+  const horizontal = await render("", draw, ["Marimekko", {barWidthShare: false, discrete: "y", x: "v", y: "cat"}, data]);
+  assert.deepStrictEqual(horizontal.yLabels.slice().sort(), ["A", "B"]);
+});
+
+it("BarChart: barWidthShare is off by default and adds width shares when on", async function () {
+  this.timeout(60000);
+  const rows = [
+    {g: "a", cat: "A", v: 4, pop: 100},
+    {g: "b", cat: "B", v: 2, pop: 300},
+  ];
+  const on = await render("", draw, ["BarChart", {barWidth: "pop", barWidthShare: true}, rows]);
+  assert.deepStrictEqual(on.xLabels, ["A\n25%", "B\n75%"]);
+  // Without barWidth there is no width to share.
+  const plain = await render("", draw, ["BarChart", {barWidthShare: true}, rows]);
+  assert.deepStrictEqual(plain.xLabels, ["A", "B"]);
+});
+
+// The dev page's smartphone revenue ($B) by region and brand.
+const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
+const regions = {
+  "North America": [62, 24, 1, 1, 9],
+  "Europe": [38, 30, 12, 6, 14],
+  "Asia Pacific": [70, 34, 40, 38, 58],
+  "Latin America": [6, 14, 7, 3, 8],
+  "Middle East & Africa": [8, 12, 6, 5, 16],
+};
+const sales = Object.entries(regions).flatMap(([cat, values]) => values.map((v, i) => ({cat, g: brands[i], v})));
+const byYear = [2020, 2022, 2024].flatMap((year, y) =>
+  sales.map((d, i) => ({...d, year, v: Math.round(d.v * (0.5 + 0.25 * y + ((i * 7) % 5) * 0.04))})),
+);
+
+/** Each axis's category names (the first line of each label), by axis key. */
+const names = out =>
+  Object.fromEntries(Object.entries(out.axes).map(([key, labels]) => [key, labels.map(l => l.replace(/ \(.*\)$/, "").split("\n")[0])]));
+
+it("Marimekko: width shares keep every category label the name alone keeps, at the dev page's sizes", async function () {
+  this.timeout(120000);
+  // A dev-page grid cell is 618px wide; the small multiples span both columns.
+  const cases = [
+    [{width: 618, height: 400}, sales],
+    [{width: 618, height: 400, discrete: "y", x: "v", y: "cat"}, sales],
+    [{width: 1260, height: 400, facet: "year"}, byYear],
+    [{width: 1260, height: 400, facet: "year", facetConfig: {scales: "independent"}}, byYear],
+  ];
+  for (const [config, rows] of cases) {
+    const shared = await render("", draw, ["Marimekko", config, rows]);
+    const plain = await render("", draw, ["Marimekko", {...config, barWidthShare: false}, rows]);
+    assert.deepStrictEqual(names(shared), names(plain), `same labels survive: ${JSON.stringify(config)}`);
+    const labeled = Object.values(shared.axes).flat();
+    assert.ok(labeled.some(l => /%/.test(l) && /[A-Z]/.test(l)), `shares drawn: ${labeled}`);
+  }
+  // Along a vertical axis, every region keeps its label.
+  const horizontal = await render("", draw, ["Marimekko", cases[1][0], sales]);
+  assert.deepStrictEqual(horizontal.yLabels.map(l => l.replace(/ \(.*\)$/, "")).sort(), Object.keys(regions).sort());
+});
+
+it("BarChart: width shares keep every category label at the dev page's size", async function () {
+  this.timeout(60000);
+  const sectors = {Retail: [42, 48, 30], Technology: [55, 70, 12], Energy: [38, 33, 6], Healthcare: [30, 36, 18]};
+  const rows = Object.entries(sectors).flatMap(([cat, [a, b, size]]) => [
+    {cat, g: "2023", v: a, size},
+    {cat, g: "2024", v: b, size},
+  ]);
+  const config = {width: 618, height: 400, barWidth: "size", maxAggs: "size", barWidthShare: true, barPadding: 2, groupPadding: 8};
+  const out = await render("", draw, ["BarChart", config, rows]);
+  assert.deepStrictEqual(out.xLabels, ["Retail\n45.5%", "Technology\n18.2%", "Energy\n9.09%", "Healthcare\n27.3%"]);
 });
 
 // Two unstacked series per category; A is three times as wide as B.

@@ -457,6 +457,15 @@ export interface D3plusConfig {
   */
   barWidth?: string | false | ((d: DataPoint, i?: number) => number);
   /**
+      BarChart/Marimekko with `barWidth`: whether each category's axis label
+      also shows its bar's share of the total width, beneath the name along
+      a horizontal axis ("Retail" over "50%") and after it along a vertical
+      one ("Retail (50%)"). Faceted panels that share their scales read the
+      share of every panel's combined width. On for Marimekko, off for
+      BarChart.
+  */
+  barWidthShare?: boolean;
+  /**
       The baseline value: where a Plot's bars and areas start, and the value
       an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
   */

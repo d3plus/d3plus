@@ -38,6 +38,22 @@ export const argTypes = assign(
         summary: "string | false | function"
       }
     },
+    barWidthShare: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Off (`false`) by default.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     baseline: {
       defaultValue: 0,
       table: {

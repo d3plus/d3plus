@@ -36,6 +36,13 @@ export const barChartDef: ChartDefinition = {
         Off (`undefined`) by default.
     */
     {key: "barWidth", coerce: barWidthAccessor},
+    /**
+        With `barWidth`, adds each bar's share of the total width to its
+        category's axis label: on a second line beneath the name along a
+        horizontal axis, in parentheses after it along a vertical one.
+        Off (`false`) by default.
+    */
+    {key: "barWidthShare", default: false},
     {key: "baseline", default: 0},
     {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},

@@ -29,6 +29,16 @@ export const argTypes = assign(
         }
       }
     },
+    barWidthShare: {
+      ...barChartArgTypes.barWidthShare,
+      defaultValue: true,
+      description: "Whether each category's axis label also shows its bar's share of the total width: beneath the name along a horizontal axis, in parentheses after it along a vertical one. Faceted panels that share their scales show the share of every panel's combined width. Defaults to `true`; `false` shows the name alone.",
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      }
+    },
     groupPadding: {
       ...barChartArgTypes.groupPadding,
       defaultValue: 1,

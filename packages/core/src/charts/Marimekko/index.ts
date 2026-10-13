@@ -52,6 +52,11 @@ export const marimekkoDef: ChartDefinition = {
         when the bars run along `y`, shown as "Bar Total" in tooltips.
     */
     {key: "barWidth", coerce: barWidthAccessor, factory: barTotal},
+    /**
+        Marimekko labels each category with its bar's share of the total
+        width by default ("Retail" over "50%"); `false` shows the name alone.
+    */
+    {key: "barWidthShare", default: true},
     {key: "stacked", default: true},
     // Each segment's tooltip shows its own width, value, and share.
     {key: "tooltipShared", default: false},
@@ -61,7 +66,8 @@ export const marimekkoDef: ChartDefinition = {
 /**
     Creates a Marimekko (mosaic) chart from an array of data: one bar per
     discrete value (`x`), as wide as its `barWidth` (by default its total),
-    with the bar's `groupBy` segments stacked to 100% of its height. Tooltips
+    with the bar's `groupBy` segments stacked to 100% of its height. Each
+    category's label shows its bar's share of the total width, and tooltips
     show each segment's value, its share of the bar, and the bar's width and
     share of the total width. Set `stackOffset("none")` to stack absolute
     values instead.
