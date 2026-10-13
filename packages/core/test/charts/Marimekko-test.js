@@ -325,3 +325,65 @@ it("BarChart: unstacked series split each variable-width bar side by side", asyn
   near(rect("a_A").width, rect("b_A").width, 0.5, "canvas: series share a bar equally");
   near(rect("a_A").width / rect("a_B").width, 3, 0.25, "canvas: widths follow each bar's measure");
 });
+
+/** Per facet panel: its mosaic's drawn width (one segment per bar, summed) and its x labels. */
+function facetPanels(out) {
+  const panels = {};
+  for (const r of out.sceneRects) {
+    const [panel, key] = r.key.split("/");
+    if (!key.startsWith("a_")) continue;
+    panels[panel] = panels[panel] || {width: 0};
+    panels[panel].width += r.width;
+  }
+  for (const [key, labels] of Object.entries(out.axes)) {
+    const [panel, axis] = key.split("/");
+    if (axis === "plot-x-axis" && panels[panel]) panels[panel].labels = labels;
+  }
+  return panels;
+}
+
+// Panel P2 doubles every value, so its total width is twice P1's.
+const panelRows = data.flatMap(d => [{...d, panel: "P1"}, {...d, panel: "P2", v: d.v * 2}]);
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Marimekko: facet panels share one width scale by default (${renderer})`, async function () {
+    this.timeout(60000);
+    const out = await render("", draw, ["Marimekko", {facet: "panel", renderer}, panelRows]);
+    const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
+    near(p1.width / p2.width, 0.5, 0.05, "the smaller panel draws a narrower mosaic");
+    if (renderer === "svg") {
+      // Shares are of every panel's combined width (120): A is 30 and 60, B 10 and 20.
+      assert.deepStrictEqual(p1.labels, ["A\n25%", "B\n8.33%"]);
+      assert.deepStrictEqual(p2.labels, ["A\n50%", "B\n16.7%"]);
+    }
+  });
+
+  it(`Marimekko: facetConfig({scales: "independent"}) fills each panel's width (${renderer})`, async function () {
+    this.timeout(60000);
+    const config = {facet: "panel", facetConfig: {scales: "independent"}, renderer};
+    const out = await render("", draw, ["Marimekko", config, panelRows]);
+    const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
+    near(p1.width / p2.width, 1, 0.05, "every panel fills its width");
+    if (renderer === "svg") {
+      assert.deepStrictEqual(p1.labels, ["A\n75%", "B\n25%"], "shares of the panel's own total");
+      assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
+    }
+  });
+}
+
+it("Marimekko: a shared-scale facet panel's tooltip shares its width of every panel's total", async function () {
+  this.timeout(60000);
+  const out = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P1/b_A"]);
+  const rows = Object.fromEntries(out.tooltip);
+  assert.strictEqual(rows["Bar Total"], "30 (25%)");
+});
+
+it("Marimekko: every facet panel labels its own categories, in every grid row", async function () {
+  this.timeout(60000);
+  const rows = ["P1", "P2", "P3", "P4"].flatMap((panel, i) => data.map(d => ({...d, panel, v: d.v * (i + 1)})));
+  const out = await render("", draw, ["Marimekko", {facet: "panel", facetConfig: {columns: 2}}, rows]);
+  const panels = facetPanels(out);
+  assert.deepStrictEqual(Object.keys(panels).sort(), ["facet-P1", "facet-P2", "facet-P3", "facet-P4"]);
+  for (const [panel, {labels}] of Object.entries(panels))
+    assert.deepStrictEqual((labels || []).map(l => l.split("\n")[0]), ["A", "B"], `${panel} labels its bars`);
+});

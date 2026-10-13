@@ -39,7 +39,7 @@ export type FacetConfig = {
   sort?: FacetSort;
   /** Whether every panel shares one set of x/y scales (`"shared"`, the default) or fits its own (`"independent"`). Applies to charts with axes. */
   scales?: "shared" | "independent";
-  /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel (BumpChart). */
+  /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel (BumpChart, Marimekko). */
   axes?: "outer" | "all";
   /** Each panel's title: a function of the panel's facet value and rows, or `false` to hide panel titles. */
   title?: false | ((value: FacetValue, data: DataPoint[]) => string);

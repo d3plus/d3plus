@@ -45,7 +45,7 @@ const sales = datafy(`(() => {
   );
 })()`);
 
-const byYear = datafy(`[2022, 2023, 2024].flatMap((year, y) => [
+const byYear = datafy(`[2020, 2022, 2024].flatMap((year, y) => [
   ["North America", [62, 24, 1, 1, 9]],
   ["Europe", [38, 30, 12, 6, 14]],
   ["Asia Pacific", [70, 34, 40, 38, 58]],
@@ -55,7 +55,7 @@ const byYear = datafy(`[2022, 2023, 2024].flatMap((year, y) => [
     Year: year,
     Region: region,
     Brand: ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"][i],
-    Revenue: Math.round(revenue * (0.8 + 0.15 * y + ((i * 7) % 5) * 0.04)),
+    Revenue: Math.round(revenue * (0.5 + 0.25 * y + ((i * 7) % 5) * 0.04)),
   })),
 ))`);
 
@@ -128,7 +128,18 @@ SmallMultiples.args = {
   y: "Revenue",
   facet: "Year",
 };
-SmallMultiples.parameters = {controls: {include: ["facet"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, and each region's label shows its share of every year's combined total."}}};
+SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, and each region's label shows its share of every year's combined total."}}};
+
+export const SmallMultiplesIndependent = Template.bind({});
+SmallMultiplesIndependent.args = {
+  data: byYear,
+  groupBy: "Brand",
+  x: "Region",
+  y: "Revenue",
+  facet: "Year",
+  facetConfig: {scales: "independent"},
+};
+SmallMultiplesIndependent.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facetConfig({scales: \"independent\"})` fits each year's mosaic to its own panel, so every panel fills its width and each region's label shows its share of that year's total."}}};
 
 export const VariableWidthBarChart = (args) => <BarChart config={configify(args, barChartArgTypes)} />;
 VariableWidthBarChart.args = {

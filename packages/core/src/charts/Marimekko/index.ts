@@ -30,6 +30,8 @@ export const marimekkoDef: ChartDefinition = {
   paintDriven: true,
   features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
+  // Each panel's categories sit at its own bar centers, so every panel labels its axes.
+  facet: {axes: "all"},
 
   setup: viz => {
     viz._stackOffset = resolveStackOffset("expand");

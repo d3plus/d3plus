@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Marimekko</title>
-  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels, horizontal bars, small multiples, and variable-width BarCharts.">
+  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels, horizontal bars, shared and independent small multiples, and variable-width BarCharts.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -28,7 +28,8 @@
     <div><h3>xSort by width, descending</h3><div class="viz" id="sorted"></div></div>
     <div><h3>barWidthShare(false): category names without width shares</h3><div class="viz" id="noshare"></div></div>
     <div><h3>BarChart with barWidth and unstacked series, barWidthShare(true)</h3><div class="viz" id="series"></div></div>
-    <div class="wide"><h3>Small multiples: facet("Year")</h3><div class="viz" id="facet"></div></div>
+    <div class="wide"><h3>Small multiples: facet("Year"), one shared width scale (default): the smaller market draws a narrower mosaic</h3><div class="viz" id="facet"></div></div>
+    <div class="wide"><h3>facetConfig({scales: "independent"}): each panel fills its own width</h3><div class="viz" id="facetIndependent"></div></div>
   </div>
 </body>
 
@@ -47,8 +48,9 @@
   const sales = Object.entries(regions).flatMap(([region, values]) =>
     values.map((revenue, i) => ({Region: region, Brand: brands[i], Revenue: revenue, "Market Size": sizes[region]})),
   );
-  const byYear = [2022, 2023, 2024].flatMap((year, y) =>
-    sales.map((d, i) => ({...d, Year: year, Revenue: Math.round(d.Revenue * (0.8 + 0.15 * y + ((i * 7) % 5) * 0.04))})),
+  // The market grows each year, so a shared width scale draws the earlier years narrower.
+  const byYear = [2020, 2022, 2024].flatMap((year, y) =>
+    sales.map((d, i) => ({...d, Year: year, Revenue: Math.round(d.Revenue * (0.5 + 0.25 * y + ((i * 7) % 5) * 0.04))})),
   );
 
   new d3plus.Marimekko()
@@ -154,6 +156,16 @@
     .x("Region")
     .y("Revenue")
     .facet("Year")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#facetIndependent")
+    .data(byYear)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .facet("Year")
+    .facetConfig({scales: "independent"})
     .render();
 
 </script>
