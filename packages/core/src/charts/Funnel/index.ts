@@ -26,7 +26,7 @@ import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyFunnelLayout, FIRST_KEY, PREVIOUS_KEY} from "./applyLayout.js";
+import {applyFunnelLayout, stageRates} from "./applyLayout.js";
 import {funnelEmit} from "./emit.js";
 import {percentText} from "./labelNodes.js";
 
@@ -49,8 +49,9 @@ export function funnelTooltipRows(
   const rows: [string, string][] = [];
   if (Number.isFinite(value))
     rows.push([viz.schema.translate("Value"), `${valueFormat(value, d)}`]);
-  const first = d ? Number(d[FIRST_KEY]) : NaN;
-  const previous = d ? Number(d[PREVIOUS_KEY]) : NaN;
+  const rates = d ? stageRates(viz).get(d) : undefined;
+  const first = rates ? rates.first : NaN;
+  const previous = rates ? rates.previous : NaN;
   if (Number.isFinite(previous)) {
     if (Number.isFinite(first))
       rows.push([

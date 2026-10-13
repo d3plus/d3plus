@@ -58,9 +58,19 @@ export interface FunnelShared {
   offset: number;
 }
 
-/** Row keys the stage's conversion rates are stamped under. */
-export const FIRST_KEY = "__d3plusFunnelFirst";
-export const PREVIOUS_KEY = "__d3plusFunnelPrevious";
+/** A stage's conversion rates: its share of the first stage and of the previous one. */
+export interface StageRates {
+  first: number;
+  previous: number;
+}
+
+/**
+    Each laid-out row's conversion rates, for the tooltip. Kept on the chart
+    rather than written onto the user's rows.
+*/
+export function stageRates(viz: VizInstance): WeakMap<DataPoint, StageRates> {
+  return (viz.ctx.funnelRates ??= new WeakMap<DataPoint, StageRates>()) as WeakMap<DataPoint, StageRates>;
+}
 
 /**
     Room left around the funnel for the hovered stroke emphasis (up to 3× a
@@ -97,6 +107,7 @@ export const applyFunnelLayout: TransformStage = ({viz}) => {
   const widths = stageWidths(values, breadth);
   const knots = profileKnots(spans, widths, !!viz.schema.taper);
   const rates = conversionRates(values);
+  const rateMap = stageRates(viz);
 
   const stages: FunnelStage[] = data.map((d, i) => {
     const span = spans[i];
@@ -104,8 +115,7 @@ export const applyFunnelLayout: TransformStage = ({viz}) => {
     const neck = i
       ? profileSlice(knots, spans[i - 1].end, span.start, curve)
       : [];
-    d[FIRST_KEY] = rates.first[i];
-    d[PREVIOUS_KEY] = rates.previous[i];
+    rateMap.set(d, {first: rates.first[i], previous: rates.previous[i]});
     return {
       __d3plus__: true,
       data: d,

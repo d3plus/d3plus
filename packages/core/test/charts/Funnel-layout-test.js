@@ -1,10 +1,9 @@
 import assert from "assert";
 import {
   applyFunnelLayout,
-  FIRST_KEY,
   funnelCurve,
   funnelOrient,
-  PREVIOUS_KEY,
+  stageRates,
   STROKE_BUFFER,
 } from "../../es/src/charts/Funnel/applyLayout.js";
 import {neckPaint, stageAria} from "../../es/src/charts/Funnel/emit.js";
@@ -96,8 +95,9 @@ it("Funnel layout: stages carry their rows, values, and conversion rates", () =>
   assert.ok(Number.isNaN(shapeData[0].previous));
   assert.strictEqual(shapeData[2].previous, 0.25);
   const rows = viz._filteredData;
-  assert.strictEqual(rows[1][FIRST_KEY], 0.5, "stamped for the tooltip");
-  assert.strictEqual(rows[2][PREVIOUS_KEY], 0.25);
+  assert.deepStrictEqual(rows[1], {id: "Trial", value: 200}, "user rows are left untouched");
+  assert.strictEqual(stageRates(viz).get(rows[1]).first, 0.5, "kept for the tooltip");
+  assert.strictEqual(stageRates(viz).get(rows[2]).previous, 0.25);
 });
 
 it("Funnel layout: a horizontal funnel runs across the width", () => {
