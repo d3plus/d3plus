@@ -65,8 +65,9 @@ export interface BaseShapeConfig {
   ariaLabel?: ConstOrAccessor<string>;
   /**
       An image drawn inside each shape: a URL (or `data:` URI), or an accessor
-      returning one per datum (a falsy value draws none). Every chart's data
-      shapes support it except links, Chord ribbons, and Gauge needles. Set it
+      returning one per datum (a falsy value draws none). Every chart's filled
+      data shapes support it; stroked marks like lines and links, and Gauge
+      needles, don't. Set it
       for all shapes in `shapeConfig`, or for one shape kind under its name
       (like `shapeConfig.Rect.backgroundImage`). The image is clipped to the
       shape's outline, sized by `backgroundImageFit`, and drawn over the
@@ -242,6 +243,10 @@ export interface ImageConfig {
 
 /** Box-specific config (whisker + median + outliers; subset of Shape). */
 export interface BoxConfig {
+  /** An image drawn inside each box (see `ShapeConfig.backgroundImage`); `rectConfig.backgroundImage` overrides it. */
+  backgroundImage?: ConstOrAccessor<string>;
+  /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
+  backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
   data?: DataPoint[];
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
@@ -252,6 +257,10 @@ export interface BoxConfig {
   rectConfig?: Record<string, unknown>;
   rectWidth?: ConstOrAccessor<number>;
   select?: string | HTMLElement | SVGElement | null;
+  /** Texture (per textures.js) filling each box; `rectConfig.texture` overrides it. */
+  texture?: ConstOrAccessor<string | Record<string, unknown>>;
+  /** Default texture config merged into the box's texture. */
+  textureDefault?: Record<string, unknown>;
   whiskerConfig?: Record<string, unknown>;
   /** Whisker mode: single mode string/number or [low, high] pair. */
   whiskerMode?: (string | number)[] | string | number;

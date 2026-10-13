@@ -1,6 +1,7 @@
 /**
     `sunburstEmit` — one Path SceneNode per laid-out arc (the focused node as a
-    full disc at the center) plus a label TextNode wherever the label fits.
+    full disc at the center), its `backgroundImage` when one is set, plus a
+    label TextNode wherever the label fits.
 */
 
 import {arc as d3Arc} from "d3-shape";
@@ -18,6 +19,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
 import {sunburstPadAngle} from "./geometry.js";
@@ -225,6 +227,11 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     } as SceneNode;
   });
 
+  const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
+    nodes[k].datum,
+    nodes[k].i ?? 0,
+  ]);
+
   const ghosts = ghostNodes(viz, fillOf);
 
   const labelConfig = (userLabelConfig(viz, "Path") ?? {}) as Record<
@@ -286,5 +293,5 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
   // lands (see SUNBURST_LABEL_FADE). A label whose arc stays put stays put.
   for (const n of labelNodes) (n as TextNode).fadeSwap = SUNBURST_LABEL_FADE;
 
-  return [...ghosts, ...pathNodes, ...labelNodes];
+  return [...ghosts, ...pathNodes, ...imageNodes, ...labelNodes];
 };
