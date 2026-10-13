@@ -106,7 +106,12 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.scale, "point", "Dates without time() stay a category axis");
     assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[12], r.labels[29]], ["Jan 2023", "Feb", "Jan 2024", "Jun 2025"]);
     assert.ok(r.ticks.length > 2 && r.ticks.every(t => !rawDate.test(t)), `painted labels read as dates (got ${r.ticks})`);
-    assert.ok(r.ticks.includes("Jan 2023") && r.ticks.includes("Jun 2025"), `the ends carry the year (got ${r.ticks})`);
+    // Too many to paint, the months thin evenly (see the Axis's thinEvenly), and each year starts with its January.
+    const step = r.labels.indexOf(r.ticks[1], 1);
+    assert.ok(step > 1, `the labels thin (got ${r.ticks})`);
+    assert.deepStrictEqual(r.ticks, r.labels.filter((_, i) => i % step === 0), `evenly, every ${step} months`);
+    assert.strictEqual(r.ticks[0], "Jan 2023", "the first label carries the year");
+    assert.ok(r.ticks.filter(t => t.startsWith("Jan")).every(t => /^Jan \d{4}$/.test(t)), `each January names its year (got ${r.ticks})`);
     assert.deepStrictEqual(r.thead, [["date", "Mar 2024"]], "the shared header names the hovered month with its year");
     const single = await run("LinePlot", monthly, {}, renderer, 1, 14);
     assert.deepStrictEqual(single.tbody[0], ["date", "Mar 2024"], "the single tooltip's x row names the month");
@@ -186,5 +191,7 @@ it("LinePlot — a facet's panels label Date categories as months", async functi
   assert.ok(r.length > 6, `the panels paint x labels (got ${r})`);
   assert.ok(r.every(t => !/GMT|\d\d:\d\d:\d\d/.test(t)), `no raw Date strings (got ${r})`);
   assert.strictEqual(r.filter(t => t === "Jan 2023").length, 3, `each panel starts at Jan 2023 (got ${r})`);
-  assert.strictEqual(r.filter(t => t === "Jun 2025").length, 3, `each panel ends at Jun 2025 (got ${r})`);
+  // Thinned evenly, each panel's labels land on the Januaries, which name their years.
+  ["Jan 2024", "Jan 2025"].forEach(year =>
+    assert.strictEqual(r.filter(t => t === year).length, 3, `each panel labels ${year} (got ${r})`));
 });
