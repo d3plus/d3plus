@@ -1,6 +1,7 @@
 export interface TranslationStrings {
   and: string;
   Back: string;
+  Band: string;
   "Bar Total": string;
   "Brush Zoom": string;
   Clear: string;
@@ -56,6 +57,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "ar-SA": {
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
+    Band: "\u0646\u0637\u0627\u0642",
     "Bar Total": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0645\u0648\u062f",
     "Brush Zoom": "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Clear: "\u0645\u0633\u062d",
@@ -115,6 +117,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "es-ES": {
     and: "y",
     Back: "Atr\u00e1s",
+    Band: "Banda",
     "Bar Total": "Total de la Barra",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Clear: "Borrar",
@@ -165,6 +168,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "pt-BR": {
     and: "e",
     Back: "Voltar",
+    Band: "Faixa",
     "Bar Total": "Total da Barra",
     "Brush Zoom": "Zoom de Seleção",
     Clear: "Limpar",
@@ -215,6 +219,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "zh-CN": {
     and: "\u548c",
     Back: "\u540e\u9762",
+    Band: "\u533a\u95f4",
     "Bar Total": "\u67f1\u603b\u8ba1",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Clear: "\u6e05\u9664",

@@ -270,7 +270,7 @@ export const argTypes = assign(
     },
     topojsonFill: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "The fill for topojson shapes that have no data (or no `colorScale` value): a CSS color or a function of the feature. Defaults to a quiet light gray, or its dark counterpart over a dark basemap.",
       table: {
@@ -280,7 +280,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "CssColor | function"
       }
     },
     topojsonFilter: {

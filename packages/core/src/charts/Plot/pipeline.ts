@@ -19,7 +19,9 @@ import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {applyBarWidths} from "./barWidth.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
+import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
+import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
@@ -114,7 +116,8 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
     time axes (sets viz._xTime / _x2Time / _yTime / _y2Time), maps the
     filtered data through `prepData` to produce the per-row PlotDatum shape
     (x/y/x2/y2 + id + group + shape + lci/hci + discrete), drops rows whose
-    axis values can't be plotted (`isPlottableRow` — see #776), and constructs
+    axis values can't be plotted (`isPlottableRow` — see #776) or whose
+    category a discrete axis's user domain leaves out, and constructs
     the `_sizeScaleD3` if `_size` is set.
 
     Pure compute. Returns `{formattedData, axisData, x2Exists, y2Exists}`
@@ -180,11 +183,14 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return newD;
   };
 
-  const plotted = viz._filteredData.map(prepData).filter(isPlottableRow);
+  const categories = discreteDomainCategories(viz);
+  const keepRow = (d: Record<string, unknown>) =>
+    isPlottableRow(d) && (!categories || categories.has(d[viz.schema.discrete]));
+  const plotted = viz._filteredData.map(prepData).filter(keepRow);
   const [formattedData, axisData] = applyBarWidths(
     viz,
     plotted,
-    viz._axisPersist ? viz._data.map(prepData).filter(isPlottableRow) : plotted,
+    viz._axisPersist ? viz._data.map(prepData).filter(keepRow) : plotted,
   );
   viz._formattedData = formattedData;
 
@@ -287,6 +293,7 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.lci));
       if (viz._confidence[1])
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.hci));
+      myData = myData.concat(extraBandValues(viz, localData));
     }
 
     return myData;
@@ -464,6 +471,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 };
 
 /**
+    A copy of a user `<axis>Domain`. On a time axis its set ends are parsed
+    into Dates the way the axis's data is (Dates, timestamps, years or date
+    strings), so they compare with the data; an undefined end stays undefined
+    for `computePlotScales` to fill from the data.
+*/
+function userDomain(domain: DomainValue[], time: boolean | undefined): DomainValue[] {
+  return time
+    ? domain.map(d => (d === undefined ? d : date(d as string | number) as Date))
+    : domain.slice();
+}
+
+/**
     Settles the opposite (value) axes' domains: an axis `domain` from
     `xConfig`/`yConfig` wins outright; otherwise the domain stretches to reach
     the `baseline`, unless a user domain deliberately stops short of it on a
@@ -527,10 +546,10 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
         ? "Point"
         : "Linear";
     const domain = viz.schema[`${axis}Domain`]
-        ? viz.schema[`${axis}Domain`].slice()
+        ? userDomain(viz.schema[`${axis}Domain`], viz[`_${axis}Time`])
         : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
-        ? viz.schema[`${axis}2Domain`].slice()
+        ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
     if (scale !== "Point") {
       if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
