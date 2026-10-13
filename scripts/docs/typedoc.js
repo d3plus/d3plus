@@ -78,6 +78,15 @@ export function typeToNames(type) {
     type.typeArguments?.length
   )
     return [...typeToNames(type.typeArguments[0]), "Function"];
+  // `ConstOrAccessor<CssColor>` — a shape's color (fill, stroke), expanded so
+  // it gets a color control. Other `ConstOrAccessor`s stay as they are.
+  if (
+    type.type === "reference" &&
+    type.name === "ConstOrAccessor" &&
+    type.typeArguments?.[0]?.type === "reference" &&
+    type.typeArguments[0].name === "CssColor"
+  )
+    return ["CssColor", "Function"];
   // `DataPointAccessor<T>` — a data key or a `(datum) => T` accessor.
   if (type.type === "reference" && type.name === "DataPointAccessor")
     return ["string", "Function"];
