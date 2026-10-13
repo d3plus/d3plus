@@ -21,7 +21,6 @@ import {groups, max, merge} from "d3-array";
 import * as scales from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {SceneNode} from "@d3plus/render";
@@ -29,6 +28,7 @@ import type {SceneNode} from "@d3plus/render";
 import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
+import {emitLineBands} from "../Plot/lineBands.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
@@ -290,7 +290,7 @@ function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneN
 /** Line — duration, optional confidence band, end-labels, and point markers. */
 const lineEmit: ShapeEmitter = ctx => {
   const {
-    viz, x, y, values, width, showLineLabels,
+    viz, values, width, showLineLabels,
     labelWidths, largestLabel, labelPositions,
   } = ctx;
   const out: SceneNode[] = [];
@@ -302,40 +302,7 @@ const lineEmit: ShapeEmitter = ctx => {
 
   s.duration(width * 1.5);
 
-  if (viz._confidence) {
-    const confidence = viz._confidence;
-    const areaConfig: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
-    const discrete = viz.schema.discrete || "x";
-    const key = discrete === "x" ? "y" : "x";
-    const scaleFunction = discrete === "x" ? y : x;
-    areaConfig[`${key}0`] = (d: PlotDatum) =>
-      scaleFunction(confidence[0] ? d.lci : d[key]);
-    areaConfig[`${key}1`] = (d: PlotDatum) =>
-      scaleFunction(confidence[1] ? d.hci : d[key]);
-
-    const area = makeShape("Area")
-      .renderMode("compute")
-      .config(areaConfig)
-      .data(values);
-    // Fresh object — must NOT mutate the shared `shapeConfig`, or the confidence
-    // fill/fillOpacity leak onto every other shape and every later render.
-    const confidenceConfig = Object.assign(
-      {},
-      viz.schema.shapeConfig,
-      viz._confidenceConfig,
-    );
-
-    const bandConfig = assign(
-      shapeConfigFor(viz, "Line", confidenceConfig),
-      shapeConfigFor(viz, "Area", confidenceConfig),
-    );
-    // Error-bar and tooltip keys aren't Area styles.
-    delete bandConfig.capWidth;
-    delete bandConfig.tooltip;
-    area.config(bandConfig).render();
-
-    out.push(...collectComputed(area));
-  }
+  if (viz._confidence) out.push(...emitLineBands(ctx));
 
   s.config({
     discrete: ctx.shapeConfig.discrete || "x",

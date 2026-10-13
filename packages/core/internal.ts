@@ -85,6 +85,19 @@ export {
 export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
+export {
+  bandOpacityTargets,
+  boundOrValue,
+  confidenceBands,
+  DEFAULT_BAND_OPACITY,
+  extraBandValues,
+  layerOpacities,
+  resolveConfidenceBands,
+  rowBands,
+} from "./src/charts/Plot/confidenceBands.js";
+export type {BandBounds, ConfidenceBand} from "./src/charts/Plot/confidenceBands.js";
+export {bandRows, rangeText} from "./src/charts/Plot/confidenceTooltip.js";
+export {emitLineBands} from "./src/charts/Plot/lineBands.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";

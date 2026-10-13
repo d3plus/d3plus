@@ -64,7 +64,8 @@ import {
 } from "./stackHelpers.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
-import {resolveConfidence, validateConfidenceConfig} from "./confidenceConfig.js";
+import {validateConfidenceConfig} from "./confidenceConfig.js";
+import {resolveConfidenceBands, type ConfidenceBand} from "./confidenceBands.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {forecastDefaults} from "./forecast.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
@@ -522,7 +523,9 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-       The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.
+       The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.
+
+       Pass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label ("Band 1", "Band 2", … when unlabeled), and bars draw the first band's error bar.
 
 @example <caption>Can be called with accessor functions or static keys:</caption>
        var data = {id: "alpha", value: 10, lci: 9, hci: 11};
@@ -532,15 +535,20 @@ Additionally, each config object can also contain an optional "layer" key, which
 
        // Or static keys
        .confidence(["lci", "hci"])
+
+       // Or nested bands, outermost first
+       .confidence([["p5", "p95", "90%"], ["p25", "p75", "50%"]])
 */
-  confidence(_?: unknown): this | VizInstance["_confidence"] {
-    if (!arguments.length) return this._confidence;
-    this._confidence = resolveConfidence(_);
+  confidence(_?: unknown): this | VizInstance["_confidence"] | ConfidenceBand[] {
+    if (!arguments.length)
+      return this._confidenceBands && this._confidenceBands.length > 1 ? this._confidenceBands : this._confidence;
+    const bands = (this._confidenceBands = resolveConfidenceBands(_));
+    this._confidence = bands.length ? [bands[0].lower, bands[0].upper] : false;
     return this;
   }
 
   /**
-       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
+       Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
 
 @example
        .confidenceConfig({Bar: {stroke: "#333", capWidth: 8}, tooltip: false})
