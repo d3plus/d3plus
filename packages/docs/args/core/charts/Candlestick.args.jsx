@@ -90,7 +90,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "Draws rising candles as outlines and falling candles filled (default `true`), so direction reads without relying on color; `false` fills both. OHLC bars are never filled.",
+      description: "Draws rising candles as outlines and falling candles filled (default `true`), so direction reads without relying on color; `false` fills both. OHLC bars are never filled. An unfilled candle or bar takes no `shapeConfig.texture` or `shapeConfig.backgroundImage`; filled ones take both, with a texture's lines a shade darker than the body unless the texture sets its own `stroke`.",
       table: {
         defaultValue: {
           summary: "true"

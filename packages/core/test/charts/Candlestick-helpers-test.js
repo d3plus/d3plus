@@ -34,7 +34,7 @@ import {
   formatChange,
   formatPrice,
 } from "../../es/src/charts/Candlestick/tooltip.js";
-import {CANDLESTICK_SHAPE, layoutCandles} from "../../es/src/charts/Candlestick/emit.js";
+import {CANDLESTICK_SHAPE, candleTexture, layoutCandles} from "../../es/src/charts/Candlestick/emit.js";
 
 const key = k => d => d[k];
 const accessors = {open: key("open"), high: key("high"), low: key("low"), close: key("close")};
@@ -359,4 +359,16 @@ it("Candlestick layoutCandles centers each period and draws candles or OHLC bars
   const lone = layoutCandles(fakeViz(), rows.slice(0, 1), x, y, [0, 600]);
   assert.strictEqual(lone.get(rows[0]).width, 28, "a lone period gets 40px of room");
   assert.strictEqual(CANDLESTICK_SHAPE, "Candlestick");
+});
+
+it("candleTexture draws a texture's lines a shade darker than the candle's fill", () => {
+  assert.deepStrictEqual(candleTexture("lines", "#e03131"), {texture: "lines", stroke: "#9d2222"});
+  assert.deepStrictEqual(
+    candleTexture({texture: "circles", size: 8}, "#e03131"),
+    {texture: "circles", size: 8, stroke: "#9d2222"},
+  );
+  assert.deepStrictEqual(candleTexture({texture: "lines", stroke: "#fff"}, "#e03131"), {texture: "lines", stroke: "#fff"}, "a set stroke wins");
+  assert.strictEqual(candleTexture("lines", "none"), "lines", "an unfilled candle is left to textureKey (no texture)");
+  assert.strictEqual(candleTexture(false, "#e03131"), false);
+  assert.strictEqual(candleTexture(undefined, "#e03131"), undefined);
 });

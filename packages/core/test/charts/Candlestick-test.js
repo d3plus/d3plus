@@ -307,6 +307,7 @@ it("Candlestick: filled candles take texture and backgroundImage on SVG and Canv
         const marks = window.__candles(viz).filter(c => c.type === "path").map(c => ({
           up: c.datum.data.close >= c.datum.data.open,
           fill: String(c.paint.fill),
+          texture: String(c.paint.fill).startsWith("pattern:") ? JSON.parse(String(c.paint.fill).slice(8)) : null,
           image: images.includes(c.key + "-bgimage-img"),
         }));
         el.remove();
@@ -322,7 +323,10 @@ it("Candlestick: filled candles take texture and backgroundImage on SVG and Canv
     assert.ok(hollow.some(m => m.up) && hollow.some(m => !m.up), `${renderer}: both directions drawn`);
     for (const m of hollow) {
       if (m.up) assert.ok(m.fill === "none" && !m.image, `${renderer}: a hollow candle stays hollow`);
-      else assert.ok(m.fill.startsWith("pattern:") && m.image, `${renderer}: a filled candle takes both`);
+      else {
+        assert.ok(m.fill.startsWith("pattern:") && m.image, `${renderer}: a filled candle takes both`);
+        assert.notStrictEqual(m.texture.stroke, m.texture.background, `${renderer}: texture lines show against the body`);
+      }
     }
     assert.ok(filled.every(m => m.fill.startsWith("pattern:") && m.image), `${renderer}: hollow(false) fills every candle with both`);
     assert.ok(ohlc.every(m => m.fill === "none" && !m.image), `${renderer}: OHLC bars take neither`);

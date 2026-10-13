@@ -9,6 +9,7 @@
     @module
 */
 
+import {color} from "d3-color";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -130,6 +131,24 @@ function candleStyle(viz: VizInstance, layoutOf: (d: PlotDatum) => CandleLayout)
 }
 
 /**
+    A candle's texture with lines that show against its body. Candles stroke
+    in their fill color, and a texture's lines default to the stroke, so they
+    would vanish into the body: a texture without its own `stroke` is drawn a
+    shade darker than the fill, like other shapes' default stroke.
+    @param texture The resolved `shapeConfig.texture` for the candle.
+    @param fill The candle's resolved fill.
+*/
+export function candleTexture(texture: unknown, fill: unknown): unknown {
+  if (!texture) return texture;
+  const c = typeof fill === "string" ? color(fill) : null;
+  if (!c) return texture;
+  const config: Record<string, unknown> =
+    typeof texture === "object" ? {...(texture as Record<string, unknown>)} : {texture};
+  if (!config.stroke) config.stroke = c.darker(1).formatHex();
+  return config;
+}
+
+/**
     Emits the candles for a Plot's `"Candlestick"` rows. Styled by
     `upColor`/`downColor`/`hollow`, then any keys nested under
     `shapeConfig.Candlestick`.
@@ -165,9 +184,11 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
   // backgroundImage, just as it takes no texture.
   const fillOf = path.schema.fill as (d: PlotDatum, i: number) => unknown;
   const imageOf = path.schema.backgroundImage as (d: PlotDatum, i: number) => unknown;
+  const textureOf = path.schema.texture as (d: PlotDatum, i: number) => unknown;
   path
     .config({
       backgroundImage: (d: PlotDatum, i: number) => (fillOf(d, i) === "none" ? false : imageOf(d, i)),
+      texture: (d: PlotDatum, i: number) => candleTexture(textureOf(d, i), fillOf(d, i)),
     })
     .data(Array.from(layouts.keys()));
   viz._wirePlotShapeEvents!(path, CANDLESTICK_SHAPE, ctx.events);
