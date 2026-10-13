@@ -160,6 +160,14 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
       label: false,
       x: 0,
       y: 0,
+    });
+  // Hollow means hollow: a candle (or OHLC bar) drawn without a fill takes no
+  // backgroundImage, just as it takes no texture.
+  const fillOf = path.schema.fill as (d: PlotDatum, i: number) => unknown;
+  const imageOf = path.schema.backgroundImage as (d: PlotDatum, i: number) => unknown;
+  path
+    .config({
+      backgroundImage: (d: PlotDatum, i: number) => (fillOf(d, i) === "none" ? false : imageOf(d, i)),
     })
     .data(Array.from(layouts.keys()));
   viz._wirePlotShapeEvents!(path, CANDLESTICK_SHAPE, ctx.events);

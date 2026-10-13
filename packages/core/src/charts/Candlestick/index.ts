@@ -161,7 +161,9 @@ export const candlestickDef: ChartDefinition = {
     /**
         Draws rising candles as outlines and falling candles filled (default
         `true`), so direction reads without relying on color; `false` fills
-        both. OHLC bars are never filled.
+        both. OHLC bars are never filled. An unfilled candle or bar takes no
+        `shapeConfig.texture` or `shapeConfig.backgroundImage`; filled ones
+        take both.
     */
     {key: "hollow", default: true},
     /** The share of each period's room the candle body (or OHLC ticks) spans, from 0 to 1. Defaults to 0.7. */

@@ -288,3 +288,43 @@ it("Candlestick redraws through empty data and back", async function () {
   });
   assert.deepStrictEqual(out, [12, 0, 5]);
 });
+
+it("Candlestick: filled candles take texture and backgroundImage on SVG and Canvas; hollow ones take neither", async function () {
+  this.timeout(60000);
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await render("", new Function("renderer", `return (${helpers})(), (async renderer => {
+      const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+      const probe = async configure => {
+        const {el, viz} = await window.__draw(v => configure(v.data(window.__prices(20)).groupBy("symbol")
+          .shapeConfig({texture: "lines", backgroundImage: image})), renderer);
+        const images = [];
+        const walk = n => {
+          if (n.type === "image") images.push(n.key);
+          (n.children || []).forEach(walk);
+        };
+        walk(viz._lastSceneRendered.root);
+        // Each candle's image group is stamped as a Candlestick mark too; keep the paths.
+        const marks = window.__candles(viz).filter(c => c.type === "path").map(c => ({
+          up: c.datum.data.close >= c.datum.data.open,
+          fill: String(c.paint.fill),
+          image: images.includes(c.key + "-bgimage-img"),
+        }));
+        el.remove();
+        return marks;
+      };
+      return {
+        hollow: await probe(v => v),
+        filled: await probe(v => v.hollow(false)),
+        ohlc: await probe(v => v.variant("ohlc")),
+      };
+    })(renderer);`), renderer);
+    const {hollow, filled, ohlc} = out;
+    assert.ok(hollow.some(m => m.up) && hollow.some(m => !m.up), `${renderer}: both directions drawn`);
+    for (const m of hollow) {
+      if (m.up) assert.ok(m.fill === "none" && !m.image, `${renderer}: a hollow candle stays hollow`);
+      else assert.ok(m.fill.startsWith("pattern:") && m.image, `${renderer}: a filled candle takes both`);
+    }
+    assert.ok(filled.every(m => m.fill.startsWith("pattern:") && m.image), `${renderer}: hollow(false) fills every candle with both`);
+    assert.ok(ohlc.every(m => m.fill === "none" && !m.image), `${renderer}: OHLC bars take neither`);
+  }
+});
