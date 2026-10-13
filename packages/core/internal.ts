@@ -53,6 +53,17 @@ export {
   dashArray,
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
+export {curveFactory, lineCurve} from "./src/charts/Plot/lineCurve.js";
+export {
+  betweenPoints,
+  emitFillBetween,
+  fillBetweenDefaults,
+  fillBetweenPairs,
+  inheritedFillStyle,
+  sideClip,
+  valueDirection,
+} from "./src/charts/Plot/fillBetween.js";
+export type {BetweenPoint, FillBetweenSetting} from "./src/charts/Plot/fillBetween.js";
 export {
   closestFreeOffset,
   fitSwarms,
@@ -63,6 +74,19 @@ export {
 export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
+export {
+  bandOpacityTargets,
+  boundOrValue,
+  confidenceBands,
+  DEFAULT_BAND_OPACITY,
+  extraBandValues,
+  layerOpacities,
+  resolveConfidenceBands,
+  rowBands,
+} from "./src/charts/Plot/confidenceBands.js";
+export type {BandBounds, ConfidenceBand} from "./src/charts/Plot/confidenceBands.js";
+export {bandRows, rangeText} from "./src/charts/Plot/confidenceTooltip.js";
+export {emitLineBands} from "./src/charts/Plot/lineBands.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
@@ -197,6 +221,13 @@ export {
   valueAxis,
   valueAxisExtent,
 } from "./src/charts/Plot/baselineBreak.js";
+export {
+  clipToPlotArea,
+  DOMAIN_CLIP_KEY,
+  isDomainClip,
+  unwrapDomainClips,
+} from "./src/charts/Plot/domainClip.js";
+export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {
