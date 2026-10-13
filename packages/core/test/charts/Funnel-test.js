@@ -504,3 +504,87 @@ it("Funnel's emit and label functions rebuild the scene from a layout", async fu
   assert.strictEqual(out.empty, 0);
   assert.strictEqual(out.noShared, 0, "nothing to draw without a layout");
 });
+
+it("Funnel's stages, necks, and legend swatches take texture and backgroundImage on SVG and Canvas", async function () {
+  this.timeout(60000);
+  const phases = [
+    {phase: "Awareness", stage: "Impressions", value: 52000},
+    {phase: "Awareness", stage: "Clicks", value: 21000},
+    {phase: "Consideration", stage: "Views", value: 11800},
+    {phase: "Conversion", stage: "Purchased", value: 1900},
+  ];
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await render(
+      "",
+      async ({data, renderer: r}) => {
+        const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+        const draw = async connectorConfig => {
+          const el = document.createElement("div");
+          el.style.cssText = "width:600px;height:400px";
+          document.body.appendChild(el);
+          const viz = new window.d3plus.Funnel()
+            .select(el)
+            .duration(0)
+            .renderer(r)
+            .config({data, groupBy: ["phase", "stage"], ...(connectorConfig ? {connectorConfig} : {})})
+            .shapeConfig({texture: "lines", backgroundImage: image});
+          await new Promise(res => viz.render(res));
+          const leaves = [];
+          const walk = (n, anc) =>
+            n.type === "group"
+              ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
+              : leaves.push({...n, anc});
+          walk(viz._lastSceneRendered.root, "");
+          const groups = [];
+          const walkGroups = n => {
+            if (n.type !== "group") return;
+            groups.push(n);
+            (n.children || []).forEach(walkGroups);
+          };
+          walkGroups(viz._lastSceneRendered.root);
+          const images = new Set(leaves.filter(n => n.type === "image").map(n => n.key));
+          const mark = n => ({
+            key: n.key,
+            textured: String(n.paint.fill).startsWith("pattern:"),
+            image: images.has(`${n.key}-bgimage-img`),
+            opacity: n.paint.opacity,
+            imageOpacity: (groups.find(g => g.key === `${n.key}-bgimage`) || {paint: {}}).paint.opacity,
+          });
+          const paths = leaves.filter(n => n.type === "path" && /^funnel-/.test(n.key));
+          const swatches = leaves.filter(n =>
+            ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
+            !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
+          const svg = el.querySelector("svg");
+          const dom = svg ? svg.querySelectorAll("image").length : null;
+          el.remove();
+          return {
+            stages: paths.filter(n => !n.key.endsWith("-neck")).map(mark),
+            necks: paths.filter(n => n.key.endsWith("-neck")).map(mark),
+            swatches: swatches.map(mark),
+            dom,
+          };
+        };
+        return {
+          inherit: await draw(undefined),
+          off: await draw({texture: false, backgroundImage: false}),
+        };
+      },
+      {data: phases, renderer},
+    );
+    const {inherit, off} = out;
+    assert.strictEqual(inherit.stages.length, 4, `${renderer}: a path per stage`);
+    assert.strictEqual(inherit.necks.length, 3, `${renderer}: a neck between each pair`);
+    for (const m of [...inherit.stages, ...inherit.necks])
+      assert.ok(m.textured && m.image, `${renderer}: ${m.key} takes both`);
+    for (const m of inherit.necks)
+      assert.strictEqual(m.imageOpacity, m.opacity, `${renderer}: ${m.key}'s image takes its opacity`);
+    assert.strictEqual(inherit.necks[0].opacity, 0.35);
+    assert.strictEqual(inherit.swatches.length, 3, `${renderer}: a swatch per phase`);
+    for (const m of inherit.swatches)
+      assert.ok(m.textured && m.image, `${renderer}: swatch ${m.key} takes both`);
+    if (renderer === "svg")
+      assert.ok(inherit.dom >= 4 + 3 + 3, `the DOM draws ${inherit.dom} images`);
+    assert.ok(off.stages.every(m => m.textured && m.image), `${renderer}: stages keep both`);
+    assert.ok(off.necks.every(m => !m.textured && !m.image), `${renderer}: connectorConfig turns both off`);
+  }
+});

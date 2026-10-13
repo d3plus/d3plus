@@ -8,7 +8,11 @@ import {
   stageRates,
   STROKE_BUFFER,
 } from "../../es/src/charts/Funnel/applyLayout.js";
-import {neckPaint, stageAria} from "../../es/src/charts/Funnel/emit.js";
+import {
+  neckConfig,
+  neckPaint,
+  stageAria,
+} from "../../es/src/charts/Funnel/emit.js";
 import {
   funnelFacetHooks,
   funnelFacetPanel,
@@ -168,6 +172,32 @@ it("Funnel layout: neckPaint defaults to the stage fill and honors connectorConf
     stroke: "#000",
     strokeWidth: 2,
   });
+});
+
+it("Funnel layout: a neck inherits its stage's texture unless connectorConfig overrides it", () => {
+  const s = {data: {id: "Trial"}, i: 1};
+  const sc = {texture: "lines", backgroundImage: "stage.png", stroke: "#000"};
+  const textured = neckPaint(mockViz(), s, "#123456", sc);
+  assert.ok(textured.fill.startsWith("pattern:"), "the stage's texture");
+  assert.strictEqual(textured.opacity, 0.35);
+  const off = mockViz({connectorConfig: {opacity: 0.35, texture: false}});
+  assert.strictEqual(neckPaint(off, s, "#123456", sc).fill, "#123456");
+  const own = mockViz({connectorConfig: {texture: d => (d.id === "Trial" ? "circles" : false)}});
+  assert.ok(neckPaint(own, s, "#123456", {}).fill.includes("circles"), "connectorConfig.texture");
+  assert.strictEqual(neckPaint(mockViz(), s, "#123456").fill, "#123456", "no shape config");
+});
+
+it("Funnel layout: neckConfig lays connectorConfig over the stage's shape config", () => {
+  const sc = {texture: "lines", backgroundImage: "stage.png", backgroundImageFit: "contain"};
+  assert.deepStrictEqual(neckConfig(mockViz(), sc), {...sc, opacity: 0.35});
+  const viz = mockViz({connectorConfig: {opacity: 0.5, backgroundImage: false}});
+  assert.deepStrictEqual(neckConfig(viz, sc), {
+    texture: "lines",
+    backgroundImage: false,
+    backgroundImageFit: "contain",
+    opacity: 0.5,
+  });
+  assert.deepStrictEqual(neckConfig(mockViz({connectorConfig: undefined})), {});
 });
 
 it("Funnel layout: stageAria names the stage's rank, name, and value", () => {

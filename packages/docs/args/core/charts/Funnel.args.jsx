@@ -27,7 +27,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "Whether to fill the gap between consecutive stages with a neck joining their widths.",
+      description: "Whether to fill the gap between consecutive stages with a neck joining their widths. A neck takes its stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; see `connectorConfig` to override them.",
       table: {
         defaultValue: {
           summary: "true"
@@ -42,7 +42,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Paint for the necks between stages (`fill`, `opacity`, `stroke`, `strokeWidth`), each a value or a function of the stage the neck leads into. `fill` defaults to that stage's fill.",
+      description: "Paint for the necks between stages (`fill`, `opacity`, `stroke`, `strokeWidth`, `texture`, `backgroundImage`, `backgroundImageFit`), each a value or a function of the stage the neck leads into. `fill` defaults to that stage's fill. A neck inherits that stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; `connectorConfig.texture` and `connectorConfig.backgroundImage` override them, and `false` turns either off for the necks. The image takes the neck's `opacity`, like its fill.",
       table: {
         defaultValue: {
           summary: "{opacity: 0.35}"

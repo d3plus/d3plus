@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Funnel</title>
-  <meta name="description" content="Funnel stages with necks, conversion labels, tapered and smooth outlines, horizontal orientation, groupBy color, sorted stages, and small multiples with per-panel or shared width scales.">
+  <meta name="description" content="Funnel stages with necks, conversion labels, tapered and smooth outlines, horizontal orientation, groupBy color, sorted stages, small multiples with per-panel or shared width scales, and textures and background images on stages and necks.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
 
@@ -42,6 +42,8 @@
   <div class="viz" id="sortStep"></div>
   <div class="viz wide" id="facet"></div>
   <div class="viz wide" id="facetShared"></div>
+  <div class="viz" id="textured"></div>
+  <div class="viz" id="texturedNecks"></div>
 </body>
 
 <script>
@@ -195,6 +197,29 @@
       facetConfig: {scales: "shared"},
       conversion: "first",
       title: "facetConfig scales \"shared\": one width scale across panels (compare volume)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#textured")
+    .config({
+      data: phases,
+      groupBy: ["phase", "stage"],
+      shapeConfig: {
+        texture: function(d) { return d.phase === "Awareness" ? "lines" : d.phase === "Conversion" ? "grid" : false; },
+        backgroundImage: function(d) { return d.phase === "Consideration" ? "./Landscape.svg" : false; }
+      },
+      title: "shapeConfig texture + backgroundImage (necks inherit them)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#texturedNecks")
+    .config({
+      data: stages,
+      shapeConfig: {backgroundImage: "./Landscape.svg"},
+      connectorConfig: {backgroundImage: false, texture: "lines"},
+      title: "connectorConfig: backgroundImage false, texture \"lines\""
     })
     .render();
 

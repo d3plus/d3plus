@@ -80,7 +80,11 @@ export const funnelDef: DataDrivenChartDefinition = {
   ctx: {},
 
   fields: [
-    /** Whether to fill the gap between consecutive stages with a neck joining their widths. */
+    /**
+        Whether to fill the gap between consecutive stages with a neck joining
+        their widths. A neck takes its stage's `shapeConfig.texture` and
+        `shapeConfig.backgroundImage`; see `connectorConfig` to override them.
+    */
     {key: "connector", default: true},
     /**
         Which conversion rates each stage's label shows beneath its value:
@@ -168,8 +172,13 @@ export const funnelDef: DataDrivenChartDefinition = {
     {key: "zoom", default: false},
     /**
         Paint for the necks between stages (`fill`, `opacity`, `stroke`,
-        `strokeWidth`), each a value or a function of the stage the neck
-        leads into. `fill` defaults to that stage's fill.
+        `strokeWidth`, `texture`, `backgroundImage`, `backgroundImageFit`),
+        each a value or a function of the stage the neck leads into. `fill`
+        defaults to that stage's fill. A neck inherits that stage's
+        `shapeConfig.texture` and `shapeConfig.backgroundImage`;
+        `connectorConfig.texture` and `connectorConfig.backgroundImage`
+        override them, and `false` turns either off for the necks. The image
+        takes the neck's `opacity`, like its fill.
     */
     {key: "connectorConfig", merge: true, default: {opacity: 0.35}},
     /**

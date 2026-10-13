@@ -106,7 +106,12 @@ export {
 } from "./src/charts/Funnel/funnelFacet.js";
 export type {FunnelFacetScale} from "./src/charts/Funnel/funnelFacet.js";
 export type {FunnelShared, FunnelStage} from "./src/charts/Funnel/applyLayout.js";
-export {funnelEmit, neckPaint, stageAria} from "./src/charts/Funnel/emit.js";
+export {
+  funnelEmit,
+  neckConfig,
+  neckPaint,
+  stageAria,
+} from "./src/charts/Funnel/emit.js";
 export {
   funnelLabelNodes,
   percentText,
