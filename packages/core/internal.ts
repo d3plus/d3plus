@@ -275,6 +275,7 @@ export {
   FACET_PADDING,
   FACET_TITLE_DEFAULTS,
   facetActive,
+  facetScalesShared,
   resolveFacetConfig,
 } from "./src/charts/facet/facetConfig.js";
 export type {

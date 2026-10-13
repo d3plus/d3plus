@@ -14,6 +14,7 @@ import {
   facetKey,
   facetPanelAt,
   facetPanelNode,
+  facetScalesShared,
   facetTitleStyle,
   facetTitleTexts,
   fittedArea,
@@ -64,7 +65,7 @@ describe("facet config", () => {
     const def = resolveFacetConfig(undefined);
     assert.strictEqual(def.padding, FACET_PADDING);
     assert.strictEqual(def.sort, "ascending");
-    assert.strictEqual(def.scales, "shared");
+    assert.strictEqual(def.scales, undefined, "scales defers to the chart's default");
     assert.strictEqual(def.axes, undefined, "axes defers to the chart's default");
     assert.strictEqual(def.columns, undefined);
     assert.strictEqual(def.title, undefined);
@@ -85,6 +86,14 @@ describe("facet config", () => {
     assert.strictEqual(c.titleConfig.fontSize, 20);
     assert.strictEqual(c.titleConfig.textAnchor, "middle", "titleConfig merges over the defaults");
     assert.strictEqual(resolveFacetConfig({title: false}).title, false);
+  });
+
+  it("facetScalesShared: facetConfig.scales, else the chart's default, else shared", () => {
+    assert.strictEqual(facetScalesShared({scales: undefined}, {}), true);
+    assert.strictEqual(facetScalesShared({scales: undefined}, {scales: "independent"}), false);
+    assert.strictEqual(facetScalesShared({scales: "shared"}, {scales: "independent"}), true);
+    assert.strictEqual(facetScalesShared({scales: "independent"}, {}), false);
+    assert.strictEqual(facetScalesShared({scales: "independent"}, {scales: "shared"}), false);
   });
 
   it("facetActive: true only when the facet accessor is set", () => {
