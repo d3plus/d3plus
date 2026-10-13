@@ -58,6 +58,7 @@ export {
   emitFillBetween,
   fillBetweenDefaults,
   fillBetweenPairs,
+  inheritedFillStyle,
   sideClip,
   valueDirection,
 } from "./src/charts/Plot/fillBetween.js";

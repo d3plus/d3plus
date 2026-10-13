@@ -549,7 +549,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart.",
+      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
       table: {
         defaultValue: {
           summary: "undefined"

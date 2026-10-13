@@ -548,7 +548,12 @@ export interface D3plusConfig {
       Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style
       accessors receive a data row of whichever series is higher, with
       `above` and `below` keys naming the higher and lower series, so a
-      `fill` accessor can color the A > B and B > A regions apart.
+      `fill` accessor can color the A > B and B > A regions apart. Like a
+      confidence band, the fill takes `texture`, `textureDefault`,
+      `backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or
+      `shapeConfig.Area`), so a texture accessor that picks a series
+      textures the regions where that series is higher; set them here to
+      style the fill alone, or to `false` to keep it plain.
   */
   fillBetweenConfig?: Record<string, unknown>;
   /** Predicate filtering which data points are included, or false to disable. */

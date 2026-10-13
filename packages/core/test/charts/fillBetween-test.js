@@ -7,6 +7,7 @@ import {
   FILL_BETWEEN_KEY,
   fillBetweenDefaults,
   fillBetweenPairs,
+  inheritedFillStyle,
   sideClip,
   valueDirection,
 } from "../../es/src/charts/Plot/fillBetween.js";
@@ -131,4 +132,20 @@ it("emitFillBetween — a vertical plot fills across x", () => {
   const nodes = emitFillBetween({viz, values: flipped, shapeConfig: {x: d => d.x * 10, y: d => (d.y - 1) * 100}});
   assert.strictEqual(nodes.length, 2);
   assert.ok(nodes[0].clip.d.endsWith("L-100000,0Z"), "where a is higher, b lies left of it");
+});
+
+it("inheritedFillStyle: the fills take shapeConfig's texture and background image, Area first", () => {
+  const accessor = d => d.id;
+  const viz = new LinePlot().shapeConfig({
+    texture: "lines",
+    backgroundImage: accessor,
+    fill: "red",
+    Area: {texture: "circles", backgroundImageFit: "contain"},
+  });
+  assert.deepStrictEqual(inheritedFillStyle(viz), {
+    texture: "circles",
+    backgroundImage: accessor,
+    backgroundImageFit: "contain",
+  });
+  assert.deepStrictEqual(inheritedFillStyle(new LinePlot()), {}, "nothing to inherit by default");
 });

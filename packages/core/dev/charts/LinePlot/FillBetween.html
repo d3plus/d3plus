@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Fill Between · LinePlot</title>
-  <meta name="description" content="LinePlot fillBetween: a named pair that crosses, the first two series, fills colored by above/below, several pairs, a vertical plot, and a reversed axis.">
+  <meta name="description" content="LinePlot fillBetween: a named pair that crosses, the first two series, fills colored by above/below, several pairs, a vertical plot, a reversed axis, a time axis, and textures and background images.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -25,6 +25,8 @@
     <div><h3>Vertical plot (discrete y axis)</h3><div class="viz" id="vertical"></div></div>
     <div><h3>Reversed value axis</h3><div class="viz" id="reversed"></div></div>
     <div><h3>Time axis</h3><div class="viz" id="time"></div></div>
+    <div><h3>shapeConfig.texture: textured where Imports is higher</h3><div class="viz" id="texture"></div></div>
+    <div><h3>fillBetweenConfig: a texture and a background image</h3><div class="viz" id="image"></div></div>
   </div>
 </body>
 
@@ -122,6 +124,42 @@
     .y("value")
     .fillBetween(["Observed", "Model"])
     .timeline(false)
+    .render();
+
+  // Like a confidence band, the fill takes shapeConfig's texture; the accessor
+  // gets the higher series' row, so the Imports > Exports regions are hatched.
+  new d3plus.LinePlot()
+    .select("#texture")
+    .data(trade)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .fillBetween(["Exports", "Imports"])
+    .fillBetweenConfig({fillOpacity: 0.8})
+    .shapeConfig({texture: d => (d.id === "Imports" ? "lines" : false)})
+    .render();
+
+  const warm = "data:image/svg+xml," + encodeURIComponent(
+    "<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'>" +
+    "<defs><linearGradient id='g' x1='0' y1='0' x2='0' y2='1'>" +
+    "<stop offset='0' stop-color='#e8590c'/><stop offset='1' stop-color='#ffe8cc'/></linearGradient></defs>" +
+    "<rect width='100' height='100' fill='url(#g)'/></svg>"
+  );
+
+  // fillBetweenConfig styles the fill alone: the lines and legend stay plain.
+  new d3plus.LinePlot()
+    .select("#image")
+    .data(temps)
+    .groupBy("id")
+    .x("month")
+    .y("value")
+    .color(d => (d.id === "High" ? "#e8590c" : "#1c7ed6"))
+    .fillBetween(true)
+    .fillBetweenConfig({
+      backgroundImage: d => (d.above === "High" ? warm : false),
+      fillOpacity: 0.5,
+      texture: d => (d.above === "Low" ? "lines" : false),
+    })
     .render();
 
 </script>

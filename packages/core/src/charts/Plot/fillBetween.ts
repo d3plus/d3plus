@@ -222,18 +222,15 @@ function pairNodes(
       fill: lineColor(viz),
       strokeWidth: 0,
     })
-    .config(
-      shapeConfigFor(
-        viz,
-        "Area",
-        viz.schema.fillBetweenConfig as Record<string, unknown>,
-      ),
-    );
+    .config(fillBetweenStyle(viz));
   shape.render();
   const nodes = collectComputed(shape);
   return sides.flatMap(side => {
-    const children = nodes.filter(n => n.key === side.id);
-    if (!children.length) return [];
+    // The area, then its background image (keyed `<id>-bgimage`), if any.
+    const children = nodes.filter(
+      n => n.key === side.id || n.key === `${side.id}-bgimage`,
+    );
+    if (!children.some(n => n.key === side.id)) return [];
     children.forEach(n => (n.interactive = false));
     const clip = sideClip(points, side.edge, geo.horizontal, geo.curve);
     return [
@@ -268,6 +265,39 @@ export function valueDirection(
     if (dv && dp) return Math.sign(dv) === Math.sign(dp) ? 1 : -1;
   }
   return key === "y" ? -1 : 1;
+}
+
+/** The `shapeConfig` keys a fill between takes from the chart's shapes. */
+export const FILL_BETWEEN_INHERITED = [
+  "texture",
+  "textureDefault",
+  "backgroundImage",
+  "backgroundImageFit",
+];
+
+/**
+    The chart's `texture`, `textureDefault`, `backgroundImage`, and
+    `backgroundImageFit`, from `shapeConfig.Area` or else `shapeConfig`, the
+    way a confidence band takes them. `fillBetweenConfig` overrides each.
+    @param viz The chart.
+*/
+export function inheritedFillStyle(viz: VizInstance): Record<string, unknown> {
+  const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
+  const area = (sc.Area ?? {}) as Record<string, unknown>;
+  const out: Record<string, unknown> = {};
+  for (const key of FILL_BETWEEN_INHERITED) {
+    const value = area[key] !== undefined ? area[key] : sc[key];
+    if (value !== undefined) out[key] = value;
+  }
+  return out;
+}
+
+/** The fill's Area config: `fillBetweenConfig` over the inherited styles. */
+function fillBetweenStyle(viz: VizInstance): Record<string, unknown> {
+  return shapeConfigFor(viz, "Area", {
+    ...inheritedFillStyle(viz),
+    ...(viz.schema.fillBetweenConfig as Record<string, unknown>),
+  });
 }
 
 /** A series' line color, read from the datum the area wraps: the Line's stroke. */
