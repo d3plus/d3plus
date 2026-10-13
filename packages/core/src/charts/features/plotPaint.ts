@@ -605,7 +605,10 @@ export function plotEmit(
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
     emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
-    out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange, x2Height: pCtx.x2Height, yOffset})));
+    // The plot area reaches down through any room reserved under the value
+    // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
+    const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];
+    out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange: clipRange, x2Height: pCtx.x2Height, yOffset})));
 
     emitShapeExits(viz, shapeData, shapeConfig);
 

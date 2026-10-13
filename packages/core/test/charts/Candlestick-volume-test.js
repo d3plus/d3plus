@@ -332,6 +332,30 @@ it("Candlestick keeps candles out of the volume strip while zoomed", async funct
   assert.strictEqual(out.bars, 30, "the strip stays drawn");
 });
 
+it("Candlestick's volume strip and axis stay clear of the plot's domain clip", async function () {
+  this.timeout(120000);
+  const out = await run(async () => {
+    const data = window.__prices(30);
+    const {viz} = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
+    const isClip = n => /(^|\/)plot-domain-clip-\d+$/.test(`${n.key}`);
+    // Each volume bar's and the volume axis's nearest domain clip, if any.
+    const clipped = [];
+    const visit = (nodes, clip) => (nodes || []).forEach(n => {
+      const next = isClip(n) ? n.clip : clip;
+      const bar = n.type === "path" && `${n.key}`.endsWith("_volume");
+      if (next && (bar || n.key === "candlestick-volume-axis")) clipped.push({key: n.key, bottom: next.y + next.height});
+      visit(n.children, next);
+    });
+    visit(viz._chartScene, undefined);
+    return {clipped, area: viz._plotArea, bars: window.__bars(viz).length, axes: window.__axes(viz).length};
+  });
+  const stripBottom = out.area.y + out.area.height;
+  assert.ok(out.clipped.every(c => c.key !== "candlestick-volume-axis"), "the volume axis, left of the plot, is never clipped");
+  assert.ok(out.clipped.every(c => c.bottom >= stripBottom - 1), "a clip around the volume bars takes in the strip");
+  assert.strictEqual(out.bars, 30, "every volume bar is drawn");
+  assert.strictEqual(out.axes, 1, "the volume axis is drawn");
+});
+
 it("Candlestick volume bars take texture and backgroundImage on SVG and Canvas", async function () {
   this.timeout(120000);
   for (const renderer of ["svg", "canvas"]) {
