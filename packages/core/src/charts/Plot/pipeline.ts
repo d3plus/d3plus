@@ -18,6 +18,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
+import {hasUserDomain, userAxisDomain} from "./baselineDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
@@ -402,7 +403,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: viz.schema.yDomain || isSpanAxis(viz, "y") ? "none" : "outside",
+    rounding: hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
     ...baselineBreakAxisConfig(viz, "y"),
   };
@@ -524,9 +525,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
       : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
-    const domain = viz.schema[`${axis}Domain`]
-        ? viz.schema[`${axis}Domain`].slice()
-        : domains[axis],
+    const domain = userAxisDomain(viz, axis, domains[axis]) ?? domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
         ? viz.schema[`${axis}2Domain`].slice()
         : domains[`${axis}2`];

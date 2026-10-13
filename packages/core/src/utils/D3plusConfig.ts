@@ -54,8 +54,9 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      The value the axis's `baselineBreak` returns to. Defaults to `0`. A
+      Plot passes its own `baseline` here; set the chart's `baseline` (not
+      this one) to start a Plot's value axis at a value.
   */
   baseline?: number;
   /**
@@ -448,8 +449,16 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      The value axis's starting value (the x axis for horizontal charts).
+      Setting it acts exactly like setting just that end of `yDomain` (or
+      `xDomain`): the axis starts at the baseline with no rounding below it,
+      bars and areas grow from it, and values past it are cut off at the axis
+      as by a domain minimum. When every value sits at or below the baseline,
+      it ends the axis instead, like a domain maximum. A bound given in
+      `yDomain`/`yConfig.domain` wins, and `baselineBreak` then draws the
+      stretch between them. BarChart, AreaPlot, and Histogram default to `0`,
+      which only marks where bars and areas start (the axis still reaches
+      values on either side of it).
   */
   baseline?: number;
   /**

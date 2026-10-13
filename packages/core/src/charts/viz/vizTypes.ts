@@ -397,6 +397,8 @@ export interface VizInstance {
   _yTime?: boolean;
   _y2Time?: boolean;
   _baseline?: number;
+  /** Whether the user set `baseline` (rather than the chart's own default), making it the value axis's starting value. */
+  _baselineSet?: boolean;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */

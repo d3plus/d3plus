@@ -17,13 +17,13 @@ import {
   AxisTop,
 } from "../../components/index.js";
 import {accessor, constant} from "../../utils/index.js";
+import RESET from "../../utils/RESET.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
-  {key: "baseline", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
@@ -491,6 +491,23 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
+      The value axis's starting value (the x axis for horizontal charts). Setting it acts exactly like setting just that end of `yDomain` (or `xDomain`): the axis starts at the baseline with no rounding below it, bars and areas grow from it, and values past it are cut off at the axis as by a domain minimum. When every value sits at or below the baseline, it ends the axis instead, like a domain maximum. A bound given in `yDomain`/`yConfig.domain` wins, and `baselineBreak` then draws the stretch between them. BarChart, AreaPlot, and Histogram default to `0`, which only marks where bars and areas start (the axis still reaches values on either side of it).
+*/
+  baseline(): number | undefined;
+  baseline(_: number | undefined): this;
+  baseline(_?: number): this | number | undefined {
+    if (!arguments.length) return this.schema.baseline;
+    if ((_ as unknown) === RESET) {
+      this.schema.baseline = this._defaultConfig().baseline;
+      this._baselineSet = false;
+    } else {
+      this.schema.baseline = _;
+      this._baselineSet = _ !== undefined;
+    }
+    return this;
+  }
+
+  /**
        A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 */
   backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
@@ -788,6 +805,6 @@ Stacked charts always fit one line to the stack totals.
 
 resolvesReset(
   Plot.prototype,
-  "backgroundConfig", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
+  "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
   "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
 );

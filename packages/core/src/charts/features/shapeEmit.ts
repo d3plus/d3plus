@@ -6,8 +6,8 @@
     the same path (instantiate compute-mode → wire events → apply user
     config → render → collect). Bar and Line carry extra geometry — bar
     spacing/grouping, line confidence bands + end-labels + markers — so they
-    get dedicated emitters. Everything else (and stacked Area) flows through
-    the generic emitter.
+    get dedicated emitters, and Area is cut off at the value axis like Bar.
+    Everything else flows through the generic emitter.
 
     A chart "uses only some shapes" purely by which keys appear in its
     `shapeData` (driven by the chart's `shape` accessor default). The
@@ -154,11 +154,24 @@ function finishShape(
   return [...nodes.slice(0, last + 1), ...errorBars, ...nodes.slice(last + 1)];
 }
 
-/** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */
+/** Generic path — every shape key without a dedicated emitter. */
 const genericEmit: ShapeEmitter = (ctx, key) => {
   const s = makeShape(key)
     .renderMode("compute")
     .config(buildInner(ctx, key))
+    .data(ctx.values);
+  return finishShape(ctx, key, s);
+};
+
+/**
+    Area — the generic path, with its value-axis positions cut off at the axis
+    like a bar's, so a domain or `baseline` that stops short of the data (or
+    of a stack's base) doesn't paint the area past the plot.
+*/
+const areaEmit: ShapeEmitter = (ctx, key) => {
+  const s = makeShape(key)
+    .renderMode("compute")
+    .config(clampBarConfig(buildInner(ctx, key), valueAxis(ctx.viz), ctx.valueExtent))
     .data(ctx.values);
   return finishShape(ctx, key, s);
 };
@@ -397,6 +410,7 @@ const lineEmit: ShapeEmitter = ctx => {
 
 /** Shape key → dedicated emitter. Keys absent here use `genericEmit`. */
 export const shapeEmitters: Record<string, ShapeEmitter> = {
+  Area: areaEmit,
   Bar: barEmit,
   Circle: circleEmit,
   Line: lineEmit,

@@ -162,6 +162,7 @@ export {
   valueAxis,
   valueAxisExtent,
 } from "./src/charts/Plot/baselineBreak.js";
+export {baselineDomainAxis, hasUserDomain, userAxisDomain} from "./src/charts/Plot/baselineDomain.js";
 
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {

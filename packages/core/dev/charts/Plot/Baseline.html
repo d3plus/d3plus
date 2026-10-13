@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Baseline · Plot</title>
+    <meta name="description" content="A set baseline starts the value axis like a domain minimum: baseline(980) next to yDomain([980]) on bars, areas, lines and stacks, plus values past the baseline.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 280px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      const rows = values => quarters.flatMap((quarter, i) =>
+        ["North", "South"].map((region, j) => ({quarter, region, value: values(i, j)})));
+
+      // Every value sits just above 980.
+      const above = rows((i, j) => (j ? 990 + i * 5 : 1000 + i * 8));
+      // North's first quarter dips below 980.
+      const crossing = rows((i, j) => (j ? 990 + i * 5 : 960 + i * 20));
+      // Every value sits below -80.
+      const negative = rows((i, j) => (j ? -90 - i * 5 : -100 - i * 8));
+
+      const examples = [
+        ["BarChart · baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.baseline(980)],
+        ["BarChart · yDomain([980])", "BarChart", above.filter(d => d.region === "North"), c => c.yDomain([980])],
+        ["AreaPlot · baseline(980)", "AreaPlot", above, c => c.baseline(980)],
+        ["AreaPlot · yDomain([980])", "AreaPlot", above, c => c.yDomain([980])],
+        ["LinePlot · baseline(980)", "LinePlot", above, c => c.baseline(980)],
+        ["LinePlot · yDomain([980])", "LinePlot", above, c => c.yDomain([980])],
+        ["StackedArea · baseline(980)", "StackedArea", above, c => c.baseline(980)],
+        ["StackedArea · yDomain([980])", "StackedArea", above, c => c.yDomain([980])],
+        ["BarChart · values below baseline(980) are cut off", "BarChart", crossing.filter(d => d.region === "North"), c => c.baseline(980)],
+        ["LinePlot · values below baseline(980)", "LinePlot", crossing, c => c.baseline(980)],
+        ["BarChart · baseline(-80) above every value ends the axis", "BarChart", negative.filter(d => d.region === "North"), c => c.baseline(-80)],
+        ["BarChart · yDomain([990]) wins over baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.yDomain([990]).baseline(980)],
+        ["BarChart · horizontal, baseline(980)", "BarChart", above.filter(d => d.region === "North"), c => c.discrete("y").x("value").y("quarter").baseline(980)],
+        ["StackedArea · horizontal, baseline(980)", "StackedArea", above, c => c.discrete("y").x("value").y("quarter").baseline(980)],
+      ];
+
+      const grid = document.getElementById("grid");
+      examples.forEach(([title, type, data, configure], i) => {
+        const section = document.createElement("section");
+        section.innerHTML = `<h3>${title}</h3><div class="viz" id="viz${i}"></div>`;
+        grid.appendChild(section);
+        const chart = new d3plus[type]()
+          .select(`#viz${i}`)
+          .data(data)
+          .groupBy("region")
+          .x("quarter")
+          .y("value")
+          .legend(false);
+        configure(chart).render();
+      });
+
+    </script>
+
+  </body>
+
+</html>
