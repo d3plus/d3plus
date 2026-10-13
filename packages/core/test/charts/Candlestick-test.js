@@ -310,16 +310,21 @@ it("Candlestick: filled candles take texture and backgroundImage on SVG and Canv
           texture: String(c.paint.fill).startsWith("pattern:") ? JSON.parse(String(c.paint.fill).slice(8)) : null,
           image: images.includes(c.key + "-bgimage-img"),
         }));
+        // Only the candle path snaps; its image group shares the datum but adds no point.
+        const extraPoints = window.__candles(viz).filter(c => c.type !== "path" && c.interactionPoints).length;
         el.remove();
-        return marks;
+        return {marks, extraPoints};
       };
+      const filled = await probe(v => v.hollow(false));
       return {
-        hollow: await probe(v => v),
-        filled: await probe(v => v.hollow(false)),
-        ohlc: await probe(v => v.variant("ohlc")),
+        hollow: (await probe(v => v)).marks,
+        filled: filled.marks,
+        filledExtraPoints: filled.extraPoints,
+        ohlc: (await probe(v => v.variant("ohlc"))).marks,
       };
     })(renderer);`), renderer);
     const {hollow, filled, ohlc} = out;
+    assert.strictEqual(out.filledExtraPoints, 0, `${renderer}: image groups add no snap points`);
     assert.ok(hollow.some(m => m.up) && hollow.some(m => !m.up), `${renderer}: both directions drawn`);
     for (const m of hollow) {
       if (m.up) assert.ok(m.fill === "none" && !m.image, `${renderer}: a hollow candle stays hollow`);

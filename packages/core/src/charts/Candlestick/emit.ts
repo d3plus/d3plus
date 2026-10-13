@@ -196,7 +196,10 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
   return collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
     const l = d && layouts.get(d);
-    const point = l ? {interactionPoints: [{x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d!.i}]} : {};
+    // Only the candle itself snaps; its backgroundImage group shares the datum.
+    const point = l && node.type === "path"
+      ? {interactionPoints: [{x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d!.i}]}
+      : {};
     return {...node, shapeType: CANDLESTICK_SHAPE, ...point} as SceneNode;
   });
 };
