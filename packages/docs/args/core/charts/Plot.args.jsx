@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Starts a Plot's value axis (the x axis for horizontal charts) at a\nvalue: `baseline(n)` renders exactly like `yDomain([n])` (or\n`xDomain([n])`). Bars and areas still grow from the chart's own `0`\n(BarChart, AreaPlot, StackedArea, and Histogram), so with\n`baselineBreak` on (their default) the axis breaks back to a `0` tick\nand bars run through the break, and with it off the axis stretches\ndown to `0`. As with `yDomain`, the far end isn't rounded and values\npast `n` are cut off at the axis. When every value sits at or below\n`n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound\ngiven in `yDomain`/`xDomain` wins.",
+      description: "Starts a Plot's value axis (the x axis for horizontal charts) at a\nvalue: `baseline(n)` renders exactly like `yDomain([n])` (or\n`xDomain([n])`). Bars and areas still grow from the chart's own\n`0` (BarChart, AreaPlot, StackedArea, and Histogram), so with\n`baselineBreak` on (their default) the axis breaks back to a `0`\ntick and bars run through the break, and with it off the axis\nstretches down to `0`. As with `yDomain`, the far end isn't\nrounded and marks for values past `n` stop at the axis's edge.\nWhen every value sits at or below `n`, it ends the axis instead,\nlike `yDomain([undefined, n])`. A bound given in\n`yDomain`/`xDomain` wins.",
       table: {
         defaultValue: {
           summary: "undefined"

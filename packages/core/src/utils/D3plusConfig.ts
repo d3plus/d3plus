@@ -462,14 +462,15 @@ export interface D3plusConfig {
   /**
       Starts a Plot's value axis (the x axis for horizontal charts) at a
       value: `baseline(n)` renders exactly like `yDomain([n])` (or
-      `xDomain([n])`). Bars and areas still grow from the chart's own `0`
-      (BarChart, AreaPlot, StackedArea, and Histogram), so with
-      `baselineBreak` on (their default) the axis breaks back to a `0` tick
-      and bars run through the break, and with it off the axis stretches
-      down to `0`. As with `yDomain`, the far end isn't rounded and values
-      past `n` are cut off at the axis. When every value sits at or below
-      `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound
-      given in `yDomain`/`xDomain` wins.
+      `xDomain([n])`). Bars and areas still grow from the chart's own
+      `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
+      `baselineBreak` on (their default) the axis breaks back to a `0`
+      tick and bars run through the break, and with it off the axis
+      stretches down to `0`. As with `yDomain`, the far end isn't
+      rounded and marks for values past `n` stop at the axis's edge.
+      When every value sits at or below `n`, it ends the axis instead,
+      like `yDomain([undefined, n])`. A bound given in
+      `yDomain`/`xDomain` wins.
   */
   baseline?: number;
   /**
