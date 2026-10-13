@@ -22,6 +22,7 @@ import {emitEndLabels} from "./axisEndLabels.js";
 import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
 import {valueAxisExtent} from "../Plot/baselineBreak.js";
 import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
+import {clipToPlotArea} from "../Plot/domainClip.js";
 import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
@@ -589,12 +590,17 @@ export function plotEmit(
 
     const frontAnnotationShapes = emitAnnotations(viz, out, x, y, domains, yOffset);
 
-    // Trend lines sit behind the marks they summarize.
-    out.push(...emitTrendLines(viz, x, y));
+    // Trend lines sit behind the marks they summarize. They and the shapes
+    // are the data marks: where the domains cut them off, they are clipped
+    // to the plot area (labels aside). A zoomed view's own clip already
+    // confines them, and leaving them unwrapped there keeps a zoom's frames
+    // tweening.
+    const marks: SceneNode[] = emitTrendLines(viz, x, y);
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
-    emitShapeLoop(viz, out, pCtx, mCtx, shapeConfig);
+    emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
+    out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange, x2Height: pCtx.x2Height, yOffset})));
 
     emitShapeExits(viz, shapeData, shapeConfig);
 

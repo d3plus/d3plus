@@ -223,7 +223,8 @@ export default class Shape extends BaseClass {
       @private
 */
   _getTextureKey(d: DataPoint, i: number): string | false {
-    const textureVal: unknown = this.schema.texture(d, i);
+    // A Line or Area's texture accessor gets its merged row, like its other styles.
+    const textureVal: unknown = this._styleVal(this.schema.texture, d, i);
     if (!textureVal) return false;
 
     /**

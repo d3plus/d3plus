@@ -67,6 +67,8 @@ const pageCases = () => {
       Geomap: {data: [{id: "x", value: 3}], tiles: false, topojson, shapeConfig: {Path: {backgroundImage: image}}},
       Gauge: {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: {backgroundImage: image}},
       Bullet: {data: flat, domain: [0, 30], shapeConfig: {backgroundImage: image}},
+      Sunburst: {data: [{p: "x", id: "a", value: 5}, {p: "x", id: "b", value: 3}, {p: "y", id: "c", value: 4}, {p: "y", id: "d", value: 2}], groupBy: ["p", "id"], sum: "value", shapeConfig: {backgroundImage: image}},
+      BoxWhisker: {data: ["a", "b"].flatMap(id => [20, 40, 74, 80, 115, 125, 150, 300].map((value, sub) => ({id, sub, value}))), groupBy: ["id", "sub"], x: "id", y: "value", shapeConfig: {backgroundImage: image}},
     },
   };
 };
@@ -145,8 +147,8 @@ const probe = async ({name, pageCasesSrc}) => {
       shapeTag: shape.tagName,
       // Legend swatches draw the image too; the chart's own marks live here.
       inChart: Boolean(g.closest('[data-key="viz-chart-cells"]')),
-      // A translucent shape (like Pack's parent circles) fades its image too.
-      opaque: Number(shape.getAttribute("opacity") ?? 1) === 1,
+      // A translucent shape (like Pack's parent circles or a Chord ribbon) fades its image too.
+      opaque: Number(shape.getAttribute("opacity") ?? 1) === 1 && Number(g.getAttribute("opacity") ?? 1) === 1,
       color: hexOf(href),
       hrefIsImage: images.includes(href),
       interactive: g.getAttribute("pointer-events") === "none" && img.getAttribute("pointer-events") === "none",
@@ -242,9 +244,9 @@ const probe = async ({name, pageCasesSrc}) => {
 const run = name => render("", probe, {name, pageCasesSrc: pageCases.toString()});
 
 /** Charts whose shapes are probed pixel by pixel on both backends. */
-const pixelCharts = ["Treemap", "Pack", "Pie", "Donut", "Network", "Matrix", "RadialMatrix", "Radar", "BarChart", "Plot", "Priestley", "Sankey", "Chord", "Gauge", "Bullet"];
+const pixelCharts = ["Treemap", "Pack", "Pie", "Donut", "Network", "Matrix", "RadialMatrix", "Radar", "BarChart", "Plot", "Priestley", "Sankey", "Chord", "Gauge", "Sunburst", "Bullet"];
 /** Charts checked for image structure (their shapes are small or framed by other marks). */
-const structureCharts = ["Rings", "Tree", "Geomap"];
+const structureCharts = ["Rings", "Tree", "Geomap", "BoxWhisker"];
 /** Charts whose data labels sit over their shapes. */
 const labelledCharts = ["Treemap", "Pack", "Pie", "Network"];
 /** Charts that dim unhovered shapes. */
