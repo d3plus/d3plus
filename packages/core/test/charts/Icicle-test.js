@@ -238,3 +238,46 @@ it("Icicle: draws small multiples with facet", async function () {
   });
   assert.strictEqual(out.count, 7 + 10, "every module and file across the panels");
 });
+
+it("Icicle: shapeConfig texture and backgroundImage reach every rect and legend swatch, on SVG and Canvas", async function () {
+  this.timeout(60000);
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await page(async r => {
+      const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+      const chart = await window.build({
+        renderer: r,
+        config: {shapeConfig: {texture: "lines", backgroundImage: image}},
+      });
+      const leaves = [];
+      const walk = (n, anc) =>
+        n.type === "group"
+          ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
+          : leaves.push({...n, anc});
+      walk(chart._lastSceneRendered.root, "");
+      const images = new Set(leaves.filter(n => n.type === "image").map(n => n.key));
+      const mark = n => ({
+        key: n.key,
+        textured: String(n.paint.fill).startsWith("pattern:"),
+        image: images.has(`${n.key}-bgimage-img`),
+      });
+      const rects = leaves.filter(n => n.type === "rect" && n.datum && /^icicle-/.test(n.key));
+      const swatches = leaves.filter(n =>
+        ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
+        !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
+      const svg = document.querySelector("#viz svg");
+      return {
+        rects: rects.map(mark),
+        swatches: swatches.map(mark),
+        dom: svg ? {patterns: svg.querySelectorAll("[fill^='url(#']").length, images: svg.querySelectorAll("image").length} : null,
+      };
+    }, renderer);
+    assert.strictEqual(out.rects.length, 3 + 7 + 10, `${renderer}: every node`);
+    assert.deepStrictEqual(out.rects.filter(m => !m.textured || !m.image), [], `${renderer}: every rect takes both`);
+    assert.strictEqual(out.swatches.length, 3, `${renderer}: one swatch per area`);
+    assert.deepStrictEqual(out.swatches.filter(m => !m.textured || !m.image), [], `${renderer}: every swatch takes both`);
+    if (renderer === "svg") {
+      assert.ok(out.dom.patterns >= 23, `the DOM fills ${out.dom.patterns} shapes with patterns`);
+      assert.ok(out.dom.images >= 23, `the DOM draws ${out.dom.images} images`);
+    }
+  }
+});

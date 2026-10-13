@@ -1,6 +1,7 @@
 /**
     `icicleEmit` — one Rect SceneNode per laid-out node (the focused node
-    filling depth 0) plus a label TextNode wherever the label fits.
+    filling depth 0), its `backgroundImage` when one is set, plus a label
+    TextNode wherever the label fits.
 */
 
 import {colorContrast} from "@d3plus/color";
@@ -15,6 +16,7 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
+import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {measureLabel, partitionSplit} from "../partition/labelWords.js";
 import {partitionFillResolver} from "../partition/shade.js";
@@ -141,6 +143,11 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
     } as SceneNode;
   });
 
+  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [
+    nodes[k].datum,
+    nodes[k].i ?? 0,
+  ]);
+
   const labelConfig = (userLabelConfig(viz, "Rect") ?? {}) as Record<
     string,
     unknown
@@ -193,5 +200,10 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
   // where it lands. A label whose rectangle stays put stays put.
   for (const n of labelNodes) (n as TextNode).fadeSwap = ICICLE_LABEL_FADE;
 
-  return [...ghostNodes(viz, fillOf), ...rectNodes, ...labelNodes];
+  return [
+    ...ghostNodes(viz, fillOf),
+    ...rectNodes,
+    ...imageNodes,
+    ...labelNodes,
+  ];
 };

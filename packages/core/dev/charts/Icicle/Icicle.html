@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Icicle</title>
-  <meta name="description" content="Icicle variants over a codebase by area, module and file: horizontal and vertical orient, a depth-limited zoom with a threshold bucket, a colorScale without shading, small multiples by area, and an orient toggle. Click a rectangle to zoom in, the root band to zoom out.">
+  <meta name="description" content="Icicle variants over a codebase by area, module and file: horizontal and vertical orient, a depth-limited zoom with a threshold bucket, a colorScale without shading, small multiples by area, an orient toggle, and a texture plus a backgroundImage. Click a rectangle to zoom in, the root band to zoom out.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -27,6 +27,7 @@
     <div><h3>colorScale("size"), no shading</h3><div class="viz" id="scale"></div></div>
     <div><h3>Small multiples (facet: "area")</h3><div class="viz" id="facet"></div></div>
     <div><h3>orient toggle <button id="toggle">Toggle orient</button></h3><div class="viz" id="toggled"></div></div>
+    <div><h3>shapeConfig texture (Backend) + backgroundImage (Frontend)</h3><div class="viz" id="textured"></div></div>
   </div>
 </body>
 
@@ -97,6 +98,17 @@
     .groupBy(["module", "file"])
     .sum("size")
     .facet("area")
+    .render();
+
+  new d3plus.Icicle()
+    .select("#textured")
+    .data(data)
+    .groupBy(["area", "module", "file"])
+    .sum("size")
+    .shapeConfig({
+      texture: d => d.area === "Backend" ? "lines" : false,
+      backgroundImage: d => d.area === "Frontend" ? "./Landscape.svg" : false
+    })
     .render();
 
   let vertical = false;
