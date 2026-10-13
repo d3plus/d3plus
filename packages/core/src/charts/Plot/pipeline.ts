@@ -91,9 +91,17 @@ export function plotSizeScale(viz: Parameters<TransformStage>[0]["viz"], sizes: 
 }
 
 /**
+    Whether rows of `shape` draw as circles sized by `size`, so the size
+    legend keys them: `"Circle"` rows, or the shapes a chart names in
+    `viz._plotCircleShapes`.
+*/
+const drawsSizedCircle = (viz: Parameters<TransformStage>[0]["viz"], shape: unknown): boolean =>
+  (viz._plotCircleShapes ?? ["Circle"]).includes(shape as string);
+
+/**
     Plot's size-legend scale, available before layout: the same scale
     `formatPlotData` builds, over the plottable rows. Null when there's no
-    `size` accessor or none of those rows draws as a circle.
+    `size` accessor or none of those rows draws as a sized circle.
 */
 export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): SizeLegendScale | null {
   if (!viz._size) return null;
@@ -103,7 +111,7 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
   rows.forEach((d, i) => {
     if (isBadAxisValue(viz._x!(d, i)) || isBadAxisValue(viz._y!(d, i))) return;
     sizes.push(viz._size!(d, i));
-    if (viz.schema.shape(d, i) === "Circle") circles = true;
+    if (drawsSizedCircle(viz, viz.schema.shape(d, i))) circles = true;
   });
   return circles ? (plotSizeScale(viz, sizes) as unknown as SizeLegendScale) : null;
 }
@@ -196,7 +204,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     ? viz._plotFacetScales?.size ??
       plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
     : () => viz.schema.sizeMin;
-  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => d.shape === "Circle")
+  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => drawsSizedCircle(viz, d.shape))
     ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
     : null;
 

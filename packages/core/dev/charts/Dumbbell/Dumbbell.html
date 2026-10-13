@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <title>Dumbbell</title>
-    <meta name="description" content="Dumbbell variants: horizontal two-series dumbbells, sorted by gap both ways, vertical with three points per category, styled connectors, and small multiples on canvas.">
+    <meta name="description" content="Dumbbell variants: horizontal two-series dumbbells, sorted by gap both ways, vertical with three points per category, styled connectors, points sized by population with a size legend, and small multiples on canvas.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -39,6 +39,7 @@
       <div><h3>gapSort("descending")</h3><div class="viz" id="sorted"></div></div>
       <div><h3>gapSort("ascending"), styled connectors</h3><div class="viz" id="styled"></div></div>
       <div><h3>Vertical (discrete: "x"), three points per category</h3><div class="viz" id="vertical"></div></div>
+      <div><h3>Points sized by population (size: "Population")</h3><div class="viz" id="sized"></div></div>
       <div><h3>Small multiples (facet: "continent"), canvas</h3><div class="viz" id="facet"></div></div>
     </div>
 
@@ -111,6 +112,26 @@
       .x("month")
       .y("°C")
       .color(d => ({Low: "#4c6ef5", Mean: "#868e96", High: "#f03e3e"})[d.stat])
+      .render();
+
+    const populations = {
+      Japan: [127, 125], China: [1263, 1426], India: [1057, 1414], "United States": [282, 337],
+      Brazil: [175, 214], Russia: [146, 145], Nigeria: [123, 213], Ethiopia: [67, 120],
+    };
+    const sized = life
+      .filter(d => populations[d.country])
+      .map(d => ({...d, Population: populations[d.country][d.year === "2000" ? 0 : 1]}));
+
+    new d3plus.Dumbbell()
+      .select("#sized")
+      .data(sized)
+      .groupBy("year")
+      .x("Life Expectancy")
+      .y("country")
+      .size("Population")
+      .sizeScale("sqrt")
+      .sizeMin(3)
+      .sizeMax(14)
       .render();
 
     new d3plus.Dumbbell()

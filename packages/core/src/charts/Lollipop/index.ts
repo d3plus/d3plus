@@ -32,6 +32,7 @@ export const lollipopDef: ChartDefinition = {
   setup: viz => {
     viz._buffer = {...viz._buffer, Bar: lollipopBuffer};
     viz._plotShapeEmitters = {Bar: lollipopEmit};
+    viz._plotCircleShapes = ["Bar"];
   },
 
   ctx: {},
@@ -80,6 +81,6 @@ export const lollipopDef: ChartDefinition = {
     horizontal ones). Rows sharing a category but differing in `groupBy` sit
     side by side, as grouped bars do. Stems are styled by `shapeConfig.Line`
     (`stroke`, `strokeWidth`, …) and heads by `shapeConfig.Circle` (`r`,
-    `fill`, …); a `size` accessor scales the heads.
+    `fill`, …); a `size` accessor scales the heads and adds a size legend.
 */
 export default makeChart(lollipopDef, Plot);

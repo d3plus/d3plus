@@ -434,6 +434,12 @@ export interface VizInstance {
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
   _plotShapeEmitters?: Record<string, ShapeEmitter>;
+  /**
+      Row shapes a chart draws as circles sized by `size` (e.g. Lollipop's
+      Bar rows, drawn as stems with Circle heads), so Plot's size legend keys
+      them like Circle rows. `["Circle"]` when unset.
+  */
+  _plotCircleShapes?: string[];
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

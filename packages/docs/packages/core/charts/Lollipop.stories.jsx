@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a lollipop chart from an array of data: each row draws a thin stem\nfrom the baseline (or the value axis's break) to a circle at its value,\nwith a category axis set by discrete (\"x\" draws vertical stems, \"y\"\nhorizontal ones). Rows sharing a category but differing in groupBy sit\nside by side, as grouped bars do. Stems are styled by shapeConfig.Line\n(stroke, strokeWidth, …) and heads by shapeConfig.Circle (r,\nfill, …); a size accessor scales the heads.",
+        component: "Creates a lollipop chart from an array of data: each row draws a thin stem\nfrom the baseline (or the value axis's break) to a circle at its value,\nwith a category axis set by discrete (\"x\" draws vertical stems, \"y\"\nhorizontal ones). Rows sharing a category but differing in groupBy sit\nside by side, as grouped bars do. Stems are styled by shapeConfig.Line\n(stroke, strokeWidth, …) and heads by shapeConfig.Circle (r,\nfill, …); a size accessor scales the heads and adds a size legend.",
       },
     },
   }
@@ -121,7 +121,7 @@ StyledStems.args = {
   sizeMax: 12,
   shapeConfig: {Line: {strokeWidth: 1, strokeDasharray: "3 2"}},
 };
-StyledStems.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "shapeConfig"]}, docs: {description: {story: "Stems are styled through `shapeConfig.Line` and heads through `shapeConfig.Circle`. A `size` accessor scales the heads, here by annual growth."}}};
+StyledStems.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "sizeScale", "sizeLegend", "shapeConfig"]}, docs: {description: {story: "Stems are styled through `shapeConfig.Line` and heads through `shapeConfig.Circle`. A `size` accessor scales the heads, here by annual growth, and adds a size legend whose circles match the heads."}}};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
