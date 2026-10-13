@@ -133,3 +133,50 @@ Compact.args = {
   ticks: false,
 };
 Compact.parameters = {controls: {include: ["bulletSize", "target", "ticks"]}, docs: {description: {story: "`ticks(false)` drops the axes for a compact sparkline-style list, and a number for `target` gives every row the same goal."}}};
+
+export const ClassicFewStyle = Template.bind({});
+ClassicFewStyle.storyName = "Classic (Few) style";
+ClassicFewStyle.args = {
+  data: kpis,
+  bands: funcify(d => d.ranges.slice(0, -1), "d => d.ranges.slice(0, -1)"),
+  domain: funcify(d => [0, d.ranges[d.ranges.length - 1]], "d => [0, d.ranges[d.ranges.length - 1]]"),
+  subLabel: "unit",
+  shapeConfig: {fill: "#333333"},
+};
+ClassicFewStyle.parameters = {controls: {include: ["shapeConfig", "bands", "targetConfig"]}, docs: {description: {story: "Measures take the palette's colors by row by default. Stephen Few's original design draws every measure in one dark neutral over gray bands: a single `shapeConfig.fill` gives that look."}}};
+
+export const TallBullet = Template.bind({});
+TallBullet.args = {
+  data: [{id: "Revenue", unit: "US$, in thousands", value: 270, target: 250, forecast: 290}],
+  bands: [150, 225],
+  domain: [0, 300],
+  subLabel: "unit",
+  bulletSize: 160,
+};
+TallBullet.parameters = {controls: {include: ["bulletSize", "measureSize", "forecastConfig", "targetConfig"]}, docs: {description: {story: "Bullets are at most `bulletSize` pixels thick (40 by default) and centered in the space they're given, so a chart with few rows keeps them compact. Raise `bulletSize` to let a bullet fill more of a tall chart; the measure, forecast, and target scale with it."}}};
+
+/** A horizontal gradient as an inline SVG data URI. */
+const gradient = (a, b) => `data:image/svg+xml,${encodeURIComponent(
+  `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="20"><linearGradient id="g"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><rect width="400" height="20" fill="url(#g)"/></svg>`,
+)}`;
+
+export const TexturesAndImages = Template.bind({});
+TexturesAndImages.args = {
+  data: [
+    {id: "Lines", value: 64, target: 75, forecast: 80, texture: "lines"},
+    {id: "Crosses", value: 81, target: 75, texture: "crosses"},
+    {id: "Gradient", value: 58, target: 70, forecast: 66, colors: ["#1c7ed6", "#e64980"]},
+    {id: "Plain", value: 47, target: 60},
+  ],
+  bands: [50, 75],
+  domain: [0, 100],
+  measureSize: 0.5,
+  shapeConfig: {
+    texture: funcify(d => d.texture || false, "d => d.texture || false"),
+    backgroundImage: funcify(
+      d => (d.colors ? gradient(...d.colors) : false),
+      "d => (d.colors ? gradient(...d.colors) : false)"
+    ),
+  },
+};
+TexturesAndImages.parameters = {controls: {include: ["shapeConfig", "forecastConfig", "measureSize"]}, docs: {description: {story: "Measure bars take `shapeConfig.texture` and `shapeConfig.backgroundImage` like any other Rect. The forecast bar follows the measure's texture unless `forecastConfig.texture` sets its own, and takes its own `forecastConfig.backgroundImage`."}}};
