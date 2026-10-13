@@ -242,7 +242,6 @@ it("Candlestick volume works with variant ohlc, skipGaps(false), and volumeConfi
   const out = await run(async () => {
     const data = window.__prices(15);
     const strip = viz => viz._plotArea.y + viz._plotArea.height - Math.max(...viz._yAxis._d3Scale.range());
-    };
     const ohlc = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume").variant("ohlc").skipGaps(false));
     const base = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
     const tall = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume")
