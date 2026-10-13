@@ -16,6 +16,7 @@ import {isFluentAccessor} from "../../es/src/fluent.js";
     semantics must be covered by that method, since user calls reach the method.
 */
 const SEED_ONLY = {
+  baseline: "identity seeds the chart's own baseline; Plot.baseline stores sets the same way and marks them as the user's",
   label: "coerce \"const\" matches VizBaseConfig.label (function, else constant)",
   legend: "coerce \"const\" matches VizBaseConfig.legend (function, else constant)",
   legendTooltip: "merge seeds the bag; VizBaseConfig.legendTooltip deep-merges sets",
