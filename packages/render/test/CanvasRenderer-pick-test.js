@@ -71,3 +71,34 @@ it("CanvasRenderer pick accumulates nested group transforms", () => {
   assert.strictEqual(renderer.pick([55, 25]), null, "only the outer translation does not reach the leaf");
   renderer.destroy();
 });
+
+it("CanvasRenderer pick ignores what a group's clip cuts away", () => {
+  const renderer = mounted();
+  // A line running from inside the clip rect [20,100] x [20,80] to well below it.
+  renderer.drawScene(scene([
+    {type: "group", key: "clipped", transform: {x: 10, y: 0}, clip: {type: "rect", x: 10, y: 20, width: 80, height: 60}, children: [
+      {type: "line", key: "ln", points: [[30, 40], [30, 110]], paint: {stroke: "red", strokeWidth: 2}},
+    ]},
+    {type: "rect", key: "under", x: 0, y: 100, width: 20, height: 20, paint: {fill: "blue"}},
+  ]));
+  assert.strictEqual(renderer.pick([40, 60]).node.key, "ln", "the visible part still picks");
+  assert.strictEqual(renderer.pick([40, 80]).node.key, "ln", "the clip's edge is inclusive");
+  assert.strictEqual(renderer.pick([40, 100]), null, "the clipped-away part does not");
+  assert.strictEqual(renderer.pick([10, 105]).node.key, "under", "nodes outside the group are unaffected");
+  renderer.destroy();
+});
+
+it("CanvasRenderer pick applies every enclosing clip", () => {
+  const renderer = mounted();
+  renderer.drawScene(scene([
+    {type: "group", key: "outer", clip: {type: "rect", x: 0, y: 0, width: 50, height: 120}, children: [
+      {type: "group", key: "inner", clip: {type: "rect", x: 20, y: 0, width: 100, height: 120}, children: [
+        {type: "rect", key: "leaf", x: 0, y: 0, width: 100, height: 50, paint: {fill: "green"}},
+      ]},
+    ]},
+  ]));
+  assert.strictEqual(renderer.pick([30, 20]).node.key, "leaf", "inside both clips");
+  assert.strictEqual(renderer.pick([10, 20]), null, "cut by the inner clip");
+  assert.strictEqual(renderer.pick([70, 20]), null, "cut by the outer clip");
+  renderer.destroy();
+});
