@@ -14,14 +14,14 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a funnel chart from an array of data: one stage per row, in data order, drawn as a centered bar whose width encodes its value, with necks joining consecutive stages. Labels show each stage's name and value, plus any conversion rates `conversion` asks for; tooltips show the conversion from the first and the previous stage.",
+        component: "Creates a funnel chart from an array of data: one stage per row, in data\norder unless sort reorders them, drawn as a centered bar whose width encodes its value, with necks\njoining consecutive stages. Labels show each stage's name and value, plus\nany conversion rates conversion asks for; tooltips show the conversion\nfrom the first and the previous stage.",
       },
     },
   }
 };
 
 const Template = (args) => <Funnel config={configify(args, argTypes)} />;
-
+  
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -102,4 +102,25 @@ SmallMultiples.args = {
   conversion: "first",
   valueFormat: funcify(d => d.toLocaleString(), "d => d.toLocaleString()"),
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "conversion"]}, docs: {description: {story: "`facet` draws one funnel per channel, each sized to its own first stage, so conversion reads the same way in every panel."}}};
+SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig", "conversion"]}, docs: {description: {story: "`facet` draws one funnel per channel. By default each panel is sized to its own first stage, so conversion reads the same way in every panel."}}};
+
+export const SharedWidthScale = Template.bind({});
+SharedWidthScale.args = {
+  ...SmallMultiples.args,
+  facetConfig: {scales: "shared"},
+};
+SharedWidthScale.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "With `facetConfig: {scales: \"shared\"}`, every panel measures its stages against the widest stage across all panels, so the panels compare volume as well as shape."}}};
+
+export const SortedStages = Template.bind({});
+SortedStages.args = {
+  data: [
+    {id: "Activated", step: 4, value: 1850},
+    {id: "Visited Site", step: 1, value: 12400},
+    {id: "Subscribed", step: 5, value: 760},
+    {id: "Viewed Pricing", step: 2, value: 6900},
+    {id: "Started Trial", step: 3, value: 3100},
+  ],
+  sort: funcify((a, b) => a.step - b.step, "(a, b) => a.step - b.step"),
+  conversion: "previous",
+};
+SortedStages.parameters = {controls: {include: ["sort", "conversion"]}, docs: {description: {story: "Stages draw in data order unless `sort` orders them, as a comparator over two rows. Conversion rates follow the drawn order, so \"% of previous\" compares each stage with the one above it."}}};

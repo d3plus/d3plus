@@ -46,14 +46,29 @@ export function stageSpans(
   }));
 }
 
+/** A stage value as drawn: negative and non-finite values count as zero. */
+function drawnValue(v: number): number {
+  return Number.isFinite(v) && v > 0 ? v : 0;
+}
+
+/** The largest drawn value (zero when there is none), which sets the width scale. */
+export function largestValue(values: number[]): number {
+  return values.reduce((max, v) => Math.max(max, drawnValue(v)), 0);
+}
+
 /**
     Each stage's width across a `breadth`, proportional to its value against
-    the largest value. Negative and non-finite values are drawn at zero width.
+    the largest value, or against `scaleMax` when it's larger (a scale shared
+    with other funnels). Negative and non-finite values are drawn at zero
+    width.
 */
-export function stageWidths(values: number[], breadth: number): number[] {
-  const clean = values.map(v => (Number.isFinite(v) && v > 0 ? v : 0));
-  const max = Math.max(0, ...clean);
-  return clean.map(v => (max > 0 ? (v / max) * breadth : 0));
+export function stageWidths(
+  values: number[],
+  breadth: number,
+  scaleMax = 0,
+): number[] {
+  const max = Math.max(largestValue(values), drawnValue(scaleMax));
+  return values.map(v => (max > 0 ? (drawnValue(v) / max) * breadth : 0));
 }
 
 /**

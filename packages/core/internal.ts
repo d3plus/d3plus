@@ -70,6 +70,7 @@ export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export {
   conversionRates,
+  largestValue,
   monotoneSlopes,
   profileKnots,
   profileSlice,
@@ -92,7 +93,18 @@ export {
   planLabel,
 } from "./src/charts/Funnel/funnelLabels.js";
 export type {LabelBox, LabelPlan, LabelSizing} from "./src/charts/Funnel/funnelLabels.js";
-export {funnelCurve, funnelOrient} from "./src/charts/Funnel/applyLayout.js";
+export {
+  funnelCurve,
+  funnelOrder,
+  funnelOrient,
+  sharedScaleMax,
+} from "./src/charts/Funnel/applyLayout.js";
+export {
+  funnelFacetHooks,
+  funnelFacetPanel,
+  shareFunnelScale,
+} from "./src/charts/Funnel/funnelFacet.js";
+export type {FunnelFacetScale} from "./src/charts/Funnel/funnelFacet.js";
 export type {FunnelShared, FunnelStage} from "./src/charts/Funnel/applyLayout.js";
 export {funnelEmit, neckPaint, stageAria} from "./src/charts/Funnel/emit.js";
 export {
@@ -280,6 +292,7 @@ export {
   FACET_PADDING,
   FACET_TITLE_DEFAULTS,
   facetActive,
+  facetScalesShared,
   resolveFacetConfig,
 } from "./src/charts/facet/facetConfig.js";
 export type {

@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Funnel</title>
-  <meta name="description" content="Funnel stages with necks, conversion labels, tapered and smooth outlines, horizontal orientation, groupBy color, and small multiples.">
+  <meta name="description" content="Funnel stages with necks, conversion labels, tapered and smooth outlines, horizontal orientation, groupBy color, sorted stages, and small multiples with per-panel or shared width scales.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
 
@@ -38,7 +38,10 @@
   <div class="viz wide" id="horizontal"></div>
   <div class="viz" id="phases"></div>
   <div class="viz" id="update"></div>
+  <div class="viz" id="sortValue"></div>
+  <div class="viz" id="sortStep"></div>
   <div class="viz wide" id="facet"></div>
+  <div class="viz wide" id="facetShared"></div>
 </body>
 
 <script>
@@ -58,6 +61,15 @@
     {phase: "Consideration", stage: "Added to Cart", value: 4200},
     {phase: "Conversion", stage: "Checkout", value: 2600},
     {phase: "Conversion", stage: "Purchased", value: 1900}
+  ];
+
+  // The stages out of order, each with its step in the process.
+  var shuffled = [
+    {id: "Activated", step: 4, value: 1850},
+    {id: "Visited Site", step: 1, value: 12400},
+    {id: "Subscribed", step: 5, value: 760},
+    {id: "Viewed Pricing", step: 2, value: 6900},
+    {id: "Started Trial", step: 3, value: 3100}
   ];
 
   var channels = [];
@@ -144,12 +156,45 @@
     .render();
 
   new d3plus.Funnel()
+    .select("#sortValue")
+    .config({
+      data: shuffled,
+      sort: function(a, b) { return b.value - a.value; },
+      conversion: "previous",
+      title: "Shuffled rows, sorted by value (largest first)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#sortStep")
+    .config({
+      data: shuffled,
+      sort: function(a, b) { return a.step - b.step; },
+      conversion: "previous",
+      taper: true,
+      stagePadding: 0.06,
+      title: "Shuffled rows, sorted by step (% of previous follows the sort)"
+    })
+    .render();
+
+  new d3plus.Funnel()
     .select("#facet")
     .config({
       data: channels,
       facet: "channel",
       conversion: "first",
-      title: "Small multiples by channel"
+      title: "Small multiples by channel (default: each panel sized to its own stages)"
+    })
+    .render();
+
+  new d3plus.Funnel()
+    .select("#facetShared")
+    .config({
+      data: channels,
+      facet: "channel",
+      facetConfig: {scales: "shared"},
+      conversion: "first",
+      title: "facetConfig scales \"shared\": one width scale across panels (compare volume)"
     })
     .render();
 

@@ -124,6 +124,19 @@ export const argTypes = assign(
         summary: "\"vertical\" | \"horizontal\""
       }
     },
+    sort: {
+      control: {},
+      description: "A comparator that orders the stages, given two data rows, as `(a, b) => number`. Defaults to data order. Conversion rates follow the sorted order: \"% of previous stage\" compares each stage with the one drawn before it.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     stagePadding: {
       control: {
         type: "number"

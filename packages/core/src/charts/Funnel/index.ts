@@ -5,7 +5,8 @@
     Implementation files in this folder:
       - `funnelGeometry.ts` — pure math: stage spans, the width profile, conversion rates.
       - `funnelLabels.ts` — pure label planning (lines, inside vs. beside, font size).
-      - `applyLayout.ts` — chart-specific `TransformStage`.
+      - `applyLayout.ts` — chart-specific `TransformStage` (stage order, widths).
+      - `funnelFacet.ts` — small-multiple hooks (an optional shared width scale).
       - `emit.ts` — necks and stage paths.
       - `labelNodes.ts` — stage label text nodes.
 */
@@ -28,6 +29,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyFunnelLayout, stageRates} from "./applyLayout.js";
 import {funnelEmit} from "./emit.js";
+import {funnelFacetHooks} from "./funnelFacet.js";
 import {percentText} from "./labelNodes.js";
 
 /**
@@ -73,6 +75,7 @@ export const funnelDef: DataDrivenChartDefinition = {
   layoutStage: applyFunnelLayout,
   emit: funnelEmit,
   insetRegion: sceneInsetRegion,
+  facet: funnelFacetHooks,
 
   ctx: {},
 
@@ -118,6 +121,14 @@ export const funnelDef: DataDrivenChartDefinition = {
         @type {"vertical" | "horizontal"}
     */
     {key: "orient", default: "vertical"},
+    /**
+        A comparator that orders the stages, given two data rows, as
+        `(a, b) => number`. Defaults to data order. Conversion rates follow
+        the sorted order: "% of previous stage" compares each stage with the
+        one drawn before it.
+        @type {function}
+    */
+    {key: "sort"},
     /**
         The gap between consecutive stages, as a fraction (0–1) of each
         stage's slot; the necks fill it.
@@ -177,7 +188,7 @@ export const funnelDef: DataDrivenChartDefinition = {
 
 /**
     Creates a funnel chart from an array of data: one stage per row, in data
-    order, drawn as a centered bar whose width encodes its value, with necks
+    order unless `sort` reorders them, drawn as a centered bar whose width encodes its value, with necks
     joining consecutive stages. Labels show each stage's name and value, plus
     any conversion rates `conversion` asks for; tooltips show the conversion
     from the first and the previous stage.

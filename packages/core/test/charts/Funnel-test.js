@@ -347,6 +347,83 @@ it("Funnel draws small multiples with one funnel per panel and no legend", async
   assert.ok(out.texts.includes("12.4k") && out.texts.includes("6.2k"));
 });
 
+it("Funnel shares one width scale across panels only when facetConfig asks", async function () {
+  this.timeout(60000);
+  const out = await render(
+    "<div id='viz' style='width:800px;height:400px'></div>",
+    async data => {
+      const rows = ["A", "B"].flatMap((channel, c) =>
+        data.map(d => ({...d, channel, value: d.value / (c * 3 + 1)})),
+      );
+      // The width of each panel's first stage, read from its path's x extent.
+      const firstWidths = viz => {
+        const flat = [];
+        const walk = n => {
+          flat.push(n);
+          (n.children || []).forEach(walk);
+        };
+        viz._chartScene.forEach(walk);
+        return flat
+          .filter(n => n.type === "path" && /funnel-Visited$/.test(n.key || ""))
+          .map(n => {
+            const xs = n.d.slice(1, -1).split("L").map(p => +p.split(",")[0]);
+            return Math.max(...xs) - Math.min(...xs);
+          });
+      };
+      const draw = async (renderer, facetConfig) => {
+        document.querySelector("#viz").innerHTML = "";
+        const viz = new window.d3plus.Funnel()
+          .select("#viz")
+          .duration(0)
+          .renderer(renderer)
+          .data(rows)
+          .facet("channel");
+        if (facetConfig) viz.facetConfig(facetConfig);
+        await new Promise(r => viz.render(r));
+        return firstWidths(viz);
+      };
+      return {
+        independent: await draw("svg"),
+        shared: await draw("svg", {scales: "shared"}),
+        canvas: await draw("canvas", {scales: "shared"}),
+      };
+    },
+    stages,
+  );
+  const [a, b] = out.independent;
+  assert.ok(Math.abs(a - b) < 1, `each panel fills its own width by default (${a}, ${b})`);
+  const [sa, sb] = out.shared;
+  assert.ok(Math.abs(sa - a) < 1, "the largest panel keeps its width");
+  assert.ok(Math.abs(sb - sa / 4) < 1, `a panel with a quarter the volume draws a quarter as wide (${sb})`);
+  assert.deepStrictEqual(out.canvas.map(Math.round), out.shared.map(Math.round), "Canvas lays out the same");
+});
+
+it("Funnel sorts stages with a comparator, and its labels follow the order", async function () {
+  this.timeout(60000);
+  const out = await render(
+    "<div id='viz' style='width:600px;height:500px'></div>",
+    async data => {
+      const viz = new window.d3plus.Funnel()
+        .select("#viz")
+        .duration(0)
+        .conversion("previous")
+        .sort((a, b) => b.value - a.value)
+        .data(data.slice().reverse());
+      await new Promise(r => viz.render(r));
+      return {
+        order: viz._chartScene
+          .filter(n => n.type === "path" && !/-neck$/.test(n.key))
+          .map(n => n.key.replace("funnel-", "")),
+        texts: [...document.querySelectorAll("#viz text")].map(t => t.textContent),
+      };
+    },
+    stages,
+  );
+  assert.deepStrictEqual(out.order, stages.map(d => d.id));
+  // Pricing is 6.9k of Visited's 12.4k: 55.6% of the stage drawn before it.
+  assert.ok(out.texts.some(t => /^55\.6\d*% of previous$/.test(t)), out.texts.join(" | "));
+});
+
 it("Funnel paints on Canvas and picks the stage under the pointer", async function () {
   this.timeout(60000);
   const out = await render(

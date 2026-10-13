@@ -1,11 +1,12 @@
 /**
     `applyFunnelLayout` — Funnel's chart-specific layout stage. Reads each
-    row of `viz._filteredData` as one stage, in data order, sizes its width
-    by its value against the largest stage, and slices the funnel's width
-    profile into one outline per stage and one neck per gap between stages.
-    Each row gets its conversion rates (vs. the first and previous stage)
-    stamped on it for the tooltip. Stores the frame on `viz.ctx.funnel` and
-    returns one `FunnelStage` per row.
+    row of `viz._filteredData` as one stage, in data order or `sort`'s,
+    sizes its width by its value against the largest stage (or a scale
+    shared across small multiples), and slices the funnel's width profile
+    into one outline per stage and one neck per gap between stages. Each
+    row's conversion rates (vs. the first and previous stage, in that
+    order) are kept in `stageRates` for the tooltip. Stores the frame on
+    `viz.ctx.funnel` and returns one `FunnelStage` per row.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -78,6 +79,26 @@ export function stageRates(viz: VizInstance): WeakMap<DataPoint, StageRates> {
 */
 export const STROKE_BUFFER = 2;
 
+/**
+    The stages in drawing order: data order, or sorted by the `sort`
+    comparator (a stable sort, so ties keep their data order).
+*/
+export function funnelOrder(viz: VizInstance, data: DataPoint[]): DataPoint[] {
+  const sort = viz.schema.sort;
+  return typeof sort === "function"
+    ? data.slice().sort(sort as (a: DataPoint, b: DataPoint) => number)
+    : data;
+}
+
+/**
+    The value a width scale shared across small multiples measures against
+    (see `funnelFacet.ts`), or 0 when this funnel sizes to its own stages.
+*/
+export function sharedScaleMax(viz: VizInstance): number {
+  const max = Number(viz.ctx.funnelScaleMax);
+  return Number.isFinite(max) && max > 0 ? max : 0;
+}
+
 /** The funnel's orientation, from the `orient` setting. */
 export function funnelOrient(viz: VizInstance): Orient {
   return viz.schema.orient === "horizontal" ? "horizontal" : "vertical";
@@ -92,7 +113,7 @@ export const applyFunnelLayout: TransformStage = ({viz}) => {
   const {width, height} = chartBounds(viz);
   const orient = funnelOrient(viz);
   const curve = funnelCurve(viz);
-  const data = (viz._filteredData ?? []) as DataPoint[];
+  const data = funnelOrder(viz, (viz._filteredData ?? []) as DataPoint[]);
   const valueFn = viz.schema.value as (d: DataPoint, i: number) => unknown;
   const values = data.map((d, i) => Number(valueFn(d, i)));
 
@@ -104,7 +125,7 @@ export const applyFunnelLayout: TransformStage = ({viz}) => {
     length,
     Number(viz.schema.stagePadding),
   ).map(s => ({start: s.start + STROKE_BUFFER, end: s.end + STROKE_BUFFER}));
-  const widths = stageWidths(values, breadth);
+  const widths = stageWidths(values, breadth, sharedScaleMax(viz));
   const knots = profileKnots(spans, widths, !!viz.schema.taper);
   const rates = conversionRates(values);
   const rateMap = stageRates(viz);

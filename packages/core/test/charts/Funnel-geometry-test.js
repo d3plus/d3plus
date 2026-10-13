@@ -1,6 +1,7 @@
 import assert from "assert";
 import {
   conversionRates,
+  largestValue,
   monotoneSlopes,
   profileKnots,
   profileSlice,
@@ -52,6 +53,26 @@ it("Funnel geometry: stageWidths draws negative and missing values at zero", () 
     [100, 0, 0, 0],
   );
   assert.deepStrictEqual(stageWidths([0, 0], 100), [0, 0]);
+});
+
+it("Funnel geometry: largestValue ignores negative and missing values", () => {
+  assert.strictEqual(largestValue([200, 900, 50]), 900);
+  assert.strictEqual(largestValue([-500, NaN, undefined, 30]), 30);
+  assert.strictEqual(largestValue([]), 0);
+  assert.strictEqual(largestValue([-1, NaN]), 0);
+});
+
+it("Funnel geometry: stageWidths measures against a larger shared scale", () => {
+  // Shared max 800: a funnel whose widest stage is 200 draws at a quarter width.
+  assert.deepStrictEqual(stageWidths([200, 100, 50], 400, 800), [100, 50, 25]);
+  // A shared max below the funnel's own largest value doesn't stretch it past the breadth.
+  assert.deepStrictEqual(stageWidths([200, 100, 50], 400, 100), [400, 200, 100]);
+  // Zero, negative, or missing shared max falls back to the funnel's own scale.
+  assert.deepStrictEqual(stageWidths([200, 100], 400, 0), [400, 200]);
+  assert.deepStrictEqual(stageWidths([200, 100], 400, -5), [400, 200]);
+  assert.deepStrictEqual(stageWidths([200, 100], 400, NaN), [400, 200]);
+  // A shared scale still sizes a funnel with no drawable values to zero.
+  assert.deepStrictEqual(stageWidths([0, -3], 400, 800), [0, 0]);
 });
 
 it("Funnel geometry: monotoneSlopes flattens at turning points and plateaus", () => {
