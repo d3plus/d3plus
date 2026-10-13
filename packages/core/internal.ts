@@ -66,6 +66,7 @@ export {
 } from "./src/charts/Plot/forecast.js";
 export type {ForecastRow, ForecastSetting, ForecastStart} from "./src/charts/Plot/forecast.js";
 export {
+  backdropDecor,
   discreteDirection,
   emitForecast,
   forecastDashOr,
