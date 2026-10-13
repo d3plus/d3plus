@@ -15,13 +15,19 @@ import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {
+  fieldAccessor,
+  installAggregation,
+  keyedAccessor,
+  rememberKey,
+  syncChartAggs,
+  type RowAccessor,
+} from "./aggregate.js";
 import {candlestickBuffer} from "./buffer.js";
 import {CANDLESTICK_SHAPE, emitCandlesticks} from "./emit.js";
 import {bandAxisDefaults, periodDate} from "./periods.js";
 import {candleTooltipRows} from "./tooltip.js";
 
-/** A row accessor. */
-type RowAccessor = (d: DataPoint, i: number) => unknown;
 
 /** Per-instance state kept on `viz.ctx.candlestick`. */
 interface CandlestickState {
@@ -44,7 +50,7 @@ const candleState = (viz: VizInstance) => viz.ctx.candlestick as CandlestickStat
 */
 function interceptAccessors(viz: VizInstance): void {
   const state = candleState(viz);
-  const close: RowAccessor = (d, i) => viz.schema.close(d, i);
+  const close = fieldAccessor(viz, "close");
   Object.defineProperty(viz, "_x", {
     configurable: true,
     enumerable: true,
@@ -67,6 +73,8 @@ function interceptAccessors(viz: VizInstance): void {
     get: () => state.yKey ?? viz.schema.translate("Close"),
     set: (key: string) => {
       state.yKey = key === "y" ? undefined : key;
+      // `y(key)` sets the close from that key, which then merges through `aggs`.
+      if (state.yKey !== undefined && typeof viz.schema.close === "function") rememberKey(viz.schema.close, key);
     },
   });
 }
@@ -98,6 +106,7 @@ export const candlestickDef: ChartDefinition = {
     } satisfies CandlestickState;
     viz._xKey = "date";
     interceptAccessors(viz);
+    installAggregation(viz);
     viz._buffer = {...viz._buffer, [CANDLESTICK_SHAPE]: candlestickBuffer};
     viz._plotShapeEmitters = {[CANDLESTICK_SHAPE]: emitCandlesticks};
     // The tooltip's own rows list the period and its values.
@@ -107,6 +116,7 @@ export const candlestickDef: ChartDefinition = {
     const preDraw = viz._preDraw.bind(viz);
     viz._preDraw = () => {
       syncTime(viz);
+      syncChartAggs(viz);
       preDraw();
     };
     // Evenly spaced periods tick on calendar boundaries, per panel when faceted.
@@ -122,25 +132,32 @@ export const candlestickDef: ChartDefinition = {
   fields: [
     /**
         Accessor (or data key) for each period's opening value. Defaults to
-        `"open"`; a row without one opens at its close.
+        `"open"`; a row without one opens at its close. Rows that share a
+        series and a period merge into one candle, taking the first row's
+        open (in data order, so sort rows oldest first). Override with an
+        `aggs` entry on the data key, or, for a function accessor, on
+        `"open"`.
     */
-    {key: "open", coerce: "accessor", default: "open"},
+    {key: "open", coerce: keyedAccessor, default: "open"},
     /**
         Accessor (or data key) for each period's highest value. Defaults to
-        `"high"`; the high always reaches the open and close.
+        `"high"`; the high always reaches the open and close. Merged rows
+        take the highest high; `aggs` overrides it as it does for `open`.
     */
-    {key: "high", coerce: "accessor", default: "high"},
+    {key: "high", coerce: keyedAccessor, default: "high"},
     /**
         Accessor (or data key) for each period's lowest value. Defaults to
-        `"low"`; the low always reaches the open and close.
+        `"low"`; the low always reaches the open and close. Merged rows
+        take the lowest low; `aggs` overrides it as it does for `open`.
     */
-    {key: "low", coerce: "accessor", default: "low"},
+    {key: "low", coerce: keyedAccessor, default: "low"},
     /**
         Accessor (or data key) for each period's closing value. Defaults to
         `"close"`. The close is the chart's `y`: setting `y` sets it, rows
-        without one are skipped, and hover snaps to it.
+        without one are skipped, and hover snaps to it. Merged rows take
+        the last row's close; `aggs` overrides it as it does for `open`.
     */
-    {key: "close", coerce: "accessor", default: "close"},
+    {key: "close", coerce: keyedAccessor, default: "close"},
     /**
         How each period draws: `"candlestick"` (default), a wick from the high
         to the low around a body from the open to the close; or `"ohlc"`, a

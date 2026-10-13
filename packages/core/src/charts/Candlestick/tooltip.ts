@@ -10,7 +10,7 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import {axisName} from "../Plot/sharedTooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {ohlcAccessors} from "./buffer.js";
+import {ohlcAccessors} from "./aggregate.js";
 import {candleChange, readOhlc} from "./ohlc.js";
 import {formatPeriod, periodDate} from "./periods.js";
 

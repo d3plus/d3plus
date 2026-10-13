@@ -337,3 +337,118 @@ it("Candlestick: filled candles take texture and backgroundImage on SVG and Canv
     assert.ok(ohlc.every(m => m.fill === "none" && !m.image), `${renderer}: OHLC bars take neither`);
   }
 });
+
+/** Page-side: four intraday rows a day for three days, plus the daily OHLC they roll up to. */
+const intraday = () => {
+  const rows = [];
+  const daily = [];
+  for (let k = 0; k < 3; k++) {
+    const day = `2024-01-0${k + 2}`;
+    const base = 100 + k * 5;
+    const ticks = [
+      {open: base, high: base + 2, low: base - 1, close: base + 1},
+      {open: base + 1, high: base + 6, low: base, close: base + 3},
+      {open: base + 3, high: base + 4, low: base - 3, close: base + 2},
+      {open: base + 2, high: base + 3, low: base + 1, close: base + (k === 1 ? -2 : 2.5)},
+    ];
+    ticks.forEach((t, j) => rows.push({symbol: "ACME", day, time: `${day}T${9 + j}:30`, ...t}));
+    daily.push({open: base, high: base + 6, low: base - 3, close: base + (k === 1 ? -2 : 2.5)});
+  }
+  return {rows, daily};
+};
+
+/** Page-side: each candle's merged values as its tooltip and its geometry show them. */
+const probeMerged = async (configure, renderer) => {
+  const {el, viz} = await window.__draw(configure, renderer);
+  const scale = viz._yAxis._d3Scale;
+  const candles = window.__candles(viz).filter(c => c.type === "path");
+  const geometry = candles.map(c => {
+    const nums = Array.from(c.d.matchAll(/(?:M[\d.]+,|V)([\d.]+)/g)).map(m => +m[1]);
+    return {top: Math.min(...nums), bottom: Math.max(...nums), close: c.interactionPoints[0].y};
+  });
+  const rows = await window.__hover(viz, el, 0.5);
+  const px = v => scale(v);
+  el.remove();
+  return {
+    n: candles.length,
+    geometry,
+    rows,
+    fills: candles.map(c => c.paint.fill),
+    px: window.__daily.map(d => ({high: px(d.high), low: px(d.low), close: px(d.close)})),
+  };
+};
+
+const runMerged = (fn, renderer = "svg") =>
+  render("", new Function("renderer", `return (${helpers})(), (() => {
+    const {rows, daily} = (${intraday})();
+    window.__rows = rows;
+    window.__daily = daily;
+    window.__probeMerged = ${probeMerged};
+  })(), (${fn})(renderer);`), renderer);
+
+/** Asserts each candle's wick spans the merged high and low and snaps at the merged close. */
+const assertMergedGeometry = (out, label) => {
+  assert.strictEqual(out.n, 3, `${label}: one candle per day`);
+  out.geometry.forEach((g, k) => {
+    const want = out.px[k];
+    assert.ok(Math.abs(g.top - want.high) <= 1, `${label}: day ${k} high ${g.top} vs ${want.high}`);
+    assert.ok(Math.abs(g.bottom - want.low) <= 1, `${label}: day ${k} low ${g.bottom} vs ${want.low}`);
+    assert.ok(Math.abs(g.close - want.close) <= 1, `${label}: day ${k} close ${g.close} vs ${want.close}`);
+  });
+};
+
+it("Candlestick merges rows sharing a period as first open, highest high, lowest low, last close", async function () {
+  this.timeout(60000);
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await runMerged(async renderer =>
+      window.__probeMerged(v => v.data(window.__rows).groupBy("symbol").x("day"), renderer), renderer);
+    assertMergedGeometry(out, renderer);
+    assert.deepStrictEqual(out.rows.slice(1).map(r => r[1]), ["105.00", "111.00", "102.00", "103.00", "-1.9%"], `${renderer}: tooltip`);
+    assert.strictEqual(out.fills[1], "#e03131", `${renderer}: the merged day fell, so it fills`);
+  }
+});
+
+it("Candlestick merges function accessors' values the same way", async function () {
+  this.timeout(60000);
+  for (const renderer of ["svg", "canvas"]) {
+    const out = await runMerged(async renderer => {
+      const nested = window.__rows.map(({symbol, day, time, ...p}) => ({symbol, day, time, p}));
+      return window.__probeMerged(v => v
+        .data(nested)
+        .groupBy("symbol")
+        .x("day")
+        .open(d => d.p.open)
+        .high(d => d.p.high)
+        .low(d => d.p.low)
+        .close(d => d.p.close), renderer);
+    }, renderer);
+    assertMergedGeometry(out, `${renderer} functions`);
+    assert.deepStrictEqual(out.rows.slice(1).map(r => r[1]), ["105.00", "111.00", "102.00", "103.00", "-1.9%"], `${renderer}: tooltip`);
+  }
+});
+
+it("Candlestick lets aggs override the merge for data keys and function accessors", async function () {
+  this.timeout(60000);
+  const out = await runMerged(async () => {
+    const mean = (rows, value) => rows.reduce((s, d) => s + value(d), 0) / rows.length;
+    const keyed = await window.__probeMerged(v => v
+      .data(window.__rows)
+      .groupBy("symbol")
+      .x("day")
+      .aggs({open: (rows, value) => value(rows[1]), close: mean}));
+    const nested = window.__rows.map(({symbol, day, time, ...p}) => ({symbol, day, time, p}));
+    const functions = await window.__probeMerged(v => v
+      .data(nested)
+      .groupBy("symbol")
+      .x("day")
+      .open(d => d.p.open)
+      .high(d => d.p.high)
+      .low(d => d.p.low)
+      .close(d => d.p.close)
+      .aggs({close: mean}));
+    return {keyed: keyed.rows, functions: functions.rows};
+  });
+  // Day two: closes 106, 108, 107, 103 average 106.
+  assert.deepStrictEqual(out.keyed.slice(1, 5).map(r => r[1]), ["106.00", "111.00", "102.00", "106.00"]);
+  assert.deepStrictEqual(out.functions.slice(1, 5).map(r => r[1]), ["105.00", "111.00", "102.00", "106.00"]);
+});

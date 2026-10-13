@@ -93,6 +93,42 @@ CustomAccessors.args = {
 };
 CustomAccessors.parameters = {controls: {include: ["x", "open", "high", "low", "close", "hollow", "upColor", "downColor"]}, docs: {description: {story: "Point `x`, `open`, `high`, `low`, and `close` at your own keys (or accessor functions). `hollow: false` fills every candle, and `upColor`/`downColor` swap the palette, here for a blue/orange pair that stays distinct for red-green color blindness. A `yConfig.tickFormat` formats the prices in the tooltip as well as on the axis."}}};
 
+export const IntradayRollup = Template.bind({});
+IntradayRollup.args = {
+  data: datafy(`(() => {
+  let seed = 7;
+  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const round = v => Math.round(v * 100) / 100;
+  const rows = [];
+  const day = new Date(2024, 0, 1);
+  let price = 120, n = 0;
+  while (n < 30) {
+    if (day.getDay() % 6) {
+      const date = [day.getFullYear(), day.getMonth() + 1, day.getDate()].map(v => String(v).padStart(2, "0")).join("-");
+      for (let hour = 10; hour <= 16; hour++) {
+        const open = price;
+        price = open * (1 + (random() - 0.49) * 0.012);
+        rows.push({
+          symbol: "ACME",
+          day: date,
+          time: date + "T" + hour + ":00",
+          open: round(open),
+          high: round(Math.max(open, price) * (1 + random() * 0.004)),
+          low: round(Math.min(open, price) * (1 - random() * 0.004)),
+          close: round(price),
+        });
+      }
+      n++;
+    }
+    day.setDate(day.getDate() + 1);
+  }
+  return rows;
+})()`),
+  groupBy: "symbol",
+  x: "day",
+};
+IntradayRollup.parameters = {controls: {include: ["x", "aggs"]}, docs: {description: {story: "Rows that share a series and a period merge into one candle: the first row's open, the highest high, the lowest low, and the last row's close. Rows merge in data order, so sort them oldest first. Here seven hourly rows a day, with `x` pointed at their `day`, roll up to daily candles. An `aggs` entry overrides any of the four, keyed by the data key (or, for a function accessor, by the field name: `aggs: {close: (rows, value) => ...}`)."}}};
+
 export const CalendarGaps = Template.bind({});
 CalendarGaps.args = {
   data: datafy(`${acme.__source}.slice(0, 25)`),

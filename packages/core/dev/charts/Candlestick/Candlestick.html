@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Candlestick</title>
-  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, a dark background, and texture plus backgroundImage on filled candles (hollow candles stay hollow).">
+  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a dark background, and texture plus backgroundImage on filled candles (hollow candles stay hollow).">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -26,6 +26,7 @@
     <div><h3>Default: hollow up candles, evenly spaced trading days</h3><div class="viz" id="basic"></div></div>
     <div><h3>variant: "ohlc"</h3><div class="viz" id="ohlc"></div></div>
     <div><h3>skipGaps: false (weekend gaps), hollow: false, custom colors</h3><div class="viz" id="gaps"></div></div>
+    <div><h3>Hourly rows rolled up to daily candles (first open, highest high, lowest low, last close)</h3><div class="viz" id="intraday"></div></div>
     <div class="dark"><h3>Dark background</h3><div class="viz" id="dark"></div></div>
     <div><h3>shapeConfig texture + backgroundImage (hollow candles stay hollow)</h3><div class="viz" id="textured"></div></div>
     <div><h3>shapeConfig texture + backgroundImage, hollow: false</h3><div class="viz" id="texturedFilled"></div></div>
@@ -67,6 +68,38 @@
 
   const acme = prices("ACME", 60, 120, 11);
 
+  // Seven hourly rows per trading day; rows that share a day merge into one
+  // candle.
+  function intraday(symbol, days, start, seed) {
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const round = v => Math.round(v * 100) / 100;
+    const rows = [];
+    const day = new Date(Date.UTC(2023, 0, 2));
+    let price = start, n = 0;
+    while (n < days) {
+      const weekday = day.getUTCDay();
+      if (weekday !== 0 && weekday !== 6) {
+        const date = day.toISOString().slice(0, 10);
+        for (let hour = 10; hour <= 16; hour++) {
+          const open = price;
+          price = open * (1 + (random() - 0.49) * 0.012);
+          rows.push({
+            symbol,
+            day: date,
+            time: `${date}T${hour}:00`,
+            open: round(open),
+            high: round(Math.max(open, price) * (1 + random() * 0.004)),
+            low: round(Math.min(open, price) * (1 - random() * 0.004)),
+            close: round(price),
+          });
+        }
+        n++;
+      }
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+    return rows;
+  }
+
   new d3plus.Candlestick()
     .select("#basic")
     .data(acme)
@@ -88,6 +121,13 @@
     .hollow(false)
     .upColor("#1c7ed6")
     .downColor("#e8590c")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#intraday")
+    .data(intraday("ACME", 30, 120, 7))
+    .groupBy("symbol")
+    .x("day")
     .render();
 
   new d3plus.Candlestick()

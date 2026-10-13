@@ -10,16 +10,11 @@ import type {DataPoint} from "@d3plus/data";
 
 import type {D3Scale} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {ohlcExtent, type OhlcAccessors} from "./ohlc.js";
+import {ohlcAccessors} from "./aggregate.js";
+import {ohlcExtent} from "./ohlc.js";
 
 /** Pixels of room kept between the highest high (and lowest low) and the axis ends. */
 const EDGE_BUFFER = 4;
-
-/** The chart's open/high/low/close accessors. */
-export function ohlcAccessors(viz: VizInstance): OhlcAccessors {
-  const {open, high, low, close} = viz.schema;
-  return {open, high, low, close};
-}
 
 /**
     Widens an ascending `[min, max]` domain to `extent`, plus `buffer` pixels

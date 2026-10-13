@@ -13,8 +13,21 @@ import {
   readOhlc,
 } from "../../es/src/charts/Candlestick/ohlc.js";
 import {
-  candlestickBuffer,
+  accessorKey,
+  aggregateFunctionFields,
+  DEFAULT_AGGS,
+  firstValue,
+  isDefaultAgg,
+  keyedAccessor,
+  lastValue,
+  maxValue,
+  minValue,
   ohlcAccessors,
+  rememberKey,
+  syncDefaultAggs,
+} from "../../es/src/charts/Candlestick/aggregate.js";
+import {
+  candlestickBuffer,
   padPeriods,
   widenDomain,
 } from "../../es/src/charts/Candlestick/buffer.js";
@@ -156,6 +169,71 @@ it("Candlestick ohlcAccessors reads the chart's four accessors", () => {
   const out = ohlcAccessors(viz);
   assert.deepStrictEqual(Object.keys(out).sort(), ["close", "high", "low", "open"]);
   assert.strictEqual(out.high(row(1, 2, 0, 1)), 2);
+});
+
+it("Candlestick firstValue/lastValue/maxValue/minValue read finite values in row order", () => {
+  const rows = [{v: null}, {v: "3"}, {v: 7}, {v: 1}, {v: "x"}, {}];
+  const value = d => d.v;
+  assert.strictEqual(firstValue(rows, value), 3, "skips a missing first value");
+  assert.strictEqual(lastValue(rows, value), 1, "skips trailing non-numbers");
+  assert.strictEqual(maxValue(rows, value), 7);
+  assert.strictEqual(minValue(rows, value), 1);
+  for (const agg of [firstValue, lastValue, maxValue, minValue]) {
+    assert.strictEqual(agg([{v: null}, {}], value), undefined, "no finite value: undefined");
+  }
+  assert.deepStrictEqual(DEFAULT_AGGS, {open: firstValue, high: maxValue, low: minValue, close: lastValue});
+  assert.ok(isDefaultAgg(firstValue) && !isDefaultAgg(() => 0));
+});
+
+it("Candlestick keyedAccessor remembers string keys", () => {
+  const fn = keyedAccessor("o");
+  assert.strictEqual(fn({o: 4}), 4);
+  assert.strictEqual(accessorKey(fn), "o");
+  const custom = d => d.p.o;
+  assert.strictEqual(keyedAccessor(custom), custom, "functions pass through");
+  assert.strictEqual(accessorKey(custom), undefined);
+  assert.strictEqual(keyedAccessor(5)(), 5, "other values become constants");
+  assert.strictEqual(accessorKey("o"), undefined, "a non-function has no key");
+  rememberKey(custom, "p");
+  assert.strictEqual(accessorKey(custom), "p");
+});
+
+it("Candlestick syncDefaultAggs installs defaults on keys and keeps the user's entries", () => {
+  const mine = () => 0;
+  const aggs = {o: mine, stale: maxValue, other: mine};
+  const fn = d => d.c;
+  syncDefaultAggs(aggs, {open: keyedAccessor("o"), high: keyedAccessor("h"), low: keyedAccessor("l"), close: fn});
+  assert.strictEqual(aggs.o, mine, "a user's entry wins");
+  assert.strictEqual(aggs.h, maxValue);
+  assert.strictEqual(aggs.l, minValue);
+  assert.ok(!("stale" in aggs), "a default on a key no field reads is dropped");
+  assert.strictEqual(aggs.other, mine);
+  assert.ok(!("c" in aggs), "a function accessor takes no key entry");
+  const shared = {};
+  syncDefaultAggs(shared, {open: keyedAccessor("p"), close: keyedAccessor("p")});
+  assert.strictEqual(shared.p, lastValue, "the later field wins a shared key");
+});
+
+it("Candlestick aggregateFunctionFields aggregates function accessors, by field-named aggs when set", () => {
+  const rows = [{p: {o: 10, h: 12, l: 9, c: 11}}, {p: {o: 11, h: 15, l: 10, c: 14}}, {p: {o: 14, h: 14, l: 8, c: 9}}];
+  const accessors = {
+    open: d => d.p.o,
+    high: d => d.p.h,
+    low: d => d.p.l,
+    close: keyedAccessor("c"),
+  };
+  assert.deepStrictEqual(aggregateFunctionFields(rows, accessors, {}), {open: 10, high: 15, low: 8});
+  const mean = (a, c) => a.reduce((s, d) => s + c(d), 0) / a.length;
+  assert.deepStrictEqual(
+    aggregateFunctionFields(rows, accessors, {high: mean, low: minValue, open: lastValue}),
+    {open: 10, high: 41 / 3, low: 8},
+    "a user's field-named entry wins; a default on that name is the field's own default",
+  );
+  assert.strictEqual(
+    aggregateFunctionFields(rows, {open: keyedAccessor("o")}, {}),
+    undefined,
+    "no function accessor: nothing to aggregate",
+  );
 });
 
 it("Candlestick widenDomain reaches the extent plus a pixel buffer", () => {

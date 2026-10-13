@@ -19,7 +19,7 @@ import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelper
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext, ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {ohlcAccessors} from "./buffer.js";
+import {ohlcAccessors} from "./aggregate.js";
 import {
   candleDirection,
   candlePath,

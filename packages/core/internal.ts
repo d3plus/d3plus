@@ -81,7 +81,19 @@ export type {
   OhlcAccessor,
   OhlcAccessors,
 } from "./src/charts/Candlestick/ohlc.js";
-export {candlestickBuffer, ohlcAccessors, widenDomain} from "./src/charts/Candlestick/buffer.js";
+export {
+  aggregateFunctionFields,
+  DEFAULT_AGGS,
+  firstValue,
+  keyedAccessor,
+  lastValue,
+  maxValue,
+  minValue,
+  ohlcAccessors,
+  syncDefaultAggs,
+} from "./src/charts/Candlestick/aggregate.js";
+export type {Aggregator} from "./src/charts/Candlestick/aggregate.js";
+export {candlestickBuffer, widenDomain} from "./src/charts/Candlestick/buffer.js";
 export {CANDLESTICK_SHAPE, candleTexture, emitCandlesticks, layoutCandles} from "./src/charts/Candlestick/emit.js";
 export type {CandleLayout} from "./src/charts/Candlestick/emit.js";
 export {bandAxisDefaults, periodDate} from "./src/charts/Candlestick/periods.js";

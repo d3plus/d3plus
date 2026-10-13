@@ -158,6 +158,12 @@ export interface VizInstance {
   _drawDepth: number;
   _discrete?: "x" | "y";
   _aggs: Record<string, (leaves: DataPoint[]) => unknown>;
+  /**
+      Merges the rows that share a group and discrete position into one
+      datum, in place of `merge(leaves, aggs)`; for a chart whose values
+      aggregate through accessors rather than data keys.
+  */
+  _mergeRows?: (leaves: DataPoint[]) => DataPoint;
 
   /* 4. Accessors */
   _id: (d: DataPoint, i: number) => string | number;

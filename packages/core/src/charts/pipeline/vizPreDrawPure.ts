@@ -262,7 +262,7 @@ export function computeFilteredData(
         const shape = viz.schema.shape(leaves[0], index);
         const localId = id(leaves[0], index) as string | number;
 
-        const d = merge(leaves, viz.schema.aggs) as DataPoint;
+        const d = viz._mergeRows ? viz._mergeRows(leaves) : (merge(leaves, viz.schema.aggs) as DataPoint);
 
         if (
           !viz._hidden.includes(localId) &&
