@@ -28,6 +28,8 @@ const plotSchema = [
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},
   {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},
+  {key: "forecast", coerce: "identity" as const},
+  {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},
@@ -68,6 +70,7 @@ import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import {validateConfidenceConfig} from "./confidenceConfig.js";
 import {resolveConfidenceBands, type ConfidenceBand} from "./confidenceBands.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
+import {forecastDefaults} from "./forecast.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";

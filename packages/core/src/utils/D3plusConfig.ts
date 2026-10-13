@@ -578,6 +578,42 @@ export interface D3plusConfig {
     | number
     | string
     | ((d: Record<string, unknown>) => boolean);
+  /**
+      Marks a forecast: the stretch of the discrete axis after it gets a
+      shaded backdrop, a rule at its start, and a translated "Forecast"
+      label, and each line's forecast stretch is dashed (see
+      `forecastConfig`). A function flags the forecast rows (e.g.
+      `d => d.Type === "Predicted"`): each line is dashed from its last
+      unflagged point, or throughout when every row is flagged, and the
+      backdrop starts at the earliest of those. `"auto"` (or `true`) flags
+      the rows whose `confidence` bounds spread away from their line. A
+      discrete-axis value (a date or year on a time axis) starts the
+      forecast there. Unset (the default), only a trend line projection
+      (`trendLineConfig.projection`) is marked, from the last fitted value;
+      `false` marks nothing, not even a projection. On bar charts the
+      backdrop starts at the edge of the first forecast bar, and bars keep
+      their own styles. Defaults to `"auto"` on a FanChart.
+  */
+  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  /**
+      Styles for the `forecast` marker: the backdrop's `fill` and
+      `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
+      `stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and
+      `strokeDasharray` (`"4 4"`; `stroke: false` hides it), the label's
+      text as `label` (default "Forecast", translated; `false` hides it)
+      with `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and
+      `fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each
+      line's forecast stretch (default `"6 4"`; `false` keeps lines solid).
+      Colors default to the chart's text color for its background. The
+      backdrop is chart chrome with no data row, so `shapeConfig.texture`
+      and `shapeConfig.backgroundImage` leave it plain; give it its own
+      `texture` (a textures.js name or config, drawn in the backdrop's color
+      over its shade at `textureOpacity`, default `0.3`, with
+      `textureDefault`) or `backgroundImage` (a URL,
+      fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
+      by default.
+  */
+  forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string

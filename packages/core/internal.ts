@@ -53,6 +53,29 @@ export {
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
 export {curveFactory, lineCurve} from "./src/charts/Plot/lineCurve.js";
+export {curvePolyline, splitDash, splitLength} from "./src/charts/Plot/curveLength.js";
+export {
+  autoForecastStart,
+  discreteOrder,
+  discreteRank,
+  forecastDefaults,
+  forecastRow,
+  forecastStart,
+  seriesForecastStarts,
+  trendForecastStart,
+} from "./src/charts/Plot/forecast.js";
+export type {ForecastRow, ForecastSetting, ForecastStart} from "./src/charts/Plot/forecast.js";
+export {
+  backdropDecor,
+  discreteDirection,
+  emitForecast,
+  forecastDashOr,
+  forecastLineDash,
+  forecastRows,
+  lineRows,
+  slotEdge,
+} from "./src/charts/Plot/forecastScene.js";
+export type {ForecastFrame} from "./src/charts/Plot/forecastScene.js";
 export {
   betweenPoints,
   emitFillBetween,
