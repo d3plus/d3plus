@@ -2,6 +2,7 @@ import assert from "assert";
 import {
   applyBarWidths,
   barKey,
+  barSeries,
   barSpanAxisConfig,
   barWidthAccessor,
   barWidthLabel,
@@ -9,6 +10,7 @@ import {
   labelBarWidth,
   layoutBarSpans,
   measureBars,
+  seriesSlot,
 } from "../../es/src/charts/Plot/barWidth.js";
 import {plotAxisConfig} from "../../es/src/charts/Plot/baselineBreak.js";
 
@@ -179,4 +181,28 @@ it("barWidth: plotAxisConfig puts the category labels beneath the user's axis co
   assert.deepStrictEqual(plotAxisConfig(viz, "x").labels, [], "a user's own labels win");
   viz._yConfig = {title: "v"};
   assert.deepStrictEqual(plotAxisConfig(viz, "y"), {break: false, title: "v"});
+});
+
+it("barWidth: barSeries lists side-by-side series only when a bar holds more than one", () => {
+  const rows = [
+    {x: 1, group: "a"},
+    {x: 1, group: "b"},
+    {x: 3, group: "a"},
+    {x: 3, group: "c"},
+  ];
+  assert.deepStrictEqual(barSeries(rows, "x"), ["a", "b", "c"]);
+  assert.deepStrictEqual(barSeries([{x: 1, group: "s"}, {x: 3, group: "s"}], "x"), [], "one stack per bar");
+  assert.deepStrictEqual(barSeries([{y: 1, group: "a"}, {y: 3, group: "b"}], "y"), [], "one series per bar");
+  assert.deepStrictEqual(barSeries([], "x"), []);
+});
+
+it("barWidth: seriesSlot splits a bar like grouped bars split a band", () => {
+  // 100px for 2 series with 4px padding: (100 - 8 - 1) / 2 = 45.5 each, flush with both edges.
+  assert.deepStrictEqual(seriesSlot(100, 2, 0, 4), {size: 45.5, offset: -27.25});
+  assert.deepStrictEqual(seriesSlot(100, 2, 1, 4), {size: 45.5, offset: 27.25});
+  const middle = seriesSlot(91, 3, 1, 0);
+  assert.strictEqual(middle.size, 30);
+  assert.strictEqual(middle.offset, 0);
+  assert.deepStrictEqual(seriesSlot(50, 1, 0, 4), {size: 45, offset: 0});
+  assert.strictEqual(seriesSlot(4, 3, 0, 2).size, 1, "never narrower than 1px");
 });

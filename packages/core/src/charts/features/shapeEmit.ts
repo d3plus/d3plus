@@ -30,6 +30,7 @@ import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
+import {barSeries, seriesSlot} from "../Plot/barWidth.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
@@ -273,16 +274,29 @@ const barEmit: ShapeEmitter = ctx => {
 
 /**
     Bar on a span axis (`viz._discreteExtent`): each bar fills its own
-    `[start, end]`, less `groupPadding`. Series sharing a span overlap.
+    `[start, end]`, less `groupPadding`. Unstacked series sharing a
+    variable-width bar (`barWidth`) split it side by side, spaced by
+    `barPadding`; Histogram's series sharing a bin overlap.
 */
 function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneNode[] {
-  const {viz} = ctx;
-  const size = (d: PlotDatum) => {
+  const {viz, values} = ctx;
+  const space = (d: PlotDatum) => {
     const [start, end] = rowSpan(viz, d);
     return Math.max(1, Math.abs(scale(end) - scale(start)) - viz._groupPadding!);
   };
-  s.width(size);
-  s.height(size);
+  const axis = viz.schema.discrete as "x" | "y";
+  const series = viz._barSpans ? barSeries(values as PlotDatum[], axis) : [];
+  if (series.length < 2) {
+    s.width(space);
+    s.height(space);
+    return finishShape(ctx, "Bar", s);
+  }
+  const slot = (d: PlotDatum) =>
+    seriesSlot(space(d), series.length, series.indexOf(d.group), viz.schema.barPadding);
+  const position = ctx.shapeConfig[axis] as (d: PlotDatum, i: number) => number;
+  s[axis]((d: PlotDatum, i: number) => position(d, i) + slot(d).offset);
+  s.width((d: PlotDatum) => slot(d).size);
+  s.height((d: PlotDatum) => slot(d).size);
   return finishShape(ctx, "Bar", s);
 }
 

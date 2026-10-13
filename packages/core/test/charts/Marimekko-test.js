@@ -211,3 +211,35 @@ it("Marimekko: facet draws one mosaic per panel", async function () {
   const xLabels = [...out.xLabels].sort();
   assert.deepStrictEqual(xLabels, ["A", "A", "B", "B"], `panel category labels: ${out.xLabels}`);
 });
+
+// Two unstacked series per category; A is three times as wide as B.
+const series = [
+  {cat: "A", g: "a", v: 4, size: 3},
+  {cat: "A", g: "b", v: 2, size: 3},
+  {cat: "B", g: "a", v: 3, size: 1},
+  {cat: "B", g: "b", v: 5, size: 1},
+];
+
+it("BarChart: unstacked series split each variable-width bar side by side", async function () {
+  this.timeout(60000);
+  const out = await render("", draw, ["BarChart", {barWidth: "size", maxAggs: "size", barPadding: 4}, series]);
+  assert.strictEqual(out.nan, 0);
+  const bar = key => out.bars.find(b => b.key === key);
+  const width = b => b.right - b.left;
+  const [aA, bA, aB, bB] = ["a_A", "b_A", "a_B", "b_B"].map(bar);
+  // barPadding spaces the series as it does grouped bars: (2 * 4 + 1) / (2 - 1).
+  near(bA.left - aA.right, 9, 1.5, "series sit side by side, barPadding apart");
+  near(bB.left - aB.right, 9, 1.5, "in every bar");
+  near(width(aA), width(bA), 0.5, "series share a bar equally");
+  near((bA.right - aA.left) / (bB.right - aB.left), 3, 0.2, "each pair fills its bar's width");
+  assert.ok(bA.right < aB.left, "bars stay within their spans");
+
+  const stacked = await render("", draw, ["BarChart", {barWidth: "size", maxAggs: "size", stacked: true}, series]);
+  const s = key => stacked.bars.find(b => b.key === key);
+  near(s("a_A").left, s("b_A").left, 0.5, "stacked segments still span the whole bar");
+
+  const canvas = await render("", draw, ["BarChart", {barWidth: "size", maxAggs: "size", barPadding: 4, renderer: "canvas"}, series]);
+  const rect = key => canvas.sceneRects.find(r => r.key === key);
+  near(rect("a_A").width, rect("b_A").width, 0.5, "canvas: series share a bar equally");
+  near(rect("a_A").width / rect("a_B").width, 3, 0.25, "canvas: widths follow each bar's measure");
+});

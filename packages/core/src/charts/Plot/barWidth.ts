@@ -217,3 +217,42 @@ export function barWidthTooltipRows(viz: VizInstance, d: DataPoint): [string, st
   const share = layout.total ? `${formatAbbreviate((span.size / layout.total) * 100, locale)}%` : "";
   return [[barWidthLabel(viz), `${formatAbbreviate(span.size, locale)}${share ? ` (${share})` : ""}`]];
 }
+
+/**
+    The series that sit side by side within each bar: every row's `group`,
+    in first-seen order, when any bar holds more than one (unstacked series);
+    empty when every bar is a single shape or a single stack.
+*/
+export function barSeries(rows: Row[], axis: "x" | "y"): unknown[] {
+  const perBar = new Map<string, Set<unknown>>();
+  const series = new Set<unknown>();
+  let split = false;
+  for (const row of rows) {
+    const key = barKey(row[axis]);
+    const groups = perBar.get(key) ?? new Set<unknown>();
+    groups.add(row.group);
+    perBar.set(key, groups);
+    series.add(row.group);
+    if (groups.size > 1) split = true;
+  }
+  return split ? Array.from(series) : [];
+}
+
+/**
+    One series' slot within a bar `space` pixels wide that `count` series
+    share, the way grouped bars split a band: each is
+    `(space - padding * count - 1) / count` wide (at least 1px), the first
+    flush with the bar's start and the last with its end. Returns the slot's
+    width and its center's offset from the bar's center.
+*/
+export function seriesSlot(
+  space: number,
+  count: number,
+  index: number,
+  padding: number,
+): {size: number; offset: number} {
+  const size = Math.max(1, (space - padding * count - 1) / count);
+  if (count < 2) return {size, offset: 0};
+  const reach = Math.max(0, space - size) / 2;
+  return {size, offset: -reach + (index * reach * 2) / (count - 1)};
+}
