@@ -32,7 +32,7 @@ export function parseTimeValues(values: readonly unknown[]): Date[] {
 export function axisScaleData(axis: Axis): unknown[] {
   if (axis.schema.scale !== "time") return axis._data ?? [];
   const data = parseTimeValues(axis._data ?? []);
-  const domain = (axis.schema.domain as unknown[]).map(parseTime);
+  const domain = ((axis.schema.domain ?? []) as unknown[]).map(parseTime);
   if (domain.length < 2 || domain.some(d => d === undefined)) return data;
   const [lo, hi] = extent(domain as Date[]) as [Date, Date];
   return data.filter(d => d >= lo && d <= hi);
