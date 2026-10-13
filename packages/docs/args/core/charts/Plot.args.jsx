@@ -577,7 +577,7 @@ export const argTypes = assign(
     },
     hiddenColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {

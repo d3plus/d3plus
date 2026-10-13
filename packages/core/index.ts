@@ -92,6 +92,7 @@ export type {
   BoxConfig,
   CircleConfig,
   ConstOrAccessor,
+  CssColor,
   ImageConfig,
   LineConfig,
   Orient,
