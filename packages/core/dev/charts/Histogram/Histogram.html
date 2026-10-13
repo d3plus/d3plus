@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Histogram</title>
-  <meta name="description" content="Histogram defaults, stacked groups, binWidth and density normalization.">
+  <meta name="description" content="Histogram defaults, stacked groups, binWidth, density normalization, and a count-axis yDomain.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -23,6 +23,7 @@
     <div><h3>Stacked by groupBy</h3><div class="viz" id="stacked"></div></div>
     <div><h3>binWidth(2.5)</h3><div class="viz" id="width"></div></div>
     <div><h3>binNormalize("density")</h3><div class="viz" id="density"></div></div>
+    <div><h3>yDomain([20]): the count axis breaks back to 0</h3><div class="viz" id="domain"></div></div>
   </div>
 </body>
 
@@ -66,6 +67,13 @@
     .groupBy("Sex")
     .value("Height (cm)")
     .binNormalize("density")
+    .render();
+
+  new d3plus.Histogram()
+    .select("#domain")
+    .data(heights)
+    .value("Height (cm)")
+    .yDomain([20])
     .render();
 
 </script>

@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import {parseSync, printSync} from "@swc/core";
 
+import {applyColorControl} from "./colorControl.js";
+
 // Inherited config each chart fixes for itself, left out of its args. Each
 // entry is matched against the whole key (it may be a regex, e.g. "zoom.*").
 const hiddenMethods = {
@@ -272,6 +274,14 @@ export default function (
         defaultValue: {summary: "undefined"},
       };
     }
+    if (!argObject.options)
+      applyColorControl(argObject, {
+        key: name,
+        types: type.names,
+        description: d.description,
+        // An accessor's source isn't a color to veto the picker over.
+        value: argObject.table.defaultValue.detail ? undefined : defaultvalue,
+      });
     obj[name.replace(/\*/g, "")] = argObject;
 
     return obj;
@@ -315,7 +325,7 @@ export default function (
       if (formattedMethods[cleanKey]) continue;
       if (hideRe && hideRe.test(cleanKey)) continue;
       const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
-      formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
+      formattedMethods[cleanKey] = configArgType(ownConfig[key], doc, cleanKey);
     }
 
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
@@ -454,6 +464,17 @@ function typedArg(type) {
   return arg;
 }
 
+/** Gives a `typedArg` result a color picker when its `@type` is a color. */
+function colorTypedArg(arg, key, description, value) {
+  if (arg.options) return arg;
+  return applyColorControl(arg, {
+    key,
+    types: typeUnion(arg.type.summary),
+    description,
+    value,
+  });
+}
+
 /**
  * A docs-table summary for a chart's default: its runtime value when that
  * renders plainly, else its source (`"value"` for `accessor("value")`).
@@ -528,6 +549,7 @@ function chartArgTypes(
           if (summary) arg.table = {defaultValue: {summary}};
         }
       }
+      if (doc.type) colorTypedArg(arg, key, doc.description, value);
       if (Object.keys(arg).length) out[key] = arg;
       continue;
     }
@@ -535,8 +557,9 @@ function chartArgTypes(
     const iface = typed[key] || merged[key];
     const arg = doc.type
       ? withDefault(typedArg(doc.type), value)
-      : configArgType(value, iface);
+      : configArgType(value, iface, key);
     arg.description = doc.description || (iface && iface.description) || "";
+    if (doc.type) colorTypedArg(arg, key, arg.description, value);
     if (arg.defaultValue === undefined) {
       const summary = defaultSummary(value, field);
       if (summary) arg.table = {defaultValue: {summary}};
@@ -580,7 +603,7 @@ function withDefault(arg, value) {
  * functions/unset values get no control but are still listed so `configify`
  * keeps story-set values and the key shows in the Code view.
  */
-function configArgType(value, doc) {
+function configArgType(value, doc, key) {
   if (doc && doc.names && doc.names.length) {
     const types = doc.names.map(t => t.toLowerCase());
     const arg = {
@@ -623,7 +646,15 @@ function configArgType(value, doc) {
       else if (vt === "boolean") arg.control.type = "boolean";
       else if (vt === "array") arg.control.type = "object";
     }
-    return withDefault(arg, value);
+    withDefault(arg, value);
+    if (!arg.options)
+      applyColorControl(arg, {
+        key,
+        types: doc.names,
+        description: arg.description,
+        value,
+      });
+    return arg;
   }
 
   const t = Array.isArray(value)
@@ -648,7 +679,8 @@ function configArgType(value, doc) {
   else if (t === "string") arg.control.type = "text";
   else if (t === "boolean") arg.control.type = "boolean";
   else if (t === "array" || t === "object") arg.control.type = "object";
-  return withDefault(arg, value);
+  withDefault(arg, value);
+  return applyColorControl(arg, {key, types: [t], value});
 }
 
 const JSONstringifyOrder = (obj, space) => {

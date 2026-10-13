@@ -31,6 +31,14 @@ export const argTypes = assign(
         }
       }
     },
+    baselineBreak: {
+      defaultValue: true,
+      table: {
+        defaultValue: {
+          summary: "true"
+        }
+      }
+    },
     binDomain: {
       control: {
         type: "object"
