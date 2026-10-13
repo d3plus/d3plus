@@ -18,6 +18,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
+import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
@@ -114,7 +115,8 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
     time axes (sets viz._xTime / _x2Time / _yTime / _y2Time), maps the
     filtered data through `prepData` to produce the per-row PlotDatum shape
     (x/y/x2/y2 + id + group + shape + lci/hci + discrete), drops rows whose
-    axis values can't be plotted (`isPlottableRow` — see #776), and constructs
+    axis values can't be plotted (`isPlottableRow` — see #776) or whose
+    category a discrete axis's user domain leaves out, and constructs
     the `_sizeScaleD3` if `_size` is set.
 
     Pure compute. Returns `{formattedData, axisData, x2Exists, y2Exists}`
@@ -180,11 +182,14 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return newD;
   };
 
+  const categories = discreteDomainCategories(viz);
+  const keepRow = (d: Record<string, unknown>) =>
+    isPlottableRow(d) && (!categories || categories.has(d[viz.schema.discrete]));
   const formattedData = (viz._formattedData = viz._filteredData
     .map(prepData)
-    .filter(isPlottableRow));
+    .filter(keepRow));
   const axisData = viz._axisPersist
-    ? viz._data.map(prepData).filter(isPlottableRow)
+    ? viz._data.map(prepData).filter(keepRow)
     : formattedData;
 
   const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));

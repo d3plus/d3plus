@@ -936,8 +936,13 @@ export interface D3plusConfig {
       that cross it (see the axis `break` and `breakConfig`).
   */
   xBreak?: [number, number] | [number, number][];
-  /** The x domain as an array. If either value is undefined, it is calculated from the data. */
-  xDomain?: (number | Date)[];
+  /**
+      The x domain as an array. On a continuous axis it is `[min, max]`,
+      and an undefined end is calculated from the data. On a discrete axis it
+      lists the categories to show, in order; data in other categories is not
+      drawn.
+  */
+  xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
   x2Domain?: (number | Date)[];
   /** Custom sort function for x-axis values. */
@@ -955,8 +960,13 @@ export interface D3plusConfig {
       `break` and `breakConfig`).
   */
   yBreak?: [number, number] | [number, number][];
-  /** The y domain as an array. If either value is undefined, it is calculated from the data. */
-  yDomain?: (number | Date)[];
+  /**
+      The y domain as an array. On a continuous axis it is `[min, max]`,
+      and an undefined end is calculated from the data. On a discrete axis it
+      lists the categories to show, in order; data in other categories is not
+      drawn.
+  */
+  yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
   y2Domain?: (number | Date)[];
   /** Custom sort function for y-axis values. */
