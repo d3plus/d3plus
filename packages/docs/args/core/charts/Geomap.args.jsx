@@ -280,7 +280,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "CssColor | function"
       }
     },
     topojsonFilter: {
