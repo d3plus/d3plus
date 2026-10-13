@@ -142,28 +142,43 @@ for (const renderer of ["svg", "canvas"]) {
 
   it(`[${renderer}] the clipped-away part of a line takes no pointer events`, async () => {
     const r = await page(`
+      // A flat dip just below the domain, so the clipped stretch of line
+      // still lies on the surface (between x ticks, clear of their labels).
+      const dip = [1000, 1012, 990, 975, 975, 975, 1024, 1040, 1018, 1003, 1030]
+        .map((value, x) => ({id: "Alpha", x, value}));
       const chart = new d3plus.LinePlot()
-        .data(alpha).groupBy("id").x("x").y("value")
+        .data(dip).groupBy("id").x("x").y("value")
         .yDomain([980]).legend(false)
         .renderer(arg);
       await done(chart);
+      // The series line (interaction points sit in its parent's space).
       let line, at;
       walk(scene(chart), (n, o) => {
-        if (n.shapeType === "Line" && n.type === "path" && !String(n.key).endsWith("::hit")) [line, at] = [n, o];
+        if (n.shapeType === "Line" && n.key === "Alpha") {
+          const t = n.transform || {};
+          [line, at] = [n, {x: o.x - (t.x || 0) * o.k / (t.scale ?? 1), y: o.y - (t.y || 0) * o.k / (t.scale ?? 1), k: o.k / (t.scale ?? 1)}];
+        }
       });
       const bottom = plotRect(chart).y + plotRect(chart).height;
+      const {height} = size(chart);
       const points = line.interactionPoints.map(p => [at.x + p.x * at.k, at.y + p.y * at.k]);
+      // Midway between neighboring points, clear of the x tick labels.
+      const mids = points.slice(1).map((p, i) => [(p[0] + points[i][0]) / 2, (p[1] + points[i][1]) / 2]);
       const pickLine = p => {
         const pick = chart._sceneRenderer.pick(p);
         return !!pick && pick.node.shapeType === "Line";
       };
-      const outside = points.filter(p => p[1] > bottom + 10);
-      const inside = points.filter(p => p[1] < bottom - 10);
+      const outside = mids.filter(p => p[1] > bottom + 10 && p[1] < height - 2);
+      // Points well inside the plot, away from the axes drawn over its edges.
+      const plot = plotRect(chart);
+      const inside = points.filter(p => p[0] > plot.x + 10 && p[0] < plot.x + plot.width - 10 &&
+        p[1] > plot.y + 10 && p[1] < bottom - 10);
       return {outside: outside.map(pickLine), inside: inside.map(pickLine)};
     `, renderer);
-    assert.ok(r.outside.length >= 2, "some points fall below the domain");
-    assert.deepStrictEqual(r.outside, r.outside.map(() => false), "points below the axis don't pick the line");
-    assert.ok(r.inside.every(Boolean), "points inside the plot still pick it");
+    assert.ok(r.outside.length >= 2, "the dip lies on the surface below the plot");
+    assert.deepStrictEqual(r.outside, r.outside.map(() => false), "the line below the axis doesn't pick");
+    assert.ok(r.inside.length >= 2, "and some of it inside the plot");
+    assert.ok(r.inside.every(Boolean), "which still picks");
   });
 
   it(`[${renderer}] each small-multiples panel clips to its own plot`, async () => {
