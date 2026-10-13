@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Waterfall</title>
-  <meta name="description" content="Waterfall subtotals, horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
+  <meta name="description" content="Waterfall subtotals, a broken axis zoomed in on a bridge, horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -23,6 +23,8 @@
   <div class="grid">
     <div><h3>Income statement with subtotals</h3><div class="viz" id="income"></div></div>
     <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
+    <div><h3>Bridge from 1,000 to 1,020: yDomain([980])</h3><div class="viz" id="break"></div></div>
+    <div><h3>Horizontal bridge: xDomain([980])</h3><div class="viz" id="breakHorizontal"></div></div>
     <div><h3>Monthly cash flow, dashed connectors</h3><div class="viz" id="cash"></div></div>
     <div><h3>Series side by side (groupBy)</h3><div class="viz" id="series"></div></div>
     <div class="wide"><h3>Small multiples (facet by year)</h3><div class="viz" id="facet"></div></div>
@@ -60,6 +62,36 @@
     .y("item")
     .x("amount")
     .subtotal("subtotal")
+    .render();
+
+  const bridge = [
+    {driver: "Opening", value: 1000, subtotal: true},
+    {driver: "Price", value: 15},
+    {driver: "Volume", value: -8},
+    {driver: "Mix", value: 13},
+    {driver: "Closing", subtotal: true},
+  ];
+
+  // The axis starts at 980 and keeps 0 behind a break; subtotals rise from
+  // 0 through it. (baseline(980) renders the same once it sets the domain
+  // minimum, #945.)
+  new d3plus.Waterfall()
+    .select("#break")
+    .data(bridge)
+    .x("driver")
+    .y("value")
+    .subtotal("subtotal")
+    .yDomain([980])
+    .render();
+
+  new d3plus.Waterfall()
+    .select("#breakHorizontal")
+    .data(bridge)
+    .discrete("y")
+    .y("driver")
+    .x("value")
+    .subtotal("subtotal")
+    .xDomain([980])
     .render();
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

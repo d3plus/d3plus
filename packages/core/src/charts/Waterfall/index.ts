@@ -227,5 +227,11 @@ export const waterfallDef: ChartDefinition = {
     rows marked by `subtotal` draw from zero to the running total. Bars are
     colored as increases, decreases, or totals, and labeled with their change.
     Each `groupBy` series keeps its own running total, drawn side by side.
+
+    The value axis includes zero by default. To zoom in on a bridge between
+    large totals (say 1,000 to 1,020), set a `yDomain` (`xDomain` for
+    horizontal bars) that stops short of zero, e.g. `yDomain([980])`: the
+    axis keeps zero behind a break, as BarChart does, and subtotal bars rise
+    from zero through it.
 */
 export default makeChart(waterfallDef, BarChart);
