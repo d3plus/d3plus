@@ -56,7 +56,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      description: "The value the axis's `baselineBreak` returns to. Defaults to `0`. A\nPlot passes its own `baseline` here; set the chart's `baseline` (not\nthis one) to start a Plot's value axis at a value.",
       table: {
         defaultValue: {
           summary: "0"

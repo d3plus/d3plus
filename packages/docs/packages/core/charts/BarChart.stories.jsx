@@ -563,6 +563,16 @@ HorizontalBaselineBreak.args = {
 };
 HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};
 
+export const Baseline = Template.bind({});
+Baseline.args = {
+  baseline: 1200,
+  data: housingStarts,
+  groupBy: "year",
+  x: "year",
+  y: "starts"
+};
+Baseline.parameters = {controls: {include: ["baseline", "yDomain"]}, docs: {description: {story: "Setting `baseline` acts exactly like setting just the minimum of `yDomain`: the y axis starts at `1200` with no rounding below it, and the bars grow from there, with no break back to zero. A `yDomain` minimum still wins, and when every value sits below the baseline it ends the axis instead, like a domain maximum. BarChart's own baseline of `0` only marks where bars start, so bars with negative values still hang below it."}}};
+
 export const OutlierBarBreak = Template.bind({});
 OutlierBarBreak.args = {
   data: [
