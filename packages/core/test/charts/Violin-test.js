@@ -166,6 +166,28 @@ it("Violin inner overlays: box, quartiles, and swarmed points", async function (
   Object.values(out).forEach(o => assert.strictEqual(o.nan, 0));
 });
 
+it("Violin's inner box takes innerConfig.box.texture", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const boxes = async innerConfig => {
+      const {viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner("box").innerConfig(innerConfig));
+      const walk = (nodes, inBox, out = []) => {
+        (nodes || []).forEach(n => {
+          const box = inBox || n.key === "violin-box";
+          if (box && n.type === "rect" && !`${n.key}`.endsWith("::hit")) out.push(String(n.paint && n.paint.fill));
+          walk(n.children, box, out);
+        });
+        return out;
+      };
+      return walk(viz._chartScene, false);
+    };
+    return {textured: await boxes({box: {texture: "lines"}}), plain: await boxes({})};
+  });
+  assert.ok(out.textured.length >= 3, "a box per violin");
+  assert.ok(out.textured.some(f => f.startsWith("pattern:")), `the boxes are textured (${out.textured.join(", ")})`);
+  assert.ok(!out.plain.some(f => f.startsWith("pattern:")), "no texture without one configured");
+});
+
 it("Violin dodges two groupBy levels, or splits them", async function () {
   this.timeout(60000);
   const out = await run(async () => {
