@@ -16,6 +16,7 @@ import type {ClipShape, SceneNode} from "@d3plus/render";
 
 import {PLOT_ZOOM_CONTENT_KEY, plotPaintMeasured} from "../features/plotPaint.js";
 import {unwrapBreakMasks} from "./plotBreaks.js";
+import {unwrapDomainClips} from "./domainClip.js";
 import type {PlotMeasureResult, PlotPaintContext} from "../features/plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -64,7 +65,7 @@ function linearAxes(pCtx: PlotPaintContext): AxisName[] {
 /** The content group `plotEmit` wraps a zoomable plot's shapes in. */
 function contentNodes(nodes: SceneNode[]): SceneNode[] | undefined {
   const group = nodes.find(n => n.key === PLOT_ZOOM_CONTENT_KEY);
-  return group && group.type === "group" ? unwrapBreakMasks(group.children) : undefined;
+  return group && group.type === "group" ? unwrapDomainClips(unwrapBreakMasks(group.children)) : undefined;
 }
 
 /**

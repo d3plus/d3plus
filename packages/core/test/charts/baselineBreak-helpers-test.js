@@ -8,7 +8,7 @@ import {
   valueAxisExtent,
 } from "../../es/internal.js";
 import {buildXConfig} from "../../es/src/charts/features/xAxisConfig.js";
-import {BarChart, LinePlot} from "../../es/index.js";
+import {AreaPlot, BarChart, Histogram, LinePlot, StackedArea} from "../../es/index.js";
 
 /**
     Plot's side of the baseline axis break (#645): which axis breaks, the axis
@@ -91,8 +91,11 @@ it("buildXConfig carries the x break settings into the shared x-axis config", ()
   assert.strictEqual(buildXConfig(new BarChart(), inputs).baselineBreak, false, "vertical bars don't break x");
 });
 
-it("BarChart defaults baselineBreak on; Plot charts leave it off", () => {
+it("BarChart, AreaPlot, StackedArea, and Histogram default baselineBreak on; other Plots leave it off", () => {
   assert.strictEqual(new BarChart().baselineBreak(), true);
+  assert.strictEqual(new AreaPlot().baselineBreak(), true);
+  assert.strictEqual(new StackedArea().baselineBreak(), true);
+  assert.strictEqual(new Histogram().baselineBreak(), true);
   assert.ok(!new LinePlot().baselineBreak(), "LinePlot does not break");
   assert.strictEqual(new BarChart().baselineBreak(false).baselineBreak(), false, "opt out");
 });

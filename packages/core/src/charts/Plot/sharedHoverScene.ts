@@ -15,6 +15,7 @@ import {
 } from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
+import {isDomainClip} from "./domainClip.js";
 import type {FacetPanelState} from "../facet/facetConfig.js";
 import {withFacetPanel} from "../facet/facetPanel.js";
 import {prefixKeys} from "../facet/facetScene.js";
@@ -95,7 +96,7 @@ const isMark = (node: SceneNode): boolean => {
 function layer(nodes: SceneNode[], crosshair: SceneNode | null, markers: SceneNode[], side: "back" | "front"): SceneNode[] {
   const out = [...nodes];
   if (crosshair) {
-    const first = out.findIndex(isMark);
+    const first = out.findIndex(n => isMark(n) || (isDomainClip(n) && (n as Parent).children!.some(isMark)));
     if (side === "back" && first >= 0) out.splice(first, 0, crosshair);
     else out.push(crosshair);
   }
