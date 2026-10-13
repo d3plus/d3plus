@@ -46,7 +46,7 @@ it("Bullet emits one labeled bullet per row with bands, axis, and marks", async 
         aria: [...svg.querySelectorAll("[aria-label]")].map(n =>
           n.getAttribute("aria-label"),
         ),
-        legend: document.querySelectorAll("#viz .d3plus-Legend, #viz [data-key^='legend']").length,
+        legend: document.querySelectorAll('#viz [data-key="viz-legend"] rect').length,
         legendFn: viz.schema.legend({}, viz._filteredData),
         zoomButtons: document.querySelectorAll("#viz .zoom-control").length,
         measureWidth: Number(
@@ -82,6 +82,7 @@ it("Bullet emits one labeled bullet per row with bands, axis, and marks", async 
   assert.strictEqual(out.nan, 0, "no NaN attributes");
   assert.ok(out.aria.includes("Revenue, 270, Target 250."), "measure aria label");
   assert.strictEqual(out.legendFn, false, "labeled rows need no legend");
+  assert.strictEqual(out.legend, 0, "no legend is drawn");
   assert.strictEqual(out.zoomButtons, 0, "zoom is off");
   assert.ok(out.forecastWidth > out.measureWidth, "the forecast runs past the measure");
 });
