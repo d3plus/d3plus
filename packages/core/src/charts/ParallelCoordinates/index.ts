@@ -42,26 +42,24 @@ export function resolveBrushStyle(config: Record<string, unknown>): Record<strin
 }
 
 /**
-    Wraps the chart's `toScene` so every paint applies the brush and hover
-    line states, and (after a new layout) syncs the brush strips.
+    Applies the brush and hover line states to every scene the chart builds,
+    and after a new layout syncs the brush strips. The sync lives here, not
+    in the layout stage, because the layout queues one strip per axis per
+    small-multiples panel: the first scene built after a layout is the first
+    point where every panel's strips are known.
 */
-function installScene(viz: VizInstance): void {
-  const host = viz as unknown as {toScene: () => Scene};
-  const base = host.toScene.bind(viz);
-  host.toScene = () => {
-    const scene = base();
-    const style = resolveBrushStyle((viz.schema.brushConfig ?? {}) as Record<string, unknown>);
-    const queue = viz.ctx.brushQueue as BrushTarget[] | undefined;
-    if (queue) {
-      viz.ctx.brushQueue = undefined;
-      syncBrushDom(viz, queue, style);
-    }
-    const root = applyLineStates(scene.root, {
-      brushes: viz.schema.brushes as BrushSelection | undefined,
-      inactiveOpacity: typeof style.inactiveOpacity === "number" ? style.inactiveOpacity : undefined,
-    });
-    return root === scene.root ? scene : {...scene, root: root as Scene["root"]};
-  };
+function decorateParallelScene(viz: VizInstance, scene: Scene): Scene {
+  const style = resolveBrushStyle((viz.schema.brushConfig ?? {}) as Record<string, unknown>);
+  const queue = viz.ctx.brushQueue as BrushTarget[] | undefined;
+  if (queue) {
+    viz.ctx.brushQueue = undefined;
+    syncBrushDom(viz, queue, style);
+  }
+  const root = applyLineStates(scene.root, {
+    brushes: viz.schema.brushes as BrushSelection | undefined,
+    inactiveOpacity: typeof style.inactiveOpacity === "number" ? style.inactiveOpacity : undefined,
+  });
+  return root === scene.root ? scene : {...scene, root: root as Scene["root"]};
 }
 
 export const parallelCoordinatesDef: DataDrivenChartDefinition = {
@@ -70,8 +68,7 @@ export const parallelCoordinatesDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyParallelLayout,
   emit: parallelEmit,
-
-  setup: installScene,
+  decorateScene: decorateParallelScene,
 
   facet: {
     aspect: 3 / 2,
