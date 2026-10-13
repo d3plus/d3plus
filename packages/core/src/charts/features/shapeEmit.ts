@@ -140,7 +140,7 @@ function finishShape(
   if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
   s.config(userConfig);
   if (override) s.config(override(userConfig));
-  if (viz.schema.stacked && key === "Bar" && viz._stackShareLabels !== false) applyStackShareLabels(viz, s);
+  if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
   s.render();
   const nodes = collectComputed(s);
   if (key !== "Bar") return nodes;

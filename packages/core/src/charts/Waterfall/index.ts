@@ -129,7 +129,8 @@ export const waterfallDef: ChartDefinition = {
     viz._stackOffset = waterfallStackOffset(row => stepOf(viz, row));
     // Each series keeps its own running total, drawn side by side.
     viz._stackGroup = (d, i) => viz._ids(d, i).slice(0, viz._drawDepth + 1).join("_");
-    viz._stackShareLabels = false;
+    // Each bar is alone in its stack, so a share would always be 100%.
+    viz._stackShares = false;
     viz.schema.color = (d: DataPoint) => kindOf(viz, d);
     configureBars(viz);
     configureLegend(viz);

@@ -232,5 +232,8 @@ it("Waterfall connectors honor connectors(false)", () => {
   assert.deepStrictEqual(underlay[0].points, [[15, 100], [25, 100]]);
   viz.connectors(false);
   assert.deepStrictEqual(viz._plotUnderlay(nodes, v => v, v => v), []);
-  assert.strictEqual(viz._stackShareLabels, false);
+});
+
+it("Waterfall opts out of stack shares, since each bar is alone in its stack", () => {
+  assert.strictEqual(waterfall()._stackShares, false);
 });
