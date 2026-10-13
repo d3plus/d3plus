@@ -322,7 +322,7 @@ NestedConfidenceBands.args = {
   x: "year",
   y: "value"
 };
-NestedConfidenceBands.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Give `confidence` a list of bands, outermost first, to nest several intervals around each line. Each band is a `[lower, upper]` pair, optionally with a label third; the widest draws lightest and the narrowest darkest (see `confidenceConfig.bandOpacity`). Hovering a single point lists each band's range under its label."}}};
+NestedConfidenceBands.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Give `confidence` a list of bands, outermost first, to nest several intervals around each line. Each band is a `[lower, upper]` pair, optionally with a label third; the widest draws lightest and the narrowest darkest (see `confidenceConfig.bandOpacity`). Hovering a single point lists each band's range under its label. For forecasts, see FanChart."}}};
 
 export const TrendLine = Template.bind({});
 TrendLine.args = {
