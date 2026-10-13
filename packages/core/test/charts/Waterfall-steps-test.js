@@ -152,28 +152,6 @@ it("waterfallStackOffset floats each stacked point between its step's ends", () 
   ];
   waterfallStackOffset(d => steps.get(d))(series, [0, 1]);
   assert.deepStrictEqual(Array.from(series[0][0]), [60, 100], "low value first");
-  assert.deepStrictEqual(Array.from(series[0][1]), [0, 0], "points without a step sit on the baseline");
+  assert.deepStrictEqual(Array.from(series[0][1]), [0, 0], "points without a step keep d3's values");
   assert.deepStrictEqual(Array.from(series[1][1]), [0, 30]);
-  const raised = [
-    Object.assign([point(-40, groupA), point(0, groupB)], {key: "a"}),
-    Object.assign([point(0, groupA), point(30, groupB)], {key: "b"}),
-  ];
-  waterfallStackOffset(d => steps.get(d), () => 50)(raised, [0, 1]);
-  assert.deepStrictEqual(Array.from(raised[0][1]), [50, 50], "and follow a raised baseline");
-  assert.deepStrictEqual(Array.from(raised[0][0]), [60, 100]);
-});
-
-it("subtotals draw from the baseline; running totals still count from zero", () => {
-  const sub = waterfallStep({category: "t", values: [], subtotal: true}, 1020, {series: "s", index: 4}, 980);
-  assert.strictEqual(sub.start, 980);
-  assert.strictEqual(sub.end, 1020);
-  assert.strictEqual(sub.joins, true);
-  const reset = waterfallStep({category: "t", values: [1000], subtotal: true}, 0, {series: "s", index: 0}, 980);
-  assert.deepStrictEqual([reset.start, reset.end, reset.change], [980, 1000, 1000]);
-  const steps = waterfallSteps(rows, accessors, 90);
-  assert.deepStrictEqual(rows.map(d => steps.get(d).start), [90, 100, 150, 90, 120, 90]);
-  assert.deepStrictEqual(rows.map(d => steps.get(d).end), [100, 150, 120, 120, 110, 110]);
-  const loose = waterfallSteps([{item: "a", amount: 5}], accessors, 90);
-  assert.strictEqual(loose.get(loose.keys().next().value).start, 0, "a change before any subtotal starts at zero");
-  assert.strictEqual(waterfallSteps(rows, accessors).get(rows[0]).start, 0, "the baseline defaults to zero");
 });

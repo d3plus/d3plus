@@ -45,8 +45,6 @@ it("endsForward follows a change's sign, or a subtotal's", () => {
   assert.strictEqual(endsForward(down), false);
   assert.strictEqual(endsForward(total), true);
   assert.strictEqual(endsForward(below), false);
-  assert.strictEqual(endsForward({kind: "total", start: 980, end: 1020, change: 0}), true, "a subtotal above its baseline");
-  assert.strictEqual(endsForward({kind: "total", start: 980, end: 970, change: 0}), false, "a subtotal below its baseline");
 });
 
 it("labelBox sits just past each bar's end", () => {

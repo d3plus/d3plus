@@ -16,7 +16,6 @@ import {
   topDownSort,
   valueAxis,
   valueFormat,
-  waterfallBaseline,
   waterfallState,
 } from "../../es/src/charts/Waterfall/state.js";
 import {formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
@@ -237,24 +236,4 @@ it("Waterfall connectors honor connectors(false)", () => {
 
 it("Waterfall opts out of stack shares, since each bar is alone in its stack", () => {
   assert.strictEqual(waterfall()._stackShares, false);
-});
-
-it("waterfallBaseline reads a numeric baseline, else zero", () => {
-  const viz = waterfall();
-  assert.strictEqual(viz.baseline(), 0, "Waterfall defaults baseline to zero");
-  assert.strictEqual(waterfallBaseline(viz), 0);
-  viz.baseline(980);
-  assert.strictEqual(waterfallBaseline(viz), 980);
-  viz.baseline(undefined);
-  assert.strictEqual(waterfallBaseline(viz), 0);
-  viz.baseline(NaN);
-  assert.strictEqual(waterfallBaseline(viz), 0);
-});
-
-it("Waterfall's subtotals start at its baseline", () => {
-  const viz = waterfall().baseline(80);
-  viz._preDraw();
-  const steps = viz._filteredData.map(d => stepOf(viz, d));
-  assert.deepStrictEqual(steps.map(s => s.start), [80, 100, 150, 80]);
-  assert.deepStrictEqual(steps.map(s => s.end), [100, 150, 120, 120]);
 });

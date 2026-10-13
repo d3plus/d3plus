@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a waterfall chart: one bar per category (x, or y with\ndiscrete(\"y\") for horizontal bars) whose value is the change it makes\nto a running total. Each bar floats from where the previous bar ended;\nrows marked by subtotal draw from the baseline to the running total.\nBars are colored as increases, decreases, or totals, and labeled with\ntheir change. Each groupBy series keeps its own running total, drawn\nside by side.\n\nThe value axis includes zero by default. To zoom in on a bridge between\nlarge totals (say 1,000 to 1,020), set baseline (e.g. baseline(980)):\nsubtotal bars then rise from it and the axis starts there. Or set a\nyDomain (xDomain for horizontal bars) that stops short of zero: the\naxis keeps zero and draws a break, as BarChart does.",
+        component: "Creates a waterfall chart: one bar per category (x, or y with\ndiscrete(\"y\") for horizontal bars) whose value is the change it makes\nto a running total. Each bar floats from where the previous bar ended;\nrows marked by subtotal draw from zero to the running total. Bars are\ncolored as increases, decreases, or totals, and labeled with their change.\nEach groupBy series keeps its own running total, drawn side by side.",
       },
     },
   }
@@ -67,14 +67,6 @@ const regions = [
   {region: "South", quarter: "Year", subtotal: true},
 ];
 
-const bridge = [
-  {driver: "Opening", value: 1000, subtotal: true},
-  {driver: "Price", value: 15},
-  {driver: "Volume", value: -8},
-  {driver: "Mix", value: 13},
-  {driver: "Closing", subtotal: true},
-];
-
 const bridges = [2023, 2024, 2025].flatMap((year, y) => [
   {year, driver: "Start", value: 100 + y * 20, subtotal: true},
   {year, driver: "Price", value: 12 - y * 9},
@@ -112,26 +104,6 @@ CashFlow.args = {
   connectorConfig: {strokeDasharray: "3 2"},
 };
 CashFlow.parameters = {controls: {include: ["connectorConfig"]}, docs: {description: {story: "A month-by-month cash flow between an opening and a closing balance, with dashed connectors from `connectorConfig`."}}};
-
-export const RaisedBaseline = Template.bind({});
-RaisedBaseline.args = {
-  data: bridge,
-  x: "driver",
-  y: "value",
-  subtotal: "subtotal",
-  baseline: 980,
-};
-RaisedBaseline.parameters = {controls: {include: ["baseline", "yDomain"]}, docs: {description: {story: "The value axis includes zero by default, which flattens a bridge between large totals. Setting `baseline` just below them starts the subtotal bars, and the axis, there instead."}}};
-
-export const BrokenAxis = Template.bind({});
-BrokenAxis.args = {
-  data: bridge,
-  x: "driver",
-  y: "value",
-  subtotal: "subtotal",
-  yDomain: [980],
-};
-BrokenAxis.parameters = {controls: {include: ["baseline", "yDomain"]}, docs: {description: {story: "A `yDomain` (`xDomain` for horizontal bars) that stops short of the baseline zooms in the same way, keeping zero on the axis behind a break."}}};
 
 export const SideBySideSeries = Template.bind({});
 SideBySideSeries.args = {

@@ -1,7 +1,7 @@
 /**
     Waterfall — a stacked BarChart whose bars float: each change starts where
-    the running total before it ended, and subtotal rows draw from the
-    baseline (zero by default) to the running total. Bars are colored by whether they increase, decrease, or
+    the running total before it ended, and subtotal rows draw from zero to the
+    running total. Bars are colored by whether they increase, decrease, or
     total, with thin connectors carrying each bar's end level to the next.
 */
 
@@ -28,7 +28,6 @@ import {
   stepOf,
   syncCategorySort,
   valueFormat,
-  waterfallBaseline,
   type WaterfallState,
 } from "./state.js";
 import {WATERFALL_KINDS, waterfallKinds, waterfallStackOffset, type RowAccessor} from "./steps.js";
@@ -127,7 +126,7 @@ export const waterfallDef: ChartDefinition = {
       laidOut: new WeakSet(),
     } satisfies WaterfallState;
     interceptAxes(viz);
-    viz._stackOffset = waterfallStackOffset(row => stepOf(viz, row), () => waterfallBaseline(viz));
+    viz._stackOffset = waterfallStackOffset(row => stepOf(viz, row));
     // Each series keeps its own running total, drawn side by side.
     viz._stackGroup = (d, i) => viz._ids(d, i).slice(0, viz._drawDepth + 1).join("_");
     // Each bar is alone in its stack, so a share would always be 100%.
@@ -162,15 +161,6 @@ export const waterfallDef: ChartDefinition = {
   ctx: {},
 
   fields: [
-    /**
-        On a waterfall, subtotal bars start at the baseline (0 by default),
-        and the value axis always reaches it. To zoom in on a bridge between
-        large totals (say 1,000 to 1,020), set it just below them (`980`):
-        the axis then starts there, with no break. Running totals still
-        count from zero. A `yDomain` (`xDomain` for horizontal bars) that
-        stops short of the baseline keeps it on the axis behind a break.
-    */
-    {key: "baseline", default: 0},
     /** Draws a thin line from the end of each bar to the start of the next. */
     {key: "connectors", default: true},
     /**
@@ -192,9 +182,8 @@ export const waterfallDef: ChartDefinition = {
     {key: "stacked", default: true},
     /**
         Marks subtotal rows (a data key or accessor; truthy marks the row).
-        A subtotal bar draws from the `baseline` (zero by default) to the
-        running total. When the row has its own value, the running total
-        resets to that value.
+        A subtotal bar draws from zero to the running total. When the row
+        has its own value, the running total resets to that value.
     */
     {
       key: "subtotal",
@@ -235,15 +224,8 @@ export const waterfallDef: ChartDefinition = {
     Creates a waterfall chart: one bar per category (`x`, or `y` with
     `discrete("y")` for horizontal bars) whose value is the change it makes
     to a running total. Each bar floats from where the previous bar ended;
-    rows marked by `subtotal` draw from the baseline to the running total.
-    Bars are colored as increases, decreases, or totals, and labeled with
-    their change. Each `groupBy` series keeps its own running total, drawn
-    side by side.
-
-    The value axis includes zero by default. To zoom in on a bridge between
-    large totals (say 1,000 to 1,020), set `baseline` (e.g. `baseline(980)`):
-    subtotal bars then rise from it and the axis starts there. Or set a
-    `yDomain` (`xDomain` for horizontal bars) that stops short of zero: the
-    axis keeps zero and draws a break, as BarChart does.
+    rows marked by `subtotal` draw from zero to the running total. Bars are
+    colored as increases, decreases, or totals, and labeled with their change.
+    Each `groupBy` series keeps its own running total, drawn side by side.
 */
 export default makeChart(waterfallDef, BarChart);
