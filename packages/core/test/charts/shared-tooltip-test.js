@@ -111,6 +111,13 @@ const run = (kind, config = {}, rows = data, fx = 0.34, target = null) =>
 
 after(closeBrowser);
 
+it("shared tooltip — the crosshair stays behind lines clipped to a cutting yDomain", async () => {
+  // Alpha runs 10–13, below the domain, so the lines are clipped to the plot.
+  const r = await run("LinePlot", {yDomain: [15]});
+  assert.ok(r.crosshair, "crosshair drawn");
+  assert.ok(r.crosshairOrder < 0, "crosshair draws behind the clipped lines");
+});
+
 it("shared tooltip — LinePlot: empty-space hover lists every series, with stroke-colored line glyphs", async () => {
   const r = await run("LinePlot");
   assert.ok(r.surface, "hover surface emitted");

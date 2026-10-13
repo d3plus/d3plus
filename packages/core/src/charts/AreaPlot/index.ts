@@ -1,5 +1,6 @@
 /**
-    AreaPlot — Plot with `baseline: 0`, `discrete: "x"`, `shape: "Area"`.
+    AreaPlot — Plot with `baseline: 0`, `baselineBreak: true`, `discrete: "x"`,
+    `shape: "Area"`.
 */
 
 import constant from "../../utils/constant.js";
@@ -17,6 +18,7 @@ export const areaPlotDef: ChartDefinition = {
 
   fields: [
     {key: "baseline", default: 0},
+    {key: "baselineBreak", default: true},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Area"), coerce: "const"},
   ],

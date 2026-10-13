@@ -79,7 +79,7 @@ export const argTypes = assign(
     },
     backgroundImage: {
       control: {},
-      description: "An image drawn inside each shape: a URL (or `data:` URI), or an accessor\nreturning one per datum (a falsy value draws none). Every chart's data\nshapes support it except links, Chord ribbons, and Gauge needles. Set it\nfor all shapes in `shapeConfig`, or for one shape kind under its name\n(like `shapeConfig.Rect.backgroundImage`). The image is clipped to the\nshape's outline, sized by `backgroundImageFit`, and drawn over the\nshape's fill and under its label.",
+      description: "An image drawn inside each shape: a URL (or `data:` URI), or an accessor\nreturning one per datum (a falsy value draws none). Every chart's filled\ndata shapes support it; stroked marks like lines and links, and Gauge\nneedles, don't. Set it\nfor all shapes in `shapeConfig`, or for one shape kind under its name\n(like `shapeConfig.Rect.backgroundImage`). The image is clipped to the\nshape's outline, sized by `backgroundImageFit`, and drawn over the\nshape's fill and under its label.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -179,7 +179,9 @@ export const argTypes = assign(
       }
     },
     fill: {
-      control: {},
+      control: {
+        type: "color"
+      },
       description: "Fill color or accessor returning one.",
       table: {
         defaultValue: {
@@ -188,7 +190,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "constoraccessor"
+        summary: "csscolor | function"
       }
     },
     fillOpacity: {
@@ -504,7 +506,9 @@ export const argTypes = assign(
       }
     },
     stroke: {
-      control: {},
+      control: {
+        type: "color"
+      },
       description: "Stroke color.",
       table: {
         defaultValue: {
@@ -513,7 +517,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "constoraccessor"
+        summary: "csscolor | function"
       }
     },
     strokeDasharray: {
