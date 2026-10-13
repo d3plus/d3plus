@@ -535,6 +535,22 @@ export interface D3plusConfig {
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
   facetConfig?: FacetConfig;
+  /**
+      Fills the area between two series' lines, in the color of whichever
+      series is higher, switching color where the lines cross: `true` fills
+      between the first two series, `[a, b]` between the series with ids `a`
+      and `b`, and a list of `[a, b]` pairs fills between each pair. The fill
+      follows the lines' curve and leaves pointer events to the lines.
+      Defaults to `false`.
+  */
+  fillBetween?: boolean | [string | number, string | number] | [string | number, string | number][];
+  /**
+      Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style
+      accessors receive a data row of whichever series is higher, with
+      `above` and `below` keys naming the higher and lower series, so a
+      `fill` accessor can color the A > B and B > A regions apart.
+  */
+  fillBetweenConfig?: Record<string, unknown>;
   /** Predicate filtering which data points are included, or false to disable. */
   filter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Allows removing specific geographies from topojson file to improve zoom. */

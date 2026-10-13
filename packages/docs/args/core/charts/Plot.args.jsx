@@ -529,6 +529,37 @@ export const argTypes = assign(
         summary: "facetconfig"
       }
     },
+    fillBetween: {
+      control: {
+        type: "object"
+      },
+      defaultValue: false,
+      description: "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | array.&lt;(string|number)&gt; | array.&lt;array.&lt;(string|number)&gt;&gt;"
+      }
+    },
+    fillBetweenConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     fontFamily: {
       control: {
         type: "text"

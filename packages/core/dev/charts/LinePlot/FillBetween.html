@@ -1,0 +1,129 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Fill Between · LinePlot</title>
+  <meta name="description" content="LinePlot fillBetween: a named pair that crosses, the first two series, fills colored by above/below, several pairs, a vertical plot, and a reversed axis.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 340px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Exports vs. imports: a named pair that crosses</h3><div class="viz" id="between"></div></div>
+    <div><h3>fillBetween: true, colored by above/below</h3><div class="viz" id="range"></div></div>
+    <div><h3>Several pairs, linear curve</h3><div class="viz" id="pairs"></div></div>
+    <div><h3>Vertical plot (discrete y axis)</h3><div class="viz" id="vertical"></div></div>
+    <div><h3>Reversed value axis</h3><div class="viz" id="reversed"></div></div>
+    <div><h3>Time axis</h3><div class="viz" id="time"></div></div>
+  </div>
+</body>
+
+<script>
+
+  const trade = [];
+  for (let year = 2000; year <= 2024; year++) {
+    const t = year - 2000;
+    trade.push({id: "Exports", year, value: Math.round(100 + 6 * t + 25 * Math.sin(t / 3))});
+    trade.push({id: "Imports", year, value: Math.round(110 + 5.5 * t + 18 * Math.cos(t / 4))});
+  }
+
+  new d3plus.LinePlot()
+    .select("#between")
+    .data(trade)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .fillBetween(["Exports", "Imports"])
+    .render();
+
+  // The "Low" series reads a sensor that drifts above "High" in late summer.
+  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const temps = months.flatMap((month, m) => {
+    const base = 8 - 14 * Math.cos((m / 12) * 2 * Math.PI);
+    const drift = m >= 6 && m <= 8 ? 14 : 0;
+    return [
+      {id: "High", month, value: Math.round((base + 6) * 10) / 10},
+      {id: "Low", month, value: Math.round((base - 5 + drift) * 10) / 10},
+    ];
+  });
+
+  new d3plus.LinePlot()
+    .select("#range")
+    .data(temps)
+    .groupBy("id")
+    .x("month")
+    .y("value")
+    .color(d => (d.id === "High" ? "#e8590c" : "#1c7ed6"))
+    .fillBetween(true)
+    .fillBetweenConfig({fill: d => (d.above === "High" ? "#868e96" : "#e03131"), fillOpacity: 0.25})
+    .render();
+
+  const four = [];
+  ["a", "b", "c", "d"].forEach((id, s) => {
+    for (let year = 2010; year <= 2024; year++) {
+      const t = year - 2010;
+      four.push({id, year, value: 10 + s * 12 + 5 * Math.sin(t / 2 + s * 1.3)});
+    }
+  });
+
+  new d3plus.LinePlot()
+    .select("#pairs")
+    .data(four)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .fillBetween([["a", "b"], ["c", "d"]])
+    .shapeConfig({Line: {curve: "linear"}})
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#vertical")
+    .data(trade)
+    .groupBy("id")
+    .y("year")
+    .x("value")
+    .discrete("y")
+    .fillBetween(true)
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#reversed")
+    .data(trade)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .yConfig({scale: "linear", domain: [300, 0]})
+    .fillBetween(true)
+    .render();
+
+  const daily = [];
+  for (let k = 0; k < 60; k++) {
+    const date = new Date(2024, 0, 1 + k);
+    daily.push({id: "Model", date, value: 50 + 10 * Math.sin(k / 6)});
+    daily.push({id: "Observed", date, value: 50 + 10 * Math.sin(k / 6 + 0.6) + (k % 7) / 2});
+  }
+
+  new d3plus.LinePlot()
+    .select("#time")
+    .data(daily)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .fillBetween(["Observed", "Model"])
+    .timeline(false)
+    .render();
+
+</script>
+
+</html>

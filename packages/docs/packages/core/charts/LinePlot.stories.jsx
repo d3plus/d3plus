@@ -459,6 +459,53 @@ CustomLineColors.args = {
 };
 CustomLineColors.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a color per series from `shapeConfig.Line.stroke` to override the automatic palette with your own meaningful hues."}}};
 
+export const FillBetween = Template.bind({});
+FillBetween.args = {
+  data: [
+    {id: "Exports", year: 2016, value: 120}, {id: "Imports", year: 2016, value: 132},
+    {id: "Exports", year: 2017, value: 131}, {id: "Imports", year: 2017, value: 136},
+    {id: "Exports", year: 2018, value: 145}, {id: "Imports", year: 2018, value: 139},
+    {id: "Exports", year: 2019, value: 152}, {id: "Imports", year: 2019, value: 141},
+    {id: "Exports", year: 2020, value: 138}, {id: "Imports", year: 2020, value: 129},
+    {id: "Exports", year: 2021, value: 141}, {id: "Imports", year: 2021, value: 150},
+    {id: "Exports", year: 2022, value: 149}, {id: "Imports", year: 2022, value: 166},
+    {id: "Exports", year: 2023, value: 163}, {id: "Imports", year: 2023, value: 170},
+    {id: "Exports", year: 2024, value: 181}, {id: "Imports", year: 2024, value: 172}
+  ],
+  groupBy: "id",
+  fillBetween: ["Exports", "Imports"],
+  x: "year",
+  y: "value"
+};
+FillBetween.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "`fillBetween` shades the area between two lines in the color of whichever is higher, switching exactly where they cross, so a trade surplus and deficit read at a glance. Name the pair by series id, pass `true` for the first two series, or give a list of pairs."}}};
+
+export const TemperatureRange = Template.bind({});
+TemperatureRange.args = {
+  data: [
+    ["Jan", -3, -12], ["Feb", -1, -11], ["Mar", 5, -5], ["Apr", 13, 2], ["May", 20, 8], ["Jun", 25, 14],
+    ["Jul", 28, 17], ["Aug", 27, 16], ["Sep", 22, 11], ["Oct", 14, 5], ["Nov", 6, -1], ["Dec", -1, -8]
+  ].flatMap(([month, high, low]) => [
+    {id: "High", month, temperature: high},
+    {id: "Low", month, temperature: low}
+  ]),
+  groupBy: "id",
+  color: funcify(
+    d => (d.id === "High" ? "#e8590c" : "#1c7ed6"),
+    "d => (d.id === \"High\" ? \"#e8590c\" : \"#1c7ed6\")"
+  ),
+  fillBetween: true,
+  fillBetweenConfig: {
+    fill: funcify(
+      d => (d.above === "High" ? "#868e96" : "#e03131"),
+      "d => (d.above === \"High\" ? \"#868e96\" : \"#e03131\")"
+    ),
+    fillOpacity: 0.2
+  },
+  x: "month",
+  y: "temperature"
+};
+TemperatureRange.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "A min/max range: `fillBetween: true` fills between the first two series. `fillBetweenConfig` styles the fill, and its accessors receive the higher series' row with `above` and `below` keys naming the pair, so the A > B and B > A regions can be colored apart (here gray, or red if the low ever rose above the high)."}}};
+
 export const SortingLines = Template.bind({});
 SortingLines.args = {
   data: [

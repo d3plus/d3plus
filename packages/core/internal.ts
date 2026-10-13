@@ -52,6 +52,16 @@ export {
   dashArray,
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
+export {curveFactory, lineCurve} from "./src/charts/Plot/lineCurve.js";
+export {
+  betweenPoints,
+  emitFillBetween,
+  fillBetweenDefaults,
+  fillBetweenPairs,
+  sideClip,
+  valueDirection,
+} from "./src/charts/Plot/fillBetween.js";
+export type {BetweenPoint, FillBetweenSetting} from "./src/charts/Plot/fillBetween.js";
 export {
   closestFreeOffset,
   fitSwarms,
