@@ -204,6 +204,37 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.picked, r.mid, "the zoomed bar picks");
   });
 
+  it(`[${renderer}] a zoomed time-axis BarChart keeps to its xDomain, not the visible window`, async () => {
+    const r = await page(`
+      const lo = +new Date(2022, 2, 1), hi = +new Date(2023, 9, 1);
+      const chart = new d3plus.BarChart()
+        .data(monthly).groupBy("id").x("date").time("date").y("value")
+        .xDomain([new Date(lo), new Date(hi)])
+        .timeline(false).legend(false).zoomMax(16)
+        .renderer(arg);
+      await done(chart);
+      const base = bars(chart);
+      click("zoom-in");
+      await frames();
+      const zoomed = bars(chart);
+      return {
+        lo, hi, base: base.map(b => b.date), baseWidth: base[0].width,
+        zoomed: zoomed.map(b => b.date), widths: zoomed.map(b => b.width),
+        window: domainOf(chart._xAxis), groupPadding: chart._groupPadding,
+      };
+    `, renderer);
+
+    const within = d => d >= r.lo && d <= r.hi;
+    assert.strictEqual(r.base.length, 20, "the xDomain's 20 months draw");
+    assert.ok(r.base.every(within), "and no others");
+    const [w0, w1] = r.window;
+    assert.ok(w1 - w0 < (r.hi - r.lo) * 0.75, "the view zoomed in");
+    assert.deepStrictEqual(r.zoomed.slice().sort(), r.base.slice().sort(),
+      "zoomed, the same bars draw, also those past the visible window");
+    const expected = 2 * (r.baseWidth + r.groupPadding) - r.groupPadding;
+    assert.ok(r.widths.every(w => Math.abs(w - expected) < 2), `and keep their scaled width (${r.widths[0]} vs ${expected})`);
+  });
+
   it(`[${renderer}] brushing a time-axis selection zooms to its dates`, async () => {
     const r = await page(`
       const chart = new d3plus.LinePlot()
