@@ -413,6 +413,7 @@ export default class Shape extends BaseClass {
       const key = this._nestWrapper(this.schema.id)(d, i) as string | number;
       const datum = (d.__d3plusShape__ ? d.data : d) as DataPoint;
       const transform = this._sceneTransform(d, i);
+      const paint = this._scenePaint(d, i);
 
       // Per-point positions (Line/Area) shared by the geometry and its hit area
       // so a hover anywhere on either resolves to the nearest point.
@@ -432,7 +433,7 @@ export default class Shape extends BaseClass {
         datum,
         index: i,
         shapeType: this._name,
-        paint: this._scenePaint(d, i),
+        paint,
         transform,
         aria: {
           role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
@@ -444,9 +445,11 @@ export default class Shape extends BaseClass {
       // backgroundImage: collect a per-datum image (see backgroundImageLayout for
       // the cover/contain fit). The wrapping group carries the shape transform,
       // so the image box + clip stay in local space.
-      const bg = this._nestWrapper(this.schema.backgroundImage)(d, i) as
-        | string
-        | false;
+      // A stroke-only mark (a Line, or any shape with no fill) has no area to
+      // draw an image in, so it never takes one.
+      const bg =
+        paint.fill !== "none" &&
+        (this._nestWrapper(this.schema.backgroundImage)(d, i) as string | false);
       if (bg) {
         const g = geom as Record<string, unknown>;
         // Only Area/Line lack a `d`/box and need polygon points; Path/Rect/Circle
