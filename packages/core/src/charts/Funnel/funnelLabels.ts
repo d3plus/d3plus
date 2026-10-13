@@ -1,6 +1,7 @@
 /**
-    Pure label planning for Funnel: which lines a stage's label shows, and
-    whether they fit inside the stage or beside it, at what font size.
+    Pure label planning for Funnel: which lines a stage's label shows,
+    whether they fit inside the stage or beside it, and the one font size
+    every stage's label shares.
 */
 
 /** A conversion rate a stage's label can show. */
@@ -92,6 +93,75 @@ export function planLabel(
       return {position: "outside", fontSize: outSize, lines: shown};
   }
   return null;
+}
+
+/** One stage's label to plan: its lines and the boxes it can go in. */
+export interface StageLabelInput {
+  lines: string[];
+  inside: {width: number; height: number};
+  outside: {width: number; height: number} | null;
+  /** A font size the user fixed for this label, which the shared size doesn't change. */
+  fixed?: number;
+}
+
+/** Every stage's label plan (null where none fits) and the size they share. */
+export interface FunnelLabelPlan {
+  plans: (LabelPlan | null)[];
+  /** The shared font size: 0 when no label without a fixed size is drawn. */
+  fontSize: number;
+}
+
+/**
+    Plans every label in one funnel so they share one font size: the largest
+    size, up to `cap`, at which every label still fits where it's placed.
+    The steps run once each, in this order, so placement and size never
+    feed back into each other:
+
+    1. Placement: each label's lines and side (inside or beside its stage)
+       come from `planLabel` at the label's own best size.
+    2. Size: the smallest of those placed sizes (and `cap`), so every label
+       fits at it.
+    3. Re-check: at that size, a label set beside its stage moves inside
+       when it fits there too, since the text is the same size either way.
+       Labels inside stay inside. Moving doesn't change the size: a moved
+       label fits inside at it, and the label that set it stays put (beside
+       its stage only because it's smaller inside).
+
+    Lines are never dropped again at the shared size: it's at least
+    `fontMin`, where step 1 already chose the lines. A label with a `fixed`
+    size is planned at that size alone, and neither sets nor takes the
+    shared size.
+*/
+export function planFunnelLabels(
+  labels: StageLabelInput[],
+  measure: (text: string, size: number) => number,
+  sizing: LabelSizing,
+  cap = Infinity,
+): FunnelLabelPlan {
+  const plans = labels.map(l =>
+    planLabel(
+      l.lines,
+      l.inside,
+      l.outside,
+      measure,
+      l.fixed ? {...sizing, fontMin: l.fixed, fontMax: l.fixed} : sizing,
+    ),
+  );
+  const shared = plans.flatMap((p, k) => (p && !labels[k].fixed ? [k] : []));
+  if (!shared.length) return {plans, fontSize: 0};
+
+  const fontSize = Math.min(
+    cap,
+    ...shared.map(k => (plans[k] as LabelPlan).fontSize),
+  );
+  for (const k of shared) {
+    const p = plans[k] as LabelPlan;
+    const inside =
+      p.position === "inside" ||
+      fitFontSize(p.lines, labels[k].inside, measure, sizing) >= fontSize;
+    plans[k] = {...p, position: inside ? "inside" : "outside", fontSize};
+  }
+  return {plans, fontSize};
 }
 
 /**

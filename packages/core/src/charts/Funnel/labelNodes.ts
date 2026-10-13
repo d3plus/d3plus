@@ -2,7 +2,8 @@
     Funnel's stage labels: the stage's name, its value, and any conversion
     rates `conversion` asks for. Each label goes inside its stage when it
     fits there, otherwise beside it (to the right of a vertical funnel,
-    below a horizontal one), dropping trailing lines until it fits.
+    below a horizontal one), dropping trailing lines until it fits. Every
+    label in a funnel shares one font size (see `planFunnelLabels`).
 */
 
 import {colorContrast} from "@d3plus/color";
@@ -22,12 +23,17 @@ import {
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FunnelShared, FunnelStage} from "./applyLayout.js";
-import {conversionModes, lineBoxes, planLabel} from "./funnelLabels.js";
+import {
+  conversionModes,
+  lineBoxes,
+  planFunnelLabels,
+} from "./funnelLabels.js";
 import type {
   FunnelConversionOption,
   LabelBox,
   LabelPlan,
   LabelSizing,
+  StageLabelInput,
 } from "./funnelLabels.js";
 
 /** Line height as a multiple of the font size. */
@@ -133,18 +139,38 @@ interface Placed {
   boxes: LabelBox[];
 }
 
-export function funnelLabelNodes(
+/** What `planStageLabels` decides for one funnel. */
+export interface StageLabels {
+  /** Each stage's label plan, by row (stages with no label are left out). */
+  plans: Map<DataPoint, LabelPlan>;
+  /** The font size every label without a fixed size shares (0 when none is drawn). */
+  fontSize: number;
+  sizing: LabelSizing;
+  /** The user's label config for stage paths. */
+  user: Record<string, unknown>;
+}
+
+/**
+    Plans one funnel's stage labels with `planFunnelLabels`: every label
+    shares one font size, at most `cap` (a size shared across small
+    multiples). A numeric `fontSize` in the user's label config fixes that
+    stage's size instead.
+*/
+export function planStageLabels(
   viz: VizInstance,
   stages: FunnelStage[],
   shared: FunnelShared,
-): SceneNode[] {
-  const sc = shapeConfigFor(viz, "Path");
+  cap = Infinity,
+): StageLabels {
   const user = userLabelConfig(viz, "Path");
   const first = stages[0];
-  const sizing = labelSizing(user, first.data, first.i);
+  const sizing = first
+    ? labelSizing(user, first.data, first.i)
+    : labelSizing({}, {}, 0);
   const family = fontFamilyStringify(
-    resolveAccessor<string | string[]>(user.fontFamily, first.data, first.i) ??
-      (viz.schema.fontFamily as string | string[]),
+    (first
+      ? resolveAccessor<string | string[]>(user.fontFamily, first.data, first.i)
+      : undefined) ?? (viz.schema.fontFamily as string | string[]),
   );
   const measure = (text: string, size: number): number =>
     Number(
@@ -154,19 +180,64 @@ export function funnelLabelNodes(
         "font-weight": 600,
       }),
     ) || 0;
+  const inputs: StageLabelInput[] = stages.map(stage => {
+    const {inside, outside} = stageBoxes(stage, shared);
+    const fixed = resolveAccessor<unknown>(user.fontSize, stage.data, stage.i);
+    return {
+      lines: stageLines(viz, stage),
+      inside,
+      outside,
+      fixed: typeof fixed === "number" && fixed > 0 ? fixed : undefined,
+    };
+  });
+  const {plans, fontSize} = planFunnelLabels(inputs, measure, sizing, cap);
+  const byRow = new Map<DataPoint, LabelPlan>();
+  plans.forEach((plan, k) => {
+    if (plan) byRow.set(stages[k].data, plan);
+  });
+  return {plans: byRow, fontSize, sizing, user};
+}
+
+/**
+    The font size every label in one funnel shares (see `planStageLabels`),
+    or 0 when no label is drawn without a fixed size.
+*/
+export function stageLabelSize(
+  viz: VizInstance,
+  stages: FunnelStage[],
+  shared: FunnelShared,
+): number {
+  return stages.length ? planStageLabels(viz, stages, shared).fontSize : 0;
+}
+
+/**
+    The cap on a funnel's shared label size: the size shared across small
+    multiples (see `funnelFacet.ts`), when there is one.
+*/
+export function labelSizeCap(viz: VizInstance): number {
+  const size = Number(viz.ctx.funnelLabelSize);
+  return Number.isFinite(size) && size > 0 ? size : Infinity;
+}
+
+export function funnelLabelNodes(
+  viz: VizInstance,
+  stages: FunnelStage[],
+  shared: FunnelShared,
+): SceneNode[] {
+  const sc = shapeConfigFor(viz, "Path");
+  const {plans, sizing, user} = planStageLabels(
+    viz,
+    stages,
+    shared,
+    labelSizeCap(viz),
+  );
   const horizontal = shared.orient === "horizontal";
 
   const placed = new Map<DataPoint, Placed>();
   for (const stage of stages) {
-    const {inside, outside} = stageBoxes(stage, shared);
-    const plan = planLabel(
-      stageLines(viz, stage),
-      inside,
-      outside,
-      measure,
-      sizing,
-    );
+    const plan = plans.get(stage.data);
     if (!plan) continue;
+    const {inside, outside} = stageBoxes(stage, shared);
     const box = plan.position === "inside" ? inside : outside;
     const align = plan.position === "outside" && horizontal ? "top" : "middle";
     const boxes = lineBoxes(
@@ -200,7 +271,6 @@ export function funnelLabelNodes(
     labelConfig: {
       fontResize: false,
       padding: 0,
-      fontSize: (d: DataPoint) => at(d)?.plan.fontSize ?? sizing.fontMin,
       lineHeight: (d: DataPoint) =>
         (at(d)?.plan.fontSize ?? sizing.fontMin) * LINE_HEIGHT,
       fontWeight: (d: DataPoint) => (d && d.l === 0 ? 600 : 400),
@@ -216,6 +286,9 @@ export function funnelLabelNodes(
           : backgroundInk(viz);
       },
       ...user,
+      // After the user's config, so a function `fontSize` is read per stage
+      // (as planned) rather than per line.
+      fontSize: (d: DataPoint) => at(d)?.plan.fontSize ?? sizing.fontMin,
     },
   });
 }

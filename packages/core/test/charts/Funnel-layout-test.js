@@ -4,6 +4,7 @@ import {
   funnelCurve,
   funnelOrder,
   funnelOrient,
+  funnelStages,
   sharedScaleMax,
   stageRates,
   STROKE_BUFFER,
@@ -16,6 +17,7 @@ import {
 import {
   funnelFacetHooks,
   funnelFacetPanel,
+  shareFunnelLabelSize,
   shareFunnelScale,
 } from "../../es/src/charts/Funnel/funnelFacet.js";
 import {
@@ -278,6 +280,24 @@ it("Funnel layout: a shared scale max narrows every stage", () => {
   assert.strictEqual(sharedScaleMax(mockViz()), 0, "no shared scale by default");
 });
 
+it("Funnel layout: funnelStages lays out rows without touching the chart", () => {
+  const viz = mockViz();
+  const rows = viz._filteredData;
+  const {stages, shared} = funnelStages(viz, rows, {width: 400, height: 300}, 0);
+  assert.deepStrictEqual(viz.ctx, {}, "stores nothing");
+  assert.deepStrictEqual(stages.map(s => s.data), rows);
+  assert.strictEqual(shared.center, 200);
+  assert.strictEqual(shared.breadth, 400 - STROKE_BUFFER * 2);
+  const laid = applyFunnelLayout({viz}).shapeData;
+  assert.deepStrictEqual(
+    laid.map(s => [s.start, s.end, s.min, s.max]),
+    stages.map(s => [s.start, s.end, s.min, s.max]),
+    "the layout stage lays out the chart area the same way",
+  );
+  const half = funnelStages(viz, rows, {width: 400, height: 300}, 800).stages;
+  assert.ok(Math.abs(half[0].max - stages[0].max / 2) < 1e-9, "a shared scale max");
+});
+
 it("Funnel facet: panels size independently unless facetConfig shares scales", () => {
   assert.strictEqual(funnelFacetHooks.scales, "independent");
   assert.strictEqual(funnelFacetHooks.share, shareFunnelScale);
@@ -287,25 +307,35 @@ it("Funnel facet: panels size independently unless facetConfig shares scales", (
 });
 
 it("Funnel facet: shareFunnelScale finds the largest stage across panels", () => {
-  const viz = mockViz();
+  // Labels off: no label size to share.
+  const viz = mockViz({shapeConfig: {label: false}});
   const scale = shareFunnelScale(viz, [
     [{value: 400}, {value: 120}],
     [],
     [{value: 900}, {value: -2000}, {value: "n/a"}],
   ]);
-  assert.deepStrictEqual(scale, {max: 900});
-  assert.deepStrictEqual(shareFunnelScale(viz, []), {max: 0});
+  assert.deepStrictEqual(scale, {max: 900, fontSize: 0});
+  assert.deepStrictEqual(shareFunnelScale(viz, []), {max: 0, fontSize: 0});
+  assert.strictEqual(shareFunnelLabelSize(viz, [[{value: 1}]], 1), 0);
 });
 
 it("Funnel facet: funnelFacetPanel applies the shared scale and undoes it", () => {
   const viz = mockViz();
-  const undo = funnelFacetPanel(viz, {shared: true, scales: {max: 900}});
+  const undo = funnelFacetPanel(viz, {shared: true, scales: {max: 900, fontSize: 11}});
   assert.strictEqual(viz.ctx.funnelScaleMax, 900);
+  assert.strictEqual(viz.ctx.funnelLabelSize, 11);
   undo();
   assert.strictEqual(viz.ctx.funnelScaleMax, undefined);
+  assert.strictEqual(viz.ctx.funnelLabelSize, undefined);
   viz.ctx.funnelScaleMax = 5;
-  const undoIndependent = funnelFacetPanel(viz, {shared: false, scales: undefined});
+  viz.ctx.funnelLabelSize = 9;
+  const undoIndependent = funnelFacetPanel(viz, {shared: false, scales: {max: 900, fontSize: 11}});
   assert.strictEqual(viz.ctx.funnelScaleMax, undefined, "independent panels use their own scale");
+  assert.strictEqual(viz.ctx.funnelLabelSize, undefined, "and their own label size");
   undoIndependent();
   assert.strictEqual(viz.ctx.funnelScaleMax, 5);
+  assert.strictEqual(viz.ctx.funnelLabelSize, 9);
+  const undoNoLabels = funnelFacetPanel(viz, {shared: true, scales: {max: 900, fontSize: 0}});
+  assert.strictEqual(viz.ctx.funnelLabelSize, undefined, "no shared size when no label is drawn");
+  undoNoLabels();
 });

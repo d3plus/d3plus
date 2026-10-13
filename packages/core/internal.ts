@@ -90,18 +90,27 @@ export {
   conversionModes,
   fitFontSize,
   lineBoxes,
+  planFunnelLabels,
   planLabel,
 } from "./src/charts/Funnel/funnelLabels.js";
-export type {LabelBox, LabelPlan, LabelSizing} from "./src/charts/Funnel/funnelLabels.js";
+export type {
+  FunnelLabelPlan,
+  LabelBox,
+  LabelPlan,
+  LabelSizing,
+  StageLabelInput,
+} from "./src/charts/Funnel/funnelLabels.js";
 export {
   funnelCurve,
   funnelOrder,
   funnelOrient,
+  funnelStages,
   sharedScaleMax,
 } from "./src/charts/Funnel/applyLayout.js";
 export {
   funnelFacetHooks,
   funnelFacetPanel,
+  shareFunnelLabelSize,
   shareFunnelScale,
 } from "./src/charts/Funnel/funnelFacet.js";
 export type {FunnelFacetScale} from "./src/charts/Funnel/funnelFacet.js";
@@ -114,10 +123,14 @@ export {
 } from "./src/charts/Funnel/emit.js";
 export {
   funnelLabelNodes,
+  labelSizeCap,
   percentText,
+  planStageLabels,
   stageBoxes,
+  stageLabelSize,
   stageLines,
 } from "./src/charts/Funnel/labelNodes.js";
+export type {StageLabels} from "./src/charts/Funnel/labelNodes.js";
 export {funnelTooltipRows} from "./src/charts/Funnel/index.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────

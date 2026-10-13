@@ -109,34 +109,40 @@ export function funnelCurve(viz: VizInstance): FunnelCurve {
   return viz.schema.curve === "smooth" ? "smooth" : "linear";
 }
 
-export const applyFunnelLayout: TransformStage = ({viz}) => {
-  const {width, height} = chartBounds(viz);
+/**
+    Lays out `rows` (already in drawing order) as one funnel in a chart area
+    of `width` × `height`, measuring stage widths against `scaleMax` (0 for
+    the largest of these stages). Pure: stores nothing on the chart.
+*/
+export function funnelStages(
+  viz: VizInstance,
+  rows: DataPoint[],
+  {width, height}: {width: number; height: number},
+  scaleMax: number,
+): {stages: FunnelStage[]; shared: FunnelShared} {
   const orient = funnelOrient(viz);
   const curve = funnelCurve(viz);
-  const data = funnelOrder(viz, (viz._filteredData ?? []) as DataPoint[]);
   const valueFn = viz.schema.value as (d: DataPoint, i: number) => unknown;
-  const values = data.map((d, i) => Number(valueFn(d, i)));
+  const values = rows.map((d, i) => Number(valueFn(d, i)));
 
   const vertical = orient === "vertical";
   const length = Math.max(0, (vertical ? height : width) - STROKE_BUFFER * 2);
   const breadth = Math.max(0, (vertical ? width : height) - STROKE_BUFFER * 2);
   const spans = stageSpans(
-    data.length,
+    rows.length,
     length,
     Number(viz.schema.stagePadding),
   ).map(s => ({start: s.start + STROKE_BUFFER, end: s.end + STROKE_BUFFER}));
-  const widths = stageWidths(values, breadth, sharedScaleMax(viz));
+  const widths = stageWidths(values, breadth, scaleMax);
   const knots = profileKnots(spans, widths, !!viz.schema.taper);
   const rates = conversionRates(values);
-  const rateMap = stageRates(viz);
 
-  const stages: FunnelStage[] = data.map((d, i) => {
+  const stages: FunnelStage[] = rows.map((d, i) => {
     const span = spans[i];
     const points = profileSlice(knots, span.start, span.end, curve);
     const neck = i
       ? profileSlice(knots, spans[i - 1].end, span.start, curve)
       : [];
-    rateMap.set(d, {first: rates.first[i], previous: rates.previous[i]});
     return {
       __d3plus__: true,
       data: d,
@@ -151,13 +157,27 @@ export const applyFunnelLayout: TransformStage = ({viz}) => {
       ...sliceExtent(points),
     };
   });
-
-  viz.ctx.funnel = {
+  const shared: FunnelShared = {
     orient,
     curve,
     center: (vertical ? width : height) / 2,
     breadth,
     offset: STROKE_BUFFER,
-  } satisfies FunnelShared;
+  };
+  return {stages, shared};
+}
+
+export const applyFunnelLayout: TransformStage = ({viz}) => {
+  const rows = funnelOrder(viz, (viz._filteredData ?? []) as DataPoint[]);
+  const {stages, shared} = funnelStages(
+    viz,
+    rows,
+    chartBounds(viz),
+    sharedScaleMax(viz),
+  );
+  const rateMap = stageRates(viz);
+  for (const s of stages)
+    rateMap.set(s.data, {first: s.first, previous: s.previous});
+  viz.ctx.funnel = shared;
   return {shapeData: stages as unknown as DataPoint[]};
 };

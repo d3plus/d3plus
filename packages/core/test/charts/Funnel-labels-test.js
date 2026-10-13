@@ -3,9 +3,11 @@ import {
   conversionModes,
   fitFontSize,
   lineBoxes,
+  planFunnelLabels,
   planLabel,
 } from "../../es/src/charts/Funnel/funnelLabels.js";
 import {
+  labelSizeCap,
   OUTSIDE_GAP,
   percentText,
   stageBoxes,
@@ -138,6 +140,155 @@ it("Funnel labels: planLabel stays inside when the text is nearly as large there
   // Inside fits 14.4px (floored to 14), beside fits 16px: 14 >= 0.8 × 16.
   assert.strictEqual(plan.position, "inside");
   assert.strictEqual(plan.fontSize, 14);
+});
+
+it("Funnel labels: planFunnelLabels gives every label the smallest placed size", () => {
+  const {plans, fontSize} = planFunnelLabels(
+    [
+      // 16px inside.
+      {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null},
+      // 10 chars in 72px of room: 14.4px, floored to 14.
+      {lines: ["abcdefghij"], inside: {width: 80, height: 100}, outside: null},
+      // Two lines in 52px of height: 52 / 2.4 = 21.6, so 16px.
+      {lines: ["ab", "cd"], inside: {width: 300, height: 60}, outside: null},
+    ],
+    measure,
+    sizing,
+  );
+  assert.strictEqual(fontSize, 14);
+  assert.deepStrictEqual(
+    plans.map(p => [p.position, p.fontSize, p.lines.length]),
+    [
+      ["inside", 14, 1],
+      ["inside", 14, 1],
+      ["inside", 14, 2],
+    ],
+  );
+});
+
+it("Funnel labels: planFunnelLabels moves a label inside when it fits at the shared size", () => {
+  const roomy = {width: 300, height: 100};
+  const labels = [
+    {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null},
+    // Inside fits 12.5px, beside 16px: 12.5 < 0.8 × 16, so beside on its own.
+    {lines: ["abcdefghij"], inside: {width: 72, height: 100}, outside: roomy},
+    // 12 chars in 72px of room: 12px inside, with nowhere else to go.
+    {lines: ["abcdefghijkl"], inside: {width: 80, height: 100}, outside: null},
+  ];
+  assert.strictEqual(
+    planLabel(labels[1].lines, labels[1].inside, roomy, measure, sizing)
+      .position,
+    "outside",
+    "beside its stage when planned alone",
+  );
+  const {plans, fontSize} = planFunnelLabels(labels, measure, sizing);
+  assert.strictEqual(fontSize, 12);
+  assert.deepStrictEqual(
+    plans.map(p => [p.position, p.fontSize]),
+    [
+      ["inside", 12],
+      ["inside", 12],
+      ["inside", 12],
+    ],
+    "fits inside at 12px, so it moves in",
+  );
+});
+
+it("Funnel labels: planFunnelLabels keeps a label beside its stage when it doesn't fit inside", () => {
+  const {plans, fontSize} = planFunnelLabels(
+    [
+      // 14px inside.
+      {lines: ["abcdefghij"], inside: {width: 80, height: 100}, outside: null},
+      // Too narrow inside for 10px: beside, at the shared 14px.
+      {
+        lines: ["abcdefghij"],
+        inside: {width: 30, height: 100},
+        outside: {width: 300, height: 100},
+      },
+    ],
+    measure,
+    sizing,
+  );
+  assert.strictEqual(fontSize, 14);
+  assert.deepStrictEqual(
+    plans.map(p => [p.position, p.fontSize]),
+    [
+      ["inside", 14],
+      ["outside", 14],
+    ],
+  );
+});
+
+it("Funnel labels: a beside label that's the smallest sets the shared size", () => {
+  const {plans, fontSize} = planFunnelLabels(
+    [
+      {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null},
+      // Under 10px inside; beside, 10 chars in 56px of room fit 11.2px,
+      // floored to 11.
+      {
+        lines: ["abcdefghij"],
+        inside: {width: 20, height: 100},
+        outside: {width: 64, height: 100},
+      },
+    ],
+    measure,
+    sizing,
+  );
+  assert.strictEqual(fontSize, 11);
+  assert.deepStrictEqual(
+    plans.map(p => [p.position, p.fontSize]),
+    [
+      ["inside", 11],
+      ["outside", 11],
+    ],
+  );
+});
+
+it("Funnel labels: planFunnelLabels honors a cap, fixed sizes, and labels that fit nowhere", () => {
+  const labels = [
+    {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null},
+    {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null, fixed: 20},
+    {lines: ["abcd"], inside: {width: 5, height: 5}, outside: null},
+  ];
+  const capped = planFunnelLabels(labels, measure, sizing, 12);
+  assert.strictEqual(capped.fontSize, 12, "a cap shared across panels");
+  assert.strictEqual(capped.plans[0].fontSize, 12);
+  assert.strictEqual(capped.plans[1].fontSize, 20, "a fixed size wins");
+  assert.strictEqual(capped.plans[2], null, "no room, no label");
+
+  const fixed = planFunnelLabels(
+    [
+      // Fits inside at a fixed 10px.
+      {lines: ["abcd"], inside: {width: 40, height: 40}, outside: null, fixed: 10},
+      // Doesn't fit inside at a fixed 10px, so beside.
+      {
+        lines: ["abcdefghij"],
+        inside: {width: 40, height: 40},
+        outside: {width: 300, height: 40},
+        fixed: 10,
+      },
+    ],
+    measure,
+    sizing,
+  );
+  assert.strictEqual(fixed.fontSize, 0, "nothing takes a shared size");
+  assert.deepStrictEqual(
+    fixed.plans.map(p => [p.position, p.fontSize]),
+    [
+      ["inside", 10],
+      ["outside", 10],
+    ],
+  );
+  assert.deepStrictEqual(planFunnelLabels([], measure, sizing), {
+    plans: [],
+    fontSize: 0,
+  });
+});
+
+it("Funnel labels: labelSizeCap reads a size shared across panels", () => {
+  assert.strictEqual(labelSizeCap({ctx: {}}), Infinity);
+  assert.strictEqual(labelSizeCap({ctx: {funnelLabelSize: 0}}), Infinity);
+  assert.strictEqual(labelSizeCap({ctx: {funnelLabelSize: 11.5}}), 11.5);
 });
 
 it("Funnel labels: lineBoxes stacks lines centered or from the top", () => {
