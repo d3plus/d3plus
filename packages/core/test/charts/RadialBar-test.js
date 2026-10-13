@@ -222,7 +222,7 @@ it('RadialBar discrete("angle") draws a circular bar chart', async function () {
   );
   assert.strictEqual(out.hits, 4);
   assert.strictEqual(out.tracks, 4);
-  assert.ok(out.keys.includes("radar-radial-circles"), "value rings");
+  assert.ok(out.keys.includes("radialbar-radial-circles"), "value rings");
   assert.ok(out.keys.includes("radialbar-labels"), "category labels");
   for (const t of ["Chrome", "Safari", "Firefox", "Edge"])
     assert.ok(out.texts.includes(t), `labels ${t}`);
@@ -333,4 +333,54 @@ it("RadialBar draws one panel per facet", async function () {
     out.texts.includes("2025") && out.texts.includes("2026"),
     "panel titles",
   );
+});
+
+it("RadialBar names the tracks with the legend once the sweep leaves no room for track labels", async function () {
+  this.timeout(180000);
+  const out = await render(
+    "<div id='viz' style='width:500px;height:460px'></div>",
+    async rows => {
+      const draw = async (renderer, maxAngle) => {
+        document.querySelector("#viz").innerHTML = "";
+        const viz = new window.d3plus.RadialBar()
+          .select("#viz")
+          .duration(0)
+          .renderer(renderer)
+          .data(rows)
+          .maxAngle(maxAngle);
+        await new Promise(r => viz.render(r));
+        const keys = viz._chartScene.map(n => n.key);
+        const ticks = viz._chartScene.find(n => n.key === "radialbar-ticks");
+        return {
+          trackLabels: keys.includes("radialbar-labels"),
+          legend: viz._legendClass.outerBounds().height > 0,
+          ticks: ticks ? ticks.children.map(c => c.lines[0].text) : [],
+          domain: viz.ctx.polar.domain,
+        };
+      };
+      return {
+        partial: await draw("svg", 330),
+        full: await draw("svg", 360),
+        nearFull: await draw("svg", 358),
+        canvasFull: await draw("canvas", 360),
+      };
+    },
+    shares,
+  );
+  assert.ok(out.partial.trackLabels, "30° of room: the track labels");
+  assert.ok(!out.partial.legend, "...and no legend");
+  assert.ok(!out.full.trackLabels, "a full circle: no track labels");
+  assert.ok(out.full.legend, "...the legend names the tracks");
+  assert.ok(!out.nearFull.trackLabels && out.nearFull.legend, "within 30° of a full circle: the legend");
+  assert.deepStrictEqual(
+    {trackLabels: out.canvasFull.trackLabels, legend: out.canvasFull.legend},
+    {trackLabels: false, legend: true},
+    "Canvas lays out the same",
+  );
+  // Where the sweep's ends meet, the last tick label would cover the first.
+  const top = out.full.domain[1];
+  assert.ok(!out.full.ticks.includes(`${top}`), `full circle: ${top} left out`);
+  assert.ok(out.full.ticks.includes("0"), "full circle: 0 kept");
+  assert.ok(!out.nearFull.ticks.includes(`${out.nearFull.domain[1]}`), "2° short: the last tick still covers the first");
+  assert.ok(out.partial.ticks.includes(`${out.partial.domain[1]}`), "30° apart: both ends labeled");
 });

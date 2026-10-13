@@ -61,13 +61,13 @@ it("PolarArea stacks each metric's groups outward on an area-true scale", async 
     },
     rose,
   );
-  assert.ok(out.keys.includes("radar-radial-circles"), "value rings");
+  assert.ok(out.keys.includes("polararea-radial-circles"), "value rings");
   assert.ok(out.keys.includes("polararea-labels"), "category labels");
-  assert.ok(out.keys.includes("radar-level-labels"), "ring labels");
+  assert.ok(out.keys.includes("polararea-level-labels"), "ring labels");
   assert.ok(
-    out.keys.indexOf("radar-level-labels") >
+    out.keys.indexOf("polararea-level-labels") <
       out.keys.indexOf(out.wedges[0].key),
-    "ring labels paint over the wedges",
+    "ring labels lie beneath the wedges, as Radar's do",
   );
   // Zero-valued Wounds in January has no extent and is left out.
   assert.strictEqual(out.wedges.length, 7);
@@ -189,7 +189,7 @@ it("PolarArea takes a linear scale, an inner radius, padding, and explicit level
       await new Promise(r => viz.render(r));
       const wedges = viz._chartScene.filter(n => n.type === "path" && n.datum);
       const rings = viz._chartScene.find(
-        n => n.key === "radar-radial-circles",
+        n => n.key === "polararea-radial-circles",
       ).children;
       return {
         arcs: wedges.map(w => w.arc),
@@ -280,7 +280,7 @@ it("PolarArea dims the other groups on hover, not the chrome", async function ()
       return {
         disease: opacity("polararea-Disease-Mar"),
         wounds: opacity("polararea-Wounds-Mar"),
-        rings: opacity("radar-radial-circles"),
+        rings: opacity("polararea-radial-circles"),
         labels: opacity("polararea-labels"),
       };
     },

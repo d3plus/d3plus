@@ -8,7 +8,7 @@
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `tracks.ts` — pure track radii and label room.
       - `trackLayout.ts` — the concentric-track layout and its chrome.
-      - `emit.ts` — bars with track-sized hit areas, then the ring labels.
+      - `emit.ts` — bars with track-sized hit areas.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -29,10 +29,12 @@ import {mergeConfig} from "../../fluent.js";
 import {dialDefaults} from "../Gauge/emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {polarAxisConfig, polarLegend, polarValueRow} from "../polar/config.js";
+import {polarFacetHooks} from "../polar/polarFacet.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyRadialBarLayout} from "./applyLayout.js";
+import {applyRadialBarLayout, radialBarDomainValues} from "./applyLayout.js";
 import {radialBarEmit} from "./emit.js";
+import {radialBarTrackLabels} from "./trackLayout.js";
 
 export const radialBarDef: DataDrivenChartDefinition = {
   name: "RadialBar",
@@ -56,8 +58,9 @@ export const radialBarDef: DataDrivenChartDefinition = {
     return {x: -r, y: -r, width: r * 2, height: r * 2};
   },
 
-  // Small-multiple panels as close to square as the grid allows.
-  facet: {aspect: 1},
+  // Square-ish small-multiple panels, each fit to its own values unless
+  // `facetConfig.scales` is "shared".
+  facet: polarFacetHooks(radialBarDomainValues),
 
   ctx: {},
 
@@ -97,7 +100,8 @@ export const radialBarDef: DataDrivenChartDefinition = {
     /**
         The sweep the chart spans, in degrees from `startAngle`. Defaults to
         270 for tracks, leaving the quarter before the start for the track
-        labels, and 360 for the circular bar chart.
+        labels (past 330°, too little room is left, so the legend names the
+        tracks instead), and 360 for the circular bar chart.
     */
     {key: "maxAngle"},
     /** Room (px) reserved around the circular bar chart for its category labels, or `"auto"`. */
@@ -138,7 +142,16 @@ export const radialBarDef: DataDrivenChartDefinition = {
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
-    {key: "legend", coerce: "const", factory: polarLegend},
+    {
+      key: "legend",
+      coerce: "const",
+      // Track labels name every row, unless the sweep leaves them no room.
+      factory: (viz: VizInstance) =>
+        polarLegend(
+          viz,
+          v => v.schema.discrete === "angle" || radialBarTrackLabels(v),
+        ),
+    },
     /** Styles the circular bar chart's ring value labels. */
     {key: "levelLabelConfig", default: {}, merge: true},
     /**

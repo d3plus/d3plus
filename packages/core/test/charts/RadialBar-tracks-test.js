@@ -4,6 +4,11 @@ import {
   radialBarLabelRoom,
   radialBarTracks,
 } from "../../es/src/charts/RadialBar/tracks.js";
+import {
+  RADIAL_BAR_MIN_LABEL_GAP,
+  radialBarSweep,
+  radialBarTrackLabels,
+} from "../../es/src/charts/RadialBar/trackLayout.js";
 
 const close = (a, b, msg) =>
   assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
@@ -68,4 +73,21 @@ it("RadialBar tracks: radialBarFootprint: the swept arc plus the label strip", (
   close(half.x1, 1, "right end");
   const bare = radialBarFootprint(-Math.PI / 2, Math.PI / 2, 0);
   close(bare.y1, 0, "without labels the center bounds the bottom");
+});
+
+it("RadialBar tracks: radialBarSweep: maxAngle in radians, 270 by default, clamped to 1-360", () => {
+  const sweep = maxAngle => radialBarSweep({schema: {maxAngle}});
+  close(sweep(undefined), (Math.PI * 3) / 2, "default");
+  close(sweep(180), Math.PI, "half");
+  close(sweep(720), Math.PI * 2, "clamped to a full circle");
+  close(sweep(0.5), Math.PI / 180, "at least a degree");
+});
+
+it("RadialBar tracks: radialBarTrackLabels: only when the sweep leaves a 30° gap before the start", () => {
+  const labeled = maxAngle => radialBarTrackLabels({schema: {maxAngle}});
+  close(RADIAL_BAR_MIN_LABEL_GAP, Math.PI / 6, "30°");
+  assert.strictEqual(labeled(undefined), true, "the default 270° sweep");
+  assert.strictEqual(labeled(330), true, "exactly 30° left");
+  assert.strictEqual(labeled(331), false);
+  assert.strictEqual(labeled(360), false, "a full circle");
 });

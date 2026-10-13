@@ -1,7 +1,6 @@
 /**
     `radialBarEmit` — one bar per row with a transparent hit area over its
-    whole track (so a short bar is still easy to hover), then the ring value
-    labels of the circular bar layout on top.
+    whole track (so a short bar is still easy to hover).
 */
 
 import {formatAbbreviate} from "@d3plus/format";
@@ -44,9 +43,5 @@ export const radialBarEmit: ChartEmit = ({viz, shapeData}) => {
     w =>
       `${viz._drawLabel(w.data, w.i)}, ${formatAbbreviate(w.value, viz.schema.locale)}.`,
   );
-  return [
-    ...hits,
-    ...bars,
-    ...((viz.ctx.polarLevelLabels ?? []) as SceneNode[]),
-  ];
+  return [...hits, ...bars];
 };

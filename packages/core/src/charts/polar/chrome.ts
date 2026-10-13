@@ -2,8 +2,8 @@
     The chrome a polar chart draws around its marks: the category labels just
     outside the circle (and the radius they leave for it), the value rings,
     and the ring value labels. Rings and ring labels come from Radar's level
-    machinery with the chart's own value → radius mapping; everything here is
-    non-interactive scenery.
+    machinery with the chart's own value → radius mapping and node keys;
+    everything here is non-interactive scenery drawn beneath the marks.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -258,26 +258,19 @@ export function polarCategoryNodes(
     : [];
 }
 
-/** Rings closer to the center than this (px) go unlabeled, so no label covers the center. */
-const LEVEL_LABEL_MIN_RADIUS = 8;
-
-/** The value rings and their value labels, at the radii `toRadius` gives. */
+/**
+    The value rings and their value labels (Radar's, the innermost included),
+    at the radii `toRadius` gives, keyed with `key`.
+*/
 export function polarLevelNodes(
   viz: Viz,
   levels: RadarLevels,
   outer: number,
   toRadius: (value: number) => number,
+  key: string,
 ): {rings: SceneNode[]; labels: SceneNode[]} {
-  const labeled = levels.ticks.filter(
-    t => toRadius(t) >= LEVEL_LABEL_MIN_RADIUS,
-  );
   return {
-    rings: radarRingNodes(viz, levels, outer, toRadius),
-    labels: radarLevelLabelNodes(
-      viz,
-      {...levels, ticks: labeled},
-      outer,
-      toRadius,
-    ),
+    rings: radarRingNodes(viz, levels, outer, toRadius, key),
+    labels: radarLevelLabelNodes(viz, levels, outer, toRadius, key),
   };
 }

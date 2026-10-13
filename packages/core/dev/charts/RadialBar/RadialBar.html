@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <title>RadialBar</title>
-    <meta name="description" content="RadialBar: concentric tracks whose arc length shows value (default 270°, a half-circle gauge-style sweep, explicit domain and ticks), the circular bar chart variant (discrete angle), small multiples, and a dark background.">
+    <meta name="description" content="RadialBar: concentric tracks whose arc length shows value (default 270°, a half-circle gauge-style sweep, explicit domain and ticks, a full circle named by the legend), the circular bar chart variant (discrete angle), small multiples with per-panel or shared value domains, and a dark background.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -30,6 +30,11 @@
       }
       .wide {
         grid-column: 1 / -1;
+      }
+      .pair {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(440px, 1fr));
+        gap: 16px;
       }
       #dark {
         background: #212529;
@@ -57,9 +62,29 @@
         <h3>discrete("angle") + maxAngle(300) + sort(null) + track(false) + padPixel(2)</h3>
         <div class="viz" id="open"></div>
       </section>
-      <section class="wide">
-        <h3>facet("year")</h3>
-        <div class="viz" id="facet"></div>
+      <section>
+        <h3>maxAngle(360): no room before the start, so the legend names the tracks</h3>
+        <div class="viz" id="full"></div>
+      </section>
+      <section class="wide pair">
+        <div>
+          <h3>facet("year"): each panel fits its own values (default)</h3>
+          <div class="viz" id="facet"></div>
+        </div>
+        <div>
+          <h3>facet("year") + facetConfig({scales: "shared"}): one domain across panels</h3>
+          <div class="viz" id="facetShared"></div>
+        </div>
+      </section>
+      <section class="wide pair">
+        <div>
+          <h3>discrete("angle") + facet("year"): each panel fits its own values (default)</h3>
+          <div class="viz" id="facetAngle"></div>
+        </div>
+        <div>
+          <h3>discrete("angle") + facet("year") + facetConfig({scales: "shared"})</h3>
+          <div class="viz" id="facetAngleShared"></div>
+        </div>
       </section>
       <section>
         <h3>Dark background + trackPadding(0.5) + innerRadius(30)</h3>
@@ -123,14 +148,28 @@
 
       const teams = ["Design", "Engineering", "Marketing", "Sales", "Support"];
       const headcount = ["2024", "2025", "2026"].flatMap((year, y) =>
-        teams.map((team, t) => ({year, team, people: 8 + ((y * 11 + t * 7) % 30)})));
+        teams.map((team, t) => ({year, team, people: (y + 1) * (8 + ((y * 11 + t * 7) % 30))})));
+
+      [
+        ["#facet", "radius", {}], ["#facetShared", "radius", {scales: "shared"}],
+        ["#facetAngle", "angle", {}], ["#facetAngleShared", "angle", {scales: "shared"}],
+      ].forEach(([select, discrete, facetConfig]) =>
+        new d3plus.RadialBar()
+          .select(select)
+          .data(headcount)
+          .groupBy("team")
+          .value("people")
+          .discrete(discrete)
+          .facet("year")
+          .facetConfig(facetConfig)
+          .render());
 
       new d3plus.RadialBar()
-        .select("#facet")
-        .data(headcount)
-        .groupBy("team")
-        .value("people")
-        .facet("year")
+        .select("#full")
+        .data(browsers)
+        .groupBy("browser")
+        .value("share")
+        .maxAngle(360)
         .render();
 
       new d3plus.RadialBar()

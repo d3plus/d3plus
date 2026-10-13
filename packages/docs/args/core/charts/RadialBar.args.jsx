@@ -174,7 +174,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The sweep the chart spans, in degrees from `startAngle`. Defaults to 270 for tracks, leaving the quarter before the start for the track labels, and 360 for the circular bar chart.",
+      description: "The sweep the chart spans, in degrees from `startAngle`. Defaults to 270 for tracks, leaving the quarter before the start for the track labels (past 330°, too little room is left, so the legend names the tracks instead), and 360 for the circular bar chart.",
       table: {
         defaultValue: {
           summary: "undefined"

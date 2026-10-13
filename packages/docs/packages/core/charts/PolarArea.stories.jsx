@@ -158,7 +158,7 @@ SmallMultiples.args = {
         region,
         product,
         quarter,
-        sales: 20 + ((r * 17 + p * 29 + q * 13) % 45),
+        sales: (r + 1) * (20 + ((r * 17 + p * 29 + q * 13) % 45)),
       })),
     ),
   ),
@@ -168,11 +168,26 @@ SmallMultiples.args = {
   facet: "region",
 };
 SmallMultiples.parameters = {
-  controls: {include: ["facet"]},
+  controls: {include: ["facet", "facetConfig"]},
   docs: {
     description: {
       story:
-        "`facet` draws one rose per region, side by side and sharing one legend.",
+        "`facet` draws one rose per region, side by side and sharing one legend. By default each panel's rings fit its own values.",
+    },
+  },
+};
+
+export const SharedValueDomain = Template.bind({});
+SharedValueDomain.args = {
+  ...SmallMultiples.args,
+  facetConfig: {scales: "shared"},
+};
+SharedValueDomain.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        'With `facetConfig: {scales: "shared"}`, every panel uses one value domain across all panels, so a smaller region draws a smaller rose.',
     },
   },
 };

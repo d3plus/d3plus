@@ -2,8 +2,8 @@
     The layout shared by PolarArea and RadialBar's circular bars: equal-angle
     slots around the circle, each holding one or more wedges stacked outward
     whose radius encodes value, with value rings, ring labels, and category
-    labels. Lays the chrome into `viz._chartScene` (beneath the wedges) and
-    returns the wedges plus the ring labels, which the emit paints on top.
+    labels. Lays the chrome into `viz._chartScene`, beneath the wedges (as
+    Radar does), and returns the wedges.
 */
 
 import {groups} from "d3-array";
@@ -32,6 +32,7 @@ import {
   polarStack,
 } from "./geometry.js";
 import type {PolarDomainInput, PolarScale, PolarSlot} from "./geometry.js";
+import {polarSharedExtent} from "./polarFacet.js";
 
 type Viz = Parameters<TransformStage>[0]["viz"];
 type Accessor<T> = (d: DataPoint, i: number) => T;
@@ -127,41 +128,57 @@ function trackGroup(
   };
 }
 
-/** Resolves the `startAngle` setting (degrees) to radians. */
-const startRadians = (viz: Viz): number =>
-  ((Number(viz.schema.startAngle) || 0) * Math.PI) / 180;
-
-/**
-    Lays out the slots, wedges, rings, and category labels; pushes the rings
-    and category labels onto `viz._chartScene` and returns the wedges, the
-    frame, and the ring labels.
-*/
-export function polarWedgeLayout(
-  viz: Viz,
-  opts: PolarWedgeOptions,
-): {wedges: PolarWedge[]; frame: PolarFrame; levelLabels: SceneNode[]} {
-  const {width, height} = chartBounds(viz);
-  const rows = opts.rows ?? ((viz._filteredData ?? []) as DataPoint[]);
+/** Rows grouped into slots and stacked outward within each. */
+function slotStack(viz: Viz, rows: DataPoint[], slotOf: Accessor<string>) {
   const valueFn = viz.schema.value as Accessor<number>;
-  const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
-
   const bySlot = groups(
     rows.map((d, i) => ({d, i})),
-    r => opts.slotOf(r.d, r.i),
+    r => slotOf(r.d, r.i),
   );
   const slotIndex = new Map(bySlot.map(([key], k) => [key, k]));
   const values = rows.map((d, i) => Number(valueFn(d, i)));
   const stack = polarStack(
     rows.map((d, i) => ({
-      slot: slotIndex.get(opts.slotOf(d, i))!,
+      slot: slotIndex.get(slotOf(d, i))!,
       value: values[i],
     })),
   );
   const tops = bySlot.map((_s, k) =>
     Math.max(0, ...stack.filter(s => s.slot === k).map(s => s.y1)),
   );
+  return {bySlot, values, stack, tops};
+}
+
+/** Each slot's stacked total (how far out its outermost wedge reaches), in slot order. */
+export function polarSlotTops(
+  viz: Viz,
+  rows: DataPoint[],
+  slotOf: Accessor<string>,
+): number[] {
+  return slotStack(viz, rows, slotOf).tops;
+}
+
+/** Resolves the `startAngle` setting (degrees) to radians. */
+const startRadians = (viz: Viz): number =>
+  ((Number(viz.schema.startAngle) || 0) * Math.PI) / 180;
+
+/**
+    Lays out the slots, wedges, rings, and labels; pushes the rings, category
+    labels, and ring labels onto `viz._chartScene` and returns the wedges and
+    the frame.
+*/
+export function polarWedgeLayout(
+  viz: Viz,
+  opts: PolarWedgeOptions,
+): {wedges: PolarWedge[]; frame: PolarFrame} {
+  const {width, height} = chartBounds(viz);
+  const rows = opts.rows ?? ((viz._filteredData ?? []) as DataPoint[]);
+  const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
+
+  const {bySlot, values, stack, tops} = slotStack(viz, rows, opts.slotOf);
+  // Small multiples sharing one domain also fit it to every panel's values.
   const levels = polarLevels(
-    tops,
+    tops.concat(polarSharedExtent(viz)),
     viz.schema.levels as number | number[],
     viz.schema.domain as PolarDomainInput,
   );
@@ -215,7 +232,7 @@ export function polarWedgeLayout(
   });
 
   const tracks = slots.map(s => polarSlotArc(s, inner, outer, pad));
-  const chrome = polarLevelNodes(viz, levels, outer, toRadius);
+  const chrome = polarLevelNodes(viz, levels, outer, toRadius, opts.key);
   const scene = (
     Array.isArray(viz._chartScene) ? viz._chartScene : (viz._chartScene = [])
   ) as SceneNode[];
@@ -224,6 +241,7 @@ export function polarWedgeLayout(
   scene.push(
     ...chrome.rings,
     ...polarCategoryNodes(viz, layout.labels, opts.key),
+    ...chrome.labels,
   );
 
   const frame: PolarFrame = {
@@ -235,5 +253,5 @@ export function polarWedgeLayout(
     tracks,
   };
   viz.ctx.polar = frame;
-  return {wedges, frame, levelLabels: chrome.labels};
+  return {wedges, frame};
 }

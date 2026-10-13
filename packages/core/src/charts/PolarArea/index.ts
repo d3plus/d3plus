@@ -5,7 +5,7 @@
     Implementation files in this folder:
       - `applyLayout.ts` — chart-specific `TransformStage` (see
         `../polar/wedgeLayout.ts` for the geometry it shares with RadialBar).
-      - `emit.ts` — wedge Paths, then the ring value labels.
+      - `emit.ts` — wedge Paths.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -22,10 +22,11 @@ import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {backgroundColor} from "@d3plus/dom";
 import {polarAxisConfig, polarLegend, polarValueRow} from "../polar/config.js";
+import {polarFacetHooks} from "../polar/polarFacet.js";
 import type {PolarFrame} from "../polar/wedgeLayout.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyPolarAreaLayout} from "./applyLayout.js";
+import {applyPolarAreaLayout, polarAreaDomainValues} from "./applyLayout.js";
 import {polarAreaEmit} from "./emit.js";
 
 export const polarAreaDef: DataDrivenChartDefinition = {
@@ -47,8 +48,9 @@ export const polarAreaDef: DataDrivenChartDefinition = {
     return {x: -r, y: -r, width: r * 2, height: r * 2};
   },
 
-  // Small-multiple panels as close to square as the grid allows.
-  facet: {aspect: 1},
+  // Square-ish small-multiple panels, each fit to its own values unless
+  // `facetConfig.scales` is "shared".
+  facet: polarFacetHooks(polarAreaDomainValues),
 
   ctx: {},
 

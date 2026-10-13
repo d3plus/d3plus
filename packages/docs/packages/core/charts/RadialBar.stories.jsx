@@ -167,7 +167,7 @@ SmallMultiples.args = {
       (team, t) => ({
         year,
         team,
-        people: 8 + ((y * 11 + t * 7) % 30),
+        people: (y + 1) * (8 + ((y * 11 + t * 7) % 30)),
       }),
     ),
   ),
@@ -176,11 +176,43 @@ SmallMultiples.args = {
   facet: "year",
 };
 SmallMultiples.parameters = {
-  controls: {include: ["facet"]},
+  controls: {include: ["facet", "facetConfig"]},
   docs: {
     description: {
       story:
-        "`facet` draws one chart per year, side by side, each sorted by its own values.",
+        "`facet` draws one chart per year, side by side, each sorted by its own values. By default each panel's ticks fit its own values, so every panel's largest bar spans the sweep.",
+    },
+  },
+};
+
+export const SharedValueDomain = Template.bind({});
+SharedValueDomain.args = {
+  ...SmallMultiples.args,
+  facetConfig: {scales: "shared"},
+};
+SharedValueDomain.parameters = {
+  controls: {include: ["facet", "facetConfig", "discrete"]},
+  docs: {
+    description: {
+      story:
+        'With `facetConfig: {scales: "shared"}`, every panel uses one value domain across all panels, so bars compare from panel to panel.',
+    },
+  },
+};
+
+export const FullCircle = Template.bind({});
+FullCircle.args = {
+  data: browsers,
+  groupBy: "browser",
+  value: "share",
+  maxAngle: 360,
+};
+FullCircle.parameters = {
+  controls: {include: ["maxAngle"]},
+  docs: {
+    description: {
+      story:
+        "A sweep within 30° of a full circle leaves no room before the tracks' start for their labels, so the legend names the tracks instead.",
     },
   },
 };

@@ -1,6 +1,7 @@
 import assert from "assert";
 import {
   POLAR_LABEL_PADDING,
+  polarBoxesOverlap,
   polarHorizontalLayout,
   polarLabelFitRadius,
   polarLabelPlacement,
@@ -169,4 +170,13 @@ it("polar labels: radarLevelLabels: toRadius places labels on a custom scale", (
     sqrt.map(l => l.r),
     [0, 100, 200],
   );
+});
+
+it("polar labels: polarBoxesOverlap: overlapping boxes, or boxes closer than the gap", () => {
+  const a = {x: 0, y: 0, width: 10, height: 10};
+  assert.strictEqual(polarBoxesOverlap(a, {x: 5, y: 5, width: 10, height: 10}), true);
+  assert.strictEqual(polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}), true, "1px apart is inside the default 2px gap");
+  assert.strictEqual(polarBoxesOverlap(a, {x: 13, y: 0, width: 10, height: 10}), false);
+  assert.strictEqual(polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}, 0), false, "no gap");
+  assert.strictEqual(polarBoxesOverlap(a, {x: 0, y: 20, width: 10, height: 10}), false, "apart vertically");
 });

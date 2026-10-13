@@ -50,17 +50,18 @@ export function polarAxisConfig(viz: VizInstance): Record<string, unknown> {
 
 /**
     Wraps the base legend so it hides when every drawn row is its own legend
-    entry: the category labels around the circle already name each one.
+    entry and `labeled` says the chart's labels already name each one.
 */
 export function polarLegend(
   viz: VizInstance,
+  labeled: (viz: VizInstance) => boolean = () => true,
 ): (config: D3plusConfig, arr: DataPoint[]) => unknown {
   const base = viz.schema.legend as (
     config: D3plusConfig,
     arr: DataPoint[],
   ) => unknown;
   return (config: D3plusConfig, arr: DataPoint[]) => {
-    if (arr.length === viz._filteredData.length) return false;
+    if (arr.length === viz._filteredData.length && labeled(viz)) return false;
     return base.call(viz, config, arr);
   };
 }

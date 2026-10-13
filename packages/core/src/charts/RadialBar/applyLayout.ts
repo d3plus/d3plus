@@ -12,7 +12,8 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {Paint} from "@d3plus/render";
 
 import {paintFromShapeConfig} from "../features/emitHelpers.js";
-import {polarWedgeLayout} from "../polar/wedgeLayout.js";
+import type {PolarDomainValues} from "../polar/polarFacet.js";
+import {polarSlotTops, polarWedgeLayout} from "../polar/wedgeLayout.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {radialBarTrackLayout} from "./trackLayout.js";
@@ -25,6 +26,23 @@ export function radialBarRows(viz: VizInstance): DataPoint[] {
   return typeof sort === "function" ? rows.sort(sort) : rows;
 }
 
+/** The circular bar chart's slot for a row: its own id. */
+const radialBarSlotOf =
+  (viz: VizInstance) =>
+  (d: DataPoint, i: number): string =>
+    viz._ids(d, i).join("-");
+
+/**
+    The values RadialBar fits its domain to: every row's value, or, for the
+    circular bar chart, each bar's stacked total.
+*/
+export const radialBarDomainValues: PolarDomainValues = (viz, rows) => {
+  if (viz.schema.discrete === "angle")
+    return polarSlotTops(viz, rows, radialBarSlotOf(viz));
+  const valueFn = viz.schema.value as (d: DataPoint, i: number) => unknown;
+  return rows.map((d, i) => Number(valueFn(d, i)));
+};
+
 export const applyRadialBarLayout: TransformStage = ({viz}) => {
   const rows = radialBarRows(viz);
   if (viz.schema.discrete === "angle") {
@@ -33,10 +51,10 @@ export const applyRadialBarLayout: TransformStage = ({viz}) => {
       string,
       unknown
     >;
-    const {wedges, levelLabels} = polarWedgeLayout(viz, {
+    const {wedges} = polarWedgeLayout(viz, {
       key: "radialbar",
       rows,
-      slotOf: (d, i) => viz._ids(d, i).join("-"),
+      slotOf: radialBarSlotOf(viz),
       slotLabel: (_key, members) =>
         members.length ? viz._drawLabel(members[0], 0) : "",
       scale: "linear",
@@ -47,10 +65,8 @@ export const applyRadialBarLayout: TransformStage = ({viz}) => {
           ? undefined
           : (paintFromShapeConfig(trackConfig, rows[0], 0) as Paint),
     });
-    viz.ctx.polarLevelLabels = levelLabels;
     return {shapeData: wedges as unknown as DataPoint[]};
   }
-  viz.ctx.polarLevelLabels = [];
   const {wedges} = radialBarTrackLayout(viz, rows);
   return {shapeData: wedges as unknown as DataPoint[]};
 };

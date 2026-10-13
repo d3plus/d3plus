@@ -20,7 +20,11 @@ export {applyRingsLayout} from "./src/charts/Rings/applyLayout.js";
 export {applySankeyLayout} from "./src/charts/Sankey/applyLayout.js";
 export {applyPackLayout} from "./src/charts/Pack/applyLayout.js";
 export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
-export {applyPolarAreaLayout, polarAreaSlotOf} from "./src/charts/PolarArea/applyLayout.js";
+export {
+  applyPolarAreaLayout,
+  polarAreaDomainValues,
+  polarAreaSlotOf,
+} from "./src/charts/PolarArea/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
@@ -79,6 +83,7 @@ export {
 } from "./src/charts/polar/geometry.js";
 export type {PolarDomainInput, PolarScale, PolarSlot, PolarStackSegment} from "./src/charts/polar/geometry.js";
 export {
+  polarBoxesOverlap,
   polarHorizontalLayout,
   polarLabelFitRadius,
   polarLabelPlacement,
@@ -88,13 +93,25 @@ export {
 } from "./src/charts/polar/labels.js";
 export {polarCategoryLayout, polarCategoryNodes, polarLevelNodes} from "./src/charts/polar/chrome.js";
 export {polarAxisConfig, polarLegend, polarValueRow, polarWedgeNodes} from "./src/charts/polar/config.js";
-export {polarSlotArc, polarWedgeLayout} from "./src/charts/polar/wedgeLayout.js";
+export {polarSlotArc, polarSlotTops, polarWedgeLayout} from "./src/charts/polar/wedgeLayout.js";
+export {
+  polarFacetHooks,
+  polarFacetPanel,
+  polarSharedExtent,
+  sharePolarScale,
+} from "./src/charts/polar/polarFacet.js";
+export type {PolarDomainValues, PolarFacetScale} from "./src/charts/polar/polarFacet.js";
 export type {PolarFrame, PolarWedge, PolarWedgeOptions} from "./src/charts/polar/wedgeLayout.js";
 export {polarAreaEmit} from "./src/charts/PolarArea/emit.js";
-export {radialBarRows} from "./src/charts/RadialBar/applyLayout.js";
+export {radialBarDomainValues, radialBarRows} from "./src/charts/RadialBar/applyLayout.js";
 export {radialBarEmit} from "./src/charts/RadialBar/emit.js";
 export {radialBarFootprint, radialBarLabelRoom, radialBarTracks} from "./src/charts/RadialBar/tracks.js";
-export {radialBarTrackLayout} from "./src/charts/RadialBar/trackLayout.js";
+export {
+  RADIAL_BAR_MIN_LABEL_GAP,
+  radialBarSweep,
+  radialBarTrackLabels,
+  radialBarTrackLayout,
+} from "./src/charts/RadialBar/trackLayout.js";
 export type {RadialBarFrame} from "./src/charts/RadialBar/trackLayout.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────

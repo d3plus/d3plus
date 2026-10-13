@@ -91,10 +91,10 @@ export function polarLabelRoom(
 }
 
 /** Whether two placed boxes overlap, allowing `gap` px between them. */
-const overlaps = (
+export const polarBoxesOverlap = (
   a: PolarLabelPlacement,
   b: PolarLabelPlacement,
-  gap: number,
+  gap = 2,
 ): boolean =>
   a.x < b.x + b.width + gap &&
   b.x < a.x + a.width + gap &&
@@ -121,7 +121,7 @@ export function polarLabelsCollide(
   for (let i = 0; i < placed.length; i++) {
     const next = placed[(i + 1) % placed.length];
     if (next === placed[i]) continue;
-    if (overlaps(placed[i].p, next.p, gap)) return true;
+    if (polarBoxesOverlap(placed[i].p, next.p, gap)) return true;
   }
   return false;
 }

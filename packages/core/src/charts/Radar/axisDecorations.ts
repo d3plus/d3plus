@@ -182,13 +182,15 @@ export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode
 
 /**
     Builds the level rings from `axisConfig.gridConfig` (inner) and `barConfig`
-    (outer). `toRadius` maps a ring value onto its radius (linear by default).
+    (outer). `toRadius` maps a ring value onto its radius (linear by default);
+    node keys start with `prefix`.
 */
 export function radarRingNodes(
   viz: Viz,
   {domain, ticks}: RadarLevels,
   radius: number,
   toRadius: (value: number) => number = v => radarRadius(v, domain, radius),
+  prefix = "radar",
 ): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const rings = ticks.map(value => ({value, r: toRadius(value)}));
@@ -198,18 +200,21 @@ export function radarRingNodes(
     domain[1],
     radarRingStyle({}, axisConfig.gridConfig),
     radarRingStyle({}, axisConfig.barConfig),
+    prefix,
   );
 }
 
 /**
     Resolves `levelLabelConfig` + `levelFormat` and builds the level label
-    nodes. `toRadius` maps a ring value onto its radius (linear by default).
+    nodes. `toRadius` maps a ring value onto its radius (linear by default);
+    node keys start with `prefix`.
 */
 export function radarLevelLabelNodes(
   viz: Viz,
   {domain, ticks}: RadarLevels,
   radius: number,
   toRadius?: (value: number) => number,
+  prefix = "radar",
 ): SceneNode[] {
   if (!viz.schema.levelLabels) return [];
   const cfg = (viz.schema.levelLabelConfig ?? {}) as NonNullable<D3plusConfig["levelLabelConfig"]>;
@@ -234,11 +239,12 @@ export function radarLevelLabelNodes(
     fontSize,
     toRadius,
   });
-  return emitRadarLevelLabels(labels, {
+  const paint = {
     fontColor: cfg.fontColor ?? backgroundInk(viz),
     fontFamily,
     fontOpacity: cfg.fontOpacity ?? 1,
     fontSize,
     fontWeight,
-  });
+  };
+  return emitRadarLevelLabels(labels, paint, prefix);
 }

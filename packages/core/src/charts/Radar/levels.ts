@@ -135,10 +135,11 @@ export interface RadarLevelLabelPaint {
   fontWeight: number | string;
 }
 
-/** Builds the text scene nodes for laid-out level labels. */
+/** Builds the text scene nodes for laid-out level labels, keyed with `prefix`. */
 export function emitRadarLevelLabels(
   labels: RadarLevelLabel[],
   paint: RadarLevelLabelPaint,
+  prefix = "radar",
 ): SceneNode[] {
   if (!labels.length) return [];
   const children: SceneNode[] = [];
@@ -146,7 +147,7 @@ export function emitRadarLevelLabels(
     const offset = l.anchor === "start" ? -l.width / 2 : l.anchor === "end" ? l.width / 2 : 0;
     children.push({
       type: "text",
-      key: `radar-level-label-${l.value}`,
+      key: `${prefix}-level-label-${l.value}`,
       interactive: false,
       x: 0,
       y: 0,
@@ -162,5 +163,5 @@ export function emitRadarLevelLabels(
       paint: {fill: paint.fontColor, opacity: paint.fontOpacity},
     });
   }
-  return [{type: "group", key: "radar-level-labels", interactive: false, children}];
+  return [{type: "group", key: `${prefix}-level-labels`, interactive: false, children}];
 }

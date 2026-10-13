@@ -3,7 +3,9 @@
     outermost, each bar's arc length (from zero) encoding its value along the
     shared sweep. Pushes the chrome onto `viz._chartScene` beneath the bars:
     the track backgrounds, the value gridlines (spokes at the ticks) with
-    their labels outside the circle, and each track's label beside its start.
+    their labels outside the circle, and each track's label beside its start
+    (a sweep within 30° of a full circle has no room there, so the legend
+    names the tracks).
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -25,8 +27,13 @@ import {
 } from "../Gauge/gaugeGeometry.js";
 import type {GaugeDomainInput} from "../Gauge/gaugeGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
-import {POLAR_LABEL_PADDING, polarLabelPlacement} from "../polar/labels.js";
+import {
+  POLAR_LABEL_PADDING,
+  polarBoxesOverlap,
+  polarLabelPlacement,
+} from "../polar/labels.js";
 import {polarInnerRadius} from "../polar/geometry.js";
+import {polarSharedExtent} from "../polar/polarFacet.js";
 import {POLAR_STROKE_BUFFER} from "../polar/wedgeLayout.js";
 import type {PolarWedge} from "../polar/wedgeLayout.js";
 import {labelFont} from "../Radar/axisDecorations.js";
@@ -65,19 +72,37 @@ const labelColor = (viz: Viz, d: DataPoint): string => {
   return resolveAccessor<string>(cfg.fontColor, d, 0) ?? backgroundInk(viz);
 };
 
-/** The value tick labels outside the circle, and the room they need around it. */
+/** The sweep (radians) the tracks span: `maxAngle` degrees, 270 by default. */
+export function radialBarSweep(viz: Viz): number {
+  const maxAngle = Number(viz.schema.maxAngle ?? 270) || 270;
+  return (Math.max(1, Math.min(360, maxAngle)) * Math.PI) / 180;
+}
+
+/** The smallest gap (radians) before the tracks' start that holds the track labels. */
+export const RADIAL_BAR_MIN_LABEL_GAP = Math.PI / 6;
+
+/**
+    Whether the tracks leave enough of a gap before their start for the track
+    labels. A sweep closer to a full circle leaves too little (none at 360°),
+    so the legend names the tracks instead.
+*/
+export function radialBarTrackLabels(viz: Viz): boolean {
+  return Math.PI * 2 - radialBarSweep(viz) >= RADIAL_BAR_MIN_LABEL_GAP - 1e-9;
+}
+
+/**
+    The value tick labels outside the circle, and the room they need around
+    it. Where the sweep's two ends meet or nearly meet, the last label is
+    left out if it would cover the first.
+*/
 function tickLabels(
   viz: Viz,
   ticks: number[],
   angle: (v: number) => number,
-  sweep: number,
 ): {margin: number; nodes: (r: number) => SceneNode[]} {
   const format = viz.schema.tickFormat as (v: number) => string | number;
-  const full = sweep >= Math.PI * 2 - 1e-6;
-  // A full circle's two ends meet, so the last tick would cover the first.
-  const shown = full ? ticks.slice(0, -1) : ticks;
   const first = {} as DataPoint;
-  const labels = shown.map((t, i) => {
+  const labels = ticks.map((t, i) => {
     const text = `${format(t)}`;
     const font = labelFont(viz, text, first, i);
     const style = {
@@ -99,9 +124,15 @@ function tickLabels(
       ? Math.max(...labels.map(l => Math.max(l.width, l.font.fontSize))) +
         POLAR_LABEL_PADDING
       : 0,
-    nodes: r =>
-      labels.map((l, i): TextNode => {
-        const p = polarLabelPlacement(l.angle, r, l.width, l.font.fontSize);
+    nodes: r => {
+      const placed = labels.map(l =>
+        polarLabelPlacement(l.angle, r, l.width, l.font.fontSize),
+      );
+      const n = placed.length;
+      const shown =
+        n > 1 && polarBoxesOverlap(placed[0], placed[n - 1]) ? n - 1 : n;
+      return labels.slice(0, shown).map((l, i): TextNode => {
+        const p = placed[i];
         return {
           type: "text",
           key: `radialbar-tick-${i}`,
@@ -119,7 +150,8 @@ function tickLabels(
           },
           paint: {fill: color},
         };
-      }),
+      });
+    },
   };
 }
 
@@ -323,14 +355,14 @@ export function radialBarTrackLayout(
   const valueFn = viz.schema.value as (d: DataPoint, i: number) => unknown;
   const values = rows.map((d, i) => Number(valueFn(d, i)));
   const start = ((Number(viz.schema.startAngle) || 0) * Math.PI) / 180;
-  const maxAngle = Number(viz.schema.maxAngle ?? 270) || 270;
-  const sweep = (Math.max(1, Math.min(360, maxAngle)) * Math.PI) / 180;
-  const end = start + sweep;
+  const end = start + radialBarSweep(viz);
+  const labeled = radialBarTrackLabels(viz);
   const tickInput = viz.schema.ticks as number | number[] | false | undefined;
   const tickCount =
     typeof tickInput === "number" ? tickInput : defaultTickCount(start, end);
+  // Small multiples sharing one domain also fit it to every panel's values.
   const domain = gaugeDomain(
-    values,
+    values.concat(polarSharedExtent(viz)),
     [],
     viz.schema.domain as GaugeDomainInput,
     tickCount,
@@ -338,8 +370,8 @@ export function radialBarTrackLayout(
   const ticks = gaugeTicks(domain, tickInput, false, tickCount).major;
   const angle = (v: number) => gaugeAngle(v, domain, start, end);
 
-  const tickText = tickLabels(viz, ticks, angle, sweep);
-  const {outer, cx, cy} = fitTracks(viz, rows, {
+  const tickText = tickLabels(viz, ticks, angle);
+  const {outer, cx, cy} = fitTracks(viz, labeled ? rows : [], {
     width: Math.max(0, width - POLAR_STROKE_BUFFER * 2),
     height: Math.max(0, height - POLAR_STROKE_BUFFER * 2),
     margin: tickText.margin,
@@ -397,7 +429,7 @@ export function radialBarTrackLayout(
       interactive: false,
       children: tickText.nodes(outer),
     });
-  scene.push(...trackLabels(viz, rows, frame, rings));
+  if (labeled) scene.push(...trackLabels(viz, rows, frame, rings));
   viz.ctx.polar = frame;
   return {wedges, frame};
 }

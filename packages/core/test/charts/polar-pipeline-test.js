@@ -91,7 +91,7 @@ it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, pol
       const nodes = d3plus.polarCategoryNodes(viz, layout.labels, "test");
       const none = d3plus.polarCategoryNodes(viz, [], "test");
       const levels = {domain: [0, 100], ticks: [0, 50, 100]};
-      const level = d3plus.polarLevelNodes(viz, levels, 100, v => v);
+      const level = d3plus.polarLevelNodes(viz, levels, 100, v => v, "test");
       return {
         radius: layout.radius,
         anchors: layout.labels.map(l => l.textAnchor),
@@ -104,6 +104,7 @@ it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, pol
         none: none.length,
         ringRadii: level.rings[0].children.map(c => c.r),
         levelTexts: level.labels[0].children.map(c => c.lines[0].text),
+        levelKeys: [level.rings[0].key, level.labels[0].key],
       };
     },
     rows,
@@ -131,9 +132,10 @@ it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, pol
   );
   assert.deepStrictEqual(
     out.levelTexts,
-    ["50", "100"],
-    "the center ring goes unlabeled",
+    ["0", "50", "100"],
+    "every ring labeled, the center's too, as on Radar",
   );
+  assert.deepStrictEqual(out.levelKeys, ["test-radial-circles", "test-level-labels"]);
 });
 
 it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
@@ -149,7 +151,7 @@ it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
         .metric("group");
       await new Promise(r => viz.render(r));
       viz._chartScene = [];
-      const {wedges, frame, levelLabels} = d3plus.polarWedgeLayout(viz, {
+      const {wedges, frame} = d3plus.polarWedgeLayout(viz, {
         key: "probe",
         slotOf: d => d.group,
         slotLabel: key => `Group ${key}`,
@@ -173,7 +175,8 @@ it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
           arc: w.arc,
         })),
         frame,
-        levelLabels: levelLabels.length,
+        levelLabels: viz._chartScene.find(n => n.key === "probe-level-labels")
+          .children.length,
         pushed,
         nodes: nodes.map(n => ({
           key: n.key,
@@ -210,8 +213,9 @@ it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
   assert.strictEqual(out.frame.scale, "linear");
   assert.deepStrictEqual(out.pushed, [
     "probe-tracks",
-    "radar-radial-circles",
+    "probe-radial-circles",
     "probe-labels",
+    "probe-level-labels",
   ]);
   assert.ok(out.levelLabels > 0);
   assert.deepStrictEqual(
@@ -262,11 +266,7 @@ it("polar pipeline: PolarArea stage and emit (polarAreaSlotOf, applyPolarAreaLay
     "polararea-beta-x",
     "polararea-beta-y",
   ]);
-  assert.strictEqual(
-    out.emitted.at(-1),
-    "radar-level-labels",
-    "ring labels last",
-  );
+  assert.strictEqual(out.emitted.length, 4, "wedges only: the chrome lies beneath, on _chartScene");
   assert.strictEqual(out.empty, 0);
   assert.deepStrictEqual(out.def, [
     "PolarArea",
@@ -311,6 +311,7 @@ it("polar pipeline: RadialBar stage and emit (radialBarRows, radialBarTrackLayou
         emitted: emitted.map(n => n.key),
         angular: angular.shapeData.map(w => w.arc.innerRadius > 0),
         angularEmit: angularEmit.map(n => n.key),
+        angularScene: viz._chartScene.map(n => n.key),
         empty: d3plus.radialBarEmit({viz, shapeData: []}).length,
         defKeys: Object.keys(d3plus.radialBarDef).slice(-2),
       };
@@ -337,7 +338,11 @@ it("polar pipeline: RadialBar stage and emit (radialBarRows, radialBarTrackLayou
     "radialbar-beta-beta",
   ]);
   assert.deepStrictEqual(out.angular, [true, true]);
-  assert.strictEqual(out.angularEmit.at(-1), "radar-level-labels");
+  assert.ok(
+    out.angularEmit.every(k => !k.includes("level-labels")),
+    "bars only: the ring labels lie beneath, on _chartScene",
+  );
+  assert.ok(out.angularScene.includes("radialbar-level-labels"));
   assert.strictEqual(out.empty, 0);
   assert.deepStrictEqual(out.defKeys, ["ctx", "fields"]);
 });
