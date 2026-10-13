@@ -925,6 +925,23 @@ export interface D3plusConfig {
       ticked right.
   */
   variant?: "candlestick" | "ohlc";
+  /**
+      Candlestick: accessor (or data key) for each period's volume. Off by
+      default; when set, a strip of volume bars draws under the candles, and
+      the tooltip adds a Volume row. `false` turns it off.
+  */
+  volume?: string | ((d: DataPoint, i: number) => number) | false;
+  /**
+      Candlestick: the volume strip's `height` (a share of the plot, default
+      `0.2`; pixels above 1), `gap` (pixels, default `16`), `axisConfig`
+      (its axis), and `shapeConfig` (its bars).
+  */
+  volumeConfig?: {
+    height?: number;
+    gap?: number;
+    axisConfig?: AxisConfig;
+    shapeConfig?: Record<string, unknown>;
+  };
   /** Overall width of the visualization in pixels. */
   width?: number;
   /** Key, index, or accessor function for x-axis values. */
