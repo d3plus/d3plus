@@ -1,0 +1,235 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Forecast · Plot</title>
+  <meta name="description" content="The forecast annotation from every source: rows flagged by a predicate, auto from confidence bands, an explicit start, and trend line projections on line and bar charts, plus vertical, faceted, zoomable and styled variants.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 320px; }
+    .wide { grid-column: 1 / -1; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Predicate: predicted rows drawn as their own series</h3><div class="viz" id="predicate"></div></div>
+    <div><h3>Predicate: one series flags its own forecast rows (time axis)</h3><div class="viz" id="flagged"></div></div>
+    <div><h3>Trend line projection on a LinePlot (automatic)</h3><div class="viz" id="trend-line"></div></div>
+    <div><h3>Trend line projection on a BarChart (automatic)</h3><div class="viz" id="trend-bar"></div></div>
+    <div><h3>Trend line projection on a horizontal BarChart</h3><div class="viz" id="trend-hbar"></div></div>
+    <div><h3>Predicate on a BarChart</h3><div class="viz" id="bar-predicate"></div></div>
+    <div><h3>"auto": where the confidence band opens</h3><div class="viz" id="auto"></div></div>
+    <div><h3>Explicit start on a time axis, styled</h3><div class="viz" id="explicit"></div></div>
+    <div><h3>Vertical LinePlot (discrete y axis)</h3><div class="viz" id="vertical"></div></div>
+    <div><h3>Zoomable linear x axis (scroll to zoom)</h3><div class="viz" id="zoom"></div></div>
+    <div><h3>Trend projection with forecast: false</h3><div class="viz" id="off"></div></div>
+    <div><h3>Spanish locale label</h3><div class="viz" id="locale"></div></div>
+    <div class="wide"><h3>Small multiples (facet by region)</h3><div class="viz" id="facet"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // Seeded noise so the page renders identically every load.
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647) - 0.5;
+
+  // Observed history, with each flow's prediction as its own "Predicted"
+  // series that starts at the last observed year.
+  const trade = [];
+  ["Imports", "Exports"].forEach((Flow, f) => {
+    let value = 360 + f * 20;
+    for (let Year = 2012; Year <= 2023; Year++) {
+      const observed = Year <= 2020;
+      if (observed) value += 8 + rand() * 30;
+      else value += -10 + f * 6;
+      const row = {Year, Flow, "Trade Value": Math.round(value) * 1e9};
+      if (observed) trade.push({...row, Type: "Observed"});
+      if (Year >= 2020) trade.push({...row, Type: "Predicted"});
+    }
+  });
+
+  new d3plus.LinePlot()
+    .select("#predicate")
+    .data(trade)
+    .groupBy(["Type", "Flow"])
+    .x("Year")
+    .y("Trade Value")
+    .forecast(d => d.Type === "Predicted")
+    .render();
+
+  const monthly = [];
+  for (let m = 0; m < 30; m++) {
+    const date = new Date(2023, m, 1);
+    monthly.push({id: "Sales", date, value: Math.round(120 + m * 4 + 12 * Math.sin(m / 2)), predicted: m >= 22});
+  }
+
+  new d3plus.LinePlot()
+    .select("#flagged")
+    .data(monthly)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .forecast(d => d.predicted)
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  const years = [];
+  ["Alpha", "Beta"].forEach((id, s) => {
+    for (let year = 2014; year <= 2024; year++)
+      years.push({id, year, value: 30 + 12 * s + (year - 2014) * (4 - s * 1.5) + rand() * 10});
+  });
+
+  new d3plus.LinePlot()
+    .select("#trend-line")
+    .data(years)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .trendLine(true)
+    .trendLineConfig({confidence: true, projection: 4})
+    .render();
+
+  new d3plus.BarChart()
+    .select("#trend-bar")
+    .data(years.filter(d => d.year >= 2018))
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .trendLine(true)
+    .trendLineConfig({projection: 3})
+    .render();
+
+  new d3plus.BarChart()
+    .select("#trend-hbar")
+    .data(years.filter(d => d.year >= 2018 && d.id === "Alpha"))
+    .groupBy("id")
+    .discrete("y")
+    .x("value")
+    .y("year")
+    .trendLine(true)
+    .trendLineConfig({projection: 3})
+    .legend(false)
+    .render();
+
+  new d3plus.BarChart()
+    .select("#bar-predicate")
+    .data(years.filter(d => d.id === "Alpha").map(d => ({...d, estimate: d.year >= 2023})))
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .forecast(d => d.estimate)
+    .legend(false)
+    .render();
+
+  // A band that is pinned to the line until 2021, then opens.
+  const banded = years.filter(d => d.id === "Alpha").map(d => {
+    const w = Math.max(d.year - 2021, 0) * 3;
+    return {...d, lci: d.value - w, hci: d.value + w};
+  });
+
+  new d3plus.LinePlot()
+    .select("#auto")
+    .data(banded)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .confidence(["lci", "hci"])
+    .forecast("auto")
+    .legend(false)
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#explicit")
+    .data(monthly)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .forecast("2024-11-01")
+    .forecastConfig({fill: "#c0392b", fillOpacity: 0.06, label: "Projection", stroke: "#c0392b", lineDasharray: "2 3"})
+    .color(() => "#c0392b")
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#vertical")
+    .data(trade.filter(d => d.Flow === "Imports"))
+    .groupBy("Type")
+    .discrete("y")
+    .y("Year")
+    .x("Trade Value")
+    .forecast(d => d.Type === "Predicted")
+    .render();
+
+  new d3plus.Plot()
+    .select("#zoom")
+    .data(monthly.map((d, k) => ({...d, week: k * 4})))
+    .groupBy("id")
+    .shape("Line")
+    .x("week")
+    .y("value")
+    .forecast(d => d.predicted)
+    .zoom(true)
+    .legend(false)
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#off")
+    .data(years)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .trendLine(true)
+    .trendLineConfig({projection: 4})
+    .forecast(false)
+    .render();
+
+  new d3plus.LinePlot()
+    .select("#locale")
+    .data(trade)
+    .groupBy(["Type", "Flow"])
+    .x("Year")
+    .y("Trade Value")
+    .forecast(d => d.Type === "Predicted")
+    .locale("es-ES")
+    .render();
+
+  const regions = ["North", "South", "East"];
+  const regional = regions.flatMap((region, r) =>
+    monthly.map(d => ({
+      ...d,
+      region,
+      id: region,
+      value: Math.round(d.value * (0.7 + r * 0.25)),
+      predicted: d.date >= new Date(2024, 8 + r * 3, 1),
+    })),
+  );
+
+  new d3plus.LinePlot()
+    .select("#facet")
+    .data(regional)
+    .groupBy("id")
+    .facet("region")
+    .x("date")
+    .time("date")
+    .y("value")
+    .forecast(d => d.predicted)
+    .legend(false)
+    .timeline(false)
+    .render();
+
+</script>
+
+</html>

@@ -25,6 +25,8 @@ const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
   {key: "baseline", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
+  {key: "forecast", coerce: "identity" as const},
+  {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},
@@ -64,6 +66,7 @@ import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import {resolveConfidence, validateConfidenceConfig} from "./confidenceConfig.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
+import {forecastDefaults} from "./forecast.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";

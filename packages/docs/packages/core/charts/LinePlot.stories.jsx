@@ -343,7 +343,7 @@ TrendLineProjection.args = {
     projection: {to: 2030}
   }
 };
-TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.projection` extends each trend line past the end of its data, widening the axis to fit. Give it `{to}` an end value (here the year 2030) or a number of steps. The projected stretch draws dotted, and a linear fit's confidence band opens into a wider prediction interval: the range a future value is likely to fall in, which grows the further out it reaches. Hover the plot over a projected year to compare every series' projected value and range."}}};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.projection` extends each trend line past the end of its data, widening the axis to fit. Give it `{to}` an end value (here the year 2030) or a number of steps. The projected stretch draws dotted, and a linear fit's confidence band opens into a wider prediction interval: the range a future value is likely to fall in, which grows the further out it reaches. Hover the plot over a projected year to compare every series' projected value and range. The projected stretch is marked as a forecast (a shaded backdrop, a rule, and a \"Forecast\" label); set `forecast: false` to leave it unmarked."}}};
 
 export const TrendLineProjectionSteps = Template.bind({});
 TrendLineProjectionSteps.args = {
@@ -605,20 +605,28 @@ DottedLinePredictions.args = {
       "Type": "Predicted"
     }
   ],
+  forecast: funcify(
+    d => d.Type === "Predicted",
+    `d => d.Type === "Predicted"`
+  ),
   groupBy: ["Type", "Flow"],
-  shapeConfig: {
-    Line: {
-      strokeDasharray: funcify(
-        d => d.Type === "Predicted" ? "10" : "0",
-        `d => d.Type === "Predicted" ? "10" : "0"`
-      )
-    }
-  },
   time: "Year",
   x: "Year",
   y: "Trade Value"
 };
-DottedLinePredictions.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Group by `[\"Type\", \"Flow\"]` and key `shapeConfig.Line.strokeDasharray` off `Type` so each flow's forecast continues as a dashed line while its observed history stays solid."}}};
+DottedLinePredictions.parameters = {controls: {include: ["forecast", "forecastConfig"]}, docs: {description: {story: "Give `forecast` a function that flags the predicted rows. Here each flow's prediction is its own series (grouped by `[\"Type\", \"Flow\"]`) that starts at the last observed year: its line is dashed, the observed history stays solid, and the forecast stretch gets a shaded backdrop, a rule at its start, and a translated \"Forecast\" label. Rows flagged within one series work too: the line dashes from its last unflagged point. Style or hide each piece with `forecastConfig`."}}};
+
+export const ForecastStart = Template.bind({});
+ForecastStart.args = {
+  data: DottedLinePredictions.args.data.filter(d => d.Type === "Observed"),
+  forecast: 2018,
+  forecastConfig: {label: "Projection", lineDasharray: "2 4"},
+  groupBy: "Flow",
+  time: "Year",
+  x: "Year",
+  y: "Trade Value"
+};
+ForecastStart.parameters = {controls: {include: ["forecast", "forecastConfig"]}, docs: {description: {story: "A discrete-axis value (a year, or a date on a time axis) starts the forecast at that point for every line. `forecastConfig` relabels the backdrop and sets the dash of each line's forecast stretch."}}};
 
 export const QuarterlyData = Template.bind({});
 QuarterlyData.args = {
