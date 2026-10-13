@@ -438,6 +438,14 @@ export interface VizInstance {
   _stackGroup?: (d: DataPoint, i: number) => string;
   /** Extra room (px) reserved above a Plot's chart area, inside its margins. */
   _plotInsetTop?: number;
+  /**
+      Room (px) a chart reserves at the bottom of a Plot's area, between the
+      value axis's range and the x axis, given the area's height. The plot
+      area (hover, zoom clip) takes it in.
+  */
+  _plotInsetBottom?: (plotHeight: number) => number;
+  /** The least room (px) a chart needs left of a Plot's area, for its own axis there. */
+  _plotMinLeft?: () => number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;

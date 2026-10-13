@@ -58,7 +58,7 @@ const helpers = () => {
   window.__candles = viz => {
     const out = [];
     const walk = n => {
-      if (n.shapeType === "Candlestick" && !`${n.key}`.endsWith("::hit")) out.push(n);
+      if (n.shapeType === "Candlestick" && !`${n.key}`.endsWith("::hit") && !`${n.key}`.includes("_volume")) out.push(n);
       (n.children || []).forEach(walk);
     };
     (viz._chartScene || []).forEach(walk);

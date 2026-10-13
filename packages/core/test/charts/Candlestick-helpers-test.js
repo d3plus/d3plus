@@ -24,8 +24,19 @@ import {
   minValue,
   ohlcAccessors,
   rememberKey,
+  sumValue,
   syncDefaultAggs,
 } from "../../es/src/charts/Candlestick/aggregate.js";
+import {
+  emitVolume,
+  stripSize,
+  VOLUME_DEFAULTS,
+  volumeAccessor,
+  volumeConfig,
+  volumeEnabled,
+  volumeScale,
+  volumeStripRect,
+} from "../../es/src/charts/Candlestick/volume.js";
 import {
   candlestickBuffer,
   padPeriods,
@@ -178,10 +189,12 @@ it("Candlestick firstValue/lastValue/maxValue/minValue read finite values in row
   assert.strictEqual(lastValue(rows, value), 1, "skips trailing non-numbers");
   assert.strictEqual(maxValue(rows, value), 7);
   assert.strictEqual(minValue(rows, value), 1);
-  for (const agg of [firstValue, lastValue, maxValue, minValue]) {
+  for (const agg of [firstValue, lastValue, maxValue, minValue, sumValue]) {
     assert.strictEqual(agg([{v: null}, {}], value), undefined, "no finite value: undefined");
   }
-  assert.deepStrictEqual(DEFAULT_AGGS, {open: firstValue, high: maxValue, low: minValue, close: lastValue});
+  assert.strictEqual(sumValue(rows, value), 11);
+  assert.strictEqual(sumValue([{}], value), undefined);
+  assert.deepStrictEqual(DEFAULT_AGGS, {open: firstValue, high: maxValue, low: minValue, close: lastValue, volume: sumValue});
   assert.ok(isDefaultAgg(firstValue) && !isDefaultAgg(() => 0));
 });
 
@@ -234,6 +247,45 @@ it("Candlestick aggregateFunctionFields aggregates function accessors, by field-
     undefined,
     "no function accessor: nothing to aggregate",
   );
+});
+
+it("Candlestick volumeAccessor turns the strip off for empty values and keys strings", () => {
+  for (const off of [undefined, null, false]) assert.strictEqual(volumeAccessor(off), undefined);
+  const fn = volumeAccessor("vol");
+  assert.strictEqual(fn({vol: 3}), 3);
+  assert.strictEqual(accessorKey(fn), "vol", "a key carries its aggs entry");
+  const custom = d => d.v;
+  assert.strictEqual(volumeAccessor(custom), custom);
+  assert.ok(volumeEnabled({schema: {volume: custom}}));
+  assert.ok(!volumeEnabled({schema: {volume: undefined}}));
+});
+
+it("Candlestick volumeConfig layers the chart's config over the defaults", () => {
+  assert.deepStrictEqual(volumeConfig({schema: {}}), VOLUME_DEFAULTS);
+  const config = volumeConfig({schema: {volumeConfig: {height: 0.3}}});
+  assert.strictEqual(config.height, 0.3);
+  assert.strictEqual(config.gap, VOLUME_DEFAULTS.gap);
+});
+
+it("Candlestick stripSize reads a share or pixels, capped at half the plot", () => {
+  assert.deepStrictEqual(stripSize({height: 0.2, gap: 16}, 400), {height: 80, gap: 16});
+  assert.deepStrictEqual(stripSize({height: 60, gap: 4}, 400), {height: 60, gap: 4}, "above 1 is pixels");
+  assert.deepStrictEqual(stripSize({height: 0.9, gap: 16}, 400), {height: 200, gap: 16}, "at most half");
+  assert.deepStrictEqual(stripSize({height: -1, gap: -5}, 400), {height: 80, gap: 0}, "bad values fall back");
+  assert.deepStrictEqual(stripSize({}, 0), {height: 0, gap: 0}, "no room, no strip");
+});
+
+it("Candlestick volumeScale spans zero to a nice top", () => {
+  assert.deepStrictEqual(volumeScale(3.4e6), {domain: [0, 4e6], ticks: [0, 2e6, 4e6]});
+  assert.deepStrictEqual(volumeScale(0).domain, [0, 1], "no volume: a unit domain");
+});
+
+it("Candlestick volumeStripRect sits under the price range, and emitVolume draws nothing without it", () => {
+  const viz = fakeViz({schema: {volume: key("volume"), volumeConfig: {gap: 10}}});
+  const ctx = {viz, xRange: [40, 400], yRange: [0, 200], insetBottom: 60, x2Height: 0, events: []};
+  assert.deepStrictEqual(volumeStripRect(ctx), {top: 210, bottom: 260, left: 40, right: 400});
+  assert.strictEqual(volumeStripRect({...ctx, insetBottom: 0}), undefined);
+  assert.deepStrictEqual(emitVolume({...ctx, insetBottom: 0}, new Map([[{}, {cx: 0, width: 1, interactionPoints: []}]]), {}, "Candlestick", t => t), []);
 });
 
 it("Candlestick widenDomain reaches the extent plus a pixel buffer", () => {

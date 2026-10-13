@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Candlestick</title>
-  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a dark background, and texture plus backgroundImage on filled candles (hollow candles stay hollow).">
+  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a volume strip (with OHLC bars, calendar gaps, canvas, and facets), a dark background, and texture plus backgroundImage on filled candles (hollow candles stay hollow).">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -27,6 +27,12 @@
     <div><h3>variant: "ohlc"</h3><div class="viz" id="ohlc"></div></div>
     <div><h3>skipGaps: false (weekend gaps), hollow: false, custom colors</h3><div class="viz" id="gaps"></div></div>
     <div><h3>Hourly rows rolled up to daily candles (first open, highest high, lowest low, last close)</h3><div class="viz" id="intraday"></div></div>
+    <div><h3>volume: a volume strip under the candles</h3><div class="viz" id="volume"></div></div>
+    <div><h3>volume with variant: "ohlc", skipGaps: false, and a taller strip</h3><div class="viz" id="volumeOhlc"></div></div>
+    <div class="dark"><h3>volume on a dark background</h3><div class="viz" id="volumeDark"></div></div>
+    <div><h3>volume with texture + backgroundImage on filled marks</h3><div class="viz" id="volumeTextured"></div></div>
+    <div class="wide"><h3>volume on canvas, 500 trading days</h3><div class="viz" id="volumeDense"></div></div>
+    <div class="wide"><h3>volume per ticker panel (facet, independent scales)</h3><div class="tall" id="volumeFacet"></div></div>
     <div class="dark"><h3>Dark background</h3><div class="viz" id="dark"></div></div>
     <div><h3>shapeConfig texture + backgroundImage (hollow candles stay hollow)</h3><div class="viz" id="textured"></div></div>
     <div><h3>shapeConfig texture + backgroundImage, hollow: false</h3><div class="viz" id="texturedFilled"></div></div>
@@ -59,6 +65,8 @@
           high: round(high),
           low: round(low),
           close: round(close),
+          // Busier on big moves; no extra random draws, so the prices stay put.
+          volume: Math.round(1e6 * (1 + (rows.length * 7919 % 13) / 13 + Math.abs(close - open) / open * 60)),
         });
       }
       day.setUTCDate(day.getUTCDate() + 1);
@@ -91,6 +99,7 @@
             high: round(Math.max(open, price) * (1 + random() * 0.004)),
             low: round(Math.min(open, price) * (1 - random() * 0.004)),
             close: round(price),
+            volume: Math.round(2e5 * (1 + (rows.length * 7919 % 11) / 11)),
           });
         }
         n++;
@@ -128,6 +137,61 @@
     .data(intraday("ACME", 30, 120, 7))
     .groupBy("symbol")
     .x("day")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volume")
+    .data(acme)
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeOhlc")
+    .data(acme.slice(0, 30))
+    .groupBy("symbol")
+    .variant("ohlc")
+    .skipGaps(false)
+    .volume(d => d.volume)
+    .volumeConfig({height: 0.3})
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeDark")
+    .data(acme)
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeTextured")
+    .data(acme.slice(0, 20))
+    .groupBy("symbol")
+    .hollow(false)
+    .volume("volume")
+    .shapeConfig({texture: "lines", backgroundImage: "./Landscape.svg"})
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeDense")
+    .renderer("canvas")
+    .data(prices("ACME", 500, 80, 29))
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeFacet")
+    .data([
+      ...prices("ACME", 90, 120, 11),
+      ...prices("BOLT", 90, 42, 23),
+      ...prices("CORE", 90, 310, 37),
+      ...prices("DYNO", 90, 8, 53),
+    ])
+    .groupBy("symbol")
+    .facet("symbol")
+    .facetConfig({scales: "independent"})
+    .volume("volume")
     .render();
 
   new d3plus.Candlestick()

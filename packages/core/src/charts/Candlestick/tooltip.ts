@@ -1,6 +1,6 @@
 /**
     Candlestick's tooltip rows and aria label: each period's date, open,
-    high, low, close, and change.
+    high, low, close, and change, and its volume when the chart has one.
 
     @module
 */
@@ -13,6 +13,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {ohlcAccessors} from "./aggregate.js";
 import {candleChange, readOhlc} from "./ohlc.js";
 import {formatPeriod, periodDate} from "./periods.js";
+import {formatVolume, readVolume} from "./volume.js";
 
 type Locale = Parameters<typeof formatAbbreviate>[1];
 
@@ -60,8 +61,8 @@ function periodText(viz: VizInstance, d: DataPoint, i: number): string {
 
 /**
     The tooltip rows for one period: its date, then Open, High, Low, Close,
-    and Change (open to close, as a percentage). Empty when the row has no
-    close.
+    Change (open to close, as a percentage), and, with `volume` set, Volume
+    (abbreviated, e.g. "1.2M"). Empty when the row has no close.
     @param viz The chart.
     @param d The data row.
     @param i The row's index.
@@ -80,6 +81,8 @@ export function candleTooltipRows(viz: VizInstance, d: DataPoint, i: number): st
   ];
   const change = candleChange(v.open, v.close);
   if (change !== undefined) rows.push([t("Change"), formatChange(change, viz.schema.locale)]);
+  const volume = readVolume(viz, d, i);
+  if (volume !== undefined) rows.push([t("Volume"), formatVolume(viz, volume)]);
   return rows;
 }
 

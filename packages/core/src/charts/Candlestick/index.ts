@@ -27,6 +27,7 @@ import {candlestickBuffer} from "./buffer.js";
 import {CANDLESTICK_SHAPE, emitCandlesticks} from "./emit.js";
 import {bandAxisDefaults, periodDate} from "./periods.js";
 import {candleTooltipRows} from "./tooltip.js";
+import {installVolumeStrip, noteVolumeTop, VOLUME_DEFAULTS, volumeAccessor} from "./volume.js";
 
 
 /** Per-instance state kept on `viz.ctx.candlestick`. */
@@ -107,6 +108,7 @@ export const candlestickDef: ChartDefinition = {
     viz._xKey = "date";
     interceptAccessors(viz);
     installAggregation(viz);
+    installVolumeStrip(viz);
     viz._buffer = {...viz._buffer, [CANDLESTICK_SHAPE]: candlestickBuffer};
     viz._plotShapeEmitters = {[CANDLESTICK_SHAPE]: emitCandlesticks};
     // The tooltip's own rows list the period and its values.
@@ -123,6 +125,8 @@ export const candlestickDef: ChartDefinition = {
     const draw = viz._draw.bind(viz);
     viz._draw = (callback?: () => void) => {
       viz._plotAxisDefaults = viz.schema.skipGaps ? {x: bandAxisDefaults(viz)} : undefined;
+      // Facet panels sharing scales share the volume strip's, from every panel's rows.
+      if (viz._facetStep === "chrome") noteVolumeTop(viz);
       return draw(callback);
     };
   },
@@ -158,6 +162,28 @@ export const candlestickDef: ChartDefinition = {
         the last row's close; `aggs` overrides it as it does for `open`.
     */
     {key: "close", coerce: keyedAccessor, default: "close"},
+    /**
+        Accessor (or data key) for each period's traded volume. Off by
+        default; when set, a strip under the candles draws one bar per
+        candle, as tall as its volume on the strip's own axis (ticks
+        abbreviated, e.g. "1.2M"), in its candle's up or down color, and the
+        tooltip adds a Volume row. Bars are always filled, hollow candles
+        included, and take `shapeConfig.texture` and
+        `shapeConfig.backgroundImage` like filled candles; they hover with
+        their candle. The price axis shrinks to make room, and the x axis
+        sits under the strip. Merged rows add their volumes; an `aggs` entry
+        overrides it as it does for `open`. Set `false` to turn it off.
+    */
+    {key: "volume", coerce: volumeAccessor},
+    /**
+        The volume strip's layout and styling: `height`, its height as a
+        share of the plot's (default `0.2`; pixels when above 1; at most
+        half the plot); `gap`, the pixels between the candles and the strip
+        (default `16`); `axisConfig`, Axis config for the strip's value axis;
+        and `shapeConfig`, Path config for the bars (default
+        `{fillOpacity: 0.5}`).
+    */
+    {key: "volumeConfig", merge: true, default: VOLUME_DEFAULTS},
     /**
         How each period draws: `"candlestick"` (default), a wick from the high
         to the low around a body from the open to the close; or `"ohlc"`, a

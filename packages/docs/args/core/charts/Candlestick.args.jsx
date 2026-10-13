@@ -43,7 +43,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it.",
+      description: "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it. Merged rows take the last row's close; `aggs` overrides it as it does for `open`.",
       table: {
         defaultValue: {
           summary: "\"close\""
@@ -74,7 +74,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor (or data key) for each period's highest value. Defaults to `\"high\"`; the high always reaches the open and close.",
+      description: "Accessor (or data key) for each period's highest value. Defaults to `\"high\"`; the high always reaches the open and close. Merged rows take the highest high; `aggs` overrides it as it does for `open`.",
       table: {
         defaultValue: {
           summary: "\"high\""
@@ -112,7 +112,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor (or data key) for each period's lowest value. Defaults to `\"low\"`; the low always reaches the open and close.",
+      description: "Accessor (or data key) for each period's lowest value. Defaults to `\"low\"`; the low always reaches the open and close. Merged rows take the lowest low; `aggs` overrides it as it does for `open`.",
       table: {
         defaultValue: {
           summary: "\"low\""
@@ -127,7 +127,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Accessor (or data key) for each period's opening value. Defaults to `\"open\"`; a row without one opens at its close.",
+      description: "Accessor (or data key) for each period's opening value. Defaults to `\"open\"`; a row without one opens at its close. Rows that share a series and a period merge into one candle, taking the first row's open (in data order, so sort rows oldest first). Override with an `aggs` entry on the data key, or, for a function accessor, on `\"open\"`.",
       table: {
         defaultValue: {
           summary: "\"open\""
@@ -203,6 +203,34 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "\"candlestick\" | \"ohlc\""
+      }
+    },
+    volume: {
+      control: {},
+      description: "Accessor (or data key) for each period's traded volume. Off by default; when set, a strip under the candles draws one bar per candle, as tall as its volume on the strip's own axis (ticks abbreviated, e.g. \"1.2M\"), in its candle's up or down color, and the tooltip adds a Volume row. Bars are always filled, hollow candles included, and take `shapeConfig.texture` and `shapeConfig.backgroundImage` like filled candles; they hover with their candle. The price axis shrinks to make room, and the x axis sits under the strip. Merged rows add their volumes; an `aggs` entry overrides it as it does for `open`. Set `false` to turn it off.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "unknown"
+      }
+    },
+    volumeConfig: {
+      control: {
+        type: "object"
+      },
+      description: "The volume strip's layout and styling: `height`, its height as a share of the plot's (default `0.2`; pixels when above 1; at most half the plot); `gap`, the pixels between the candles and the strip (default `16`); `axisConfig`, Axis config for the strip's value axis; and `shapeConfig`, Path config for the bars (default `{fillOpacity: 0.5}`).",
+      table: {
+        defaultValue: {
+          summary: "{height: 0.2, gap: 16, axisConfig: {}, shapeConfig: {fillOpacity: 0.5}}"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     }
   }

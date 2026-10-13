@@ -217,6 +217,8 @@ export interface PlotMeasureResult {
   labelPositions: Record<string, number>;
   /** The x axis's positioned end labels (see `axisEndLabels.ts`); empty unless its ends are labeled. */
   xEndLabels?: EndLabelBox[];
+  /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
+  insetBottom?: number;
 }
 
 /**
@@ -477,6 +479,8 @@ function emitShapeLoop(
     width,
     values: [],
     valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
+    insetBottom: mCtx.insetBottom ?? 0,
+    x2Height: pCtx.x2Height,
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
@@ -673,11 +677,13 @@ export function plotPaintMeasured(
   };
   // `xRange` is measured from the chart area's left edge, which is where
   // `_chartTransform` puts content space's origin.
+  // The plot area takes in any room reserved under the value axis, which
+  // charts draw into (Candlestick's volume strip).
   viz._plotArea = {
     x: xRange[0],
     y: 0,
     width: xRange[1] - xRange[0],
-    height: yRange[1] - yRange[0],
+    height: yRange[1] - yRange[0] + (layout.insetBottom ?? 0),
   };
   return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

@@ -33,6 +33,7 @@ import {
   type Ohlc,
 } from "./ohlc.js";
 import {candleAriaLabel} from "./tooltip.js";
+import {emitVolume, volumeEnabled, volumeStripRect} from "./volume.js";
 
 /** The shape key candles are drawn under. */
 export const CANDLESTICK_SHAPE = "Candlestick";
@@ -193,13 +194,50 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
     .data(Array.from(layouts.keys()));
   viz._wirePlotShapeEvents!(path, CANDLESTICK_SHAPE, ctx.events);
 
-  return collectComputed(path).map(node => {
+  const snapPoints = (d: PlotDatum, l: CandleLayout) =>
+    [{x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d.i}];
+  const candles = collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
     const l = d && layouts.get(d);
     // Only the candle itself snaps; its backgroundImage group shares the datum.
-    const point = l && node.type === "path"
-      ? {interactionPoints: [{x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d!.i}]}
-      : {};
+    const point = l && node.type === "path" ? {interactionPoints: snapPoints(d!, l)} : {};
     return {...node, shapeType: CANDLESTICK_SHAPE, ...point} as SceneNode;
   });
+  if (!volumeEnabled(viz) || !volumeStripRect(ctx)) return candles;
+
+  const bars = new Map<PlotDatum, {cx: number; width: number; interactionPoints: unknown[]}>();
+  layouts.forEach((l, d) => bars.set(d, {cx: l.cx, width: l.width, interactionPoints: snapPoints(d, l)}));
+  const volume = emitVolume(ctx, bars, volumeStyle(viz, layoutOf), CANDLESTICK_SHAPE, candleTexture);
+  // Candles stay in the price area when a zoom rescales it, clear of the strip.
+  const top = ctx.yRange[0] - (ctx.x2Height ?? 0);
+  const clipped: SceneNode = {
+    type: "group",
+    key: "candlestick-price",
+    clip: {
+      type: "rect",
+      x: xRange[0],
+      y: top,
+      width: xRange[xRange.length - 1] - xRange[0],
+      height: ctx.yRange[1] - ctx.yRange[0],
+    },
+    children: candles,
+  } as SceneNode;
+  return [clipped, ...volume];
 };
+
+/**
+    The volume bars' styling beneath `volumeConfig.shapeConfig`: filled in
+    their candle's up or down color, hollow candles included, so short bars
+    stay easy to read.
+*/
+function volumeStyle(viz: VizInstance, layoutOf: (d: PlotDatum) => CandleLayout): Record<string, unknown> {
+  return {
+    fill: (d: PlotDatum) =>
+      resolveColor(
+        (layoutOf(d).direction === "up" ? viz.schema.upColor : viz.schema.downColor) as ColorSetting,
+        d,
+      ),
+    stroke: "none",
+    strokeWidth: 0,
+  };
+}

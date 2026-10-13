@@ -90,9 +90,20 @@ export {
   maxValue,
   minValue,
   ohlcAccessors,
+  sumValue,
   syncDefaultAggs,
 } from "./src/charts/Candlestick/aggregate.js";
 export type {Aggregator} from "./src/charts/Candlestick/aggregate.js";
+export {
+  emitVolume,
+  installVolumeStrip,
+  stripSize,
+  VOLUME_DEFAULTS,
+  volumeAccessor,
+  volumeScale,
+  volumeStripRect,
+} from "./src/charts/Candlestick/volume.js";
+export type {VolumeConfig, VolumeStrip} from "./src/charts/Candlestick/volume.js";
 export {candlestickBuffer, widenDomain} from "./src/charts/Candlestick/buffer.js";
 export {CANDLESTICK_SHAPE, candleTexture, emitCandlesticks, layoutCandles} from "./src/charts/Candlestick/emit.js";
 export type {CandleLayout} from "./src/charts/Candlestick/emit.js";

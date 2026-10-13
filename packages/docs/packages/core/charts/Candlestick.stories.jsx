@@ -93,6 +93,14 @@ CustomAccessors.args = {
 };
 CustomAccessors.parameters = {controls: {include: ["x", "open", "high", "low", "close", "hollow", "upColor", "downColor"]}, docs: {description: {story: "Point `x`, `open`, `high`, `low`, and `close` at your own keys (or accessor functions). `hollow: false` fills every candle, and `upColor`/`downColor` swap the palette, here for a blue/orange pair that stays distinct for red-green color blindness. A `yConfig.tickFormat` formats the prices in the tooltip as well as on the axis."}}};
 
+export const WithVolume = Template.bind({});
+WithVolume.args = {
+  data: datafy(`${acme.__source}.map((d, i) => ({...d, volume: Math.round(1e6 * (1 + (i * 7919 % 13) / 13 + Math.abs(d.close - d.open) / d.open * 60))}))`),
+  groupBy: "symbol",
+  volume: "volume",
+};
+WithVolume.parameters = {controls: {include: ["volume", "volumeConfig", "variant", "hollow"]}, docs: {description: {story: "`volume` draws a strip of volume bars under the candles, one per candle in its up or down color, on its own small axis with abbreviated ticks (e.g. 1.2M). The price axis shrinks to make room, the x axis sits under the strip, and the tooltip adds a Volume row. Bars stay filled when candles are hollow, so short bars remain easy to read. `volumeConfig` sets the strip's `height` (a share of the plot, default `0.2`), the `gap` above it, and `axisConfig`/`shapeConfig` for its axis and bars. When rows merge, volumes add up; `aggs` overrides it."}}};
+
 export const IntradayRollup = Template.bind({});
 IntradayRollup.args = {
   data: datafy(`(() => {

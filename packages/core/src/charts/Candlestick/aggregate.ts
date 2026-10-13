@@ -1,7 +1,8 @@
 /**
     How Candlestick merges rows that share a series and a period: the open is
     the first row's open, the high the highest high, the low the lowest low,
-    and the close the last row's close, taking rows in data order.
+    and the close the last row's close, taking rows in data order; volumes
+    add up.
 
     A field read from a data key merges through an `aggs` entry on that key,
     so the merged row itself holds the period's values and a user's own
@@ -28,10 +29,10 @@ export type RowAccessor = (d: DataPoint, i: number) => unknown;
 export type Aggregator = (rows: DataPoint[], value: (d: DataPoint) => unknown) => unknown;
 
 /** The value fields Candlestick aggregates when rows merge. */
-export const OHLC_FIELDS = ["open", "high", "low", "close"] as const;
+export const VALUE_FIELDS = ["open", "high", "low", "close", "volume"] as const;
 
 /** One of the aggregated value fields. */
-export type ValueField = (typeof OHLC_FIELDS)[number];
+export type ValueField = (typeof VALUE_FIELDS)[number];
 
 /** The data keys accessors were created from. */
 const accessorKeys = new WeakMap<RowAccessor, string>();
@@ -86,12 +87,19 @@ export const minValue: Aggregator = (rows, value) => {
   return values.length ? Math.min(...values) : undefined;
 };
 
+/** The sum of the finite values; undefined when there is none. */
+export const sumValue: Aggregator = (rows, value) => {
+  const values = finiteValues(rows, value);
+  return values.length ? values.reduce((a, b) => a + b, 0) : undefined;
+};
+
 /** Each field's default aggregation. */
 export const DEFAULT_AGGS: Record<ValueField, Aggregator> = {
   open: firstValue,
   high: maxValue,
   low: minValue,
   close: lastValue,
+  volume: sumValue,
 };
 
 const defaults = new Set<unknown>(Object.values(DEFAULT_AGGS));
@@ -111,7 +119,7 @@ export function syncDefaultAggs(
   accessors: Partial<Record<ValueField, unknown>>,
 ): void {
   const wanted = new Map<string, Aggregator>();
-  for (const field of Object.keys(DEFAULT_AGGS) as ValueField[]) {
+  for (const field of VALUE_FIELDS) {
     const key = accessorKey(accessors[field]);
     if (key !== undefined) wanted.set(key, DEFAULT_AGGS[field]);
   }
@@ -137,7 +145,7 @@ export function aggregateFunctionFields(
   aggs: Record<string, unknown>,
 ): Partial<Record<ValueField, unknown>> | undefined {
   let out: Partial<Record<ValueField, unknown>> | undefined;
-  for (const field of Object.keys(DEFAULT_AGGS) as ValueField[]) {
+  for (const field of VALUE_FIELDS) {
     const fn = accessors[field];
     if (typeof fn !== "function" || accessorKey(fn) !== undefined) continue;
     const own = aggs[field];
@@ -149,7 +157,7 @@ export function aggregateFunctionFields(
 
 /** The value fields' accessors, as stored on the chart. */
 const fieldAccessors = (viz: VizInstance): Partial<Record<ValueField, unknown>> =>
-  Object.fromEntries((Object.keys(DEFAULT_AGGS) as ValueField[]).map(f => [f, viz.schema[f]]));
+  Object.fromEntries(VALUE_FIELDS.map(f => [f, viz.schema[f]]));
 
 /** The function-read fields' values kept beside each merged row. */
 const mergedValues = new WeakMap<VizInstance, WeakMap<DataPoint, Partial<Record<ValueField, unknown>>>>();
