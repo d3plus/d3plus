@@ -568,7 +568,14 @@ export interface D3plusConfig {
       with `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and
       `fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each
       line's forecast stretch (default `"6 4"`; `false` keeps lines solid).
-      Colors default to the chart's text color for its background.
+      Colors default to the chart's text color for its background. The
+      backdrop is chart chrome with no data row, so `shapeConfig.texture`
+      and `shapeConfig.backgroundImage` leave it plain; give it its own
+      `texture` (a textures.js name or config, drawn in the backdrop's color
+      over its shade at `textureOpacity`, default `0.3`, with
+      `textureDefault`) or `backgroundImage` (a URL,
+      fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
+      by default.
   */
   forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
