@@ -462,6 +462,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 };
 
 /**
+    A copy of a user `<axis>Domain`. On a time axis its set ends are parsed
+    into Dates the way the axis's data is (Dates, timestamps, years or date
+    strings), so they compare with the data; an undefined end stays undefined
+    for `computePlotScales` to fill from the data.
+*/
+function userDomain(domain: DomainValue[], time: boolean | undefined): DomainValue[] {
+  return time
+    ? domain.map(d => (d === undefined ? d : date(d as string | number) as Date))
+    : domain.slice();
+}
+
+/**
     Settles the opposite (value) axes' domains: an axis `domain` from
     `xConfig`/`yConfig` wins outright; otherwise the domain stretches to reach
     the `baseline`, unless a user domain deliberately stops short of it on a
@@ -525,10 +537,10 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
         ? "Point"
         : "Linear";
     const domain = viz.schema[`${axis}Domain`]
-        ? viz.schema[`${axis}Domain`].slice()
+        ? userDomain(viz.schema[`${axis}Domain`], viz[`_${axis}Time`])
         : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
-        ? viz.schema[`${axis}2Domain`].slice()
+        ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
     if (scale !== "Point") {
       if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
