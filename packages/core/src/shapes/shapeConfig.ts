@@ -34,6 +34,13 @@ import type {AccessorFn} from "../utils/index.js";
 */
 export type ConstOrAccessor<T = unknown> = T | AccessorFn;
 
+/**
+    A CSS color string, like `"#4d79a7"`, `"rgb(77, 121, 167)"`, or
+    `"transparent"`. Any string is accepted; the intersection only keeps the
+    name, so docs and editors show the setting takes a color.
+*/
+export type CssColor = string & Record<never, never>;
+
 /** Layout direction of a chart or Box shape. */
 export type Orient = "horizontal" | "vertical";
 
@@ -88,7 +95,7 @@ export interface BaseShapeConfig {
   duration?: number;
 
   /** Fill color or accessor returning one. */
-  fill?: ConstOrAccessor<string>;
+  fill?: ConstOrAccessor<CssColor>;
   /** Fill opacity (0..1). */
   fillOpacity?: ConstOrAccessor<number>;
 
@@ -143,7 +150,7 @@ export interface BaseShapeConfig {
   sort?: ((a: DataPoint, b: DataPoint) => number) | null;
 
   /** Stroke color. */
-  stroke?: ConstOrAccessor<string>;
+  stroke?: ConstOrAccessor<CssColor>;
   /** SVG `stroke-dasharray`. */
   strokeDasharray?: ConstOrAccessor<string>;
   /** SVG `stroke-linecap`. */

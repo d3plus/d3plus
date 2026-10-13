@@ -18,6 +18,7 @@ import {
 } from "../../components/index.js";
 import {accessor, constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
+import {fillBetweenDefaults} from "./fillBetween.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
@@ -25,6 +26,8 @@ const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
   {key: "baseline", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
+  {key: "fillBetween", coerce: "identity" as const, default: false},
+  {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},

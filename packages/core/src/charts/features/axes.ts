@@ -474,6 +474,8 @@ function renderXAxes(
     .range(xRange)
     .ticks(xTicks)
     .width(width)
+    // Rotate the labels as the test axis did when it claimed their height.
+    .labelRotation(pCtx.xTest._labelRotation)
     .config({...UNZOOMED_AXIS, ...xC})
     .config(plotAxisConfig(viz, "x"))
     .config(pCtx.zoomAxes?.x ?? {})
@@ -500,6 +502,7 @@ function renderXAxes(
       .range(xRange)
       .ticks(x2Ticks)
       .width(width)
+      .labelRotation(pCtx.x2Test._labelRotation)
       .config({...UNZOOMED_AXIS, ...xC})
       .config(defaultX2Config)
       .config(viz._x2Config)
