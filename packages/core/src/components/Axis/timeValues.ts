@@ -26,13 +26,16 @@ export function parseTimeValues(values: readonly unknown[]): Date[] {
 }
 
 /**
-    The `data` values an Axis scale reads: valid Dates on a time scale (unparseable values dropped), otherwise `data` as given.
+    The `data` values an Axis scale reads: on a time scale, the valid Dates (unparseable values dropped) that fall within its domain, otherwise `data` as given.
     @private
 */
 export function axisScaleData(axis: Axis): unknown[] {
-  return axis.schema.scale === "time"
-    ? parseTimeValues(axis._data ?? [])
-    : (axis._data ?? []);
+  if (axis.schema.scale !== "time") return axis._data ?? [];
+  const data = parseTimeValues(axis._data ?? []);
+  const domain = ((axis.schema.domain ?? []) as unknown[]).map(parseTime);
+  if (domain.length < 2 || domain.some(d => d === undefined)) return data;
+  const [lo, hi] = extent(domain as Date[]) as [Date, Date];
+  return data.filter(d => d >= lo && d <= hi);
 }
 
 /**

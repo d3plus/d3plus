@@ -6,7 +6,7 @@
 */
 import {max, min} from "d3-array";
 
-import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
+import {fontFamily as d3plusFontFamily, textSplit, textWrap} from "@d3plus/text";
 
 import type Axis from "./Axis.js";
 
@@ -32,6 +32,12 @@ export interface AxisTextDatum {
   widths: number[];
   width: number;
   height: number;
+  /**
+      Whether the whole label fits its share of the axis: no word dropped or
+      cut off, and none broken across lines with a hyphen.
+  */
+  fits: boolean;
+  /** Whether the overlap pass hides the label to make room for its neighbors. */
   truncated?: boolean;
   offset?: number;
 }
@@ -88,12 +94,27 @@ export function computeBuffers(
   return {hBuff, wBuff};
 }
 
+const softHyphen = "\u00AD";
+
+/**
+    Splits a label into words as TextBox does, but keeps each word whole
+    instead of breaking it into hyphenated syllables.
+*/
+export function wholeWordSplit(sentence: string): string[] {
+  return textSplit(sentence).reduce((words: string[], piece: string) => {
+    const last = words.length - 1;
+    if (last >= 0 && words[last].endsWith(softHyphen)) words[last] = words[last].slice(0, -1) + piece;
+    else words.push(piece);
+    return words;
+  }, []);
+}
+
 /** Wraps + measures a single label, returning its sized text result. */
 function calculateLabelSize(
   axis: Axis,
   datum: AxisTextDatum,
   ctx: LabelLayoutCtx,
-): {lines: string[]; widths: number[]; width: number; height: number} {
+): {lines: string[]; widths: number[]; width: number; height: number; fits: boolean} {
   const {horizontal, hBuff, p, tickFormat} = ctx;
   const {d, i, fF, fP, fS, rotate, space} = datum;
   const h = rotate ? "width" : "height",
@@ -126,13 +147,19 @@ function calculateLabelSize(
   let res = wrap(text) as ReturnType<typeof wrap> & {
     width: number;
     height: number;
+    fits: boolean;
   };
+  // TextBox breaks a word too wide for its line into hyphenated syllables;
+  // wrapping whole words instead tells whether every word fits on its own.
+  const hyphenated = res.lines.slice(0, -1).some((l: string) => l.endsWith("-"));
+  const fits = !res.truncated && !(hyphenated && wrap.split(wholeWordSplit)(text).truncated);
   // A label wider than its share of the axis wraps to nothing; measure it
   // across the whole axis instead, so the overlap pass thins the labels out.
   if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
     wrap.width(wSize! - p * 2);
     res = wrap(text) as typeof res;
   }
+  res.fits = fits;
   res.lines = res.lines.filter((d: string) => d !== "");
   res.width = res.lines.length ? Math.ceil(max(res.widths)!) : 0;
   res.height = res.lines.length
@@ -263,6 +290,47 @@ export function createTextData(
     return Object.assign(res, datum);
   });
 
+  if (isDiscreteScale(axis.schema.scale)) thinEvenly(textData, horizontal);
+  else thinGreedily(textData, horizontal);
+
+  if (offset > 1) calculateOffset(textData, horizontal);
+  return textData;
+}
+
+/** Whether a scale places one tick per category (every value labeled in turn). */
+export function isDiscreteScale(scale: string): boolean {
+  return ["band", "ordinal", "point"].includes(scale);
+}
+
+/**
+    Whether label `b` sits too close to label `a` before it, leaving less
+    than `b`'s padding between their text.
+*/
+function crowds(a: AxisTextDatum, b: AxisTextDatum, horizontal: boolean): boolean {
+  const gap = Math.abs(b.position - a.position) -
+    (labelExtent(a, horizontal) + labelExtent(b, horizontal)) / 2;
+  return gap < b.fP;
+}
+
+/**
+    Hides labels on a discrete axis at a regular interval: every label when
+    they all fit side by side, otherwise every second label, or third, and so
+    on, using the shortest interval at which no two shown labels crowd.
+*/
+export function thinEvenly(textData: AxisTextDatum[], horizontal: boolean): void {
+  let step = 1;
+  const crowded = (n: number) => textData.some((datum: AxisTextDatum, i: number) =>
+    i >= n && i % n === 0 && crowds(textData[i - n], datum, horizontal));
+  while (step < textData.length && crowded(step)) step++;
+  textData.forEach((datum: AxisTextDatum, i: number) => (datum.truncated = i % step !== 0));
+}
+
+/**
+    Hides each continuous-axis label that would crowd the last one shown
+    before it, keeping the final label and hiding the ones before it that
+    crowd it instead.
+*/
+function thinGreedily(textData: AxisTextDatum[], horizontal: boolean): void {
   const reverseTextData = textData.slice().reverse();
   textData.forEach((datum: AxisTextDatum) => {
     const {fP, i, position} = datum;
@@ -285,9 +353,6 @@ export function createTextData(
         prev.position + extent(prev) / 2
       : false;
   });
-
-  if (offset > 1) calculateOffset(textData, horizontal);
-  return textData;
 }
 
 /** Derives `_outerBounds` + axis margins from the measured text data. */

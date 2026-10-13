@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>TimeDomain · Plot</title>
+  <meta name="description" content="xDomain and yDomain on time axes, as Dates, years or date strings, with both or one end set, on LinePlots and BarCharts.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+    body {
+      margin: 0;
+    }
+    .chart {
+      display: inline-block;
+      height: 300px;
+      width: 500px;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div class="chart" id="dates"></div>
+  <div class="chart" id="start"></div>
+  <div class="chart" id="bars"></div>
+  <div class="chart" id="horizontal"></div>
+</body>
+
+<script>
+
+const data = ["Alpha", "Beta"].flatMap((id, j) =>
+  [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021].map((year, i) => ({
+    id,
+    year,
+    value: (i + 1) * (j + 2) + (i % 2 ? 3 : 0)
+  }))
+);
+
+const config = {
+  data,
+  groupBy: "id",
+  legend: false,
+  time: "year",
+  timeline: false
+};
+
+new d3plus.LinePlot()
+  .config({
+    ...config,
+    title: "xDomain: two Dates",
+    x: "year",
+    xDomain: [new Date(2016, 0, 1), new Date(2019, 0, 1)],
+    y: "value"
+  })
+  .select("#dates")
+  .render();
+
+new d3plus.LinePlot()
+  .config({
+    ...config,
+    title: "xDomain: [\"2017-01-01\"]",
+    x: "year",
+    xDomain: ["2017-01-01"],
+    y: "value"
+  })
+  .select("#start")
+  .render();
+
+new d3plus.BarChart()
+  .config({
+    ...config,
+    title: "BarChart xDomain: [2016, 2019]",
+    x: "year",
+    xDomain: [2016, 2019],
+    y: "value"
+  })
+  .select("#bars")
+  .render();
+
+new d3plus.BarChart()
+  .config({
+    ...config,
+    discrete: "y",
+    title: "yDomain: [undefined, \"2016\"]",
+    x: "value",
+    y: "year",
+    yDomain: [undefined, "2016"]
+  })
+  .select("#horizontal")
+  .render();
+
+</script>
+
+</html>
