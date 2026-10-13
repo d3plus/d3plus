@@ -42,7 +42,7 @@ export function stepLabel(step: WaterfallStep, format: (n: number) => string): s
 
 /** Whether a step's bar ends above (or right of) where it starts. */
 export const endsForward = (step: WaterfallStep): boolean =>
-  step.kind === "total" ? step.end >= 0 : step.change >= 0;
+  step.kind === "total" ? step.end >= step.start : step.change >= 0;
 
 /** A label box, relative to its bar's origin. */
 export interface LabelBox {

@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Waterfall</title>
-  <meta name="description" content="Waterfall subtotals, horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
+  <meta name="description" content="Waterfall subtotals, a raised baseline and a broken axis, horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -23,6 +23,8 @@
   <div class="grid">
     <div><h3>Income statement with subtotals</h3><div class="viz" id="income"></div></div>
     <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
+    <div><h3>Bridge from 1,000 to 1,020: baseline(980)</h3><div class="viz" id="baseline"></div></div>
+    <div><h3>Same bridge, axis broken: yDomain([980])</h3><div class="viz" id="break"></div></div>
     <div><h3>Monthly cash flow, dashed connectors</h3><div class="viz" id="cash"></div></div>
     <div><h3>Series side by side (groupBy)</h3><div class="viz" id="series"></div></div>
     <div class="wide"><h3>Small multiples (facet by year)</h3><div class="viz" id="facet"></div></div>
@@ -60,6 +62,34 @@
     .y("item")
     .x("amount")
     .subtotal("subtotal")
+    .render();
+
+  const bridge = [
+    {driver: "Opening", value: 1000, subtotal: true},
+    {driver: "Price", value: 15},
+    {driver: "Volume", value: -8},
+    {driver: "Mix", value: 13},
+    {driver: "Closing", subtotal: true},
+  ];
+
+  // Subtotals rise from the baseline, and the axis starts there.
+  new d3plus.Waterfall()
+    .select("#baseline")
+    .data(bridge)
+    .x("driver")
+    .y("value")
+    .subtotal("subtotal")
+    .baseline(980)
+    .render();
+
+  // The axis keeps zero behind a break; subtotals still rise from zero.
+  new d3plus.Waterfall()
+    .select("#break")
+    .data(bridge)
+    .x("driver")
+    .y("value")
+    .subtotal("subtotal")
+    .yDomain([980])
     .render();
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

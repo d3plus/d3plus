@@ -117,6 +117,10 @@ export function syncCategorySort(viz: VizInstance): void {
   }
 }
 
+/** Where subtotal bars start: the chart's numeric `baseline`, else zero. */
+export const waterfallBaseline = (viz: VizInstance): number =>
+  typeof viz.schema.baseline === "number" && Number.isFinite(viz.schema.baseline) ? viz.schema.baseline : 0;
+
 /** Lays out `rows` as waterfall steps, once per array. */
 function layOut(viz: VizInstance, rows: DataPoint[] | undefined, frames: boolean): void {
   const state = waterfallState(viz);
@@ -128,7 +132,7 @@ function layOut(viz: VizInstance, rows: DataPoint[] | undefined, frames: boolean
     value: state.accessors[valueAxis(viz)],
     subtotal: viz.schema.subtotal as RowAccessor | undefined,
     sort: categorySort(viz),
-  });
+  }, waterfallBaseline(viz));
   steps.forEach((step, d) => state.steps.set(d, step));
 }
 

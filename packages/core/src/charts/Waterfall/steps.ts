@@ -1,6 +1,7 @@
 /**
     Waterfall's running-total math: each row becomes a step that floats from
-    the running total before it, and subtotal rows draw from zero.
+    the running total before it, and subtotal rows draw from the baseline
+    (zero unless the chart sets `baseline`).
 */
 import type {DataPoint} from "@d3plus/data";
 
@@ -22,7 +23,7 @@ export interface WaterfallStep {
   /** The step's category (its discrete-axis value). */
   category: unknown;
   kind: WaterfallKind;
-  /** Where the bar starts: the previous running total, or 0 for a subtotal. */
+  /** Where the bar starts: the previous running total, or the baseline for a subtotal. */
   start: number;
   /** Where the bar ends: the running total after this step. */
   end: number;
@@ -77,12 +78,14 @@ const sameLevel = (a: number, b: number): boolean =>
 
 /**
     The step for one category of a series, given the running total before it.
-    Returns undefined for a non-subtotal category with no numeric value.
+    A subtotal draws from `baseline`. Returns undefined for a non-subtotal
+    category with no numeric value.
 */
 export function waterfallStep(
   entry: {category: unknown; values: (number | undefined)[]; subtotal: boolean},
   running: number,
   position: {series: string; index: number},
+  baseline = 0,
 ): WaterfallStep | undefined {
   const defined = entry.values.filter((v): v is number => v !== undefined);
   const sum = defined.reduce((a, b) => a + b, 0);
@@ -92,7 +95,7 @@ export function waterfallStep(
     const end = defined.length ? sum : running;
     return {
       series, index, category: entry.category, kind: "total",
-      start: 0, end, change: end - running,
+      start: baseline, end, change: end - running,
       joins: index > 0 && sameLevel(end, running),
     };
   }
@@ -108,10 +111,15 @@ export function waterfallStep(
     Lays out every row as a waterfall step. Rows are split into series, each
     series' categories are ordered (see `compareCategories`), and each
     category's rows share one step whose change is the sum of their values.
+    Every running total starts at zero; subtotal bars draw from `baseline`.
     Returns each row's step; rows without one (no value, not a subtotal) are
     absent.
 */
-export function waterfallSteps(rows: DataPoint[], accessors: StepAccessors): Map<DataPoint, WaterfallStep> {
+export function waterfallSteps(
+  rows: DataPoint[],
+  accessors: StepAccessors,
+  baseline = 0,
+): Map<DataPoint, WaterfallStep> {
   const {category, series, value, subtotal, sort} = accessors;
   const grouped = new Map<string, Map<string, CategoryRows>>();
   rows.forEach((d, i) => {
@@ -140,6 +148,7 @@ export function waterfallSteps(rows: DataPoint[], accessors: StepAccessors): Map
         },
         running,
         {series: s, index},
+        baseline,
       );
       if (!step) continue;
       running = step.end;
@@ -177,20 +186,24 @@ export type StackOffset = (series: number[][][], order: number[]) => void;
 
 /**
     A d3-stack offset that floats every bar between its step's start and end
-    (low value first, as Plot's stacks expect). Points without a step keep
-    d3-stack's own values.
+    (low value first, as Plot's stacks expect). Points without a step (a
+    series absent from a category, or a row with no value) collapse onto the
+    `baseline`, so they never stretch the value axis past it.
 */
-export function waterfallStackOffset(stepOf: (row: DataPoint) => WaterfallStep | undefined): StackOffset {
+export function waterfallStackOffset(
+  stepOf: (row: DataPoint) => WaterfallStep | undefined,
+  baseline: () => number = () => 0,
+): StackOffset {
   return series => {
+    const base = baseline();
     for (const s of series) {
       const key = (s as unknown as {key: unknown}).key;
       for (const point of s) {
         const group = (point as unknown as {data?: StackRow[]}).data ?? [];
         const row = group.find(r => r.id === key);
         const step = row && row.data ? stepOf(row.data) : undefined;
-        if (!step) continue;
-        point[0] = Math.min(step.start, step.end);
-        point[1] = Math.max(step.start, step.end);
+        point[0] = step ? Math.min(step.start, step.end) : base;
+        point[1] = step ? Math.max(step.start, step.end) : base;
       }
     }
   };

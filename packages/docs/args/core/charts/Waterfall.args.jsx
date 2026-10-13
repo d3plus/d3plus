@@ -23,6 +23,9 @@ export const argTypes = assign(
    */
   
   {
+    baseline: {
+      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.\n\nOn a waterfall, subtotal bars start at the baseline (0 by default), and the value axis always reaches it. To zoom in on a bridge between large totals (say 1,000 to 1,020), set it just below them (`980`): the axis then starts there, with no break. Running totals still count from zero. A `yDomain` (`xDomain` for horizontal bars) that stops short of the baseline keeps it on the axis behind a break."
+    },
     connectorConfig: {
       control: {
         type: "object"
@@ -96,7 +99,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Marks subtotal rows (a data key or accessor; truthy marks the row). A subtotal bar draws from zero to the running total. When the row has its own value, the running total resets to that value.",
+      description: "Marks subtotal rows (a data key or accessor; truthy marks the row). A subtotal bar draws from the `baseline` (zero by default) to the running total. When the row has its own value, the running total resets to that value.",
       table: {
         defaultValue: {
           summary: "undefined"
