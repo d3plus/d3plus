@@ -397,6 +397,15 @@ export type ColorDefaultsConfig = Partial<Omit<ColorDefaults, "scale">> & {
   scale?: ColorDefaults["scale"] | string[];
 };
 
+/** One `confidence` bound: a data key, an accessor, or `false` for none. */
+export type ConfidenceBound = string | ((d: DataPoint, i: number) => number) | false;
+
+/** One `confidence` band: a `[lower, upper]` pair, `[lower, upper, label]`, or a `{lower, upper, label}` object. */
+export type ConfidenceBandSetting =
+  | [ConfidenceBound, ConfidenceBound]
+  | [ConfidenceBound, ConfidenceBound, string]
+  | {lower?: ConfidenceBound; upper?: ConfidenceBound; label?: string};
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -502,22 +511,26 @@ export interface D3plusConfig {
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
       to disable (no band or error bars, no axis widening, no tooltip bounds).
-      Lines draw it as a band, bars as error bars.
+      Lines draw it as a band, bars as error bars; a row without a bound
+      pinches the band onto its line. An array of bands, outermost first, draws
+      nested bands around each line (a fan) — each a `[lower, upper]` pair,
+      `[lower, upper, label]`, or `{lower, upper, label}` — shaded by
+      `confidenceConfig.bandOpacity`, with each band's range listed in
+      tooltips under its label (bars draw the first band).
   */
-  confidence?:
-    | [
-        string | ((d: DataPoint, i: number) => number) | false,
-        string | ((d: DataPoint, i: number) => number) | false,
-      ]
-    | false;
+  confidence?: ConfidenceBandSetting | ConfidenceBandSetting[] | false;
   /**
       Styles the `confidence` interval: a line's band (an Area) or a bar's
       error bar (a Path, with `stroke`, `strokeWidth`, and `capWidth` — the end
       caps' length in pixels or as a percentage string of the bar's thickness).
       Keys nested under `Area` or `Bar` apply only to that shape. `tooltip:
-      false` leaves the bounds out of tooltips. Accepted keys: any Area or
-      Path key, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path
-      keys and `capWidth`); any other key logs a warning.
+      false` leaves the bounds out of tooltips. With nested bands,
+      `bandOpacity` sets how each band looks where it is the innermost band
+      drawn — an array ramps from the outermost band to the innermost
+      (default `[0.15, 0.6]`), a number gives every band that opacity — in
+      place of `fillOpacity`. Accepted keys: any Area or Path key,
+      `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar`
+      (Path keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
   /**
