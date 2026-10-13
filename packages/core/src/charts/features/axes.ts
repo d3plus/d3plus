@@ -632,10 +632,10 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const {labelWidths} = pCtx;
     const {xHeight, x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
 
-    let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
+    const yBottom = height - (xHeight + topOffset + verticalMargin);
     // Room a chart reserves between the value axis and the x axis.
-    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yRange[1] - yRange[0]) ?? 0);
-    yRange[1] -= insetBottom;
+    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
+    let yRange = [x2Height, yBottom - insetBottom];
 
     // A `frozen` layout (a zoom repaint) keeps the previous draw's axis sizes
     // and plot rect, so changing tick labels can't make the plot area jump
@@ -656,10 +656,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
     const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
-    yRange = frozen?.yRange ?? [
-      viz._xAxis!.outerBounds().y + x2Height,
-      height - (xHeight + topOffset + verticalMargin) - insetBottom,
-    ];
+    yRange = frozen?.yRange ?? [viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom];
 
     y = renderYAxes(
       viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
