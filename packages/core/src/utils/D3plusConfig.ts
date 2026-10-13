@@ -470,7 +470,7 @@ export interface D3plusConfig {
   bands?:
     | (number | {min?: number; max?: number; color?: string})[]
     | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
-  /** Bullet: the largest thickness of each bullet's band, in pixels. */
+  /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
   bulletSize?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
@@ -543,7 +543,7 @@ export interface D3plusConfig {
   facetConfig?: FacetConfig;
   /** Bullet: each row's forecast (or other comparative measure), drawn as a paler bar behind the measure: a data key, an accessor, a number shared by every row, or `false`. */
   forecast?: string | number | ((d: DataPoint, i: number) => number) | false;
-  /** Bullet: the forecast bar's `size` (a fraction of the band's thickness), `opacity`, and `fill`, each a value or a `(d, i)` accessor. */
+  /** Bullet: the forecast bar's `size` (a fraction of the band's thickness), `opacity`, `fill`, `texture`, and `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)` accessor. */
   forecastConfig?: Record<string, unknown>;
   /** Predicate filtering which data points are included, or false to disable. */
   filter?: ((d: DataPoint, i: number) => boolean) | false;

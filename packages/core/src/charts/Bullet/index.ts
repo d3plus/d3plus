@@ -118,7 +118,13 @@ export const bulletDef: DataDrivenChartDefinition = {
         @type {(number | GaugeBand)[] | function}
     */
     {key: "bands", default: []},
-    /** The largest thickness of each bullet's band, in pixels. */
+    /**
+        The most each bullet's band can be thick, in pixels (40 by default).
+        Bullets never grow past it, so a tall chart with few rows centers
+        them with space around; raise it (e.g. `bulletSize: 120`) to let
+        rows fill more of the height, or lower it for a compact list. The
+        measure, forecast, and target scale with the band.
+    */
     {key: "bulletSize", default: 40},
     /**
         The `[min, max]` each bullet spans, or a function `(d, i) => [min,
@@ -217,15 +223,19 @@ export const bulletDef: DataDrivenChartDefinition = {
     {key: "zoom", default: false},
     /**
         Styles the forecast bar: `size` (its thickness as a fraction of the
-        band's), `opacity`, and `fill` (the row's color by default), each a
+        band's), `opacity`, `fill` and `texture` (the measure's by default),
+        and `backgroundImage`/`backgroundImageFit` (none by default), each a
         value or a `(d, i)` accessor.
-        @type {{size, opacity, fill}}
+        @type {{size, opacity, fill, texture, backgroundImage, backgroundImageFit}}
     */
     {key: "forecastConfig", merge: true, default: {opacity: 0.35, size: 0.6}},
     /**
-        Outlines each measure bar in the chart's background color, so a bar
-        stays distinct over a band of a similar color. Set
-        `shapeConfig.stroke`/`strokeWidth` to override.
+        Styles each measure bar like any other Rect: `fill` (the row's color
+        by default), `texture`, `backgroundImage`/`backgroundImageFit`, and
+        an outline in the chart's background color, so a bar stays distinct
+        over a band of a similar color. Set `shapeConfig.stroke`/`strokeWidth`
+        to override the outline; a neutral `fill` gives Stephen Few's classic
+        single-color look.
     */
     {
       key: "shapeConfig",

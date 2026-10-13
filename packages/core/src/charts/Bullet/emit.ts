@@ -10,10 +10,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, TextNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import {backgroundImageNode} from "../features/backgroundImageEmit.js";
 import {
   paintFromShapeConfig,
   resolveAccessor,
   shapeConfigFor,
+  textureFill,
 } from "../features/emitHelpers.js";
 import {fitText} from "../Gauge/emitDial.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -236,28 +238,39 @@ function markNodes(
   >;
   if (Number.isFinite(b.forecast)) {
     const size = resolveAccessor<number>(forecastConfig.size, d, i) ?? 0.6;
-    nodes.push({
+    // The forecast inherits the measure's fill and texture unless
+    // `forecastConfig` sets its own.
+    const fill =
+      resolveAccessor<unknown>(forecastConfig.fill, d, i) ??
+      resolveAccessor<unknown>(sc.fill, d, i);
+    const forecast: SceneNode = {
       type: "rect",
       key: `${key}-forecast`,
       ...spanRect(track, base, b.forecast, size),
       shapeType: "Rect",
       paint: {
-        fill: resolveAccessor<string>(forecastConfig.fill, d, i) ?? paint.fill,
+        fill: textureFill({...sc, ...forecastConfig}, d, i, fill),
         opacity: resolveAccessor<number>(forecastConfig.opacity, d, i) ?? 0.35,
       },
       ...common,
-    });
+    };
+    nodes.push(forecast);
+    const image = backgroundImageNode(forecastConfig, forecast, d, i);
+    if (image) nodes.push(image);
   }
   if (Number.isFinite(b.value)) {
     const size = Number(viz.schema.measureSize);
-    nodes.push({
+    const measure: SceneNode = {
       type: "rect",
       key: `${key}-measure`,
       ...spanRect(track, base, b.value, Number.isFinite(size) ? size : 0.35),
       shapeType: "Rect",
       paint,
       ...common,
-    });
+    };
+    nodes.push(measure);
+    const image = backgroundImageNode(sc, measure, d, i);
+    if (image) nodes.push(image);
   }
   const targetConfig = (viz.schema.targetConfig ?? {}) as Record<
     string,

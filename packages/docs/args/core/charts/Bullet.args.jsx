@@ -58,7 +58,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 40,
-      description: "The largest thickness of each bullet's band, in pixels.",
+      description: "The most each bullet's band can be thick, in pixels (40 by default). Bullets never grow past it, so a tall chart with few rows centers them with space around; raise it (e.g. `bulletSize: 120`) to let rows fill more of the height, or lower it for a compact list. The measure, forecast, and target scale with the band.",
       table: {
         defaultValue: {
           summary: "40"
@@ -103,7 +103,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Styles the forecast bar: `size` (its thickness as a fraction of the band's), `opacity`, and `fill` (the row's color by default), each a value or a `(d, i)` accessor.",
+      description: "Styles the forecast bar: `size` (its thickness as a fraction of the band's), `opacity`, `fill` and `texture` (the measure's by default), and `backgroundImage`/`backgroundImageFit` (none by default), each a value or a `(d, i)` accessor.",
       table: {
         defaultValue: {
           summary: "{opacity: 0.35, size: 0.6}"
@@ -111,7 +111,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "{size, opacity, fill}"
+        summary: "{size, opacity, fill, texture, backgroundImage, backgroundImageFit}"
       }
     },
     legend: {
@@ -159,7 +159,7 @@ export const argTypes = assign(
       }
     },
     shapeConfig: {
-      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nOutlines each measure bar in the chart's background color, so a bar stays distinct over a band of a similar color. Set `shapeConfig.stroke`/`strokeWidth` to override.",
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nStyles each measure bar like any other Rect: `fill` (the row's color by default), `texture`, `backgroundImage`/`backgroundImageFit`, and an outline in the chart's background color, so a bar stays distinct over a band of a similar color. Set `shapeConfig.stroke`/`strokeWidth` to override the outline; a neutral `fill` gives Stephen Few's classic single-color look.",
       table: {
         defaultValue: {
           summary: "{stroke: () => chartBackground(viz), strokeWidth: MEASURE_OUTLINE}"

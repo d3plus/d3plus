@@ -169,6 +169,7 @@ const charts = [
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
   ["BarChart", {...plot, shapeConfig: {Bar: image}}],
   ["Chord", {links, shapeConfig: image}],
+  ["Bullet", {data: [{id: "Q1", value: 42, target: 55, forecast: 58}], shapeConfig: {...image, texture: "lines"}, forecastConfig: image}],
   ["Gauge", {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: image}],
   ["Geomap", {data: [{id: "x", value: 3}], tiles: false, topojson, shapeConfig: {Path: image}}],
   ["Matrix", {data: [{row: "R1", column: "C1", value: 10}, {row: "R2", column: "C2", value: 30}], groupBy: ["row", "column"], row: "row", column: "column", shapeConfig: {Rect: image}}],

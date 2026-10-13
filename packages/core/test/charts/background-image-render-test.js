@@ -66,6 +66,7 @@ const pageCases = () => {
       Chord: {links: [{source: "alpha", target: "beta", value: 5}, {source: "beta", target: "gamma", value: 3}, {source: "gamma", target: "alpha", value: 4}], shapeConfig: {backgroundImage: image}},
       Geomap: {data: [{id: "x", value: 3}], tiles: false, topojson, shapeConfig: {Path: {backgroundImage: image}}},
       Gauge: {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: {backgroundImage: image}},
+      Bullet: {data: flat, domain: [0, 30], shapeConfig: {backgroundImage: image}},
     },
   };
 };
@@ -241,7 +242,7 @@ const probe = async ({name, pageCasesSrc}) => {
 const run = name => render("", probe, {name, pageCasesSrc: pageCases.toString()});
 
 /** Charts whose shapes are probed pixel by pixel on both backends. */
-const pixelCharts = ["Treemap", "Pack", "Pie", "Donut", "Network", "Matrix", "RadialMatrix", "Radar", "BarChart", "Plot", "Priestley", "Sankey", "Chord", "Gauge"];
+const pixelCharts = ["Treemap", "Pack", "Pie", "Donut", "Network", "Matrix", "RadialMatrix", "Radar", "BarChart", "Plot", "Priestley", "Sankey", "Chord", "Gauge", "Bullet"];
 /** Charts checked for image structure (their shapes are small or framed by other marks). */
 const structureCharts = ["Rings", "Tree", "Geomap"];
 /** Charts whose data labels sit over their shapes. */
@@ -249,7 +250,7 @@ const labelledCharts = ["Treemap", "Pack", "Pie", "Network"];
 /** Charts that dim unhovered shapes. */
 const dimCharts = ["Treemap", "Pack", "Pie", "Network", "Radar", "BarChart"];
 /** Charts whose shapes open a tooltip on hover. */
-const hoverCharts = ["Treemap", "Pack", "Pie", "Network", "Matrix", "Radar", "BarChart"];
+const hoverCharts = ["Treemap", "Pack", "Pie", "Network", "Matrix", "Radar", "BarChart", "Bullet"];
 
 for (const name of [...pixelCharts, ...structureCharts]) {
   it(`${name}: shapeConfig.backgroundImage draws inside its shapes on SVG and Canvas`, async function () {
