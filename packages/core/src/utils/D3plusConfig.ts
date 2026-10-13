@@ -5,7 +5,7 @@ import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {AccessorFn} from "./AccessorFn.js";
-import type {ConstOrAccessor, Orient, SideOrient} from "../shapes/shapeConfig.js";
+import type {ConstOrAccessor, CssColor, Orient, SideOrient} from "../shapes/shapeConfig.js";
 import type {
   SizeLegendLineConfig,
   SizeLegendShapeConfig,
@@ -160,7 +160,7 @@ export interface TooltipConfig {
   /** The inner HTML content of the arrow element, empty by default. */
   arrow?: ((d: DataPoint) => string) | string;
   /** The background color accessor for each tooltip. */
-  background?: ((d: DataPoint) => string) | string;
+  background?: ((d: DataPoint) => CssColor) | CssColor;
   /** The border accessor for each tooltip. */
   border?: ((d: DataPoint) => string) | string;
   /** The border-radius accessor for each tooltip. */
@@ -215,7 +215,7 @@ export interface TextBoxConfig {
   /** The text content for each box. */
   text?: Accessor<string>;
   /** The font color as an accessor function or static string. Inferred from the DOM selection by default. */
-  fontColor?: Accessor<string>;
+  fontColor?: Accessor<CssColor>;
   /** The font size in pixels. Inferred from the DOM selection by default. */
   fontSize?: Accessor<number>;
   /**
@@ -235,7 +235,7 @@ export interface TextBoxConfig {
   /** The font opacity as an accessor function or static number between 0 and 1. */
   fontOpacity?: Accessor<number>;
   /** The font stroke color for the rendered text. */
-  fontStroke?: Accessor<string>;
+  fontStroke?: Accessor<CssColor>;
   /** The font stroke width for the rendered text. */
   fontStrokeWidth?: Accessor<number>;
   /** The line height, which is 1.2 times the font size by default. */
@@ -359,7 +359,7 @@ export interface TrendLineConfig {
   /** Shows the fitted equation, R², and observations when hovering a line. Defaults to `true`. */
   tooltip?: boolean;
   /** Line color. Defaults to the series color (dark gray when `group` is `"all"`). */
-  stroke?: string;
+  stroke?: CssColor;
   /** Line width in pixels. Defaults to 2. */
   strokeWidth?: number;
   /** Line dash pattern. Defaults to `"6 4"`. */
@@ -479,9 +479,9 @@ export interface D3plusConfig {
     axisConfig?: AxisConfig;
     centered?: boolean;
     colors?: string[];
-    colorMin?: string;
-    colorMid?: string;
-    colorMax?: string;
+    colorMin?: CssColor;
+    colorMid?: CssColor;
+    colorMax?: CssColor;
     scale?: AxisScale;
   };
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
@@ -553,7 +553,7 @@ export interface D3plusConfig {
   /** Overall height of the visualization in pixels. */
   height?: number;
   /** Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
-  hiddenColor?: string | ((d: DataPoint, i: number) => string);
+  hiddenColor?: CssColor | ((d: DataPoint, i: number) => CssColor);
   /** Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
   hiddenOpacity?: number | ((d: DataPoint, i: number) => number);
   /** The hover callback function for highlighting shapes on mouseover. */
@@ -593,9 +593,9 @@ export interface D3plusConfig {
   /** Style of the semi-transparent box behind a legend drawn inside the chart. */
   legendInsetConfig?: {
     /** Box fill; defaults to the chart's background color. */
-    fill?: string;
+    fill?: CssColor;
     fillOpacity?: number;
-    stroke?: string;
+    stroke?: CssColor;
     strokeWidth?: number;
     /** Corner radius. */
     rx?: number;
@@ -630,7 +630,7 @@ export interface D3plusConfig {
   /** Style of the Radar's level value labels. */
   levelLabelConfig?: {
     /** Text color. Defaults to the color that contrasts with the chart's background. */
-    fontColor?: string;
+    fontColor?: CssColor;
     /** Font family. Defaults to the chart's `fontFamily`. */
     fontFamily?: string | string[];
     /** Text opacity. Defaults to `1`. */
@@ -881,7 +881,7 @@ export interface D3plusConfig {
   /** Path or object for the topojson data. */
   topojson?: string | object;
   /** CSS color to fill the map shapes. */
-  topojsonFill?: string;
+  topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
   /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
