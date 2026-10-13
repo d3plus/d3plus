@@ -66,10 +66,11 @@ export interface AxisConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal bars), and bars start at the baseline tick; turned off, a
-      `yDomain` stretches to reach the baseline while a `yConfig.domain` is
-      kept and cuts its bars off at the axis. Defaults to `true` for BarChart
-      and `false` for other Plots and a standalone Axis.
+      horizontal charts), and bars and areas start at the baseline tick;
+      turned off, a `yDomain` stretches to reach the baseline while a
+      `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
+      to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
+      `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
   /**
@@ -460,10 +461,11 @@ export interface D3plusConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal bars), and bars start at the baseline tick; turned off, a
-      `yDomain` stretches to reach the baseline while a `yConfig.domain` is
-      kept and cuts its bars off at the axis. Defaults to `true` for BarChart
-      and `false` for other Plots and a standalone Axis.
+      horizontal charts), and bars and areas start at the baseline tick;
+      turned off, a `yDomain` stretches to reach the baseline while a
+      `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
+      to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
+      `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
   /** Whether to cache the processed data between renders. */
