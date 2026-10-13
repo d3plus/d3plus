@@ -80,6 +80,9 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+
+  /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
+  zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -192,7 +195,7 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
 
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
 const barEmit: ShapeEmitter = ctx => {
-  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values} = ctx;
+  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values, zoomRanges} = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
     .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
@@ -205,19 +208,25 @@ const barEmit: ShapeEmitter = ctx => {
   const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
   const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
   const range = viz.schema.discrete === "x" ? xRange : yRange;
+  // Zoomed, a time axis's bars keep their unzoomed spacing, scaled: the
+  // first and last bars mirror about where the unzoomed plot edges landed,
+  // not about the visible edges they may sit on or past.
+  const zoomRange = zoomRanges?.[viz.schema.discrete as "x" | "y"];
   if (scaleType !== "Point" && vals.length === 2) {
     const allPositions = Array.from(
       new Set(values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
     );
+    const first = allPositions[0] as number;
+    const last = allPositions[allPositions.length - 1] as number;
     allPositions.unshift(
-      (range[0] as number) -
-        (allPositions[0] as number) -
-        (range[0] as number),
+      zoomRange
+        ? 2 * zoomRange[0] - first
+        : (range[0] as number) - first - (range[0] as number),
     );
     allPositions.push(
-      (range[1] as number) +
-        (range[1] as number) -
-        (allPositions[allPositions.length - 1] as number),
+      zoomRange
+        ? 2 * zoomRange[1] - last
+        : (range[1] as number) + (range[1] as number) - last,
     );
     space = allPositions.reduce((n: number, d, i, arr) => {
       if (i) {

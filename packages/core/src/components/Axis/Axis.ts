@@ -13,6 +13,7 @@ import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
 import {gridStroke} from "./gridStroke.js";
+import {timeDataInDomain} from "./timeValues.js";
 import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
 import {
   axisToScene,
@@ -317,12 +318,15 @@ export default class Axis extends BaseClass {
       @private
 */
   _getTicks(): unknown[] {
+    const tickData = this.schema.scale === "time" && this._d3Scale
+      ? timeDataInDomain(this._scaleData as Date[], this._d3Scale)
+      : this._scaleData;
     if (
       ["band", "ordinal", "point", "time"].includes(this.schema.scale) &&
-      this._scaleData.length &&
-      this._scaleData.length < this.schema.width / 4
+      tickData.length &&
+      tickData.length < this.schema.width / 4
     ) {
-      return this._scaleData;
+      return tickData;
     }
     let ticks: unknown[] = [];
     if (this._d3ScaleNegative)

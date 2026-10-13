@@ -181,6 +181,8 @@ export interface PlotPaintContext {
   xLabelMode?: XLabelMode;
   /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
   zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
+  /** Where a zoom repaint's unzoomed x/y plot ranges land (see `Plot/plotZoom.ts`). */
+  zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
 
 /**
@@ -478,6 +480,7 @@ function emitShapeLoop(
     width,
     values: [],
     valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
+    zoomRanges: pCtx.zoomRanges,
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
