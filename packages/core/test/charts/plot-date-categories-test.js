@@ -104,14 +104,18 @@ for (const renderer of ["svg", "canvas"]) {
     this.timeout(60000);
     const r = await run("LinePlot", monthly, {}, renderer, 2, 14);
     assert.strictEqual(r.scale, "point", "Dates without time() stay a category axis");
-    assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[12], r.labels[29]], ["Jan 2023", "Feb", "Jan 2024", "Jun 2025"]);
+    assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[12], r.labels[29]], ["Jan 2023", "Feb", "Jan 2024", "Jun"]);
     assert.ok(r.ticks.length > 2 && r.ticks.every(t => !rawDate.test(t)), `painted labels read as dates (got ${r.ticks})`);
-    // Too many to paint, the months thin evenly (see the Axis's thinEvenly), and each year starts with its January.
+    // Too many to paint, the months thin evenly (see the Axis's thinEvenly), and the first painted month of each year names it.
     const step = r.labels.indexOf(r.ticks[1], 1);
     assert.ok(step > 1, `the labels thin (got ${r.ticks})`);
     assert.deepStrictEqual(r.ticks, r.labels.filter((_, i) => i % step === 0), `evenly, every ${step} months`);
     assert.strictEqual(r.ticks[0], "Jan 2023", "the first label carries the year");
-    assert.ok(r.ticks.filter(t => t.startsWith("Jan")).every(t => /^Jan \d{4}$/.test(t)), `each January names its year (got ${r.ticks})`);
+    r.ticks.forEach((t, i) => {
+      // The i-th painted label is month step * i from Jan 2023.
+      const opens = !i || Math.floor((step * i) / 12) !== Math.floor((step * (i - 1)) / 12);
+      assert.strictEqual(/\d{4}$/.test(t), opens, `"${t}" ${opens ? "names" : "leaves out"} its year (got ${r.ticks})`);
+    });
     assert.deepStrictEqual(r.thead, [["date", "Mar 2024"]], "the shared header names the hovered month with its year");
     const single = await run("LinePlot", monthly, {}, renderer, 1, 14);
     assert.deepStrictEqual(single.tbody[0], ["date", "Mar 2024"], "the single tooltip's x row names the month");
@@ -120,7 +124,8 @@ for (const renderer of ["svg", "canvas"]) {
   it(`LinePlot (${renderer}) — daily Dates without time() label as days`, async function () {
     this.timeout(60000);
     const r = await run("LinePlot", daily, {}, renderer, 1, 4);
-    assert.deepStrictEqual([r.labels[0], r.labels[4], r.labels[13]], ["Mar 1, 2026", "Mar 5", "Mar 14, 2026"]);
+    assert.deepStrictEqual([r.labels[0], r.labels[4], r.labels[13]], ["Mar 1, 2026", "Mar 5", "Mar 14"]);
+    assert.ok(r.ticks.every(t => !/…|\.\.\./.test(t)), `painted labels are whole (got ${r.ticks})`);
     assert.ok(r.ticks.every(t => !rawDate.test(t)), `painted labels read as dates (got ${r.ticks})`);
     assert.deepStrictEqual(r.tbody[0], ["date", "Mar 5, 2026"]);
   });
@@ -137,7 +142,7 @@ for (const renderer of ["svg", "canvas"]) {
     this.timeout(60000);
     const xs = "() => Array.from({length: 6}, (_, i) => new Date(2025, i, 1))";
     const r = await run("BarChart", xs, {discrete: "y", x: "value", y: "date"}, renderer, 1, 3);
-    assert.deepStrictEqual(r.labels, ["Jun 2025", "May", "Apr", "Mar", "Feb", "Jan 2025"], "top to bottom");
+    assert.deepStrictEqual(r.labels, ["Jun", "May", "Apr", "Mar", "Feb", "Jan 2025"], "top to bottom");
     assert.ok(r.ticks.every(t => !rawDate.test(t)), `painted labels read as dates (got ${r.ticks})`);
     assert.deepStrictEqual(r.tbody[1], ["date", "Mar 2025"]);
     if (renderer === "svg") assert.strictEqual(r.aria, "Alpha, x: 12, y: Mar 2025.", "the bar's aria-label names the month");
@@ -146,7 +151,7 @@ for (const renderer of ["svg", "canvas"]) {
   it(`LinePlot (${renderer}) — Dates label in the chart's locale`, async function () {
     this.timeout(60000);
     const r = await run("LinePlot", monthly, {locale: "es-ES"}, renderer, 1, 14);
-    assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[29]], ["ene 2023", "feb", "jun 2025"]);
+    assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[29]], ["ene 2023", "feb", "jun"]);
     assert.deepStrictEqual(r.tbody[0][1], "mar 2024");
   });
 

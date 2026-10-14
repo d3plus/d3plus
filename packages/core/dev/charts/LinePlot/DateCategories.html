@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>DateCategories · LinePlot</title>
-    <meta name="description" content="Date x values without time() on a category axis: monthly, daily, yearly, hourly, a tickFormat override and a facet.">
+    <meta name="description" content="Date x values without time() on a category axis (monthly, daily, yearly, hourly, a tickFormat override and a facet), and a daily time axis: labels fit whole on one line and keep the year after thinning.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
@@ -32,10 +32,12 @@
   </head>
 
   <body>
-    <div><h3>Monthly LinePlot</h3><div class="viz" id="monthly"></div></div>
-    <div><h3>Daily LinePlot</h3><div class="viz" id="daily"></div></div>
+    <div><h3>Monthly LinePlot: the year on the first label shown each year</h3><div class="viz" id="monthly"></div></div>
+    <div><h3>Daily LinePlot: labels thin to fit whole</h3><div class="viz" id="daily"></div></div>
     <div><h3>Yearly BarChart</h3><div class="viz" id="yearly"></div></div>
-    <div><h3>Hourly LinePlot</h3><div class="viz" id="hourly"></div></div>
+    <div><h3>Hourly LinePlot: date and hour on the first label</h3><div class="viz" id="hourly"></div></div>
+    <div><h3>Hourly LinePlot over three days: the date on each day's first label</h3><div class="viz" id="hourly3"></div></div>
+    <div><h3>Daily LinePlot with time(), across New Year</h3><div class="viz" id="dailyTime"></div></div>
     <div><h3>Quarterly BarChart, xConfig.tickFormat</h3><div class="viz" id="custom"></div></div>
     <div><h3>Monthly BarChart (horizontal)</h3><div class="viz" id="horizontal"></div></div>
     <div class="wide"><h3>Monthly LinePlot, facet by region</h3><div id="facet"></div></div>
@@ -44,7 +46,9 @@
   <script>
     // Date x values without time(): the x axis stays a category (point/band)
     // axis, and its labels and tooltips read as dates at the step the data
-    // takes, in the chart's locale.
+    // takes, in the chart's locale. Crowded date labels thin (evenly, on a
+    // category axis) until each fits whole on one line; the first label
+    // shown, and the first shown in each new year, names the year.
     const series = (dates, ids = ["Alpha", "Beta"]) =>
       ids.flatMap((id, s) =>
         dates.map((date, k) => ({id, date, value: Math.round(40 + 20 * s + 15 * Math.sin(k / 2) + k)})),
@@ -61,10 +65,15 @@
         .config(config)
         .render();
 
-    chart("LinePlot", "#monthly", series(range(30, i => new Date(2023, i, 1))));
+    chart("LinePlot", "#monthly", series(range(30, i => new Date(2022, 10 + i, 1))));
     chart("LinePlot", "#daily", series(range(14, i => new Date(2026, 2, 1 + i))));
     chart("BarChart", "#yearly", series(range(8, i => new Date(2016 + i, 0, 1)), ["Alpha"]));
     chart("LinePlot", "#hourly", series(range(12, i => new Date(2026, 2, 3, 6 + i))));
+    chart("LinePlot", "#hourly3", series(range(48, i => new Date(2026, 2, 3, 6 + i))));
+    chart("LinePlot", "#dailyTime", series(range(90, i => new Date(2025, 10, 1 + i)), ["Alpha"]), {
+      time: "date",
+      timeline: false,
+    });
     chart("BarChart", "#custom", series(range(6, i => new Date(2025, i * 3, 1)), ["Alpha"]), {
       xConfig: {tickFormat: d => `FY${String(d.getFullYear()).slice(2)}·${Math.floor(d.getMonth() / 3) + 1}`},
     });

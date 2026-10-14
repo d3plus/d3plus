@@ -5,47 +5,54 @@ type DateFormatter = (specifier: string) => (date: Date) => string;
 
 /**
     A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
+
+    Without `shown`, the year rides on the first and last dates and on each January 1st. Given `shown` (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.
     @param d The date to format.
     @param dataArray The full array of ordered Date Objects.
     @param formatter Optional custom format string or function.
+    @param shown Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date).
 */
 export default function formatDate(
   d: Date,
   dataArray: Date[],
   formatter: DateFormatter = timeFormat,
+  shown?: Date[],
 ): string {
   const formatHour = formatter("%I %p"),
     formatMillisecond = formatter(".%L"),
     formatMinute = formatter("%I:%M"),
     formatMonth = formatter("%b"),
     formatMonthDay = formatter("%b %-d"),
+    formatMonthDayHour = formatter("%b %-d, %I %p"),
     formatMonthDayYear = formatter("%b %-d, %Y"),
+    formatMonthDayYearHour = formatter("%b %-d, %Y, %I %p"),
     formatMonthYear = formatter("%b %Y"),
     formatQuarter = formatter("Q%q"),
     formatQuarterYear = formatter("Q%q %Y"),
     formatSecond = formatter(":%S"),
     formatYear = formatter("%Y");
 
-  const labelIndex = dataArray.findIndex(a => +a === +d);
-  const firstOrLast = labelIndex === 0 || labelIndex === dataArray.length - 1;
   const smallArray = dataArray.length <= 5;
-  const withYear = +timeYear(d) === +d || firstOrLast || smallArray;
+  const {withYear, withDay} = shown
+    ? shownBoundaries(d, shown)
+    : arrayBoundaries(d, dataArray);
+  const year = withYear || smallArray;
   const interval = dateInterval(dataArray);
 
   return (
     interval === "year"
       ? formatYear
       : interval === "quarter"
-        ? withYear ? formatQuarterYear : formatQuarter
+        ? year ? formatQuarterYear : formatQuarter
         : interval === "month"
-          ? withYear ? formatMonthYear : formatMonth
+          ? year ? formatMonthYear : formatMonth
           : interval === "day"
-            ? withYear ? formatMonthDayYear : formatMonthDay
+            ? year ? formatMonthDayYear : formatMonthDay
             : interval === "hour"
-              ? firstOrLast || smallArray
-                ? formatMonthDayYear
-                : +timeMonth(d) === +d
-                  ? formatMonthDay
+              ? year
+                ? formatMonthDayYearHour
+                : withDay
+                  ? shown ? formatMonthDayHour : formatMonthDay
                   : formatHour
               : timeSecond(d) < d
                 ? formatMillisecond
@@ -55,10 +62,38 @@ export default function formatDate(
                     ? formatMinute
                     : timeDay(d) < d
                       ? formatHour
-                      : withYear
+                      : year
                         ? formatMonthDayYear
                         : formatMonthDay
   )(d);
+}
+
+/**
+    Which boundaries `d` opens among the full set of dates: the year on the first and last dates and on January 1st, the day on the first of each month.
+    @private
+*/
+function arrayBoundaries(d: Date, dataArray: Date[]): {withYear: boolean; withDay: boolean} {
+  const labelIndex = dataArray.findIndex(a => +a === +d);
+  const firstOrLast = labelIndex === 0 || labelIndex === dataArray.length - 1;
+  return {
+    withYear: firstOrLast || +timeYear(d) === +d,
+    withDay: +timeMonth(d) === +d,
+  };
+}
+
+/**
+    Which boundaries `d` opens among the shown dates: the year when no shown date comes before it or the one just before it falls in another year, and likewise the day.
+    @private
+*/
+function shownBoundaries(d: Date, shown: Date[]): {withYear: boolean; withDay: boolean} {
+  // Axes may pass timestamps for `d`.
+  const date = new Date(+d);
+  let prev: Date | undefined;
+  for (const s of shown) if (+s < +date && (!prev || +s > +prev)) prev = s;
+  return {
+    withYear: !prev || prev.getFullYear() !== date.getFullYear(),
+    withDay: !prev || +timeDay(prev) !== +timeDay(date),
+  };
 }
 
 /**
