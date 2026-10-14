@@ -231,6 +231,7 @@ export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {
   colorScaleFeature,
+  cornerControlsHeight,
   legendFeature,
   runLayout,
   subtitleFeature,
