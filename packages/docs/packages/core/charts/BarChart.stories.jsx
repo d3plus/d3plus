@@ -150,7 +150,7 @@ TrendLineProjection.args = {
   trendLine: true,
   trendLineConfig: {projection: 3}
 };
-TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it."}}};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it. The projected slots are marked as a forecast, shaded from the edge of the first one; set `forecast: false` to leave them unmarked."}}};
 
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {

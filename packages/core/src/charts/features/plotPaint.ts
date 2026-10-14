@@ -27,6 +27,7 @@ import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
+import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 
@@ -589,6 +590,10 @@ export function plotEmit(
     out.push(...emitLineLabelConnectors(viz, labelWidths));
 
     const frontAnnotationShapes = emitAnnotations(viz, out, x, y, domains, yOffset);
+
+    // The forecast backdrop, rule and label sit behind the data marks.
+    const forecast = forecastRows(shapeData);
+    out.push(...emitForecast(viz, forecast.rows, {x, y, xRange, yRange}, forecast.slots));
 
     // Trend lines sit behind the marks they summarize. They and the shapes
     // are the data marks: where the domains cut them off, they are clipped
