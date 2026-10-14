@@ -49,6 +49,8 @@ interface TextBoxDatum {
   tA: string;
   vA: string;
   widths: number[];
+  /** Whether the text needed more room than the box gave it (cut short or dropped). */
+  truncated: boolean;
   fS: number;
   lH: number;
   w: number;
@@ -205,10 +207,11 @@ function assembleTextBoxDatum(
     vA: string;
     style: Record<string, string | number>;
     widths: number[];
+    truncated: boolean;
     padding: {top: number; right: number; bottom: number; left: number};
   },
 ): TextBoxDatum {
-  const {lineData, line, fS, lH, w, h, vA, style, widths, padding} = layout;
+  const {lineData, line, fS, lH, w, h, vA, style, widths, truncated, padding} = layout;
   const tH = line * lH;
   const r = box.schema.rotate(d, i);
   let yP =
@@ -242,6 +245,7 @@ function assembleTextBoxDatum(
     tA: box.schema.textAnchor(d, i),
     vA: box.schema.verticalAlign(d, i),
     widths,
+    truncated,
     fS,
     lH,
     w,
@@ -361,6 +365,7 @@ function computeTextBoxDatum(
     vA,
     style,
     widths: wrapResults.widths,
+    truncated: wrapResults.truncated,
     padding,
   });
 }
