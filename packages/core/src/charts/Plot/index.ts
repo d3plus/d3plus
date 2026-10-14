@@ -498,14 +498,12 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
-      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain`, the far end isn't rounded and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
+      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is "none"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
 */
-  baseline(): number | undefined;
-  baseline(_: number | undefined): this;
   baseline(_?: number): this | number | undefined {
-    if (!arguments.length) return baselineValue(this as unknown as VizInstance);
-    setBaseline(this as unknown as VizInstance, _);
-    return this;
+    return arguments.length
+      ? (setBaseline(this as unknown as VizInstance, _), this)
+      : baselineValue(this as unknown as VizInstance);
   }
 
   /**
@@ -812,7 +810,6 @@ Stacked charts always fit one line to the stack totals.
 }
 
 resolvesReset(
-  Plot.prototype,
-  "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
-  "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+  Plot.prototype, "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig",
+  "lineMarkerConfig", "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
 );

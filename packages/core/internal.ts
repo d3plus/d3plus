@@ -209,7 +209,17 @@ export {
   valueAxis,
   valueAxisExtent,
 } from "./src/charts/Plot/baselineBreak.js";
-export {baselineDomainAxis, hasUserDomain, userAxisDomain} from "./src/charts/Plot/baselineDomain.js";
+export {
+  baselineDomainAxis,
+  configOpenDomain,
+  hasOpenUserEnd,
+  hasUserDomain,
+  isOneSided,
+  openEndAxisConfig,
+  userAxisDomain,
+} from "./src/charts/Plot/baselineDomain.js";
+export {openEnd, roundOpenEnd, roundPlotOpenEnds} from "./src/charts/Plot/openDomainEnds.js";
+export {roundedDomain} from "./src/components/Axis/axisRounding.js";
 export {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,

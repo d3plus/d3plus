@@ -18,7 +18,8 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
-import {hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {configOpenDomain, hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {openEnd} from "./openDomainEnds.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {extraBandValues} from "./confidenceBands.js";
@@ -495,7 +496,7 @@ function applyOppDomains(
   user: Record<string, DomainValue[] | undefined>,
 ): void {
   opps.forEach(o => {
-    if (viz[`_${o}Config`].domain) {
+    if (viz[`_${o}Config`].domain && !configOpenDomain(viz, o)) {
       // `.slice()` first so we never mutate the user's config array in
       // place — on the next render the (already-reversed) array would
       // reverse back, alternating chart correctness across renders.
@@ -542,6 +543,11 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   const user: Record<string, DomainValue[] | undefined> = {
     x: userAxisDomain(viz, "x", domains.x),
     y: userAxisDomain(viz, "y", domains.y),
+  };
+  // A user domain that leaves an end open, and the domain the axis would have without it.
+  const openEnds = {
+    x: openEnd(user.x, domains.x, opps.includes("x") ? viz.schema.baseline : undefined),
+    y: openEnd(user.y, domains.y, opps.includes("y") ? viz.schema.baseline : undefined),
   };
 
   function domainScaleSetup(axis: string) {
@@ -634,6 +640,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     plotScales: {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale},
     plotConfigScales: {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale},
     plotOpps: {opp, opp2, opps},
+    plotOpenEnds: openEnds,
   };
 };
 

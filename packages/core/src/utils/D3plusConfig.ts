@@ -54,6 +54,15 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
+      The axis's domain: `[min, max]` on a continuous axis, or the
+      categories to show on a discrete one. In a Plot's
+      `xConfig`/`yConfig`, a full domain wins over `xDomain`/`yDomain`,
+      while one with a single end set (`[min]` or `[undefined, max]`) on a
+      continuous axis works exactly like `yDomain([min])`: it pins that
+      end, and the data fills the other, rounded as `rounding` says.
+  */
+  domain?: (number | string | Date | undefined)[];
+  /**
       The value the axis's `baselineBreak` returns to: the tick kept below
       (or above) the break. Defaults to `0`. To start a Plot's value axis at
       a value, set the chart's `baseline` instead, which sets the axis's
@@ -134,6 +143,20 @@ export interface AxisConfig {
       but one may be `undefined` to allow the default behavior for that value.
   */
   range?: (number | undefined)[];
+  /**
+      How a linear or log axis rounds its domain to "nice" values:
+      "outside" widens each end past the data, "inside" pulls each end in
+      (marking them with the `roundingInside*` prefixes and suffixes), and
+      "none" keeps the domain as given. Defaults to "none" on an Axis; a
+      Plot rounds "outside" unless its axis config says otherwise. With a
+      user domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a
+      one-sided `domain` here) only an end left open is rounded:
+      `yDomain([n])` keeps `n` exactly and rounds the far end where the
+      axis would with no domain set, and "none" leaves that end at the
+      data. A `yDomain` with both ends set isn't rounded unless `rounding`
+      is set here.
+  */
+  rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
   /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
@@ -466,8 +489,11 @@ export interface D3plusConfig {
       `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
       `baselineBreak` on (their default) the axis breaks back to a `0`
       tick and bars run through the break, and with it off the axis
-      stretches down to `0`. As with `yDomain`, the far end isn't
-      rounded and marks for values past `n` stop at the axis's edge.
+      stretches down to `0`. As with `yDomain([n])`, only `n` is
+      pinned: the far end comes from the data and is rounded where the
+      axis would round it with no domain set (left at the data when the
+      axis config's `rounding` is "none"), and marks for values past `n`
+      stop at the axis's edge.
       When every value sits at or below `n`, it ends the axis instead,
       like `yDomain([undefined, n])`. A bound given in
       `yDomain`/`xDomain` wins.
@@ -984,10 +1010,13 @@ export interface D3plusConfig {
   */
   xBreak?: [number, number] | [number, number][];
   /**
-      The x domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The x domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `xConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn.
   */
   xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -1008,10 +1037,13 @@ export interface D3plusConfig {
   */
   yBreak?: [number, number] | [number, number][];
   /**
-      The y domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The y domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `yConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn.
   */
   yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */

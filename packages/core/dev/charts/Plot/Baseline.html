@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <title>Baseline · Plot</title>
-    <meta name="description" content="baseline(n) renders exactly like yDomain([n]): each row draws baseline(980) next to yDomain([980]), break to 0 included, on bars, areas, stacks, lines and horizontal bars.">
+    <meta name="description" content="baseline(n) renders exactly like yDomain([n]): each row draws baseline(980) next to yDomain([980]), break to 0 and rounded far end included, on bars, areas, stacks, lines and horizontal bars.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -53,7 +53,9 @@
       const sideways = c => c.discrete("y").x("value").y("quarter");
 
       // Each row: [type, data, label, baseline setup, label, domain setup].
-      // The two charts in a row should look identical.
+      // The two charts in a row should look identical. Only the baseline end
+      // is pinned: the far end is rounded where the axis would round it with
+      // no domain set.
       const pairs = [
         ["BarChart", north, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
         ["AreaPlot", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
@@ -64,6 +66,8 @@
         ["BarChart", crossing.filter(d => d.region === "North"), "values below baseline(980)", c => c.baseline(980), "values below yDomain([980])", c => c.yDomain([980])],
         ["BarChart", negative.filter(d => d.region === "North"), "baseline(-80) above every value", c => c.baseline(-80), "yDomain([undefined, -80])", c => c.yDomain([undefined, -80])],
         ["BarChart", north, "yDomain([990]).baseline(980): the domain wins", c => c.yDomain([990]).baseline(980), "yDomain([990])", c => c.yDomain([990])],
+        // The far end rounds as it would with no domain set, unless rounding is off.
+        ["BarChart", north, "baseline(980), rounding \"none\": ends at the data", c => c.baseline(980).yConfig({rounding: "none"}), "yDomain([980, 1024])", c => c.yDomain([980, 1024])],
       ];
       const examples = pairs.flatMap(([type, data, a, setA, b, setB]) => [
         [`${type} · ${a}`, type, data, setA],

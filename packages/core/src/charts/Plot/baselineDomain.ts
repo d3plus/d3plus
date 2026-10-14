@@ -5,14 +5,49 @@
     own baseline (`schema.baseline`, BarChart's `0`), which still marks where
     bars and areas start and where a `baselineBreak` returns to.
 
+    It also reads which domain the user gave an axis (an `xDomain`/`yDomain`
+    or a one-sided axis-config `domain`) and whether that domain leaves an end
+    open for Plot to fill from the data and round (see `openDomainEnds.ts`).
+
     @module
 */
 import RESET from "../../utils/RESET.js";
-import {valueAxis} from "./baselineBreak.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A domain value for any of the four axes. */
 type DomainValue = number | string | Date;
+
+/** The value (non-discrete) axis of a Plot; a swarm's own value axis when swarming. */
+export const valueAxis = (viz: VizInstance): "x" | "y" =>
+  viz._swarm ? viz._swarm.axis : viz.schema.discrete === "y" ? "x" : "y";
+
+/** Whether a domain sets exactly one end (`[n]`, `[undefined, n]`), leaving the other to the data. */
+export function isOneSided(domain: unknown): domain is DomainValue[] {
+  if (!Array.isArray(domain) || domain.length > 2) return false;
+  return (domain[0] === undefined || domain[0] === null) !== (domain[1] === undefined || domain[1] === null);
+}
+
+/** Whether an axis is a continuous extent, rather than a list of categories. */
+const continuousAxis = (viz: VizInstance, axis: string): boolean =>
+  viz.schema.discrete !== axis && !viz.schema[`${axis}Sort`] && viz._swarm?.cross !== axis;
+
+/**
+    A one-sided `domain` in an axis config (`yConfig({domain: [n]})`) on a
+    continuous axis, low end first; undefined otherwise. Plot reads it as the
+    user's domain, exactly like `yDomain([n])`. (`yConfig` stores its domain
+    reversed, so a set maximum comes back second.)
+*/
+export function configOpenDomain(viz: VizInstance, axis: string): DomainValue[] | undefined {
+  if (axis !== "x" && axis !== "y") return undefined;
+  const domain = (viz[`_${axis}Config`] as {domain?: unknown} | undefined)?.domain;
+  if (!isOneSided(domain) || !continuousAxis(viz, axis)) return undefined;
+  const out = domain.slice();
+  return axis === "y" && out.length === 2 ? out.reverse() : out;
+}
+
+/** The domain the user gave an axis: a one-sided axis-config `domain`, else the `xDomain`/`yDomain`. */
+const givenDomain = (viz: VizInstance, axis: string): DomainValue[] | undefined =>
+  configOpenDomain(viz, axis) ?? (viz.schema[`${axis}Domain`] as DomainValue[] | undefined);
 
 /** `Plot.baseline()`: the user's baseline, or the chart's own when none is set. */
 export function baselineValue(viz: VizInstance): number | undefined {
@@ -39,13 +74,40 @@ export function baselineDomainAxis(viz: VizInstance): "x" | "y" | undefined {
   return axis;
 }
 
-/** Whether an axis's domain comes from the user: an `xDomain`/`yDomain`, or a set `baseline`. */
+/** Whether an axis's domain comes from the user: an `xDomain`/`yDomain`, a one-sided axis-config `domain`, or a set `baseline`. */
 export function hasUserDomain(viz: VizInstance, axis: "x" | "y"): boolean {
-  return Boolean(viz.schema[`${axis}Domain`]) || baselineDomainAxis(viz) === axis;
+  return Boolean(givenDomain(viz, axis)) || baselineDomainAxis(viz) === axis;
 }
 
 /**
-    The user's domain for `axis` (a copy), with a set `baseline` filling the
+    Whether the user's domain on an axis sets one end and leaves the other to
+    the data: a one-sided `xDomain`/`yDomain` or axis-config `domain`, or a set
+    `baseline` alone. Plot fills that end and rounds it (see
+    `openDomainEnds.ts`). A full axis-config `domain` wins outright.
+*/
+export function hasOpenUserEnd(viz: VizInstance, axis: "x" | "y"): boolean {
+  const config = (viz[`_${axis}Config`] as {domain?: unknown} | undefined)?.domain;
+  if (config !== undefined && !configOpenDomain(viz, axis)) return false;
+  const given = givenDomain(viz, axis);
+  return given ? isOneSided(given) : baselineDomainAxis(viz) === axis;
+}
+
+/**
+    The user's axis config as Plot hands it to the axis: without its
+    `rounding` or one-sided `domain` when the user's domain leaves an end open,
+    since Plot fills and rounds that end itself.
+*/
+export function openEndAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
+  const config = (viz[`_${axis}Config`] ?? {}) as Record<string, unknown>;
+  if (!hasOpenUserEnd(viz, axis)) return config;
+  const out = {...config};
+  delete out.rounding;
+  if (configOpenDomain(viz, axis)) delete out.domain;
+  return out;
+}
+
+/**
+    The user's domain for `axis` (a copy; see `givenDomain`), with a set `baseline` filling the
     end it bounds: the maximum when every value in `dataDomain` sits at or
     below the baseline, otherwise the minimum. A bound the user gave wins.
     Undefined when neither applies.
@@ -55,7 +117,7 @@ export function userAxisDomain(
   axis: string,
   dataDomain: DomainValue[] | undefined,
 ): DomainValue[] | undefined {
-  const user = viz.schema[`${axis}Domain`] as DomainValue[] | undefined;
+  const user = givenDomain(viz, axis);
   const domain = user ? user.slice() : undefined;
   if (baselineDomainAxis(viz) !== axis) return domain;
   const baseline = viz._userBaseline as number;

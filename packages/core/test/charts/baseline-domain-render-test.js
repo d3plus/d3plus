@@ -104,7 +104,7 @@ for (const name of ["BarChart", "AreaPlot", "StackedArea", "LinePlot"]) {
     const out = await assertSame(chart(name, ".baseline(980)"), chart(name, ".yDomain([980])"), "base", name);
     assert.ok(out.domain[1] >= 1024, "the axis reaches the data");
     if (name === "LinePlot") {
-      assert.deepStrictEqual(out.domain, [980, 1024], "LinePlot has no baseline to break back to");
+      assert.deepStrictEqual(out.domain, [980, 1050], "LinePlot has no baseline to break back to; its top rounds");
       assert.strictEqual(out.brk, null);
     } else {
       assert.strictEqual(out.brk, 0, "the axis breaks back to a 0 tick");
@@ -122,7 +122,7 @@ it("BarChart: bars grow from the 0 tick behind the break, not from the baseline"
   this.timeout(60000);
   for (const [build, what] of [[chart, "vertical"], [horizontal, "horizontal"]]) {
     const out = await probe(build("BarChart", ".baseline(980)"));
-    assert.deepStrictEqual(out.domain, [980, 1024], `${what}: the domain starts at the baseline, unrounded at either end`);
+    assert.deepStrictEqual(out.domain, [980, 1030], `${what}: the domain starts at the baseline, its far end rounded`);
     assert.ok(out.span980 > 10, `${what}: the 0 tick sits past the break (${out.span980}px from 980)`);
     const shortest = Math.min(...out.bars.map(([a, b]) => Math.abs(b - a)));
     assert.ok(Math.abs(shortest - out.span990) <= 2, `${what}: the 990 bar spans 0 to 990 (${shortest} vs ${out.span990})`);
