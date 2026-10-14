@@ -13,7 +13,8 @@ import {resolveAccessor} from "./emitHelpers.js";
 
 /**
     The background image for one emitted shape node, or null when the datum's
-    `sc.backgroundImage` resolves to no URL or the node has no fillable area.
+    `sc.backgroundImage` resolves to no URL or the node has no fillable area
+    (no fill, or an empty box).
 
     `sc` is a shape-config record from `shapeConfigFor`, so a per-shape
     `shapeConfig.Rect.backgroundImage` applies as well as the top-level one;
@@ -31,6 +32,8 @@ export function backgroundImageNode(
   d: DataPoint,
   i: number | undefined,
 ): SceneNode | null {
+  // A stroke-only node (no fill, like a link) has no area to draw an image in.
+  if (node.paint?.fill === "none") return null;
   const url = resolveAccessor<unknown>(sc.backgroundImage, d, i);
   if (typeof url !== "string" || !url) return null;
   const fit = resolveAccessor<unknown>(sc.backgroundImageFit, d, i);

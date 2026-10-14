@@ -126,6 +126,8 @@
     ["Gauge", {data: [{id: "CPU", value: 64}], domain: [0, 100], indicator: "progress"}],
     ["BarChart", {data: series, groupBy: "id", x: "year", y: "value"}],
     ["AreaPlot", {data: series, groupBy: "id", x: "year", y: "value"}],
+    // Lines are stroked, so they take neither; only the legend swatches do.
+    ["LinePlot", {data: series, groupBy: "id", x: "year", y: "value", lineMarkers: true}],
     ["StackedArea", {data: series, groupBy: "id", x: "year", y: "value"}],
     ["Plot", {data: series, groupBy: ["id", "year"], x: "year", y: "value", size: "value", color: "id"}],
     ["BoxWhisker", {data: box, groupBy: ["id", "sub"], x: "id", y: "value"}],
