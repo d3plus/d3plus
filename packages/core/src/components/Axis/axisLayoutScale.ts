@@ -17,6 +17,7 @@ import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
 import {
   axisDateCategories,
+  axisShownDates,
   axisTimeDomain,
   axisTimeReference,
   isCategoryAxis,
@@ -56,14 +57,14 @@ export function buildTickFormat(
     : (d: unknown): string => {
         if (isValidDate(d) && isCategoryAxis(axis)) {
           dates ??= axisDateCategories(axis);
-          return formatDate(d, dates, timeFormat).replace(/^Q/g, timeLocaleObj.quarter);
+          return formatDate(d, dates, timeFormat, axisShownDates(axis)).replace(/^Q/g, timeLocaleObj.quarter);
         } else if (
           isNaN(d as number) ||
           ["band", "ordinal", "point"].includes(axis.schema.scale)
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          return formatDate(d as Date, axisTimeReference(axis), timeFormat).replace(
+          return formatDate(d as Date, axisTimeReference(axis), timeFormat, axisShownDates(axis)).replace(
             /^Q/g,
             timeLocaleObj.quarter,
           );

@@ -205,6 +205,88 @@ it("formatDate", () => {
   assert.strictEqual(formatDate(halfHours[0], halfHours), "11 PM", "the first date on the hour reads as its hour");
 });
 
+it("formatDate: the shown dates decide which labels carry the year", () => {
+  timeFormatDefaultLocale({
+    dateTime: "%x, %X", date: "%-m/%-d/%Y", time: "%-I:%M:%S %p",
+    periods: ["AM", "PM"],
+    days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    shortDays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    shortMonths: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  });
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const every = (dates, n) => dates.filter((_, i) => i % n === 0);
+  const label = (dates, shown) => shown.map(d => formatDate(d, dates, timeFormat, shown));
+
+  const months = range(30, i => new Date(2023, i, 1));
+  assert.deepStrictEqual(
+    label(months, every(months, 5)),
+    ["Jan 2023", "Jun", "Nov", "Apr 2024", "Sep", "Feb 2025"],
+    "with January thinned away, the first month shown in each year names it",
+  );
+  assert.deepStrictEqual(
+    label(months, every(months, 3)).slice(-3),
+    ["Oct", "Jan 2025", "Apr"],
+    "the last label shown keeps its year only when it opens one",
+  );
+  assert.deepStrictEqual(
+    label(months, months.slice(1, 4)),
+    ["Feb 2023", "Mar", "Apr"],
+    "the first label shown carries the year, wherever it falls",
+  );
+
+  const days = range(40, i => new Date(2025, 11, 10 + i));
+  assert.deepStrictEqual(
+    label(days, every(days, 7)),
+    ["Dec 10, 2025", "Dec 17", "Dec 24", "Dec 31", "Jan 7, 2026", "Jan 14"],
+    "days: the first day shown after New Year names the year",
+  );
+
+  const quarters = range(12, i => new Date(2022, i * 3, 1));
+  assert.deepStrictEqual(
+    label(quarters, every(quarters, 3)),
+    ["Q1 2022", "Q4", "Q3 2023", "Q2 2024"],
+    "quarters",
+  );
+
+  const hours = range(48, i => new Date(2026, 2, 3, 6 + i));
+  assert.deepStrictEqual(
+    label(hours, every(hours, 6)),
+    ["Mar 3, 2026, 06 AM", "12 PM", "06 PM", "Mar 4, 12 AM", "06 AM", "12 PM", "06 PM", "Mar 5, 12 AM"],
+    "hours: the first label of each day shown names the day, with its hour",
+  );
+  assert.deepStrictEqual(
+    label(hours, every(hours, 5)).slice(0, 5),
+    ["Mar 3, 2026, 06 AM", "11 AM", "04 PM", "09 PM", "Mar 4, 02 AM"],
+    "hours: the day rides on the first label shown after midnight",
+  );
+  const newYear = range(12, i => new Date(2025, 11, 31, 18 + i));
+  assert.strictEqual(
+    formatDate(newYear[6], newYear, timeFormat, newYear),
+    "Jan 1, 2026, 12 AM",
+    "hours: a new year names the year",
+  );
+
+  assert.strictEqual(
+    formatDate(+months[12], months, timeFormat, every(months, 5)),
+    "Jan 2024",
+    "a timestamp reads as its Date",
+  );
+  assert.strictEqual(
+    formatDate(months[12], months, timeFormatLocale(spanish).format, every(months, 4)),
+    "ene 2024",
+    "custom formatter for localization",
+  );
+});
+
+it("formatDate: hourly ends read their hour", () => {
+  const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, 6 + i));
+  assert.strictEqual(formatDate(hours[0], hours), "Mar 3, 2026, 06 AM");
+  assert.strictEqual(formatDate(hours[11], hours), "Mar 3, 2026, 05 PM");
+  assert.strictEqual(formatDate(hours[5], hours), "11 AM");
+  assert.strictEqual(formatDate(hours[11], hours, timeFormat, hours), "05 PM", "the last shown hour, on the first's day");
+});
+
 it("formatDateFull", () => {
   const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
   const years = range(8, i => new Date(2018 + i, 0, 1));
