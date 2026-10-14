@@ -476,9 +476,11 @@ export interface D3plusConfig {
       BarChart/Marimekko with `barWidth`: whether each category's axis label
       also shows its bar's share of the total width, beneath the name along
       a horizontal axis ("Retail" over "50%") and after it along a vertical
-      one ("Retail (50%)"). Faceted panels that share their scales read the
-      share of every panel's combined width. On for Marimekko, off for
-      BarChart.
+      one ("Retail (50%)"). Labels the axis rotates to fit show the name
+      alone; the tooltip always shows the share. In small multiples
+      (`facet`), each panel's shares are of that panel's own total width and
+      add to 100%, even when shared scales draw a smaller panel narrower.
+      On for Marimekko, off for BarChart.
   */
   barWidthShare?: boolean;
   /**

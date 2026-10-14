@@ -66,7 +66,7 @@ BasicExample.args = {
   x: "Region",
   y: "Revenue",
 };
-BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market beneath its name. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
+BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market beneath its name, unless the narrowest bars rotate the labels to fit, which then show the name alone. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
 
 export const WithoutWidthShares = Template.bind({});
 WithoutWidthShares.args = {
@@ -107,7 +107,7 @@ Horizontal.args = {
   x: "Revenue",
   y: "Region",
 };
-Horizontal.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "With `discrete(\"y\")` the bars run horizontally: each region's row is as tall as its total, and its segments fill the width."}}};
+Horizontal.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "With `discrete(\"y\")` the bars run horizontally: each region's row is as tall as its total, and its segments fill the width. Labels along a vertical axis never rotate, so each region's share follows its name."}}};
 
 export const GapsAndOrder = Template.bind({});
 GapsAndOrder.args = {
@@ -128,7 +128,7 @@ SmallMultiples.args = {
   y: "Revenue",
   facet: "Year",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, and each region's label shows its share of every year's combined total."}}};
+SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, while each region's label and tooltip show its share of that year's own total, so every year's shares add to 100%."}}};
 
 export const SmallMultiplesIndependent = Template.bind({});
 SmallMultiplesIndependent.args = {

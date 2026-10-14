@@ -57,6 +57,10 @@ export const marimekkoDef: ChartDefinition = {
     /**
         Marimekko labels each category with its bar's share of the total
         width by default ("Retail" over "50%"); `false` shows the name alone.
+        Labels the axis rotates to fit show the name alone too, while the
+        tooltip always shows the share. In small multiples (`facet`), each
+        panel's shares are of that panel's own total and add to 100%, even
+        when shared scales (the default) draw a smaller panel narrower.
     */
     {key: "barWidthShare", default: true},
     {key: "stacked", default: true},

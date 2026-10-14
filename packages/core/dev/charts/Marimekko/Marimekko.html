@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Marimekko</title>
-  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels, horizontal bars, shared and independent small multiples, and variable-width BarCharts.">
+  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels flat and rotated, horizontal bars, shared and independent small multiples, and variable-width BarCharts.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -20,15 +20,16 @@
 
 <body>
   <div class="grid">
-    <div><h3>Default (width = each region's total, segments stacked to 100%)</h3><div class="viz" id="basic"></div></div>
+    <div><h3>Default (width = each region's total, segments stacked to 100%); rotated labels show the name alone, the tooltip keeps the share</h3><div class="viz" id="basic"></div></div>
     <div><h3>barWidth("Market Size") with aggs max, groupPadding(6)</h3><div class="viz" id="measure"></div></div>
     <div><h3>stackOffset("none"): absolute heights</h3><div class="viz" id="absolute"></div></div>
-    <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
+    <div><h3>Horizontal: discrete("y"), each region's width share after its name</h3><div class="viz" id="horizontal"></div></div>
     <div><h3>BarChart with barWidth (width = population, height = GDP per capita)</h3><div class="viz" id="barchart"></div></div>
     <div><h3>xSort by width, descending</h3><div class="viz" id="sorted"></div></div>
     <div><h3>barWidthShare(false): category names without width shares</h3><div class="viz" id="noshare"></div></div>
     <div><h3>BarChart with barWidth and unstacked series, barWidthShare(true)</h3><div class="viz" id="series"></div></div>
-    <div class="wide"><h3>Small multiples: facet("Year"), one shared width scale (default): the smaller market draws a narrower mosaic</h3><div class="viz" id="facet"></div></div>
+    <div class="wide"><h3>Bars wide enough for flat labels (three regions): each region's width share on a second line</h3><div class="viz" id="flat"></div></div>
+    <div class="wide"><h3>Small multiples: facet("Year"), one shared width scale (default): the smaller market draws a narrower mosaic, and each year's shares add to 100%</h3><div class="viz" id="facet"></div></div>
     <div class="wide"><h3>facetConfig({scales: "independent"}): each panel fills its own width</h3><div class="viz" id="facetIndependent"></div></div>
   </div>
 </body>
@@ -56,6 +57,14 @@
   new d3plus.Marimekko()
     .select("#basic")
     .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#flat")
+    .data(sales.filter(d => ["North America", "Europe", "Asia Pacific"].includes(d.Region)))
     .groupBy("Brand")
     .x("Region")
     .y("Revenue")
