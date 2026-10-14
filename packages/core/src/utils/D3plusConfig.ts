@@ -132,6 +132,12 @@ export interface AxisConfig {
       but one may be `undefined` to allow the default behavior for that value.
   */
   range?: (number | undefined)[];
+  /**
+      Tick formatter for labels drawn rotated (see `labelRotation`), in place
+      of `tickFormat`: rotation is decided by measuring the labels this way,
+      so a long label can rotate in a shorter form.
+  */
+  rotatedTickFormat?: (d: number | string) => string | number;
   /** Scale of the axis. */
   scale?: AxisScale;
   /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */

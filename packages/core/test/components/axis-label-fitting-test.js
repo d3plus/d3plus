@@ -1,6 +1,7 @@
 import assert from "assert";
 import {labelMisses, rotatesLabels} from "../../es/src/components/Axis/axisLayout.js";
 import {isDiscreteScale, thinEvenly, wholeWordSplit} from "../../es/src/components/Axis/axisLayoutLabels.js";
+import {buildTickFormat} from "../../es/src/components/Axis/axisLayoutScale.js";
 import {textSplit} from "@d3plus/text";
 import jsdomIt from "../jsdom.js";
 
@@ -72,6 +73,21 @@ it("rotatesLabels — only an axis of named categories rotates on its own", () =
   assert.strictEqual(rotatesLabels(spans, [5, 15], d => `${d}`), false, "numbered ones thin");
   assert.strictEqual(rotatesLabels({schema: {scale: "linear"}}, [5, 15], d => names.get(d)), false,
     "ticks the axis picked itself thin");
+});
+
+it("buildTickFormat — rotated labels read rotatedTickFormat, as the rotation stands at each call", () => {
+  const axis = {
+    _labelRotation: false,
+    schema: {scale: "linear", tickFormat: d => `Region ${d}\n50%`, rotatedTickFormat: d => `Region ${d}`},
+  };
+  const format = buildTickFormat(axis, {}, () => []);
+  assert.strictEqual(format(1), "Region 1\n50%");
+  axis._labelRotation = true;
+  assert.strictEqual(format(1), "Region 1", "the same formatter follows the rotation");
+  axis._labelRotation = false;
+  assert.strictEqual(format(1), "Region 1\n50%");
+  const plain = {_labelRotation: true, schema: {scale: "linear", tickFormat: d => `Region ${d}\n50%`}};
+  assert.strictEqual(buildTickFormat(plain, {}, () => [])(1), "Region 1\n50%", "tickFormat alone formats rotated labels too");
 });
 
 it("labelMisses — counts labels cut short or hidden", () => {
