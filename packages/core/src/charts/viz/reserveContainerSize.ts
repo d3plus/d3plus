@@ -55,7 +55,10 @@ export function reserveContainerSize(viz: Viz): void {
     style.border = "0";
     style.visibility = "hidden";
     style.pointerEvents = "none";
-    parent.insertBefore(spacer, svg);
+    // After the svg: on a first render the svg is still in flow while
+    // autoSize checks whether it is on-screen, and a spacer above it would
+    // push it below the fold.
+    parent.insertBefore(spacer, svg.nextSibling);
   }
   spacer.style.width = `${width ?? 0}px`;
   spacer.style.height = `${height ?? 0}px`;

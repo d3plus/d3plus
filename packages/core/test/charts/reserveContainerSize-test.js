@@ -29,7 +29,7 @@ const spacers = container =>
     c.classList.contains("d3plus-viz-spacer"),
   );
 
-it("adds an invisible spacer before the svg sized to an explicit height", () => {
+it("adds an invisible spacer after the svg sized to an explicit height", () => {
   const {container, svg, viz} = setup({
     schema: {width: 640, height: 200},
     _autoWidth: true,
@@ -37,7 +37,7 @@ it("adds an invisible spacer before the svg sized to an explicit height", () => 
   reserveContainerSize(viz);
   const [spacer] = spacers(container);
   assert.ok(spacer, "a spacer is added");
-  assert.strictEqual(spacer.nextSibling, svg);
+  assert.strictEqual(spacer.previousSibling, svg);
   assert.strictEqual(spacer.style.height, "200px");
   assert.strictEqual(
     spacer.style.width,
