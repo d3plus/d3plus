@@ -223,29 +223,15 @@ export default class Shape extends BaseClass {
       @private
 */
   _getTextureKey(d: DataPoint, i: number): string | false {
-    // A Line or Area's texture accessor gets its merged row, like its other styles.
+    // A Line or Area's texture, and the fill and stroke it defaults its colors
+    // to, resolve against the merged row, like the shape's other styles.
     const textureVal: unknown = this._styleVal(this.schema.texture, d, i);
     if (!textureVal) return false;
 
-    /**
-        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @private
-*/
-    const styleLogic = (_: unknown): unknown => {
-      return typeof _ !== "function"
-        ? _
-        : d.nested && d.key !== undefined && d.values
-          ? (_ as AccessorFn)(
-              (d.values as unknown as DataPoint[])[0],
-              this._data.indexOf((d.values as unknown as DataPoint[])[0]),
-            )
-          : (_ as AccessorFn)(d, i);
-    };
-
     return textureKey(
       textureVal,
-      () => styleLogic(this.schema.fill),
-      () => styleLogic(this.schema.stroke),
+      () => this._styleVal(this.schema.fill, d, i),
+      () => this._styleVal(this.schema.stroke, d, i),
       this.schema.textureDefault,
     );
   }

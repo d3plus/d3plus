@@ -157,6 +157,37 @@
     });
   });
 
+  // A per-row accessor gets each area's merged row, so only beta is textured.
+  var perRow = document.createElement("h2");
+  perRow.textContent = "Per-row texture accessor (beta only)";
+  document.body.appendChild(perRow);
+  [
+    ["StackedArea", {}],
+    ["LinePlot", {confidence: ["lci", "hci"], title: "LinePlot confidence bands"}]
+  ].forEach(function(chart) {
+    var el = document.createElement("div");
+    el.className = "viz";
+    document.body.appendChild(el);
+    new d3plus[chart[0]]()
+      .select(el)
+      .config({
+        data: series.map(function(d) {
+          return Object.assign({lci: d.value - 3, hci: d.value + 3}, d);
+        }),
+        groupBy: "id",
+        x: "year",
+        y: "value",
+        title: chart[0]
+      })
+      .config(chart[1])
+      .shapeConfig({
+        texture: function(d) {
+          return d.id === "beta" ? {texture: "lines", stroke: "#212529", strokeWidth: 1.5, size: 8} : false;
+        }
+      })
+      .render();
+  });
+
 </script>
 
 </html>
