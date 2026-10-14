@@ -21,8 +21,6 @@ export interface PlotFacetScales {
   padded: Record<string, DomainValue[]>;
   /** The bubble size scale, when the chart sizes its circles. */
   size?: D3Scale;
-  /** The combined width of every panel's variable-width bars (`barWidth`), which their width shares are shares of. */
-  barTotal?: number;
 }
 
 /**

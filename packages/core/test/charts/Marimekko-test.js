@@ -450,7 +450,7 @@ function facetPanels(out) {
     panels[panel] = panels[panel] || {width: 0};
     panels[panel].width += r.width;
   }
-  for (const [key, labels] of Object.entries(out.axes)) {
+  for (const [key, {labels}] of Object.entries(out.scene)) {
     const [panel, axis] = key.split("/");
     if (axis === "plot-x-axis" && panels[panel]) panels[panel].labels = labels;
   }
@@ -466,11 +466,9 @@ for (const renderer of ["svg", "canvas"]) {
     const out = await render("", draw, ["Marimekko", {facet: "panel", renderer}, panelRows]);
     const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
     near(p1.width / p2.width, 0.5, 0.05, "the smaller panel draws a narrower mosaic");
-    if (renderer === "svg") {
-      // Shares are of every panel's combined width (120): A is 30 and 60, B 10 and 20.
-      assert.deepStrictEqual(p1.labels, ["A\n25%", "B\n8.33%"]);
-      assert.deepStrictEqual(p2.labels, ["A\n50%", "B\n16.7%"]);
-    }
+    // Each panel's shares are of its own total (40 and 80), so they add to 100% in both.
+    assert.deepStrictEqual(p1.labels, ["A\n75%", "B\n25%"]);
+    assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
   });
 
   it(`Marimekko: facetConfig({scales: "independent"}) fills each panel's width (${renderer})`, async function () {
@@ -479,18 +477,17 @@ for (const renderer of ["svg", "canvas"]) {
     const out = await render("", draw, ["Marimekko", config, panelRows]);
     const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
     near(p1.width / p2.width, 1, 0.05, "every panel fills its width");
-    if (renderer === "svg") {
-      assert.deepStrictEqual(p1.labels, ["A\n75%", "B\n25%"], "shares of the panel's own total");
-      assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
-    }
+    assert.deepStrictEqual(p1.labels, ["A\n75%", "B\n25%"], "shares of the panel's own total");
+    assert.deepStrictEqual(p2.labels, ["A\n75%", "B\n25%"]);
   });
 }
 
-it("Marimekko: a shared-scale facet panel's tooltip shares its width of every panel's total", async function () {
+it("Marimekko: a shared-scale facet panel's tooltip shares its width of that panel's total", async function () {
   this.timeout(60000);
-  const out = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P1/b_A"]);
-  const rows = Object.fromEntries(out.tooltip);
-  assert.strictEqual(rows["Bar Total"], "30 (25%)");
+  const p1 = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P1/b_A"]);
+  assert.strictEqual(Object.fromEntries(p1.tooltip)["Bar Total"], "30 (75%)");
+  const p2 = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P2/b_B"]);
+  assert.strictEqual(Object.fromEntries(p2.tooltip)["Bar Total"], "20 (25%)");
 });
 
 it("Marimekko: every facet panel labels its own categories, in every grid row", async function () {

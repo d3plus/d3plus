@@ -185,24 +185,23 @@ it("barWidth: plotAxisConfig puts the category labels beneath the user's axis co
   assert.deepStrictEqual(plotAxisConfig(viz, "y"), {break: false, title: "v"});
 });
 
-it("barWidth: applyBarWidths shares widths of the panel's total, or every panel's when shared", () => {
+it("barWidth: applyBarWidths shares widths of the panel's own total, even with shared facet scales", () => {
   const viz = fakeViz({barWidth: barWidthAccessor("v")});
   const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
   applyBarWidths(viz, data, data);
-  assert.strictEqual(viz._barSpans.shareTotal, 4);
-  viz._plotFacetScales = {domains: {}, padded: {}, barTotal: 16};
+  assert.strictEqual(viz._barSpans.total, 4);
+  viz._plotFacetScales = {domains: {x: [0, 16]}, padded: {}};
   const again = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
   applyBarWidths(viz, again, again);
   assert.strictEqual(viz._barSpans.total, 4);
-  assert.strictEqual(viz._barSpans.shareTotal, 16);
-  assert.deepStrictEqual(barWidthTooltipRows(viz, again[1].data), [["v", "3 (18.8%)"]]);
+  assert.deepStrictEqual(barWidthTooltipRows(viz, again[1].data), [["v", "3 (75%)"]]);
 });
 
-it("barWidth: widthShareText formats a bar's share of the share total", () => {
+it("barWidth: widthShareText formats a bar's share of the layout's total", () => {
   const span = {value: "A", size: 1, start: 0, end: 1, mid: 0.5};
-  assert.strictEqual(widthShareText({shareTotal: 3, spans: [span]}, span, "en-US"), "33.3%");
-  assert.strictEqual(widthShareText({shareTotal: 4, spans: [span]}, span, "en-US"), "25%");
-  assert.strictEqual(widthShareText({shareTotal: 0, spans: [span]}, span, "en-US"), "");
+  assert.strictEqual(widthShareText({total: 3, spans: [span]}, span, "en-US"), "33.3%");
+  assert.strictEqual(widthShareText({total: 4, spans: [span]}, span, "en-US"), "25%");
+  assert.strictEqual(widthShareText({total: 0, spans: [span]}, span, "en-US"), "");
 });
 
 it("barWidth: shareLabel puts the share beneath a horizontal axis label and after a vertical one", () => {

@@ -42,13 +42,8 @@ export interface MeasuredBar {
 export interface BarSpanLayout {
   axis: "x" | "y";
   spans: BarSpan[];
-  /** The sum of every bar's width. */
+  /** The sum of every bar's width, which each bar's width share is a share of. */
   total: number;
-  /**
-      What each bar's width share is a share of: `total`, or the combined
-      total of every panel when faceted panels share their scales.
-  */
-  shareTotal: number;
   /** Each plotted source datum's bar. */
   byDatum: WeakMap<object, BarSpan>;
 }
@@ -164,13 +159,7 @@ export function applyBarWidths(viz: VizInstance, formattedData: Row[], axisData:
   const placedAxis = axisData === formattedData ? placed : place(axisData);
 
   const total = spans.length ? spans[spans.length - 1].end : 0;
-  const layout: BarSpanLayout = {
-    axis,
-    spans,
-    total,
-    shareTotal: viz._plotFacetScales?.barTotal ?? total,
-    byDatum,
-  };
+  const layout: BarSpanLayout = {axis, spans, total, byDatum};
   viz._barSpans = layout;
   // The axis is a linear scale of cumulative width, even for date categories.
   if (axis === "x") viz._xTime = false;
@@ -189,9 +178,12 @@ function categoryLabel(value: unknown): string {
   return value instanceof Date ? formatDate(value, [value]) : String(value);
 }
 
-/** A bar's width as a locale-formatted share of `layout.shareTotal`; empty without a total. */
+/**
+    A bar's width as a locale-formatted share of `layout.total`, the total of
+    its own panel when faceted; empty without a total.
+*/
 export function widthShareText(layout: BarSpanLayout, span: BarSpan, locale?: string): string {
-  return layout.shareTotal ? `${formatAbbreviate((span.size / layout.shareTotal) * 100, locale)}%` : "";
+  return layout.total ? `${formatAbbreviate((span.size / layout.total) * 100, locale)}%` : "";
 }
 
 /**
@@ -241,9 +233,8 @@ export function barWidthLabel(viz: VizInstance): string {
 
 /**
     The tooltip row for a variable-width bar's datum: its width measure and
-    that width's share of every bar's combined width (every panel's, when
-    faceted panels share their scales). Empty when `d` isn't a plotted bar
-    datum.
+    that width's share of every bar's combined width (in its own panel, when
+    faceted). Empty when `d` isn't a plotted bar datum.
 */
 export function barWidthTooltipRows(viz: VizInstance, d: DataPoint): [string, string][] {
   const layout = viz._barSpans;
