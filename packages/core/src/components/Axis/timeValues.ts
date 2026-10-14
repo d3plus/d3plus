@@ -108,3 +108,19 @@ function axisDateReference(axis: Axis, d: Date): Date[] {
   const dates = axis.schema.scale === "time" ? axisTimeReference(axis) : axisDateCategories(axis);
   return dates.length ? dates : [d];
 }
+
+/**
+    The Dates among the labels an axis draws (see `Axis._shownLabels`), parsed and in time order, or `undefined` before a layout pass has picked them. Date labels carry the year on the first of these and on the first after each change of year.
+    @private
+*/
+export function axisShownDates(axis: Axis): Date[] | undefined {
+  const shown = axis._shownLabels;
+  if (!shown) return undefined;
+  const cached = shownDatesCache.get(axis);
+  if (cached && cached[0] === shown) return cached[1];
+  const dates = parseTimeValues(shown).sort((a, b) => +a - +b);
+  shownDatesCache.set(axis, [shown, dates]);
+  return dates;
+}
+
+const shownDatesCache = new WeakMap<Axis, [unknown[], Date[]]>();

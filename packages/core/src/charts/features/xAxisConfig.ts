@@ -3,6 +3,7 @@
 */
 import {withAxisInk} from "../Plot/axisInk.js";
 import {baselineBreakAxisConfig} from "../Plot/baselineBreak.js";
+import {hasUserDomain} from "../Plot/baselineDomain.js";
 import type {AxisMeasureInputs} from "./axes.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -13,7 +14,7 @@ export function buildXConfig(viz: Viz, inputs: AxisMeasureInputs): Record<string
   const xC: Record<string, unknown> = {
     data: xData,
     locale: viz.schema.locale,
-    rounding: viz.schema.xDomain || (viz._discreteExtent && viz.schema.discrete === "x") ? "none" : "outside",
+    rounding: hasUserDomain(viz, "x") || (viz._discreteExtent && viz.schema.discrete === "x") ? "none" : "outside",
     scalePadding: xScalePadding,
     ...baselineBreakAxisConfig(viz, "x"),
   };
