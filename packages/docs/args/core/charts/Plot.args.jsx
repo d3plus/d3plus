@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2020,7 +2020,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The x domain as an array. If either value is undefined, it is calculated from the data.",
+      description: "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2166,7 +2166,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The y domain as an array. If either value is undefined, it is calculated from the data.",
+      description: "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
       table: {
         defaultValue: {
           summary: "undefined"

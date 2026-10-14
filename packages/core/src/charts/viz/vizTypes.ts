@@ -398,6 +398,8 @@ export interface VizInstance {
   _yTime?: boolean;
   _y2Time?: boolean;
   _baseline?: number;
+  /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
+  _userBaseline?: number;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */

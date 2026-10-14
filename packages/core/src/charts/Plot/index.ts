@@ -19,12 +19,12 @@ import {
 import {accessor, constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
+import {baselineValue, setBaseline} from "./baselineDomain.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
-  {key: "baseline", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},
   {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},
@@ -498,6 +498,15 @@ Additionally, each config object can also contain an optional "layer" key, which
   }
 
   /**
+      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is "none"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
+*/
+  baseline(_?: number): this | number | undefined {
+    return arguments.length
+      ? (setBaseline(this as unknown as VizInstance, _), this)
+      : baselineValue(this as unknown as VizInstance);
+  }
+
+  /**
        A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 */
   backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
@@ -801,7 +810,6 @@ Stacked charts always fit one line to the stack totals.
 }
 
 resolvesReset(
-  Plot.prototype,
-  "backgroundConfig", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
-  "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+  Plot.prototype, "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig",
+  "lineMarkerConfig", "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
 );
