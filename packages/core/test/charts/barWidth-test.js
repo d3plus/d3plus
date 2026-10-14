@@ -211,18 +211,35 @@ it("barWidth: shareLabel puts the share beneath a horizontal axis label and afte
   assert.strictEqual(shareLabel("Retail", "", "x"), "Retail");
 });
 
-it("barWidth: barSpanAxisConfig adds width shares with barWidthShare", () => {
+it("barWidth: barSpanAxisConfig ticks and labels each bar's center alone", () => {
+  const viz = fakeViz({barWidth: barWidthAccessor("v")});
+  const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
+  applyBarWidths(viz, data, data);
+  const config = barSpanAxisConfig(viz, "x");
+  assert.deepStrictEqual(config.ticks, [0.5, 2.5], "no ticks between the bars");
+  assert.deepStrictEqual(config.labels, [0.5, 2.5]);
+  assert.strictEqual(config.tickFormat(0.5), "A");
+  assert.strictEqual(config.tickFormat(1), "", "nothing labels a value off the bar centers");
+  assert.strictEqual(config.rotatedTickFormat, undefined, "the name alone, rotated or not");
+  assert.deepStrictEqual(barSpanAxisConfig(viz, "y"), {}, "only the variable-width axis");
+});
+
+it("barWidth: barSpanAxisConfig adds width shares with barWidthShare, but not to rotated labels", () => {
   const viz = fakeViz({barWidth: barWidthAccessor("v"), barWidthShare: true});
   const data = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
   applyBarWidths(viz, data, data);
   const config = barSpanAxisConfig(viz, "x");
   assert.strictEqual(config.tickFormat(0.5), "A\n25%");
   assert.strictEqual(config.tickFormat(2.5), "B\n75%");
+  assert.strictEqual(config.rotatedTickFormat(0.5), "A");
+  assert.strictEqual(config.rotatedTickFormat(2.5), "B");
 
   const vertical = fakeViz({barWidth: barWidthAccessor("v"), barWidthShare: true, discrete: "y"});
   const rows = [{y: "A", data: {v: 1}}, {y: "B", data: {v: 3}}];
   applyBarWidths(vertical, rows, rows);
-  assert.strictEqual(barSpanAxisConfig(vertical, "y").tickFormat(0.5), "A (25%)");
+  const y = barSpanAxisConfig(vertical, "y");
+  assert.strictEqual(y.tickFormat(0.5), "A (25%)");
+  assert.deepStrictEqual(y.ticks, [0.5, 2.5]);
 });
 
 it("barWidth: barSeries lists side-by-side series only when a bar holds more than one", () => {

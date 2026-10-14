@@ -2,8 +2,8 @@
     Variable bar widths (`barWidth`, #437). Each bar along the discrete axis
     is as wide as its own measure, and the bars are laid end to end from
     zero, so that axis becomes a continuous scale of cumulative width: bars
-    fill their spans (see discreteSpan.ts), each category is labeled at its
-    bar's center, and ticks mark the bar edges.
+    fill their spans (see discreteSpan.ts), and each category is ticked and
+    labeled at its bar's center, the way a category axis is.
 */
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
@@ -206,22 +206,28 @@ export function shareLabel(name: string, share: string, axis: "x" | "y"): string
 }
 
 /**
-    Axis config for a variable-width discrete axis: each category labeled at
-    its bar's center, with its width share when `barWidthShare` is on. Empty
+    Axis config for a variable-width discrete axis: each category ticked and
+    labeled at its bar's center, and nowhere else, with its width share when
+    `barWidthShare` is on. Labels the axis rotates show the name alone. Empty
     for any other axis.
 */
 export function barSpanAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
   const layout = viz._barSpans;
   if (!layout || layout.axis !== axis) return {};
   const locale = viz.schema.locale;
-  const text = (s: BarSpan) =>
-    viz.schema.barWidthShare
-      ? shareLabel(categoryLabel(s.value), widthShareText(layout, s, locale), axis)
-      : categoryLabel(s.value);
-  const labels = new Map(layout.spans.map(s => [s.mid, text(s)]));
+  const mids = layout.spans.map(s => s.mid);
+  const names = new Map(layout.spans.map(s => [s.mid, categoryLabel(s.value)]));
+  const name = (v: number) => names.get(v) ?? "";
+  if (!viz.schema.barWidthShare) return {labels: mids, ticks: mids, tickFormat: name};
+  const shared = new Map(layout.spans.map(s => [
+    s.mid,
+    shareLabel(categoryLabel(s.value), widthShareText(layout, s, locale), axis),
+  ]));
   return {
-    labels: layout.spans.map(s => s.mid),
-    tickFormat: (v: number) => labels.get(v) ?? "",
+    labels: mids,
+    ticks: mids,
+    tickFormat: (v: number) => shared.get(v) ?? "",
+    rotatedTickFormat: name,
   };
 }
 

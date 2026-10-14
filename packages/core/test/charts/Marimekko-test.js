@@ -64,6 +64,35 @@ const draw = ([kind, config, rows, hoverKey]) =>
         (node.children || []).forEach(walk);
       };
       (viz._chartScene || []).forEach(walk);
+      // Each axis as painted (either renderer): its labels, tick marks, and rotation.
+      const scene = {};
+      const paintedAxis = (node, axis) => {
+        if (!node || node.key === "textBox-group") return;
+        if (node.type === "text") axis.labels.push(node.lines.map(l => l.text).join("\n"));
+        if (node.type === "path" && !/::hit$/.test(node.key)) axis.ticks.push(node.transform);
+        (node.children || []).forEach(c => paintedAxis(c, axis));
+      };
+      const findAxes = node => {
+        if (!node) return;
+        const match = /(?:^|\/)plot-([xy])-axis$/.exec(node.key || "");
+        if (match) {
+          const axis = scene[node.key] = {labels: [], ticks: [], rotated: viz[`_${match[1]}Axis`]._labelRotation};
+          (node.children || []).forEach(c => paintedAxis(c, axis));
+        }
+        else (node.children || []).forEach(findAxes);
+      };
+      findAxes(viz._paintedScene && viz._paintedScene.root);
+      // SVG tick marks' centers along their axis, in page pixels.
+      const tickCenters = {};
+      el.querySelectorAll("[data-key$='plot-x-axis'], [data-key$='plot-y-axis']").forEach(a => {
+        const along = /x-axis$/.test(a.getAttribute("data-key")) ? "x" : "y";
+        tickCenters[a.getAttribute("data-key")] = [...a.querySelectorAll("[data-key='Line-group'] > path")]
+          .filter(p => !/::hit$/.test(p.getAttribute("data-key")))
+          .map(p => {
+            const b = p.getBoundingClientRect();
+            return along === "x" ? b.left + b.width / 2 : b.top + b.height / 2;
+          });
+      });
       const nan = [...el.querySelectorAll("*")].filter(n =>
         [...n.attributes].some(a => a.value.includes("NaN")),
       ).length;
@@ -73,6 +102,8 @@ const draw = ([kind, config, rows, hoverKey]) =>
         nan,
         canvas: el.querySelectorAll("canvas").length,
         axes,
+        scene,
+        tickCenters,
         xLabels: text("[data-key$='plot-x-axis']"),
         yLabels: text("[data-key$='plot-y-axis']"),
         spans: viz._barSpans ? viz._barSpans.spans.map(s => [s.value, s.start, s.end]) : null,
@@ -243,6 +274,38 @@ it("BarChart: barWidthShare is off by default and adds width shares when on", as
   assert.deepStrictEqual(plain.xLabels, ["A", "B"]);
 });
 
+for (const renderer of ["svg", "canvas"]) {
+  it(`barWidth: a variable-width axis ticks only its categories, at their bars' centers (${renderer})`, async function () {
+    this.timeout(60000);
+    const rows = [
+      {g: "a", cat: "A", v: 4, pop: 100},
+      {g: "b", cat: "B", v: 2, pop: 300},
+    ];
+    const cases = [
+      ["Marimekko", {renderer}, data, "x"],
+      ["Marimekko", {renderer, discrete: "y", x: "v", y: "cat"}, data, "y"],
+      ["BarChart", {renderer, barWidth: "pop"}, rows, "x"],
+    ];
+    for (const [kind, config, rows, along] of cases) {
+      const out = await render("", draw, [kind, config, rows]);
+      const axis = out.scene[`plot-${along}-axis`];
+      const message = `${kind} ${JSON.stringify(config)}`;
+      assert.strictEqual(axis.labels.length, 2, `${message}: ${axis.labels}`);
+      assert.strictEqual(axis.ticks.length, 2, `${message}: one tick per category, none between`);
+      if (renderer === "canvas") continue;
+      // Each tick sits at the middle of its bar's span.
+      const [lo, hi] = along === "x" ? ["left", "right"] : ["top", "bottom"];
+      const mids = [...new Set(out.bars.map(b => `${Math.round(b[lo])},${Math.round(b[hi])}`))]
+        .map(k => k.split(",").map(Number))
+        .map(([a, b]) => (a + b) / 2)
+        .sort((a, b) => a - b);
+      const ticks = out.tickCenters[`plot-${along}-axis`].sort((a, b) => a - b);
+      assert.strictEqual(mids.length, 2, `${message}: bars ${mids}`);
+      ticks.forEach((t, i) => near(t, mids[i], 1.5, `${message}: tick ${i} at its bar's center`));
+    }
+  });
+}
+
 // The dev page's smartphone revenue ($B) by region and brand.
 const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
 const regions = {
@@ -261,30 +324,66 @@ const byYear = [2020, 2022, 2024].flatMap((year, y) =>
 const names = out =>
   Object.fromEntries(Object.entries(out.axes).map(([key, labels]) => [key, labels.map(l => l.replace(/ \(.*\)$/, "").split("\n")[0])]));
 
-it("Marimekko: width shares keep every category label the name alone keeps, at the dev page's sizes", async function () {
-  this.timeout(120000);
-  // A dev-page grid cell is 618px wide; the small multiples span both columns.
-  const cases = [
-    [{width: 618, height: 400}, sales],
-    [{width: 618, height: 400, discrete: "y", x: "v", y: "cat"}, sales],
-  ];
-  for (const [config, rows] of cases) {
-    const shared = await render("", draw, ["Marimekko", config, rows]);
-    const plain = await render("", draw, ["Marimekko", {...config, barWidthShare: false}, rows]);
-    assert.deepStrictEqual(names(shared), names(plain), `same labels survive: ${JSON.stringify(config)}`);
-    const labeled = Object.values(shared.axes).flat();
-    assert.ok(labeled.some(l => /%/.test(l) && /[A-Z]/.test(l)), `shares drawn: ${labeled}`);
-  }
-  // Rotated where the narrowest bars need it, every region keeps its label, share included.
-  const vertical = await render("", draw, ["Marimekko", cases[0][0], sales]);
-  assert.deepStrictEqual(vertical.xLabels.map(l => l.split("\n")[0]).sort(), Object.keys(regions).sort());
-  assert.ok(vertical.xLabels.every(l => /\n[\d.]+%$/.test(l)), `each with its share: ${vertical.xLabels}`);
-  // Along a vertical axis, every region keeps its label.
-  const horizontal = await render("", draw, ["Marimekko", cases[1][0], sales]);
-  assert.deepStrictEqual(horizontal.yLabels.map(l => l.replace(/ \(.*\)$/, "")).sort(), Object.keys(regions).sort());
+const regionNames = Object.keys(regions).sort();
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`Marimekko: rotated category labels show the name alone, at the dev page's sizes (${renderer})`, async function () {
+    this.timeout(120000);
+    // A dev-page grid cell is 618px wide.
+    const config = {width: 618, height: 400, renderer};
+    const out = await render("", draw, ["Marimekko", config, sales]);
+    const x = out.scene["plot-x-axis"];
+    assert.strictEqual(x.rotated, true, "the narrowest bars rotate the labels");
+    assert.deepStrictEqual(x.labels.slice().sort(), regionNames, `every region, no share: ${x.labels}`);
+    // Rotation was decided on, and drawn with, the names alone.
+    const plain = await render("", draw, ["Marimekko", {...config, barWidthShare: false}, sales]);
+    assert.deepStrictEqual(plain.scene["plot-x-axis"], x, "the same axis as barWidthShare(false)");
+
+    // Left flat, a label keeps its share line.
+    const wide = await render("", draw, ["Marimekko", {renderer}, data]);
+    assert.strictEqual(wide.scene["plot-x-axis"].rotated, false);
+    assert.deepStrictEqual(wide.scene["plot-x-axis"].labels, ["A\n75%", "B\n25%"]);
+
+    // A vertical axis never rotates, so every region keeps its inline share.
+    const horizontal = await render("", draw, ["Marimekko", {...config, discrete: "y", x: "v", y: "cat"}, sales]);
+    const y = horizontal.scene["plot-y-axis"];
+    assert.strictEqual(y.rotated, false);
+    assert.deepStrictEqual(y.labels.map(l => l.replace(/ \([\d.]+%\)$/, "")).sort(), regionNames);
+    assert.ok(y.labels.every(l => / \([\d.]+%\)$/.test(l)), `each with its share: ${y.labels}`);
+  });
+}
+
+it("Marimekko: a rotated label's tooltip still shows its bar's width share", async function () {
+  this.timeout(60000);
+  const out = await render("", draw, ["Marimekko", {width: 618, height: 400}, sales, "Apple_Latin America"]);
+  assert.ok(out.xLabels.includes("Latin America"), `rotated, name alone: ${out.xLabels}`);
+  assert.strictEqual(Object.fromEntries(out.tooltip)["Bar Total"], "38 (7.28%)");
 });
 
-it("Marimekko: in the dev page's small multiples, a rotated share line costs a panel at most its narrowest label", async function () {
+it("Marimekko: rotation settles the same way on every render", async function () {
+  this.timeout(60000);
+  const out = await render("", ([rows]) => new Promise(resolve => {
+    const el = document.createElement("div");
+    document.body.appendChild(el);
+    const viz = new window.d3plus.Marimekko().select(el).data(rows).groupBy("g").x("cat").y("v")
+      .duration(0).width(618).height(400);
+    const labels = () => [...el.querySelectorAll("[data-key='plot-x-axis'] text")].map(t => t.textContent);
+    viz.render(() => {
+      const first = {rotated: viz._xAxis._labelRotation, labels: labels()};
+      viz.width(1800).render(() => {
+        const wide = {rotated: viz._xAxis._labelRotation, labels: labels()};
+        viz.width(618).render(() => resolve({first, wide, again: {rotated: viz._xAxis._labelRotation, labels: labels()}}));
+      });
+    });
+  }), [sales]);
+  assert.strictEqual(out.first.rotated, true);
+  assert.ok(out.first.labels.every(l => !l.includes("%")), `rotated: ${out.first.labels}`);
+  assert.strictEqual(out.wide.rotated, false);
+  assert.ok(out.wide.labels.every(l => l.includes("%")), `flat: ${out.wide.labels}`);
+  assert.deepStrictEqual(out.again, out.first);
+});
+
+it("Marimekko: in the dev page's small multiples, a share costs no panel a label", async function () {
   this.timeout(120000);
   for (const config of [
     {width: 1260, height: 400, facet: "year"},
@@ -293,9 +392,7 @@ it("Marimekko: in the dev page's small multiples, a rotated share line costs a p
     const shared = names(await render("", draw, ["Marimekko", config, byYear]));
     const plain = names(await render("", draw, ["Marimekko", {...config, barWidthShare: false}, byYear]));
     Object.entries(plain).forEach(([key, labels]) => {
-      if (!/x-axis$/.test(key)) return;
-      assert.ok(shared[key].every(l => labels.includes(l)), `${key}: ${shared[key]} within ${labels}`);
-      assert.ok(shared[key].length >= labels.length - 1, `${key}: ${shared[key]} vs ${labels}`);
+      if (/x-axis$/.test(key)) assert.deepStrictEqual(shared[key], labels, key);
     });
   }
 });
