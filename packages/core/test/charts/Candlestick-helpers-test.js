@@ -49,7 +49,9 @@ import {
   periodBoundaries,
   periodDate,
   periodLabel,
-  periodTicks,
+  periodTickFormat,
+  periodTickSets,
+  shownUnit,
   unitIndex,
 } from "../../es/src/charts/Candlestick/periods.js";
 import {
@@ -375,51 +377,102 @@ it("Candlestick periodBoundaries ticks the first period of each unit after the f
   assert.deepStrictEqual(months.map(d => d.getMonth()), [1, 2]);
   assert.ok(months.every(d => dates.includes(d)), "ticks are the periods' own dates");
   assert.deepStrictEqual(months.map(d => d.getDate()), [1, 1]);
-  assert.deepStrictEqual(periodBoundaries(dates.slice(0, 3), "month"), [dates[0]], "one unit: its first period");
+  assert.deepStrictEqual(periodBoundaries(dates.slice(0, 3), "month"), [], "one unit: no boundary");
   assert.deepStrictEqual(periodBoundaries([], "month"), []);
 });
 
-it("Candlestick periodTicks picks the finest unit that fits, then thins years", () => {
+it("Candlestick periodTickSets offers the first period plus each unit's boundaries, finest first", () => {
   const dates = weekdays(new Date(2023, 0, 2), 500);
-  assert.strictEqual(periodTicks(dates, 1000).unit, "day");
-  assert.strictEqual(periodTicks(dates, 120).unit, "week");
-  assert.strictEqual(periodTicks(dates, 30).unit, "month");
-  const quarters = periodTicks(dates, 10);
-  assert.strictEqual(quarters.unit, "quarter");
-  assert.ok(quarters.ticks.length <= 10);
-  assert.strictEqual(periodTicks(dates, 2).unit, "year");
+  const sets = periodTickSets(dates, 1000);
+  assert.ok(sets.every(list => list.every(d => dates.includes(d))), "ticks are the periods' own dates");
+  assert.strictEqual(sets[0][0], dates[0], "the finest list starts at the first period");
+  assert.strictEqual(sets[0].length, 500, "a tick per day");
+  assert.deepStrictEqual(sets[1], sets[0].slice(1), "then the same without the first period");
+  for (let k = 1; k < sets.length; k++)
+    assert.ok(sets[k].length <= sets[k - 1].length, "from the most ticks to the fewest");
+  const years = periodTickSets(dates, 2);
+  assert.deepStrictEqual(years.map(list => list.map(d => d.getFullYear())), [[2023, 2024]],
+    "room for two boundaries: the first period and the year start");
+  assert.deepStrictEqual(years[0].slice(1).map(d => d.getMonth()), [0]);
+  const quarters = periodTickSets(dates, 10);
+  assert.strictEqual(quarters[0].length, 8, "the first period and the 7 quarter starts after it");
+  assert.ok(quarters[0].slice(1).every(d => d.getMonth() % 3 === 0));
   const decades = weekdays(new Date(1990, 0, 1), 260 * 30).filter((d, i) => i % 5 === 0);
-  const thinned = periodTicks(decades, 4);
-  assert.strictEqual(thinned.unit, "year");
-  assert.ok(thinned.ticks.length <= 4, `${thinned.ticks.length}`);
-  assert.ok(thinned.ticks.every(d => d.getFullYear() % 10 === 0), "every 10th year");
-  assert.ok(periodTicks(dates, 0).ticks.length <= 1, "room for at least one tick");
+  const thinned = periodTickSets(decades, 4);
+  assert.ok(thinned.every(list => list.length <= 5), "no more than 4 boundaries");
+  assert.deepStrictEqual(thinned[0].slice(1).map(d => d.getFullYear()), [2000, 2010], "every 10th year");
+  assert.deepStrictEqual(thinned.at(-1).map(d => d.getFullYear()), [1990, 2000], "then every 20th");
+  const one = weekdays(new Date(2023, 0, 2), 3);
+  assert.deepStrictEqual(periodTickSets(one, 0), [one, one.slice(1)], "room for none: the coarsest list left");
+  assert.deepStrictEqual(periodTickSets(one.slice(0, 1), 5), [[one[0]]], "one period: just it");
+  assert.deepStrictEqual(periodTickSets([], 5), []);
 });
 
 it("Candlestick periodLabel names years at year starts and months or days otherwise", () => {
   const jan = new Date(2024, 0, 2), feb = new Date(2024, 1, 1), mar = new Date(2024, 2, 1);
   assert.strictEqual(periodLabel(feb, undefined, "month"), "Feb 2024");
-  assert.strictEqual(periodLabel(jan, undefined, "month"), "2024");
+  assert.strictEqual(periodLabel(jan, undefined, "month"), "Jan 2024", "the first tick names its month and year");
   assert.strictEqual(periodLabel(mar, feb, "month"), "Mar");
   assert.strictEqual(periodLabel(jan, new Date(2023, 11, 1), "quarter"), "2024");
   assert.strictEqual(periodLabel(feb, undefined, "week"), "Feb 1, 2024");
   assert.strictEqual(periodLabel(new Date(2024, 1, 8), feb, "day"), "Feb 8");
   assert.strictEqual(periodLabel(jan, new Date(2023, 11, 29), "week"), "Jan 2, 2024");
   assert.strictEqual(periodLabel(jan, new Date(2020, 0, 1), "year"), "2024");
+  assert.strictEqual(periodLabel(feb, undefined, "year"), "2024");
 });
 
-it("Candlestick bandAxisDefaults ticks and labels the rows' calendar boundaries", () => {
+it("Candlestick shownUnit reads the coarsest unit the shown ticks after the first open", () => {
+  const dates = weekdays(new Date(2023, 0, 2), 300);
+  const opens = (d, unit) => {
+    const k = dates.indexOf(d);
+    return k > 0 && unitIndex(dates[k], unit) !== unitIndex(dates[k - 1], unit);
+  };
+  const at = unit => [dates[0], ...periodBoundaries(dates, unit)];
+  assert.strictEqual(shownUnit(at("year"), opens), "year");
+  assert.strictEqual(shownUnit(at("quarter"), opens), "quarter");
+  assert.strictEqual(shownUnit(at("month"), opens), "month");
+  assert.strictEqual(shownUnit(at("week"), opens), "week");
+  assert.strictEqual(shownUnit(dates, opens), "day");
+  assert.strictEqual(shownUnit([dates[0]], opens), "year", "the first alone names its year");
+  assert.strictEqual(shownUnit(dates.slice(0, 1).concat(dates.slice(10, 12)), opens), "day");
+});
+
+it("Candlestick periodTickFormat labels ticks for the unit and year boundaries the axis shows", () => {
+  const dates = weekdays(new Date(2023, 0, 2), 300);
+  const format = periodTickFormat(dates);
+  const axis = shown => ({_shownLabels: shown});
+  const quarters = [dates[0], ...periodBoundaries(dates, "quarter")];
+  assert.deepStrictEqual(quarters.map(d => format.call(axis(quarters), d)), ["Jan 2023", "Apr", "Jul", "Oct", "2024"]);
+  const months = periodBoundaries(dates, "month");
+  assert.deepStrictEqual(months.slice(0, 2).map(d => format.call(axis(months), d)), ["Feb 2023", "Mar"],
+    "without the first period, the first shown tick names its year");
+  const years = [dates[0], ...periodBoundaries(dates, "year")];
+  assert.deepStrictEqual(years.map(d => format.call(axis(years), d)), ["2023", "2024"]);
+  assert.strictEqual(format.call(axis([dates[0]]), dates[0]), "2023", "alone, the first period names its year");
+  const thinned = quarters.filter((_d, k) => k % 2 === 0);
+  assert.deepStrictEqual(thinned.map(d => format.call(axis(thinned), d)), ["Jan 2023", "Jul", "2024"],
+    "thinned ticks still name each new year");
+  const weeks = [dates[0], ...periodBoundaries(dates, "week")];
+  assert.deepStrictEqual(weeks.slice(0, 3).map(d => format.call(axis(weeks), d)), ["Jan 2, 2023", "Jan 9", "Jan 16"]);
+  assert.strictEqual(format(dates[3]), "Jan 5, 2023", "outside an axis, a period formats in full");
+  assert.strictEqual(format.call(axis(quarters), "x"), "x");
+});
+
+it("Candlestick bandAxisDefaults offers tick lists on the rows' calendar boundaries", () => {
   const dates = weekdays(new Date(2024, 0, 15), 60);
   const viz = fakeViz({_filteredData: dates.map(date => ({date})), _x: key("date")});
   viz.schema.width = 600;
   const config = bandAxisDefaults(viz);
-  assert.deepStrictEqual(config.ticks, config.labels);
-  assert.deepStrictEqual(config.ticks.map(d => d.getMonth()), [1, 2, 3]);
-  assert.deepStrictEqual(config.ticks.map(config.tickFormat), ["Feb 2024", "Mar", "Apr"]);
+  assert.strictEqual(config.ticks, undefined, "the ticks follow the list the axis picks");
+  assert.deepStrictEqual(config.labels.map(list => list.length), [4, 3, 2], "months, with and without the first period, then the quarter");
+  assert.deepStrictEqual(config.labels[0].map(d => d.getMonth()), [0, 1, 2, 3], "the first period, then each month");
+  assert.deepStrictEqual(config.labels[1].map(d => d.getMonth()), [1, 2, 3], "then each month alone");
+  const shown = {_shownLabels: config.labels[0]};
+  assert.deepStrictEqual(config.labels[0].map(d => config.tickFormat.call(shown, d)), ["Jan 2024", "Feb", "Mar", "Apr"]);
   assert.strictEqual(config.tickFormat(dates[3]), "Jan 18, 2024", "an untick'd period formats in full");
   assert.strictEqual(config.tickFormat("x"), "x");
   const empty = bandAxisDefaults(fakeViz());
-  assert.deepStrictEqual(empty.ticks, []);
+  assert.deepStrictEqual(empty.labels, []);
 });
 
 it("Candlestick formatPrice keeps two decimals at 1 and above, three digits below", () => {

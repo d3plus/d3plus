@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Candlestick</title>
-  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a volume strip (with OHLC bars, calendar gaps, canvas, and facets), a dark background, and texture plus backgroundImage on filled candles (hollow candles stay hollow).">
+  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a volume strip (with OHLC bars, calendar gaps, canvas, and facets), a dark background, texture plus backgroundImage on filled candles (hollow candles stay hollow), and two years of trading days at narrow widths, naming both years.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -17,6 +17,8 @@
     .tall { height: 520px; }
     .dark { background: #1a1b1e; color: #e9ecef; padding: 8px; }
     h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+    .narrow { display: flex; flex-wrap: wrap; gap: 16px; }
+    .narrow .viz { flex: none; }
   </style>
 
 </head>
@@ -38,6 +40,17 @@
     <div><h3>shapeConfig texture + backgroundImage, hollow: false</h3><div class="viz" id="texturedFilled"></div></div>
     <div class="wide"><h3>500 trading days on canvas</h3><div class="viz" id="dense"></div></div>
     <div class="wide"><h3>Tickers as small multiples (facet, independent scales)</h3><div class="tall" id="facet"></div></div>
+    <div class="wide" id="narrow">
+      <h3>300 trading days across 2023 and 2024 at 260, 320, and 420px, without and with volume: each axis names both years</h3>
+      <div class="narrow">
+        <div class="viz" id="narrow260" style="width: 260px"></div>
+        <div class="viz" id="narrow320" style="width: 320px"></div>
+        <div class="viz" id="narrow420" style="width: 420px"></div>
+        <div class="viz" id="narrowVolume260" style="width: 260px"></div>
+        <div class="viz" id="narrowVolume320" style="width: 320px"></div>
+        <div class="viz" id="narrowVolume420" style="width: 420px"></div>
+      </div>
+    </div>
   </div>
 </body>
 
@@ -236,6 +249,21 @@
     .facet("symbol")
     .facetConfig({scales: "independent"})
     .render();
+
+  const twoYears = prices("ACME", 300, 120, 11);
+  [260, 320, 420].forEach(width => {
+    new d3plus.Candlestick()
+      .select(`#narrow${width}`)
+      .data(twoYears)
+      .groupBy("symbol")
+      .render();
+    new d3plus.Candlestick()
+      .select(`#narrowVolume${width}`)
+      .data(twoYears)
+      .groupBy("symbol")
+      .volume("volume")
+      .render();
+  });
 
 </script>
 

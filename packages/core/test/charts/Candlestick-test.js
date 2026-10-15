@@ -126,7 +126,7 @@ it("Candlestick draws one candle per period, colored and filled by direction", a
   assert.ok(top >= out.high && bottom <= out.low, `y ${out.yDomain} holds ${out.low}–${out.high}`);
   assert.strictEqual(out.xScale, "point", "periods are evenly spaced by default");
   assert.strictEqual(out.xTicks, 60);
-  assert.deepStrictEqual(out.labels.filter(Boolean), ["Feb 2024", "Mar"]);
+  assert.deepStrictEqual(out.labels.filter(Boolean), ["Jan 2024", "Feb", "Mar"], "the first period, then each month");
   assert.strictEqual(out.title, undefined, "the value axis takes no title from close");
 });
 
