@@ -614,10 +614,6 @@ export interface D3plusConfig {
       style the fill alone, or to `false` to keep it plain.
   */
   fillBetweenConfig?: Record<string, unknown>;
-  /** Bullet: each row's forecast (or other comparative measure), drawn as a paler bar behind the measure: a data key, an accessor, a number shared by every row, or `false`. */
-  forecast?: string | number | ((d: DataPoint, i: number) => number) | false;
-  /** Bullet: the forecast bar's `size` (a fraction of the band's thickness), `opacity`, `fill`, `texture`, and `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)` accessor. */
-  forecastConfig?: Record<string, unknown>;
   /** Predicate filtering which data points are included, or false to disable. */
   filter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Allows removing specific geographies from topojson file to improve zoom. */
@@ -640,8 +636,18 @@ export interface D3plusConfig {
       `false` marks nothing, not even a projection. On bar charts the
       backdrop starts at the edge of the first forecast bar, and bars keep
       their own styles. Defaults to `"auto"` on a FanChart.
+
+      Bullet: each row's forecast (or other comparative measure), drawn as
+      a paler bar behind the measure: a data key, an accessor returning the
+      row's value, a number shared by every row, or `false`.
   */
-  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  forecast?:
+    | boolean
+    | "auto"
+    | number
+    | string
+    | Date
+    | ((d: DataPoint, i: number) => boolean | number);
   /**
       Styles for the `forecast` marker: the backdrop's `fill` and
       `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
@@ -659,6 +665,11 @@ export interface D3plusConfig {
       `textureDefault`) or `backgroundImage` (a URL,
       fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
       by default.
+
+      Bullet: the forecast bar's `size` (a fraction of the band's
+      thickness), `opacity`, `fill`, `texture`, and
+      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
+      accessor.
   */
   forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
