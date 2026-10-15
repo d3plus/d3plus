@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <title>DateCategories · LinePlot</title>
-    <meta name="description" content="Date x values without time() on a category axis (monthly, daily, yearly, hourly, a tickFormat override and a facet), and a daily time axis: labels fit whole on one line and keep the year after thinning.">
+    <meta name="description" content="Date x values without time() on a category axis (monthly, daily, yearly, hourly, a tickFormat override, a facet, and 3,000 weekdays), and a daily time axis: labels fit whole on one line and keep the year after thinning.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
@@ -41,6 +41,7 @@
     <div><h3>Quarterly BarChart, xConfig.tickFormat</h3><div class="viz" id="custom"></div></div>
     <div><h3>Monthly BarChart (horizontal)</h3><div class="viz" id="horizontal"></div></div>
     <div class="wide"><h3>Monthly LinePlot, facet by region</h3><div id="facet"></div></div>
+    <div class="wide"><h3 id="manyTitle">Daily BarChart over 3,000 weekdays</h3><div class="viz" id="many"></div></div>
   </body>
 
   <script>
@@ -100,5 +101,23 @@
       .y("value")
       .legend(false)
       .render();
+
+    // Labeling and thinning thousands of Date categories takes about as long
+    // as thousands of named ones.
+    const weekdays = [];
+    for (const day = new Date(2014, 0, 1); weekdays.length < 3000; day.setDate(day.getDate() + 1))
+      if (day.getDay() % 6) weekdays.push(new Date(day));
+    const start = performance.now();
+    new d3plus.BarChart()
+      .select("#many")
+      .data(series(weekdays, ["Alpha"]))
+      .groupBy("id")
+      .x("date")
+      .y("value")
+      .legend(false)
+      .render(() => {
+        document.querySelector("#manyTitle").textContent =
+          `Daily BarChart over 3,000 weekdays (drawn in ${Math.round(performance.now() - start)} ms)`;
+      });
   </script>
 </html>
