@@ -108,9 +108,10 @@ export interface LayoutResult {
 }
 
 /**
-    The allowed values for `legendPosition` and `colorScalePosition`.
+    The resolved values for `legendPosition` and `colorScalePosition`.
     `false` means "hidden" (the feature still runs to tear down DOM); the
-    four strings are the four sides.
+    four strings are the four sides. Both also accept `"auto"` (the
+    default), which `sanitizePosition` resolves to a side.
 */
 export type PanelPosition = false | "top" | "right" | "bottom" | "left";
 
@@ -123,13 +124,24 @@ const VALID_POSITIONS: ReadonlySet<PanelPosition | string> = new Set([
 ]);
 
 /**
-    Canonical sanitizer for `legendPosition` / `colorScalePosition`.
-    Falls back to `"bottom"` when the user-supplied accessor returns
+    The side an `"auto"` legend or colorScale takes when it isn't drawn
+    inside the chart: the right of charts more than 1.5 times as wide as
+    they are tall, the bottom otherwise.
+*/
+export function autoPosition(viz: VizInstance): "right" | "bottom" {
+  return viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+}
+
+/**
+    Canonical sanitizer for `legendPosition` / `colorScalePosition`:
+    resolves `"auto"` to a side for `viz` (see `autoPosition`), and falls
+    back to `"bottom"` when the user-supplied accessor returns
     something outside the allowed set. Single source of truth — used by
     `vizDrawPure` (for sanitized ctx publication) and by `legendFeature`
     + `colorScaleFeature` (for their internal positioning math).
 */
-export function sanitizePosition(raw: unknown): PanelPosition {
+export function sanitizePosition(raw: unknown, viz: VizInstance): PanelPosition {
+  if (raw === "auto") return autoPosition(viz);
   return (VALID_POSITIONS.has(raw as string) ? raw : "bottom") as PanelPosition;
 }
 
