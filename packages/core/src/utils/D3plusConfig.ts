@@ -125,7 +125,12 @@ export interface AxisConfig {
   /** Grid size of the axis. */
   gridSize?: number;
   label?: string;
-  /** Visible tick labels of the axis. */
+  /**
+      Visible tick labels of the axis. Also takes a list of label lists, from
+      the most labels to the fewest: the axis labels the first list whose
+      labels all fit whole without crowding, else the last one, thinned. Its
+      ticks then follow the chosen list unless `ticks` is set.
+  */
   labels?: unknown[];
   labelOffset?: false | number;
   /**
@@ -159,7 +164,7 @@ export interface AxisConfig {
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
-  /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
+  /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
   /** Tick values of the axis. */
   ticks?: unknown[];
