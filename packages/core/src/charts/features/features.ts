@@ -20,6 +20,7 @@ import type {SceneNode} from "@d3plus/render";
 import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {
@@ -296,6 +297,10 @@ interface TextBlockFit {
     fit that, or isn't centered, each side insets by its own corner's amount.
     When the text doesn't fit beside the panels at all, it drops below them
     and takes the full width, so a narrow chart never loses it.
+
+    Text fits a placement only in whole words: one that only fits by breaking
+    a word mid-word moves on to the next. The full-width row is the last
+    resort, so a word too wide even for that still breaks there.
 */
 function fitTextBlock(
   viz: VizInstance,
@@ -305,11 +310,21 @@ function fitTextBlock(
   right: number,
   width: number,
 ): TextBlockFit {
-  const fit = (x: number, w: number, drop: number): TextBlockFit => {
+  const split = textClass.split() as (sentence: string, i?: number) => string[];
+  const fit = (x: number, w: number, drop: number): {fits: boolean; result: TextBlockFit} => {
     textClass.width(w);
-    return {x, width: w, drop, boxes: textClass._textData() as TextDatum[]};
+    const wrap = (): TextBlockFit & {lines: string[]; truncated: boolean} => {
+      const boxes = textClass._textData() as TextDatum[];
+      return {x, width: w, drop, boxes, lines: boxes[0]?.lines ?? [], truncated: !boxes.length || boxes[0].truncated};
+    };
+    return wholeWordFit(wrap(), () => {
+      textClass.split(wholeWords(split));
+      const whole = wrap();
+      textClass.split(split);
+      return whole;
+    });
   };
-  const full = fit(left, width, 0);
+  const full = fit(left, width, 0).result;
   const insets = cornerInsets(viz, top, left, right);
   if (!(insets.left || insets.right) || !full.boxes.length) return full;
   const tries: Array<[number, number]> = [[insets.left, insets.right]];
@@ -317,10 +332,10 @@ function fitTextBlock(
     tries.unshift([insets.symmetric, insets.symmetric]);
   }
   for (const [l, r] of tries) {
-    const result = fit(left + l, width - l - r, 0);
-    if (result.boxes.length && !result.boxes[0].truncated) return result;
+    const {fits, result} = fit(left + l, width - l - r, 0);
+    if (fits) return result;
   }
-  return fit(left, width, Math.max(0, cornerControlsHeight(viz) - top));
+  return fit(left, width, Math.max(0, cornerControlsHeight(viz) - top)).result;
 }
 
 /**
