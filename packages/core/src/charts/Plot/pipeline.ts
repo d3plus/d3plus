@@ -19,6 +19,8 @@ import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {applyBarWidths} from "./barWidth.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
+import {configOpenDomain, hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {openEnd} from "./openDomainEnds.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
 import {extraBandValues} from "./confidenceBands.js";
@@ -411,7 +413,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: viz.schema.yDomain || isSpanAxis(viz, "y") ? "none" : "outside",
+    rounding: hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
     ...baselineBreakAxisConfig(viz, "y"),
   };
@@ -493,9 +495,10 @@ function applyOppDomains(
   domains: Record<string, DomainValue[]>,
   opps: string[],
   configScales: {x: string; y: string},
+  user: Record<string, DomainValue[] | undefined>,
 ): void {
   opps.forEach(o => {
-    if (viz[`_${o}Config`].domain) {
+    if (viz[`_${o}Config`].domain && !configOpenDomain(viz, o)) {
       // `.slice()` first so we never mutate the user's config array in
       // place — on the next render the (already-reversed) array would
       // reverse back, alternating chart correctness across renders.
@@ -505,7 +508,7 @@ function applyOppDomains(
     } else if (
       o &&
       viz.schema.baseline !== void 0 &&
-      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y)
+      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y, user[o])
     ) {
       const b = viz.schema.baseline;
       if (domains[o] && domains[o][0] > b) domains[o][0] = b;
@@ -538,6 +541,16 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     ? viz.schema.discrete === "x" ? "y2" : "x2"
     : undefined;
   const opps = [opp, opp2].filter(d => d) as string[];
+  // The user's value domains, with a set `baseline` filling the end it bounds.
+  const user: Record<string, DomainValue[] | undefined> = {
+    x: userAxisDomain(viz, "x", domains.x),
+    y: userAxisDomain(viz, "y", domains.y),
+  };
+  // A user domain that leaves an end open, and the domain the axis would have without it.
+  const openEnds = {
+    x: openEnd(user.x, domains.x, opps.includes("x") ? viz.schema.baseline : undefined),
+    y: openEnd(user.y, domains.y, opps.includes("y") ? viz.schema.baseline : undefined),
+  };
 
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
@@ -545,9 +558,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
       : (!isSpanAxis(viz, axis) && (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
-    const domain = viz.schema[`${axis}Domain`]
-        ? userDomain(viz.schema[`${axis}Domain`], viz[`_${axis}Time`])
-        : domains[axis],
+    const domain = user[axis] ? userDomain(user[axis]!, viz[`_${axis}Time`]) : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
         ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
@@ -608,7 +619,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     }
   });
 
-  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale});
+  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale}, user);
 
   const x = scaleConstructors[`scale${xScale}`]()
     .domain(domains.x)
@@ -631,6 +642,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     plotScales: {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale},
     plotConfigScales: {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale},
     plotOpps: {opp, opp2, opps},
+    plotOpenEnds: openEnds,
   };
 };
 

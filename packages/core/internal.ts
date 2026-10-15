@@ -66,6 +66,29 @@ export {
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
 export {curveFactory, lineCurve} from "./src/charts/Plot/lineCurve.js";
+export {curvePolyline, splitDash, splitLength} from "./src/charts/Plot/curveLength.js";
+export {
+  autoForecastStart,
+  discreteOrder,
+  discreteRank,
+  forecastDefaults,
+  forecastRow,
+  forecastStart,
+  seriesForecastStarts,
+  trendForecastStart,
+} from "./src/charts/Plot/forecast.js";
+export type {ForecastRow, ForecastSetting, ForecastStart} from "./src/charts/Plot/forecast.js";
+export {
+  backdropDecor,
+  discreteDirection,
+  emitForecast,
+  forecastDashOr,
+  forecastLineDash,
+  forecastRows,
+  lineRows,
+  slotEdge,
+} from "./src/charts/Plot/forecastScene.js";
+export type {ForecastFrame} from "./src/charts/Plot/forecastScene.js";
 export {
   betweenPoints,
   emitFillBetween,
@@ -201,6 +224,17 @@ export {
   valueAxisExtent,
 } from "./src/charts/Plot/baselineBreak.js";
 export {
+  baselineDomainAxis,
+  configOpenDomain,
+  hasOpenUserEnd,
+  hasUserDomain,
+  isOneSided,
+  openEndAxisConfig,
+  userAxisDomain,
+} from "./src/charts/Plot/baselineDomain.js";
+export {openEnd, roundOpenEnd, roundPlotOpenEnds} from "./src/charts/Plot/openDomainEnds.js";
+export {roundedDomain} from "./src/components/Axis/axisRounding.js";
+export {
   clipToPlotArea,
   DOMAIN_CLIP_KEY,
   isDomainClip,
@@ -211,6 +245,7 @@ export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 // ── Feature modules (legend, colorScale, timeline, title/subtitle/total, …) ──
 export {
   colorScaleFeature,
+  cornerControlsHeight,
   legendFeature,
   runLayout,
   subtitleFeature,

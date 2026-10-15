@@ -56,7 +56,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      description: "The value the axis's `baselineBreak` returns to: the tick kept below\n(or above) the break. Defaults to `0`. To start a Plot's value axis at\na value, set the chart's `baseline` instead, which sets the axis's\nminimum exactly like `yDomain([n])`, break back to this tick included.",
       table: {
         defaultValue: {
           summary: "0"
@@ -173,7 +173,7 @@ export const argTypes = assign(
         0,
         10
       ],
-      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
+      description: "The axis's domain: `[min, max]` on a continuous axis, or the\ncategories to show on a discrete one. In a Plot's\n`xConfig`/`yConfig`, a full domain wins over `xDomain`/`yDomain`,\nwhile one with a single end set (`[min]` or `[undefined, max]`) on a\ncontinuous axis works exactly like `yDomain([min])`: it pins that\nend, and the data fills the other, rounded as `rounding` says.",
       table: {
         defaultValue: {
           summary: "[0,10]"
@@ -181,7 +181,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;number&gt;"
+        summary: "array.&lt;string | number | date | undefined&gt;"
       }
     },
     domainTicks: {
@@ -533,10 +533,15 @@ export const argTypes = assign(
     },
     rounding: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "none",
-      description: "",
+      description: "How a linear or log axis rounds its domain to \"nice\" values:\n\"outside\" widens each end past the data, \"inside\" pulls each end in\n(marking them with the `roundingInside*` prefixes and suffixes), and\n\"none\" keeps the domain as given. Defaults to \"none\" on an Axis; a\nPlot rounds \"outside\" unless its axis config says otherwise. With a\nuser domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a\none-sided `domain` here) only an end left open is rounded:\n`yDomain([n])` keeps `n` exactly and rounds the far end where the\naxis would with no domain set, and \"none\" leaves that end at the\ndata. A `yDomain` with both ends set isn't rounded unless `rounding`\nis set here.",
+      options: [
+        "none",
+        "outside",
+        "inside"
+      ],
       table: {
         defaultValue: {
           summary: "none"
@@ -544,7 +549,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "\"none\" | \"outside\" | \"inside\""
       }
     },
     roundingInsideMaxPrefix: {

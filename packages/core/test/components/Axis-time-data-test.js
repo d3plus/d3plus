@@ -247,7 +247,7 @@ it("axisTimeReference: a time axis's parsed data in order, else its domain", () 
 it("axisDateLabel: a date at the axis's tick interval, always with the year, in its locale", () => {
   const months = Array.from({length: 36}, (_, i) => new Date(2024, i, 1));
   const monthly = draw({data: months, domain: ends(months)});
-  assert.ok(monthly.labels.includes("Apr"), `middle ticks drop the year (got ${monthly.labels})`);
+  assert.ok(monthly.labels.some(l => !/\d{4}/.test(l)), `middle ticks drop the year (got ${monthly.labels})`);
   assert.strictEqual(axisDateLabel(monthly.axis, months[15]), "Apr 2025");
   assert.strictEqual(axisDateLabel(monthly.axis, months[0]), "Jan 2024");
 
@@ -258,6 +258,37 @@ it("axisDateLabel: a date at the axis's tick interval, always with the year, in 
   const days = Array.from({length: 20}, (_, i) => `2026-03-${String(i + 1).padStart(2, "0")}`);
   const daily = draw({data: days, domain: ends(days)});
   assert.strictEqual(axisDateLabel(daily.axis, date(days[9])), "Mar 10, 2026");
+});
+
+it("time axis: the first label drawn, and the first in each new year, names the year", () => {
+  const months = Array.from({length: 36}, (_, i) => new Date(2024, i, 1));
+  for (const width of [250, 400, 700]) {
+    const {axis, labels} = draw({data: months, domain: ends(months), width});
+    const shown = axis._shownLabels.map(d => new Date(d));
+    const painted = shown.map(axis._labelFormat);
+    assert.deepStrictEqual([...painted].sort(), [...labels].sort(), `${width}px: the shown labels are the painted ones`);
+    shown.forEach((d, i) => {
+      const opens = !i || shown[i - 1].getFullYear() !== d.getFullYear();
+      assert.strictEqual(/\d{4}/.test(painted[i]), opens, `${width}px: "${painted[i]}" (got ${painted})`);
+    });
+  }
+});
+
+it("time axis: hourly labels read their hour, with the date on the first drawn each day", () => {
+  const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, 6 + i));
+  const {axis} = draw({data: hours, domain: ends(hours), width: 700});
+  const painted = axis._shownLabels.map(axis._labelFormat);
+  assert.strictEqual(painted[0], "Mar 3, 2026, 06 AM", `the first label reads its date and hour (got ${painted})`);
+  painted.slice(1).forEach(l => assert.match(l, /^\d\d [AP]M$/, `the rest read their hour (got ${painted})`));
+  const days = Array.from({length: 48}, (_, i) => new Date(2026, 2, 3, 6 + i));
+  const multi = draw({data: days, domain: ends(days), width: 400}).axis;
+  const shown = multi._shownLabels.map(d => new Date(d));
+  shown.forEach((d, i) => {
+    const label = multi._labelFormat(d);
+    const opens = !i || shown[i - 1].getDate() !== d.getDate();
+    assert.strictEqual(/^Mar \d/.test(label), opens, `"${label}"`);
+    assert.match(label, /\d\d [AP]M$/);
+  });
 });
 
 it("Timeline: string data with unparseable values draws without NaN", function* () {
