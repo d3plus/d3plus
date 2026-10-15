@@ -232,6 +232,7 @@ export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 export {
   colorScaleFeature,
   cornerControlsHeight,
+  cornerPlacements,
   legendFeature,
   runLayout,
   subtitleFeature,
@@ -239,6 +240,7 @@ export {
   titleFeature,
   totalFeature,
 } from "./src/charts/features/features.js";
+export {legendLabelsWhole} from "./src/charts/features/featuresLegend.js";
 export {
   getTopLeftContributions,
   topLeftControlsFeature,

@@ -252,10 +252,7 @@ export function topLeftControlsInset(viz: VizInstance, top: number, left: number
     px down the chart, plus the single symmetric amount CENTERED content
     should inset both sides by to stay centered on the full chart width even
     when only one corner has something to avoid (the larger of the two —
-    see `textBlockLayout`'s doc comment for why). Shared by `textBlockLayout`
-    (title/subtitle/total) and the legend's own top-position layout
-    (`featuresLegend.ts`), which independently needed this exact same
-    "combine the two corners' insets" math before this existed.
+    see `cornerPlacements`).
 */
 export function cornerInsets(
   viz: VizInstance,
@@ -279,6 +276,40 @@ export function cornerControlsHeight(viz: VizInstance): number {
   return Math.max(zoom?.height ?? 0, topLeft?.height ?? 0);
 }
 
+/** One place to lay content out at the top of the chart: how far each side insets, and how far it drops. */
+export interface CornerPlacement {
+  left: number;
+  right: number;
+  drop: number;
+}
+
+/**
+    The places, in order, that content starting `top` px down the chart tries
+    beside the corner control panels, whose edges sit `left` and `right` px
+    in from the chart's. Centered content first insets both sides by the SAME
+    (larger) amount, so it stays centered on its full width; then each side
+    insets by its own corner's amount; last, the content drops below the
+    panels and takes the full width, so a narrow chart never loses it. Just
+    the full width when no panel is in the way.
+*/
+export function cornerPlacements(
+  viz: VizInstance,
+  top: number,
+  left: number,
+  right: number,
+  centered: boolean,
+): CornerPlacement[] {
+  const insets = cornerInsets(viz, top, left, right);
+  if (!(insets.left || insets.right)) return [{left: 0, right: 0, drop: 0}];
+  const placements: CornerPlacement[] = [];
+  if (centered && insets.left !== insets.right) {
+    placements.push({left: insets.symmetric, right: insets.symmetric, drop: 0});
+  }
+  placements.push({left: insets.left, right: insets.right, drop: 0});
+  placements.push({left: 0, right: 0, drop: Math.max(0, cornerControlsHeight(viz) - top)});
+  return placements;
+}
+
 /** Where a text block sits: its left edge, wrap width, drop below its top, and its wrapped rows. */
 interface TextBlockFit {
   x: number;
@@ -291,11 +322,8 @@ interface TextBlockFit {
     Wraps a text block starting `top` px down the chart in the room the
     corner control panels leave it. Text alongside the zoom controls (right)
     and/or the top-left controls (back/table-view/search) wraps short of
-    them. Centered text first tries insetting both sides by the SAME (larger)
-    amount, so it stays centered on its full width; when the text doesn't
-    fit that, or isn't centered, each side insets by its own corner's amount.
-    When the text doesn't fit beside the panels at all, it drops below them
-    and takes the full width, so a narrow chart never loses it.
+    them, taking the first of `cornerPlacements` it fits without being cut
+    short.
 */
 function fitTextBlock(
   viz: VizInstance,
@@ -310,17 +338,14 @@ function fitTextBlock(
     return {x, width: w, drop, boxes: textClass._textData() as TextDatum[]};
   };
   const full = fit(left, width, 0);
-  const insets = cornerInsets(viz, top, left, right);
-  if (!(insets.left || insets.right) || !full.boxes.length) return full;
-  const tries: Array<[number, number]> = [[insets.left, insets.right]];
-  if (full.boxes[0].tA === "middle" && insets.left !== insets.right) {
-    tries.unshift([insets.symmetric, insets.symmetric]);
+  if (!full.boxes.length) return full;
+  const placements = cornerPlacements(viz, top, left, right, full.boxes[0].tA === "middle");
+  if (placements.length === 1) return full;
+  for (const [i, {left: l, right: r, drop}] of placements.entries()) {
+    const result = fit(left + l, width - l - r, drop);
+    if (i === placements.length - 1 || (result.boxes.length && !result.boxes[0].truncated)) return result;
   }
-  for (const [l, r] of tries) {
-    const result = fit(left + l, width - l - r, 0);
-    if (result.boxes.length && !result.boxes[0].truncated) return result;
-  }
-  return fit(left, width, Math.max(0, cornerControlsHeight(viz) - top));
+  return full;
 }
 
 /**
