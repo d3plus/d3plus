@@ -116,6 +116,11 @@ export default class Axis extends BaseClass {
   _userFormat: ((d: unknown) => string) | false | undefined;
   /** The tick label formatter the last layout pass resolved (`tickFormat`, else the scale's default). */
   _labelFormat?: (d: unknown) => string;
+  /**
+      The labels the last layout pass drew (all of them until it thins any).
+      Date labels read which of them carry the year (see `formatDate`).
+  */
+  _shownLabels?: unknown[];
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
   _sceneRenderer?: SvgRenderer;

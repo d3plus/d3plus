@@ -40,7 +40,8 @@ before(async function () {
       new Promise(resolve => {
         const el = document.createElement("div");
         document.body.appendChild(el);
-        const viz = new window.d3plus.Histogram().select(el).duration(0).width(800).height(500);
+        // Each chart reserves its 500px, so later ones sit below the fold.
+        const viz = new window.d3plus.Histogram().select(el).duration(0).detectVisible(false).width(800).height(500);
         setup(viz);
         const reports = [];
         const step = () => {
