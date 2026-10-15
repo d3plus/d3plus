@@ -5,7 +5,7 @@ import {render, closeBrowser} from "../playwright.js";
     A crowded axis sizes each label's box to the label's own width. A box
     narrower than the label TextBox's fontMin (8px) used to draw nothing,
     even though its fixed-size text fit, so a 60-point LinePlot lost its
-    single-digit labels (1, 3, 5, 7, 9) while showing 11, 14, 17, ….
+    single-digit labels while showing 11, 14, 17, ….
     Driven in real Chromium for text measurement.
 */
 
@@ -36,11 +36,17 @@ it("crowded point axis — single-digit labels show alongside wider ones", async
           resolve({shown, boxes});
         });
       }), renderer);
-    for (const label of ["1", "3", "5", "7", "9"])
-      assert.ok(r.shown.includes(label), `${renderer}: shows "${label}" (${r.shown.join(", ")})`);
+    // The axis thins its labels evenly, so the ones it keeps run 1, 1 + n,
+    // 1 + 2n, …, single digits included.
+    const shown = r.shown.map(Number).sort((a, b) => a - b);
+    const step = shown[1] - shown[0];
+    assert.ok(step > 1, `${renderer}: thins the labels (${r.shown.join(", ")})`);
+    assert.deepStrictEqual(shown, Array.from({length: Math.floor(59 / step) + 1}, (_, i) => 1 + i * step),
+      `${renderer}: shows every ${step}th label from "1" (${r.shown.join(", ")})`);
+    assert.ok(shown.filter(d => d < 10).length >= 2, `${renderer}: shows single-digit labels (${r.shown.join(", ")})`);
     if (renderer === "svg") {
       const texts = r.boxes.map(b => b.text);
-      assert.ok(texts.includes("1") && texts.includes("60"), `svg draws the labels (${texts.join(", ")})`);
+      assert.deepStrictEqual(texts.map(Number).sort((a, b) => a - b), shown, `svg draws the labels (${texts.join(", ")})`);
       const sorted = r.boxes.slice().sort((a, b) => a.left - b.left);
       sorted.slice(1).forEach((b, i) =>
         assert.ok(b.left >= sorted[i].right, `"${sorted[i].text}" and "${b.text}" don't overlap`));

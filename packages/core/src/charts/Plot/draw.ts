@@ -19,7 +19,7 @@ import type {LineLabelMeasurement} from "../features/axes.js";
 import type {LabelWidth, PlotPaintContext} from "../features/plotPaint.js";
 import Viz from "../viz/Viz.js";
 import {runStages} from "../pipeline/stages.js";
-import type {PlotConfigScales, PlotScales} from "../pipeline/stages.js";
+import type {PlotConfigScales, PlotScales, VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   computePlotAxisValues,
@@ -30,6 +30,7 @@ import {
   measurePlotLineLabels,
   preparePlotAxisLayout,
 } from "./pipeline.js";
+import {roundPlotOpenEnds} from "./openDomainEnds.js";
 import {computePlotTrendFits} from "./trendLines.js";
 
 /** A formatted Plot data row (the PlotDatum shape produced by `formatPlotData`). */
@@ -95,6 +96,7 @@ function runPlotLayoutStages(
     plotScales: layoutCtx.plotScales!,
     plotConfigScales: layoutCtx.plotConfigScales!,
     plotOpps: layoutCtx.plotOpps!,
+    plotOpenEnds: layoutCtx.plotOpenEnds,
   };
 }
 
@@ -103,7 +105,7 @@ function runPlotExtendScales(
   viz: VizInstance,
   data: Row[],
   axisData: Row[],
-  layoutCtx: {plotScales: PlotScales; plotConfigScales: PlotConfigScales},
+  layoutCtx: {plotScales: PlotScales; plotConfigScales: PlotConfigScales; plotOpenEnds?: VizContext["plotOpenEnds"]},
   scales: Scales,
 ): Scales {
   // Opposite-axis scale extension via buffers lives in the
@@ -116,8 +118,9 @@ function runPlotExtendScales(
       plotAxisData: axisData,
       plotScales: {...layoutCtx.plotScales, ...scales},
       plotConfigScales: layoutCtx.plotConfigScales,
+      plotOpenEnds: layoutCtx.plotOpenEnds,
     },
-    [extendPlotOppScales],
+    [extendPlotOppScales, roundPlotOpenEnds],
   );
   const ext = extCtx.plotScales!;
   return {x: ext.x, y: ext.y, x2: ext.x2, y2: ext.y2};

@@ -1,6 +1,7 @@
 export interface TranslationStrings {
   and: string;
   Back: string;
+  Band: string;
   "Brush Zoom": string;
   Clear: string;
   "Click to Expand": string;
@@ -15,6 +16,7 @@ export interface TranslationStrings {
   Download: string;
   Equation: string;
   Exponential: string;
+  Forecast: string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -55,6 +57,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "ar-SA": {
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
+    Band: "\u0646\u0637\u0627\u0642",
     "Brush Zoom": "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Clear: "\u0645\u0633\u062d",
     "Click to Expand":
@@ -73,6 +76,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u062a\u062d\u0645\u064a\u0644",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
+    Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -113,6 +117,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "es-ES": {
     and: "y",
     Back: "Atr\u00e1s",
+    Band: "Banda",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Clear: "Borrar",
     "Click to Expand": "Clic para Ampliar",
@@ -127,6 +132,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "Descargar",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
+    Forecast: "Pron\u00f3stico",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -162,6 +168,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "pt-BR": {
     and: "e",
     Back: "Voltar",
+    Band: "Faixa",
     "Brush Zoom": "Zoom de Seleção",
     Clear: "Limpar",
     "Click to Expand": "Clique para Expandir",
@@ -176,6 +183,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "Baixar",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
+    Forecast: "Previs\u00e3o",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -211,6 +219,7 @@ const translateLocale: Record<string, TranslationStrings> = {
   "zh-CN": {
     and: "\u548c",
     Back: "\u540e\u9762",
+    Band: "\u533a\u95f4",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Clear: "\u6e05\u9664",
     "Click to Expand": "\u5355\u51fb\u5c55\u5f00",
@@ -225,6 +234,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u4e0b\u8f7d",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
+    Forecast: "\u9884\u6d4b",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",

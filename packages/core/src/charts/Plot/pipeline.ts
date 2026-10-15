@@ -18,7 +18,11 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
+import {configOpenDomain, hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {openEnd} from "./openDomainEnds.js";
+import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
+import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm, swarmHidesAxis} from "./swarm.js";
 import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
@@ -113,7 +117,8 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
     time axes (sets viz._xTime / _x2Time / _yTime / _y2Time), maps the
     filtered data through `prepData` to produce the per-row PlotDatum shape
     (x/y/x2/y2 + id + group + shape + lci/hci + discrete), drops rows whose
-    axis values can't be plotted (`isPlottableRow` — see #776), and constructs
+    axis values can't be plotted (`isPlottableRow` — see #776) or whose
+    category a discrete axis's user domain leaves out, and constructs
     the `_sizeScaleD3` if `_size` is set.
 
     Pure compute. Returns `{formattedData, axisData, x2Exists, y2Exists}`
@@ -179,11 +184,14 @@ export const formatPlotData: TransformStage = ({viz}) => {
     return newD;
   };
 
+  const categories = discreteDomainCategories(viz);
+  const keepRow = (d: Record<string, unknown>) =>
+    isPlottableRow(d) && (!categories || categories.has(d[viz.schema.discrete]));
   const formattedData = (viz._formattedData = viz._filteredData
     .map(prepData)
-    .filter(isPlottableRow));
+    .filter(keepRow));
   const axisData = viz._axisPersist
-    ? viz._data.map(prepData).filter(isPlottableRow)
+    ? viz._data.map(prepData).filter(keepRow)
     : formattedData;
 
   const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));
@@ -285,6 +293,7 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.lci));
       if (viz._confidence[1])
         myData = myData.concat(localData.map((d: Record<string, unknown>) => d.hci));
+      myData = myData.concat(extraBandValues(viz, localData));
     }
 
     return myData;
@@ -402,7 +411,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: viz.schema.yDomain || isSpanAxis(viz, "y") ? "none" : "outside",
+    rounding: hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside",
     scalePadding: y.padding ? y.padding() : 0,
     ...baselineBreakAxisConfig(viz, "y"),
   };
@@ -462,6 +471,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
 };
 
 /**
+    A copy of a user `<axis>Domain`. On a time axis its set ends are parsed
+    into Dates the way the axis's data is (Dates, timestamps, years or date
+    strings), so they compare with the data; an undefined end stays undefined
+    for `computePlotScales` to fill from the data.
+*/
+function userDomain(domain: DomainValue[], time: boolean | undefined): DomainValue[] {
+  return time
+    ? domain.map(d => (d === undefined ? d : date(d as string | number) as Date))
+    : domain.slice();
+}
+
+/**
     Settles the opposite (value) axes' domains: an axis `domain` from
     `xConfig`/`yConfig` wins outright; otherwise the domain stretches to reach
     the `baseline`, unless a user domain deliberately stops short of it on a
@@ -472,9 +493,10 @@ function applyOppDomains(
   domains: Record<string, DomainValue[]>,
   opps: string[],
   configScales: {x: string; y: string},
+  user: Record<string, DomainValue[] | undefined>,
 ): void {
   opps.forEach(o => {
-    if (viz[`_${o}Config`].domain) {
+    if (viz[`_${o}Config`].domain && !configOpenDomain(viz, o)) {
       // `.slice()` first so we never mutate the user's config array in
       // place — on the next render the (already-reversed) array would
       // reverse back, alternating chart correctness across renders.
@@ -484,7 +506,7 @@ function applyOppDomains(
     } else if (
       o &&
       viz.schema.baseline !== void 0 &&
-      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y)
+      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y, user[o])
     ) {
       const b = viz.schema.baseline;
       if (domains[o] && domains[o][0] > b) domains[o][0] = b;
@@ -517,6 +539,16 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     ? viz.schema.discrete === "x" ? "y2" : "x2"
     : undefined;
   const opps = [opp, opp2].filter(d => d) as string[];
+  // The user's value domains, with a set `baseline` filling the end it bounds.
+  const user: Record<string, DomainValue[] | undefined> = {
+    x: userAxisDomain(viz, "x", domains.x),
+    y: userAxisDomain(viz, "y", domains.y),
+  };
+  // A user domain that leaves an end open, and the domain the axis would have without it.
+  const openEnds = {
+    x: openEnd(user.x, domains.x, opps.includes("x") ? viz.schema.baseline : undefined),
+    y: openEnd(user.y, domains.y, opps.includes("y") ? viz.schema.baseline : undefined),
+  };
 
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
@@ -524,11 +556,9 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
       : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
-    const domain = viz.schema[`${axis}Domain`]
-        ? viz.schema[`${axis}Domain`].slice()
-        : domains[axis],
+    const domain = user[axis] ? userDomain(user[axis]!, viz[`_${axis}Time`]) : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
-        ? viz.schema[`${axis}2Domain`].slice()
+        ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
     if (scale !== "Point") {
       if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
@@ -587,7 +617,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     }
   });
 
-  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale});
+  applyOppDomains(viz, domains, opps, {x: xConfigScale, y: yConfigScale}, user);
 
   const x = scaleConstructors[`scale${xScale}`]()
     .domain(domains.x)
@@ -610,6 +640,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     plotScales: {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale},
     plotConfigScales: {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale},
     plotOpps: {opp, opp2, opps},
+    plotOpenEnds: openEnds,
   };
 };
 
