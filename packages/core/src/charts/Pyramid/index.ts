@@ -15,6 +15,7 @@ import {subtitleFeature, titleFeature, totalFeature} from "../features/features.
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
+import {hasUserDomain} from "../Plot/baselineDomain.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -168,7 +169,7 @@ function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void
   // Compared by value: setting `xConfig` copies the bag, arrays included.
   const ours = config.domain !== undefined && sameValues(config.domain, state.domain);
   if (config.domain !== undefined && !ours) return;
-  if (!viz.schema.symmetric || viz.schema.xDomain) {
+  if (!viz.schema.symmetric || hasUserDomain(viz, "x")) {
     if (ours) delete config.domain;
     state.domain = undefined;
     return;

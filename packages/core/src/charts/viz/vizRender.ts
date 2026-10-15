@@ -7,6 +7,7 @@ import {fontFamilyStringify} from "@d3plus/text";
 import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
+import {reserveContainerSize} from "./reserveContainerSize.js";
 import type Viz from "./Viz.js";
 import {
   canObserveVisibility,
@@ -72,8 +73,14 @@ function autoSize(viz: Viz): void {
     (!viz.schema.width || !viz.schema.height) &&
     (!viz.schema.detectVisible || isVisible(viz))
   ) {
-    viz._autoWidth = viz.schema.width === undefined;
-    viz._autoHeight = viz.schema.height === undefined;
+    // A size this function measured on an earlier render stays automatic: a
+    // RESET height re-enters here with the measured width still in `schema`.
+    viz._autoWidth =
+      viz.schema.width === undefined ||
+      (!!viz._autoWidth && viz.schema.width === viz._measuredWidth);
+    viz._autoHeight =
+      viz.schema.height === undefined ||
+      (!!viz._autoHeight && viz.schema.height === viz._measuredHeight);
     viz._setSVGSize();
   }
 }
@@ -396,7 +403,12 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
 
   ensureSvgSelect(viz);
   scopeTooltip(viz);
+  // Before measuring too, so a spacer left by an earlier explicit size can't
+  // prop the container open to that size; again after, once autoSize has
+  // settled which dimensions are measured.
+  reserveContainerSize(viz);
   autoSize(viz);
+  reserveContainerSize(viz);
 
   const parent = select(viz._select.node().parentNode);
   applyRootAttributes(viz, parent);

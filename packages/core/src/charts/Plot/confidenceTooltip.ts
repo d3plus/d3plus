@@ -3,13 +3,16 @@
     "Upper Bound" row on a single mark's tooltip, and a compact range after
     each series' value in the shared tooltip. Bounds are read from the source
     row through the `confidence` accessors, so a stacked bar reports the
-    user's own values rather than where its error bar is drawn.
+    user's own values rather than where its error bar is drawn. Nested bands
+    list one range row per band on a single mark, and the first band's range
+    in the shared tooltip.
     `confidenceConfig.tooltip: false` leaves them out.
 */
 import type {DataPoint} from "@d3plus/data";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ConfidenceBounds} from "./barConfidence.js";
+import {confidenceBands, rowBands} from "./confidenceBands.js";
 
 /** Formats a bound the way the tooltip formats the value it bounds. */
 type Format = (value: number) => string;
@@ -50,11 +53,26 @@ export function rowConfidence(viz: VizInstance, d: DataPoint, i: number): Confid
 */
 export function confidenceRows(viz: VizInstance, d: DataPoint, i: number, format: Format): string[][] {
   if (!confidenceTooltipEnabled(viz)) return [];
+  if (confidenceBands(viz).length > 1) return bandRows(viz, d, i, format);
   const {lower, upper} = rowConfidence(viz, d, i);
   const rows: string[][] = [];
   if (finite(lower)) rows.push([viz.schema.translate("Lower Bound"), format(lower)]);
   if (finite(upper)) rows.push([viz.schema.translate("Upper Bound"), format(upper)]);
   return rows;
+}
+
+/**
+    The single-mark tooltip rows for nested bands: `[label, range]` for each
+    band with a bound, outermost first.
+    @param viz The chart.
+    @param d The source data row.
+    @param i The row's index.
+    @param format Formats a bound like the row's value.
+*/
+export function bandRows(viz: VizInstance, d: DataPoint, i: number, format: Format): string[][] {
+  return rowBands(viz, d, i)
+    .map(({label, lower, upper}) => [label, rangeText(lower, upper, format)])
+    .filter(([, range]) => range);
 }
 
 /**
@@ -80,9 +98,21 @@ export function confidenceSuffix(viz: VizInstance, d: DataPoint, i: number, form
     @param format Formats each bound.
 */
 export function rangeSuffix(lower: number | undefined, upper: number | undefined, format: Format): string {
+  const text = rangeText(lower, upper, format);
+  return text ? ` (${text})` : "";
+}
+
+/**
+    "lower – upper", "≥ lower", "≤ upper", or empty, for whichever bounds
+    are finite.
+    @param lower The lower bound.
+    @param upper The upper bound.
+    @param format Formats each bound.
+*/
+export function rangeText(lower: number | undefined, upper: number | undefined, format: Format): string {
   const hasLower = finite(lower), hasUpper = finite(upper);
-  if (hasLower && hasUpper) return ` (${format(lower)} – ${format(upper)})`;
-  if (hasLower) return ` (≥ ${format(lower)})`;
-  if (hasUpper) return ` (≤ ${format(upper)})`;
+  if (hasLower && hasUpper) return `${format(lower)} – ${format(upper)}`;
+  if (hasLower) return `≥ ${format(lower)}`;
+  if (hasUpper) return `≤ ${format(upper)}`;
   return "";
 }

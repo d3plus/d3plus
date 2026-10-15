@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
@@ -398,12 +399,16 @@ export interface VizInstance {
   _yTime?: boolean;
   _y2Time?: boolean;
   _baseline?: number;
+  /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
+  _userBaseline?: number;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */
   _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
   /** The `confidence` bounds as `[lower, upper]` accessors (either may be `false`), or `false` when off. */
   _confidence?: [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
+  /** Every `confidence` band, outermost first; `_confidence` holds the first band's pair. */
+  _confidenceBands?: ConfidenceBand[];
   _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
   _barPadding?: number;

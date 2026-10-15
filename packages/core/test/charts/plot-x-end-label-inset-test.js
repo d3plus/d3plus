@@ -71,3 +71,26 @@ it("x axis — independent facet panels keep their last labels inside", async ()
   assert.ok(r.overhang.some(l => l.text === "86"), `the Europe panel labels its end (${r.overhang.map(l => l.text).join(", ")})`);
   r.overhang.forEach(l => assert.ok(l.past <= 0.5, `"${l.text}" stays inside (${l.past.toFixed(1)}px past)`));
 });
+
+it("x axis — the inset reserves only the last label's overhang", async () => {
+  const months = ["Opening", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Closing"];
+  const r = await render('<div id="viz" style="width:580px;height:380px"></div>', names =>
+    new Promise(resolve => {
+      const viz = new window.d3plus.BarChart()
+        .data(names.map((id, i) => ({id, value: 10 - i * 0.4})))
+        .groupBy("id").x("id").y("value").legend(false)
+        .shapeConfig({Bar: {label: false}}).duration(0).select("#viz");
+      viz.render(() => {
+        const {textData} = window.d3plus.measureAxis(viz._xAxis);
+        const last = textData[textData.length - 1];
+        resolve({
+          drawn: textData.filter(d => d.lines.length).map(d => d.lines.join(" ")),
+          end: viz._xAxis._getRange()[1],
+          labelRight: last.position + last.width / 2,
+        });
+      });
+    }), months);
+  assert.deepStrictEqual(r.drawn, months, "every month keeps its label");
+  assert.ok(r.labelRight <= 580.5, `"Closing" stays inside (${r.labelRight.toFixed(1)})`);
+  assert.ok(580 - r.labelRight < 10, `no spare room past "Closing" (${(580 - r.labelRight).toFixed(1)}px)`);
+});

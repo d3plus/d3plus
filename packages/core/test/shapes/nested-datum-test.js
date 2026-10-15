@@ -38,6 +38,40 @@ it("multi-point shapes hand every accessor the merged aggregate", () => {
   assert.strictEqual(areaStroke.y, 60, "Area accessor also gets the aggregate, not the first point");
 });
 
+// An Area's texture accessor gets the same merged row as its other styles, so
+// a per-row texture works on areas, confidence bands, and fills between lines.
+it("Area texture accessors receive the merged aggregate", () => {
+  const data = [
+    {id: "alpha", x: 0, y: 10}, {id: "alpha", x: 1, y: 20},
+    {id: "beta", x: 0, y: 5}, {id: "beta", x: 1, y: 8},
+  ];
+  let seen;
+  const scene = new Area()
+    .data(data)
+    .texture(d => { seen = d; return d.id === "alpha" ? "lines" : false; })
+    .toScene();
+  assert.strictEqual(seen.y, 13, "the accessor gets the aggregate (summed y)");
+  const fills = Object.fromEntries(scene.children.map(n => [n.key, n.paint.fill]));
+  assert.ok(fills.alpha.startsWith("pattern:"), "alpha is textured");
+  assert.ok(!fills.beta.startsWith("pattern:"), "beta is not");
+});
+
+// The texture's default background and line colors come from the same merged
+// row as the shape's own fill and stroke, not from its first point.
+it("Area texture colors resolve fill and stroke against the merged aggregate", () => {
+  const data = [{id: "alpha", x: 0, y: 10}, {id: "alpha", x: 1, y: 20}];
+  const byTotal = d => (d.y > 15 ? "red" : "blue");
+  const scene = new Area()
+    .data(data)
+    .fill(byTotal)
+    .stroke(byTotal)
+    .texture("lines")
+    .toScene();
+  const texture = JSON.parse(scene.children[0].paint.fill.slice("pattern:".length));
+  assert.strictEqual(texture.background, "red", "the background is the aggregate's fill (y 30), not the first point's (y 10)");
+  assert.strictEqual(texture.stroke, "red", "the line color is the aggregate's stroke");
+});
+
 // The nearest-point tooltip (#786) needs each Line/Area scene node to carry its
 // points paired with their source data, in content space.
 it("Line.toScene stashes per-point interaction points paired with source data", () => {

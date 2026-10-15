@@ -79,7 +79,10 @@ export default class Axis extends BaseClass {
   _data: unknown[];
   /** The `data` values the scale reads, set by the layout pass (see `axisScaleData`). */
   _scaleData: unknown[] = [];
+  /** Whether the last layout pass rotated the labels (see `labelRotation`). */
   _labelRotation: boolean | undefined;
+  /** The configured `labelRotation`: `undefined` lets the layout decide. */
+  _labelRotationSetting: boolean | undefined;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
   /** The measured size of the tick-label/title space, before margins (see `fixedSize`). */
@@ -113,6 +116,11 @@ export default class Axis extends BaseClass {
   _userFormat: ((d: unknown) => string) | false | undefined;
   /** The tick label formatter the last layout pass resolved (`tickFormat`, else the scale's default). */
   _labelFormat?: (d: unknown) => string;
+  /**
+      The labels the last layout pass drew (all of them until it thins any).
+      Date labels read which of them carry the year (see `formatDate`).
+  */
+  _shownLabels?: unknown[];
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
   _sceneRenderer?: SvgRenderer;
@@ -130,6 +138,7 @@ export default class Axis extends BaseClass {
 
     this._data = [];
     this._labelRotation = false;
+    this._labelRotationSetting = undefined;
     this.schema.barConfig = {
       stroke: () => {
         const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
@@ -518,14 +527,18 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      Whether to rotate horizontal axis labels -90 degrees.
+      Whether to rotate horizontal axis labels -90 degrees. Left `undefined`
+      (the default), a horizontal axis of categories rotates its labels when
+      any label would not fit its share of the axis whole (a word dropped,
+      cut off, or broken across lines) or would overlap its neighbor. Labels
+      that still overlap once rotated are thinned evenly.
 */
   labelRotation(): boolean | undefined;
-  labelRotation(_: boolean): this;
+  labelRotation(_: boolean | undefined): this;
   labelRotation(_?: boolean): boolean | undefined | this {
     return arguments.length
-      ? ((this._labelRotation = _), this)
-      : this._labelRotation;
+      ? ((this._labelRotationSetting = _), this)
+      : this._labelRotationSetting;
   }
 
   /**
