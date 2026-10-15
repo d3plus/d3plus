@@ -5,8 +5,8 @@ import {render, closeBrowser} from "../playwright.js";
 /**
     Waterfall in real Chromium, zoomed in on a bridge between large totals: a
     value-axis domain that stops short of zero (`yDomain([980])`) keeps a 0
-    tick behind a break, and subtotal bars rise from that 0 through it. Once
-    `baseline(n)` sets the value axis's minimum (#945), it paints the same.
+    tick behind a break, and subtotal bars rise from that 0 through it.
+    `baseline(n)` sets the value axis's minimum (#945), so it paints the same.
 */
 
 after(closeBrowser);
@@ -107,15 +107,19 @@ it("Waterfall's domain break works for horizontal bars and small multiples", asy
 
 it("Waterfall's baseline(980) paints exactly what yDomain([980]) does", async function () {
   this.timeout(60000);
-  // Runs once Plot's `baseline` sets the value axis's minimum (#945), which
-  // leaves the chart's own baseline, where bars start, at 0.
-  if (new Waterfall().baseline(980).schema.baseline !== 0) this.skip();
+  // Plot's `baseline` sets the value axis's minimum (#945), leaving the
+  // chart's own baseline, where bars start, at 0.
+  assert.strictEqual(new Waterfall().baseline(980).schema.baseline, 0);
   for (const [a, b, label] of [
     [{baseline: 980}, {yDomain: [980]}, "vertical"],
     [{baseline: 980, discrete: "y", x: "v", y: "step"}, {xDomain: [980], discrete: "y", x: "v", y: "step"}, "horizontal"],
   ]) {
     const [one, two] = [await render(body, probe, [bridge, a]), await render(body, probe, [bridge, b])];
     assert.deepStrictEqual(one.domain, two.domain, `${label}: the same domain`);
+    // Only 980 is pinned: the far end is rounded past the data's 1,020 top.
+    const [lo, hi] = one.domain.slice().sort((p, q) => p - q);
+    assert.strictEqual(lo, 980, `${label}: the domain starts at 980`);
+    assert.ok(hi > 1020 && hi % 10 === 0, `${label}: the far end is rounded (${hi})`);
     assert.strictEqual(one.brk, two.brk, `${label}: the same break`);
     assert.deepStrictEqual(one.bars, two.bars, `${label}: the same bars`);
     assert.deepStrictEqual(one.scene, two.scene, `${label}: the same scene`);
