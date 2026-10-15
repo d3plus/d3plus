@@ -178,8 +178,7 @@ function initColorDefaults(viz: Viz): void {
     scale: "jenks",
   };
   viz.schema.colorScalePadding = defaultPadding;
-  viz.schema.colorScalePosition = () =>
-    viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+  viz.schema.colorScalePosition = constant("auto");
   viz.schema.colorScaleMaxSize = 600;
 }
 
@@ -235,8 +234,7 @@ function initLegendDefaults(viz: Viz): void {
   };
   viz.schema.legendFilterInvert = constant(false);
   viz.schema.legendPadding = defaultPadding;
-  viz.schema.legendPosition = () =>
-    viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+  viz.schema.legendPosition = constant("auto");
   const sortLabel = (d: DataPoint): string =>
     legendCategoryOf(viz as unknown as VizInstance, d) ?? viz._drawLabel(d);
   viz.schema.legendSort = (a: DataPoint, b: DataPoint) =>

@@ -284,7 +284,7 @@ function paintTopLegend(
 */
 function legendVisible(viz: VizInstance, built: LegendData): boolean {
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
+  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
   return position === false ? false : Boolean(viz.schema.legend.bind(viz)(config, built.legendData));
 }
 
@@ -338,7 +338,7 @@ function renderLegendFeature(
   }
 
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
+  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
   const wide = ["top", "bottom"].includes(position as string);
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding

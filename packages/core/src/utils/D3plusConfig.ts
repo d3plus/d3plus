@@ -14,6 +14,8 @@ import type {
 import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
+/** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
+type PanelPosition = Position | "auto";
 
 type DataPointAccessor<T> = string | ((d: DataPoint) => T);
 
@@ -534,8 +536,8 @@ export interface D3plusConfig {
   };
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the color scale, `false` to hide it, or an accessor returning either. */
-  colorScalePosition?: false | Position | (() => false | Position);
+  /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  colorScalePosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Column key for matrix-style layouts. */
   column?: string;
   /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
@@ -715,8 +717,8 @@ export interface D3plusConfig {
   };
   /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the legend, or an accessor returning it. */
-  legendPosition?: Position | (() => Position);
+  /** Position of the legend (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
