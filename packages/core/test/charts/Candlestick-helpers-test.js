@@ -59,6 +59,7 @@ import {
   candleTooltipRows,
   formatChange,
   formatPrice,
+  volumeAriaLabel,
 } from "../../es/src/charts/Candlestick/tooltip.js";
 import {CANDLESTICK_SHAPE, candleTexture, layoutCandles} from "../../es/src/charts/Candlestick/emit.js";
 
@@ -520,6 +521,15 @@ it("Candlestick candleAriaLabel reads the label, period, and values", () => {
     candleAriaLabel(viz, d, 0),
     "ACME, Jan 2, 2024: Open 100.00, High 104.00, Low 99.50, Close 103.00, Change +3%.",
   );
+});
+
+it("Candlestick volumeAriaLabel reads the label, period, and volume", () => {
+  const d = {symbol: "ACME", date: "2024-01-02", volume: 1234567, ...row(100, 104, 99.5, 103)};
+  const viz = fakeViz({schema: {volume: key("volume"), translate: s => (s === "Volume" ? "Volumen" : s)}});
+  assert.strictEqual(volumeAriaLabel(viz, d, 0), "ACME, Jan 2, 2024: Volumen 1.23M.");
+  assert.strictEqual(volumeAriaLabel(viz, {...d, volume: null}, 0), "ACME, Jan 2, 2024: Volumen.");
+  const formatted = fakeViz({schema: {volume: key("volume")}, _xConfig: {tickFormat: v => `T${v.getDate()}`}});
+  assert.strictEqual(volumeAriaLabel(formatted, d, 0), "ACME, T2: Volume 1.23M.");
 });
 
 it("Candlestick layoutCandles centers each period and draws candles or OHLC bars", () => {

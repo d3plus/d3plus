@@ -32,7 +32,7 @@ import {
   type CandlestickVariant,
   type Ohlc,
 } from "./ohlc.js";
-import {candleAriaLabel} from "./tooltip.js";
+import {candleAriaLabel, volumeAriaLabel} from "./tooltip.js";
 import {emitVolume, volumeEnabled, volumeStripRect} from "./volume.js";
 
 /** The shape key candles are drawn under. */
@@ -228,10 +228,11 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
 /**
     The volume bars' styling beneath `volumeConfig.shapeConfig`: filled in
     their candle's up or down color, hollow candles included, so short bars
-    stay easy to read.
+    stay easy to read, and labeled for screen readers with their volume.
 */
 function volumeStyle(viz: VizInstance, layoutOf: (d: PlotDatum) => CandleLayout): Record<string, unknown> {
   return {
+    ariaLabel: (d: PlotDatum) => volumeAriaLabel(viz, d.data, d.i),
     fill: (d: PlotDatum) =>
       resolveColor(
         (layoutOf(d).direction === "up" ? viz.schema.upColor : viz.schema.downColor) as ColorSetting,

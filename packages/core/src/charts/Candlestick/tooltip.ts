@@ -95,7 +95,23 @@ export function candleTooltipRows(viz: VizInstance, d: DataPoint, i: number): st
 */
 export function candleAriaLabel(viz: VizInstance, d: DataPoint, i: number): string {
   const [period, ...values] = candleTooltipRows(viz, d, i);
-  const label = viz._drawLabel(d, i);
-  const head = [label, period?.[1]].filter(s => s !== undefined && s !== "").join(", ");
-  return `${head}: ${values.map(([k, val]) => `${k} ${val}`).join(", ")}.`;
+  return `${ariaHead(viz, d, i, period?.[1])}: ${values.map(([k, val]) => `${k} ${val}`).join(", ")}.`;
+}
+
+/**
+    A screen-reader label for one period's volume bar, e.g.
+    `"ACME, Jan 2, 2024: Volume 1.2M."`.
+    @param viz The chart.
+    @param d The data row.
+    @param i The row's index.
+*/
+export function volumeAriaLabel(viz: VizInstance, d: DataPoint, i: number): string {
+  const volume = readVolume(viz, d, i);
+  const value = volume === undefined ? "" : ` ${formatVolume(viz, volume)}`;
+  return `${ariaHead(viz, d, i, periodText(viz, d, i))}: ${viz.schema.translate("Volume")}${value}.`;
+}
+
+/** An aria label's lead: the row's label, then its period. */
+function ariaHead(viz: VizInstance, d: DataPoint, i: number, period: string | undefined): string {
+  return [viz._drawLabel(d, i), period].filter(s => s !== undefined && s !== "").join(", ");
 }

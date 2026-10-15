@@ -169,15 +169,50 @@ it("Candlestick lists Volume in the tooltip and aria label, translated", async f
       const a = viz._plotArea;
       const rows = await window.__hoverAt(viz, el, a.x + a.width / 2, a.height * 0.1);
       const aria = window.__candles(viz)[0].aria.label;
+      const barAria = window.__bars(viz)[0].aria.label;
       el.remove();
-      return {rows, aria};
+      return {rows, aria, barAria};
     };
     return {en: await tip("en-US"), es: await tip("es-ES")};
   });
   assert.deepStrictEqual(out.en.rows.map(r => r[0]), ["date", "Open", "High", "Low", "Close", "Change", "Volume"]);
   assert.match(out.en.rows[6][1], /^\d+(\.\d+)?M$/);
   assert.match(out.en.aria, /, Volume \d+(\.\d+)?M\.$/);
+  assert.match(out.en.barAria, /^ACME, Jan 1, 2024: Volume \d+(\.\d+)?M\.$/, "a volume bar reads its period and volume");
   assert.strictEqual(out.es.rows[6][0], "Volumen");
+  assert.match(out.es.barAria, /^ACME, ene 1, 2024: Volumen \d+(,\d+)?mm\.$/, "in the chart's locale");
+});
+
+it("Candlestick's date work grows linearly with its periods, volume strip included", async function () {
+  this.timeout(120000);
+  const out = await run(async () => {
+    // Counts Date comparisons and conversions while drawing `n` periods.
+    const count = async (n, volume) => {
+      const data = window.__prices(n);
+      const valueOf = Date.prototype.valueOf;
+      let calls = 0;
+      Date.prototype.valueOf = function () {
+        calls++;
+        return valueOf.call(this);
+      };
+      try {
+        const {el} = await window.__draw(v => (volume ? v.volume("volume") : v).data(data).groupBy("symbol"));
+        el.remove();
+      }
+      finally {
+        Date.prototype.valueOf = valueOf;
+      }
+      return calls;
+    };
+    return {
+      plain: [await count(250, false), await count(1000, false)],
+      volume: [await count(250, true), await count(1000, true)],
+    };
+  });
+  // Four times the periods: about four times the work when linear, sixteen
+  // when each bar scans every period (as labeling bars through the axis did).
+  Object.entries(out).forEach(([name, [small, large]]) =>
+    assert.ok(large / small < 6, `${name}: ${small} at 250 periods, ${large} at 1000`));
 });
 
 it("Candlestick sums volumes when rows merge, and aggs overrides it", async function () {
