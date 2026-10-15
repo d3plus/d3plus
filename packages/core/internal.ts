@@ -212,13 +212,17 @@ export {
 export {
   baselineDomainAxis,
   configOpenDomain,
+  hasFullConfigDomain,
   hasOpenUserEnd,
   hasUserDomain,
   isOneSided,
   openEndAxisConfig,
+  plotAxisRounding,
+  secondaryAxisRounding,
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
 export {openEnd, roundOpenEnd, roundPlotOpenEnds} from "./src/charts/Plot/openDomainEnds.js";
+export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";
 export {
   clipToPlotArea,
