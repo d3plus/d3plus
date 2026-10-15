@@ -30,7 +30,7 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
           .groupBy("id")
           .x("x")
           .y("y")
-          [key](text)
+          .config({[key]: text})
           .tableView(true)
           .search(true)
           .renderer(renderer)
