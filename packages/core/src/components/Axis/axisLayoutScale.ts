@@ -4,7 +4,7 @@
     (`_d3Scale`, `_d3ScaleNegative`, `_tickUnit`, `_availableTicks`,
     `_visibleTicks`) exactly as the original inline `Axis.render` body did.
 */
-import {max, range as d3Range, min, sum} from "d3-array";
+import {range as d3Range, min, sum} from "d3-array";
 import * as scales from "d3-scale";
 import {timeFormat} from "d3-time-format";
 
@@ -15,26 +15,19 @@ import {closest} from "@d3plus/math";
 import type Axis from "./Axis.js";
 import {applyAxisBreaks, breakTickValues} from "./axisBreak.js";
 import type {TickGet} from "./axisLayoutLabels.js";
-import {axisTimeDomain, axisTimeReference, parseTimeValues} from "./timeValues.js";
+import {
+  axisDateCategories,
+  axisShownDates,
+  axisTimeDomain,
+  axisTimeReference,
+  isCategoryAxis,
+  isValidDate,
+  parseTimeValues,
+} from "./timeValues.js";
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
+import {floorPow, isNegative, roundedDomain} from "./axisRounding.js";
 
-const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
-const floorPow = (d: number): number =>
-  Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const ceilPow = (d: number): number =>
-  Math.pow(10, Math.ceil(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const fixFloat = (d: number): number => {
-  const str = `${d}`;
-  if (str.includes("e-") || str === "0") return 0;
-  const nineMatch = str.match(/(-*[0-9]+\.[0]*)([0-8]+)9{3,}[0-9]+$/);
-  if (nineMatch) return +`${nineMatch[1]}${+nineMatch[2] + 1}`;
-  const zeroMatch = str.match(/(-*[0-9]+\.[0]*)([1-9]+)0*[0-9]*0{3,}[0-9]+$/);
-  if (zeroMatch) return +`${zeroMatch[1]}${+zeroMatch[2]}`;
-  return d;
-};
 
 /** Builds the tick label formatter (user-supplied or scale-derived). */
 export function buildTickFormat(
@@ -43,16 +36,20 @@ export function buildTickFormat(
   getTicks: () => unknown[],
 ): (d: unknown) => string {
   let years: boolean | undefined;
+  let dates: Date[] | undefined;
   return axis.schema.tickFormat
     ? axis.schema.tickFormat
     : (d: unknown): string => {
-        if (
+        if (isValidDate(d) && isCategoryAxis(axis)) {
+          dates ??= axisDateCategories(axis);
+          return formatDate(d, dates, timeFormat, axisShownDates(axis)).replace(/^Q/g, timeLocaleObj.quarter);
+        } else if (
           isNaN(d as number) ||
           ["band", "ordinal", "point"].includes(axis.schema.scale)
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          return formatDate(d as Date, axisTimeReference(axis), timeFormat).replace(
+          return formatDate(d as Date, axisTimeReference(axis), timeFormat, axisShownDates(axis)).replace(
             /^Q/g,
             timeLocaleObj.quarter,
           );
@@ -139,125 +136,6 @@ function resolveRange(
   return range;
 }
 
-/** Rounds the linear/log domain to "nice" values per the rounding mode. */
-function roundDomain(axis: Axis, initialDomain: number[]): void {
-  const zeroLength = (d: number) => {
-    if (smallScale) {
-      if (!d) return 0;
-      const m = `${d}`.match(/0\.(0*)/);
-      if (m)
-        return +`0.${Array(m[1].length + 1).fill(0).join("")}1`;
-    }
-    return `${Math.round(Math.abs(d))}`.length;
-  };
-  const smallScale = initialDomain.every(
-    (d: number) => Math.abs(d) < 1,
-  );
-  const zeroArray = [
-    zeroLength(initialDomain[0]),
-    zeroLength(initialDomain[1]),
-  ]
-    .filter(Boolean)
-    .sort();
-  if (!zeroArray.length) return;
-  const diverging =
-    initialDomain.some((d: number) => isNegative(d)) &&
-    initialDomain.some((d: number) => d > 0);
-  const zeros =
-    zeroArray.length === 1
-      ? zeroArray[0]
-      : zeroArray[0] > 1 && zeroArray[0] === zeroArray[1]
-        ? zeroArray[0] - 1
-        : axis.schema.rounding === "outside" || !diverging
-          ? zeroArray[0] + (zeroArray[1] - zeroArray[0]) / 2
-          : max(zeroArray)!;
-  let factor: number =
-    zeros < 1
-      ? fixFloat(zeros)
-      : +`1${Array(Math.floor(fixFloat(zeros)) - 1).fill(0).join("")}`;
-  if (factor >= Math.abs(initialDomain[1] - initialDomain[0]))
-    factor /= 2;
-  const inverted = initialDomain[1] < initialDomain[0];
-  const newDomain = [
-    Math[
-      axis.schema.rounding === "outside"
-        ? inverted
-          ? "ceil"
-          : "floor"
-        : inverted
-          ? "floor"
-          : "ceil"
-    ](initialDomain[0] / factor) * factor,
-    Math[
-      axis.schema.rounding === "outside"
-        ? inverted
-          ? "floor"
-          : "ceil"
-        : inverted
-          ? "ceil"
-          : "floor"
-    ](initialDomain[1] / factor) * factor,
-  ];
-  if (axis.schema.scale === "log") {
-    if (newDomain[0] === 0) newDomain[0] = initialDomain[0];
-    if (newDomain[1] === 0) newDomain[1] = initialDomain[1];
-  }
-  axis._d3Scale!.domain(newDomain.map(fixFloat));
-}
-
-/** Dispatches domain rounding for linear vs. log scales. */
-function applyRounding(axis: Axis, initialDomain: number[]): void {
-  if (axis.schema.scale === "linear") {
-    roundDomain(axis, initialDomain);
-  } else if (axis.schema.scale === "log") {
-    const powDomain: number[] = [];
-    const inverted = initialDomain[1] < initialDomain[0];
-    powDomain[0] = (
-      axis.schema.rounding === "outside"
-        ? isNegative(initialDomain[0])
-          ? inverted
-            ? floorPow
-            : ceilPow
-          : inverted
-            ? ceilPow
-            : floorPow
-        : isNegative(initialDomain[0])
-          ? inverted
-            ? ceilPow
-            : floorPow
-          : inverted
-            ? floorPow
-            : ceilPow
-    )(initialDomain[0]);
-    powDomain[1] = (
-      axis.schema.rounding === "inside"
-        ? isNegative(initialDomain[1])
-          ? inverted
-            ? floorPow
-            : ceilPow
-          : inverted
-            ? ceilPow
-            : floorPow
-        : isNegative(initialDomain[1])
-          ? inverted
-            ? floorPow
-            : ceilPow
-          : inverted
-            ? floorPow
-            : ceilPow
-    )(initialDomain[1]);
-    const powInverted = powDomain[1] < powDomain[0];
-    if (
-      powDomain[0] !== powDomain[1] &&
-      powDomain.some((d: number) => Math.abs(d) > 10) &&
-      powInverted === inverted
-    ) {
-      axis._d3Scale!.domain(powDomain);
-    } else {
-      roundDomain(axis, initialDomain);
-    }
-  }
-}
 
 /** Splits a log scale into positive/negative sub-scales when it spans zero. */
 function applyLogScaleSplit(axis: Axis): void {
@@ -434,7 +312,10 @@ export function setAxisScale(
     )
     .range(range);
 
-  if (axis.schema.rounding !== "none") applyRounding(axis, initialDomain);
+  if (axis.schema.rounding !== "none") {
+    const rounded = roundedDomain(initialDomain, axis.schema.rounding, axis.schema.scale);
+    if (rounded) axis._d3Scale!.domain(rounded);
+  }
 
   if (axis._d3Scale!.padding)
     axis._d3Scale!.padding(axis.schema.scalePadding);

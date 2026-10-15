@@ -17,11 +17,15 @@ import {date, elem} from "@d3plus/dom";
 
 import type {SceneNode} from "@d3plus/render";
 
+import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
-import {topLeftControlsInset as topLeftControlsInsetRaw} from "../drawSteps/topLeftControlsMarkup.js";
+import {
+  topLeftControlsBox,
+  topLeftControlsInset as topLeftControlsInsetRaw,
+} from "../drawSteps/topLeftControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
 export interface MarginClaim {
@@ -204,6 +208,7 @@ interface TextDatum {
   fO: number;
   tA: string;
   widths: number[];
+  truncated: boolean;
 }
 
 /**
@@ -264,6 +269,61 @@ export function cornerInsets(
 }
 
 /**
+    How far down the chart the corner control panels (zoom, top-left) reach:
+    content starting at least this far down clears both. Zero when neither
+    is showing.
+*/
+export function cornerControlsHeight(viz: VizInstance): number {
+  const zoom = zoomControlsBox(viz as never);
+  const topLeft = topLeftControlsBox(viz as never, getTopLeftContributions(viz as never));
+  return Math.max(zoom?.height ?? 0, topLeft?.height ?? 0);
+}
+
+/** Where a text block sits: its left edge, wrap width, drop below its top, and its wrapped rows. */
+interface TextBlockFit {
+  x: number;
+  width: number;
+  drop: number;
+  boxes: TextDatum[];
+}
+
+/**
+    Wraps a text block starting `top` px down the chart in the room the
+    corner control panels leave it. Text alongside the zoom controls (right)
+    and/or the top-left controls (back/table-view/search) wraps short of
+    them. Centered text first tries insetting both sides by the SAME (larger)
+    amount, so it stays centered on its full width; when the text doesn't
+    fit that, or isn't centered, each side insets by its own corner's amount.
+    When the text doesn't fit beside the panels at all, it drops below them
+    and takes the full width, so a narrow chart never loses it.
+*/
+function fitTextBlock(
+  viz: VizInstance,
+  textClass: TextBox,
+  top: number,
+  left: number,
+  right: number,
+  width: number,
+): TextBlockFit {
+  const fit = (x: number, w: number, drop: number): TextBlockFit => {
+    textClass.width(w);
+    return {x, width: w, drop, boxes: textClass._textData() as TextDatum[]};
+  };
+  const full = fit(left, width, 0);
+  const insets = cornerInsets(viz, top, left, right);
+  if (!(insets.left || insets.right) || !full.boxes.length) return full;
+  const tries: Array<[number, number]> = [[insets.left, insets.right]];
+  if (full.boxes[0].tA === "middle" && insets.left !== insets.right) {
+    tries.unshift([insets.symmetric, insets.symmetric]);
+  }
+  for (const [l, r] of tries) {
+    const result = fit(left + l, width - l - r, 0);
+    if (result.boxes.length && !result.boxes[0].truncated) return result;
+  }
+  return fit(left, width, Math.max(0, cornerControlsHeight(viz) - top));
+}
+
+/**
     Shared layout logic for any "single line of text claiming margin.top" feature
     (title, subtitle, total). Each feature passes the viz fields that source its
     text + TextBox + config; the helper computes the panel + margin claim using
@@ -287,43 +347,19 @@ function textBlockLayout(
   const padding = usesPadding
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  let width =
-    viz.schema.width -
-    (layoutMargin.left + layoutMargin.right + padding.left + padding.right);
-
   const textClass = viz[opts.textClassKey];
   textClass
     .data([{text}])
     .locale(viz.schema.locale)
-    .width(width)
     .config(viz.schema[opts.configKey]);
-  let boxes = textClass._textData() as TextDatum[];
-
-  // Text alongside the zoom controls (right) and/or the shared top-left
-  // controls panel (left — back/table-view/search) wraps short of them.
-  // Centered text insets both sides by the SAME (larger) amount so it stays
-  // centered on the full chart width, matching how it already behaved
-  // relative to zoom alone; start/end-aligned text instead just narrows the
-  // true available box (its unaffected edge stays exactly where it was).
-  let x = layoutMargin.left + padding.left;
-  const {left: leftInset, right: rightInset, symmetric} = cornerInsets(
+  const {x, width, drop, boxes} = fitTextBlock(
     viz,
+    textClass,
     layoutMargin.top,
     layoutMargin.left + padding.left,
     layoutMargin.right + padding.right,
+    viz.schema.width - (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
   );
-  if ((rightInset || leftInset) && boxes.length) {
-    const centered = boxes[0].tA === "middle";
-    if (centered) {
-      x += symmetric;
-      width -= symmetric * 2;
-    } else {
-      x += leftInset;
-      width -= leftInset + rightInset;
-    }
-    textClass.width(width);
-    boxes = textClass._textData() as TextDatum[];
-  }
   if (!boxes.length) return {panel: null, margin: {}};
   const box = boxes[0];
 
@@ -338,7 +374,7 @@ function textBlockLayout(
   // which is why the default title padding (5px) had no visible effect —
   // the title sat at the top of its claim regardless, reading noticeably
   // higher than the same-row zoom/back/search buttons beside it.
-  const y = layoutMargin.top + blockPadding;
+  const y = layoutMargin.top + drop + blockPadding;
 
   const lines = box.lines.map((str: string, i: number) => ({
     text: str,
@@ -371,7 +407,7 @@ function textBlockLayout(
     transform: {x, y},
   };
 
-  return {panel, margin: {top: height}};
+  return {panel, margin: {top: drop + height}};
 }
 
 /**

@@ -5,6 +5,7 @@
     that keeps bars inside the plot area.
 */
 import {mergeConfig} from "../../fluent.js";
+import {openEndAxisConfig, valueAxis} from "./baselineDomain.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -12,20 +13,20 @@ import type {VizInstance} from "../viz/vizTypes.js";
     `xBreak`/`yBreak` folded in as the axis `break`, over any axis config the
     chart itself supplies (`_plotAxisDefaults`). The break is always set, so
     clearing `yBreak` clears it from a reused axis; a `break` inside `yConfig`
-    wins.
+    wins. When the user's domain leaves an end open, Plot hands the axis the
+    domain with that end filled and rounded (see `openDomainEnds.ts`), so the
+    axis gets no `rounding` or one-sided `domain` of the user's.
 */
 export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
   const base = {break: brk === undefined ? false : brk};
-  const user = viz[`_${axis}Config`] as Record<string, unknown>;
+  const user = openEndAxisConfig(viz, axis);
   const own = viz._plotAxisDefaults?.[axis];
   // The user's config deep-merges over the chart's, so a nested key keeps its siblings.
   return own ? mergeConfig({...base, ...own}, user) : {...base, ...user};
 }
 
-/** The value (non-discrete) axis of a Plot; a swarm's own value axis when swarming. */
-export const valueAxis = (viz: VizInstance): "x" | "y" =>
-  viz._swarm ? viz._swarm.axis : viz.schema.discrete === "y" ? "x" : "y";
+export {valueAxis};
 
 /**
     The baseline-break settings for one of Plot's primary axes. Only the value
@@ -42,11 +43,17 @@ export function baselineBreakAxisConfig(viz: VizInstance, axis: "x" | "y"): Reco
     Whether a user-supplied `xDomain`/`yDomain` deliberately stops short of the
     baseline on a breaking value axis. Plot then leaves the domain as given
     (rather than stretching it to the baseline) and the axis draws a break.
+    `domain` is the user's domain once a set `baseline` has filled it in (see
+    `userAxisDomain`); it defaults to the `xDomain`/`yDomain` as given.
 */
-export function userDomainBreaksBaseline(viz: VizInstance, axis: string, configScale: string): boolean {
+export function userDomainBreaksBaseline(
+  viz: VizInstance,
+  axis: string,
+  configScale: string,
+  domain: unknown[] | undefined = viz.schema[`${axis}Domain`],
+): boolean {
   if (!viz.schema.baselineBreak || axis !== valueAxis(viz) || configScale !== "linear") return false;
   const {baseline} = viz.schema;
-  const domain = viz.schema[`${axis}Domain`] as unknown[] | undefined;
   if (typeof baseline !== "number" || !Array.isArray(domain)) return false;
   const [lo, hi] = domain;
   return (typeof lo === "number" && lo > baseline) || (typeof hi === "number" && hi < baseline);

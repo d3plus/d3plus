@@ -76,7 +76,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Download: "\u062a\u062d\u0645\u064a\u0644",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
-    Forecast: "\u062a\u0648\u0642\u0639",
+    Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
