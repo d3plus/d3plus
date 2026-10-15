@@ -147,6 +147,7 @@ export {
   candleTooltipRows,
   formatChange,
   formatPrice,
+  volumeAriaLabel,
 } from "./src/charts/Candlestick/tooltip.js";
 export {
   bandOpacityTargets,
