@@ -3,10 +3,10 @@
     tooltip and the single-mark tooltip. Both sit at the snapped discrete
     position (the other coordinate follows the pointer) with no arrow.
 */
-import {formatAbbreviate, formatDate, formatDateFull} from "@d3plus/format";
+import {formatAbbreviate, formatDateFull} from "@d3plus/format";
 import type {SceneEvent} from "@d3plus/render";
 
-import {axisDateLabel, parseTime} from "../../components/Axis/timeValues.js";
+import {axisDateLabel, isValidDate, parseTime} from "../../components/Axis/timeValues.js";
 import {axisIsYearLike, formatYear} from "../../components/Axis/yearValues.js";
 import {configPrep} from "../../utils/index.js";
 import type {VizContext} from "../../utils/configPrep.js";
@@ -44,8 +44,9 @@ function timeValue(viz: VizInstance, k: Axis, value: unknown): string | undefine
 
 /**
     Formats a value for an axis: the axis's `tickFormat` when set, else a time
-    axis's values at its tick interval with the year, other dates through
-    d3plus's date formatter, continuous-axis numbers abbreviated (in full on an
+    axis's values at its tick interval with the year, other Dates (e.g. on a
+    category axis) at the interval their axis's Dates step by, also with the
+    year, continuous-axis numbers abbreviated (in full on an
     axis of years, matching its tick labels), and anything else (e.g. a numeric
     year on the discrete axis) as-is.
 */
@@ -54,7 +55,10 @@ export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
   if (config && typeof config.tickFormat === "function") return config.tickFormat(value);
   const time = timeValue(viz, k, value);
   if (time !== undefined) return time;
-  if (value instanceof Date) return formatDate(value, [value]);
+  if (isValidDate(value)) {
+    const axis = viz[`_${k}Axis`];
+    return axis ? axisDateLabel(axis, value) : formatDateFull(value, [value]);
+  }
   if (typeof value === "number" && k !== viz.schema.discrete) {
     const axis = viz[`_${k}Axis`];
     return axis && axisIsYearLike(axis)
