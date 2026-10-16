@@ -20,6 +20,7 @@ import type {SceneNode} from "@d3plus/render";
 import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {
@@ -336,6 +337,10 @@ interface TextBlockFit {
     and/or the top-left controls (back/table-view/search) wraps short of
     them, taking the first of `cornerPlacements` it fits without being cut
     short.
+
+    Text fits a placement only in whole words: one that only fits by breaking
+    a word mid-word moves on to the next. The full-width row is the last
+    resort, so a word too wide even for that still breaks there.
 */
 function fitTextBlock(
   viz: VizInstance,
@@ -345,17 +350,27 @@ function fitTextBlock(
   right: number,
   width: number,
 ): TextBlockFit {
-  const fit = (x: number, w: number, drop: number): TextBlockFit => {
+  const split = textClass.split() as (sentence: string, i?: number) => string[];
+  const fit = (x: number, w: number, drop: number): {fits: boolean; result: TextBlockFit} => {
     textClass.width(w);
-    return {x, width: w, drop, boxes: textClass._textData() as TextDatum[]};
+    const wrap = (): TextBlockFit & {lines: string[]; truncated: boolean} => {
+      const boxes = textClass._textData() as TextDatum[];
+      return {x, width: w, drop, boxes, lines: boxes[0]?.lines ?? [], truncated: !boxes.length || boxes[0].truncated};
+    };
+    return wholeWordFit(wrap(), () => {
+      textClass.split(wholeWords(split));
+      const whole = wrap();
+      textClass.split(split);
+      return whole;
+    });
   };
-  const full = fit(left, width, 0);
+  const full = fit(left, width, 0).result;
   if (!full.boxes.length) return full;
   const placements = cornerPlacements(viz, top, left, right, full.boxes[0].tA === "middle");
   if (placements.length === 1) return full;
   for (const [i, {left: l, right: r, drop}] of placements.entries()) {
-    const result = fit(left + l, width - l - r, drop);
-    if (i === placements.length - 1 || (result.boxes.length && !result.boxes[0].truncated)) return result;
+    const {fits, result} = fit(left + l, width - l - r, drop);
+    if (fits || i === placements.length - 1) return result;
   }
   return full;
 }
