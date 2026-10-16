@@ -90,130 +90,31 @@ jobs:
       - name: Build docs site (Storybook)
         if: matrix.node-version == '22.x'
         run: pnpm --filter @d3plus/docs build
-      - name: Fix coverage paths for monorepo
+      # One upload per package, flagged with its directory name to match the
+      # flags in codecov.yml. lcov paths are relative to each package, so they
+      # are prefixed with its directory first. The commit, PR and branch are
+      # passed explicitly (as codecov-action does) because the shallow checkout
+      # leaves the CLI only the PR's merge commit; a fork's branch is sent as
+      # "owner:branch" for a tokenless upload. Upload failures warn without
+      # failing the job.
+      - name: Upload coverage
         if: matrix.node-version == '22.x'
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+          PR: ${{ github.event.pull_request.number }}
+          BRANCH: ${{ github.event.pull_request.head.repo.full_name != github.repository && github.event.pull_request.head.label || github.head_ref || github.ref_name }}
         run: |
+          pipx install codecov-cli==11.3.1
           for lcov in packages/*/coverage/lcov.info; do
-            pkg_dir=$(echo "$lcov" | cut -d/ -f1-2)
+            pkg_dir=$(dirname "$(dirname "$lcov")")
+            flag=$(basename "$pkg_dir")
             sed -i "s|^SF:|SF:${pkg_dir}/|" "$lcov"
+            codecovcli upload-coverage \
+              ${CODECOV_TOKEN:+--token "$CODECOV_TOKEN"} \
+              --git-service github --slug "$GITHUB_REPOSITORY" \
+              --sha "$SHA" --branch "$BRANCH" ${PR:+--pr "$PR"} \
+              --plugin noop --disable-search --fail-on-error \
+              --file "$lcov" --flag "$flag" --name "$flag" \
+              || echo "::warning::Codecov upload failed for $flag"
           done
-      - name: Upload color coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/color/coverage/lcov.info
-          flags: color
-          fail_ci_if_error: false
-      - name: Upload core coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/core/coverage/lcov.info
-          flags: core
-          fail_ci_if_error: false
-      - name: Upload data coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/data/coverage/lcov.info
-          flags: data
-          fail_ci_if_error: false
-      - name: Upload dom coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/dom/coverage/lcov.info
-          flags: dom
-          fail_ci_if_error: false
-      - name: Upload element coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/element/coverage/lcov.info
-          flags: element
-          fail_ci_if_error: false
-      - name: Upload export coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/export/coverage/lcov.info
-          flags: export
-          fail_ci_if_error: false
-      - name: Upload format coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/format/coverage/lcov.info
-          flags: format
-          fail_ci_if_error: false
-      - name: Upload locales coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/locales/coverage/lcov.info
-          flags: locales
-          fail_ci_if_error: false
-      - name: Upload math coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/math/coverage/lcov.info
-          flags: math
-          fail_ci_if_error: false
-      - name: Upload react coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/react/coverage/lcov.info
-          flags: react
-          fail_ci_if_error: false
-      - name: Upload render coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/render/coverage/lcov.info
-          flags: render
-          fail_ci_if_error: false
-      - name: Upload ssr coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/ssr/coverage/lcov.info
-          flags: ssr
-          fail_ci_if_error: false
-      - name: Upload svelte coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/svelte/coverage/lcov.info
-          flags: svelte
-          fail_ci_if_error: false
-      - name: Upload text coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/text/coverage/lcov.info
-          flags: text
-          fail_ci_if_error: false
-      - name: Upload vue coverage
-        if: matrix.node-version == '22.x'
-        uses: codecov/codecov-action@v5
-        with:
-          token: ${{ secrets.CODECOV_TOKEN }}
-          files: packages/vue/coverage/lcov.info
-          flags: vue
-          fail_ci_if_error: false
