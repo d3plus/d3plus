@@ -131,6 +131,7 @@ export const attributionFeature: FeatureModule = {
         toggleEl.style.border = "0";
         toggleEl.style.background = "transparent";
         toggleEl.style.color = "inherit";
+        toggleEl.style.margin = "0";
         toggleEl.style.padding = "0";
         toggleEl.style.flexShrink = "0";
       }
