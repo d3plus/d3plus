@@ -53,6 +53,21 @@ it("Pyramid centers the value axis on the largest side", () => {
   assert.strictEqual(viz._xConfig.domain, undefined, "symmetric(false) hands the domain back to Plot");
 });
 
+it("Pyramid asks for its own symmetric domain rounded outside", () => {
+  const viz = pyramid();
+  viz._preDraw();
+  assert.strictEqual(viz._plotAxisDefaults.x.rounding, "outside");
+  viz.symmetric(false)._preDraw();
+  assert.strictEqual(viz._plotAxisDefaults.x.rounding, undefined, "no symmetric domain, no rounding of its own");
+  const user = pyramid().xConfig({domain: [-500, 500]});
+  user._preDraw();
+  assert.strictEqual(user._plotAxisDefaults.x.rounding, undefined, "a user's domain is drawn as given");
+  const center = pyramid().categoryPosition("center");
+  center._preDraw();
+  assert.strictEqual(center._plotAxisDefaults.x.rounding, "outside", "beside the gutter's break");
+  assert.ok(Array.isArray(center._plotAxisDefaults.x.break), "the gutter's break is kept");
+});
+
 it("Pyramid leaves a user's domain alone", () => {
   const viz = pyramid().xConfig({domain: [-500, 500]});
   viz._preDraw();

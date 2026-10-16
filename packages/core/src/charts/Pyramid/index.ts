@@ -175,6 +175,10 @@ function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void
     return;
   }
   config.domain = state.domain = symmetricDomain(extent + state.inset);
+  // Plot draws an `xConfig.domain` as given, so ask for its ends rounded out
+  // to nice values; a `rounding` in the user's `xConfig` still wins.
+  const defaults = viz._plotAxisDefaults ?? {};
+  viz._plotAxisDefaults = {...defaults, x: {...defaults.x, rounding: "outside"}};
 }
 
 /**

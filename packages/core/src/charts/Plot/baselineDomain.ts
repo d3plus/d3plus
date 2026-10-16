@@ -80,6 +80,37 @@ export function hasUserDomain(viz: VizInstance, axis: "x" | "y"): boolean {
 }
 
 /**
+    Whether an axis config (`xConfig`, `yConfig`, `x2Config`, `y2Config`)
+    sets a full `domain`: both ends, or a list of categories. Like an Axis
+    given a domain, Plot draws it as given, rounded only by that axis
+    config's own `rounding`.
+*/
+export function hasFullConfigDomain(viz: VizInstance, axis: "x" | "y" | "x2" | "y2"): boolean {
+  const domain = (viz[`_${axis}Config`] as {domain?: unknown} | undefined)?.domain;
+  return Array.isArray(domain) && domain.some(d => d !== undefined && d !== null) && !isOneSided(domain);
+}
+
+/**
+    The `rounding` Plot hands an axis: "none" when its axis config sets a
+    full `domain`, else `fallback` (Plot's own default for that axis). The
+    axis config's own `rounding` is merged over it.
+*/
+export function plotAxisRounding(viz: VizInstance, axis: "x" | "y" | "x2" | "y2", fallback: string): string {
+  return hasFullConfigDomain(viz, axis) ? "none" : fallback;
+}
+
+/**
+    The `rounding` Plot hands a secondary axis (`x2`/`y2`): the user's
+    `x2Config`/`y2Config` `rounding`, else "none" for a full `domain` there,
+    else the primary axis's default (`fallback`). Set explicitly so a full
+    domain on the primary axis doesn't turn rounding off on this one.
+*/
+export function secondaryAxisRounding(viz: VizInstance, axis: "x2" | "y2", fallback: string): string {
+  const own = (viz[`_${axis}Config`] as {rounding?: string} | undefined)?.rounding;
+  return own ?? plotAxisRounding(viz, axis, fallback);
+}
+
+/**
     Whether the user's domain on an axis sets one end and leaves the other to
     the data: a one-sided `xDomain`/`yDomain` or axis-config `domain`, or a set
     `baseline` alone. Plot fills that end and rounds it (see
