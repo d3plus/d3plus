@@ -35,6 +35,7 @@ const probe = (builderSrc, {width = 800, height = 500} = {}) =>
             background: background ? {...background.n, path: background.path} : null,
             marks,
             legendData: (viz._legendClass._data || []).length,
+            legend: viz._legendClass.outerBounds(),
             sizeBox: viz._bottomRightBox ? {inset: !!viz._bottomRightBox.inset} : null,
           });
         } catch (e) {
@@ -78,6 +79,71 @@ it("legendInset(false) keeps the legend in its margin", async () => {
 it("an explicit legendPosition is honored", async () => {
   const r = await probe(scatter(`.legendPosition("bottom")`));
   assert.strictEqual(r.placement, null);
+});
+
+it("legendPosition(\"auto\") places the legend inside the chart, like the default", async () => {
+  const def = await probe(scatter());
+  const auto = await probe(scatter(`.legendPosition("auto")`));
+  assert.ok(auto.placement, "placed inside the plot");
+  assert.strictEqual(auto.placement.key, "legend");
+  assert.deepStrictEqual(auto.placement, def.placement);
+  assert.deepStrictEqual(auto.margin, def.margin);
+});
+
+it("an explicit side keeps the legend in that margin, never inside the chart", async () => {
+  // The legend's box hugs the side it was given, in an 800×500 chart.
+  const hugs = {
+    top: b => b.y < 50,
+    right: b => b.x > 700,
+    bottom: b => b.y > 450,
+    left: b => b.x + b.width < 100,
+  };
+  for (const side of ["top", "right", "bottom", "left"]) {
+    const r = await probe(scatter(`.legendPosition("${side}")`));
+    assert.strictEqual(r.placement, null, `${side}: not inset`);
+    assert.strictEqual(r.background, null, `${side}: no inset box`);
+    assert.strictEqual(r.legendData, 3, `${side}: shown`);
+    assert.ok(hugs[side](r.legend), `${side}: drawn on that side (${JSON.stringify(r.legend)})`);
+  }
+  const hidden = await probe(scatter(".legendPosition(false)"));
+  assert.strictEqual(hidden.placement, null, "false: not inset");
+  assert.strictEqual(hidden.legendData, 0, "false: hidden");
+});
+
+it("an \"auto\" legend that isn't inset goes right on wide charts and bottom on others", async () => {
+  for (const extra of ["", `.legendPosition("auto")`]) {
+    const src = scatter(`.legendInset(false)${extra}`);
+    const wide = await probe(src, {width: 800, height: 500});
+    assert.ok(wide.margin.right > wide.margin.bottom, `wide${extra}: right (${JSON.stringify(wide.margin)})`);
+    const tall = await probe(src, {width: 500, height: 700});
+    assert.ok(tall.margin.bottom > tall.margin.right, `tall${extra}: bottom (${JSON.stringify(tall.margin)})`);
+  }
+  // A chart with no room inside (Treemap) resolves "auto" the same way.
+  const tree = `lib => new lib.Treemap()
+    .data([{g: "x", id: "a", value: 10}, {g: "y", id: "b", value: 9}, {g: "z", id: "c", value: 10}, {g: "x", id: "d", value: 5}])
+    .groupBy(["g", "id"]).sum("value").legendPosition("auto")`;
+  const wideTree = await probe(tree, {width: 800, height: 500});
+  assert.strictEqual(wideTree.placement, null);
+  assert.ok(wideTree.margin.right > wideTree.margin.bottom, "wide Treemap: right");
+  const tallTree = await probe(tree, {width: 500, height: 700});
+  assert.ok(tallTree.margin.bottom > tallTree.margin.right, "tall Treemap: bottom");
+});
+
+it("colorScalePosition(\"auto\") may be inset, and an explicit side never is", async () => {
+  const colored = extra => `lib => new lib.Plot()
+    .data([
+      {id: "a", x: 1, y: 9, value: 10}, {id: "b", x: 2, y: 10, value: 20},
+      {id: "c", x: 9, y: 9, value: 15}, {id: "d", x: 10, y: 10, value: 40},
+      {id: "e", x: 1, y: 1, value: 30}, {id: "f", x: 2, y: 2, value: 25},
+    ])
+    .groupBy("id").x("x").y("y").colorScale("value")${extra}`;
+  const def = await probe(colored(""));
+  const auto = await probe(colored(`.colorScalePosition("auto")`));
+  assert.ok(def.placement, "the default colorScale is placed inside the plot");
+  assert.strictEqual(def.placement.key, "colorScale");
+  assert.deepStrictEqual(auto.placement, def.placement);
+  const right = await probe(colored(`.colorScalePosition("right")`));
+  assert.strictEqual(right.placement, null);
 });
 
 it("the size legend is tried first; the legend falls back to its margin", async () => {

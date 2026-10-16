@@ -6,6 +6,7 @@ import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import {elem, stylize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
+import {resetInjectedBoxes} from "@d3plus/render";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
@@ -104,6 +105,25 @@ async function positionTooltip(
   }
   arrowEl.style.left = middlewareData.arrow?.x != null ? `${middlewareData.arrow.x}px` : "";
 }
+
+/**
+    The tooltip's own elements, guarded against generic page CSS (see
+    `resetInjectedBoxes`): the portals, the default tooltip box, and its
+    parts. The box's `padding`/`border` and each part's `*Style` are inline,
+    so tooltip configuration still applies.
+*/
+const TOOLTIP_SELECTORS = [
+  '[id="d3plus-portal"]',
+  ".d3plus-tooltip-portal",
+  ".d3plus-tooltip",
+  ".d3plus-tooltip-title",
+  ".d3plus-tooltip-body",
+  ".d3plus-tooltip-footer",
+  ".d3plus-tooltip-arrow",
+  ".d3plus-tooltip-table",
+  ".d3plus-tooltip-thead",
+  ".d3plus-tooltip-tbody",
+];
 
 /**
     Resolves the portal selection the tooltips mount into: a per-instance
@@ -412,7 +432,9 @@ export default class Tooltip extends BaseClass {
     // Join only this instance's tooltips: Tooltips without a parent() share
     // the global portal, and each must leave the others' elements alone.
     const ownPrefix = `d3plus-tooltip-${this._uuid}-`;
-    const tooltips = resolvePortal(this)
+    const portal = resolvePortal(this);
+    resetInjectedBoxes(portal.node() as Node | null, TOOLTIP_SELECTORS);
+    const tooltips = portal
       .selectAll<HTMLElement, DataPoint>(`.${this.schema.className}`)
       .filter(function (this: HTMLElement) {
         return this.id.startsWith(ownPrefix);

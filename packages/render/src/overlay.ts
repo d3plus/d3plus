@@ -6,6 +6,7 @@
 
 import type {GroupNode, HtmlOverlayNode, Scene, SceneNode} from "./scene.js";
 import type {RenderTarget} from "./Renderer.js";
+import {resetInjectedBoxes} from "./boxReset.js";
 
 /**
     Walks the scene tree gathering every `htmlOverlay` node and the
@@ -107,6 +108,7 @@ export function markOverlayHtmlSynced(el: HTMLElement, html: string): void {
     Creates the sibling host div both renderers append next to their
     surface. Container is set to `position: relative` if it doesn't
     already have one so the absolutely-positioned host layers correctly.
+    The host covers the container's content box (see `alignOverlayHost`).
 */
 export function createOverlayHost(target: RenderTarget): HTMLDivElement {
   // The overlay host is an HTML <div>, which only lays out inside HTML flow: a
@@ -141,13 +143,32 @@ export function createOverlayHost(target: RenderTarget): HTMLDivElement {
   const host = document.createElement("div");
   host.setAttribute("class", "d3plus-render-overlays");
   host.style.position = "absolute";
-  host.style.top = "0";
-  host.style.left = "0";
-  host.style.width = "100%";
-  host.style.height = "100%";
   host.style.pointerEvents = "none";
   container.appendChild(host);
+  resetInjectedBoxes(host, OVERLAY_SELECTORS);
+  alignOverlayHost(host);
   return host;
+}
+
+/** The overlay host and each overlay element, guarded against page CSS (see `resetInjectedBoxes`). */
+const OVERLAY_SELECTORS = [".d3plus-render-overlays", ".d3plus-render-overlay"];
+
+/**
+    Fits the overlay host to its mount's content box, where the drawing
+    surface sits: the canvas and a plain-HTML mount's svg are in normal flow,
+    and a chart positions its svg at the container's padding. Overlay
+    coordinates are surface coordinates, so a host spanning the padding box
+    would shift every overlay up and left by the container's padding. Read
+    on every draw, since the container's padding can change between draws.
+*/
+export function alignOverlayHost(host: HTMLElement): void {
+  const mount = host.parentElement;
+  const computed =
+    mount && typeof getComputedStyle === "function" ? getComputedStyle(mount) : null;
+  host.style.top = computed?.paddingTop || "0px";
+  host.style.right = computed?.paddingRight || "0px";
+  host.style.bottom = computed?.paddingBottom || "0px";
+  host.style.left = computed?.paddingLeft || "0px";
 }
 
 

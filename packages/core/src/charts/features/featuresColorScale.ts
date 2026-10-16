@@ -93,7 +93,7 @@ function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean
 
 /** The colorScale's sanitized position side (false when hidden). */
 function colorScalePosition(viz: VizInstance): ReturnType<typeof sanitizePosition> {
-  return sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)));
+  return sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)), viz);
 }
 
 /**

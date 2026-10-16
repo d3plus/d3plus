@@ -6,7 +6,9 @@
 */
 import {max, min} from "d3-array";
 
-import {fontFamily as d3plusFontFamily, textSplit, textWrap} from "@d3plus/text";
+import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
+
+import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
 
@@ -96,21 +98,6 @@ export function computeBuffers(
   return {hBuff, wBuff};
 }
 
-const softHyphen = "\u00AD";
-
-/**
-    Splits a label into words as TextBox does, but keeps each word whole
-    instead of breaking it into hyphenated syllables.
-*/
-export function wholeWordSplit(sentence: string): string[] {
-  return textSplit(sentence).reduce((words: string[], piece: string) => {
-    const last = words.length - 1;
-    if (last >= 0 && words[last].endsWith(softHyphen)) words[last] = words[last].slice(0, -1) + piece;
-    else words.push(piece);
-    return words;
-  }, []);
-}
-
 /** A label's wrapped lines and measured size (see `calculateLabelSize`). */
 type LabelSize = {lines: string[]; widths: number[]; width: number; height: number; fits: boolean};
 
@@ -169,10 +156,8 @@ function calculateLabelSize(
   }
   else {
     res = wrap(text) as Sized;
-    // TextBox breaks a word too wide for its line into hyphenated syllables;
-    // wrapping whole words instead tells whether every word fits on its own.
-    const hyphenated = res.lines.slice(0, -1).some((l: string) => l.endsWith("-"));
-    fits = !res.truncated && !(hyphenated && wrap.split(wholeWordSplit)(text).truncated);
+    // A label that only fits by breaking a word mid-word doesn't fit.
+    fits = wholeWordFit(res, () => wrap.split(wholeWordSplit)(text) as Sized).fits;
     // A label wider than its share of the axis wraps to nothing; measure it
     // across the whole axis instead, so the overlap pass thins the labels out.
     if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
