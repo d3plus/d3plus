@@ -97,30 +97,42 @@ function assertClear(out, label, entries = regions.length) {
   }
 }
 
+/** A bare element rule: d3plus's box reset keeps it off the corner panels. */
 const padded = "div {padding: 25px;}";
+/** A rule that outranks the box reset, so it still inflates the corner panels. */
+const inflated = "#s div {padding: 25px;}";
+const cssLabel = {[padded]: " (padded)", [inflated]: " (inflated)"};
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a top legend that doesn't fit beside the corner controls drops below them`, async function () {
     this.timeout(60000);
-    for (const [width, css] of [[300, ""], [350, padded]]) {
-      const label = `${renderer} @ ${width}px${css ? " (padded)" : ""}`;
-      const out = await legendLayout(width, renderer, {css});
+    const plain = await legendLayout(300, renderer);
+    for (const [width, css] of [[300, ""], [300, padded], [350, inflated]]) {
+      const label = `${renderer} @ ${width}px${cssLabel[css] || ""}`;
+      const out = css ? await legendLayout(width, renderer, {css}) : plain;
       assertClear(out, label);
+      const drawn = Math.max(...out.controls.map(r => r.bottom));
+      assert.ok(out.controlsHeight >= drawn - 1, `${label}: the panels measure at least as tall as drawn (${out.controlsHeight} vs ${drawn})`);
       assert.ok(out.box.top >= out.controlsHeight, `${label}: starts below the panels (${out.box.top} vs ${out.controlsHeight})`);
       assert.ok(
         out.marginTop >= out.controlsHeight + out.legendHeight,
         `${label}: the claimed margin covers the drop below the panels (${out.marginTop})`,
       );
+      if (css === padded) {
+        assert.deepStrictEqual([out.box, out.marginTop], [plain.box, plain.marginTop], `${label}: page CSS doesn't move the legend`);
+      }
     }
   });
 
   it(`${renderer}: a top legend too wide for the symmetric inset insets each side by its own corner`, async function () {
     this.timeout(60000);
-    for (const [width, css] of [[350, ""], [400, padded]]) {
-      const label = `${renderer} @ ${width}px${css ? " (padded)" : ""}`;
+    for (const [width, css] of [[350, ""], [350, padded], [400, inflated]]) {
+      const label = `${renderer} @ ${width}px${cssLabel[css] || ""}`;
       const out = await legendLayout(width, renderer, {css});
       assertClear(out, label);
       assert.ok(out.box.top < out.controlsHeight, `${label}: the legend stays on the controls' row`);
+      const offCenter = (out.box.left + out.box.right) / 2 - out.width / 2;
+      assert.ok(offCenter < -1, `${label}: the legend shifts toward the narrower left panel (${offCenter})`);
     }
   });
 

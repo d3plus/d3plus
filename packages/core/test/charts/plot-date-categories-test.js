@@ -196,7 +196,7 @@ it("LinePlot — a facet's panels label Date categories as months", async functi
   assert.ok(r.length > 6, `the panels paint x labels (got ${r})`);
   assert.ok(r.every(t => !/GMT|\d\d:\d\d:\d\d/.test(t)), `no raw Date strings (got ${r})`);
   assert.strictEqual(r.filter(t => t === "Jan 2023").length, 3, `each panel starts at Jan 2023 (got ${r})`);
-  // Thinned evenly, each panel's labels land on the Januaries, which name their years.
-  ["Jan 2024", "Jan 2025"].forEach(year =>
-    assert.strictEqual(r.filter(t => t === year).length, 3, `each panel labels ${year} (got ${r})`));
+  // Thinned evenly, each panel names each year on the first label it shows in it.
+  ["2024", "2025"].forEach(year =>
+    assert.strictEqual(r.filter(t => t.endsWith(year)).length, 3, `each panel names ${year} once (got ${r})`));
 });
