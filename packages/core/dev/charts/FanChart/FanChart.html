@@ -1,0 +1,149 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>FanChart</title>
+  <meta name="description" content="FanChart forecasts with nested confidence bands, several series, an explicit forecast start, opacity and forecast styling, a vertical fan, and small multiples.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 360px; }
+    .wide { grid-column: 1 / -1; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Inflation forecast (labeled bands)</h3><div class="viz" id="basic"></div></div>
+    <div><h3>Two scenarios, each with its own fan</h3><div class="viz" id="scenarios"></div></div>
+    <div><h3>One band, explicit forecast start, solid line</h3><div class="viz" id="single"></div></div>
+    <div><h3>bandOpacity ramp + forecastConfig styling</h3><div class="viz" id="styled"></div></div>
+    <div><h3>Vertical fan (discrete y axis)</h3><div class="viz" id="vertical"></div></div>
+    <div class="wide"><h3>Small multiples (facet by region)</h3><div class="viz" id="facet"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // Seeded noise so the page renders identically every load.
+  let seed = 11;
+  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  const quarters = [];
+  for (let year = 2019; year <= 2027; year++)
+    for (let q = 0; q < 4; q++) quarters.push(`${year}-${String(q * 3 + 1).padStart(2, "0")}-01`);
+  const lastActual = quarters.indexOf("2024-10-01");
+
+  // Fan bands widen with the forecast horizon; the last actual quarter has no spread.
+  function fan(id, level, drift, spread) {
+    let value = level;
+    return quarters.map((date, k) => {
+      const h = k - lastActual;
+      value = h <= 0 ? value + (random() - 0.5) * 0.9 : value + drift;
+      const row = {id, date, value: Math.round(value * 100) / 100};
+      if (h >= 0) {
+        const w = spread * Math.sqrt(h);
+        [["p05", "p95", 1.645], ["p20", "p80", 0.842], ["p35", "p65", 0.385]].forEach(([lo, hi, z]) => {
+          row[lo] = Math.round((row.value - z * w) * 100) / 100;
+          row[hi] = Math.round((row.value + z * w * 1.15) * 100) / 100;
+        });
+      }
+      return row;
+    });
+  }
+
+  const inflation = fan("CPI Inflation", 2.4, -0.06, 0.55);
+  const bands = [["p05", "p95", "90%"], ["p20", "p80", "60%"], ["p35", "p65", "30%"]];
+
+  new d3plus.FanChart()
+    .select("#basic")
+    .data(inflation)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .confidence(bands)
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  const scenarios = fan("Baseline", 3, 0.02, 0.4).concat(fan("Downside", 3, -0.1, 0.6));
+  new d3plus.FanChart()
+    .select("#scenarios")
+    .data(scenarios)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .confidence([["p05", "p95"], ["p35", "p65"]])
+    .timeline(false)
+    .render();
+
+  new d3plus.FanChart()
+    .select("#single")
+    .data(inflation)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .confidence(["p20", "p80"])
+    .forecast("2025-01-01")
+    .forecastConfig({lineDasharray: false})
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  new d3plus.FanChart()
+    .select("#styled")
+    .data(inflation)
+    .groupBy("id")
+    .x("date")
+    .time("date")
+    .y("value")
+    .color(() => "#c0392b")
+    .confidence(bands)
+    .confidenceConfig({bandOpacity: [0.08, 0.3, 0.75]})
+    .forecastConfig({fill: "#c0392b", fillOpacity: 0.04, label: "Projection", stroke: "#c0392b"})
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  new d3plus.FanChart()
+    .select("#vertical")
+    .data(inflation)
+    .groupBy("id")
+    .y("date")
+    .time("date")
+    .x("value")
+    .discrete("y")
+    .confidence(bands)
+    .legend(false)
+    .timeline(false)
+    .render();
+
+  const regions = ["North", "South", "East", "West"];
+  const regional = regions.flatMap((region, r) =>
+    fan(`${region}`, 2 + r * 0.6, (r - 1.5) * 0.05, 0.35 + r * 0.1).map(d => ({...d, region})),
+  );
+  new d3plus.FanChart()
+    .select("#facet")
+    .data(regional)
+    .groupBy("id")
+    .facet("region")
+    .x("date")
+    .time("date")
+    .y("value")
+    .confidence(bands)
+    .legend(false)
+    .timeline(false)
+    .render();
+
+</script>
+
+</html>

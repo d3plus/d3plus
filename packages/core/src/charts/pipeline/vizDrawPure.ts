@@ -24,7 +24,8 @@
       - `marginDelta` (top/bottom/left/right) — total added to viz._margin
       - `featurePanels` — final aggregated panel list
       - `resetChartScene`/`resetChartTransform`/`resetShapes` (always true)
-      - `legendPosition`/`colorScalePosition` — sanitized values
+      - `legendPosition`/`colorScalePosition` — sanitized values (`"auto"`
+        resolved to a side)
 */
 
 import {
@@ -85,18 +86,15 @@ export function vizDrawPure(
   viz._chartTransform = undefined;
   viz._shapes = [];
 
-  // Sanitize positions via the shared `sanitizePosition` helper (same
-  // function legendFeature / colorScaleFeature use) so the three sites
-  // can't drift. One frozen `resolveSpec` snapshot feeds both accessors:
-  // the position accessors take the resolved config as their argument, so
-  // a single snapshot reflects config once instead of twice.
+  // Sanitize positions (resolving "auto" to a side) via the shared
+  // `sanitizePosition` helper (same function legendFeature /
+  // colorScaleFeature use) so the three sites can't drift. One frozen
+  // `resolveSpec` snapshot feeds both accessors: the position accessors
+  // take the resolved config as their argument, so a single snapshot
+  // reflects config once instead of twice.
   const spec = resolveSpec(viz);
-  const legendPosition = sanitizePosition(
-    viz.schema.legendPosition.bind(viz)(spec),
-  );
-  const colorScalePosition = sanitizePosition(
-    viz.schema.colorScalePosition.bind(viz)(spec),
-  );
+  const legendPosition = sanitizePosition(viz.schema.legendPosition.bind(viz)(spec), viz);
+  const colorScalePosition = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(spec), viz);
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 

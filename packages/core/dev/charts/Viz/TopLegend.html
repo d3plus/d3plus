@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>TopLegend · Viz</title>
+  <meta name="description" content="A top legend beside the zoom and table/search controls, dropping below them when it doesn't fit.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+
+    section {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .viz {
+      height: 360px;
+      margin: 0 24px 24px 0;
+    }
+
+    /* Padding on every div inflates the corner control panels, as it does on Plot/Buffers.html. */
+    .padded div {
+      padding: 25px;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <section>
+    <div class="viz" id="w300" style="width: 300px;"></div>
+    <div class="viz" id="w350" style="width: 350px;"></div>
+    <div class="viz" id="w450" style="width: 450px;"></div>
+    <div class="viz" id="w600" style="width: 600px;"></div>
+  </section>
+  <section class="padded">
+    <div class="viz" id="p350" style="width: 350px;"></div>
+    <div class="viz" id="p450" style="width: 450px;"></div>
+    <div class="viz" id="p900" style="width: 900px;"></div>
+  </section>
+</body>
+
+<script>
+
+  const regions = [
+    "Northeast Manufacturing", "Southern Agriculture", "Pacific Technology Services",
+    "Midwest Transportation", "Mountain Region Tourism"
+  ];
+  const data = regions.flatMap((id, i) => [2019, 2020, 2021, 2022, 2023].map((year, j) => ({
+    id, year, value: 20 + i * 8 + ((i + 1) * (j + 2) * 7) % 17
+  })));
+
+  // The top legend centers beside the corner controls when its labels fit
+  // there whole; otherwise it insets each side by its own corner, and when it
+  // doesn't fit beside them at all it takes a full-width row below them.
+  for (const id of ["w300", "w350", "w450", "w600", "p350", "p450", "p900"]) {
+    new d3plus.LinePlot()
+      .select(`#${id}`)
+      .data(data)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .legendPosition("top")
+      .tableView(true)
+      .search(true)
+      .render();
+  }
+
+</script>
+
+</html>

@@ -164,6 +164,9 @@ const charts = [
   ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  ["Waffle", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", unit: 2, cellShape: "circle", fillDirection: "column", fillStart: "bottom-right"}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", facet: "parent", cellShape: "rounded", threshold: 0.1}],
   ["BarChart", {...plot, shapeConfig: {Bar: image}}],
   ["Chord", {links, shapeConfig: image}],
   ["Gauge", {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: image}],
@@ -175,6 +178,8 @@ const charts = [
   ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", shapeConfig: image}],
   ["Sankey", {links, shapeConfig: {Rect: image}}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", shapeConfig: {...image, backgroundImageFit: "contain"}}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", shapeConfig: image}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", icon: image.backgroundImage}],
 ];
 
 /**

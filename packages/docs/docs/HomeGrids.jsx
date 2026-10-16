@@ -9,6 +9,7 @@ const charts = [
   ["Bump Chart", "bumpchart"],
   ["Chord", "chord"],
   ["Donut", "donut"],
+  ["Fan Chart", "fanchart"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
@@ -28,6 +29,7 @@ const charts = [
   ["Sunburst", "sunburst"],
   ["Tree", "tree"],
   ["Treemap", "treemap"],
+  ["Waffle", "waffle"],
   ["Waterfall", "waterfall"],
 ];
 

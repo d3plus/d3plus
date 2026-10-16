@@ -29,6 +29,7 @@ const hiddenMethods = {
   BumpChart: ["shape"],
   Chord: ["shape"],
   Donut: ["shape"],
+  FanChart: ["barPadding", "groupPadding", "swarm", "swarmConfig"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
   LinePlot: ["shape"],
   Pyramid: ["shape", "discrete", "stacked"],
