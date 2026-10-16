@@ -6,6 +6,7 @@ export {
   BumpChart,
   Chord,
   Donut,
+  Funnel,
   Gauge,
   Geomap,
   Histogram,
@@ -80,6 +81,11 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {
+  FunnelConversion,
+  FunnelConversionOption,
+} from "./src/charts/Funnel/funnelLabels.js";
+export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
