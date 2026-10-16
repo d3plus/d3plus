@@ -19,7 +19,9 @@ import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
 import {configToPaint} from "../../components/Axis/axisRender.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {isLabel} from "./domainClip.js";
+
+/** Whether a node is a value or line label, which the mask leaves whole. */
+const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
 
 /** A polygon as `[x, y]` points. */
 type Polygon = [number, number][];

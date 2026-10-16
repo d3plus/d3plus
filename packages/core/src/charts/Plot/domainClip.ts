@@ -50,7 +50,7 @@ export interface ClipFrame extends MaskFrame {
 const isHit = (node: SceneNode): boolean => String(node.key).endsWith("::hit");
 
 /** Whether a node is a label, which no clip may cut. */
-export const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
+const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
 
 /** Whether a node is a point mark, whose overhang past the edge is its radius. */
 const isPoint = (node: SceneNode): boolean => node.type === "circle";
