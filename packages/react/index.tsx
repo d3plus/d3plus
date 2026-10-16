@@ -6,6 +6,7 @@ import {
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
   BumpChart as BumpChartClass,
+  Candlestick as CandlestickClass,
   Chord as ChordClass,
   Donut as DonutClass,
   Gauge as GaugeClass,
@@ -78,6 +79,10 @@ export const BoxWhisker = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BumpChartClass} {...props} />
+);
+/** React component for rendering a d3plus Candlestick visualization. */
+export const Candlestick = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={CandlestickClass} {...props} />
 );
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (

@@ -172,7 +172,7 @@ export function rescalePlot(
         x: layout.xRange[0],
         y: layout.yRange[0] - pCtx.x2Height,
         width: layout.xRange[1] - layout.xRange[0],
-        height: layout.yRange[1] - layout.yRange[0],
+        height: layout.yRange[1] - layout.yRange[0] + (layout.insetBottom ?? 0),
       };
 
   return plotPaintMeasured(viz, {...pCtx, ...zoomed}, layout, clip).nodes;

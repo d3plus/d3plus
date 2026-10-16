@@ -97,6 +97,59 @@ export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/ch
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
 export {
+  candleChange,
+  candleDirection,
+  candlePath,
+  candleWidth,
+  finiteValue,
+  ohlcBarPath,
+  ohlcExtent,
+  periodSpacing,
+  pixelCenter,
+  readOhlc,
+} from "./src/charts/Candlestick/ohlc.js";
+export type {
+  CandleDirection,
+  CandlestickVariant,
+  Ohlc,
+  OhlcAccessor,
+  OhlcAccessors,
+} from "./src/charts/Candlestick/ohlc.js";
+export {
+  aggregateFunctionFields,
+  DEFAULT_AGGS,
+  firstValue,
+  keyedAccessor,
+  lastValue,
+  maxValue,
+  minValue,
+  ohlcAccessors,
+  sumValue,
+  syncDefaultAggs,
+} from "./src/charts/Candlestick/aggregate.js";
+export type {Aggregator} from "./src/charts/Candlestick/aggregate.js";
+export {
+  emitVolume,
+  installVolumeStrip,
+  stripSize,
+  VOLUME_DEFAULTS,
+  volumeAccessor,
+  volumeScale,
+  volumeStripRect,
+} from "./src/charts/Candlestick/volume.js";
+export type {VolumeConfig, VolumeStrip} from "./src/charts/Candlestick/volume.js";
+export {candlestickBuffer, widenDomain} from "./src/charts/Candlestick/buffer.js";
+export {CANDLESTICK_SHAPE, candleTexture, emitCandlesticks, layoutCandles} from "./src/charts/Candlestick/emit.js";
+export type {CandleLayout} from "./src/charts/Candlestick/emit.js";
+export {bandAxisDefaults, periodDate} from "./src/charts/Candlestick/periods.js";
+export {
+  candleAriaLabel,
+  candleTooltipRows,
+  formatChange,
+  formatPrice,
+  volumeAriaLabel,
+} from "./src/charts/Candlestick/tooltip.js";
+export {
   bandOpacityTargets,
   boundOrValue,
   confidenceBands,
@@ -117,6 +170,7 @@ export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";

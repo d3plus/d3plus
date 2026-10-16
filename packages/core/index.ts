@@ -4,6 +4,7 @@ export {
   Beeswarm,
   BoxWhisker,
   BumpChart,
+  Candlestick,
   Chord,
   Donut,
   Gauge,

@@ -37,8 +37,10 @@ export function buildTickFormat(
 ): (d: unknown) => string {
   let years: boolean | undefined;
   let dates: Date[] | undefined;
-  return axis.schema.tickFormat
-    ? axis.schema.tickFormat
+  const format = axis.schema.tickFormat as ((this: Axis, d: unknown) => string) | undefined;
+  // A tickFormat may read the axis it labels as `this` (such as which labels it shows).
+  return format
+    ? (d: unknown): string => format.call(axis, d)
     : (d: unknown): string => {
         if (isValidDate(d) && isCategoryAxis(axis)) {
           dates ??= axisDateCategories(axis);
@@ -210,22 +212,43 @@ function applyLogScaleSplit(axis: Axis): void {
   }
 }
 
-/** Resolves the tick + label value arrays (config, scale ticks, or domain). */
+/**
+    The label lists an axis chooses among, when its `labels` is a list of
+    lists (from the most labels to the fewest): the layout labels the first
+    list whose labels all fit whole, else the last one, thinned.
+*/
+export function labelSets(axis: Axis): unknown[][] | undefined {
+  const {labels} = axis.schema;
+  return Array.isArray(labels) && labels.length && labels.every(Array.isArray)
+    ? (labels as unknown[][])
+    : undefined;
+}
+
+/**
+    Resolves the tick + label value arrays (config, scale ticks, or domain).
+    With a list of label lists, the labels are the one the layout is trying,
+    and the ticks follow them unless `ticks` is set.
+*/
 function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
+  const sets = labelSets(axis);
+  const ownLabels: unknown[] | undefined = sets
+    ? sets[Math.min(axis._labelSet ?? 0, sets.length - 1)]
+    : axis.schema.labels;
+  const ownTicks: unknown[] | undefined = axis.schema.ticks || (sets ? ownLabels : undefined);
   let ticks = (
-    axis.schema.ticks
+    ownTicks
       ? axis.schema.scale === "time"
-        ? parseTimeValues(axis.schema.ticks)
-        : axis.schema.ticks
+        ? parseTimeValues(ownTicks)
+        : ownTicks
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getTicks()
         : axis.schema.domain
   ).slice();
   let labels = (
-    axis.schema.labels
+    ownLabels
       ? axis.schema.scale === "time"
-        ? parseTimeValues(axis.schema.labels)
-        : axis.schema.labels
+        ? parseTimeValues(ownLabels)
+        : ownLabels
       : (axis._d3Scale ? axis._d3Scale.ticks : axis._d3ScaleNegative?.ticks)
         ? axis._getLabels()
         : ticks
@@ -238,7 +261,7 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   if (axis._breaks.length) {
     ticks = breakTickValues(axis._breaks, ticks);
     // An explicit `labels` list labels just those values (an empty one, none).
-    labels = breakTickValues(axis._breaks, labels, !axis.schema.labels);
+    labels = breakTickValues(axis._breaks, labels, !ownLabels);
   }
   ticks = ticks.sort(
     (a: unknown, b: unknown) => axis._getPosition(a) - axis._getPosition(b),

@@ -82,6 +82,10 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+  /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
+  insetBottom?: number;
+  /** The x2 axis's height: `yRange` minus this is content space. */
+  x2Height?: number;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -395,7 +399,10 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
   Line: lineEmit,
 };
 
-/** Dispatch a shape group to its emitter (falling back to the generic path). */
+/**
+    Dispatch a shape group to its emitter: the chart's own override for the key
+    (`viz._plotShapeEmitters`), else the registry, else the generic path.
+*/
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (shapeEmitters[key] ?? genericEmit)(ctx, key);
+  return (ctx.viz._plotShapeEmitters?.[key] ?? shapeEmitters[key] ?? genericEmit)(ctx, key);
 }

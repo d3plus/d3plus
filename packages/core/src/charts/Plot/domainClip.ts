@@ -6,9 +6,10 @@
     over them and their labels. (Bars clamp to the value axis on their own;
     see `clampBarConfig`.)
 
-    The marks are split into runs: text nodes (value and line labels) end a
-    run and stay outside every clip, so a label placed past the plot edge
-    still shows, and points (circles) run separately from lines, areas and
+    The marks are split into runs: text nodes (value and line labels) and
+    axis chrome drawn among the marks (Candlestick's volume axis) end a run
+    and stay outside every clip, so a label placed past the plot edge still
+    shows, and points (circles) run separately from lines, areas and
     rects. A run that reaches past the plot is wrapped in a group clipped to
     the plot rect, grown by the run's widest half-stroke (for points, radius
     plus half-stroke) so a mark sitting on the plot edge still draws whole.
@@ -49,8 +50,9 @@ export interface ClipFrame extends MaskFrame {
 
 const isHit = (node: SceneNode): boolean => String(node.key).endsWith("::hit");
 
-/** Whether a node is a label, which no clip may cut. */
-const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
+/** Whether a node is a label or axis chrome drawn among the marks, which no clip may cut. */
+const isLabel = (node: SceneNode): boolean =>
+  node.type === "text" || node.type === "htmlOverlay" || node.interactionGroup === "axis";
 
 /** Whether a node is a point mark, whose overhang past the edge is its radius. */
 const isPoint = (node: SceneNode): boolean => node.type === "circle";

@@ -256,7 +256,7 @@ function measureXTestAxes(
   const x2Bounds = x2Test.outerBounds() as AxisBounds;
   const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
 
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
 
   const yLabelConfig = yTest.shapeConfig().labelConfig as {fontSize: () => number};
   const topOffset = (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
@@ -374,7 +374,7 @@ function solveFinalYAxes(
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
 
   if (y2Exists) {
     y2Test
@@ -632,7 +632,10 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const {labelWidths} = pCtx;
     const {xHeight, x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
 
-    let yRange = [x2Height, height - (xHeight + topOffset + verticalMargin)];
+    const yBottom = height - (xHeight + topOffset + verticalMargin);
+    // Room a chart reserves between the value axis and the x axis.
+    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
+    let yRange = [x2Height, yBottom - insetBottom];
 
     // A `frozen` layout (a zoom repaint) keeps the previous draw's axis sizes
     // and plot rect, so changing tick labels can't make the plot area jump
@@ -649,14 +652,11 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const axisSceneQueue: AxisScene[] = [];
 
     // Content space puts the plot's top at the y axis's `x2Height`.
-    const plotBottom = (frozen?.yRange ?? yRange)[1] - x2Height;
+    const plotBottom = (frozen?.yRange ?? yRange)[1] + insetBottom - x2Height;
     x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
     const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
-    yRange = frozen?.yRange ?? [
-      viz._xAxis!.outerBounds().y + x2Height,
-      height - (xHeight + topOffset + verticalMargin),
-    ];
+    yRange = frozen?.yRange ?? [viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom];
 
     y = renderYAxes(
       viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
@@ -683,5 +683,6 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
       yOffset: yOffset || 0,
       labelPositions: labelPositions as Record<string, number>,
       xEndLabels,
+      insetBottom,
     };
 }

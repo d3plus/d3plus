@@ -3,6 +3,7 @@ export interface TranslationStrings {
   Back: string;
   Band: string;
   "Brush Zoom": string;
+  Change: string;
   Clear: string;
   "Click to Expand": string;
   "Click to Hide": string;
@@ -10,6 +11,7 @@ export interface TranslationStrings {
   "Click to Show": string;
   "Click to Show All": string;
   "Click to Zoom Out": string;
+  Close: string;
   Comparison: string;
   Count: string;
   Density: string;
@@ -17,9 +19,11 @@ export interface TranslationStrings {
   Equation: string;
   Exponential: string;
   Forecast: string;
+  High: string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
+  Low: string;
   "Lower Bound": string;
   Match: string;
   Matches: string;
@@ -27,6 +31,7 @@ export interface TranslationStrings {
   "No Data Available": string;
   "No Matches": string;
   Observations: string;
+  Open: string;
   "Percent of Total": string;
   Polynomial: string;
   Power: string;
@@ -45,6 +50,7 @@ export interface TranslationStrings {
   "Upper Bound": string;
   Value: string;
   Values: string;
+  Volume: string;
   "Zoom In": string;
   "Zoom Out": string;
 }
@@ -58,6 +64,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "\u0644\u0644\u062e\u0644\u0641",
     Band: "\u0646\u0637\u0627\u0642",
     "Brush Zoom": "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
+    Change: "\u0627\u0644\u062a\u063a\u064a\u064a\u0631",
     Clear: "\u0645\u0633\u062d",
     "Click to Expand":
       "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0648\u0633\u064a\u0639",
@@ -69,6 +76,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show All":
       "\u0627\u0646\u0642\u0631 \u0644\u0639\u0631\u0636 \u0627\u0644\u0643\u0644",
     "Click to Zoom Out": "\u0627\u0646\u0642\u0631 \u0644\u0644\u062a\u0635\u063a\u064a\u0631",
+    Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
@@ -76,10 +84,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
+    High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
     Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
+    Low: "\u0627\u0644\u0623\u062f\u0646\u0649",
     "Lower Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
@@ -88,6 +98,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
     more: "\u0623\u062e\u0631\u0649",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
+    Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Percent of Total": "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
     Polynomial: "\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u062d\u062f\u0648\u062f",
     Power: "\u0642\u0648\u0629",
@@ -109,6 +120,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
+    Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
   },
@@ -117,6 +129,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "Atr\u00e1s",
     Band: "Banda",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
+    Change: "Variaci\u00f3n",
     Clear: "Borrar",
     "Click to Expand": "Clic para Ampliar",
     "Click to Hide": "Clic para Ocultar",
@@ -124,6 +137,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "Clic para Mostrar",
     "Click to Show All": "Clic para Mostrar Todo",
     "Click to Zoom Out": "Clic para Alejar",
+    Close: "Cierre",
     Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
     Density: "Densidad",
@@ -131,9 +145,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
+    High: "M\u00e1ximo",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
+    Low: "M\u00ednimo",
     "Lower Bound": "L\u00edmite Inferior",
     Match: "Coincidencia",
     Matches: "Coincidencias",
@@ -141,6 +157,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
     Observations: "Observaciones",
+    Open: "Apertura",
     "Percent of Total": "Porcentaje del Total",
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
@@ -159,6 +176,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "L\u00edmite Superior",
     Value: "Valor",
     Values: "Valores",
+    Volume: "Volumen",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
   },
@@ -167,6 +185,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "Voltar",
     Band: "Faixa",
     "Brush Zoom": "Zoom de Seleção",
+    Change: "Varia\u00e7\u00e3o",
     Clear: "Limpar",
     "Click to Expand": "Clique para Expandir",
     "Click to Hide": "Clique para Ocultar",
@@ -174,6 +193,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "Clique para Mostrar",
     "Click to Show All": "Clique para Mostrar Tudo",
     "Click to Zoom Out": "Clique para Afastar",
+    Close: "Fechamento",
     Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
     Density: "Densidade",
@@ -181,9 +201,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
+    High: "M\u00e1xima",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
+    Low: "M\u00ednima",
     "Lower Bound": "Limite Inferior",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
@@ -191,6 +213,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
     Observations: "Observa\u00e7\u00f5es",
+    Open: "Abertura",
     "Percent of Total": "Porcentagem do Total",
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
@@ -209,6 +232,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "Limite Superior",
     Value: "Valor",
     Values: "Valores",
+    Volume: "Volume",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
   },
@@ -217,6 +241,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Back: "\u540e\u9762",
     Band: "\u533a\u95f4",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
+    Change: "\u6da8\u8dcc\u5e45",
     Clear: "\u6e05\u9664",
     "Click to Expand": "\u5355\u51fb\u5c55\u5f00",
     "Click to Hide": "\u5355\u51fb\u9690\u85cf",
@@ -224,6 +249,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Click to Show": "\u5355\u51fb\u663e\u793a",
     "Click to Show All": "\u5355\u51fb\u663e\u793a\u5168\u90e8",
     "Click to Zoom Out": "\u5355\u51fb\u7f29\u5c0f",
+    Close: "\u6536\u76d8",
     Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
     Density: "\u5bc6\u5ea6",
@@ -231,9 +257,11 @@ const translateLocale: Record<string, TranslationStrings> = {
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
+    High: "\u6700\u9ad8",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
+    Low: "\u6700\u4f4e",
     "Lower Bound": "\u4e0b\u9650",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
@@ -241,6 +269,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
     Observations: "\u89c2\u6d4b\u6570",
+    Open: "\u5f00\u76d8",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
@@ -259,6 +288,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Upper Bound": "\u4e0a\u9650",
     Value: "\u503c",
     Values: "\u503c",
+    Volume: "\u6210\u4ea4\u91cf",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
   },

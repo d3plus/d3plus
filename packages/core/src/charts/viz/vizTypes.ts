@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
@@ -158,6 +159,12 @@ export interface VizInstance {
   _drawDepth: number;
   _discrete?: "x" | "y";
   _aggs: Record<string, (leaves: DataPoint[]) => unknown>;
+  /**
+      Merges the rows that share a group and discrete position into one
+      datum, in place of `merge(leaves, aggs)`; for a chart whose values
+      aggregate through accessors rather than data keys.
+  */
+  _mergeRows?: (leaves: DataPoint[]) => DataPoint;
 
   /* 4. Accessors */
   _id: (d: DataPoint, i: number) => string | number;
@@ -378,6 +385,8 @@ export interface VizInstance {
   _sharedHoverActive?: boolean;
   /** The tooltip's own `arrow`/`thead`/`tbody`, held while the shared tooltip replaces them. */
   _sharedTooltipSaved?: {arrow: unknown; thead: unknown; tbody: unknown};
+  /** False when a chart's own tooltip rows already list a snapped mark's values, so its x/y rows are left out. */
+  _tooltipAxisRows?: boolean;
   /** Internal size scale built in Plot's pipeline; maps `_size` → pixel radius. */
   _sizeScaleD3?: D3Scale;
   /** The radius scale the chart's layout actually drew with; the size legend paints from it. Null when nothing is sized. */
@@ -432,9 +441,19 @@ export interface VizInstance {
   _stackGroup?: (d: DataPoint, i: number) => string;
   /** Extra room (px) reserved above a Plot's chart area, inside its margins. */
   _plotInsetTop?: number;
+  /**
+      Room (px) a chart reserves at the bottom of a Plot's area, between the
+      value axis's range and the x axis, given the area's height. The plot
+      area (hover, zoom clip) takes it in.
+  */
+  _plotInsetBottom?: (plotHeight: number) => number;
+  /** The least room (px) a chart needs left of a Plot's area, for its own axis there. */
+  _plotMinLeft?: () => number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
+  _plotShapeEmitters?: Record<string, ShapeEmitter>;
 
   /* 9. Feature/component class references */
   _legendClass?: Legend;
