@@ -8,6 +8,7 @@ import {
   BumpChart as BumpChartClass,
   Chord as ChordClass,
   Donut as DonutClass,
+  FanChart as FanChartClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Histogram as HistogramClass,
@@ -86,6 +87,10 @@ export const Chord = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={DonutClass} {...props} />
+);
+/** React component for rendering a d3plus FanChart visualization. */
+export const FanChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={FanChartClass} {...props} />
 );
 /** React component for rendering a d3plus Gauge visualization. */
 export const Gauge = (props: D3plusComponentProps) => (

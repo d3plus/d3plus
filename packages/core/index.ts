@@ -6,6 +6,7 @@ export {
   BumpChart,
   Chord,
   Donut,
+  FanChart,
   Gauge,
   Geomap,
   Histogram,
