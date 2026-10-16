@@ -523,6 +523,12 @@ export interface D3plusConfig {
       `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
+  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  bands?:
+    | (number | {min?: number; max?: number; color?: string})[]
+    | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
+  bulletSize?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
@@ -639,8 +645,18 @@ export interface D3plusConfig {
       `false` marks nothing, not even a projection. On bar charts the
       backdrop starts at the edge of the first forecast bar, and bars keep
       their own styles. Defaults to `"auto"` on a FanChart.
+
+      Bullet: each row's forecast (or other comparative measure), drawn as
+      a paler bar behind the measure: a data key, an accessor returning the
+      row's value, a number shared by every row, or `false`.
   */
-  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  forecast?:
+    | boolean
+    | "auto"
+    | number
+    | string
+    | Date
+    | ((d: DataPoint, i: number) => boolean | number);
   /**
       Styles for the `forecast` marker: the backdrop's `fill` and
       `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
@@ -658,6 +674,11 @@ export interface D3plusConfig {
       `textureDefault`) or `backgroundImage` (a URL,
       fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
       by default.
+
+      Bullet: the forecast bar's `size` (a fraction of the band's
+      thickness), `opacity`, `fill`, `texture`, and
+      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
+      accessor.
   */
   forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
@@ -775,6 +796,8 @@ export interface D3plusConfig {
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
+  /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
+  measureSize?: number;
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
@@ -845,6 +868,8 @@ export interface D3plusConfig {
       all shapes of a given type.
   */
   shapeSort?: (a: string, b: string) => number;
+  /** Bullet: whether every bullet reads against one shared domain, labeled by a single value axis. */
+  sharedDomain?: boolean;
   /** Pyramid: the side values (the first `groupBy` level) as `[left, right]`. */
   sides?: unknown[];
   /** Pyramid: TextBox styles for the side titles. */
@@ -894,6 +919,8 @@ export interface D3plusConfig {
     | string[]
     | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
     | ((d: DataPoint) => unknown);
+  /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
+  subLabel?: string | ((d: DataPoint, i: number) => string) | false;
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
@@ -945,6 +972,10 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
+  target?: string | number | ((d: DataPoint, i: number) => number) | false;
+  /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
+  targetConfig?: Record<string, unknown>;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
