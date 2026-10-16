@@ -1,0 +1,105 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>AxisConfigDomain · Plot</title>
+    <meta name="description" content="A full yConfig/xConfig domain is drawn exactly as given, like an Axis given a domain, and rounded only by that axis config's own rounding; a one-sided one still works like yDomain([n]).">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 280px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      // Every value sits between 990 and 1024.
+      const data = quarters.flatMap((quarter, i) =>
+        ["North", "South"].map((region, j) => ({quarter, region, value: j ? 990 + i * 5 : 1000 + i * 8})));
+      const north = data.filter(d => d.region === "North");
+      const sideways = c => c.discrete("y").x("value").y("quarter");
+
+      const population = ["0-9", "10-19", "20-29", "30-39"].flatMap((age, b) => [
+        {age, sex: "Male", pop: 1000 - b * 200},
+        {age, sex: "Female", pop: 1130 - b * 200},
+      ]);
+
+      // Each row: [type, data, title, setup].
+      const examples = [
+        ["BarChart", north, "yConfig({domain: [960, 1100]}): exactly 960 to 1100", c => c.yConfig({domain: [960, 1100]})],
+        ["BarChart", north, "yConfig({domain: [960, 1100], rounding: \"outside\"})", c => c.yConfig({domain: [960, 1100], rounding: "outside"})],
+        ["LinePlot", data, "yConfig({domain: [960, 1100]})", c => c.yConfig({domain: [960, 1100]})],
+        ["LinePlot", data, "yDomain([960, 1100]): the same domain", c => c.yDomain([960, 1100])],
+        ["BarChart", north, "horizontal, xConfig({domain: [960, 1100]})", c => sideways(c).xConfig({domain: [960, 1100]})],
+        ["BarChart", north, "horizontal, xConfig({domain: [960, 1100], rounding: \"outside\"})", c => sideways(c).xConfig({domain: [960, 1100], rounding: "outside"})],
+        // One end set: pins it, and rounds the far end, like yDomain([980]).
+        ["BarChart", north, "yConfig({domain: [980]}): the top rounds", c => c.yConfig({domain: [980]})],
+        ["BarChart", north, "yDomain([980])", c => c.yDomain([980])],
+        ["LinePlot", data, "y2Config({domain: [960, 1100]})", c => c.y2(d => d.value).y2Config({domain: [960, 1100]})],
+        ["LinePlot", data, "yConfig({domain: [960, 1100]}): y2 still rounds", c => c.y2(d => d.value).yConfig({domain: [960, 1100]})],
+      ];
+
+      const grid = document.getElementById("grid");
+      const section = (title, i) => {
+        const el = document.createElement("section");
+        el.innerHTML = `<h3>${title}</h3><div class="viz" id="viz${i}"></div>`;
+        grid.appendChild(el);
+      };
+      examples.forEach(([type, rows, title, configure], i) => {
+        section(`${type} · ${title}`, i);
+        const chart = new d3plus[type]()
+          .select(`#viz${i}`)
+          .data(rows)
+          .groupBy("region")
+          .x("quarter")
+          .y("value")
+          .legend(false);
+        configure(chart).render();
+      });
+
+      // Pyramid's own symmetric domain still rounds out; a user's is drawn as given.
+      [
+        ["Pyramid · its own symmetric domain, rounded", c => c],
+        ["Pyramid · xConfig({domain: [-1150, 1150]})", c => c.xConfig({domain: [-1150, 1150]})],
+      ].forEach(([title, configure], j) => {
+        const i = examples.length + j;
+        section(title, i);
+        configure(new d3plus.Pyramid()
+          .select(`#viz${i}`)
+          .data(population)
+          .groupBy("sex")
+          .y("age")
+          .x("pop")).render();
+      });
+
+    </script>
+
+  </body>
+
+</html>

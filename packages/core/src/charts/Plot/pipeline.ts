@@ -18,7 +18,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
-import {configOpenDomain, hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {configOpenDomain, hasUserDomain, plotAxisRounding, secondaryAxisRounding, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
@@ -28,6 +28,7 @@ import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
+import {xAxisRounding} from "../features/xAxisConfig.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
@@ -397,8 +398,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     title: false,
     tickSize: 0,
   };
-  const defaultX2Config = {...(x2Exists ? {data: x2Data} : defaultConfig), baselineBreak: false};
-  const defaultY2Config = {...(y2Exists ? {data: y2Data} : defaultConfig), baselineBreak: false};
+  // An axis config's full `domain` is drawn as given (see `plotAxisRounding`).
+  const yRounding = hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside";
+  const defaultX2Config = {
+    ...(x2Exists ? {data: x2Data} : defaultConfig),
+    baselineBreak: false,
+    rounding: secondaryAxisRounding(viz, "x2", xAxisRounding(viz)),
+  };
+  const defaultY2Config = {
+    ...(y2Exists ? {data: y2Data} : defaultConfig),
+    baselineBreak: false,
+    rounding: secondaryAxisRounding(viz, "y2", yRounding),
+  };
   const showX =
     viz.schema.discrete === "x"
       ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
@@ -411,7 +422,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside",
+    rounding: plotAxisRounding(viz, "y", yRounding),
     scalePadding: y.padding ? y.padding() : 0,
     ...baselineBreakAxisConfig(viz, "y"),
   };
