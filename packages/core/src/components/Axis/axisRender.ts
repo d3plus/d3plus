@@ -485,17 +485,19 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
   const position = ["top", "left"].includes(axis.schema.orient)
     ? axis._outerBounds[yKey] + axis._outerBounds[height] - offset
     : axis._outerBounds[yKey] + offset;
+  // A point scale's outer padding splits between its ends by `align`.
+  const align = axis.schema.scale === "point" && axis._d3Scale!.align ? axis._d3Scale!.align() : 0.5;
   const x1mod =
     axis.schema.scale === "band"
       ? axis._d3Scale!.step!() - axis._d3Scale!.bandwidth!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!() * 2 * align
         : 0;
   const x2mod =
     axis.schema.scale === "band"
       ? axis._d3Scale!.step!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!() * 2 * (1 - align)
         : 0;
   const sortedDomain = (
     axis._d3ScaleNegative ? axis._d3ScaleNegative.domain() : []

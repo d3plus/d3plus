@@ -22,12 +22,14 @@ const charts = [
   ["Pyramid", "pyramid"],
   ["Radar", "radar"],
   ["Radial Matrix", "radialmatrix"],
+  ["Ridgeline", "ridgeline"],
   ["Rings", "rings"],
   ["Sankey", "sankey"],
   ["Stacked Area", "stackedarea"],
   ["Sunburst", "sunburst"],
   ["Tree", "tree"],
   ["Treemap", "treemap"],
+  ["Violin", "violin"],
 ];
 
 const sites = [

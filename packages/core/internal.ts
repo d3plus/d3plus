@@ -114,6 +114,41 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  densityAt,
+  densityGroups,
+  densityStats,
+  densityWidthScale,
+  sortByMedian,
+} from "./src/charts/helpers/densityData.js";
+export type {
+  DensityGroup,
+  DensityGroupOptions,
+  DensityScale,
+  DensitySummary,
+  MedianSort,
+} from "./src/charts/helpers/densityData.js";
+export {
+  DENSITY,
+  densityMeta,
+  densityShapeId,
+  densityTooltipRows,
+  installDensity,
+  summarizeBeforePreDraw,
+  unwrapRow,
+} from "./src/charts/helpers/densityChart.js";
+export type {DensityLayout, DensityMeta} from "./src/charts/helpers/densityChart.js";
+export {
+  categoryStep,
+  violinEdges,
+  violinOutline,
+  violinSlots,
+} from "./src/charts/Violin/violinLayout.js";
+export type {ViolinPoint, ViolinSide, ViolinSlot, ViolinSlotOptions} from "./src/charts/Violin/violinLayout.js";
+export {emitInner, innerSet} from "./src/charts/Violin/inner.js";
+export type {InnerFrame, PlacedViolin, ViolinInner} from "./src/charts/Violin/inner.js";
+export {VIOLIN_PADDING, violinEmit} from "./src/charts/Violin/emit.js";
+export {ridgelineEmit, ridgelinePadding, ridgeOverlap} from "./src/charts/Ridgeline/emit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -131,9 +166,11 @@ export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {violinDef} from "./src/charts/Violin/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {

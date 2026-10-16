@@ -619,6 +619,22 @@ export const argTypes = assign(
         summary: "axisscale"
       }
     },
+    scaleAlign: {
+      control: {
+        type: "number"
+      },
+      defaultValue: 0.5,
+      description: "",
+      table: {
+        defaultValue: {
+          summary: "0.5"
+        }
+      },
+      type: {
+        required: false,
+        summary: "number"
+      }
+    },
     scalePadding: {
       control: {
         type: "number"

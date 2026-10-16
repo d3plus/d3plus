@@ -21,8 +21,12 @@ export interface TranslationStrings {
   "Loading Visualization": string;
   Logarithmic: string;
   "Lower Bound": string;
+  "Lower Quartile": string;
   Match: string;
   Matches: string;
+  Maximum: string;
+  Median: string;
+  Minimum: string;
   more: string;
   "No Data Available": string;
   "No Matches": string;
@@ -43,6 +47,7 @@ export interface TranslationStrings {
   Total: string;
   "Trend Line": string;
   "Upper Bound": string;
+  "Upper Quartile": string;
   Value: string;
   Values: string;
   "Zoom In": string;
@@ -81,11 +86,15 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
     Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
     "Lower Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
+    "Lower Quartile": "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u062f\u0646\u0649",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
     Match: "\u062a\u0637\u0627\u0628\u0642",
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
+    Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
+    Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
+    Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
     "Percent of Total": "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
@@ -107,6 +116,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
+    "Upper Quartile": "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u0639\u0644\u0649",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
@@ -135,8 +145,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
     "Lower Bound": "L\u00edmite Inferior",
+    "Lower Quartile": "Cuartil Inferior",
     Match: "Coincidencia",
     Matches: "Coincidencias",
+    Maximum: "M\u00e1ximo",
+    Median: "Mediana",
+    Minimum: "M\u00ednimo",
     more: "m\u00e1s",
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
@@ -157,6 +171,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
+    "Upper Quartile": "Cuartil Superior",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Acercar",
@@ -185,8 +200,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
     "Lower Bound": "Limite Inferior",
+    "Lower Quartile": "Quartil Inferior",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
+    Maximum: "M\u00e1ximo",
+    Median: "Mediana",
+    Minimum: "M\u00ednimo",
     more: "mais",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
@@ -207,6 +226,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
+    "Upper Quartile": "Quartil Superior",
     Value: "Valor",
     Values: "Valores",
     "Zoom In": "Aproximar",
@@ -235,8 +255,12 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
     "Lower Bound": "\u4e0b\u9650",
+    "Lower Quartile": "\u4e0b\u56db\u5206\u4f4d\u6570",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
+    Maximum: "\u6700\u5927\u503c",
+    Median: "\u4e2d\u4f4d\u6570",
+    Minimum: "\u6700\u5c0f\u503c",
     more: "\u66f4\u591a",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
@@ -257,6 +281,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",
+    "Upper Quartile": "\u4e0a\u56db\u5206\u4f4d\u6570",
     Value: "\u503c",
     Values: "\u503c",
     "Zoom In": "\u653e\u5927",

@@ -157,7 +157,7 @@ function finishShape(
 }
 
 /** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */
-const genericEmit: ShapeEmitter = (ctx, key) => {
+export const genericEmit: ShapeEmitter = (ctx, key) => {
   const s = makeShape(key)
     .renderMode("compute")
     .config(buildInner(ctx, key))
@@ -395,7 +395,10 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
   Line: lineEmit,
 };
 
-/** Dispatch a shape group to its emitter (falling back to the generic path). */
+/**
+    Dispatch a shape group to its emitter: the chart's own override for the key
+    (`viz._plotShapeEmitters`), else the registry, else the generic path.
+*/
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (shapeEmitters[key] ?? genericEmit)(ctx, key);
+  return (ctx.viz._plotShapeEmitters?.[key] ?? shapeEmitters[key] ?? genericEmit)(ctx, key);
 }

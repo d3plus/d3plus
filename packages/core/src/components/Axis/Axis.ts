@@ -56,6 +56,7 @@ const axisSchema: ConfigField[] = [
   {key: "roundingInsideMaxPrefix", coerce: "identity", default: ""},
   {key: "roundingInsideMaxSuffix", coerce: "identity", default: "+"},
   {key: "scale", coerce: "identity", default: "linear"},
+  {key: "scaleAlign", coerce: "identity", default: 0.5},
   {key: "scalePadding", coerce: "identity", default: 0.5},
   {key: "shape", coerce: "identity", default: "Line"},
   {key: "tickFormat", coerce: "identity"},

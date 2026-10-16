@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
@@ -435,6 +436,8 @@ export interface VizInstance {
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
   _buffer?: Record<string, unknown>;
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
+  _plotShapeEmitters?: Record<string, ShapeEmitter>;
 
   /* 9. Feature/component class references */
   _legendClass?: Legend;

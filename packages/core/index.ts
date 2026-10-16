@@ -19,12 +19,14 @@ export {
   Pyramid,
   Radar,
   RadialMatrix,
+  Ridgeline,
   Rings,
   Sankey,
   StackedArea,
   Sunburst,
   Tree,
   Treemap,
+  Violin,
   Viz,
 } from "./src/charts/index.js";
 
