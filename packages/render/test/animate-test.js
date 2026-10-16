@@ -1,6 +1,7 @@
 import assert from "assert";
 
 import {collapse, collapseTo, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, isFlipEligible, parseGradient, TrailLog} from "../es/index.js";
+import {rectEnterStart} from "../es/src/animate/interpolate.js";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");
@@ -275,6 +276,30 @@ it("interpolateScene grows an entering path from its own enterArc", () => {
   assert.notStrictEqual(mid.d, start.d, "the wedge grows");
   const plain = interpolateScene(null, {...next, root: {...next.root, children: [{...next.root.children[0], enterArc: undefined}]}});
   assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterArc it fades in");
+});
+
+it("rectEnterStart starts a rect at its own enterRect, else returns null", () => {
+  const rect = {type: "rect", key: "r", x: 10, y: 20, width: 30, height: 40, paint: {opacity: 1}};
+  const start = rectEnterStart({...rect, enterRect: {x: 0, y: 0, width: 30, height: 0}});
+  assert.deepStrictEqual([start.x, start.y, start.width, start.height], [0, 0, 30, 0]);
+  assert.strictEqual(start.paint.opacity, 1, "keeps its own opacity");
+  assert.strictEqual(rectEnterStart(rect), null);
+  assert.strictEqual(rectEnterStart({type: "circle", key: "c", cx: 0, cy: 0, r: 1, enterRect: {x: 0, y: 0, width: 0, height: 0}}), null);
+});
+
+it("interpolateScene grows an entering rect from its own enterRect", () => {
+  const rect = {type: "rect", key: "r", x: 0, y: 100, width: 50, height: 100, paint: {opacity: 1}};
+  const next = {
+    width: 200,
+    height: 200,
+    root: {type: "group", key: "root", children: [{...rect, enterRect: {x: 0, y: 200, width: 50, height: 0}}]},
+  };
+  const interp = interpolateScene(null, next);
+  const start = interp(0).root.children[0];
+  assert.deepStrictEqual([start.y, start.height, start.paint.opacity], [200, 0, 1]);
+  assert.deepStrictEqual([interp(1).root.children[0].y, interp(1).root.children[0].height], [100, 100]);
+  const plain = interpolateScene(null, {...next, root: {...next.root, children: [rect]}});
+  assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterRect it fades in");
 });
 
 it("interpolateScene morphs a flip-eligible entering node from an external enterFrom box", () => {

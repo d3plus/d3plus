@@ -23,6 +23,7 @@ export {applyPieLayout} from "./src/charts/Pie/applyLayout.js";
 export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
+export {applyIcicleLayout} from "./src/charts/Icicle/applyLayout.js";
 export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
@@ -114,6 +115,30 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  isAggregatedBranch,
+  mergeBranch,
+  nestPartition,
+  partitionLayout,
+  partitionLineage,
+  partitionSort,
+} from "./src/charts/partition/hierarchy.js";
+export type {
+  PartitionBranch,
+  PartitionFields,
+  PartitionKey,
+  PartitionLayoutInputs,
+  PartitionNode,
+  PartitionSort,
+} from "./src/charts/partition/hierarchy.js";
+export {partitionFocus} from "./src/charts/partition/zoom.js";
+export {partitionShadeAmount} from "./src/charts/partition/shade.js";
+export {labelMetrics, partitionSplit, wrapLineCount} from "./src/charts/partition/labelWords.js";
+export {icicleLayout} from "./src/charts/Icicle/layout.js";
+export type {IcicleNode} from "./src/charts/Icicle/layout.js";
+export {icicleBands, icicleCollapse, icicleRect} from "./src/charts/Icicle/geometry.js";
+export type {IcicleOrient, IcicleRect} from "./src/charts/Icicle/geometry.js";
+export {icicleLabelBox} from "./src/charts/Icicle/labelFit.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
@@ -121,6 +146,7 @@ export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {icicleDef} from "./src/charts/Icicle/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";

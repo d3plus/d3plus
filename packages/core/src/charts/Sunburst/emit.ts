@@ -6,8 +6,6 @@
 
 import {arc as d3Arc} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
-import {fontExists, textWidth} from "@d3plus/dom";
-import {fontFamily} from "@d3plus/text";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 import type {ArcGeometry, FadeSwap, SceneNode, TextNode} from "@d3plus/render";
@@ -25,13 +23,10 @@ import type {ChartEmit} from "../definition/ChartDefinition.js";
 import {sunburstPadAngle} from "./geometry.js";
 import type {SunburstArc} from "./geometry.js";
 import {sunburstLabelBox, sunburstSplit} from "./labelFit.js";
-import type {SunburstLabelBox, SunburstLabelMetrics} from "./labelFit.js";
-import {
-  sunburstShadeActive,
-  sunburstShadeAmount,
-  sunburstShadeFill,
-} from "./shade.js";
-import type {SunburstShadeConfig} from "./shade.js";
+import type {SunburstLabelBox} from "./labelFit.js";
+import {labelMetrics, measureLabel} from "../partition/labelWords.js";
+import {partitionFillResolver} from "../partition/shade.js";
+import type {PartitionFillable} from "../partition/shade.js";
 import type {SunburstNode} from "./partition.js";
 import type {SunburstGhost} from "./applyLayout.js";
 
@@ -72,46 +67,19 @@ export function sunburstLabel(
     A label's whole words measured at a 1px font size; `measure` returns the
     widths of the strings it's given at that size.
 */
-export function sunburstLabelMetrics(
-  text: string,
-  measure: (strings: string[]) => number[],
-): SunburstLabelMetrics {
-  const words = sunburstSplit(text)
-    .map(w => w.trim())
-    .filter(Boolean);
-  if (!words.length) return {words: [], space: 0};
-  const [space, ...widths] = measure(["\u00a0", ...words]);
-  return {words: widths, space};
-}
-
-/** Resolves a label style value that may be a per-datum accessor. */
-function labelStyle(value: unknown, d: DataPoint, fallback: unknown): unknown {
-  const v =
-    typeof value === "function"
-      ? (value as (d: DataPoint, i: number) => unknown)(d, 0)
-      : value;
-  return v ?? fallback;
-}
-
-type Fillable = Pick<SunburstNode, "datum" | "i" | "level">;
+export const sunburstLabelMetrics = labelMetrics;
 
 /** Resolves an arc's fill: the shape config's fill, shaded by ring on the default color path. */
 function fillResolver(
   viz: Parameters<ChartEmit>[0]["viz"],
   sc: Record<string, unknown>,
-): (node: Fillable) => string | undefined {
-  const shade = sunburstShadeActive(viz.schema, {
-    color: viz.ctx.sunburstDefaultColor,
-    fill: viz.ctx.sunburstDefaultFill,
-  });
-  const shadeConfig = viz.schema.shadeConfig as Partial<SunburstShadeConfig>;
-  return (node: Fillable): string | undefined => {
-    const fill = resolveAccessor<unknown>(sc.fill, node.datum, node.i ?? 0);
-    if (typeof fill !== "string") return undefined;
-    return shade
-      ? sunburstShadeFill(fill, sunburstShadeAmount(node.level, shadeConfig))
-      : fill;
-  };
+): (node: PartitionFillable) => string | undefined {
+  return partitionFillResolver(
+    viz.schema,
+    sc,
+    {color: viz.ctx.sunburstDefaultColor, fill: viz.ctx.sunburstDefaultFill},
+    "Path",
+  );
 }
 
 /** Where each node's label fits, measured in the label font; nodes without room are left out. */
@@ -129,19 +97,10 @@ function labelBoxes(
   const {fontMin, fontMax, padAngle, padPixel} = options;
   const boxes = new Map<SunburstNode, SunburstLabelBox>();
   for (const node of nodes) {
-    const style = {
-      "font-family": fontExists(
-        labelStyle(labelConfig.fontFamily, node.datum, fontFamily) as string[],
-      ) as string,
-      "font-size": 100,
-      "font-weight": labelStyle(
-        labelConfig.fontWeight,
-        node.datum,
-        400,
-      ) as number,
-    };
-    const metrics = sunburstLabelMetrics(sunburstLabel(viz, node), strings =>
-      (textWidth(strings, style) as number[]).map(w => w / 100),
+    const metrics = measureLabel(
+      sunburstLabel(viz, node),
+      node.datum,
+      labelConfig,
     );
     const box = sunburstLabelBox(
       sunburstArcGeometry(node, padAngle, padPixel),
@@ -160,7 +119,7 @@ function labelBoxes(
 */
 function ghostNodes(
   viz: Parameters<ChartEmit>[0]["viz"],
-  fillOf: (node: Fillable) => string | undefined,
+  fillOf: (node: PartitionFillable) => string | undefined,
 ): SceneNode[] {
   return ((viz.ctx.sunburstGhosts ?? []) as SunburstGhost[]).map(g => {
     const arc = {...g.arc, padAngle: 0};

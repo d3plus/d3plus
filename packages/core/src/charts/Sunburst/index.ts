@@ -12,8 +12,6 @@
 */
 
 import {backgroundColor} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
-import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
@@ -22,45 +20,26 @@ import {
   titleFeature,
   totalFeature,
 } from "../features/features.js";
-import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
-import {summedShare} from "../features/shareKey.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
-import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {thresholdFunction} from "../Treemap/thresholdFunction.js";
+import {
+  partitionDefaultSort,
+  partitionLegend,
+  partitionLegendSort,
+  partitionSetup,
+  partitionShareRow,
+  partitionSortDecorate,
+  partitionSumCoerce,
+  partitionSumOnSet,
+  partitionThreshold,
+} from "../partition/chartFields.js";
+import {partitionShadeDefaults} from "../partition/shade.js";
 
 import {applySunburstLayout} from "./applyLayout.js";
 import {sunburstEmit} from "./emit.js";
-import {sunburstHandlers} from "./interaction.js";
-import {sunburstSort} from "./partition.js";
-import {sunburstShadeDefaults} from "./shade.js";
-import type {SunburstSort} from "./partition.js";
-
-/** The "Share" tooltip row: a node's share of the drawn whole. */
-function shareRow(viz: VizInstance): unknown[] {
-  return [
-    () => viz.schema.translate("Share"),
-    (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
-      const pct = (s: number) =>
-        `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
-      // A ColorScale range swatch carries no per-row share, so sum the share
-      // of every datum that falls in its color range.
-      if (x._isColorScaleBucket) {
-        const s = colorScaleBucketShare(
-          viz,
-          x.color,
-          viz.schema.sum as (d: DataPoint, i: number) => number,
-        );
-        return s == null ? "" : pct(s);
-      }
-      // A Legend bucket aggregates rows; sum its members' shares.
-      const share = summedShare(x);
-      return Number.isFinite(share) ? pct(share) : "";
-    },
-  ];
-}
+import {sunburstInteraction} from "./interaction.js";
 
 export const sunburstDef: DataDrivenChartDefinition = {
   name: "Sunburst",
@@ -70,16 +49,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
   emit: sunburstEmit,
   insetRegion: sceneInsetRegion,
 
-  thresholdFunction: (viz: VizInstance, data: unknown[]) =>
-    thresholdFunction(data as DataPoint[], {
-      aggs: viz.schema.aggs,
-      drawDepth: viz._drawDepth,
-      groupBy: viz.schema.groupBy as ((
-        d: DataPoint,
-      ) => DataPoint[keyof DataPoint])[],
-      threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
-      thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
-    }),
+  thresholdFunction: partitionThreshold,
 
   chartTransform: (viz: VizInstance) =>
     centerChartTransform(
@@ -94,21 +64,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
     return {x: -r, y: -r, width: r * 2, height: r * 2};
   },
 
-  setup: (viz: VizInstance) => {
-    // Shading applies only while these stay the chart's own defaults.
-    viz.ctx.sunburstDefaultColor = viz.schema.color;
-    viz.ctx.sunburstDefaultFill = (
-      viz.schema.shapeConfig as Record<string, unknown>
-    ).fill;
-    Object.assign(
-      viz.schema.on,
-      sunburstHandlers(
-        viz,
-        ((viz.schema.tooltipConfig as {tbody?: unknown[][]}).tbody ?? [])[0] ??
-          [],
-      ),
-    );
-  },
+  // Shading applies only while the default colors stay in place.
+  setup: (viz: VizInstance) => partitionSetup(viz, sunburstInteraction),
 
   // Small-multiple panels as close to square as the grid allows.
   facet: {aspect: 1},
@@ -159,7 +116,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
     {
       key: "shadeConfig",
       merge: true,
-      factory: () => ({...sunburstShadeDefaults}),
+      factory: () => ({...partitionShadeDefaults}),
     },
     /**
         Comparator for sibling arcs, given two d3-hierarchy nodes. Defaults to
@@ -168,8 +125,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
     */
     {
       key: "sort",
-      default: ((a, b) => (b.value ?? 0) - (a.value ?? 0)) as SunburstSort,
-      decorate: (_viz, base) => sunburstSort(base as SunburstSort),
+      default: partitionDefaultSort,
+      decorate: partitionSortDecorate,
     },
     /**
         Accessor function or string key for the value each arc's angle is
@@ -179,10 +136,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
     {
       key: "sum",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
-      onSet: (viz, v) => {
-        viz.schema.thresholdKey = v;
-      },
+      coerce: partitionSumCoerce,
+      onSet: partitionSumOnSet,
     },
     {
       key: "shapeConfig",
@@ -199,7 +154,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        tbody: [shareRow(viz)],
+        tbody: [partitionShareRow(viz)],
       }),
     },
     {
@@ -207,27 +162,8 @@ export const sunburstDef: DataDrivenChartDefinition = {
       merge: true,
       factory: () => ({tbody: []}),
     },
-    {
-      key: "legendSort",
-      factory: (viz: VizInstance) => {
-        const sumFn = viz.schema.sum as (d: DataPoint) => number;
-        return (a: DataPoint, b: DataPoint) => sumFn(b) - sumFn(a);
-      },
-    },
-    {
-      key: "legend",
-      coerce: "const",
-      factory: (viz: VizInstance) => {
-        const base = viz.schema.legend as (
-          config: D3plusConfig,
-          arr: DataPoint[],
-        ) => unknown;
-        return (config: D3plusConfig, arr: DataPoint[]) => {
-          if (arr.length === viz._filteredData.length) return false;
-          return base.call(viz, config, arr);
-        };
-      },
-    },
+    {key: "legendSort", factory: partitionLegendSort},
+    {key: "legend", coerce: "const", factory: partitionLegend},
   ],
 };
 

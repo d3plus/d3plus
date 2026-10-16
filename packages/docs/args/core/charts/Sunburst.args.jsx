@@ -41,14 +41,14 @@ export const argTypes = assign(
     legend: {
       table: {
         defaultValue: {
-          summary: "function"
+          summary: "partitionLegend"
         }
       }
     },
     legendSort: {
       table: {
         defaultValue: {
-          summary: "function"
+          summary: "partitionLegendSort"
         }
       }
     },
@@ -147,7 +147,7 @@ export const argTypes = assign(
       description: "Comparator for sibling arcs, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
       table: {
         defaultValue: {
-          summary: "function"
+          summary: "partitionDefaultSort"
         }
       },
       type: {
@@ -173,7 +173,7 @@ export const argTypes = assign(
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: [shareRow(viz)]}"
+          summary: "{tbody: [partitionShareRow(viz)]}"
         }
       }
     }

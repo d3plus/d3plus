@@ -102,6 +102,15 @@ const charts = [
       {group: "Health", sub: "Pharma", id: "Eta", value: 10}, {group: "Energy", sub: "Power", id: "Theta", value: 14},
       {group: "Energy", sub: "Power", id: "Iota", value: 8},
     ]).sum("value")`],
+  ["icicle", `lib => new lib.Icicle()
+    .groupBy(["group", "sub", "id"])
+    .data([
+      {group: "Tech", sub: "Hardware", id: "Alpha", value: 30}, {group: "Tech", sub: "Hardware", id: "Beta", value: 25},
+      {group: "Tech", sub: "Software", id: "Gamma", value: 18}, {group: "Tech", sub: "Software", id: "Delta", value: 12},
+      {group: "Health", sub: "Care", id: "Epsilon", value: 22}, {group: "Health", sub: "Care", id: "Zeta", value: 16},
+      {group: "Health", sub: "Pharma", id: "Eta", value: 10}, {group: "Energy", sub: "Power", id: "Theta", value: 14},
+      {group: "Energy", sub: "Power", id: "Iota", value: 8},
+    ]).sum("value")`],
   // `groupBy` must name both cell-identity dimensions — without it, every
   // row shares the global default nest key (`id`, absent here) and the
   // data-prep rollup merges all 9 rows into a single degenerate cell.
