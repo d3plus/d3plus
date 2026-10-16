@@ -15,9 +15,11 @@ import {
   Pack as PackClass,
   Pie as PieClass,
   Plot as PlotClass,
+  PolarArea as PolarAreaClass,
   Priestley as PriestleyClass,
   Pyramid as PyramidClass,
   Radar as RadarClass,
+  RadialBar as RadialBarClass,
   RadialMatrix as RadialMatrixClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
@@ -86,12 +88,16 @@ export const Pack = createD3plusComponent(PackClass, "chart");
 export const Pie = createD3plusComponent(PieClass, "chart");
 /** Vue component for rendering a d3plus Plot visualization. */
 export const Plot = createD3plusComponent(PlotClass, "chart");
+/** Vue component for rendering a d3plus PolarArea visualization. */
+export const PolarArea = createD3plusComponent(PolarAreaClass, "chart");
 /** Vue component for rendering a d3plus Priestley visualization. */
 export const Priestley = createD3plusComponent(PriestleyClass, "chart");
 /** Vue component for rendering a d3plus Pyramid visualization. */
 export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 /** Vue component for rendering a d3plus Radar visualization. */
 export const Radar = createD3plusComponent(RadarClass, "chart");
+/** Vue component for rendering a d3plus RadialBar visualization. */
+export const RadialBar = createD3plusComponent(RadialBarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
 /** Vue component for rendering a d3plus Rings visualization. */
