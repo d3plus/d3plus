@@ -36,7 +36,7 @@ it("a default-position colorScale paints in its own margin band", async function
       };
     },
   );
-  assert.strictEqual(out.position, "bottom");
+  assert.strictEqual(out.position, "auto");
   assert.ok(
     out.swatchTop >= out.bandTop - 1,
     `colorScale (${out.swatchTop}) sits below the chart area (${out.bandTop})`,

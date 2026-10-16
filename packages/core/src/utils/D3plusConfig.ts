@@ -14,6 +14,8 @@ import type {
 import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
+/** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
+type PanelPosition = Position | "auto";
 
 type DataPointAccessor<T> = string | ((d: DataPoint) => T);
 
@@ -54,8 +56,23 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      The axis's domain: `[min, max]` on a continuous axis, or the
+      categories to show on a discrete one. A full domain is drawn exactly
+      as given unless this axis config's `rounding` says otherwise, just as
+      on an Axis. In a Plot's axis configs it is a lower-level override than
+      `xDomain`/`yDomain`: it wins over them, isn't stretched to the
+      chart's `baseline`, and isn't rounded by Plot's own "outside"
+      default. In `xConfig`/`yConfig`, one with a single end set (`[min]`
+      or `[undefined, max]`) on a continuous axis works exactly like
+      `yDomain([min])` instead: it pins that end, and the data fills the
+      other, rounded as `rounding` says.
+  */
+  domain?: (number | string | Date | undefined)[];
+  /**
+      The value the axis's `baselineBreak` returns to: the tick kept below
+      (or above) the break. Defaults to `0`. To start a Plot's value axis at
+      a value, set the chart's `baseline` instead, which sets the axis's
+      minimum exactly like `yDomain([n])`, break back to this tick included.
   */
   baseline?: number;
   /**
@@ -132,6 +149,21 @@ export interface AxisConfig {
       but one may be `undefined` to allow the default behavior for that value.
   */
   range?: (number | undefined)[];
+  /**
+      How a linear or log axis rounds its domain to "nice" values:
+      "outside" widens each end past the data, "inside" pulls each end in
+      (marking them with the `roundingInside*` prefixes and suffixes), and
+      "none" keeps the domain as given. Defaults to "none" on an Axis; a
+      Plot rounds "outside" unless its axis config says otherwise or sets a
+      full `domain`, which is rounded only when asked for here. With a
+      user domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a
+      one-sided `domain` here) only an end left open is rounded:
+      `yDomain([n])` keeps `n` exactly and rounds the far end where the
+      axis would with no domain set, and "none" leaves that end at the
+      data. A `yDomain` with both ends set isn't rounded unless `rounding`
+      is set here.
+  */
+  rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
   /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
@@ -458,8 +490,20 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      Starts a Plot's value axis (the x axis for horizontal charts) at a
+      value: `baseline(n)` renders exactly like `yDomain([n])` (or
+      `xDomain([n])`). Bars and areas still grow from the chart's own
+      `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
+      `baselineBreak` on (their default) the axis breaks back to a `0`
+      tick and bars run through the break, and with it off the axis
+      stretches down to `0`. As with `yDomain([n])`, only `n` is
+      pinned: the far end comes from the data and is rounded where the
+      axis would round it with no domain set (left at the data when the
+      axis config's `rounding` is "none"), and marks for values past `n`
+      stop at the axis's edge.
+      When every value sits at or below `n`, it ends the axis instead,
+      like `yDomain([undefined, n])`. A bound given in
+      `yDomain`/`xDomain` wins.
   */
   baseline?: number;
   /**
@@ -497,8 +541,8 @@ export interface D3plusConfig {
   };
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the color scale, `false` to hide it, or an accessor returning either. */
-  colorScalePosition?: false | Position | (() => false | Position);
+  /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  colorScalePosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Column key for matrix-style layouts. */
   column?: string;
   /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
@@ -578,6 +622,42 @@ export interface D3plusConfig {
     | number
     | string
     | ((d: Record<string, unknown>) => boolean);
+  /**
+      Marks a forecast: the stretch of the discrete axis after it gets a
+      shaded backdrop, a rule at its start, and a translated "Forecast"
+      label, and each line's forecast stretch is dashed (see
+      `forecastConfig`). A function flags the forecast rows (e.g.
+      `d => d.Type === "Predicted"`): each line is dashed from its last
+      unflagged point, or throughout when every row is flagged, and the
+      backdrop starts at the earliest of those. `"auto"` (or `true`) flags
+      the rows whose `confidence` bounds spread away from their line. A
+      discrete-axis value (a date or year on a time axis) starts the
+      forecast there. Unset (the default), only a trend line projection
+      (`trendLineConfig.projection`) is marked, from the last fitted value;
+      `false` marks nothing, not even a projection. On bar charts the
+      backdrop starts at the edge of the first forecast bar, and bars keep
+      their own styles. Defaults to `"auto"` on a FanChart.
+  */
+  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  /**
+      Styles for the `forecast` marker: the backdrop's `fill` and
+      `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
+      `stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and
+      `strokeDasharray` (`"4 4"`; `stroke: false` hides it), the label's
+      text as `label` (default "Forecast", translated; `false` hides it)
+      with `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and
+      `fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each
+      line's forecast stretch (default `"6 4"`; `false` keeps lines solid).
+      Colors default to the chart's text color for its background. The
+      backdrop is chart chrome with no data row, so `shapeConfig.texture`
+      and `shapeConfig.backgroundImage` leave it plain; give it its own
+      `texture` (a textures.js name or config, drawn in the backdrop's color
+      over its shade at `textureOpacity`, default `0.3`, with
+      `textureDefault`) or `backgroundImage` (a URL,
+      fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
+      by default.
+  */
+  forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
@@ -642,8 +722,8 @@ export interface D3plusConfig {
   };
   /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the legend, or an accessor returning it. */
-  legendPosition?: Position | (() => Position);
+  /** Position of the legend (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
@@ -937,10 +1017,16 @@ export interface D3plusConfig {
   */
   xBreak?: [number, number] | [number, number][];
   /**
-      The x domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The x domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `xConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn. A full `xConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `xConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -961,10 +1047,16 @@ export interface D3plusConfig {
   */
   yBreak?: [number, number] | [number, number][];
   /**
-      The y domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The y domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `yConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn. A full `yConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `yConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */

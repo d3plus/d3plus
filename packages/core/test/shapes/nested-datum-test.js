@@ -56,6 +56,22 @@ it("Area texture accessors receive the merged aggregate", () => {
   assert.ok(!fills.beta.startsWith("pattern:"), "beta is not");
 });
 
+// The texture's default background and line colors come from the same merged
+// row as the shape's own fill and stroke, not from its first point.
+it("Area texture colors resolve fill and stroke against the merged aggregate", () => {
+  const data = [{id: "alpha", x: 0, y: 10}, {id: "alpha", x: 1, y: 20}];
+  const byTotal = d => (d.y > 15 ? "red" : "blue");
+  const scene = new Area()
+    .data(data)
+    .fill(byTotal)
+    .stroke(byTotal)
+    .texture("lines")
+    .toScene();
+  const texture = JSON.parse(scene.children[0].paint.fill.slice("pattern:".length));
+  assert.strictEqual(texture.background, "red", "the background is the aggregate's fill (y 30), not the first point's (y 10)");
+  assert.strictEqual(texture.stroke, "red", "the line color is the aggregate's stroke");
+});
+
 // The nearest-point tooltip (#786) needs each Line/Area scene node to carry its
 // points paired with their source data, in content space.
 it("Line.toScene stashes per-point interaction points paired with source data", () => {

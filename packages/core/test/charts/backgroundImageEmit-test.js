@@ -26,6 +26,11 @@ it("backgroundImageNode: returns null when backgroundImage is absent", () => {
   assert.strictEqual(backgroundImageNode({backgroundImage: ""}, rect, {id: "a"}, 0), null);
 });
 
+it("backgroundImageNode: returns null for a node with no fill", () => {
+  const link = {...rect, paint: {fill: "none", stroke: "#aaa"}};
+  assert.strictEqual(backgroundImageNode({backgroundImage: URL}, link, {id: "a"}, 0), null);
+});
+
 it("backgroundImageNode: covers a rect, clipped to it, keyed apart and non-interactive", () => {
   const group = backgroundImageNode({backgroundImage: URL}, rect, rect.datum, 0);
   const image = imageOf(group);

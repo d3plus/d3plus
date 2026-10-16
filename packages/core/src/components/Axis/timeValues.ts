@@ -78,11 +78,58 @@ export function axisTimeReference(axis: Axis): Date[] {
 }
 
 /**
-    A date labeled to be read on its own (e.g. in a tooltip): the label interval the time axis uses for its ticks, always with the year, in the axis's time locale.
+    A date labeled to be read on its own (e.g. in a tooltip): the label interval the axis uses for its ticks (see `axisDateReference`), always with the year, in the axis's time locale.
     @private
 */
 export function axisDateLabel(axis: Axis, d: Date): string {
   const timeLocale = axisTimeLocale(axis);
-  return formatDateFull(d, axisTimeReference(axis), timeFormatLocale(timeLocale).format)
+  return formatDateFull(d, axisDateReference(axis, d), timeFormatLocale(timeLocale).format)
     .replace(/^Q/, timeLocale.quarter);
 }
+
+/** Whether a value is a Date that holds a valid time. */
+export const isValidDate = (d: unknown): d is Date => d instanceof Date && !isNaN(+d);
+
+/** Whether an axis places discrete categories (band, ordinal, or point scale) rather than a continuous range. */
+export const isCategoryAxis = (axis: Axis): boolean =>
+  ["band", "ordinal", "point"].includes(axis.schema.scale);
+
+/**
+    The Dates among an axis's values, unique and in time order: from its domain (a category axis's categories) when it holds any, else from its `data`. A category axis of Dates picks its label interval from these.
+    @private
+*/
+export function axisDateCategories(axis: Axis): Date[] {
+  const pick = (values: unknown): Date[] =>
+    Array.isArray(values) ? values.filter(isValidDate) : [];
+  const domain = pick(axis.schema.domain);
+  const dates = domain.length ? domain : pick(axis._scaleData);
+  const seen = new Set<number>();
+  return dates
+    .filter(d => !seen.has(+d) && !!seen.add(+d))
+    .sort((a, b) => +a - +b);
+}
+
+/**
+    The ordered Dates an axis labels `d` against: a time axis's tick reference, else the Dates among its values, else `d` alone.
+    @private
+*/
+function axisDateReference(axis: Axis, d: Date): Date[] {
+  const dates = axis.schema.scale === "time" ? axisTimeReference(axis) : axisDateCategories(axis);
+  return dates.length ? dates : [d];
+}
+
+/**
+    The Dates among the labels an axis draws (see `Axis._shownLabels`), parsed and in time order, or `undefined` before a layout pass has picked them. Date labels carry the year on the first of these and on the first after each change of year.
+    @private
+*/
+export function axisShownDates(axis: Axis): Date[] | undefined {
+  const shown = axis._shownLabels;
+  if (!shown) return undefined;
+  const cached = shownDatesCache.get(axis);
+  if (cached && cached[0] === shown) return cached[1];
+  const dates = parseTimeValues(shown).sort((a, b) => +a - +b);
+  shownDatesCache.set(axis, [shown, dates]);
+  return dates;
+}
+
+const shownDatesCache = new WeakMap<Axis, [unknown[], Date[]]>();

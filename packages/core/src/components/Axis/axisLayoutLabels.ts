@@ -6,7 +6,9 @@
 */
 import {max, min} from "d3-array";
 
-import {fontFamily as d3plusFontFamily, textSplit, textWrap} from "@d3plus/text";
+import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
+
+import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
 
@@ -47,6 +49,8 @@ interface LabelLayoutCtx {
   hBuff: number;
   p: number;
   tickFormat: (d: unknown) => string;
+  /** Whether each label is measured on a single line (see `wholeLineLabels`). */
+  wholeLine?: boolean;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
@@ -94,21 +98,6 @@ export function computeBuffers(
   return {hBuff, wBuff};
 }
 
-const softHyphen = "\u00AD";
-
-/**
-    Splits a label into words as TextBox does, but keeps each word whole
-    instead of breaking it into hyphenated syllables.
-*/
-export function wholeWordSplit(sentence: string): string[] {
-  return textSplit(sentence).reduce((words: string[], piece: string) => {
-    const last = words.length - 1;
-    if (last >= 0 && words[last].endsWith(softHyphen)) words[last] = words[last].slice(0, -1) + piece;
-    else words.push(piece);
-    return words;
-  }, []);
-}
-
 /** Wraps + measures a single label, returning its sized text result. */
 function calculateLabelSize(
   axis: Axis,
@@ -144,20 +133,26 @@ function calculateLabelSize(
   );
 
   const text = tickFormat(d);
-  let res = wrap(text) as ReturnType<typeof wrap> & {
-    width: number;
-    height: number;
-    fits: boolean;
-  };
-  // TextBox breaks a word too wide for its line into hyphenated syllables;
-  // wrapping whole words instead tells whether every word fits on its own.
-  const hyphenated = res.lines.slice(0, -1).some((l: string) => l.endsWith("-"));
-  const fits = !res.truncated && !(hyphenated && wrap.split(wholeWordSplit)(text).truncated);
-  // A label wider than its share of the axis wraps to nothing; measure it
-  // across the whole axis instead, so the overlap pass thins the labels out.
-  if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
-    wrap.width(wSize! - p * 2);
-    res = wrap(text) as typeof res;
+  type Sized = ReturnType<typeof wrap> & {width: number; height: number; fits: boolean};
+  let res: Sized, fits: boolean;
+  if (ctx.wholeLine) {
+    // Measured across the whole axis (`maxSize` caps its depth, not its
+    // length), a label that still breaks onto a second line can't be drawn
+    // whole on one.
+    wrap.width((axis.schema.width as number) - p * 2);
+    res = wrap(text) as Sized;
+    fits = !res.truncated && res.lines.filter((l: string) => l !== "").length <= 1;
+  }
+  else {
+    res = wrap(text) as Sized;
+    // A label that only fits by breaking a word mid-word doesn't fit.
+    fits = wholeWordFit(res, () => wrap.split(wholeWordSplit)(text) as Sized).fits;
+    // A label wider than its share of the axis wraps to nothing; measure it
+    // across the whole axis instead, so the overlap pass thins the labels out.
+    if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
+      wrap.width(wSize! - p * 2);
+      res = wrap(text) as Sized;
+    }
   }
   res.fits = fits;
   res.lines = res.lines.filter((d: string) => d !== "");
@@ -224,7 +219,10 @@ export function createTextData(
   ctx: LabelLayoutCtx & {labels: unknown[]; rangeOuter: number[]; offset?: number},
 ): AxisTextDatum[] {
   const {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset = 1} = ctx;
-  const labelCtx: LabelLayoutCtx = {horizontal, hBuff, p, tickFormat};
+  const wholeLine = horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
+  // Every label is shown until the overlap pass below thins them.
+  axis._shownLabels = labels;
+  const labelCtx: LabelLayoutCtx = {horizontal, hBuff, p, tickFormat, wholeLine};
   const {fontSize} = axis.schema.shapeConfig.labelConfig;
   const fontFamilyConfig =
     axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
@@ -277,24 +275,49 @@ export function createTextData(
           return max([max([prevSpace, nextSpace])! * mod, s])!;
         }, 0);
 
-  textData = textData.map((datum: AxisTextDatum) => {
+  const size = (datum: AxisTextDatum): AxisTextDatum => {
     datum.space = maxSpace - datum.fP * 2;
-    const res = calculateLabelSize(axis, datum, labelCtx);
+    const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx);
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
-    if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(res.width));
+    if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(width));
     // Likewise a vertical axis label taller than its share is painted at its
     // own height, leaving the overlap pass to thin out its neighbors.
-    else if (!horizontal && !datum.rotate && res.height - datum.fP > datum.space)
-      datum.space = Math.ceil(res.height);
-    return Object.assign(res, datum);
-  });
+    else if (!horizontal && !datum.rotate && height - datum.fP > datum.space)
+      datum.space = Math.ceil(height);
+    return Object.assign(datum, {lines, widths, width, height, fits});
+  };
+  textData = textData.map(size);
 
-  if (isDiscreteScale(axis.schema.scale)) thinEvenly(textData, horizontal);
+  // Date labels read which labels are shown (see `Axis._shownLabels`), so a
+  // whole-line axis measures them again each time it thins them.
+  const show = (shown: AxisTextDatum[], resize: AxisTextDatum[] = shown) => {
+    axis._shownLabels = shown.map((t: AxisTextDatum) => t.d);
+    resize.forEach(size);
+  };
+  if (isDiscreteScale(axis.schema.scale))
+    thinEvenly(textData, horizontal, wholeLine ? (step: number, all: boolean) => {
+      const shown = textData.filter((_t: AxisTextDatum, i: number) => i % step === 0);
+      show(shown, all ? textData : shown);
+    } : undefined);
+  else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
+}
+
+/**
+    Whether a horizontal axis's labels are values read in sequence (dates, or
+    numbers on a category axis) that are drawn whole on one line: thinned
+    rather than wrapped or cut short, since any one of them reads alone.
+    Labels naming categories wrap or rotate instead (see `rotatesLabels`).
+*/
+export function wholeLineLabels(axis: Axis, labels: unknown[]): boolean {
+  const {scale} = axis.schema;
+  if (scale === "time") return true;
+  return isDiscreteScale(scale) && labels.length > 0 &&
+    labels.every((d: unknown) => d instanceof Date || !isNaN(d as number));
 }
 
 /** Whether a scale places one tick per category (every value labeled in turn). */
@@ -317,12 +340,42 @@ function crowds(a: AxisTextDatum, b: AxisTextDatum, horizontal: boolean): boolea
     they all fit side by side, otherwise every second label, or third, and so
     on, using the shortest interval at which no two shown labels crowd.
 */
-export function thinEvenly(textData: AxisTextDatum[], horizontal: boolean): void {
+export function thinEvenly(
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  show?: (step: number, all: boolean) => void,
+): void {
   let step = 1;
   const crowded = (n: number) => textData.some((datum: AxisTextDatum, i: number) =>
     i >= n && i % n === 0 && crowds(textData[i - n], datum, horizontal));
-  while (step < textData.length && crowded(step)) step++;
+  while (step < textData.length && crowded(step)) {
+    step++;
+    show?.(step, false);
+  }
+  // Measures the hidden labels too, as the shown ones read them.
+  if (step > 1) show?.(step, true);
   textData.forEach((datum: AxisTextDatum, i: number) => (datum.truncated = i % step !== 0));
+}
+
+/**
+    Thins a whole-line continuous axis (see `thinGreedily`) whose labels read
+    which of them are shown: hiding a label can add the year to the next one
+    shown, so the labels are measured against the ones left and thinned
+    again, until the shown labels hold (or a few rounds pass).
+*/
+function thinGreedilyShown(
+  textData: AxisTextDatum[],
+  horizontal: boolean,
+  show: (shown: AxisTextDatum[], resize: AxisTextDatum[]) => void,
+): void {
+  let shown = textData;
+  for (let round = 0; round < 4; round++) {
+    thinGreedily(textData, horizontal);
+    const next = textData.filter((t: AxisTextDatum) => !t.truncated);
+    if (next.length === shown.length && next.every((t: AxisTextDatum, i: number) => t === shown[i])) return;
+    shown = next;
+    show(shown, textData);
+  }
 }
 
 /**

@@ -34,6 +34,7 @@ import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
+import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -387,7 +388,11 @@ const lineEmit: ShapeEmitter = ctx => {
       : false,
   });
 
-  out.push(...finishShape(ctx, "Line", s));
+  // A forecast draws each line dashed from where its forecast starts.
+  const forecastDash = forecastLineDash(viz, values as PlotDatum[], ctx.shapeConfig, ctx);
+  out.push(...finishShape(ctx, "Line", s, forecastDash
+    ? user => ({strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray)})
+    : undefined));
 
   const markers = makeShape("Circle")
     .renderMode("compute")
