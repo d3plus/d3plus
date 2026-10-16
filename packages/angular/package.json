@@ -28,7 +28,8 @@
     "build": "ng-packagr -p ng-package.json",
     "dev": "node ../../scripts/dev.js",
     "lint": "eslint src && eslint --global=it --global=before test",
-    "test": "pnpm run lint && mocha 'test/**/*-test.js'"
+    "test": "pnpm run lint && mocha 'test/**/*-test.js'",
+    "test:coverage": "c8 -r text -r lcov --src src --exclude-after-remap --include 'src/**' -x src/d3plus-angular.ts mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",

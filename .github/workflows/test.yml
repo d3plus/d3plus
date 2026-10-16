@@ -81,10 +81,6 @@ jobs:
       - name: Run tests with coverage
         if: matrix.node-version == '22.x'
         run: pnpm test:coverage
-      # Angular's tests drive its compiled bundle, so it has no coverage script.
-      - name: Run Angular tests
-        if: matrix.node-version == '22.x'
-        run: pnpm --filter @d3plus/angular test
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
       - name: Build docs site (Storybook)
