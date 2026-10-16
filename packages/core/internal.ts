@@ -117,6 +117,20 @@ export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export {
+  largestRadius,
+  lollipopBuffer,
+  STEM_KEY_SUFFIX,
+  stemFromBar,
+  stemPoints,
+} from "./src/charts/Lollipop/stemLayout.js";
+export type {BarBox, StemLayout, StemPoint} from "./src/charts/Lollipop/stemLayout.js";
+export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
+export {columnHighlight} from "./src/charts/Plot/columnHighlight.js";
+export {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "./src/charts/Dumbbell/emit.js";
+export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
+export {categoryGaps, gapComparator, syncGapSort} from "./src/charts/Dumbbell/gapSort.js";
+export type {CategoryComparator, GapSort, GapSortState} from "./src/charts/Dumbbell/gapSort.js";
+export {
   largestRemainder,
   waffleCellGeometry,
   waffleCellPosition,
@@ -136,10 +150,12 @@ export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/t
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";

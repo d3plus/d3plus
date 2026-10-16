@@ -19,6 +19,7 @@ const SEED_ONLY = {
   baseline: "identity seeds the chart's own baseline (where bars start); Plot.baseline stores the user's apart from it, as a value-domain bound",
   label: "coerce \"const\" matches VizBaseConfig.label (function, else constant)",
   legend: "coerce \"const\" matches VizBaseConfig.legend (function, else constant)",
+  legendConfig: "merge seeds the bag; VizBaseConfig.legendConfig deep-merges sets",
   legendTooltip: "merge seeds the bag; VizBaseConfig.legendTooltip deep-merges sets",
   noDataMessage: "identity matches VizBase.noDataMessage",
   on: "merge seeds the handler map; BaseClass.on registers on(typename, fn) and merges on({…})",

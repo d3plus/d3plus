@@ -48,6 +48,7 @@ import type {InsetKey, InsetPlacement, InsetRegion} from "../features/insetState
 import type Shape from "../../shapes/Shape.js";
 import type {D3plusConfig, D3Scale} from "../../utils/index.js";
 import type {PlotPaintContext} from "../features/plotPaint.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {FacetHooks, FacetPanelState} from "../facet/facetConfig.js";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import type {ResolvedSpec} from "../pipeline/resolveSpec.js";
@@ -434,6 +435,21 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
+  _plotShapeEmitters?: Record<string, ShapeEmitter>;
+  /**
+      Row shapes a chart draws as circles sized by `size` (e.g. Lollipop's
+      Bar rows, drawn as stems with Circle heads), so Plot's size legend keys
+      them like Circle rows. `["Circle"]` when unset.
+  */
+  _plotCircleShapes?: string[];
+  /**
+      For charts whose marks read as one per category (Lollipop, Dumbbell):
+      builds the hover predicate Plot's snapped hover sets for the hovered
+      column, from the rows of the column's marks. When unset, only a
+      stacked bar column highlights.
+  */
+  _plotColumnHighlight?: (rows: Set<DataPoint>) => (d: DataPoint, i: number) => boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */
