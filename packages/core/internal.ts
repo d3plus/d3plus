@@ -26,6 +26,8 @@ export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js"
 export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
+export {applyWaffleLayout, waffleFillOptions} from "./src/charts/Waffle/applyLayout.js";
+export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
 export {
@@ -114,10 +116,27 @@ export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  largestRemainder,
+  waffleCellGeometry,
+  waffleCellPosition,
+  waffleCounts,
+  waffleGrid,
+} from "./src/charts/Waffle/waffleLayout.js";
+export type {
+  WaffleCellGeometry,
+  WaffleFillDirection,
+  WaffleFillStart,
+  WaffleGridPosition,
+} from "./src/charts/Waffle/waffleLayout.js";
+export {waffleCellGeometryNode, waffleCellShape} from "./src/charts/Waffle/emit.js";
+export type {WaffleCellShape} from "./src/charts/Waffle/emit.js";
+export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/tooltip.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
@@ -134,6 +153,7 @@ export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {waffleDef} from "./src/charts/Waffle/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {
@@ -204,6 +224,7 @@ export {
 export {
   baselineBreakAxisConfig,
   clampBarConfig,
+  outsideBaselineBreak,
   plotAxisConfig,
   userDomainBreaksBaseline,
   valueAxis,

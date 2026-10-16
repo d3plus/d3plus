@@ -83,8 +83,9 @@ export interface AxisConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
@@ -102,7 +103,7 @@ export interface AxisConfig {
       the axis line's `barConfig` style), `lineConfig` (those lines'
       `stroke`, `stroke-width`, and other line styles, layered over the axis
       line style), `mask` (whether a Plot cuts the gap between the two
-      lines straight across the shapes, default `false`), plus `stroke`,
+      lines straight across the shapes, default `true`), plus `stroke`,
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.
   */
@@ -120,9 +121,8 @@ export interface AxisConfig {
   break?: false | [number, number] | [number, number][];
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
-      `angle`, `lines`, `lineConfig`, and mark line styles as
-      `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between
-      the break's two lines straight across the shapes) defaulting to `true`.
+      `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
+      same defaults, as `baselineBreakConfig`.
   */
   breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /** Grid values of the axis. */
@@ -495,7 +495,8 @@ export interface D3plusConfig {
       `xDomain([n])`). Bars and areas still grow from the chart's own
       `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
       `baselineBreak` on (their default) the axis breaks back to a `0`
-      tick and bars run through the break, and with it off the axis
+      tick and bars run through the break, with its gap cut across them,
+      and with it off the axis
       stretches down to `0`. As with `yDomain([n])`, only `n` is
       pinned: the far end comes from the data and is rounded where the
       axis would round it with no domain set (left at the data when the
@@ -514,8 +515,9 @@ export interface D3plusConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.

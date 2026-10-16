@@ -6,6 +6,7 @@ import {
   BumpChart as BumpChartClass,
   Chord as ChordClass,
   Donut as DonutClass,
+  FanChart as FanChartClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Histogram as HistogramClass,
@@ -26,6 +27,7 @@ import {
   Tree as TreeClass,
   Treemap as TreemapClass,
   Viz as VizClass,
+  Waffle as WaffleClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
   AxisLeft as AxisLeftClass,
@@ -68,6 +70,8 @@ export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
 export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
+/** Vue component for rendering a d3plus FanChart visualization. */
+export const FanChart = createD3plusComponent(FanChartClass, "chart");
 /** Vue component for rendering a d3plus Gauge visualization. */
 export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
@@ -108,6 +112,8 @@ export const Tree = createD3plusComponent(TreeClass, "chart");
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */
 export const Viz = createD3plusComponent(VizClass, "chart");
+/** Vue component for rendering a d3plus Waffle visualization. */
+export const Waffle = createD3plusComponent(WaffleClass, "chart");
 
 /** Vue component for rendering a d3plus Axis. */
 export const Axis = createD3plusComponent(AxisClass, "component");
