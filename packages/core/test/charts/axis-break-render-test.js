@@ -160,18 +160,59 @@ it("BarChart: breakConfig.mask false keeps the glyph but leaves shapes whole", a
   assert.deepStrictEqual(out.masks, [], "no mask group");
 });
 
-it("BarChart: the baseline break looks the same, unmasked unless asked", async function () {
+it("BarChart: the baseline break looks the same, masked unless turned off", async function () {
   this.timeout(60000);
   const data = bars.map(b => ({...b, v: b.v + 1100}));
   const src = `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100])`;
   const out = await probe(src, {data});
   assert.deepStrictEqual(out.y.breaks, [{start: 0, end: 1100, baseline: true}]);
   assert.deepStrictEqual(out.y.lines, ["bar-baseline", "bar", "baseline-break-0", "baseline-break-1"]);
-  assert.deepStrictEqual(out.masks, [], "no mask by default");
+  assert.deepStrictEqual(out.masks.map(m => m.key), ["plot-break-mask-y"], "masked by default");
+  assert.ok(out.shapes.includes("Bar:true"), "bars sit inside the mask");
   assert.strictEqual(out.lines.length, 2, "the baseline break draws its lines too");
   out.lines.forEach(l => assert.ok(l.points[0][1] > out.y.zero - 36 && l.points[0][1] < out.y.zero, "between 0 and the domain"));
-  const masked = await probe(`${src}.yConfig({baselineBreakConfig: {mask: true}})`, {data});
-  assert.deepStrictEqual(masked.masks.map(m => m.key), ["plot-break-mask-y"], "mask on request");
+  const ys = out.lines.map(l => l.points[0][1]);
+  out.masks[0].holes[0].forEach(p => assert.ok(p[1] > Math.min(...ys) && p[1] < Math.max(...ys), "the cut sits between the two lines"));
+  const unmasked = await probe(`${src}.yConfig({baselineBreakConfig: {mask: false}})`, {data});
+  assert.deepStrictEqual(unmasked.masks, [], "mask: false leaves the bars whole");
+  assert.strictEqual(unmasked.lines.length, 2, "and keeps the lines");
+});
+
+it("Every Plot chart masks its baseline break by default", async function () {
+  this.timeout(180000);
+  const rows = [1, 2, 3, 4].flatMap(x => ["a", "b"].map((id, j) => ({id, x, y: 1100 + x * 40 + j * 25})));
+  const charts = {
+    BarChart: ["y", `new lib.BarChart().data(data).groupBy("id").x("x").y("y").yDomain([1000])`],
+    "BarChart (horizontal)": ["x", `new lib.BarChart().data(data).groupBy("id").discrete("y").y("x").x("y").xDomain([1000])`],
+    AreaPlot: ["y", `new lib.AreaPlot().data(data).groupBy("id").x("x").y("y").yDomain([1000])`],
+    "AreaPlot (horizontal)": ["x", `new lib.AreaPlot().data(data).groupBy("id").discrete("y").y("x").x("y").xDomain([1000])`],
+    StackedArea: ["y", `new lib.StackedArea().data(data).groupBy("id").x("x").y("y").yDomain([1000])`],
+    Histogram: ["y", `new lib.Histogram().data(Array.from({length: 200}, (_, i) => ({v: 100 + (i % 20)}))).value("v").binWidth(5).yDomain([20])`],
+    LinePlot: ["y", `new lib.LinePlot().data(data).groupBy("id").x("x").y("y").baselineBreak(true).yDomain([1000])`],
+    BoxWhisker: ["y", `new lib.BoxWhisker().data(data).groupBy(["x", "id"]).x("x").y("y").baselineBreak(true).yDomain([1000])`],
+    Plot: ["y", `new lib.Plot().data(data).groupBy("id").x("x").y("y").baselineBreak(true).yDomain([1000])`],
+    "BarChart (baseline)": ["y", `new lib.BarChart().data(data).groupBy("id").x("x").y("y").baseline(1000)`],
+  };
+  for (const [name, [axis, src]] of Object.entries(charts)) {
+    const out = await probe(`(lib, data) => ${src}`, {data: rows});
+    assert.ok(out[axis].breaks.some(b => b.baseline), `${name} has a baseline break`);
+    assert.deepStrictEqual(out.masks.map(m => m.key), [`plot-break-mask-${axis}`], `${name} masks it`);
+    assert.ok(out.shapes.some(s => s.endsWith(":true")), `${name}'s shapes sit inside the mask`);
+    const off = await probe(`(lib, data) => ${src}.${axis}Config({baselineBreakConfig: {mask: false}})`, {data: rows});
+    assert.deepStrictEqual(off.masks, [], `${name} honors mask: false`);
+  }
+});
+
+it("BarChart: the Canvas renderer cuts the baseline break's gap across a bar", async function () {
+  this.timeout(60000);
+  const data = bars.map(b => ({...b, v: b.v + 1100}));
+  const out = await probe(
+    `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100])`,
+    {data, renderer: "canvas", pixel: true},
+  );
+  const empty = p => p[3] === 0 || (p[0] > 240 && p[1] > 240 && p[2] > 240);
+  assert.ok(empty(out.pixels.gap), `gap shows the background (${out.pixels.gap})`);
+  assert.ok(!empty(out.pixels.above) && !empty(out.pixels.below), "bar paint on both sides of the gap");
 });
 
 it("Break lines follow the axis line's style, and lines: false turns them off", async function () {

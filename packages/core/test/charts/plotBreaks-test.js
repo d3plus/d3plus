@@ -132,13 +132,13 @@ it("maskBreaks cuts each masked break's gap as a straight band, per axis", () =>
   assert.strictEqual(new Set(xHole.map(p => p[0])).size, 2, "the x band is vertical");
 });
 
-it("maskBreaks leaves content whole when no break asks for a mask", () => {
+it("maskBreaks masks every break by default, and leaves content whole when none asks for a mask", () => {
   const nodes = [{type: "rect", key: "a", x: 0, y: 0, width: 5, height: 5}];
   assert.strictEqual(maskBreaks(stubViz(yAxis({breakConfig: {mask: false}})), nodes, frame), nodes);
   const base = compute(new AxisLeft().domain([2100, 1100]).height(400).width(300).baselineBreak(true));
-  assert.strictEqual(maskBreaks(stubViz(base), nodes, frame), nodes, "the baseline break is unmasked by default");
-  base.baselineBreakConfig({mask: true}).render();
-  assert.strictEqual(maskBreaks(stubViz(base), nodes, frame)[0].key, "plot-break-mask-y", "unless asked");
+  assert.strictEqual(maskBreaks(stubViz(base), nodes, frame)[0].key, "plot-break-mask-y", "the baseline break is masked by default");
+  base.baselineBreakConfig({mask: false}).render();
+  assert.strictEqual(maskBreaks(stubViz(base), nodes, frame), nodes, "unless turned off");
   const noLines = yAxis({breakConfig: {lines: false}});
   const [, hole] = rings(maskBreaks(stubViz(noLines), nodes, frame)[0].clip.d);
   const [g0, g1] = breakGap(noLines, noLines._breaks[0]);
