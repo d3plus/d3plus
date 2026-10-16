@@ -16,6 +16,7 @@ const charts = [
   ["Matrix", "matrix"],
   ["Network", "network"],
   ["Pack", "pack"],
+  ["Parallel Coordinates", "parallelcoordinates"],
   ["Pie", "pie"],
   ["Plot", "plot"],
   ["Priestley", "priestley"],
