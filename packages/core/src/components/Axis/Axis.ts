@@ -50,6 +50,7 @@ const axisSchema: ConfigField[] = [
   {key: "paddingOuter", coerce: "identity", default: 0.1},
   {key: "range", coerce: "identity"},
   {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "rotatedTickFormat", coerce: "identity"},
   {key: "rounding", coerce: "identity", default: "none"},
   {key: "roundingInsideMinPrefix", coerce: "identity", default: "< "},
   {key: "roundingInsideMinSuffix", coerce: "identity", default: ""},

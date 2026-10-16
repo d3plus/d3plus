@@ -120,6 +120,13 @@ it("roundPlotOpenEnds rounds the scales' open ends, honoring the axis's rounding
   assert.deepStrictEqual(run(stub()).x.domain(), [0, 3], "no open end on x");
   assert.deepStrictEqual(run(stub({}, {_yConfig: {rounding: "inside"}})).y.domain(), [1020, 980]);
   assert.deepStrictEqual(run(stub({}, {_yConfig: {rounding: "none"}})).y.domain(), [1024, 980], "rounding off");
+  const chartNone = {_plotAxisDefaults: {y: {rounding: "none"}}};
+  assert.deepStrictEqual(run(stub({}, chartNone)).y.domain(), [1024, 980], "the chart's own rounding");
+  assert.deepStrictEqual(
+    run(stub({}, {...chartNone, _yConfig: {rounding: "outside"}})).y.domain(),
+    [1030, 980],
+    "the user's rounding wins over the chart's",
+  );
   const time = roundPlotOpenEnds({viz: stub(), plotScales: scales(), plotConfigScales: {...configScales, yConfigScale: "time"}, plotOpenEnds});
   assert.deepStrictEqual(time.plotScales.y.domain(), [1024, 980], "a time axis");
   assert.deepStrictEqual(roundPlotOpenEnds({viz: stub()}), {}, "nothing to round");

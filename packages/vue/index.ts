@@ -10,6 +10,7 @@ import {
   Geomap as GeomapClass,
   Histogram as HistogramClass,
   LinePlot as LinePlotClass,
+  Marimekko as MarimekkoClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
@@ -76,6 +77,8 @@ export const Geomap = createD3plusComponent(GeomapClass, "chart");
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
+/** Vue component for rendering a d3plus Marimekko visualization. */
+export const Marimekko = createD3plusComponent(MarimekkoClass, "chart");
 /** Vue component for rendering a d3plus Matrix visualization. */
 export const Matrix = createD3plusComponent(MatrixClass, "chart");
 /** Vue component for rendering a d3plus Network visualization. */

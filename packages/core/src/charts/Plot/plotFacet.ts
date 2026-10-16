@@ -168,5 +168,6 @@ export const plotFacetHooks: FacetHooks = {
     _xFunc: viz._xFunc,
     _yFunc: viz._yFunc,
     _trendFits: viz._trendFits,
+    _barSpans: viz._barSpans,
   }),
 };

@@ -40,6 +40,19 @@ export {
 } from "./src/charts/Pyramid/pyramidData.js";
 export {pyramidStackOrder} from "./src/charts/Pyramid/stackOrder.js";
 export {
+  applyBarWidths,
+  barKey,
+  barSpanAxisConfig,
+  barWidthAccessor,
+  barWidthLabel,
+  barWidthTooltipRows,
+  labelBarWidth,
+  layoutBarSpans,
+  measureBars,
+} from "./src/charts/Plot/barWidth.js";
+export type {BarSpan, BarSpanLayout, BarWidthAccessor, MeasuredBar} from "./src/charts/Plot/barWidth.js";
+export {isExpandOffset, marimekkoAxisDefaults, percentText} from "./src/charts/Marimekko/axis.js";
+export {
   gutterAxisDefaults,
   gutterInset,
   gutterStackOffset,
@@ -121,6 +134,7 @@ export {chordDef} from "./src/charts/Chord/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
