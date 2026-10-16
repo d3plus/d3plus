@@ -4,6 +4,7 @@ import {commitTrailCatchups, commitTrailScene, TrailLog} from "../animate/trailL
 import type {ClipShape, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {
   applyOverlayToElement,
+  alignOverlayHost,
   createOverlayHost,
   walkOverlays,
 } from "../overlay.js";
@@ -336,6 +337,7 @@ export default class CanvasRenderer implements Renderer {
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
     const collected = walkOverlays(scene);
+    if (collected.length) alignOverlayHost(this._overlayHost);
     const host = this._overlayHost;
     // Keyed reconcile against the cached map — no per-draw querySelectorAll.
     const existing = this._overlayMap;

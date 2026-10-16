@@ -136,11 +136,13 @@ function initBaseDefaults(viz: Viz): void {
 */
 export const backControlStyleDefault = {
   "align-items": "center",
+  "box-sizing": "border-box",
   display: "inline-flex",
   font: `400 12px/1 ${fontFamilyStringify(fontFamily)}`,
   gap: "4px",
   height: "20px",
   "justify-content": "center",
+  margin: 0,
   padding: "0 6px",
   width: "auto",
 };
@@ -446,6 +448,8 @@ export const attributionStyleDarkDefault = {
     `.active` class, `aria-pressed`, and `:hover`/`:active` pseudo-classes
     stay available for a host page's own CSS to hook into. Consumers who want d3plus's old
     opinionated look can restore it via `.zoomControlStyle({...})`.
+    `margin` and `box-sizing` are pinned too, so a page's bare `button`
+    rules can't change the panel's measured size.
 
     Exported as stable object references (not inlined per-instance) so
     `zoomControls.ts` can tell, via `===`, whether a given viz's
@@ -456,10 +460,12 @@ export const attributionStyleDarkDefault = {
 */
 export const zoomControlStyleDefault = {
   "align-items": "center",
+  "box-sizing": "border-box",
   display: "inline-flex",
   font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
   height: "20px",
   "justify-content": "center",
+  margin: 0,
   padding: 0,
   width: "20px",
 };
@@ -480,10 +486,12 @@ export const zoomControlStyleHoverDefault = false as const;
 */
 export const tableViewControlStyleDefault = {
   "align-items": "center",
+  "box-sizing": "border-box",
   display: "inline-flex",
   font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
   height: "20px",
   "justify-content": "center",
+  margin: 0,
   padding: 0,
   width: "20px",
 };
@@ -595,10 +603,12 @@ function initMinimapDefaults(viz: Viz): void {
 */
 export const searchControlStyleDefault = {
   "align-items": "center",
+  "box-sizing": "border-box",
   display: "inline-flex",
   font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
   height: "20px",
   "justify-content": "center",
+  margin: 0,
   padding: 0,
   width: "20px",
 };

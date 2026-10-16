@@ -8,6 +8,7 @@ import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import {reserveContainerSize} from "./reserveContainerSize.js";
+import {resetChromeBoxes} from "./resetChromeBoxes.js";
 import type Viz from "./Viz.js";
 import {
   canObserveVisibility,
@@ -403,6 +404,7 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
 
   ensureSvgSelect(viz);
   scopeTooltip(viz);
+  resetChromeBoxes(viz);
   // Before measuring too, so a spacer left by an earlier explicit size can't
   // prop the container open to that size; again after, once autoSize has
   // settled which dimensions are measured.
