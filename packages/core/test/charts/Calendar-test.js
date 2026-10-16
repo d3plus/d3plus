@@ -419,3 +419,47 @@ it("Calendar's colorScale bucket hover dims the days outside the bucket", async 
   assert.ok(out.inBucket.length && out.inBucket.every(o => o === 1), "days in the bucket stay bright");
   assert.ok(out.outside.length && out.outside.every(o => o === 0.5), "days outside it dim");
 });
+
+/** Renders a Calendar in a `width` × `height` box and reports its colorScale's inset placement against every node it draws. */
+const placement = (width, height, config, days = 365) =>
+  render(`<div id='viz' style='width:${width}px;height:${height}px'></div>`, async ([src, cfg, n]) => {
+    eval(src);
+    const viz = new window.d3plus.Calendar()
+      .select("#viz")
+      .duration(0)
+      .data(window.daily([2025, 1, 1], n))
+      .config(cfg);
+    await new Promise(r => viz.render(r));
+    const nodes = window.d3plus.markBoxes(viz._chartScene, viz._chartTransform, undefined, true);
+    const top = Math.min(...nodes.map(b => b.y));
+    const bottom = Math.max(...nodes.map(b => b.y + b.height));
+    return {placement: viz._insetPlacement, margin: viz._margin, nodes, top, bottom, kinds: new Set(viz._chartScene.map(n => n.type)).size};
+  }, [daily, config, days]);
+
+const overlaps = (a, b) =>
+  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+
+it("Calendar places its colorScale below or above the calendar when there's room", async function () {
+  this.timeout(60000);
+  for (const [config, days, below] of [[{}, 365, true], [{locale: "es-ES"}, 365, true], [{period: "month"}, 181]]) {
+    const out = await placement(900, 360, config, days);
+    const p = out.placement;
+    assert.ok(p, `${JSON.stringify(config)}: placed inside the chart`);
+    assert.strictEqual(p.key, "colorScale");
+    if (below) {
+      assert.strictEqual(p.orient, "row");
+      assert.ok(p.y >= out.bottom || p.y + p.height <= out.top, "above or below every node");
+      assert.strictEqual(out.kinds, 3, "cells, month outlines, and labels are all checked");
+    }
+    assert.strictEqual(out.margin.right, 0, "no side margin claimed");
+    const hits = out.nodes.filter(b => overlaps(b, p));
+    assert.strictEqual(hits.length, 0, `overlaps ${JSON.stringify(hits[0])}`);
+  }
+});
+
+it("Calendar's colorScale falls back to a side margin when there's no room inside", async function () {
+  this.timeout(60000);
+  const out = await placement(900, 220, {});
+  assert.strictEqual(out.placement, null);
+  assert.ok(out.margin.right > 0, "a wide chart's colorScale goes right");
+});

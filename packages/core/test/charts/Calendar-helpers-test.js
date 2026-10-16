@@ -10,6 +10,7 @@ import {
 import {calendarPalette, colorValue, hasColorValue} from "../../es/src/charts/Calendar/emit.js";
 import {calendarDef, defaultCalendarDate} from "../../es/src/charts/Calendar/index.js";
 import {calendarDayKey} from "../../es/src/charts/Calendar/calendarDates.js";
+import {calendarInsetRegion} from "../../es/src/charts/Calendar/calendarInset.js";
 
 const field = key => calendarDef.fields.find(f => f.key === key);
 const mockViz = (schema = {}) => ({
@@ -182,4 +183,31 @@ it("Calendar def: days hover with an outline and without dimming the rest", () =
   assert.deepStrictEqual(field("shapeConfig").default, {hoverOpacity: 1});
   assert.strictEqual(field("shapeConfig").merge, true, "a user's shapeConfig merges over it");
   assert.deepStrictEqual(calendarDef.defaults, {hoverOutline: true});
+  assert.strictEqual(calendarDef.insetRegion, calendarInsetRegion);
+});
+
+it("Calendar helpers: calendarInsetRegion keeps chrome clear of every node, labels and empty days included", () => {
+  const region = calendarInsetRegion({
+    schema: {width: 300, height: 200},
+    _margin: {top: 20, right: 10, bottom: 0, left: 0},
+    _chartTransform: {x: 0, y: 20},
+    _chartScene: [
+      {type: "rect", key: "calendar-2024-01-01", interactive: false, x: 10, y: 10, width: 8, height: 8},
+      {type: "rect", key: "calendar-2024-01-02", datum: {}, x: 20, y: 10, width: 8, height: 8},
+      {type: "rect", key: "calendar-2024-01-02::hit", datum: {}, x: 0, y: 0, width: 300, height: 300},
+      {type: "path", key: "calendar-2024-outline-01", d: "M0,0L40,0L40,30L0,30Z"},
+      {
+        type: "text", key: "calendar-label-jan", x: 0, y: 0, transform: {x: 100, y: 5},
+        lines: [{text: "Jan", x: 0, y: 0, width: 20}],
+        font: {size: 10, anchor: "start", baseline: "middle"},
+      },
+    ],
+  });
+  assert.deepStrictEqual(region.bounds, {x: 0, y: 20, width: 290, height: 180});
+  const has = box => region.obstacles.some(o => JSON.stringify(o) === JSON.stringify(box));
+  assert.ok(has({x: 10, y: 30, width: 8, height: 8}), "an empty day");
+  assert.ok(has({x: 20, y: 30, width: 8, height: 8}), "a data day");
+  assert.ok(has({x: 40, y: 50, width: 0, height: 0}), "a month outline's corner");
+  assert.ok(has({x: 100, y: 20, width: 20, height: 10}), "a label");
+  assert.ok(!region.obstacles.some(o => o.width === 300), "hit areas are skipped");
 });

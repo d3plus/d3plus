@@ -10,6 +10,7 @@
       - `calendarGrid.ts` — pure cell fitting, positions, and outlines.
       - `calendarLayout.ts` — pure block, cell, and label layout.
       - `calendarFormat.ts` — localized date formatters.
+      - `calendarInset.ts` — the region chrome may be placed inside.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -33,6 +34,7 @@ import {
   rowsExtent,
 } from "./applyLayout.js";
 import {calendarDayKey, dateExtent} from "./calendarDates.js";
+import {calendarInsetRegion} from "./calendarInset.js";
 import {calendarEmit, colorValue} from "./emit.js";
 
 /** Reads a row's day from its `date` field, else its `time` field. */
@@ -46,6 +48,9 @@ export const calendarDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyCalendarLayout,
   emit: calendarEmit,
+  // Chrome goes in the open space around the calendar when it fits.
+  insetRegion: calendarInsetRegion,
+
   // Hovering a day outlines it, whatever `hoverOpacity` and `dataCutoff` say.
   defaults: {hoverOutline: true},
 
