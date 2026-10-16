@@ -125,3 +125,97 @@ it("Waterfall's baseline(980) paints exactly what yDomain([980]) does", async fu
     assert.deepStrictEqual(one.scene, two.scene, `${label}: the same scene`);
   }
 });
+
+/**
+    Renders `chart` (Waterfall, or a BarChart of the same running totals) with
+    `config`, and reports the break-mask groups, the hole each cuts, and, per
+    bar, whether it sits inside a mask. On Canvas it also samples the Closing
+    total bar's pixels at the middle of the break's gap and just past it.
+*/
+const maskProbe = ([chart, data, config, renderer]) =>
+  new Promise(resolve => {
+    const viz = new window.d3plus[chart]().data(data).duration(0).renderer(renderer).config(config).select("#viz");
+    viz.render(() => {
+      const vertical = viz.schema.discrete !== "y";
+      const axis = vertical ? viz._yAxis : viz._xAxis;
+      const masks = [];
+      const bars = {};
+      let closing;
+      const walk = (n, inMask) => {
+        const isMask = String(n.key).startsWith("plot-break-mask");
+        if (isMask) masks.push(n.key);
+        if (n.shapeType === "Bar" && n.type === "rect") {
+          let row = n.datum;
+          while (row && (row.__d3plus__ || row.__d3plusShape__) && row.data) row = row.data;
+          bars[row.step] = Boolean(inMask || isMask);
+          if (row.step === "Closing") closing = n;
+        }
+        (n.children || []).forEach(c => walk(c, inMask || isMask));
+      };
+      viz._chartScene.forEach(n => walk(n, false));
+      const out = {masks, bars, breaks: axis._breaks.map(b => ({baseline: b.baseline, mask: b.mask}))};
+      if (renderer === "canvas") {
+        const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
+        const ratio = canvas.width / canvas.getBoundingClientRect().width;
+        const ct = viz._chartTransform;
+        const brk = axis._breaks[0];
+        const gap = (brk.startPosition + brk.endPosition) / 2;
+        const across = vertical
+          ? closing.transform.x + closing.x + closing.width / 2
+          : closing.transform.y + closing.y + closing.height / 2;
+        const px = at => {
+          const [px, py] = vertical ? [across + ct.x, at + ct.y] : [at + ct.x, across + ct.y];
+          return Array.from(canvas.getContext("2d").getImageData(Math.round(px * ratio), Math.round(py * ratio), 1, 1).data);
+        };
+        const dir = Math.sign(brk.endPosition - brk.startPosition);
+        out.pixels = {gap: px(gap), past: px(brk.endPosition + dir * 12)};
+      }
+      resolve(out);
+    });
+  });
+
+const totals = [
+  {step: "Opening", v: 1000},
+  {step: "Price", v: 1015},
+  {step: "Volume", v: 1007},
+  {step: "Mix", v: 1020},
+  {step: "Closing", v: 1020},
+];
+const orientations = [
+  ["vertical", "y", {x: "step", y: "v", yDomain: [980]}],
+  ["horizontal", "x", {discrete: "y", x: "v", y: "step", xDomain: [980]}],
+];
+
+it("Waterfall masks its baseline break exactly as BarChart does: off by default, across every bar on request", async function () {
+  this.timeout(120000);
+  for (const [label, axis, config] of orientations) {
+    const masked = {...config, [`${axis}Config`]: {baselineBreakConfig: {mask: true}}};
+    const wf = await render(body, maskProbe, ["Waterfall", bridge, {...config, subtotal: "sub"}, "svg"]);
+    const bc = await render(body, maskProbe, ["BarChart", totals, {...config, groupBy: "step"}, "svg"]);
+    assert.deepStrictEqual(wf.breaks, [{baseline: true, mask: false}], `${label}: an unmasked baseline break`);
+    assert.deepStrictEqual(wf.breaks, bc.breaks, `${label}: the same break as BarChart`);
+    assert.deepStrictEqual(wf.masks, [], `${label}: no mask by default`);
+    assert.deepStrictEqual(wf.masks, bc.masks, `${label}: like BarChart`);
+
+    const wfOn = await render(body, maskProbe, ["Waterfall", bridge, {...masked, subtotal: "sub"}, "svg"]);
+    const bcOn = await render(body, maskProbe, ["BarChart", totals, {...masked, groupBy: "step"}, "svg"]);
+    assert.deepStrictEqual(wfOn.masks, [`plot-break-mask-${axis}`], `${label}: masked on request`);
+    assert.deepStrictEqual(wfOn.masks, bcOn.masks, `${label}: the same mask as BarChart`);
+    assert.ok(wfOn.bars.Opening && wfOn.bars.Closing, `${label}: the total bars are inside the mask`);
+    assert.ok(Object.values(wfOn.bars).every(Boolean), `${label}: as is every other bar`);
+  }
+});
+
+it("Waterfall's masked baseline break cuts the gap out of a total bar on Canvas", async function () {
+  this.timeout(120000);
+  // The canvas leaves unpainted pixels transparent, so the page shows through.
+  const empty = p => p[3] === 0 || (p[0] > 240 && p[1] > 240 && p[2] > 240);
+  for (const [label, axis, config] of orientations) {
+    const masked = {...config, subtotal: "sub", [`${axis}Config`]: {baselineBreakConfig: {mask: true}}};
+    const on = await render(body, maskProbe, ["Waterfall", bridge, masked, "canvas"]);
+    assert.ok(empty(on.pixels.gap), `${label}: the gap shows the background (${on.pixels.gap})`);
+    assert.ok(!empty(on.pixels.past), `${label}: the bar paints past the gap (${on.pixels.past})`);
+    const off = await render(body, maskProbe, ["Waterfall", bridge, {...config, subtotal: "sub"}, "canvas"]);
+    assert.ok(!empty(off.pixels.gap), `${label}: unmasked, the bar runs solid through the gap (${off.pixels.gap})`);
+  }
+});

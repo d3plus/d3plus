@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Waterfall</title>
-  <meta name="description" content="Waterfall subtotals, a broken axis zoomed in on a bridge, horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
+  <meta name="description" content="Waterfall subtotals, a broken axis zoomed in on a bridge (plain and masked), horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <style>
@@ -25,6 +25,8 @@
     <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
     <div><h3>Bridge from 1,000 to 1,020: yDomain([980])</h3><div class="viz" id="break"></div></div>
     <div><h3>Horizontal bridge: xDomain([980])</h3><div class="viz" id="breakHorizontal"></div></div>
+    <div><h3>Masked break: yConfig({baselineBreakConfig: {mask: true}})</h3><div class="viz" id="breakMasked"></div></div>
+    <div><h3>Masked horizontal break: xConfig({baselineBreakConfig: {mask: true}})</h3><div class="viz" id="breakMaskedHorizontal"></div></div>
     <div><h3>Monthly cash flow, dashed connectors</h3><div class="viz" id="cash"></div></div>
     <div><h3>Series side by side (groupBy)</h3><div class="viz" id="series"></div></div>
     <div class="wide"><h3>Small multiples (facet by year)</h3><div class="viz" id="facet"></div></div>
@@ -92,6 +94,29 @@
     .x("value")
     .subtotal("subtotal")
     .xDomain([980])
+    .render();
+
+  // As in BarChart, bars run solid through the baseline break unless its
+  // config asks for a mask, which cuts the break's gap out of every bar.
+  new d3plus.Waterfall()
+    .select("#breakMasked")
+    .data(bridge)
+    .x("driver")
+    .y("value")
+    .subtotal("subtotal")
+    .yDomain([980])
+    .yConfig({baselineBreakConfig: {mask: true}})
+    .render();
+
+  new d3plus.Waterfall()
+    .select("#breakMaskedHorizontal")
+    .data(bridge)
+    .discrete("y")
+    .y("driver")
+    .x("value")
+    .subtotal("subtotal")
+    .xDomain([980])
+    .xConfig({baselineBreakConfig: {mask: true}})
     .render();
 
   const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
