@@ -262,15 +262,39 @@ it("Plot toggles between scatter and swarm, tweening the same circles", async fu
   const out = await run(async () => {
     const data = window.__rows(60);
     const {el, viz} = await window.__draw("Plot", v =>
-      v.data(data).groupBy("id").x("value").y("other").duration(400),
+      v.data(data).groupBy("id").x("value").y("other").duration(1000),
     );
     const scatter = window.__circles(el);
     const yAxisBefore = !!el.querySelector("[data-key='plot-y-axis']");
+    const moved = (a, b) =>
+      Object.keys(a).filter(
+        k => b[k] && Math.hypot(a[k].x - b[k].x, a[k].y - b[k].y) > 1,
+      ).length;
+    // Sample by animation frame rather than a fixed delay, which a loaded
+    // machine can push past the end of the tween (or before its start): mid
+    // is the first frame where a third of the circles are underway, and the
+    // swarm is read once the tween (and the y axis's exit) has had its
+    // duration plus slack and the circles have stopped moving.
+    const start = performance.now();
     const mid = await new Promise(resolve => {
       viz.swarm(true).render();
-      setTimeout(() => resolve(window.__circles(el)), 200);
+      const tick = () => {
+        const now = window.__circles(el);
+        if (moved(now, scatter) >= 20) resolve(now);
+        else requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
     });
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise(resolve => {
+      let last = window.__circles(el);
+      const tick = () => {
+        const now = window.__circles(el);
+        if (performance.now() - start > 1500 && !moved(now, last)) resolve();
+        else requestAnimationFrame(tick);
+        last = now;
+      };
+      requestAnimationFrame(tick);
+    });
     const swarm = window.__circles(el);
     const yAxisSwarm = !!el.querySelector("[data-key='plot-y-axis']");
     await new Promise(resolve =>
