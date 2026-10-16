@@ -272,6 +272,12 @@ export interface RectNode extends NodeBase {
   height: number;
   rx?: number;
   ry?: number;
+  /**
+      Where this rect starts whenever it enters: the chart's own collapsed
+      start (e.g. an Icicle rect growing back in from an edge on zoom-out). It
+      grows from there at its own opacity instead of fading in where it lands.
+  */
+  enterRect?: {x: number; y: number; width: number; height: number};
 }
 
 export interface CircleNode extends NodeBase {
