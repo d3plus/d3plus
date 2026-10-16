@@ -4,7 +4,8 @@
 
     Connectors are drawn behind the points and take no pointer events: the
     category's tooltip comes from its points, or from the shared hover
-    anywhere along the category.
+    anywhere along the category. A connector dims and highlights with its
+    points.
 
     @module
 */
@@ -66,10 +67,12 @@ export function dumbbellSpans(rows: PlotDatum[], discrete: "x" | "y"): DumbbellS
   return out;
 }
 
-/** A connector node, drawn but never hit-tested or dimmed. */
+/**
+    A connector node, drawn but never hit-tested. It keeps no datum of its
+    own, only its ends' points, so it dims and highlights with them.
+*/
 function asConnector(node: SceneNode): SceneNode {
-  const out = {...node, interactive: false} as SceneNode & {interactionPoints?: unknown};
-  delete out.interactionPoints;
+  const out = {...node, interactive: false};
   delete out.datum;
   return out;
 }

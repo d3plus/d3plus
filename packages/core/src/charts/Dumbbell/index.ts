@@ -13,6 +13,7 @@ import {backgroundColor} from "@d3plus/dom";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {columnHighlight} from "../Plot/columnHighlight.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {dumbbellEmit} from "./emit.js";
@@ -36,6 +37,7 @@ export const dumbbellDef: ChartDefinition = {
     const state: GapSortState = {};
     viz.ctx.dumbbell = state;
     viz._plotShapeEmitters = {Circle: dumbbellEmit};
+    viz._plotColumnHighlight = columnHighlight(viz);
     const preDraw = viz._preDraw.bind(viz);
     viz._preDraw = () => {
       syncGapSort(viz, state);

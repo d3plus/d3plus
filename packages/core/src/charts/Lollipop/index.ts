@@ -10,6 +10,7 @@ import {barChartDef} from "../BarChart/index.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {columnHighlight} from "../Plot/columnHighlight.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {lollipopEmit} from "./emit.js";
@@ -33,6 +34,7 @@ export const lollipopDef: ChartDefinition = {
     viz._buffer = {...viz._buffer, Bar: lollipopBuffer};
     viz._plotShapeEmitters = {Bar: lollipopEmit};
     viz._plotCircleShapes = ["Bar"];
+    viz._plotColumnHighlight = columnHighlight(viz);
   },
 
   ctx: {},

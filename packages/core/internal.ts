@@ -125,6 +125,7 @@ export {
 } from "./src/charts/Lollipop/stemLayout.js";
 export type {BarBox, StemLayout, StemPoint} from "./src/charts/Lollipop/stemLayout.js";
 export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
+export {columnHighlight} from "./src/charts/Plot/columnHighlight.js";
 export {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
 export {categoryGaps, gapComparator, syncGapSort} from "./src/charts/Dumbbell/gapSort.js";

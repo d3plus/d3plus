@@ -75,7 +75,7 @@ it("Dumbbell — a dot per row and a connector between each category's extremes"
   assert.strictEqual(r.nan, 0);
   r.connectors.forEach(c => {
     assert.strictEqual(c.interactive, false, "connectors take no pointer events");
-    assert.strictEqual(c.datum, null, "nor dim with hover");
+    assert.strictEqual(c.datum, null, "nor carry a datum of their own");
     assert.strictEqual(c.stroke, "#adb5bd");
     assert.strictEqual(c.strokeWidth, 3);
     const country = c.key.replace("::connector", "");

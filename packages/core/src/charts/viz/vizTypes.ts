@@ -443,6 +443,13 @@ export interface VizInstance {
       them like Circle rows. `["Circle"]` when unset.
   */
   _plotCircleShapes?: string[];
+  /**
+      For charts whose marks read as one per category (Lollipop, Dumbbell):
+      builds the hover predicate Plot's snapped hover sets for the hovered
+      column, from the rows of the column's marks. When unset, only a
+      stacked bar column highlights.
+  */
+  _plotColumnHighlight?: (rows: Set<DataPoint>) => (d: DataPoint, i: number) => boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */
