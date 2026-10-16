@@ -6,6 +6,7 @@ export {
   BumpChart,
   Chord,
   Donut,
+  FanChart,
   Gauge,
   Geomap,
   Histogram,
@@ -26,6 +27,7 @@ export {
   Tree,
   Treemap,
   Viz,
+  Waffle,
 } from "./src/charts/index.js";
 
 export {
