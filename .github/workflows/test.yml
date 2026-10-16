@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [ main ]
 
+# A new push to a pull request supersedes its in-flight run, so cancel that
+# run rather than letting both occupy runners. Pushes to main each finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test:
 
@@ -63,15 +69,27 @@ jobs:
             if [ "$n" -ge 3 ]; then echo "playwright install-deps chromium failed after $n attempts"; exit 1; fi
             echo "playwright install-deps chromium failed (attempt $n); retrying in 15s..."; sleep 15
           done
-      - run: pnpm test
+      - name: Run tests
+        if: matrix.node-version != '22.x'
+        run: pnpm test
+      # The coverage run executes the same suites, so 22.x lints separately and
+      # runs them once, under c8, instead of a plain pass followed by a
+      # coverage pass.
+      - name: Lint
+        if: matrix.node-version == '22.x'
+        run: pnpm lint
+      - name: Run tests with coverage
+        if: matrix.node-version == '22.x'
+        run: pnpm test:coverage
+      # Angular's tests drive its compiled bundle, so it has no coverage script.
+      - name: Run Angular tests
+        if: matrix.node-version == '22.x'
+        run: pnpm --filter @d3plus/angular test
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
       - name: Build docs site (Storybook)
         if: matrix.node-version == '22.x'
         run: pnpm --filter @d3plus/docs build
-      - name: Generate coverage reports
-        if: matrix.node-version == '22.x'
-        run: pnpm -r --if-present run test:coverage
       - name: Fix coverage paths for monorepo
         if: matrix.node-version == '22.x'
         run: |
