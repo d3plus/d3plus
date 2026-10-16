@@ -17,6 +17,7 @@ import {largestRect} from "@d3plus/math";
 import {isValidDate} from "../../components/Axis/timeValues.js";
 import {constant} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {outsideBaselineBreak} from "./baselineBreak.js";
 import {defaultSize, outside} from "./labelPlacement.js";
 import {axisValue} from "./sharedTooltip.js";
 
@@ -25,9 +26,11 @@ function areaConfig(self: VizInstance) {
   return {
     label: (d: DataPoint, i: number) => (self.schema.stacked ? self._drawLabel(d, i) : false),
     labelBounds: (d: DataPoint, i: number, aes: {points: [number, number][]}) => {
-      let r = largestRect(aes.points, {angle: range(-20, 20, 5)});
+      // The label fits the area's plotted part, clear of any baseline break.
+      const points = outsideBaselineBreak(self, aes.points);
+      let r = largestRect(points, {angle: range(-20, 20, 5)});
       if (!r || r.height < 20 || r.width < 50)
-        r = largestRect(aes.points, {angle: range(-80, 80, 5)});
+        r = largestRect(points, {angle: range(-80, 80, 5)});
       if (!r) return null;
       const x = min(aes.points, (p: [number, number]) => p[0]) as unknown as number;
       const y = max(
