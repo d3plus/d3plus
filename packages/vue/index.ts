@@ -27,6 +27,7 @@ import {
   Tree as TreeClass,
   Treemap as TreemapClass,
   Viz as VizClass,
+  Waffle as WaffleClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
   AxisLeft as AxisLeftClass,
@@ -111,6 +112,8 @@ export const Tree = createD3plusComponent(TreeClass, "chart");
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */
 export const Viz = createD3plusComponent(VizClass, "chart");
+/** Vue component for rendering a d3plus Waffle visualization. */
+export const Waffle = createD3plusComponent(WaffleClass, "chart");
 
 /** Vue component for rendering a d3plus Axis. */
 export const Axis = createD3plusComponent(AxisClass, "component");
