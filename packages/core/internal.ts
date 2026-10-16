@@ -35,6 +35,8 @@ export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js"
 export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
+export {applyWaffleLayout, waffleFillOptions} from "./src/charts/Waffle/applyLayout.js";
+export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
 export {
@@ -165,11 +167,28 @@ export {
 } from "./src/charts/Calendar/calendarFormat.js";
 export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export {
+  largestRemainder,
+  waffleCellGeometry,
+  waffleCellPosition,
+  waffleCounts,
+  waffleGrid,
+} from "./src/charts/Waffle/waffleLayout.js";
+export type {
+  WaffleCellGeometry,
+  WaffleFillDirection,
+  WaffleFillStart,
+  WaffleGridPosition,
+} from "./src/charts/Waffle/waffleLayout.js";
+export {waffleCellGeometryNode, waffleCellShape} from "./src/charts/Waffle/emit.js";
+export type {WaffleCellShape} from "./src/charts/Waffle/emit.js";
+export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/tooltip.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
+export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
@@ -186,6 +205,7 @@ export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {waffleDef} from "./src/charts/Waffle/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {
@@ -264,13 +284,17 @@ export {
 export {
   baselineDomainAxis,
   configOpenDomain,
+  hasFullConfigDomain,
   hasOpenUserEnd,
   hasUserDomain,
   isOneSided,
   openEndAxisConfig,
+  plotAxisRounding,
+  secondaryAxisRounding,
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
 export {openEnd, roundOpenEnd, roundPlotOpenEnds} from "./src/charts/Plot/openDomainEnds.js";
+export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";
 export {
   clipToPlotArea,
@@ -284,6 +308,7 @@ export type {ClipFrame} from "./src/charts/Plot/domainClip.js";
 export {
   colorScaleFeature,
   cornerControlsHeight,
+  cornerPlacements,
   legendFeature,
   runLayout,
   subtitleFeature,
@@ -291,6 +316,7 @@ export {
   titleFeature,
   totalFeature,
 } from "./src/charts/features/features.js";
+export {legendLabelsWhole} from "./src/charts/features/featuresLegend.js";
 export {
   getTopLeftContributions,
   topLeftControlsFeature,

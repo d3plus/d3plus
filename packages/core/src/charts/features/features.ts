@@ -20,6 +20,7 @@ import type {SceneNode} from "@d3plus/render";
 import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
 import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {
@@ -108,9 +109,10 @@ export interface LayoutResult {
 }
 
 /**
-    The allowed values for `legendPosition` and `colorScalePosition`.
+    The resolved values for `legendPosition` and `colorScalePosition`.
     `false` means "hidden" (the feature still runs to tear down DOM); the
-    four strings are the four sides.
+    four strings are the four sides. Both also accept `"auto"` (the
+    default), which `sanitizePosition` resolves to a side.
 */
 export type PanelPosition = false | "top" | "right" | "bottom" | "left";
 
@@ -123,13 +125,24 @@ const VALID_POSITIONS: ReadonlySet<PanelPosition | string> = new Set([
 ]);
 
 /**
-    Canonical sanitizer for `legendPosition` / `colorScalePosition`.
-    Falls back to `"bottom"` when the user-supplied accessor returns
+    The side an `"auto"` legend or colorScale takes when it isn't drawn
+    inside the chart: the right of charts more than 1.5 times as wide as
+    they are tall, the bottom otherwise.
+*/
+export function autoPosition(viz: VizInstance): "right" | "bottom" {
+  return viz.schema.width > viz.schema.height * 1.5 ? "right" : "bottom";
+}
+
+/**
+    Canonical sanitizer for `legendPosition` / `colorScalePosition`:
+    resolves `"auto"` to a side for `viz` (see `autoPosition`), and falls
+    back to `"bottom"` when the user-supplied accessor returns
     something outside the allowed set. Single source of truth — used by
     `vizDrawPure` (for sanitized ctx publication) and by `legendFeature`
     + `colorScaleFeature` (for their internal positioning math).
 */
-export function sanitizePosition(raw: unknown): PanelPosition {
+export function sanitizePosition(raw: unknown, viz: VizInstance): PanelPosition {
+  if (raw === "auto") return autoPosition(viz);
   return (VALID_POSITIONS.has(raw as string) ? raw : "bottom") as PanelPosition;
 }
 
@@ -252,10 +265,7 @@ export function topLeftControlsInset(viz: VizInstance, top: number, left: number
     px down the chart, plus the single symmetric amount CENTERED content
     should inset both sides by to stay centered on the full chart width even
     when only one corner has something to avoid (the larger of the two —
-    see `textBlockLayout`'s doc comment for why). Shared by `textBlockLayout`
-    (title/subtitle/total) and the legend's own top-position layout
-    (`featuresLegend.ts`), which independently needed this exact same
-    "combine the two corners' insets" math before this existed.
+    see `cornerPlacements`).
 */
 export function cornerInsets(
   viz: VizInstance,
@@ -279,6 +289,40 @@ export function cornerControlsHeight(viz: VizInstance): number {
   return Math.max(zoom?.height ?? 0, topLeft?.height ?? 0);
 }
 
+/** One place to lay content out at the top of the chart: how far each side insets, and how far it drops. */
+export interface CornerPlacement {
+  left: number;
+  right: number;
+  drop: number;
+}
+
+/**
+    The places, in order, that content starting `top` px down the chart tries
+    beside the corner control panels, whose edges sit `left` and `right` px
+    in from the chart's. Centered content first insets both sides by the SAME
+    (larger) amount, so it stays centered on its full width; then each side
+    insets by its own corner's amount; last, the content drops below the
+    panels and takes the full width, so a narrow chart never loses it. Just
+    the full width when no panel is in the way.
+*/
+export function cornerPlacements(
+  viz: VizInstance,
+  top: number,
+  left: number,
+  right: number,
+  centered: boolean,
+): CornerPlacement[] {
+  const insets = cornerInsets(viz, top, left, right);
+  if (!(insets.left || insets.right)) return [{left: 0, right: 0, drop: 0}];
+  const placements: CornerPlacement[] = [];
+  if (centered && insets.left !== insets.right) {
+    placements.push({left: insets.symmetric, right: insets.symmetric, drop: 0});
+  }
+  placements.push({left: insets.left, right: insets.right, drop: 0});
+  placements.push({left: 0, right: 0, drop: Math.max(0, cornerControlsHeight(viz) - top)});
+  return placements;
+}
+
 /** Where a text block sits: its left edge, wrap width, drop below its top, and its wrapped rows. */
 interface TextBlockFit {
   x: number;
@@ -291,11 +335,12 @@ interface TextBlockFit {
     Wraps a text block starting `top` px down the chart in the room the
     corner control panels leave it. Text alongside the zoom controls (right)
     and/or the top-left controls (back/table-view/search) wraps short of
-    them. Centered text first tries insetting both sides by the SAME (larger)
-    amount, so it stays centered on its full width; when the text doesn't
-    fit that, or isn't centered, each side insets by its own corner's amount.
-    When the text doesn't fit beside the panels at all, it drops below them
-    and takes the full width, so a narrow chart never loses it.
+    them, taking the first of `cornerPlacements` it fits without being cut
+    short.
+
+    Text fits a placement only in whole words: one that only fits by breaking
+    a word mid-word moves on to the next. The full-width row is the last
+    resort, so a word too wide even for that still breaks there.
 */
 function fitTextBlock(
   viz: VizInstance,
@@ -305,22 +350,29 @@ function fitTextBlock(
   right: number,
   width: number,
 ): TextBlockFit {
-  const fit = (x: number, w: number, drop: number): TextBlockFit => {
+  const split = textClass.split() as (sentence: string, i?: number) => string[];
+  const fit = (x: number, w: number, drop: number): {fits: boolean; result: TextBlockFit} => {
     textClass.width(w);
-    return {x, width: w, drop, boxes: textClass._textData() as TextDatum[]};
+    const wrap = (): TextBlockFit & {lines: string[]; truncated: boolean} => {
+      const boxes = textClass._textData() as TextDatum[];
+      return {x, width: w, drop, boxes, lines: boxes[0]?.lines ?? [], truncated: !boxes.length || boxes[0].truncated};
+    };
+    return wholeWordFit(wrap(), () => {
+      textClass.split(wholeWords(split));
+      const whole = wrap();
+      textClass.split(split);
+      return whole;
+    });
   };
-  const full = fit(left, width, 0);
-  const insets = cornerInsets(viz, top, left, right);
-  if (!(insets.left || insets.right) || !full.boxes.length) return full;
-  const tries: Array<[number, number]> = [[insets.left, insets.right]];
-  if (full.boxes[0].tA === "middle" && insets.left !== insets.right) {
-    tries.unshift([insets.symmetric, insets.symmetric]);
+  const full = fit(left, width, 0).result;
+  if (!full.boxes.length) return full;
+  const placements = cornerPlacements(viz, top, left, right, full.boxes[0].tA === "middle");
+  if (placements.length === 1) return full;
+  for (const [i, {left: l, right: r, drop}] of placements.entries()) {
+    const {fits, result} = fit(left + l, width - l - r, drop);
+    if (fits || i === placements.length - 1) return result;
   }
-  for (const [l, r] of tries) {
-    const result = fit(left + l, width - l - r, 0);
-    if (result.boxes.length && !result.boxes[0].truncated) return result;
-  }
-  return fit(left, width, Math.max(0, cornerControlsHeight(viz) - top));
+  return full;
 }
 
 /**

@@ -14,6 +14,8 @@ import type {
 import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
+/** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
+type PanelPosition = Position | "auto";
 
 type DataPointAccessor<T> = string | ((d: DataPoint) => T);
 
@@ -55,11 +57,15 @@ export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
       The axis's domain: `[min, max]` on a continuous axis, or the
-      categories to show on a discrete one. In a Plot's
-      `xConfig`/`yConfig`, a full domain wins over `xDomain`/`yDomain`,
-      while one with a single end set (`[min]` or `[undefined, max]`) on a
-      continuous axis works exactly like `yDomain([min])`: it pins that
-      end, and the data fills the other, rounded as `rounding` says.
+      categories to show on a discrete one. A full domain is drawn exactly
+      as given unless this axis config's `rounding` says otherwise, just as
+      on an Axis. In a Plot's axis configs it is a lower-level override than
+      `xDomain`/`yDomain`: it wins over them, isn't stretched to the
+      chart's `baseline`, and isn't rounded by Plot's own "outside"
+      default. In `xConfig`/`yConfig`, one with a single end set (`[min]`
+      or `[undefined, max]`) on a continuous axis works exactly like
+      `yDomain([min])` instead: it pins that end, and the data fills the
+      other, rounded as `rounding` says.
   */
   domain?: (number | string | Date | undefined)[];
   /**
@@ -148,7 +154,8 @@ export interface AxisConfig {
       "outside" widens each end past the data, "inside" pulls each end in
       (marking them with the `roundingInside*` prefixes and suffixes), and
       "none" keeps the domain as given. Defaults to "none" on an Axis; a
-      Plot rounds "outside" unless its axis config says otherwise. With a
+      Plot rounds "outside" unless its axis config says otherwise or sets a
+      full `domain`, which is rounded only when asked for here. With a
       user domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a
       one-sided `domain` here) only an end left open is rounded:
       `yDomain([n])` keeps `n` exactly and rounds the far end where the
@@ -545,8 +552,8 @@ export interface D3plusConfig {
   };
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the color scale, `false` to hide it, or an accessor returning either. */
-  colorScalePosition?: false | Position | (() => false | Position);
+  /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  colorScalePosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Column key for matrix-style layouts. */
   column?: string;
   /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
@@ -735,8 +742,8 @@ export interface D3plusConfig {
   };
   /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the legend, or an accessor returning it. */
-  legendPosition?: Position | (() => Position);
+  /** Position of the legend (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
@@ -1052,7 +1059,10 @@ export interface D3plusConfig {
       with no domain set (left at the data when `xConfig`'s `rounding`
       is "none"; time axes aren't rounded). With both ends set, neither is
       rounded. On a discrete axis it lists the categories to show, in
-      order; data in other categories is not drawn.
+      order; data in other categories is not drawn. A full `xConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `xConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -1079,7 +1089,10 @@ export interface D3plusConfig {
       with no domain set (left at the data when `yConfig`'s `rounding`
       is "none"; time axes aren't rounded). With both ends set, neither is
       rounded. On a discrete axis it lists the categories to show, in
-      order; data in other categories is not drawn.
+      order; data in other categories is not drawn. A full `yConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `yConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
