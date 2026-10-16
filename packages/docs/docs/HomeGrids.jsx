@@ -10,6 +10,7 @@ const charts = [
   ["Chord", "chord"],
   ["Donut", "donut"],
   ["Dumbbell", "dumbbell"],
+  ["Fan Chart", "fanchart"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
@@ -30,6 +31,7 @@ const charts = [
   ["Sunburst", "sunburst"],
   ["Tree", "tree"],
   ["Treemap", "treemap"],
+  ["Waffle", "waffle"],
 ];
 
 const sites = [

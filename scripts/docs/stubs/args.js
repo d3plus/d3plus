@@ -47,6 +47,7 @@ const hiddenMethods = {
     "baseline",
     "baselineBreak",
   ],
+  FanChart: ["barPadding", "groupPadding", "swarm", "swarmConfig"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
   LinePlot: ["shape"],
   Lollipop: [

@@ -391,8 +391,6 @@ export interface VizInstance {
   _insetPending?: Set<InsetKey> | null;
   /** The chrome drawn inside the chart's negative space this draw, and where. */
   _insetPlacement?: InsetPlacement | null;
-  /** The default `legendPosition`/`colorScalePosition` accessors; a different one means the user picked a side. */
-  _insetAutoPositions?: {legend: unknown; colorScale: unknown};
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
