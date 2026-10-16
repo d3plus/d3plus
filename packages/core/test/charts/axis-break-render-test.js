@@ -35,6 +35,7 @@ const probe = (src, opts = {}) =>
             const bars = [];
             const shapes = new Set();
             const lines = [];
+            const texts = [];
             let order = 0;
             let firstShape = Infinity;
             const walk = (n, inMask) => {
@@ -47,6 +48,7 @@ const probe = (src, opts = {}) =>
               if (String(n.key).startsWith("break-line")) lines.push({key: n.key, points: n.points, order, stroke: n.paint.stroke});
               if (n.shapeType && order < firstShape) firstShape = order;
               if (n.shapeType) shapes.add(`${n.shapeType}:${inMask || isMask}`);
+              if (n.type === "text") texts.push({key: String(n.key), masked: inMask, y: n.transform && n.transform.y, h: n.height});
               const row = n.datum && (n.datum.data || n.datum);
               if (n.shapeType === "Bar" && n.type === "rect")
                 bars.push({id: row && row.id, v: row && row.v, y: n.transform.y + n.y, h: n.height});
@@ -58,9 +60,10 @@ const probe = (src, opts = {}) =>
               ticks: axis._visibleTicks.map(Number),
               lines: axis.toScene().children.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
               zero: axis._getPosition(0),
+              edge: axis._baselineBreak ? axis._getPosition(axis._baselineBreak.edge) : null,
               range: axis._getRange(),
             });
-            const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes], lines, firstShape};
+            const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes], lines, texts, firstShape};
             if (opts.pixel) {
               const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
               const ratio = canvas.width / canvas.getBoundingClientRect().width;
@@ -201,6 +204,38 @@ it("Every Plot chart masks its baseline break by default", async function () {
     const off = await probe(`(lib, data) => ${src}.${axis}Config({baselineBreakConfig: {mask: false}})`, {data: rows});
     assert.deepStrictEqual(off.masks, [], `${name} honors mask: false`);
   }
+});
+
+it("Labels stay outside the break mask", async function () {
+  this.timeout(60000);
+  const rows = ["Q1", "Q2", "Q3", "Q4"].flatMap((x, i) => [{id: "North", x, v: 1000 + i * 8}, {id: "South", x, v: 990 + i * 5}]);
+  for (const src of [
+    `new lib.StackedArea().data(data).groupBy("id").x("x").y("v").yDomain([980])`,
+    `new lib.BarChart().data(data).groupBy("id").x("x").y("v").yDomain([980])`,
+    `new lib.BarChart().data(data).groupBy("id").x("x").y("v").yBreak([100, 900])`,
+  ]) {
+    const out = await probe(`(lib, data) => ${src}`, {data: rows});
+    assert.strictEqual(out.masks.length >= 1, true, `${src} is masked`);
+    const labels = out.texts.filter(t => /^(North|South)/.test(t.key));
+    assert.ok(labels.length, `${src} draws labels`);
+    assert.deepStrictEqual(labels.filter(t => t.masked), [], `no label sits inside the mask (${src})`);
+  }
+});
+
+it("An area's label sits clear of the baseline break", async function () {
+  this.timeout(60000);
+  const rows = ["Q1", "Q2", "Q3", "Q4"].flatMap((x, i) => [{id: "North", x, v: 1000 + i * 8}, {id: "South", x, v: 990 + i * 5}]);
+  const src = `(lib, data) => new lib.StackedArea().data(data).groupBy("id").x("x").y("v")`;
+  // North's plotted part is a sliver above 980: too thin for its label, which
+  // would otherwise sit mostly in the break.
+  const thin = await probe(`${src}.yDomain([980])`, {data: rows});
+  // From 500 up, North's plotted part holds its label.
+  const thick = await probe(`${src}.yDomain([500])`, {data: rows});
+  for (const [out, name] of [[thin, "yDomain([980])"], [thick, "yDomain([500])"]]) {
+    out.texts.filter(t => t.key.startsWith("North")).forEach(t =>
+      assert.ok(t.y + t.h <= out.y.edge + 0.5, `${name}: label bottom ${t.y + t.h} sits above the break edge ${out.y.edge}`));
+  }
+  assert.ok(thick.texts.some(t => t.key.startsWith("North")), "a plotted part with room keeps its label");
 });
 
 it("BarChart: the Canvas renderer cuts the baseline break's gap across a bar", async function () {

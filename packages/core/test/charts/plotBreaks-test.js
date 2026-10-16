@@ -132,6 +132,21 @@ it("maskBreaks cuts each masked break's gap as a straight band, per axis", () =>
   assert.strictEqual(new Set(xHole.map(p => p[0])).size, 2, "the x band is vertical");
 });
 
+it("maskBreaks keeps labels outside the mask, in paint order", () => {
+  const rect = key => ({type: "rect", key, x: 0, y: 0, width: 5, height: 5});
+  const text = key => ({type: "text", key, lines: []});
+  const nodes = [rect("a"), rect("b"), text("a_0"), text("b_0"), rect("front")];
+  const out = maskBreaks(stubViz(yAxis(), xAxis()), nodes, frame);
+  assert.deepStrictEqual(out.map(n => n.key), ["plot-break-mask-x", "a_0", "b_0", "plot-break-mask-x-1"], "labels split the runs");
+  assert.deepStrictEqual(out[0].children.map(n => n.key), ["plot-break-mask-y"], "each run nests both axes' masks");
+  assert.deepStrictEqual(out[0].children[0].children.map(n => n.key), ["a", "b"]);
+  assert.deepStrictEqual(out[3].children[0].key, "plot-break-mask-y-1");
+  assert.strictEqual(out[0].clip.d, out[3].clip.d, "every run cuts the same gap");
+  assert.deepStrictEqual(unwrapBreakMasks(out), nodes, "unwraps back to the content");
+  const labelsOnly = [text("a_0")];
+  assert.deepStrictEqual(maskBreaks(stubViz(yAxis()), labelsOnly, frame), labelsOnly, "nothing to mask");
+});
+
 it("maskBreaks masks every break by default, and leaves content whole when none asks for a mask", () => {
   const nodes = [{type: "rect", key: "a", x: 0, y: 0, width: 5, height: 5}];
   assert.strictEqual(maskBreaks(stubViz(yAxis({breakConfig: {mask: false}})), nodes, frame), nodes);
