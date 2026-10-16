@@ -46,6 +46,8 @@ export const calendarDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyCalendarLayout,
   emit: calendarEmit,
+  // Hovering a day outlines it, whatever `hoverOpacity` and `dataCutoff` say.
+  defaults: {hoverOutline: true},
 
   facet: {
     // Panels shaped like a year of weeks.
@@ -168,6 +170,12 @@ export const calendarDef: DataDrivenChartDefinition = {
         chart's text color, softened toward the background.
     */
     {key: "calendarLabelConfig", merge: true, default: {}},
+    /**
+        Hovering a day outlines it without fading the other days
+        (`hoverOpacity: 1`); hovering a colorScale bucket still fades the
+        days outside it.
+    */
+    {key: "shapeConfig", merge: true, default: {hoverOpacity: 1}},
     /** Adds a "Value" row with the day's `colorScale` value to the tooltip. */
     {
       key: "tooltipConfig",

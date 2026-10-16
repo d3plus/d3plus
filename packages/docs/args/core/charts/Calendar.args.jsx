@@ -93,7 +93,7 @@ export const argTypes = assign(
     },
     emptyFill: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "The fill of days without a value: days missing from the data, and rows whose `colorScale` value isn't a number. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds.",
       table: {
@@ -213,6 +213,14 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "\"year\" | \"month\""
+      }
+    },
+    shapeConfig: {
+      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nHovering a day outlines it without fading the other days (`hoverOpacity: 1`); hovering a colorScale bucket still fades the days outside it.",
+      table: {
+        defaultValue: {
+          summary: "{hoverOpacity: 1}"
+        }
       }
     },
     tooltipConfig: {

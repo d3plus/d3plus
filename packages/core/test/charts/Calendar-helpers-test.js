@@ -177,3 +177,9 @@ it("Calendar def: facet panels share one date range", () => {
   assert.strictEqual(viz.ctx.calendarSharedExtent, undefined, "independent panels fit their own rows");
   assert.strictEqual(calendarDef.facet.aspect, 3);
 });
+
+it("Calendar def: days hover with an outline and without dimming the rest", () => {
+  assert.deepStrictEqual(field("shapeConfig").default, {hoverOpacity: 1});
+  assert.strictEqual(field("shapeConfig").merge, true, "a user's shapeConfig merges over it");
+  assert.deepStrictEqual(calendarDef.defaults, {hoverOutline: true});
+});

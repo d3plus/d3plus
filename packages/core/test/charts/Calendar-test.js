@@ -319,3 +319,103 @@ it("Calendar paints and picks cells on the Canvas renderer", async function () {
   assert.ok(out.colors >= 4, `canvas paints cells and labels (${out.colors} colors)`);
   assert.strictEqual(out.clicked, "2024-06-11", "clicking a cell picks its row");
 });
+
+/** Page helpers: move the pointer onto a scene node's SVG element, and wait for the hover repaint. */
+const pointer = `
+  window.pointAt = key => {
+    const el = document.querySelector('#viz svg [data-key="' + key + '"]');
+    const r = el.getBoundingClientRect();
+    el.dispatchEvent(new MouseEvent("mousemove", {
+      clientX: r.left + r.width / 2, clientY: r.top + r.height / 2, bubbles: true,
+    }));
+  };
+  window.settle = () => new Promise(r => setTimeout(() => requestAnimationFrame(() => requestAnimationFrame(r)), 50));
+  window.painted = key => {
+    const el = document.querySelector('#viz svg [data-key="' + key + '"]');
+    return {opacity: +(el.getAttribute("opacity") ?? 1), stroke: el.getAttribute("stroke"), width: +(el.getAttribute("stroke-width") ?? 0)};
+  };
+`;
+
+it("Calendar outlines the hovered day without dimming the others, past the dataCutoff too", async function () {
+  this.timeout(60000);
+  const out = await render(box, async src => {
+    eval(src);
+    const viz = new window.d3plus.Calendar()
+      .select("#viz")
+      .duration(0)
+      .data(window.daily([2024, 1, 1], 200));
+    await new Promise(r => viz.render(r));
+    const days = viz._chartScene.filter(n => n.type === "rect" && n.datum).map(n => n.key);
+    window.pointAt("calendar-2024-01-02");
+    await window.settle();
+    const hovered = window.painted("calendar-2024-01-02");
+    const others = days.filter(k => k !== "calendar-2024-01-02").map(window.painted);
+    window.pointAt("calendar-2024-12-01");
+    await window.settle();
+    const empty = {hover: typeof viz._hover === "function" && viz._hover(viz._filteredData[0], 0), day: window.painted("calendar-2024-01-02")};
+    return {
+      rows: days.length,
+      hoverOpacity: viz.schema.shapeConfig.hoverOpacity,
+      hovered,
+      dimmed: others.filter(p => p.opacity < 1).length,
+      outlined: others.filter(p => p.width > 0).length,
+      empty,
+    };
+  }, daily + pointer);
+  assert.ok(out.rows > 100, "more days than the dataCutoff");
+  assert.strictEqual(out.hoverOpacity, 1);
+  assert.strictEqual(out.hovered.opacity, 1);
+  assert.strictEqual(out.hovered.width, 2, "the hovered day's stroke doubles");
+  assert.ok(out.hovered.stroke, "and darkens from its fill");
+  assert.strictEqual(out.dimmed, 0, "no other day dims");
+  assert.strictEqual(out.outlined, 0, "no other day is outlined");
+  assert.strictEqual(out.empty.hover, false, "moving onto an empty day clears the hover");
+  assert.strictEqual(out.empty.day.width, 0, "and the outline");
+});
+
+it("Calendar keeps a user's hoverOpacity", async function () {
+  this.timeout(60000);
+  const out = await render(box, async src => {
+    eval(src);
+    const viz = new window.d3plus.Calendar()
+      .select("#viz")
+      .duration(0)
+      .shapeConfig({hoverOpacity: 0.3})
+      .data(window.daily([2024, 3, 1], 30));
+    await new Promise(r => viz.render(r));
+    const keys = viz._chartScene.filter(n => n.type === "rect" && n.datum).map(n => n.key);
+    window.pointAt(keys[0]);
+    await window.settle();
+    return {
+      dims: keys.slice(1).map(window.painted).map(p => p.opacity),
+      hovered: window.painted(keys[0]),
+      merged: Object.keys(viz.schema.shapeConfig).length > 1,
+    };
+  }, daily + pointer);
+  assert.ok(out.dims.length && out.dims.every(o => Math.abs(o - 0.3) < 1e-6), "every other day dims to it");
+  assert.strictEqual(out.hovered.opacity, 1);
+  assert.strictEqual(out.hovered.width, 2, "the hovered day is outlined");
+  assert.ok(out.merged, "the setter merges over the default shapeConfig");
+});
+
+it("Calendar's colorScale bucket hover dims the days outside the bucket", async function () {
+  this.timeout(60000);
+  const out = await render(box, async src => {
+    eval(src);
+    const viz = new window.d3plus.Calendar()
+      .select("#viz")
+      .duration(0)
+      .data(window.daily([2024, 3, 1], 30));
+    await new Promise(r => viz.render(r));
+    const cells = viz._chartScene.filter(n => n.type === "rect" && n.datum);
+    const bucketOf = n => viz._colorScaleClass._colorScale(n.datum.value);
+    const color = bucketOf(cells[0]);
+    viz.schema.on.mouseenter.call(viz, {_isColorScaleBucket: true, color}, 0);
+    await window.settle();
+    const inBucket = cells.filter(n => bucketOf(n) === color).map(n => window.painted(n.key).opacity);
+    const outside = cells.filter(n => bucketOf(n) !== color).map(n => window.painted(n.key).opacity);
+    return {inBucket, outside};
+  }, daily + pointer);
+  assert.ok(out.inBucket.length && out.inBucket.every(o => o === 1), "days in the bucket stay bright");
+  assert.ok(out.outside.length && out.outside.every(o => o === 0.5), "days outside it dim");
+});
