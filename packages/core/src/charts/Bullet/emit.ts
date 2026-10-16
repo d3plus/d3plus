@@ -22,6 +22,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import type {BulletDatum, BulletShared} from "./applyLayout.js";
 import {
   baselineValue,
+  growFrom,
   markerPoints,
   spanRect,
   trackPosition,
@@ -65,11 +66,17 @@ export function bulletText(
   };
 }
 
-const rectNode = (key: string, r: BulletRect, fill: string): SceneNode => ({
+const rectNode = (
+  key: string,
+  r: BulletRect,
+  fill: string,
+  enterRect: BulletRect,
+): SceneNode => ({
   type: "rect",
   key,
   interactive: false,
   ...r,
+  enterRect,
   paint: {fill},
 });
 
@@ -81,17 +88,14 @@ export function bulletStatics(
 ): SceneNode[] {
   const {track} = b;
   const [lo, hi] = track.domain;
-  const nodes: SceneNode[] = [
-    rectNode(`${key}-track`, spanRect(track, lo, hi, 1), style.trackFill),
-  ];
+  const base = baselineValue(track.domain);
+  const span = (k: string, v0: number, v1: number, fill: string): SceneNode => {
+    const r = spanRect(track, v0, v1, 1);
+    return rectNode(k, r, fill, growFrom(track, base, r));
+  };
+  const nodes: SceneNode[] = [span(`${key}-track`, lo, hi, style.trackFill)];
   b.bands.forEach((band, i) =>
-    nodes.push(
-      rectNode(
-        `${key}-band-${i}`,
-        spanRect(track, band.min, band.max, 1),
-        band.color,
-      ),
-    ),
+    nodes.push(span(`${key}-band-${i}`, band.min, band.max, band.color)),
   );
   if (!b.ticks.length) return nodes;
   const vertical = track.orient === "vertical";
@@ -243,10 +247,12 @@ function markNodes(
     const fill =
       resolveAccessor<unknown>(forecastConfig.fill, d, i) ??
       resolveAccessor<unknown>(sc.fill, d, i);
+    const r = spanRect(track, base, b.forecast, size);
     const forecast: SceneNode = {
       type: "rect",
       key: `${key}-forecast`,
-      ...spanRect(track, base, b.forecast, size),
+      ...r,
+      enterRect: growFrom(track, base, r),
       shapeType: "Rect",
       paint: {
         fill: textureFill({...sc, ...forecastConfig}, d, i, fill),
@@ -260,10 +266,17 @@ function markNodes(
   }
   if (Number.isFinite(b.value)) {
     const size = Number(viz.schema.measureSize);
+    const r = spanRect(
+      track,
+      base,
+      b.value,
+      Number.isFinite(size) ? size : 0.35,
+    );
     const measure: SceneNode = {
       type: "rect",
       key: `${key}-measure`,
-      ...spanRect(track, base, b.value, Number.isFinite(size) ? size : 0.35),
+      ...r,
+      enterRect: growFrom(track, base, r),
       shapeType: "Rect",
       paint,
       ...common,

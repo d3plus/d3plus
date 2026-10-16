@@ -87,6 +87,39 @@ it("Bullet emits one labeled bullet per row with bands, axis, and marks", async 
   assert.ok(out.forecastWidth > out.measureWidth, "the forecast runs past the measure");
 });
 
+it("Bullet grows every rect in from its baseline at full thickness", async function () {
+  this.timeout(180000);
+  const out = await render(
+    "<div id='viz' style='width:600px;height:360px'></div>",
+    async data => {
+      const viz = new window.d3plus.Bullet()
+        .select("#viz")
+        .duration(0)
+        .data(data)
+        .bands([100, 200]);
+      await new Promise(r => viz.render(r));
+      const [revenue] = viz._chartScene;
+      const nodes = [...revenue.children[0].children, ...revenue.children].filter(
+        n => n.type === "rect" && !`${n.key}`.endsWith("::hit"),
+      );
+      return nodes.map(n => ({key: n.key, x: n.x, y: n.y, width: n.width, height: n.height, enter: n.enterRect}));
+    },
+    kpis,
+  );
+  assert.deepStrictEqual(out.map(n => n.key), [
+    "bullet-Revenue-track",
+    "bullet-Revenue-band-0",
+    "bullet-Revenue-band-1",
+    "bullet-Revenue-band-2",
+    "bullet-Revenue-forecast",
+    "bullet-Revenue-measure",
+  ]);
+  const zero = out[0].x;
+  for (const n of out) {
+    assert.deepStrictEqual(n.enter, {x: zero, y: n.y, width: 0, height: n.height}, n.key);
+  }
+});
+
 it("Bullet shares one domain and axis, and runs vertically", async function () {
   this.timeout(60000);
   const out = await render(

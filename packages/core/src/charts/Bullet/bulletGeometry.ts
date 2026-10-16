@@ -213,6 +213,22 @@ export function spanRect(
 }
 
 /**
+    Where a rect on the track starts when it enters: collapsed onto `value`
+    (the bullet's baseline) at its full thickness, so it grows in along the
+    track like a Bar.
+*/
+export function growFrom(
+  track: BulletTrack,
+  value: number,
+  r: BulletRect,
+): BulletRect {
+  const p = trackPosition(track, value);
+  return track.orient === "vertical"
+    ? {...r, y: p, height: 0}
+    : {...r, x: p, width: 0};
+}
+
+/**
     The target marker: a line across the track at `value`, `size` (a fraction
     of the band's thickness) long and centered on the band.
 */

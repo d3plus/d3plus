@@ -6,6 +6,7 @@ import {
   bulletExtent,
   domainFraction,
   fitAxis,
+  growFrom,
   markerPoints,
   mergeExtents,
   normalizeBands,
@@ -196,6 +197,17 @@ it("Bullet geometry: markerPoints crosses the band at the value", () => {
     [50, 160],
     [80, 160],
   ]);
+});
+
+it("growFrom — collapses a rect onto the baseline at its full thickness", () => {
+  const h = spanRect(horizontal, 20, 60, 0.5);
+  assert.deepStrictEqual(growFrom(horizontal, 0, h), {...h, x: 100, width: 0});
+  const v = spanRect(vertical, 20, 60, 0.5);
+  assert.deepStrictEqual(growFrom(vertical, 0, v), {...v, y: 310, height: 0});
+  // A domain spanning zero grows a negative bar back from zero, too.
+  const signed = {...horizontal, domain: [-100, 100]};
+  const neg = spanRect(signed, 0, -50, 1);
+  assert.deepStrictEqual(growFrom(signed, 0, neg), {...neg, x: 200, width: 0});
 });
 
 const stack = (opts = {}) => ({
