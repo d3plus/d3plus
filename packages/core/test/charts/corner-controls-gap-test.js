@@ -11,7 +11,9 @@ import {closeBrowser, render} from "../playwright.js";
 
     Gaps are counted in whole blank pixel rows, the way they read on
     screen: the rows above the buttons, and the rows between the last one
-    a button touches and the first one with ink.
+    a button touches and the first one with ink. Fonts place their ink a
+    little differently within a line, so the gap below may run a few rows
+    past the margin, but never short of it.
 */
 
 after(async () => {
@@ -101,8 +103,10 @@ for (const renderer of ["svg", "canvas"]) {
       this.timeout(60000);
       const out = await measure(renderer, title);
       assert.ok(out.offset > 0, `the buttons sit in from the top edge (${out.offset})`);
+      // Where a label's ink starts within its line depends on the font, so
+      // the gap is at least one button-margin and only a few rows more.
       assert.ok(
-        Math.abs(out.topLeft - out.offset) <= 1,
+        out.topLeft >= out.offset - 1 && out.topLeft <= out.offset + 3,
         `the y-axis max label starts one button-margin below the top-left controls (gap ${out.topLeft} vs margin ${out.offset})`,
       );
       assert.ok(out.zoom >= out.offset - 1, `nothing comes closer under the zoom controls (gap ${out.zoom})`);
