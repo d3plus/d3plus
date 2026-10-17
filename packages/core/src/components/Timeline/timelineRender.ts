@@ -1,9 +1,10 @@
 import {extent, max} from "d3-array";
 import {brushX} from "d3-brush";
 import {scaleTime} from "d3-scale";
+import {timeFormat} from "d3-time-format";
 
 import {date, elem, textWidth} from "@d3plus/dom";
-import {formatDate} from "@d3plus/format";
+import {dateFormatter} from "@d3plus/format";
 import {locale} from "@d3plus/locales";
 import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode} from "@d3plus/render";
@@ -63,13 +64,16 @@ export function prepareTicks(tl: Timeline): {
     tl.schema.timeLocale || locale[tl.schema.locale] || locale["en-US"];
   if (tl._userFormat === undefined)
     tl._userFormat = tl.schema.tickFormat || false;
+  // Every label reads all of the ticks, so they are read once (see
+  // `dateFormatter`) in the current default time locale.
+  let memo: {format: typeof timeFormat; label: (d: Date) => string} | undefined;
   const tickFormat = (tl.schema.tickFormat = tl._userFormat
     ? tl._userFormat
-    : (d: Date) =>
-        formatDate(d, ticks as Date[]).replace(
-          /^Q/g,
-          timeLocale.quarter as string,
-        )) as (d: Date) => string;
+    : (d: Date) => {
+        if (!memo || memo.format !== timeFormat)
+          memo = {format: timeFormat, label: dateFormatter(ticks as Date[], timeFormat)};
+        return memo.label(d).replace(/^Q/g, timeLocale.quarter as string);
+      }) as (d: Date) => string;
 
   return {ticks, tickFormat};
 }

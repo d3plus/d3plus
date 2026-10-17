@@ -3,6 +3,7 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Chord as ChordClass,
   Donut as DonutClass,
@@ -64,6 +65,8 @@ export const BarChart = createD3plusComponent(BarChartClass, "chart");
 export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 /** Vue component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
+/** Vue component for rendering a d3plus Bullet visualization. */
+export const Bullet = createD3plusComponent(BulletClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */

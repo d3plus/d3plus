@@ -1,6 +1,7 @@
 import type {GroupNode, Scene, SceneNode, TextNode, TransitionRect} from "../scene.js";
 import {
   arcEnterStart,
+  rectEnterStart,
   collapse,
   collapseTo,
   fadeSwapOpacity,
@@ -162,6 +163,7 @@ function interpolateChildren(
     const start = flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
       ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
       : arcEnterStart(n) ??
+        rectEnterStart(n) ??
         (flip?.enterFrom && isFlipEligible(n)
           ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
           : collapse(n));

@@ -7,8 +7,10 @@ import {
   axisDateLabel,
   axisShownDates,
   axisTimeLocale,
+  axisTimeReference,
   isCategoryAxis,
   isValidDate,
+  resetAxisDates,
 } from "../../es/src/components/Axis/timeValues.js";
 import it from "../jsdom.js";
 
@@ -218,4 +220,35 @@ it("axisDateLabel: a Date on a category axis at the categories' interval, always
   assert.strictEqual(axisDateLabel(draw(years, {scale: "band"}).axis, years[3]), "2019");
   assert.strictEqual(axisDateLabel(draw(quarters, {locale: "es-ES"}).axis, quarters[2]), "T3 2025");
   assert.strictEqual(axisDateLabel(draw(["a", "b"]).axis, months[3]), "2023", "a lone Date reads as its year");
+});
+
+it("axisDateCategories and axisTimeReference: read once per set of dates", () => {
+  const axis = new AxisBottom().scale("point").domain(months.slice().reverse());
+  const dates = axisDateCategories(axis);
+  assert.strictEqual(axisDateCategories(axis), dates, "the same dates read from the cache");
+  axis.domain(days.slice());
+  assert.deepStrictEqual(axisDateCategories(axis).map(Number), days.map(Number), "a new domain reads afresh");
+  axis.schema.domain.push(new Date(2026, 2, 20));
+  assert.strictEqual(axisDateCategories(axis).length, days.length + 1, "as does one that changes length");
+  const read = axisDateCategories(axis);
+  resetAxisDates(axis);
+  assert.notStrictEqual(axisDateCategories(axis), read, "a layout pass reads them afresh");
+
+  const time = new AxisBottom().scale("time").domain([months[5], months[0]]);
+  const reference = axisTimeReference(time);
+  assert.deepStrictEqual(reference.map(Number), [months[0], months[5]].map(Number));
+  assert.strictEqual(axisTimeReference(time), reference, "the same dates read from the cache");
+  time._scaleData = months;
+  assert.strictEqual(axisTimeReference(time).length, months.length, "new data reads afresh");
+});
+
+it("axisDateLabel: reads the axis's dates once, and follows a new locale or new dates", () => {
+  const {axis} = draw(months);
+  assert.strictEqual(axisDateLabel(axis, months[14]), "Mar 2024");
+  assert.strictEqual(axisDateLabel(axis, months[15]), "Apr 2024");
+  axis.locale("es-ES");
+  assert.strictEqual(axisDateLabel(axis, months[14]), "mar 2024", "in the new locale");
+  axis.domain(days);
+  axis._scaleData = days;
+  assert.strictEqual(axisDateLabel(axis, days[4]), "mar 5, 2026", "at the new dates' interval");
 });
