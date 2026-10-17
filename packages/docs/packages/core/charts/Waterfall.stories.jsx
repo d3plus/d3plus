@@ -121,7 +121,7 @@ BrokenAxis.args = {
   subtotal: "subtotal",
   yDomain: [980],
 };
-BrokenAxis.parameters = {controls: {include: ["yDomain", "baselineBreak"]}, docs: {description: {story: "The value axis includes zero by default, which flattens a bridge between large totals. A `yDomain` (`xDomain` for horizontal bars) that stops short of zero zooms in: the axis starts at `980`, keeps a `0` tick behind a break, and the subtotal bars rise from that `0` through the break. As in BarChart, the bars run solid through the break; `yConfig({baselineBreakConfig: {mask: true}})` cuts the break's gap out of every bar, totals included. Turn `baselineBreak` off and the axis stretches back down to `0`."}}};
+BrokenAxis.parameters = {controls: {include: ["yDomain", "baselineBreak"]}, docs: {description: {story: "The value axis includes zero by default, which flattens a bridge between large totals. A `yDomain` (`xDomain` for horizontal bars) that stops short of zero zooms in: the axis starts at `980`, keeps a `0` tick behind a break, and the subtotal bars rise from that `0` through the break. As in BarChart, the break's gap is cut out of every bar, totals included; `yConfig({baselineBreakConfig: {mask: false}})` lets the bars run solid through it. Turn `baselineBreak` off and the axis stretches back down to `0`."}}};
 
 export const SideBySideSeries = Template.bind({});
 SideBySideSeries.args = {
