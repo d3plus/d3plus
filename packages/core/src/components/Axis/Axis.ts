@@ -146,12 +146,12 @@ export default class Axis extends BaseClass {
       },
       "stroke-width": 1,
     };
-    const breakDefaults = (mask: boolean) => ({
+    const breakDefaults = () => ({
       angle: 30,
       gap: 5,
       lineConfig: {},
       lines: true,
-      mask,
+      mask: true,
       size: 10,
       space: 36,
       stroke: () => {
@@ -160,8 +160,8 @@ export default class Axis extends BaseClass {
       },
       "stroke-width": 1,
     });
-    this.schema.baselineBreakConfig = breakDefaults(false);
-    this.schema.breakConfig = breakDefaults(true);
+    this.schema.baselineBreakConfig = breakDefaults();
+    this.schema.breakConfig = breakDefaults();
     this.schema.gridConfig = {
       stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
       "stroke-width": 1,
@@ -495,7 +495,7 @@ export default class Axis extends BaseClass {
       reaches into the plot), `angle` (degrees each mark tilts from
       perpendicular), `lines` and `lineConfig` (the lines a Plot runs across
       the plot from each mark, as in `breakConfig`), `mask` (whether a Plot
-      cuts the gap between those lines across the bars, default `false`),
+      cuts the gap between those lines across the shapes, default `true`),
       plus `stroke`/`stroke-width` and other line styles for the marks.
 */
   baselineBreakConfig(): Record<string, unknown>;

@@ -38,9 +38,11 @@ const lines = axis =>
 
 it("baselineBreakStyle reads the glyph settings, falling back on bad values", () => {
   const axis = new Axis();
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: false, lines: true});
-  axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50, mask: "yes"});
-  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50, mask: false, lines: true});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: true, lines: true});
+  axis.baselineBreakConfig({angle: 45, gap: "wide", size: -4, space: 50, mask: "no"});
+  assert.deepStrictEqual(baselineBreakStyle(axis), {angle: 45, gap: 5, size: 0, space: 50, mask: true, lines: true});
+  axis.baselineBreakConfig({mask: false});
+  assert.strictEqual(baselineBreakStyle(axis).mask, false, "only false turns the mask off");
 });
 
 it("resolveBaselineBreak finds the domain edge nearest the baseline", () => {
@@ -82,7 +84,7 @@ it("resolveBaselineBreak stays off when the break doesn't apply", () => {
 });
 
 it("breakTickValues drops ticks inside a break and adds a baseline break's baseline", () => {
-  const base = {start: 0, end: 1100, startPosition: 400, endPosition: 364, baseline: true, mask: false};
+  const base = {start: 0, end: 1100, startPosition: 400, endPosition: 364, baseline: true, mask: true};
   assert.deepStrictEqual(breakTickValues([base], [500, 1100, 1500, 2000]), [1100, 1500, 2000, 0]);
   assert.deepStrictEqual(breakTickValues([base], [0, 1100]), [0, 1100], "keeps an existing baseline once");
   assert.deepStrictEqual(breakTickValues([base], [500, 1100], false), [1100], "addBaseline off: only drops values inside breaks");

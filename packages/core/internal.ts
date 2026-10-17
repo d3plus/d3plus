@@ -11,6 +11,7 @@
 */
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
+export {applyBulletLayout, bulletExtents} from "./src/charts/Bullet/applyLayout.js";
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
@@ -30,6 +31,8 @@ export {applyWaffleLayout, waffleFillOptions} from "./src/charts/Waffle/applyLay
 export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
+export {bulletStack} from "./src/charts/Bullet/bulletLayout.js";
+export {fitAxis as bulletAxis, normalizeBands as bulletBands} from "./src/charts/Bullet/bulletGeometry.js";
 export {
   absoluteFormat,
   frameTotals,
@@ -135,6 +138,7 @@ export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/t
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {bulletDef} from "./src/charts/Bullet/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
@@ -224,6 +228,7 @@ export {
 export {
   baselineBreakAxisConfig,
   clampBarConfig,
+  outsideBaselineBreak,
   plotAxisConfig,
   userDomainBreaksBaseline,
   valueAxis,
