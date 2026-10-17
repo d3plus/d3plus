@@ -235,7 +235,7 @@ it("forecast on a zoomable plot follows the zoom", async function () {
       v.data(dated).groupBy("id").x("date").time("date").y("value").forecast(d => d.predicted).zoom(true).timeline(false),
     );
     const timeBefore = window.__summary(time.viz);
-    await wheel(time.viz, 0.5);
+    await wheel(time.viz, 0.9);
     result.time = {before: timeBefore, after: window.__summary(time.viz), nan: window.__nan(time.el)};
     return result;
   });
@@ -245,7 +245,9 @@ it("forecast on a zoomable plot follows the zoom", async function () {
   assert.ok(linear.after.region.width > linear.before.region.width, "and widens with it");
   assert.strictEqual(linear.nan, 0);
   assert.ok(out.deep.region, `zoomed past the start: still shaded (${JSON.stringify(out.deep.forecast)})`);
-  assert.deepStrictEqual(time.after.region, time.before.region, "a time axis zooms y: the backdrop holds its place");
+  assert.ok(time.before.region && time.after.region, "a time axis: marked before and after zooming");
+  assert.ok(time.after.region.x < time.before.region.x, `a time axis zooms x too: the backdrop moves with it (${time.before.region.x} → ${time.after.region.x})`);
+  assert.ok(time.after.region.width > time.before.region.width, "and widens with it");
   assert.notDeepStrictEqual(time.after.dashes.Sales, time.before.dashes.Sales, "the dash is measured along the zoomed line");
   assert.strictEqual(time.nan, 0);
 });
