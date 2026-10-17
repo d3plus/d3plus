@@ -239,6 +239,11 @@ export interface VizInstance {
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
+  /**
+      Hovering a shape outlines it even when nothing else dims
+      (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).
+  */
+  _hoverOutline?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;

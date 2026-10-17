@@ -7,6 +7,7 @@ import {
   BoxWhisker as BoxWhiskerClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
+  Calendar as CalendarClass,
   Chord as ChordClass,
   Donut as DonutClass,
   FanChart as FanChartClass,
@@ -86,6 +87,10 @@ export const Bullet = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BumpChartClass} {...props} />
+);
+/** React component for rendering a d3plus Calendar visualization. */
+export const Calendar = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={CalendarClass} {...props} />
 );
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (

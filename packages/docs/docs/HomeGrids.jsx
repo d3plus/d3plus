@@ -8,6 +8,7 @@ const charts = [
   ["Box & Whisker", "boxwhisker"],
   ["Bullet", "bullet"],
   ["Bump Chart", "bumpchart"],
+  ["Calendar", "calendar"],
   ["Chord", "chord"],
   ["Donut", "donut"],
   ["Fan Chart", "fanchart"],

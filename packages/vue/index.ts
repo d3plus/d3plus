@@ -5,6 +5,7 @@ import {
   BoxWhisker as BoxWhiskerClass,
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
+  Calendar as CalendarClass,
   Chord as ChordClass,
   Donut as DonutClass,
   FanChart as FanChartClass,
@@ -70,6 +71,8 @@ export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
 export const Bullet = createD3plusComponent(BulletClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
+/** Vue component for rendering a d3plus Calendar visualization. */
+export const Calendar = createD3plusComponent(CalendarClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
