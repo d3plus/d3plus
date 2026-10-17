@@ -83,8 +83,9 @@ export interface AxisConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
@@ -102,7 +103,7 @@ export interface AxisConfig {
       the axis line's `barConfig` style), `lineConfig` (those lines'
       `stroke`, `stroke-width`, and other line styles, layered over the axis
       line style), `mask` (whether a Plot cuts the gap between the two
-      lines straight across the shapes, default `false`), plus `stroke`,
+      lines straight across the shapes, default `true`), plus `stroke`,
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.
   */
@@ -120,9 +121,8 @@ export interface AxisConfig {
   break?: false | [number, number] | [number, number][];
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
-      `angle`, `lines`, `lineConfig`, and mark line styles as
-      `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between
-      the break's two lines straight across the shapes) defaulting to `true`.
+      `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
+      same defaults, as `baselineBreakConfig`.
   */
   breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /** Grid values of the axis. */
@@ -495,7 +495,8 @@ export interface D3plusConfig {
       `xDomain([n])`). Bars and areas still grow from the chart's own
       `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
       `baselineBreak` on (their default) the axis breaks back to a `0`
-      tick and bars run through the break, and with it off the axis
+      tick and bars run through the break, with its gap cut across them,
+      and with it off the axis
       stretches down to `0`. As with `yDomain([n])`, only `n` is
       pinned: the far end comes from the data and is rounded where the
       axis would round it with no domain set (left at the data when the
@@ -514,13 +515,20 @@ export interface D3plusConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
+  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  bands?:
+    | (number | {min?: number; max?: number; color?: string})[]
+    | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
+  bulletSize?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
   /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
@@ -657,8 +665,18 @@ export interface D3plusConfig {
       `false` marks nothing, not even a projection. On bar charts the
       backdrop starts at the edge of the first forecast bar, and bars keep
       their own styles. Defaults to `"auto"` on a FanChart.
+
+      Bullet: each row's forecast (or other comparative measure), drawn as
+      a paler bar behind the measure: a data key, an accessor returning the
+      row's value, a number shared by every row, or `false`.
   */
-  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  forecast?:
+    | boolean
+    | "auto"
+    | number
+    | string
+    | Date
+    | ((d: DataPoint, i: number) => boolean | number);
   /**
       Styles for the `forecast` marker: the backdrop's `fill` and
       `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
@@ -676,6 +694,11 @@ export interface D3plusConfig {
       `textureDefault`) or `backgroundImage` (a URL,
       fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
       by default.
+
+      Bullet: the forecast bar's `size` (a fraction of the band's
+      thickness), `opacity`, `fill`, `texture`, and
+      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
+      accessor.
   */
   forecastConfig?: Record<string, unknown>;
   /** Grouping key(s) or accessor function(s). */
@@ -793,6 +816,8 @@ export interface D3plusConfig {
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
+  /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
+  measureSize?: number;
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
@@ -875,6 +900,8 @@ export interface D3plusConfig {
       all shapes of a given type.
   */
   shapeSort?: (a: string, b: string) => number;
+  /** Bullet: whether every bullet reads against one shared domain, labeled by a single value axis. */
+  sharedDomain?: boolean;
   /** Pyramid: the side values (the first `groupBy` level) as `[left, right]`. */
   sides?: unknown[];
   /** Pyramid: TextBox styles for the side titles. */
@@ -924,6 +951,8 @@ export interface D3plusConfig {
     | string[]
     | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
     | ((d: DataPoint) => unknown);
+  /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
+  subLabel?: string | ((d: DataPoint, i: number) => string) | false;
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
@@ -975,6 +1004,10 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
+  target?: string | number | ((d: DataPoint, i: number) => number) | false;
+  /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
+  targetConfig?: Record<string, unknown>;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */

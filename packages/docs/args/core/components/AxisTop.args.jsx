@@ -37,7 +37,7 @@ export const argTypes = assign(
     },
     baselineBreakConfig: {
       control: {},
-      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the bars, default `false`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the shapes, default `true`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
       table: {
         defaultValue: {
           summary: "undefined"

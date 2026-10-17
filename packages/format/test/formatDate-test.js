@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as formatDate, formatDateFull} from "../es/src/formatDate.js";
+import {default as formatDate, dateFormatter, dateFullFormatter, formatDateFull} from "../es/src/formatDate.js";
 import {timeFormat, timeFormatDefaultLocale, timeFormatLocale} from "d3-time-format";
 
 const spanish = {
@@ -315,4 +315,54 @@ it("formatDateFull", () => {
     "may 2025",
     "custom formatter for localization",
   );
+});
+
+it("dateFormatter labels every date as formatDate does", () => {
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const every = (dates, n) => dates.filter((_, i) => i % n === 0);
+  const sets = {
+    days: range(400, i => new Date(2025, 10, 20 + i)),
+    months: range(40, i => new Date(2023, i, 1)),
+    quarters: range(14, i => new Date(2022, i * 3, 1)),
+    years: range(12, i => new Date(2016 + i, 0, 1)),
+    hours: range(72, i => new Date(2025, 11, 30, 6 + i)),
+    halfHours: range(30, i => new Date(2026, 2, 3, 22, i * 30)),
+    small: range(4, i => new Date(2026, 2, 1 + i)),
+    duplicates: range(20, i => new Date(2025, 11, 25 + Math.floor(i / 2))),
+    empty: [],
+  };
+  for (const [name, dates] of Object.entries(sets)) {
+    for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
+      const label = dateFormatter(dates, formatter);
+      const probes = [...dates, +dates[3] || 0, new Date(2030, 0, 1), new Date(NaN)];
+      const shownSets = [undefined, dates, every(dates, 3), every(dates, 7).reverse(), dates.slice(5, 9), [new Date(NaN), ...every(dates, 5)], []];
+      for (const shown of shownSets) {
+        probes.forEach((d, i) => assert.strictEqual(
+          label(d, shown),
+          formatDate(d, dates, formatter, shown),
+          `${name}: date ${i} with ${shown ? shown.length : "no"} dates shown`,
+        ));
+      }
+    }
+  }
+});
+
+it("dateFullFormatter labels every date as formatDateFull does", () => {
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const sets = [
+    range(8, i => new Date(2018 + i, 0, 1)),
+    range(12, i => new Date(2024, i * 3, 1)),
+    range(36, i => new Date(2024, i, 1)),
+    range(20, i => new Date(2026, 2, 1 + i)),
+    range(12, i => new Date(2026, 2, 3, i)),
+    range(6, i => new Date(2026, 2, 3, 12, i * 15)),
+    range(6, i => new Date(2026, 2, 3, 12, 0, i * 30)),
+    range(6, i => new Date(2026, 2, 3, 12, 0, 0, i * 250)),
+  ];
+  for (const dates of sets) {
+    for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
+      const label = dateFullFormatter(dates, formatter);
+      dates.forEach(d => assert.strictEqual(label(d), formatDateFull(d, dates, formatter)));
+    }
+  }
 });

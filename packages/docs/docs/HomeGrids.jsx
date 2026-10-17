@@ -6,6 +6,7 @@ const charts = [
   ["Bar Chart", "barchart"],
   ["Beeswarm", "beeswarm"],
   ["Box & Whisker", "boxwhisker"],
+  ["Bullet", "bullet"],
   ["Bump Chart", "bumpchart"],
   ["Calendar", "calendar"],
   ["Chord", "chord"],

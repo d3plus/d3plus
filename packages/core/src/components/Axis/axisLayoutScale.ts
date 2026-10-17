@@ -8,7 +8,7 @@ import {range as d3Range, min, sum} from "d3-array";
 import * as scales from "d3-scale";
 import {timeFormat} from "d3-time-format";
 
-import {formatAbbreviate, formatDate} from "@d3plus/format";
+import {dateFormatter, formatAbbreviate} from "@d3plus/format";
 import {formatLocale, type TimeLocaleDefinition} from "@d3plus/locales";
 import {closest} from "@d3plus/math";
 
@@ -36,23 +36,27 @@ export function buildTickFormat(
   getTicks: () => unknown[],
 ): (d: unknown) => string {
   let years: boolean | undefined;
-  let dates: Date[] | undefined;
+  let categories: Date[] | undefined;
+  // Every label reads all of the axis's dates, so they are read once per set
+  // of dates (see `dateFormatter`) in the current default time locale.
+  let memo: {dates: Date[]; format: typeof timeFormat; label: (d: Date, shown?: Date[]) => string} | undefined;
+  const dateLabel = (dates: Date[], d: Date): string => {
+    if (!memo || memo.dates !== dates || memo.format !== timeFormat)
+      memo = {dates, format: timeFormat, label: dateFormatter(dates, timeFormat)};
+    return memo.label(d, axisShownDates(axis)).replace(/^Q/g, timeLocaleObj.quarter);
+  };
   return axis.schema.tickFormat
     ? axis.schema.tickFormat
     : (d: unknown): string => {
         if (isValidDate(d) && isCategoryAxis(axis)) {
-          dates ??= axisDateCategories(axis);
-          return formatDate(d, dates, timeFormat, axisShownDates(axis)).replace(/^Q/g, timeLocaleObj.quarter);
+          return dateLabel((categories ??= axisDateCategories(axis)), d);
         } else if (
           isNaN(d as number) ||
           ["band", "ordinal", "point"].includes(axis.schema.scale)
         ) {
           return d as string;
         } else if (axis.schema.scale === "time") {
-          return formatDate(d as Date, axisTimeReference(axis), timeFormat, axisShownDates(axis)).replace(
-            /^Q/g,
-            timeLocaleObj.quarter,
-          );
+          return dateLabel(axisTimeReference(axis), d as Date);
         } else if (
           axis.schema.scale === "linear" &&
           axis.schema.tickSuffix === "smallest"

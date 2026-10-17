@@ -41,6 +41,7 @@ export interface TranslationStrings {
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  Target: string;
   Total: string;
   "Trend Line": string;
   "Upper Bound": string;
@@ -106,6 +107,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    Target: "\u0627\u0644\u0647\u062f\u0641",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -157,6 +159,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    Target: "Objetivo",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
@@ -208,6 +211,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    Target: "Meta",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
@@ -259,6 +263,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    Target: "\u76ee\u6807",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",

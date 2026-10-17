@@ -378,6 +378,16 @@ export function arcEnterStart(node: SceneNode): SceneNode | null {
   return {...node, arc: node.enterArc, d: arcPath(node.enterArc)};
 }
 
+/**
+    A rect's chart-computed enter start (`RectNode.enterRect`): the rect at
+    that geometry and its own opacity, so it grows into place. Null for any
+    node without one.
+*/
+export function rectEnterStart(node: SceneNode): SceneNode | null {
+  if (node.type !== "rect" || !node.enterRect) return null;
+  return {...node, ...node.enterRect};
+}
+
 export function collapse(node: SceneNode): SceneNode {
   const paint: Paint = {...node.paint, opacity: 0};
   switch (node.type) {

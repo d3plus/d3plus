@@ -145,6 +145,24 @@ for (const renderer of ["svg", "canvas"]) {
     assert.deepStrictEqual(r.labels.map(l => l.lines.join(" ")), ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"]);
     assert.strictEqual(r.rotated, false);
   });
+
+  // Thinned evenly, these weekdays end on "Jan 2, 2025", a category before
+  // the last: the plot leaves room for that label's overhang (with its year),
+  // not the hidden last one's.
+  it(`BarChart (${renderer}) — the last label shown stays inside the chart`, async function () {
+    this.timeout(60000);
+    const xs = `() => {
+      const days = [];
+      for (const day = new Date(2025, 0, 3); days.length < 200; day.setDate(day.getDate() - 1))
+        if (day.getDay() % 6) days.unshift(new Date(day));
+      return days;
+    }`;
+    for (const width of [500, 700]) {
+      const r = await run(xs, {width, kind: "BarChart"}, renderer);
+      assert.ok(r.labels[r.labels.length - 1].index < r.count - 1, `${width}px: ends before the last category`);
+      assertFit(r, `weekdays@${width}`);
+    }
+  });
 }
 
 it("Axis — date labels rotate only when even the first can't lie flat on one line", async function () {
@@ -173,4 +191,46 @@ it("Axis — date labels rotate only when even the first can't lie flat on one l
     shown.forEach(({text, lines}) => assert.deepStrictEqual(lines, [text], `${width}px: "${text}" lies whole on one line`));
   }
   assert.deepStrictEqual(flat.shown.map(s => s.text), ["Mar 3, 2026, 06 AM"], "thinned to the first label");
+});
+
+it("Date categories cost work linear in their count: labels, thinning, and every mark's label", async function () {
+  this.timeout(120000);
+  const out = await render('<div id="viz" style="width:1000px;height:400px"></div>', async () => {
+    // Counts Date comparisons and conversions while drawing `n` weekdays.
+    const count = async (kind, n, time) => {
+      const data = [];
+      const day = new Date(2024, 0, 1);
+      while (data.length < n) {
+        if (day.getDay() % 6) data.push({id: "A", date: new Date(+day), value: 10 + (data.length % 7)});
+        day.setDate(day.getDate() + 1);
+      }
+      const valueOf = Date.prototype.valueOf;
+      let calls = 0;
+      Date.prototype.valueOf = function () {
+        calls++;
+        return valueOf.call(this);
+      };
+      try {
+        await new Promise(resolve => {
+          const viz = new window.d3plus[kind]().select("#viz").data(data).groupBy("id")
+            .x("date").y("value").legend(false).duration(0);
+          if (time) viz.time("date");
+          viz.render(resolve);
+        });
+      }
+      finally {
+        Date.prototype.valueOf = valueOf;
+      }
+      return calls;
+    };
+    const out = {};
+    for (const [name, kind, time] of [["BarChart", "BarChart"], ["LinePlot", "LinePlot"], ["LinePlot time axis", "LinePlot", true]])
+      out[name] = [await count(kind, 250, time), await count(kind, 1000, time)];
+    return out;
+  });
+  // Four times the dates: about four times the work when linear (a little
+  // more, as a longer axis tries more intervals when thinning its labels),
+  // and sixteen or more when each label or mark reads every date.
+  Object.entries(out).forEach(([name, [small, large]]) =>
+    assert.ok(large / small < 8, `${name}: ${small} at 250 dates, ${large} at 1000`));
 });
