@@ -16,9 +16,9 @@ import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {cornerPlacements, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
 import type Legend from "../../components/Legend/Legend.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
-import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
-import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
+import {topLeftControlsReach} from "../drawSteps/topLeftControlsMarkup.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -138,11 +138,11 @@ function legendCornerClearance(
 ): {drop: number; insetRight: number; shorten: number} {
   const dropRight =
     position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
-      ? zoomControlsBox(viz as never)!.height - layoutMargin.top
+      ? zoomControlsReach(viz as never) - layoutMargin.top
       : 0;
   const dropLeft =
     position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
-      ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
+      ? topLeftControlsReach(viz as never, getTopLeftContributions(viz as never)) - layoutMargin.top
       : 0;
   // The bottom-right corner panel (size legend): a bottom legend pulls its
   // right edge in beside it, a left/right legend stops short above it.
