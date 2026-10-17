@@ -1,6 +1,7 @@
 import assert from "assert";
 
 import VizBaseConfig from "../../es/src/charts/viz/VizBaseConfig.js";
+import {shapeHoverEnabled} from "../../es/src/charts/viz/shapeHover.js";
 
 /**
     Regression guard for the colorScale-bucket hover fix. Geomap disables
@@ -51,4 +52,19 @@ it("clearing hover with no argument does not repaint", () => {
   const viz = fakeViz(1, true);
   hover.call(viz, undefined);
   assert.strictEqual(viz.repaints, 0, "hover(undefined) is a read/guarded no-op");
+});
+
+it("shape hover repaints at hoverOpacity:1 on charts that outline the hovered shape (Calendar)", () => {
+  const viz = fakeViz(1, false);
+  viz._hoverOutline = true;
+  hover.call(viz, () => true);
+  assert.strictEqual(viz.repaints, 1, "the outline needs a repaint");
+});
+
+it("shapeHoverEnabled: off at hoverOpacity:1 unless the chart outlines the hovered shape", () => {
+  const viz = (hoverOpacity, outline) => ({schema: {shapeConfig: {hoverOpacity}}, _hoverOutline: outline});
+  assert.strictEqual(shapeHoverEnabled(viz(0.5)), true);
+  assert.strictEqual(shapeHoverEnabled(viz(undefined)), true);
+  assert.strictEqual(shapeHoverEnabled(viz(1)), false);
+  assert.strictEqual(shapeHoverEnabled(viz(1, true)), true);
 });

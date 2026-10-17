@@ -5,6 +5,7 @@ export {
   BoxWhisker,
   Bullet,
   BumpChart,
+  Calendar,
   Chord,
   Donut,
   FanChart,

@@ -1,4 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
+import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import type Viz from "../viz/Viz.js";
 
 /**
@@ -33,7 +34,7 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     // and clears both itself on leaving the plot area.
     if (this._sharedHoverActive) return;
     if (
-      this.schema.shapeConfig.hoverOpacity !== 1 && this._hover
+      shapeHoverEnabled(this) && this._hover
         ? this._hover(d, i)
         : true
     ) {

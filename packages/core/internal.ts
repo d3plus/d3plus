@@ -12,6 +12,15 @@
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
 export {applyBulletLayout, bulletExtents} from "./src/charts/Bullet/applyLayout.js";
+export {
+  applyCalendarLayout,
+  calendarDateFormat,
+  calendarLabelStyle,
+  calendarOrient,
+  calendarPeriod,
+  rowDate,
+  rowsExtent,
+} from "./src/charts/Calendar/applyLayout.js";
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
@@ -118,6 +127,48 @@ export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
+export {
+  addDays,
+  blockDays,
+  blockMonths,
+  blockWeeks,
+  calendarBlocks,
+  calendarDayKey,
+  dateExtent,
+  daysBetween,
+  parseCalendarDate,
+  resolveWeekStart,
+  startOfDay,
+  weekIndex,
+  weekdaySlot,
+} from "./src/charts/Calendar/calendarDates.js";
+export type {CalendarBlock, CalendarDay, CalendarPeriod} from "./src/charts/Calendar/calendarDates.js";
+export {
+  blockGrid,
+  cellCornerRadius,
+  fitCalendar,
+  monthLabelWeek,
+  monthOutlinePath,
+  slotPosition,
+  weekdayLabelSlots,
+} from "./src/charts/Calendar/calendarGrid.js";
+export type {CalendarFit, CalendarFitInput, CalendarOrient} from "./src/charts/Calendar/calendarGrid.js";
+export {calendarInsets, calendarLayout, labelPadding, weekdayNames} from "./src/charts/Calendar/calendarLayout.js";
+export type {
+  CalendarCell,
+  CalendarLabel,
+  CalendarLabelOptions,
+  CalendarLayoutInput,
+  CalendarLayoutResult,
+  CalendarOutline,
+} from "./src/charts/Calendar/calendarLayout.js";
+export {
+  calendarDateSpecifier,
+  calendarFormatter,
+  calendarTimeLocale,
+  narrowName,
+} from "./src/charts/Calendar/calendarFormat.js";
+export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export {
   largestRemainder,
@@ -139,6 +190,7 @@ export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/t
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
+export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
