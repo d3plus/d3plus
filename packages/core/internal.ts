@@ -111,6 +111,18 @@ export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/ch
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
 export {
+  compareCategories,
+  stepValue,
+  waterfallKinds,
+  waterfallStackOffset,
+  waterfallStep,
+  waterfallSteps,
+} from "./src/charts/Waterfall/steps.js";
+export type {StepAccessors, WaterfallKind, WaterfallStep} from "./src/charts/Waterfall/steps.js";
+export {connectorBars, connectorNodes, connectorSegments} from "./src/charts/Waterfall/connectors.js";
+export type {ConnectorBar, ConnectorSegment} from "./src/charts/Waterfall/connectors.js";
+export {kindColor, labelAlign, labelBox, stepLabel, tooltipRows as waterfallTooltipRows} from "./src/charts/Waterfall/labels.js";
+export {
   bandOpacityTargets,
   boundOrValue,
   confidenceBands,
@@ -210,6 +222,7 @@ export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
+export {waterfallDef} from "./src/charts/Waterfall/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {

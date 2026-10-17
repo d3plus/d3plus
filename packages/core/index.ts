@@ -30,6 +30,7 @@ export {
   Treemap,
   Viz,
   Waffle,
+  Waterfall,
 } from "./src/charts/index.js";
 
 export {

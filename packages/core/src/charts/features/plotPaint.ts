@@ -604,7 +604,11 @@ export function plotEmit(
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
+    // An underlay (Waterfall's connectors) sits behind the shapes, among the
+    // data marks: it's drawn at data values a domain can cut off.
+    const shapesStart = marks.length;
     emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
+    if (viz._plotUnderlay) marks.splice(shapesStart, 0, ...viz._plotUnderlay(marks.slice(shapesStart), x, y));
     out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange, x2Height: pCtx.x2Height, yOffset})));
 
     emitShapeExits(viz, shapeData, shapeConfig);

@@ -32,6 +32,7 @@ const charts = [
   ["Tree", "tree"],
   ["Treemap", "treemap"],
   ["Waffle", "waffle"],
+  ["Waterfall", "waterfall"],
 ];
 
 const sites = [
