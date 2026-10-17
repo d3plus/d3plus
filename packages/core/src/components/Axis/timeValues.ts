@@ -39,6 +39,15 @@ export function axisScaleData(axis: Axis): unknown[] {
 }
 
 /**
+    The dates of a time axis's `data` inside its scale's domain: what the axis ticks, so a domain narrower than the data (a zoomed view) ticks the window it shows.
+    @private
+*/
+export function timeDataInDomain(data: Date[], scale: {domain(): unknown[]}): Date[] {
+  const [lo, hi] = (extent(scale.domain() as Date[]) as Date[]).map(Number);
+  return data.filter(d => +d >= lo && +d <= hi);
+}
+
+/**
     A time scale's domain as Dates. When an end does not parse, the extent of the parsed `data` stands in for the whole domain.
     @private
 */

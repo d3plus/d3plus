@@ -463,9 +463,9 @@ export default class Plot extends Viz {
   }
 
   /**
-      Zooms by rescaling the plot's linear axes instead of scaling the
+      Zooms by rescaling the plot's linear and time axes instead of scaling the
       rendered picture (see `Plot/plotZoom.ts`). Returns false when no axis
-      is linear, so the plot falls back to picture zoom.
+      is linear or time, so the plot falls back to picture zoom.
       @private
 */
   _zoomRescale(t: ZoomState, duration = 0): boolean {
