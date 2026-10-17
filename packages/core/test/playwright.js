@@ -36,6 +36,12 @@ let browserPromise;
  * Builds the full UMD bundle (once) and returns its source.
  */
 export function bundle() {
+  // Under `mocha --parallel`, the global setup in setup.js builds the bundle
+  // once before the workers start, so they read it instead of racing to
+  // rewrite the same file.
+  if (!bundlePromise && process.env.D3PLUS_UMD_BUILT) {
+    bundlePromise = Promise.resolve(fs.readFileSync(umdPath, "utf8"));
+  }
   if (!bundlePromise) {
     bundlePromise = new Promise((resolve, reject) => {
       const child = spawn("node", [buildScript], {cwd: coreDir, stdio: "ignore"});

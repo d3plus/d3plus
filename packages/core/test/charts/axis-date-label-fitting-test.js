@@ -192,3 +192,45 @@ it("Axis — date labels rotate only when even the first can't lie flat on one l
   }
   assert.deepStrictEqual(flat.shown.map(s => s.text), ["Mar 3, 2026, 06 AM"], "thinned to the first label");
 });
+
+it("Date categories cost work linear in their count: labels, thinning, and every mark's label", async function () {
+  this.timeout(120000);
+  const out = await render('<div id="viz" style="width:1000px;height:400px"></div>', async () => {
+    // Counts Date comparisons and conversions while drawing `n` weekdays.
+    const count = async (kind, n, time) => {
+      const data = [];
+      const day = new Date(2024, 0, 1);
+      while (data.length < n) {
+        if (day.getDay() % 6) data.push({id: "A", date: new Date(+day), value: 10 + (data.length % 7)});
+        day.setDate(day.getDate() + 1);
+      }
+      const valueOf = Date.prototype.valueOf;
+      let calls = 0;
+      Date.prototype.valueOf = function () {
+        calls++;
+        return valueOf.call(this);
+      };
+      try {
+        await new Promise(resolve => {
+          const viz = new window.d3plus[kind]().select("#viz").data(data).groupBy("id")
+            .x("date").y("value").legend(false).duration(0);
+          if (time) viz.time("date");
+          viz.render(resolve);
+        });
+      }
+      finally {
+        Date.prototype.valueOf = valueOf;
+      }
+      return calls;
+    };
+    const out = {};
+    for (const [name, kind, time] of [["BarChart", "BarChart"], ["LinePlot", "LinePlot"], ["LinePlot time axis", "LinePlot", true]])
+      out[name] = [await count(kind, 250, time), await count(kind, 1000, time)];
+    return out;
+  });
+  // Four times the dates: about four times the work when linear (a little
+  // more, as a longer axis tries more intervals when thinning its labels),
+  // and sixteen or more when each label or mark reads every date.
+  Object.entries(out).forEach(([name, [small, large]]) =>
+    assert.ok(large / small < 8, `${name}: ${small} at 250 dates, ${large} at 1000`));
+});

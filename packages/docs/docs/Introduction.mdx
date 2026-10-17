@@ -76,7 +76,7 @@ const config = {
     {id: "beta",  value: 10}
   ],
   groupBy: "id",
-  size: "value"
+  sum: "value"
 };
 
 <Treemap config={config} />
@@ -124,7 +124,7 @@ Then use the global `d3plus` object:
         {id: "beta",  value: 10}
       ],
       groupBy: "id",
-      size: "value"
+      sum: "value"
     })
     .render();
 </script>
