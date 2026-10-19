@@ -104,7 +104,11 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
-  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale};
+  // Labels at given values naming things (one per variable-width bar) wrap
+  // within their own share of the axis, so a wide bar's label lies flat
+  // across it while a narrow one's wraps.
+  const ownSpace = horizontal && !isDiscreteScale(axis.schema.scale) && rotatesLabels(axis, labels, tickFormat);
+  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace};
   const setting = axis._labelRotationSetting;
   axis._labelRotation = setting ?? false;
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
@@ -175,16 +179,17 @@ function layoutLabels(
     p: number;
     tickFormat: (d: unknown) => string;
     rescale: (newRange?: number[]) => {range: number[]; labels: unknown[]};
+    ownSpace?: boolean;
   },
 ): AxisTextDatum[] {
-  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale} = ctx;
+  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
   let {labels} = scale;
 
-  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat});
+  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace});
   const offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
   if (offsetEnabled)
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: 2});
 
   // Narrowing the range can change which labels a time axis draws (its ticks
   // follow the range); a new first or last label is measured again, a few
@@ -216,7 +221,7 @@ function layoutLabels(
     const ends = endLabels(textData);
     [first, last] = newRange;
     ({labels} = rescale(newRange));
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: offsetEnabled ? 2 : 1});
     if (endLabels(textData) === ends) break;
   }
 

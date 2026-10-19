@@ -28,8 +28,9 @@ const Template = (args) => <Marimekko config={configify(args, argTypes)} />;
 import {argTypes as barChartArgTypes, BarChart} from "../../../args/core/charts/BarChart.args";
 import datafy from "../../../helpers/datafy";
 
-// Illustrative smartphone revenue ($B) by region and brand, written as a
-// self-contained expression so "Show code" prints the generator.
+// Illustrative smartphone revenue ($B) and units sold (millions) by region
+// and brand, written as a self-contained expression so "Show code" prints the
+// generator.
 const sales = datafy(`(() => {
   const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
   const regions = {
@@ -39,9 +40,9 @@ const sales = datafy(`(() => {
     "Latin America": [6, 14, 7, 3, 8],
     "Middle East & Africa": [8, 12, 6, 5, 16],
   };
-  const sizes = {"North America": 120, "Europe": 110, "Asia Pacific": 260, "Latin America": 40, "Middle East & Africa": 50};
+  const units = {"North America": 150, "Europe": 190, "Asia Pacific": 640, "Latin America": 130, "Middle East & Africa": 190};
   return Object.entries(regions).flatMap(([region, values]) =>
-    values.map((revenue, i) => ({Region: region, Brand: brands[i], Revenue: revenue, "Market Size": sizes[region]})),
+    values.map((revenue, i) => ({Region: region, Brand: brands[i], Revenue: revenue, "Units Sold": units[region]})),
   );
 })()`);
 
@@ -66,7 +67,7 @@ BasicExample.args = {
   x: "Region",
   y: "Revenue",
 };
-BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market beneath its name, unless the narrowest bars rotate the labels to fit, which then show the name alone. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
+BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market on a line beneath its name, which wraps to fit a narrow bar; when bars are too narrow for even a wrapped name, the labels rotate and show the name alone. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
 
 export const WithoutWidthShares = Template.bind({});
 WithoutWidthShares.args = {
@@ -84,10 +85,10 @@ BarWidthMeasure.args = {
   groupBy: "Brand",
   x: "Region",
   y: "Revenue",
-  barWidth: "Market Size",
-  aggs: {"Market Size": funcify((rows, value) => Math.max(...rows.map(value)), "(rows, value) => Math.max(...rows.map(value))")},
+  barWidth: "Units Sold",
+  aggs: {"Units Sold": funcify((rows, value) => Math.max(...rows.map(value)), "(rows, value) => Math.max(...rows.map(value))")},
 };
-BarWidthMeasure.parameters = {controls: {include: ["barWidth", "aggs"]}, docs: {description: {story: "`barWidth` sizes each bar by its own measure instead of its total. The measure is read off the merge of the bar's rows, which sums numbers; when every row repeats its bar's value, as `\"Market Size\"` does here, merge it with `aggs` instead."}}};
+BarWidthMeasure.parameters = {controls: {include: ["barWidth", "aggs"]}, docs: {description: {story: "`barWidth` sizes each bar by its own measure instead of its total: here each region is as wide as its phones sold, so Latin America and the Middle East & Africa, which sell many low-priced phones, widen, and North America narrows. Each label's share is of the units sold. The measure is read off the merge of the bar's rows, which sums numbers; when every row repeats its bar's value, as `\"Units Sold\"` does here, merge it with `aggs` instead."}}};
 
 export const AbsoluteHeights = Template.bind({});
 AbsoluteHeights.args = {

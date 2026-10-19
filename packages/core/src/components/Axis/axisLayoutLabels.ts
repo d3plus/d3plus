@@ -51,6 +51,11 @@ interface LabelLayoutCtx {
   tickFormat: (d: unknown) => string;
   /** Whether each label is measured on a single line (see `wholeLineLabels`). */
   wholeLine?: boolean;
+  /**
+      Whether each label wraps within its own share of the axis (see
+      `ownLabelSpaces`) rather than the widest share any label has.
+  */
+  ownSpace?: boolean;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
@@ -230,7 +235,7 @@ export function createTextData(
   axis: Axis,
   ctx: LabelLayoutCtx & {labels: unknown[]; rangeOuter: number[]; offset?: number},
 ): AxisTextDatum[] {
-  const {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset = 1} = ctx;
+  const {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset = 1, ownSpace} = ctx;
   const wholeLine = horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
   // Every label is shown until the overlap pass below thins them.
   axis._shownLabels = labels;
@@ -287,11 +292,13 @@ export function createTextData(
           return max([max([prevSpace, nextSpace])! * mod, s])!;
         }, 0);
 
+  const spaces = ownSpace ? ownLabelSpaces(textData.map((d: AxisTextDatum) => d.position), rangeOuter) : undefined;
+
   // Thinning measures the labels again as they read the ones shown (see
   // `show`), mostly to the same text, so each text is measured once.
   const measured = new Map<string, LabelSize>();
   const size = (datum: AxisTextDatum): AxisTextDatum => {
-    datum.space = maxSpace - datum.fP * 2;
+    datum.space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2;
     const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx, measured);
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
@@ -320,6 +327,23 @@ export function createTextData(
 
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
+}
+
+/**
+    Each label's own share of an axis whose labels sit unevenly, such as one
+    label per variable-width bar (see `Plot/barWidth.ts`): reaching halfway to
+    the nearer of its neighbors on either side, so labels wrapped within their
+    shares never meet, while one between far-off neighbors keeps the room
+    they leave it. A lone label spans the whole range.
+*/
+export function ownLabelSpaces(positions: number[], rangeOuter: number[]): number[] {
+  if (positions.length < 2) return positions.map(() => Math.abs(rangeOuter[rangeOuter.length - 1] - rangeOuter[0]));
+  return positions.map((position: number, i: number) => {
+    const gaps = [positions[i - 1], positions[i + 1]]
+      .filter((n: number | undefined): n is number => n !== undefined)
+      .map((n: number) => Math.abs(position - n));
+    return Math.min(...gaps);
+  });
 }
 
 /**
