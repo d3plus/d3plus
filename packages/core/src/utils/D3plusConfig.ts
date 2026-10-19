@@ -637,12 +637,15 @@ export interface D3plusConfig {
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
   */
   crosshairConfig?: Record<string, unknown>;
-  /** Funnel: how the width changes between stages, `"linear"` (straight sides) or `"smooth"` (curved). */
-  curve?: "linear" | "smooth";
+  /**
+      Funnel: how the width changes between stages, `"linear"` (straight
+      sides) or `"smooth"` (curved). ParallelCoordinates: `"linear"`
+      (default) draws straight segments between the axes; `"bump"` curves
+      into and out of each axis.
+  */
+  curve?: "linear" | "smooth" | "bump";
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
-  /** ParallelCoordinates: `"linear"` (default) draws straight segments between the axes; `"bump"` curves into and out of each axis. */
-  curve?: "linear" | "bump";
   /**
       Calendar: the day each row falls on, as a data key or accessor returning
       a `Date`, a millisecond timestamp, or a date string (a bare
