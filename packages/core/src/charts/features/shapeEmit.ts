@@ -107,6 +107,9 @@ function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown>
     inner.sort = (a: DataPoint, b: DataPoint) =>
       (Number(size(b)) || 0) - (Number(size(a)) || 0);
   }
+  // A Box groups its rows by pixel position, which a reorder hands to another
+  // category, so it takes its identity from the category instead.
+  if (key === "Box") inner.id = (d: PlotDatum) => d.discrete;
   if (viz.schema.stacked && ["Area", "Bar"].includes(key)) {
     const scale = opp === "x" ? x : y;
     inner[`${opp}`] = inner[`${opp}0`] = (d: PlotDatum) => {
