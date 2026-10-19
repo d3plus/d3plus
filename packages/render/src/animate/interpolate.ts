@@ -9,6 +9,7 @@ import type {
   ArcGeometry,
   AreaNode,
   CircleNode,
+  EnterWindow,
   FadeSwap,
   GroupNode,
   LineNode,
@@ -366,6 +367,25 @@ export function fadeSwapOpacity(
   if (phase === "exit") return {opacity: fading, swapped: false};
   if (t > 1 - back) return {opacity: to * Math.min(1, (t - (1 - back)) / back), swapped: true};
   return {opacity: t < out ? fading : 0, swapped: phase === "enter" || t >= out};
+}
+
+/**
+    An entering node's own progress at the transition's eased progress `t`,
+    given its `NodeBase.enterWindow`: 0 until the window's `start`, rising
+    linearly to 1 at its `end`, and 1 after. Without a window it is `t`
+    itself. A window that ends at or before it starts jumps from 0 to 1 at
+    `start`. Shares outside 0–1 are clamped.
+    @param t The transition's eased progress, 0–1.
+    @param window The node's enter window, if any.
+*/
+export function enterWindowProgress(t: number, window?: EnterWindow): number {
+  if (!window) return t;
+  const clamp = (v: number) => Math.min(1, Math.max(0, v));
+  const start = clamp(window.start), end = clamp(window.end);
+  if (t >= 1) return 1;
+  if (t < start) return 0;
+  if (end <= start) return 1;
+  return clamp((t - start) / (end - start));
 }
 
 /**
