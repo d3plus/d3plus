@@ -703,7 +703,7 @@ export interface D3plusConfig {
   */
   dimensions?: string[];
   /** Sets orientation of main category axis. */
-  discrete?: "x" | "y";
+  discrete?: "x" | "y" | "radius" | "angle";
   /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
   downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
@@ -931,6 +931,11 @@ export interface D3plusConfig {
   lineOpacity?: number | "auto";
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
+  /**
+      RadialBar's sweep, in degrees from `startAngle`. Defaults to 270 for
+      tracks and 360 for the circular bar chart.
+  */
+  maxAngle?: number;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
   /** Whether to show the loading message. */
@@ -1011,6 +1016,11 @@ export interface D3plusConfig {
   projectionPadding?: number | string;
   /** Rotation offset for the map projection center. */
   projectionRotate?: [number, number];
+  /**
+      How PolarArea maps values onto radii: `"sqrt"` (default) keeps each
+      wedge's area proportional to its value; `"linear"` its radius.
+  */
+  radialScale?: "sqrt" | "linear";
   /** Row key for matrix-style layouts. */
   row?: string;
   /** Scrollable container selector for tooltip positioning. */
@@ -1201,6 +1211,12 @@ export interface D3plusConfig {
       share that position.
   */
   tooltipShared?: boolean;
+  /** Whether RadialBar draws a background track behind every bar. Defaults to `true`. */
+  track?: boolean;
+  /** Paint for RadialBar's background tracks: `fill`, `opacity`, `stroke`, `strokeWidth`. */
+  trackConfig?: Record<string, unknown>;
+  /** Share of each RadialBar track (or bar slice) left as a gap between neighbors. Defaults to `0.25`. */
+  trackPadding?: number;
   /**
       Draws an automatic trend line fit to the plotted data: `true` (or
       `"linear"`) for a least-squares line, or `"exponential"`,
