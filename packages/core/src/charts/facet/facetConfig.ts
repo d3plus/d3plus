@@ -43,7 +43,7 @@ export type FacetConfig = {
   padding?: number;
   /** Panel order. Defaults to `"ascending"`. */
   sort?: FacetSort;
-  /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to Funnel's stage widths, where it defaults to `"independent"`. */
+  /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to Funnel's stage widths and the value domains of PolarArea and RadialBar, where it defaults to `"independent"`. */
   scales?: "shared" | "independent";
   /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. An object sets each axis on its own (`{x: "all", y: "outer"}`): every panel then labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel: BumpChart labels every axis on every panel, and Marimekko labels its categories on every panel and its 0–100% share axis only on the outer edge, even with independent scales. */
   axes?: FacetAxes;
