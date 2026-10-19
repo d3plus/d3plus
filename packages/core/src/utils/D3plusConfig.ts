@@ -707,6 +707,14 @@ export interface D3plusConfig {
       accessor.
   */
   forecastConfig?: Record<string, unknown>;
+  /**
+      Dumbbell: orders the categories by their gap, the distance between each
+      category's smallest and largest value. `"descending"` puts the widest gap
+      first (at the top of horizontal dumbbells, at the left of vertical ones),
+      `"ascending"` the narrowest, and `false` keeps the category axis's own
+      order. A `ySort`/`xSort` comparator on the category axis takes precedence.
+  */
+  gapSort?: false | "ascending" | "descending";
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
