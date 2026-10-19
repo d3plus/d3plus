@@ -1,0 +1,124 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Calendar</title>
+  <meta name="description" content="Calendar heatmaps of two years of daily commits: stacked years, Monday-first vertical weeks, month grids, a Spanish locale, small multiples, and a dark theme.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+
+  <style>
+
+    body {
+      display: grid;
+      gap: 20px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 20px;
+    }
+
+    .viz {
+      height: 340px;
+    }
+
+    .wide {
+      grid-column: span 2;
+    }
+
+    .tall {
+      grid-row: span 2;
+      height: 700px;
+    }
+
+    .dark {
+      background: #1d1f23;
+    }
+
+  </style>
+
+</head>
+
+<body>
+  <div class="viz wide" id="years"></div>
+  <div class="viz tall" id="vertical"></div>
+  <div class="viz" id="months"></div>
+  <div class="viz" id="locale"></div>
+  <div class="viz dark" id="dark"></div>
+  <div class="viz wide" id="facet"></div>
+</body>
+
+<script>
+
+  // Every repo's commits on a day sum into one cell.
+  new d3plus.Calendar()
+    .select("#years")
+    .config({
+      data: "./commits.json",
+      title: "Commits per day, 2024–2025"
+    })
+    .render();
+
+  // A single year with weeks running down the page, starting on Monday.
+  new d3plus.Calendar()
+    .select("#vertical")
+    .config({
+      data: "./commits.json",
+      filter: function(d) { return d.date < "2025"; },
+      orient: "vertical",
+      weekStart: "monday",
+      title: "2024, weeks top to bottom (Monday first)"
+    })
+    .render();
+
+  // One small calendar per month.
+  new d3plus.Calendar()
+    .select("#months")
+    .config({
+      data: "./commits.json",
+      filter: function(d) { return d.date >= "2025-01" && d.date < "2025-07"; },
+      period: "month",
+      title: "January–June 2025, month by month"
+    })
+    .render();
+
+  // Spanish names, and Spain's Monday-first week; square cells, no outlines.
+  new d3plus.Calendar()
+    .select("#locale")
+    .config({
+      data: "./commits.json",
+      filter: function(d) { return d.date >= "2025"; },
+      locale: "es-ES",
+      cellRadius: 0,
+      cellPadding: 1,
+      monthOutline: false,
+      colorScaleConfig: {scale: "jenks"},
+      title: "2025 en español"
+    })
+    .render();
+
+  // Empty days stay legible on a dark background.
+  new d3plus.Calendar()
+    .select("#dark")
+    .config({
+      data: "./commits.json",
+      filter: function(d) { return d.date >= "2025"; },
+      colorScaleConfig: {color: ["#0e4429", "#006d32", "#26a641", "#39d353"]},
+      title: "2025 on a dark background"
+    })
+    .render();
+
+  // One panel per repo, sharing a date range.
+  new d3plus.Calendar()
+    .select("#facet")
+    .config({
+      data: "./commits.json",
+      filter: function(d) { return d.date >= "2025"; },
+      facet: "repo",
+      title: "2025 commits by repo"
+    })
+    .render();
+
+</script>
+
+</html>

@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
@@ -238,6 +239,11 @@ export interface VizInstance {
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
+  /**
+      Hovering a shape outlines it even when nothing else dims
+      (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).
+  */
+  _hoverOutline?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
@@ -389,20 +395,22 @@ export interface VizInstance {
   _insetPending?: Set<InsetKey> | null;
   /** The chrome drawn inside the chart's negative space this draw, and where. */
   _insetPlacement?: InsetPlacement | null;
-  /** The default `legendPosition`/`colorScalePosition` accessors; a different one means the user picked a side. */
-  _insetAutoPositions?: {legend: unknown; colorScale: unknown};
   /** Per-axis "is this axis time-valued" flags, set by `formatPlotData`. */
   _xTime?: boolean;
   _x2Time?: boolean;
   _yTime?: boolean;
   _y2Time?: boolean;
   _baseline?: number;
+  /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
+  _userBaseline?: number;
   _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */
   _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
   /** The `confidence` bounds as `[lower, upper]` accessors (either may be `false`), or `false` when off. */
   _confidence?: [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
+  /** Every `confidence` band, outermost first; `_confidence` holds the first band's pair. */
+  _confidenceBands?: ConfidenceBand[];
   _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
   _barPadding?: number;
@@ -431,6 +439,15 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
+  /** Scene nodes a chart draws beneath a Plot's shapes, given those shapes' nodes and the axis position functions. */
+  _plotUnderlay?: (shapes: SceneNode[], x: (v: unknown) => number, y: (v: unknown) => number) => SceneNode[];
+  /**
+      Whether a stacked Plot stamps each row with its share of its stack
+      (`share` / `__d3plusShare`), which feeds the share label line and the
+      Share tooltip row; on unless `false`. A chart whose stacks hold one
+      bar apiece (Waterfall) turns it off, since every share would be 1.
+  */
+  _stackShares?: boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

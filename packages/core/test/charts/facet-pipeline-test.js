@@ -1,6 +1,6 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, Pie, RESET, Sunburst, Treemap} from "../../es/index.js";
+import {BarChart, Bullet, Pie, RESET, Sunburst, Treemap, Waffle} from "../../es/index.js";
 import {
   computeFilteredData,
   computeTimeFilter,
@@ -125,5 +125,7 @@ it("chart hooks: Plot shares scales; radial charts ask for square panels; others
     assert.strictEqual(typeof bar[hook], "function", `BarChart has ${hook}`);
   assert.strictEqual(new Pie()._facetHooks().aspect, 1);
   assert.strictEqual(new Sunburst()._facetHooks().aspect, 1);
+  assert.strictEqual(new Bullet()._facetHooks().aspect, 2);
+  assert.strictEqual(new Waffle()._facetHooks().aspect, 1);
   assert.deepStrictEqual(new Treemap()._facetHooks(), {});
 });

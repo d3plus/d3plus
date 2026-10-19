@@ -1,5 +1,5 @@
 import assert from "assert";
-import {default as formatDate, formatDateFull} from "../es/src/formatDate.js";
+import {default as formatDate, dateFormatter, dateFullFormatter, formatDateFull} from "../es/src/formatDate.js";
 import {timeFormat, timeFormatDefaultLocale, timeFormatLocale} from "d3-time-format";
 
 const spanish = {
@@ -188,6 +188,103 @@ it("formatDate", () => {
   ];
   const minResult = formatDate(minutes[1], minutes);
   assert.ok(minResult.length > 0, "minute-level data formatted");
+
+  // Steps finer than an hour label a date on the hour as its hour, and one at
+  // midnight as its day, never as the raw Date string.
+  const halfHours = [
+    new Date(2020, 0, 1, 23, 0),
+    new Date(2020, 0, 1, 23, 30),
+    new Date(2020, 0, 2, 0, 0),
+    new Date(2020, 0, 2, 0, 30),
+    new Date(2020, 0, 2, 1, 0),
+    new Date(2020, 0, 2, 1, 30),
+  ];
+  assert.strictEqual(formatDate(halfHours[1], halfHours), "11:30", "a half hour reads as its time");
+  assert.strictEqual(formatDate(halfHours[4], halfHours), "01 AM", "an hour reads as its hour");
+  assert.strictEqual(formatDate(halfHours[2], halfHours), "Jan 2", "midnight reads as its day");
+  assert.strictEqual(formatDate(halfHours[0], halfHours), "11 PM", "the first date on the hour reads as its hour");
+});
+
+it("formatDate: the shown dates decide which labels carry the year", () => {
+  timeFormatDefaultLocale({
+    dateTime: "%x, %X", date: "%-m/%-d/%Y", time: "%-I:%M:%S %p",
+    periods: ["AM", "PM"],
+    days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
+    shortDays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
+    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
+    shortMonths: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+  });
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const every = (dates, n) => dates.filter((_, i) => i % n === 0);
+  const label = (dates, shown) => shown.map(d => formatDate(d, dates, timeFormat, shown));
+
+  const months = range(30, i => new Date(2023, i, 1));
+  assert.deepStrictEqual(
+    label(months, every(months, 5)),
+    ["Jan 2023", "Jun", "Nov", "Apr 2024", "Sep", "Feb 2025"],
+    "with January thinned away, the first month shown in each year names it",
+  );
+  assert.deepStrictEqual(
+    label(months, every(months, 3)).slice(-3),
+    ["Oct", "Jan 2025", "Apr"],
+    "the last label shown keeps its year only when it opens one",
+  );
+  assert.deepStrictEqual(
+    label(months, months.slice(1, 4)),
+    ["Feb 2023", "Mar", "Apr"],
+    "the first label shown carries the year, wherever it falls",
+  );
+
+  const days = range(40, i => new Date(2025, 11, 10 + i));
+  assert.deepStrictEqual(
+    label(days, every(days, 7)),
+    ["Dec 10, 2025", "Dec 17", "Dec 24", "Dec 31", "Jan 7, 2026", "Jan 14"],
+    "days: the first day shown after New Year names the year",
+  );
+
+  const quarters = range(12, i => new Date(2022, i * 3, 1));
+  assert.deepStrictEqual(
+    label(quarters, every(quarters, 3)),
+    ["Q1 2022", "Q4", "Q3 2023", "Q2 2024"],
+    "quarters",
+  );
+
+  const hours = range(48, i => new Date(2026, 2, 3, 6 + i));
+  assert.deepStrictEqual(
+    label(hours, every(hours, 6)),
+    ["Mar 3, 2026, 06 AM", "12 PM", "06 PM", "Mar 4, 12 AM", "06 AM", "12 PM", "06 PM", "Mar 5, 12 AM"],
+    "hours: the first label of each day shown names the day, with its hour",
+  );
+  assert.deepStrictEqual(
+    label(hours, every(hours, 5)).slice(0, 5),
+    ["Mar 3, 2026, 06 AM", "11 AM", "04 PM", "09 PM", "Mar 4, 02 AM"],
+    "hours: the day rides on the first label shown after midnight",
+  );
+  const newYear = range(12, i => new Date(2025, 11, 31, 18 + i));
+  assert.strictEqual(
+    formatDate(newYear[6], newYear, timeFormat, newYear),
+    "Jan 1, 2026, 12 AM",
+    "hours: a new year names the year",
+  );
+
+  assert.strictEqual(
+    formatDate(+months[12], months, timeFormat, every(months, 5)),
+    "Jan 2024",
+    "a timestamp reads as its Date",
+  );
+  assert.strictEqual(
+    formatDate(months[12], months, timeFormatLocale(spanish).format, every(months, 4)),
+    "ene 2024",
+    "custom formatter for localization",
+  );
+});
+
+it("formatDate: hourly ends read their hour", () => {
+  const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, 6 + i));
+  assert.strictEqual(formatDate(hours[0], hours), "Mar 3, 2026, 06 AM");
+  assert.strictEqual(formatDate(hours[11], hours), "Mar 3, 2026, 05 PM");
+  assert.strictEqual(formatDate(hours[5], hours), "11 AM");
+  assert.strictEqual(formatDate(hours[11], hours, timeFormat, hours), "05 PM", "the last shown hour, on the first's day");
 });
 
 it("formatDateFull", () => {
@@ -218,4 +315,54 @@ it("formatDateFull", () => {
     "may 2025",
     "custom formatter for localization",
   );
+});
+
+it("dateFormatter labels every date as formatDate does", () => {
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const every = (dates, n) => dates.filter((_, i) => i % n === 0);
+  const sets = {
+    days: range(400, i => new Date(2025, 10, 20 + i)),
+    months: range(40, i => new Date(2023, i, 1)),
+    quarters: range(14, i => new Date(2022, i * 3, 1)),
+    years: range(12, i => new Date(2016 + i, 0, 1)),
+    hours: range(72, i => new Date(2025, 11, 30, 6 + i)),
+    halfHours: range(30, i => new Date(2026, 2, 3, 22, i * 30)),
+    small: range(4, i => new Date(2026, 2, 1 + i)),
+    duplicates: range(20, i => new Date(2025, 11, 25 + Math.floor(i / 2))),
+    empty: [],
+  };
+  for (const [name, dates] of Object.entries(sets)) {
+    for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
+      const label = dateFormatter(dates, formatter);
+      const probes = [...dates, +dates[3] || 0, new Date(2030, 0, 1), new Date(NaN)];
+      const shownSets = [undefined, dates, every(dates, 3), every(dates, 7).reverse(), dates.slice(5, 9), [new Date(NaN), ...every(dates, 5)], []];
+      for (const shown of shownSets) {
+        probes.forEach((d, i) => assert.strictEqual(
+          label(d, shown),
+          formatDate(d, dates, formatter, shown),
+          `${name}: date ${i} with ${shown ? shown.length : "no"} dates shown`,
+        ));
+      }
+    }
+  }
+});
+
+it("dateFullFormatter labels every date as formatDateFull does", () => {
+  const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
+  const sets = [
+    range(8, i => new Date(2018 + i, 0, 1)),
+    range(12, i => new Date(2024, i * 3, 1)),
+    range(36, i => new Date(2024, i, 1)),
+    range(20, i => new Date(2026, 2, 1 + i)),
+    range(12, i => new Date(2026, 2, 3, i)),
+    range(6, i => new Date(2026, 2, 3, 12, i * 15)),
+    range(6, i => new Date(2026, 2, 3, 12, 0, i * 30)),
+    range(6, i => new Date(2026, 2, 3, 12, 0, 0, i * 250)),
+  ];
+  for (const dates of sets) {
+    for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
+      const label = dateFullFormatter(dates, formatter);
+      dates.forEach(d => assert.strictEqual(label(d), formatDateFull(d, dates, formatter)));
+    }
+  }
 });

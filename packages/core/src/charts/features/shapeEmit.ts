@@ -17,11 +17,10 @@
     @module
 */
 
-import {groups, max, merge} from "d3-array";
+import {extent, groups, max, merge} from "d3-array";
 import * as scales from "d3-scale";
 
 import type {DataPoint} from "@d3plus/data";
-import {assign} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import type {SceneNode} from "@d3plus/render";
@@ -29,10 +28,13 @@ import type {SceneNode} from "@d3plus/render";
 import type {Shape} from "../../shapes/index.js";
 
 import {emitBarConfidence} from "../Plot/barConfidence.js";
+import {emitLineBands} from "../Plot/lineBands.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
+import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
+import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -80,6 +82,9 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+
+  /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
+  zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -190,9 +195,37 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
   });
 };
 
+/**
+    The bars a time axis's domain reaches. A user domain can stop short of the
+    data, and a bar centered outside it is not drawn (nor counted when
+    spacing the bars that are).
+*/
+function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
+  const {viz, values} = ctx;
+  const axis = viz.schema.discrete as string;
+  if ((axis === "x" ? ctx.xScale : ctx.yScale) !== "Time") return values;
+  // Zoomed, the domain is the visible window; bars keep to the unzoomed
+  // domain, which spans where the unzoomed plot range landed.
+  const zoomRange = ctx.zoomRanges?.[axis as "x" | "y"];
+  if (zoomRange) {
+    const scale = axis === "x" ? ctx.x : ctx.y;
+    const [lo, hi] = extent(zoomRange) as [number, number];
+    return values.filter(d => {
+      const at = scale(d[axis]);
+      return at >= lo - 0.5 && at <= hi + 0.5;
+    });
+  }
+  const [lo, hi] = extent((axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number)) as [number, number];
+  return values.filter(d => {
+    const at = +(d[axis] as number);
+    return at >= lo && at <= hi;
+  });
+}
+
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
-const barEmit: ShapeEmitter = ctx => {
-  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values} = ctx;
+const barEmit: ShapeEmitter = emitCtx => {
+  const ctx = {...emitCtx, values: barsInDomain(emitCtx)};
+  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values, zoomRanges} = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
     .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
@@ -205,19 +238,25 @@ const barEmit: ShapeEmitter = ctx => {
   const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
   const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
   const range = viz.schema.discrete === "x" ? xRange : yRange;
+  // Zoomed, a time axis's bars keep their unzoomed spacing, scaled: the
+  // first and last bars mirror about where the unzoomed plot edges landed,
+  // not about the visible edges they may sit on or past.
+  const zoomRange = zoomRanges?.[viz.schema.discrete as "x" | "y"];
   if (scaleType !== "Point" && vals.length === 2) {
     const allPositions = Array.from(
       new Set(values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
     );
+    const first = allPositions[0] as number;
+    const last = allPositions[allPositions.length - 1] as number;
     allPositions.unshift(
-      (range[0] as number) -
-        (allPositions[0] as number) -
-        (range[0] as number),
+      zoomRange
+        ? 2 * zoomRange[0] - first
+        : (range[0] as number) - first - (range[0] as number),
     );
     allPositions.push(
-      (range[1] as number) +
-        (range[1] as number) -
-        (allPositions[allPositions.length - 1] as number),
+      zoomRange
+        ? 2 * zoomRange[1] - last
+        : (range[1] as number) + (range[1] as number) - last,
     );
     space = allPositions.reduce((n: number, d, i, arr) => {
       if (i) {
@@ -289,7 +328,7 @@ function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneN
 /** Line — duration, optional confidence band, end-labels, and point markers. */
 const lineEmit: ShapeEmitter = ctx => {
   const {
-    viz, x, y, values, width, showLineLabels,
+    viz, values, width, showLineLabels,
     labelWidths, largestLabel, labelPositions,
   } = ctx;
   const out: SceneNode[] = [];
@@ -299,42 +338,12 @@ const lineEmit: ShapeEmitter = ctx => {
     .config(buildInner(ctx, "Line"))
     .data(values);
 
+  // Fills between series sit behind the lines and their confidence bands.
+  if (viz.schema.fillBetween) out.push(...emitFillBetween(ctx));
+
   s.duration(width * 1.5);
 
-  if (viz._confidence) {
-    const confidence = viz._confidence;
-    const areaConfig: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
-    const discrete = viz.schema.discrete || "x";
-    const key = discrete === "x" ? "y" : "x";
-    const scaleFunction = discrete === "x" ? y : x;
-    areaConfig[`${key}0`] = (d: PlotDatum) =>
-      scaleFunction(confidence[0] ? d.lci : d[key]);
-    areaConfig[`${key}1`] = (d: PlotDatum) =>
-      scaleFunction(confidence[1] ? d.hci : d[key]);
-
-    const area = makeShape("Area")
-      .renderMode("compute")
-      .config(areaConfig)
-      .data(values);
-    // Fresh object — must NOT mutate the shared `shapeConfig`, or the confidence
-    // fill/fillOpacity leak onto every other shape and every later render.
-    const confidenceConfig = Object.assign(
-      {},
-      viz.schema.shapeConfig,
-      viz._confidenceConfig,
-    );
-
-    const bandConfig = assign(
-      shapeConfigFor(viz, "Line", confidenceConfig),
-      shapeConfigFor(viz, "Area", confidenceConfig),
-    );
-    // Error-bar and tooltip keys aren't Area styles.
-    delete bandConfig.capWidth;
-    delete bandConfig.tooltip;
-    area.config(bandConfig).render();
-
-    out.push(...collectComputed(area));
-  }
+  if (viz._confidence) out.push(...emitLineBands(ctx));
 
   s.config({
     discrete: ctx.shapeConfig.discrete || "x",
@@ -379,7 +388,11 @@ const lineEmit: ShapeEmitter = ctx => {
       : false,
   });
 
-  out.push(...finishShape(ctx, "Line", s));
+  // A forecast draws each line dashed from where its forecast starts.
+  const forecastDash = forecastLineDash(viz, values as PlotDatum[], ctx.shapeConfig, ctx);
+  out.push(...finishShape(ctx, "Line", s, forecastDash
+    ? user => ({strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray)})
+    : undefined));
 
   const markers = makeShape("Circle")
     .renderMode("compute")

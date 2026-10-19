@@ -3,9 +3,12 @@ export {
   BarChart,
   Beeswarm,
   BoxWhisker,
+  Bullet,
   BumpChart,
+  Calendar,
   Chord,
   Donut,
+  FanChart,
   Funnel,
   Gauge,
   Geomap,
@@ -27,6 +30,8 @@ export {
   Tree,
   Treemap,
   Viz,
+  Waffle,
+  Waterfall,
 } from "./src/charts/index.js";
 
 export {
@@ -71,6 +76,8 @@ export type {
   AxisConfig,
   ColorDefaultsConfig,
   ColorScaleConfig,
+  ConfidenceBandSetting,
+  ConfidenceBound,
   LegendConfig,
   SizeLegendConfig,
   TextBoxConfig,
@@ -79,6 +86,7 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
 export type {
   FunnelConversion,
   FunnelConversionOption,
@@ -96,6 +104,7 @@ export type {
   BoxConfig,
   CircleConfig,
   ConstOrAccessor,
+  CssColor,
   ImageConfig,
   LineConfig,
   Orient,

@@ -271,6 +271,8 @@ export default class Viz extends VizBase {
     h! -= parseFloat(this._select.style("border-top-width"));
     h! -= parseFloat(this._select.style("border-bottom-width"));
     
+    if (this._autoWidth) this._measuredWidth = w;
+    if (this._autoHeight) this._measuredHeight = h;
     if (this._autoWidth && this.schema.width !== w) {
       this.width(w);
       this._select

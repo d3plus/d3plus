@@ -5,9 +5,12 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  Bullet as BulletClass,
   BumpChart as BumpChartClass,
+  Calendar as CalendarClass,
   Chord as ChordClass,
   Donut as DonutClass,
+  FanChart as FanChartClass,
   Funnel as FunnelClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
@@ -28,7 +31,9 @@ import {
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Waterfall as WaterfallClass,
   Viz as VizClass,
+  Waffle as WaffleClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
   AxisLeft as AxisLeftClass,
@@ -76,9 +81,17 @@ export const Beeswarm = (props: D3plusComponentProps) => (
 export const BoxWhisker = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BoxWhiskerClass} {...props} />
 );
+/** React component for rendering a d3plus Bullet visualization. */
+export const Bullet = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={BulletClass} {...props} />
+);
 /** React component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={BumpChartClass} {...props} />
+);
+/** React component for rendering a d3plus Calendar visualization. */
+export const Calendar = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={CalendarClass} {...props} />
 );
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (
@@ -87,6 +100,10 @@ export const Chord = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Donut visualization. */
 export const Donut = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={DonutClass} {...props} />
+);
+/** React component for rendering a d3plus FanChart visualization. */
+export const FanChart = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={FanChartClass} {...props} />
 );
 /** React component for rendering a d3plus Funnel visualization. */
 export const Funnel = (props: D3plusComponentProps) => (
@@ -168,9 +185,17 @@ export const Tree = (props: D3plusComponentProps) => (
 export const Treemap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreemapClass} {...props} />
 );
+/** React component for rendering a d3plus Waterfall visualization. */
+export const Waterfall = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={WaterfallClass} {...props} />
+);
 /** React component for rendering a base d3plus Viz instance. */
 export const Viz = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={VizClass} {...props} />
+);
+/** React component for rendering a d3plus Waffle visualization. */
+export const Waffle = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={WaffleClass} {...props} />
 );
 
 /** React component for rendering a d3plus Axis. */

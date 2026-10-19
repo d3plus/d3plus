@@ -170,6 +170,7 @@ export const histogramDef: ChartDefinition = {
 
   fields: [
     {key: "baseline", default: 0},
+    {key: "baselineBreak", default: true},
     /**
         Bin edges: a bin count, an array of interior edges, or a d3-array
         threshold generator such as `thresholdSturges` (the default),
