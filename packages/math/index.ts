@@ -1,5 +1,11 @@
 export {default as ckmeans} from "./src/ckmeans.js";
 export {default as closest} from "./src/closest.js";
+export {
+  default as kernelDensity,
+  epanechnikovKernel,
+  gaussianKernel,
+  silvermanBandwidth,
+} from "./src/kernelDensity.js";
 export {default as largestRect} from "./src/largestRect.js";
 export {default as lineIntersection} from "./src/lineIntersection.js";
 export {default as linearConfidence} from "./src/linearConfidence.js";
@@ -21,3 +27,4 @@ export {default as simplify} from "./src/simplify.js";
 export {default as studentTQuantile, studentTCdf} from "./src/studentTQuantile.js";
 export type {RegressionOptions, RegressionResult, RegressionType} from "./src/regression.js";
 export type {Bounds, NegativeSpaceOptions} from "./src/negativeSpace.js";
+export type {DensityPoint, Kernel, KernelDensityOptions, KernelName} from "./src/kernelDensity.js";

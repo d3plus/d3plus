@@ -8,6 +8,7 @@ import {accessor, BaseClass, constant} from "../../utils/index.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {broadcastLink} from "./linkGroup.js";
+import {shapeHoverEnabled} from "./shapeHover.js";
 import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
 import {mergeConfigBag, resolvesReset} from "../../fluent.js";
@@ -186,7 +187,7 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
-      Defines which side of the visualization to anchor the color scale. Acceptable values are `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
+      Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 */
   colorScalePosition(
     _?: string | boolean | (() => string | boolean),
@@ -304,7 +305,7 @@ Defaults to an empty array (`[]`).
       - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
       - `padding`: the space between panels, in pixels (default `20`).
       - `sort`: panel order — `"ascending"` (default), `"descending"`, `"data"` (first appearance), a comparator over facet values, or an Array of values.
-      - `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows.
+      - `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows. Funnel defaults to `"independent"` (each panel sized to its own widest stage); `"shared"` sizes every panel against the widest stage across all panels.
       - `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid's left and bottom edges; `"all"` labels every panel.
       - `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.
       - `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).
@@ -449,7 +450,7 @@ Defaults to an empty array (`[]`).
     // forEach above is a no-op for them. Repaint so the scene's
     // interaction-opacity pass re-reads `_hover` and dims the non-matching
     // nodes (or restores them when `_` is `false`). Also repaint for a
-    // colorScale-bucket hover even when per-shape dimming is off
+    // colorScale-bucket hover even when per-shape hover is off
     // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
     // same pass, so without a repaint the map would never re-compose. Coalesced
     // to one paint per frame so a fast pointer sweep doesn't saturate the main
@@ -457,7 +458,7 @@ Defaults to an empty array (`[]`).
     if (
       this._sceneRenderer &&
       _ !== undefined &&
-      (this.schema.shapeConfig.hoverOpacity !== 1 || this._hoverBucket)
+      (shapeHoverEnabled(this) || this._hoverBucket)
     )
       this._scheduleSceneRepaint();
 
@@ -535,7 +536,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
+      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 */
   legendInset(
     _?: boolean | ((config: Record<string, unknown>) => boolean),
@@ -567,7 +568,7 @@ Defaults to an empty array (`[]`).
   }
 
   /**
-      Defines which side of the visualization to anchor the legend. Expected values are `"top"`, `"bottom"`, `"left"`, and `"right"`.
+      Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
 */
   legendPosition(_?: string | (() => string)): this | string | (() => string) {
     return arguments.length

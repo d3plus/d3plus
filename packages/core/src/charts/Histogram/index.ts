@@ -100,7 +100,7 @@ function binBeforePreDraw(viz: VizInstance) {
     value: viz.schema.value,
     group: (d, i) => groupBy.map(g => `${g(d, i)}`).join("_"),
     panel: facet ? (d, i) => facetKey(toFacetValue(facet(d, i))) : undefined,
-    sharedEdges: resolveFacetConfig(viz.schema.facetConfig as FacetConfig | undefined).scales === "shared",
+    sharedEdges: resolveFacetConfig(viz.schema.facetConfig as FacetConfig | undefined).scales !== "independent",
     thresholds: viz.schema.binThresholds,
     domain: viz.schema.binDomain,
     width: viz.schema.binWidth,
@@ -170,6 +170,7 @@ export const histogramDef: ChartDefinition = {
 
   fields: [
     {key: "baseline", default: 0},
+    {key: "baselineBreak", default: true},
     /**
         Bin edges: a bin count, an array of interior edges, or a d3-array
         threshold generator such as `thresholdSturges` (the default),

@@ -1,5 +1,19 @@
 import type {DataPoint} from "@d3plus/data";
+import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import type Viz from "../viz/Viz.js";
+
+/**
+    Whether two `_id` results name the same item. A legend entry that merges
+    several groupBy members (a legend grouped by color, or by a shallower
+    groupBy level than the chart draws) has an array id, built afresh on each
+    call, so the ids compare by their members.
+*/
+function sameId(a: unknown, b: unknown): boolean {
+  if (!Array.isArray(a) && !Array.isArray(b)) return a === b;
+  const as = new Set(([] as unknown[]).concat(a));
+  const bs = new Set(([] as unknown[]).concat(b));
+  return as.size === bs.size && [...as].every(v => bs.has(v));
+}
 
 /**
     @module mouseLeave
@@ -27,13 +41,13 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       | undefined;
     while (hoverDatum && hoverDatum.__d3plus__ && hoverDatum.data)
       hoverDatum = hoverDatum.data as typeof hoverDatum;
-    if (hoverDatum && this._id(hoverDatum) === this._id(leaveDatum)) return;
+    if (hoverDatum && sameId(this._id(hoverDatum), this._id(leaveDatum))) return;
 
     // The shared multi-series tooltip (Plot) owns hover + tooltip while active
     // and clears both itself on leaving the plot area.
     if (this._sharedHoverActive) return;
     if (
-      this.schema.shapeConfig.hoverOpacity !== 1 && this._hover
+      shapeHoverEnabled(this) && this._hover
         ? this._hover(d, i)
         : true
     ) {
@@ -44,7 +58,7 @@ export default function (this: Viz, d: DataPoint, i: number): void {
       let tooltipDatum = tooltipData[0];
       while (tooltipDatum.__d3plus__ && tooltipDatum.data)
         tooltipDatum = tooltipDatum.data;
-      if (this._id(tooltipDatum) === this._id(leaveDatum))
+      if (sameId(this._id(tooltipDatum), this._id(leaveDatum)))
         this._tooltipClass.data([]).render();
     }
     // Deferred by a single macrotask (not a fixed delay): the shape→label

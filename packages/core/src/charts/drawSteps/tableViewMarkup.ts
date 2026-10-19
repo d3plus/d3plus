@@ -442,7 +442,7 @@ const CELL_MAX_WIDTH = "320px";
 /** One data row's `<td>` cells. */
 function rowCellsHtml(viz: Viz, columns: string[], row: DataPoint): string {
   return columns
-    .map(c => `<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;"><div style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`)
+    .map(c => `<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;"><div class="d3plus-table-view-cell" style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`)
     .join("");
 }
 
@@ -555,8 +555,8 @@ export function tableViewOverlayHtml(viz: Viz): string {
   const tableLayout = virtualized ? "table-layout:fixed;" : "";
 
   return `
-    <div style="display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;background:#fff;font:12px/1.4 ${fontFamilyStringify(viz.schema.fontFamily || "sans-serif")};">
-      <div style="flex:0 0 auto;display:flex;gap:4px;padding:4px;">${toolbarHtml}</div>
+    <div class="d3plus-table-view-frame" style="display:flex;flex-direction:column;width:100%;height:100%;box-sizing:border-box;background:#fff;font:12px/1.4 ${fontFamilyStringify(viz.schema.fontFamily || "sans-serif")};">
+      <div class="d3plus-table-view-toolbar" style="flex:0 0 auto;display:flex;gap:4px;padding:4px;">${toolbarHtml}</div>
       <div class="d3plus-table-view-scroll"${virtualized ? ' data-tableview-virtual="1"' : ""} style="flex:1 1 auto;min-height:0;overflow:auto;">
         <table class="d3plus-table-view-table${extraClass}" style="border-collapse:collapse;width:100%;${tableLayout}">
           <thead><tr>${headHtml}</tr></thead>

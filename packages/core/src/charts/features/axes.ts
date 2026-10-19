@@ -58,6 +58,9 @@ type AxisScene = {key: string; transform: {x: number; y: number}; axis: Axis; gr
 /** The y/y2 bounds + claimed widths a y-axis measure pass produces. */
 type YAxisMeasure = {yBounds: AxisBounds; yWidth: number | undefined; y2Bounds: AxisBounds; y2Width: number | undefined};
 
+/** Zoom settings the chart's config doesn't set back (see `Plot/plotZoom.ts`), so an unzoomed paint draws as the chart first did. */
+const UNZOOMED_AXIS = {domainTicks: true, fixedSize: undefined};
+
 /** A position accessor: maps a datum to a pixel coordinate on its axis. */
 type PositionAccessor = (d: unknown, which?: string) => number;
 
@@ -471,7 +474,9 @@ function renderXAxes(
     .range(xRange)
     .ticks(xTicks)
     .width(width)
-    .config(xC)
+    // Rotate the labels as the test axis did when it claimed their height.
+    .labelRotation(pCtx.xTest._labelRotation)
+    .config({...UNZOOMED_AXIS, ...xC})
     .config(plotAxisConfig(viz, "x"))
     .config(pCtx.zoomAxes?.x ?? {})
     .scale(xConfigScale);
@@ -497,7 +502,8 @@ function renderXAxes(
       .range(xRange)
       .ticks(x2Ticks)
       .width(width)
-      .config(xC)
+      .labelRotation(pCtx.x2Test._labelRotation)
+      .config({...UNZOOMED_AXIS, ...xC})
       .config(defaultX2Config)
       .config(viz._x2Config)
       .config(pCtx.zoomAxes?.x2 ?? {})
@@ -557,7 +563,7 @@ function renderYAxes(
     .range(yRange)
     .ticks(yTicks)
     .width(xRange[xRange.length - 1])
-    .config(yC)
+    .config({...UNZOOMED_AXIS, ...yC})
     .config(plotAxisConfig(viz, "y"))
     .config(pCtx.zoomAxes?.y ?? {})
     .scale(yConfigScale)
@@ -574,7 +580,7 @@ function renderYAxes(
     y2Axis
       .renderMode("compute")
       .select(null)
-      .config(yC)
+      .config({...UNZOOMED_AXIS, ...yC})
       .domain(y2Exists ? y2Domain : yDomain)
       .gridSize(0)
       .height(height)

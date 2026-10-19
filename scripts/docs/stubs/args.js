@@ -2,6 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import {parseSync, printSync} from "@swc/core";
 
+import {applyColorControl} from "./colorControl.js";
+
 // Inherited config each chart fixes for itself, left out of its args. Each
 // entry is matched against the whole key (it may be a regex, e.g. "zoom.*").
 const hiddenMethods = {
@@ -27,13 +29,88 @@ const hiddenMethods = {
   BumpChart: ["shape"],
   Chord: ["shape"],
   Donut: ["shape"],
+  Dumbbell: [
+    "shape",
+    "barPadding",
+    "groupPadding",
+    "stacked",
+    "stackOffset",
+    "stackOrder",
+    "lineLabels",
+    "lineMarkers",
+    "lineMarkerConfig",
+    "labelConnectorConfig",
+    "confidence",
+    "confidenceConfig",
+    "swarm",
+    "swarmConfig",
+    "baseline",
+    "baselineBreak",
+  ],
+  FanChart: ["barPadding", "groupPadding", "swarm", "swarmConfig"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
   Icicle: ["shape"],
   LinePlot: ["shape"],
+  Lollipop: [
+    "shape",
+    "stacked",
+    "stackOffset",
+    "stackOrder",
+    "lineLabels",
+    "lineMarkers",
+    "lineMarkerConfig",
+    "labelConnectorConfig",
+    "swarm",
+    "swarmConfig",
+  ],
   Pyramid: ["shape", "discrete", "stacked"],
+  Ridgeline: [
+    "shape",
+    "x",
+    "x2",
+    "y",
+    "y2",
+    "stacked",
+    "stackOffset",
+    "stackOrder",
+    "lineLabels",
+    "lineMarkers",
+    "lineMarkerConfig",
+    "labelConnectorConfig",
+    "confidence",
+    "confidenceConfig",
+    "swarm",
+    "swarmConfig",
+    "trendLine",
+    "trendLineConfig",
+    "barPadding",
+    "discrete",
+  ],
   StackedArea: ["shape"],
   Sunburst: ["shape"],
   Treemap: ["shape"],
+  Violin: [
+    "shape",
+    "x",
+    "x2",
+    "y",
+    "y2",
+    "stacked",
+    "stackOffset",
+    "stackOrder",
+    "lineLabels",
+    "lineMarkers",
+    "lineMarkerConfig",
+    "labelConnectorConfig",
+    "confidence",
+    "confidenceConfig",
+    "swarm",
+    "swarmConfig",
+    "trendLine",
+    "trendLineConfig",
+    "barPadding",
+  ],
+  Waterfall: ["shape", "stacked", "stackOffset", "stackOrder"],
 };
 
 function isWrappedInQuotes(str) {
@@ -55,6 +132,19 @@ const hasParent = ({augments}) =>
 // category. Collapse a source path to its first segment (the category) so the
 // generated paths match the flat layout the stories import.
 const collapseCategory = p => (p ? `/${p.split("/").filter(Boolean)[0]}` : "");
+
+/**
+ * Drops an interface doc scoped to another class. A shared config key whose
+ * description opens with a documented class's name (`"ParallelCoordinates: …"`)
+ * documents that class's option, not a same-named one elsewhere (Timeline
+ * `brushing`).
+ */
+const ownDoc = (doc, name, stories) => {
+  const scope = doc && /^([A-Z][A-Za-z]+): /.exec(doc.description || "");
+  return scope && scope[1] !== name && stories.some(d => d.name === scope[1])
+    ? undefined
+    : doc;
+};
 
 export default function (
   story,
@@ -230,6 +320,14 @@ export default function (
         defaultValue: {summary: "undefined"},
       };
     }
+    if (!argObject.options)
+      applyColorControl(argObject, {
+        key: name,
+        types: type.names,
+        description: d.description,
+        // An accessor's source isn't a color to veto the picker over.
+        value: argObject.table.defaultValue.detail ? undefined : defaultvalue,
+      });
     obj[name.replace(/\*/g, "")] = argObject;
 
     return obj;
@@ -272,8 +370,12 @@ export default function (
       if (cleanKey in parentConfig) continue;
       if (formattedMethods[cleanKey]) continue;
       if (hideRe && hideRe.test(cleanKey)) continue;
-      const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
-      formattedMethods[cleanKey] = configArgType(ownConfig[key], doc);
+      const doc = ownDoc(
+        ifaceSpecific[cleanKey] || ifaceMerged[cleanKey],
+        name,
+        stories,
+      );
+      formattedMethods[cleanKey] = configArgType(ownConfig[key], doc, cleanKey);
     }
 
   const methodJSON = JSONstringifyOrder(formattedMethods, 2).replace(
@@ -412,6 +514,17 @@ function typedArg(type) {
   return arg;
 }
 
+/** Gives a `typedArg` result a color picker when its `@type` is a color. */
+function colorTypedArg(arg, key, description, value) {
+  if (arg.options) return arg;
+  return applyColorControl(arg, {
+    key,
+    types: typeUnion(arg.type.summary),
+    description,
+    value,
+  });
+}
+
 /**
  * A docs-table summary for a chart's default: its runtime value when that
  * renders plainly, else its source (`"value"` for `accessor("value")`).
@@ -452,7 +565,8 @@ function chartArgTypes(
       if (method && method.description) return method.description;
       ancestor = stories.find(d => d.name === hasParent(ancestor));
     }
-    return (typed[key] || merged[key] || {}).description || "";
+    const doc = ownDoc(typed[key] || merged[key], story.name, stories);
+    return (doc || {}).description || "";
   };
 
   const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
@@ -486,15 +600,17 @@ function chartArgTypes(
           if (summary) arg.table = {defaultValue: {summary}};
         }
       }
+      if (doc.type) colorTypedArg(arg, key, doc.description, value);
       if (Object.keys(arg).length) out[key] = arg;
       continue;
     }
 
-    const iface = typed[key] || merged[key];
+    const iface = ownDoc(typed[key] || merged[key], story.name, stories);
     const arg = doc.type
       ? withDefault(typedArg(doc.type), value)
-      : configArgType(value, iface);
+      : configArgType(value, iface, key);
     arg.description = doc.description || (iface && iface.description) || "";
+    if (doc.type) colorTypedArg(arg, key, arg.description, value);
     if (arg.defaultValue === undefined) {
       const summary = defaultSummary(value, field);
       if (summary) arg.table = {defaultValue: {summary}};
@@ -538,7 +654,7 @@ function withDefault(arg, value) {
  * functions/unset values get no control but are still listed so `configify`
  * keeps story-set values and the key shows in the Code view.
  */
-function configArgType(value, doc) {
+function configArgType(value, doc, key) {
   if (doc && doc.names && doc.names.length) {
     const types = doc.names.map(t => t.toLowerCase());
     const arg = {
@@ -581,7 +697,15 @@ function configArgType(value, doc) {
       else if (vt === "boolean") arg.control.type = "boolean";
       else if (vt === "array") arg.control.type = "object";
     }
-    return withDefault(arg, value);
+    withDefault(arg, value);
+    if (!arg.options)
+      applyColorControl(arg, {
+        key,
+        types: doc.names,
+        description: arg.description,
+        value,
+      });
+    return arg;
   }
 
   const t = Array.isArray(value)
@@ -606,7 +730,8 @@ function configArgType(value, doc) {
   else if (t === "string") arg.control.type = "text";
   else if (t === "boolean") arg.control.type = "boolean";
   else if (t === "array" || t === "object") arg.control.type = "object";
-  return withDefault(arg, value);
+  withDefault(arg, value);
+  return applyColorControl(arg, {key, types: [t], value});
 }
 
 const JSONstringifyOrder = (obj, space) => {

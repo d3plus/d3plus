@@ -24,11 +24,13 @@
       - `marginDelta` (top/bottom/left/right) — total added to viz._margin
       - `featurePanels` — final aggregated panel list
       - `resetChartScene`/`resetChartTransform`/`resetShapes` (always true)
-      - `legendPosition`/`colorScalePosition` — sanitized values
+      - `legendPosition`/`colorScalePosition` — sanitized values (`"auto"`
+        resolved to a side)
 */
 
 import {
   colorScaleFeature,
+  cornerControlsHeight,
   legendFeature,
   runLayout,
   sanitizePosition,
@@ -37,9 +39,6 @@ import {
   titleFeature,
   totalFeature,
 } from "../features/features.js";
-import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
-import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
-import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
 import {reserveBottomRight} from "../drawSteps/bottomRightControls.js";
 import {
   bottomRightControlsRightShortfall,
@@ -85,18 +84,15 @@ export function vizDrawPure(
   viz._chartTransform = undefined;
   viz._shapes = [];
 
-  // Sanitize positions via the shared `sanitizePosition` helper (same
-  // function legendFeature / colorScaleFeature use) so the three sites
-  // can't drift. One frozen `resolveSpec` snapshot feeds both accessors:
-  // the position accessors take the resolved config as their argument, so
-  // a single snapshot reflects config once instead of twice.
+  // Sanitize positions (resolving "auto" to a side) via the shared
+  // `sanitizePosition` helper (same function legendFeature /
+  // colorScaleFeature use) so the three sites can't drift. One frozen
+  // `resolveSpec` snapshot feeds both accessors: the position accessors
+  // take the resolved config as their argument, so a single snapshot
+  // reflects config once instead of twice.
   const spec = resolveSpec(viz);
-  const legendPosition = sanitizePosition(
-    viz.schema.legendPosition.bind(viz)(spec),
-  );
-  const colorScalePosition = sanitizePosition(
-    viz.schema.colorScalePosition.bind(viz)(spec),
-  );
+  const legendPosition = sanitizePosition(viz.schema.legendPosition.bind(viz)(spec), viz);
+  const colorScalePosition = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(spec), viz);
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 
@@ -194,26 +190,16 @@ export function vizDrawPure(
   out.marginDelta!.bottom += shortfall;
   running.bottom += shortfall;
 
-  // The corner controls (zoom, back/search) deliberately claim zero
-  // margin of their own — they float at y:0, and normally whatever's
-  // ABOVE the chart body (title/subtitle/total, a top legend/colorScale)
-  // already pushed it down clear of them. But when NONE of those claimed
-  // any margin.top, the chart body starts at y:0 too, and the buttons
-  // paint directly over its top edge — a Treemap's very top row, most
-  // visibly, since there's no dead space up there to absorb it. Reserve
-  // just enough room for the taller of the two corner rows in that one
-  // case; a chart with a title/legend already has (at minimum) that same
-  // room from its own claim, so this never adds on top of one.
-  if (!out.marginDelta!.top) {
-    const zoomHeight = zoomControlsBox(viz as never)?.height ?? 0;
-    const topLeftHeight =
-      topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))?.height ?? 0;
-    const cornerHeight = Math.max(zoomHeight, topLeftHeight);
-    if (cornerHeight) {
-      out.marginDelta!.top += cornerHeight;
-      running.top += cornerHeight;
-    }
-  }
+  // The corner controls (zoom, back/search) float at y:0 and claim no
+  // margin of their own; whatever sits above the chart body (title/
+  // subtitle/total, a top legend/colorScale) usually pushes it down clear
+  // of them. When those claims fall short of the controls' reach (the
+  // buttons plus an equal gap above and below), top margin.top up to it,
+  // so the body's top edge — a Treemap's top row, a y-axis's max label —
+  // never sits against the buttons.
+  const topShortfall = Math.max(0, cornerControlsHeight(viz) - out.marginDelta!.top);
+  out.marginDelta!.top += topShortfall;
+  running.top += topShortfall;
 
   // Snapshot final featurePanels onto the returned ctx.
   out.featurePanels = viz._featurePanels.slice();

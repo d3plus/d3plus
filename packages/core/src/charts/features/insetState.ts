@@ -40,15 +40,13 @@ export interface InsetPlacement extends Bounds {
 }
 
 /**
-    Seeds `legendInset`/`legendInsetConfig`, and remembers the default
-    legend/colorScale position accessors so a placement can tell a position
-    the user chose (which it leaves alone) from the default. Runs after the
-    legend and color defaults are seeded.
+    Seeds `legendInset`/`legendInsetConfig`. Whether the legend or colorScale
+    may be placed inside the chart is decided by its position: only `"auto"`
+    (the default) lets placement move it.
 */
 export function initInsetDefaults(viz: VizInstance): void {
   viz.schema.legendInset = true;
   viz.schema.legendInsetConfig = {};
-  viz._insetAutoPositions = {legend: viz.schema.legendPosition, colorScale: viz.schema.colorScalePosition};
 }
 
 /** Resolved `legendInsetConfig`. */

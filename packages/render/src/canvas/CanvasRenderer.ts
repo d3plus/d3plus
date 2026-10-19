@@ -1,9 +1,10 @@
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
 import {commitTrailCatchups, commitTrailScene, TrailLog} from "../animate/trailLog.js";
-import type {LineNode, Scene, SceneNode, TextNode} from "../scene.js";
+import type {ClipShape, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {
   applyOverlayToElement,
+  alignOverlayHost,
   createOverlayHost,
   walkOverlays,
 } from "../overlay.js";
@@ -24,11 +25,19 @@ import {CanvasResources} from "./resources.js";
 
 type Ctx = CanvasRenderingContext2D;
 
+/** An ancestor group's clip, with the inverse of that group's accumulated transform. */
+interface ClipEntry {
+  clip: ClipShape;
+  inverse: Mat;
+}
+
 /** A pickable leaf, captured in paint order with its accumulated transform. */
 interface PickEntry {
   node: SceneNode;
   /** Inverse of the node's accumulated absolute transform, for mapping points to local space. */
   inverse: Mat;
+  /** Clips of the groups the node sits in: a point they clip away can't pick it. */
+  clips: ClipEntry[];
 }
 
 const raf: (cb: () => void) => void =
@@ -242,12 +251,12 @@ export default class CanvasRenderer implements Renderer {
       ctx.fillStyle = scene.meta.background;
       ctx.fillRect(0, 0, this._width, this._height);
     }
-    this._drawChildren(ctx, scene.root.children, 1, [this._ratio, 0, 0, this._ratio, 0, 0]);
+    this._drawChildren(ctx, scene.root.children, 1, [this._ratio, 0, 0, this._ratio, 0, 0], []);
     ctx.restore();
   }
 
   /** Draws a node list in z-order, accumulating alpha and the transform matrix for picking. */
-  private _drawChildren(ctx: Ctx, children: SceneNode[], alpha: number, abs: Mat): void {
+  private _drawChildren(ctx: Ctx, children: SceneNode[], alpha: number, abs: Mat, clips: ClipEntry[]): void {
     // Skip sort allocation + comparator runs when no child has z set.
     // The common case (every node lacks z; paint in source order).
     let needsSort = false;
@@ -260,10 +269,10 @@ export default class CanvasRenderer implements Renderer {
     const ordered = needsSort
       ? [...children].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
       : children;
-    for (const node of ordered) this._drawNode(ctx, node, alpha, abs);
+    for (const node of ordered) this._drawNode(ctx, node, alpha, abs, clips);
   }
 
-  private _drawNode(ctx: Ctx, node: SceneNode, alpha: number, parentAbs: Mat): void {
+  private _drawNode(ctx: Ctx, node: SceneNode, alpha: number, parentAbs: Mat, clips: ClipEntry[]): void {
     const localAbs = multiply(parentAbs, nodeMatrix(node.transform));
     const a = alpha * (node.paint?.opacity ?? 1);
 
@@ -271,7 +280,7 @@ export default class CanvasRenderer implements Renderer {
     ctx.setTransform(localAbs[0], localAbs[1], localAbs[2], localAbs[3], localAbs[4], localAbs[5]);
 
     if (node.interactive !== false && node.type !== "group")
-      this._pickIndex.push({node, inverse: invert(localAbs)});
+      this._pickIndex.push({node, inverse: invert(localAbs), clips});
 
     // On-screen scale relative to CSS px: the accumulated transform's scale with
     // the device-pixel-ratio base divided out (i.e. the ancestor zoom/scale).
@@ -308,7 +317,8 @@ export default class CanvasRenderer implements Renderer {
             ctx.clip(new Path2D(node.clip.d));
           }
         }
-        this._drawChildren(ctx, node.children, a, localAbs);
+        const inner = node.clip ? [...clips, {clip: node.clip, inverse: invert(localAbs)}] : clips;
+        this._drawChildren(ctx, node.children, a, localAbs, inner);
         break;
       }
       case "htmlOverlay":
@@ -327,6 +337,7 @@ export default class CanvasRenderer implements Renderer {
   private _reconcileOverlays(scene: Scene): void {
     if (!this._overlayHost) return;
     const collected = walkOverlays(scene);
+    if (collected.length) alignOverlayHost(this._overlayHost);
     const host = this._overlayHost;
     // Keyed reconcile against the cached map — no per-draw querySelectorAll.
     const existing = this._overlayMap;
@@ -432,13 +443,23 @@ export default class CanvasRenderer implements Renderer {
 
   pick(point: [number, number]): PickResult | null {
     // Topmost wins: entries are in paint order, so search from the end.
+    const device: [number, number] = [point[0] * this._ratio, point[1] * this._ratio];
     for (let i = this._pickIndex.length - 1; i >= 0; i--) {
-      const {node, inverse} = this._pickIndex[i];
-      const [lx, ly] = apply(inverse, [point[0] * this._ratio, point[1] * this._ratio]);
+      const {node, inverse, clips} = this._pickIndex[i];
+      if (!clips.every(c => this._inClip(c, device))) continue;
+      const [lx, ly] = apply(inverse, device);
       if (this._hitTest(node, lx, ly))
         return {node, datum: node.datum, index: node.index};
     }
     return null;
+  }
+
+  /** Whether a device-space point falls inside a group's clip (which paints nothing outside it). */
+  private _inClip({clip, inverse}: ClipEntry, device: [number, number]): boolean {
+    const [lx, ly] = apply(inverse, device);
+    if (clip.type === "rect")
+      return lx >= clip.x && lx <= clip.x + clip.width && ly >= clip.y && ly <= clip.y + clip.height;
+    return this._ctx ? this._ctx.isPointInPath(new Path2D(clip.d), lx, ly) : true;
   }
 
   private _hitTest(node: SceneNode, lx: number, ly: number): boolean {

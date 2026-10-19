@@ -67,13 +67,17 @@ function findNode(nodes: SceneNode[], key: string): PaintNode | undefined {
   return undefined;
 }
 
-/** Key suffixes of nodes drawn on behalf of another mark: a transparent hover target, a bar's error bar. */
-const OWNED_SUFFIXES = ["::hit", "::confidence"];
+/**
+    Key suffixes of nodes drawn on behalf of another mark: a transparent hover
+    target, a bar's error bar, a lollipop's stem.
+*/
+const OWNED_SUFFIXES = ["::hit", "::confidence", "::stem"];
 
 /**
     The mark a picked scene node stands in for: the visible sibling of a
-    transparent hover target (a `::hit` node), or the bar of an error bar (a
-    `::confidence` node). Any other node is its own mark.
+    transparent hover target (a `::hit` node), the bar of an error bar (a
+    `::confidence` node), or the head of a lollipop's stem (a `::stem` node).
+    Any other node is its own mark.
     @param viz The chart, whose scene holds the mark.
     @param node The picked scene node.
 */

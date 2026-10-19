@@ -223,28 +223,15 @@ export default class Shape extends BaseClass {
       @private
 */
   _getTextureKey(d: DataPoint, i: number): string | false {
-    const textureVal: unknown = this.schema.texture(d, i);
+    // A Line or Area's texture, and the fill and stroke it defaults its colors
+    // to, resolve against the merged row, like the shape's other styles.
+    const textureVal: unknown = this._styleVal(this.schema.texture, d, i);
     if (!textureVal) return false;
-
-    /**
-        Determines whether a shape is a nested collection of data points, and uses the appropriate data and index for the given function context.
-        @private
-*/
-    const styleLogic = (_: unknown): unknown => {
-      return typeof _ !== "function"
-        ? _
-        : d.nested && d.key !== undefined && d.values
-          ? (_ as AccessorFn)(
-              (d.values as unknown as DataPoint[])[0],
-              this._data.indexOf((d.values as unknown as DataPoint[])[0]),
-            )
-          : (_ as AccessorFn)(d, i);
-    };
 
     return textureKey(
       textureVal,
-      () => styleLogic(this.schema.fill),
-      () => styleLogic(this.schema.stroke),
+      () => this._styleVal(this.schema.fill, d, i),
+      () => this._styleVal(this.schema.stroke, d, i),
       this.schema.textureDefault,
     );
   }
@@ -413,6 +400,7 @@ export default class Shape extends BaseClass {
       const key = this._nestWrapper(this.schema.id)(d, i) as string | number;
       const datum = (d.__d3plusShape__ ? d.data : d) as DataPoint;
       const transform = this._sceneTransform(d, i);
+      const paint = this._scenePaint(d, i);
 
       // Per-point positions (Line/Area) shared by the geometry and its hit area
       // so a hover anywhere on either resolves to the nearest point.
@@ -432,7 +420,7 @@ export default class Shape extends BaseClass {
         datum,
         index: i,
         shapeType: this._name,
-        paint: this._scenePaint(d, i),
+        paint,
         transform,
         aria: {
           role: strOrUndef(this._nestWrapper(this.schema.role)(d, i)),
@@ -444,9 +432,11 @@ export default class Shape extends BaseClass {
       // backgroundImage: collect a per-datum image (see backgroundImageLayout for
       // the cover/contain fit). The wrapping group carries the shape transform,
       // so the image box + clip stay in local space.
-      const bg = this._nestWrapper(this.schema.backgroundImage)(d, i) as
-        | string
-        | false;
+      // A stroke-only mark (a Line, or any shape with no fill) has no area to
+      // draw an image in, so it never takes one.
+      const bg =
+        paint.fill !== "none" &&
+        (this._nestWrapper(this.schema.backgroundImage)(d, i) as string | false);
       if (bg) {
         const g = geom as Record<string, unknown>;
         // Only Area/Line lack a `d`/box and need polygon points; Path/Rect/Circle

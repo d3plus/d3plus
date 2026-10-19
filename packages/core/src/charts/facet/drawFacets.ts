@@ -24,6 +24,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {
   FACET_ASPECT,
   facetActive,
+  facetScalesShared,
   resolveFacetConfig,
 } from "./facetConfig.js";
 import type {
@@ -313,7 +314,7 @@ export function drawFacets(viz: VizInstance): boolean {
   };
 
   const hooks = viz._facetHooks ? viz._facetHooks() : {};
-  const shared = config.scales === "shared";
+  const shared = facetScalesShared(config, hooks);
   const {states, zoomShapes} = drawPanels(viz, {config, hooks, panels, area, shared, scales: undefined, padding});
 
   viz._filteredData = all;

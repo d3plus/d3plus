@@ -150,7 +150,7 @@ TrendLineProjection.args = {
   trendLine: true,
   trendLineConfig: {projection: 3}
 };
-TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it."}}};
+TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it. The projected slots are marked as a forecast, shaded from the edge of the first one; set `forecast: false` to leave them unmarked."}}};
 
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
@@ -547,7 +547,7 @@ BaselineBreak.args = {
   y: "starts",
   yDomain: [1200, 1700]
 };
-BaselineBreak.parameters = {controls: {include: ["baselineBreak", "yDomain"]}, docs: {description: {story: "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`). See [#645](https://github.com/d3plus/d3plus/issues/645)."}}};
+BaselineBreak.parameters = {controls: {include: ["baselineBreak", "yDomain"]}, docs: {description: {story: "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis, and the break's gap is cut straight across them, as with a `yBreak`. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`, and `mask: false` to leave the bars whole). See [#645](https://github.com/d3plus/d3plus/issues/645)."}}};
 
 export const HorizontalBaselineBreak = Template.bind({});
 HorizontalBaselineBreak.args = {
@@ -562,6 +562,16 @@ HorizontalBaselineBreak.args = {
   y: "year"
 };
 HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};
+
+export const Baseline = Template.bind({});
+Baseline.args = {
+  baseline: 1200,
+  data: housingStarts,
+  groupBy: "year",
+  x: "year",
+  y: "starts"
+};
+Baseline.parameters = {controls: {include: ["baseline", "baselineBreak"]}, docs: {description: {story: "`baseline(1200)` renders exactly like `yDomain([1200])`: the y axis starts at exactly `1200` (its top is still rounded, just as it is with no domain set), then breaks back to a `0` tick, and the bars still grow from that `0` through the break, which cuts its gap across them. Turn `baselineBreak` off and the axis stretches down to `0`, just as a `yDomain` minimum does. A `yDomain` bound wins over the baseline, and when every value sits below the baseline it ends the axis instead, like `yDomain([undefined, n])`."}}};
 
 export const OutlierBarBreak = Template.bind({});
 OutlierBarBreak.args = {

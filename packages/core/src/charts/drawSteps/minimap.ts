@@ -43,8 +43,8 @@ function liveTransform(viz: Viz): ZoomTransform {
 
 /**
     Which screen dimensions the zoom actually scales. Every chart zooms its
-    picture uniformly, except a Plot, which rescales only its linear axes —
-    a bar chart with a discrete x axis zooms vertically alone, so the
+    picture uniformly, except a Plot, which rescales only its linear and time
+    axes — a bar chart with a discrete x axis zooms vertically alone, so the
     viewport box keeps the minimap's full width.
     @private
 */

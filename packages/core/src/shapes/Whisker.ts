@@ -16,6 +16,7 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Line from "./Line.js";
 import Rect from "./Rect.js";
+import {uniqueIds} from "./uniqueIds.js";
 import type {WhiskerConfig} from "./shapeConfig.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
@@ -77,6 +78,9 @@ export default class Whisker extends BaseClass {
       return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
     };
 
+    // Each whisker's identity keys its line and its endpoint.
+    const ids = uniqueIds(this._data.map((d: DataPoint, i: number) => `${d.id ?? i}`));
+
     const lineData: DataPoint[] = [];
     this._data.forEach((d: DataPoint, i: number) => {
       const orient = this.schema.orient(d, i) as string;
@@ -95,7 +99,7 @@ export default class Whisker extends BaseClass {
         __d3plus__: true,
         data: d,
         i,
-        id: i,
+        id: ids[i],
         x,
         y,
       } as unknown as DataPoint);
@@ -103,7 +107,7 @@ export default class Whisker extends BaseClass {
         __d3plus__: true,
         data: d,
         i,
-        id: i,
+        id: ids[i],
         x: endpointX,
         y: endpointY,
       } as unknown as DataPoint);
@@ -124,6 +128,7 @@ export default class Whisker extends BaseClass {
       (dataObj as Record<string, unknown>).__d3plus__ = true;
       (dataObj as Record<string, unknown>).data = d;
       (dataObj as Record<string, unknown>).i = i;
+      (dataObj as Record<string, unknown>).id = `${ids[i]}-end`;
       (dataObj as Record<string, unknown>).endpoint = this.schema.endpoint(d, i);
       (dataObj as Record<string, unknown>).length = this.schema.length(d, i);
       (dataObj as Record<string, unknown>).orient = this.schema.orient(d, i);

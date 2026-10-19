@@ -24,7 +24,7 @@ The legend lists each group in the chart, with a swatch in the group's color. It
 
 Clicking a swatch hides that group, and shift-clicking it shows that group alone. `legendFilterInvert: true` swaps the two. The other legend settings:
 
-- **`legendPosition`** picks the side the legend sits on: `"top"`, `"bottom"`, `"left"`, or `"right"`, or `false` to hide it. By default it goes on the right of charts more than 1.5 times as wide as they are tall, and along the bottom otherwise.
+- **`legendPosition`** picks the side the legend sits on: `"top"`, `"bottom"`, `"left"`, or `"right"`, or `false` to hide it. The default, `"auto"`, lets the chart choose: [inside the chart](#inside-the-chart) when there's room, otherwise on the right of charts more than 1.5 times as wide as they are tall, and along the bottom of the rest.
 - **`legendConfig`** is passed to the [Legend](/docs/core-components-legend--d3plus) component, for things like `label`, `shapeConfig`, and `title`.
 - **`legendSort`** orders the swatches. The default is alphabetical by label.
 - **`legendTooltip`** configures the tooltip shown when hovering a swatch.
@@ -38,12 +38,12 @@ When `colorScale` maps a numeric value to color, a colorScale replaces the legen
 <Geomap config={{
   data, groupBy: "id", colorScale: "value",
   colorScaleConfig: {scale: "jenks"},   // "linear" | "jenks" | "quantile" | "buckets" | "log"
-  colorScalePosition: "right"           // "top" | "bottom" | "left" | "right" | false
+  colorScalePosition: "right"           // "auto" | "top" | "bottom" | "left" | "right" | false
 }} />
 ```
 
 - **`colorScaleConfig`** is passed to the [ColorScale](/docs/core-components-colorscale--d3plus) component. Its `scale` option picks how values are binned. The default, `"jenks"`, groups values into natural breaks. `"linear"` draws a continuous gradient. Pass `color` to override the colors.
-- **`colorScalePosition`** picks the side, with the same default rule as the legend.
+- **`colorScalePosition`** picks the side, with the same `"auto"` default as the legend.
 - **`colorScaleMaxSize`** caps the scale's length along its side (600 pixels by default).
 - **`colorScalePadding`** works like `legendPadding`.
 
@@ -157,7 +157,7 @@ The legend is drawn over a slightly transparent box in the chart's background co
 }} />
 ```
 
-This is on by default. To keep every legend in its margin, set `legendInset` to `false`, or pass a function that receives the resolved config and returns whether to allow it. Setting `legendPosition` or `colorScalePosition` explicitly also keeps that legend on the side you chose. `sizeLegendPosition` only picks which margin the size legend uses when it doesn't fit inside the chart.
+This is on by default. To keep every legend in its margin, set `legendInset` to `false`, or pass a function that receives the resolved config and returns whether to allow it. Only a legend or colorScale whose position is `"auto"` (the default) moves inside: setting `legendPosition` or `colorScalePosition` to a side keeps it on the side you chose. `sizeLegendPosition` only picks which margin the size legend uses when it doesn't fit inside the chart.
 
 ```jsx
 <Network config={{data, nodes, links, size: "value", legendInset: false}} />
