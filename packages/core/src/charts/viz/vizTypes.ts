@@ -240,6 +240,11 @@ export interface VizInstance {
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
+  /**
+      Hovering a shape outlines it even when nothing else dims
+      (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).
+  */
+  _hoverOutline?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
@@ -450,6 +455,15 @@ export interface VizInstance {
       stacked bar column highlights.
   */
   _plotColumnHighlight?: (rows: Set<DataPoint>) => (d: DataPoint, i: number) => boolean;
+  /** Scene nodes a chart draws beneath a Plot's shapes, given those shapes' nodes and the axis position functions. */
+  _plotUnderlay?: (shapes: SceneNode[], x: (v: unknown) => number, y: (v: unknown) => number) => SceneNode[];
+  /**
+      Whether a stacked Plot stamps each row with its share of its stack
+      (`share` / `__d3plusShare`), which feeds the share label line and the
+      Share tooltip row; on unless `false`. A chart whose stacks hold one
+      bar apiece (Waterfall) turns it off, since every share would be 1.
+  */
+  _stackShares?: boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

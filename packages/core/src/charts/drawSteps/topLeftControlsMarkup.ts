@@ -183,11 +183,23 @@ export function topLeftControlsBox(
 }
 
 /**
+    How far down the chart content must start to clear the top-left controls
+    with the same gap below them as above: the panel's height (its top
+    padding included) plus that padding again. Zero when nothing is
+    contributing. The top-left mirror of `zoomControlsReach`.
+*/
+export function topLeftControlsReach(viz: Viz, contributions: Contribution[]): number {
+  const box = topLeftControlsBox(viz, contributions);
+  return box && box.height ? box.height + PANEL_PADDING : 0;
+}
+
+/**
     How far content starting `top` px down the chart, whose left edge sits
     `left` px in from the chart's left edge, must pull in its left edge to
     clear the top-left controls panel. Zero when nothing is showing there or
-    content starts below the panel's height. Mirrors `zoomControlsInset`,
-    measuring/insetting from the left instead of the right.
+    content starts below the panel's reach (see `topLeftControlsReach`).
+    Mirrors `zoomControlsInset`, measuring/insetting from the left instead
+    of the right.
 */
 export function topLeftControlsInset(
   viz: Viz,
@@ -196,6 +208,6 @@ export function topLeftControlsInset(
   contributions: Contribution[],
 ): number {
   const box = topLeftControlsBox(viz, contributions);
-  if (!box || top >= box.height) return 0;
+  if (!box || top >= topLeftControlsReach(viz, contributions)) return 0;
   return Math.max(0, box.width - left);
 }

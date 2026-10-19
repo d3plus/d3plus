@@ -99,9 +99,11 @@ for (const renderer of ["svg", "canvas"]) {
     this.timeout(60000);
     const bare = await layout("", renderer);
     const zoomPadded = await layout(`${PAGE_CSS} .d3plus-zoom-control {padding-bottom: 10px}`, renderer);
+    // The controls reach their panel's bottom plus a gap equal to the
+    // buttons' inset from the chart's top edge.
     assert.strictEqual(
       zoomPadded.controlsHeight,
-      bottom(bare.zoom) + 10,
+      bottom(bare.zoom) + 10 + bare.zoom[0].top,
       "the zoom panel's padding from the page is measured",
     );
     const itemPadded = await layout(`${PAGE_CSS} .tlc-item {padding-bottom: 16px}`, renderer);

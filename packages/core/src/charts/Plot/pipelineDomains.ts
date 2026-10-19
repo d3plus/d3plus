@@ -9,7 +9,8 @@
       filler points, runs d3-stack with the configured order/offset, then
       derives `domains` from the stack extents (widened to fit any bar error
       bars around their stacked ends). Each stacked row and its source datum
-      also gets its share of its stack's total (see `stampShare`).
+      also gets its share of its stack's total (see `stampShare`), unless the
+      chart opts out with `_stackShares: false`.
     - **Non-stacked**: sorts axisData by the discrete accessor; `domains` is
       either the data values (for the discrete axis or user-sorted axes) or
       extent (for continuous).
@@ -149,7 +150,7 @@ function computeStackedDomains(viz: VizInstance, ctx: StackedCtx): Partial<VizCo
     (d: Row) => d.discrete,
   ).map(([, values]) => values);
 
-  stampStackShares(data, opp);
+  if (viz._stackShares !== false) stampStackShares(data, opp);
   fillMissingAreaPoints(viz, {axisData, data, stackData: stackGroupsData, stackKeys, stackGroup, opp});
 
   if (viz.schema[`${viz.schema.discrete}Sort`]) {

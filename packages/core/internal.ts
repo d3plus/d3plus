@@ -11,6 +11,16 @@
 */
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
+export {applyBulletLayout, bulletExtents} from "./src/charts/Bullet/applyLayout.js";
+export {
+  applyCalendarLayout,
+  calendarDateFormat,
+  calendarLabelStyle,
+  calendarOrient,
+  calendarPeriod,
+  rowDate,
+  rowsExtent,
+} from "./src/charts/Calendar/applyLayout.js";
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
@@ -30,6 +40,8 @@ export {applyWaffleLayout, waffleFillOptions} from "./src/charts/Waffle/applyLay
 export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
+export {bulletStack} from "./src/charts/Bullet/bulletLayout.js";
+export {fitAxis as bulletAxis, normalizeBands as bulletBands} from "./src/charts/Bullet/bulletGeometry.js";
 export {
   absoluteFormat,
   frameTotals,
@@ -99,6 +111,18 @@ export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/ch
 export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
 export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
 export {
+  compareCategories,
+  stepValue,
+  waterfallKinds,
+  waterfallStackOffset,
+  waterfallStep,
+  waterfallSteps,
+} from "./src/charts/Waterfall/steps.js";
+export type {StepAccessors, WaterfallKind, WaterfallStep} from "./src/charts/Waterfall/steps.js";
+export {connectorBars, connectorNodes, connectorSegments} from "./src/charts/Waterfall/connectors.js";
+export type {ConnectorBar, ConnectorSegment} from "./src/charts/Waterfall/connectors.js";
+export {kindColor, labelAlign, labelBox, stepLabel, tooltipRows as waterfallTooltipRows} from "./src/charts/Waterfall/labels.js";
+export {
   bandOpacityTargets,
   boundOrValue,
   confidenceBands,
@@ -115,6 +139,48 @@ export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
 export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
 export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
 export {sunburstShadeAmount} from "./src/charts/Sunburst/shade.js";
+export {
+  addDays,
+  blockDays,
+  blockMonths,
+  blockWeeks,
+  calendarBlocks,
+  calendarDayKey,
+  dateExtent,
+  daysBetween,
+  parseCalendarDate,
+  resolveWeekStart,
+  startOfDay,
+  weekIndex,
+  weekdaySlot,
+} from "./src/charts/Calendar/calendarDates.js";
+export type {CalendarBlock, CalendarDay, CalendarPeriod} from "./src/charts/Calendar/calendarDates.js";
+export {
+  blockGrid,
+  cellCornerRadius,
+  fitCalendar,
+  monthLabelWeek,
+  monthOutlinePath,
+  slotPosition,
+  weekdayLabelSlots,
+} from "./src/charts/Calendar/calendarGrid.js";
+export type {CalendarFit, CalendarFitInput, CalendarOrient} from "./src/charts/Calendar/calendarGrid.js";
+export {calendarInsets, calendarLayout, labelPadding, weekdayNames} from "./src/charts/Calendar/calendarLayout.js";
+export type {
+  CalendarCell,
+  CalendarLabel,
+  CalendarLabelOptions,
+  CalendarLayoutInput,
+  CalendarLayoutResult,
+  CalendarOutline,
+} from "./src/charts/Calendar/calendarLayout.js";
+export {
+  calendarDateSpecifier,
+  calendarFormatter,
+  calendarTimeLocale,
+  narrowName,
+} from "./src/charts/Calendar/calendarFormat.js";
+export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export {
   largestRadius,
@@ -149,6 +215,8 @@ export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/t
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
+export {bulletDef} from "./src/charts/Bullet/index.js";
+export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
@@ -170,6 +238,7 @@ export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
+export {waterfallDef} from "./src/charts/Waterfall/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {
@@ -240,6 +309,7 @@ export {
 export {
   baselineBreakAxisConfig,
   clampBarConfig,
+  outsideBaselineBreak,
   plotAxisConfig,
   userDomainBreaksBaseline,
   valueAxis,

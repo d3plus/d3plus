@@ -8,6 +8,7 @@ import {accessor, BaseClass, constant} from "../../utils/index.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {broadcastLink} from "./linkGroup.js";
+import {shapeHoverEnabled} from "./shapeHover.js";
 import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
 import {mergeConfigBag, resolvesReset} from "../../fluent.js";
@@ -449,7 +450,7 @@ Defaults to an empty array (`[]`).
     // forEach above is a no-op for them. Repaint so the scene's
     // interaction-opacity pass re-reads `_hover` and dims the non-matching
     // nodes (or restores them when `_` is `false`). Also repaint for a
-    // colorScale-bucket hover even when per-shape dimming is off
+    // colorScale-bucket hover even when per-shape hover is off
     // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
     // same pass, so without a repaint the map would never re-compose. Coalesced
     // to one paint per frame so a fast pointer sweep doesn't saturate the main
@@ -457,7 +458,7 @@ Defaults to an empty array (`[]`).
     if (
       this._sceneRenderer &&
       _ !== undefined &&
-      (this.schema.shapeConfig.hoverOpacity !== 1 || this._hoverBucket)
+      (shapeHoverEnabled(this) || this._hoverBucket)
     )
       this._scheduleSceneRepaint();
 

@@ -182,6 +182,8 @@ export interface PlotPaintContext {
   xLabelMode?: XLabelMode;
   /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
   zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
+  /** Where a zoom repaint's unzoomed x/y plot ranges land (see `Plot/plotZoom.ts`). */
+  zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
 
 /**
@@ -479,6 +481,7 @@ function emitShapeLoop(
     width,
     values: [],
     valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
+    zoomRanges: pCtx.zoomRanges,
   };
   shapeData.forEach(([key, values]) => {
     out.push(...emitShape({...shapeCtx, values}, key));
@@ -604,7 +607,11 @@ export function plotEmit(
 
     const shapeConfig = buildShapeConfig(viz, x, y, domains, yOffset);
 
+    // An underlay (Waterfall's connectors) sits behind the shapes, among the
+    // data marks: it's drawn at data values a domain can cut off.
+    const shapesStart = marks.length;
     emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
+    if (viz._plotUnderlay) marks.splice(shapesStart, 0, ...viz._plotUnderlay(marks.slice(shapesStart), x, y));
     out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange, x2Height: pCtx.x2Height, yOffset})));
 
     emitShapeExits(viz, shapeData, shapeConfig);

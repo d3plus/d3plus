@@ -26,7 +26,9 @@ it("breakStyle reads breakConfig, with mask on by default", () => {
   assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 36, mask: true, lines: true});
   axis.breakConfig({mask: false, space: 50, lines: false});
   assert.deepStrictEqual(breakStyle(axis), {angle: 30, gap: 5, size: 10, space: 50, mask: false, lines: false});
-  assert.strictEqual(breakStyle(axis, "baselineBreakConfig").mask, false, "the baseline break defaults to no mask");
+  assert.strictEqual(breakStyle(axis, "baselineBreakConfig").mask, true, "the baseline break is masked by default too");
+  axis.baselineBreakConfig({mask: false});
+  assert.strictEqual(breakStyle(axis, "baselineBreakConfig").mask, false, "and turns it off the same way");
 });
 
 it("break removes a value range and swaps in a broken scale", () => {

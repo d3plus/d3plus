@@ -6,7 +6,9 @@ const charts = [
   ["Bar Chart", "barchart"],
   ["Beeswarm", "beeswarm"],
   ["Box & Whisker", "boxwhisker"],
+  ["Bullet", "bullet"],
   ["Bump Chart", "bumpchart"],
+  ["Calendar", "calendar"],
   ["Chord", "chord"],
   ["Donut", "donut"],
   ["Dumbbell", "dumbbell"],
@@ -32,6 +34,7 @@ const charts = [
   ["Tree", "tree"],
   ["Treemap", "treemap"],
   ["Waffle", "waffle"],
+  ["Waterfall", "waterfall"],
 ];
 
 const sites = [

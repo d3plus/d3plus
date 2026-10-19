@@ -21,11 +21,11 @@ import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
-import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {zoomControlsBox, zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {
-  topLeftControlsBox,
   topLeftControlsInset as topLeftControlsInsetRaw,
+  topLeftControlsReach,
 } from "../drawSteps/topLeftControlsMarkup.js";
 
 /** A margin claim, in pixels along each side. Unclaimed sides default to 0. */
@@ -238,11 +238,12 @@ const CORNER_INSET_GAP = 6;
     How far content starting `top` px down the chart, whose right edge sits
     `right` px in from the chart's right edge, must pull in its right edge to
     clear the zoom-control panel pinned to the chart's top-right corner. Zero
-    when the chart shows no controls or the content starts below them.
+    when the chart shows no controls or the content starts below their reach
+    (see `zoomControlsReach`).
 */
 export function zoomControlsInset(viz: VizInstance, top: number, right: number): number {
   const box = zoomControlsBox(viz as never);
-  if (!box || top >= box.height) return 0;
+  if (!box || top >= zoomControlsReach(viz as never)) return 0;
   const inset = box.width - right;
   return inset > 0 ? inset + CORNER_INSET_GAP : 0;
 }
@@ -280,13 +281,15 @@ export function cornerInsets(
 
 /**
     How far down the chart the corner control panels (zoom, top-left) reach:
-    content starting at least this far down clears both. Zero when neither
-    is showing.
+    content starting at least this far down clears both, with a gap below
+    the buttons equal to their inset from the chart's top edge. Zero when
+    neither is showing.
 */
 export function cornerControlsHeight(viz: VizInstance): number {
-  const zoom = zoomControlsBox(viz as never);
-  const topLeft = topLeftControlsBox(viz as never, getTopLeftContributions(viz as never));
-  return Math.max(zoom?.height ?? 0, topLeft?.height ?? 0);
+  return Math.max(
+    zoomControlsReach(viz as never),
+    topLeftControlsReach(viz as never, getTopLeftContributions(viz as never)),
+  );
 }
 
 /** One place to lay content out at the top of the chart: how far each side insets, and how far it drops. */
