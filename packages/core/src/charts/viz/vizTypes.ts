@@ -439,6 +439,15 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
+  /** Scene nodes a chart draws beneath a Plot's shapes, given those shapes' nodes and the axis position functions. */
+  _plotUnderlay?: (shapes: SceneNode[], x: (v: unknown) => number, y: (v: unknown) => number) => SceneNode[];
+  /**
+      Whether a stacked Plot stamps each row with its share of its stack
+      (`share` / `__d3plusShare`), which feeds the share label line and the
+      Share tooltip row; on unless `false`. A chart whose stacks hold one
+      bar apiece (Waterfall) turns it off, since every share would be 1.
+  */
+  _stackShares?: boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */
