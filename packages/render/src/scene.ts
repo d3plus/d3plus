@@ -262,6 +262,21 @@ export interface NodeBase {
   */
   startAngle?: number;
   endAngle?: number;
+  /**
+      When this node enters, the share of the transition it animates over,
+      instead of the whole: it holds its enter start until `start`, then
+      animates to its target over `[start, end]`. Both are shares (0–1) of the
+      transition's eased progress, so nodes given consecutive windows enter
+      one after another within the draw's one duration. Ignored when the
+      node is updating or exiting. See `enterWindowProgress`.
+  */
+  enterWindow?: EnterWindow;
+}
+
+/** The share of a transition's eased progress (0–1) an entering node animates over. See `NodeBase.enterWindow`. */
+export interface EnterWindow {
+  start: number;
+  end: number;
 }
 
 export interface RectNode extends NodeBase {

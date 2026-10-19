@@ -5,6 +5,7 @@ import {
   rectEnterStart,
   collapse,
   collapseTo,
+  enterWindowProgress,
   fadeSwapOpacity,
   interpolateNode,
   isFlipEligible,
@@ -155,9 +156,13 @@ function interpolateChildren(
     return interpolateNode(a, b);
   });
 
+  // An entering node with an `enterWindow` runs its own enter over that
+  // share of the progress (a group's children keep their own timing).
+  const windowed = (n: SceneNode, interp: Interp<SceneNode>): Interp<SceneNode> =>
+    n.enterWindow ? t => interp(enterWindowProgress(t, n.enterWindow)) : interp;
   const enters: Interp<SceneNode>[] = enter.map(n => {
     const swap = fadeSwapInterp(undefined, n);
-    if (swap) return swap;
+    if (swap) return windowed(n, swap);
     // The drill-up reunion node starts at the full size its former children
     // currently occupy and animates down to its own real target — see
     // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
@@ -169,7 +174,7 @@ function interpolateChildren(
         (flip?.enterFrom && isFlipEligible(n)
           ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
           : collapse(n));
-    const interp = interpolateNode(start, n);
+    const interp = windowed(n, interpolateNode(start, n));
     if (n.type === "group") {
       return wrapGroup(interp, interpolateChildren([], n.children, undefined, flip));
     }
