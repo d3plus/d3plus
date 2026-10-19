@@ -63,7 +63,7 @@ export function breakStyle(
     gap: Math.max(0, num(cfg.gap, 5)),
     size: Math.max(0, num(cfg.size, 10)),
     space: Math.max(0, num(cfg.space, 36)),
-    mask: typeof cfg.mask === "boolean" ? cfg.mask : key === "breakConfig",
+    mask: cfg.mask !== false,
     lines: cfg.lines !== false,
   };
 }

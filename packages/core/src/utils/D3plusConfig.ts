@@ -14,6 +14,8 @@ import type {
 import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
+/** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
+type PanelPosition = Position | "auto";
 
 type DataPointAccessor<T> = string | ((d: DataPoint) => T);
 
@@ -54,8 +56,23 @@ type AxisScale =
 export interface AxisConfig {
   barConfig?: Record<string, string | number>;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      The axis's domain: `[min, max]` on a continuous axis, or the
+      categories to show on a discrete one. A full domain is drawn exactly
+      as given unless this axis config's `rounding` says otherwise, just as
+      on an Axis. In a Plot's axis configs it is a lower-level override than
+      `xDomain`/`yDomain`: it wins over them, isn't stretched to the
+      chart's `baseline`, and isn't rounded by Plot's own "outside"
+      default. In `xConfig`/`yConfig`, one with a single end set (`[min]`
+      or `[undefined, max]`) on a continuous axis works exactly like
+      `yDomain([min])` instead: it pins that end, and the data fills the
+      other, rounded as `rounding` says.
+  */
+  domain?: (number | string | Date | undefined)[];
+  /**
+      The value the axis's `baselineBreak` returns to: the tick kept below
+      (or above) the break. Defaults to `0`. To start a Plot's value axis at
+      a value, set the chart's `baseline` instead, which sets the axis's
+      minimum exactly like `yDomain([n])`, break back to this tick included.
   */
   baseline?: number;
   /**
@@ -66,8 +83,9 @@ export interface AxisConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
@@ -85,7 +103,7 @@ export interface AxisConfig {
       the axis line's `barConfig` style), `lineConfig` (those lines'
       `stroke`, `stroke-width`, and other line styles, layered over the axis
       line style), `mask` (whether a Plot cuts the gap between the two
-      lines straight across the shapes, default `false`), plus `stroke`,
+      lines straight across the shapes, default `true`), plus `stroke`,
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.
   */
@@ -103,9 +121,8 @@ export interface AxisConfig {
   break?: false | [number, number] | [number, number][];
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
-      `angle`, `lines`, `lineConfig`, and mark line styles as
-      `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between
-      the break's two lines straight across the shapes) defaulting to `true`.
+      `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
+      same defaults, as `baselineBreakConfig`.
   */
   breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /** Grid values of the axis. */
@@ -132,6 +149,21 @@ export interface AxisConfig {
       but one may be `undefined` to allow the default behavior for that value.
   */
   range?: (number | undefined)[];
+  /**
+      How a linear or log axis rounds its domain to "nice" values:
+      "outside" widens each end past the data, "inside" pulls each end in
+      (marking them with the `roundingInside*` prefixes and suffixes), and
+      "none" keeps the domain as given. Defaults to "none" on an Axis; a
+      Plot rounds "outside" unless its axis config says otherwise or sets a
+      full `domain`, which is rounded only when asked for here. With a
+      user domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a
+      one-sided `domain` here) only an end left open is rounded:
+      `yDomain([n])` keeps `n` exactly and rounds the far end where the
+      axis would with no domain set, and "none" leaves that end at the
+      data. A `yDomain` with both ends set isn't rounded unless `rounding`
+      is set here.
+  */
+  rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
   /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
@@ -458,8 +490,21 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
-      The baseline value: where a Plot's bars and areas start, and the value
-      an axis's `baselineBreak` returns to. Defaults to `0` on an axis.
+      Starts a Plot's value axis (the x axis for horizontal charts) at a
+      value: `baseline(n)` renders exactly like `yDomain([n])` (or
+      `xDomain([n])`). Bars and areas still grow from the chart's own
+      `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
+      `baselineBreak` on (their default) the axis breaks back to a `0`
+      tick and bars run through the break, with its gap cut across them,
+      and with it off the axis
+      stretches down to `0`. As with `yDomain([n])`, only `n` is
+      pinned: the far end comes from the data and is rounded where the
+      axis would round it with no domain set (left at the data when the
+      axis config's `rounding` is "none"), and marks for values past `n`
+      stop at the axis's edge.
+      When every value sits at or below `n`, it ends the axis instead,
+      like `yDomain([undefined, n])`. A bound given in
+      `yDomain`/`xDomain` wins.
   */
   baseline?: number;
   /**
@@ -470,15 +515,33 @@ export interface D3plusConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
+  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  bands?:
+    | (number | {min?: number; max?: number; color?: string})[]
+    | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
+  bulletSize?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
+  calendarLabelConfig?: {
+    fontColor?: string;
+    fontFamily?: string | string[];
+    fontSize?: number;
+    fontWeight?: number | string;
+  };
+  /** Matrix and Calendar: the gap between neighboring cells, in pixels. */
+  cellPadding?: number;
+  /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
+  cellRadius?: number;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -497,8 +560,8 @@ export interface D3plusConfig {
   };
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the color scale, `false` to hide it, or an accessor returning either. */
-  colorScalePosition?: false | Position | (() => false | Position);
+  /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  colorScalePosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Column key for matrix-style layouts. */
   column?: string;
   /** Pyramid: where the category labels go — `"center"` (a gutter between the halves, the default) or `"left"`. */
@@ -507,6 +570,10 @@ export interface D3plusConfig {
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
   comparisonConfig?: Record<string, unknown>;
+  /** Waterfall: line styles for the connectors between bars (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the row the connector leaves and its index. */
+  connectorConfig?: Record<string, unknown>;
+  /** Waterfall: draws a thin line from the end of each bar to the start of the next. */
+  connectors?: boolean;
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
@@ -541,6 +608,15 @@ export interface D3plusConfig {
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /**
+      Calendar: the day each row falls on, as a data key or accessor returning
+      a `Date`, a millisecond timestamp, or a date string (a bare
+      `"YYYY-MM-DD"` is read as that local day). Defaults to the row's `date`,
+      else its `time`.
+  */
+  date?: string | ((d: DataPoint, i: number) => Date | number | string);
+  /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
+  decreaseColor?: string;
+  /**
       Kernel density options for Violin and Ridgeline curves: `kernel`
       (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each
       group's own Silverman rule-of-thumb bandwidth by default), `points` (how
@@ -567,6 +643,8 @@ export interface D3plusConfig {
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
+  emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
@@ -599,6 +677,65 @@ export interface D3plusConfig {
     | number
     | string
     | ((d: Record<string, unknown>) => boolean);
+  /**
+      Marks a forecast: the stretch of the discrete axis after it gets a
+      shaded backdrop, a rule at its start, and a translated "Forecast"
+      label, and each line's forecast stretch is dashed (see
+      `forecastConfig`). A function flags the forecast rows (e.g.
+      `d => d.Type === "Predicted"`): each line is dashed from its last
+      unflagged point, or throughout when every row is flagged, and the
+      backdrop starts at the earliest of those. `"auto"` (or `true`) flags
+      the rows whose `confidence` bounds spread away from their line. A
+      discrete-axis value (a date or year on a time axis) starts the
+      forecast there. Unset (the default), only a trend line projection
+      (`trendLineConfig.projection`) is marked, from the last fitted value;
+      `false` marks nothing, not even a projection. On bar charts the
+      backdrop starts at the edge of the first forecast bar, and bars keep
+      their own styles. Defaults to `"auto"` on a FanChart.
+
+      Bullet: each row's forecast (or other comparative measure), drawn as
+      a paler bar behind the measure: a data key, an accessor returning the
+      row's value, a number shared by every row, or `false`.
+  */
+  forecast?:
+    | boolean
+    | "auto"
+    | number
+    | string
+    | Date
+    | ((d: DataPoint, i: number) => boolean | number);
+  /**
+      Styles for the `forecast` marker: the backdrop's `fill` and
+      `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
+      `stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and
+      `strokeDasharray` (`"4 4"`; `stroke: false` hides it), the label's
+      text as `label` (default "Forecast", translated; `false` hides it)
+      with `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and
+      `fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each
+      line's forecast stretch (default `"6 4"`; `false` keeps lines solid).
+      Colors default to the chart's text color for its background. The
+      backdrop is chart chrome with no data row, so `shapeConfig.texture`
+      and `shapeConfig.backgroundImage` leave it plain; give it its own
+      `texture` (a textures.js name or config, drawn in the backdrop's color
+      over its shade at `textureOpacity`, default `0.3`, with
+      `textureDefault`) or `backgroundImage` (a URL,
+      fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
+      by default.
+
+      Bullet: the forecast bar's `size` (a fraction of the band's
+      thickness), `opacity`, `fill`, `texture`, and
+      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
+      accessor.
+  */
+  forecastConfig?: Record<string, unknown>;
+  /**
+      Dumbbell: orders the categories by their gap, the distance between each
+      category's smallest and largest value. `"descending"` puts the widest gap
+      first (at the top of horizontal dumbbells, at the left of vertical ones),
+      `"ascending"` the narrowest, and `false` keeps the category axis's own
+      order. A `ySort`/`xSort` comparator on the category axis takes precedence.
+  */
+  gapSort?: false | "ascending" | "descending";
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
@@ -617,6 +754,8 @@ export interface D3plusConfig {
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
+  increaseColor?: string;
   /**
       What Violin draws inside each violin: `"box"` (default; a narrow box
       plot), `"quartiles"` (a solid line at the median and dashed lines at the
@@ -672,8 +811,8 @@ export interface D3plusConfig {
   };
   /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the legend, or an accessor returning it. */
-  legendPosition?: Position | (() => Position);
+  /** Position of the legend (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
   /** Tooltip configuration for legend items. */
@@ -723,6 +862,8 @@ export interface D3plusConfig {
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
+  /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
+  measureSize?: number;
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
   medianSort?: false | "ascending" | "descending";
   /** Metric key for the visualization. */
@@ -731,6 +872,16 @@ export interface D3plusConfig {
   minimap?: boolean;
   /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
   minimapClassName?: string;
+  /**
+      Calendar: formats the month names along year blocks and the titles of
+      month blocks — a d3-time-format specifier read in the chart's `locale`,
+      a function of the month's first day, or `false` for none.
+  */
+  monthFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: whether to outline each month inside year blocks. Defaults to `true`. */
+  monthOutline?: boolean;
+  /** Calendar: styles the month outlines (`stroke`, `strokeWidth`, `strokeDasharray`). */
+  monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
@@ -765,6 +916,8 @@ export interface D3plusConfig {
   outerPadding?: number | "auto";
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
+  /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
+  period?: "year" | "month";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */
@@ -801,6 +954,8 @@ export interface D3plusConfig {
       all shapes of a given type.
   */
   shapeSort?: (a: string, b: string) => number;
+  /** Bullet: whether every bullet reads against one shared domain, labeled by a single value axis. */
+  sharedDomain?: boolean;
   /** Pyramid: the side values (the first `groupBy` level) as `[left, right]`. */
   sides?: unknown[];
   /** Pyramid: TextBox styles for the side titles. */
@@ -856,6 +1011,14 @@ export interface D3plusConfig {
     | string[]
     | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
     | ((d: DataPoint) => unknown);
+  /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
+  subLabel?: string | ((d: DataPoint, i: number) => string) | false;
+  /**
+      Waterfall: marks subtotal rows (a data key or accessor; truthy marks the
+      row). A subtotal bar draws from zero to the running total; when the row
+      has its own value, the running total resets to that value.
+  */
+  subtotal?: string | ((d: DataPoint, i: number) => unknown);
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
@@ -907,6 +1070,10 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
+  target?: string | number | ((d: DataPoint, i: number) => number) | false;
+  /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
+  targetConfig?: Record<string, unknown>;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
@@ -964,10 +1131,16 @@ export interface D3plusConfig {
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
+  totalColor?: string;
   /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Calendar: formats the weekday names — a d3-time-format specifier read in the chart's `locale` (default `"%a"`), a function of a date on that weekday, or `false` for none. */
+  weekdayFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: the first day of the week, `0` (Sunday) through `6` (Saturday) or a day name such as `"monday"`. Defaults to the first day of the week in the `locale`'s region. */
+  weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
   /** Key, index, or accessor function for x-axis values. */
@@ -981,10 +1154,16 @@ export interface D3plusConfig {
   */
   xBreak?: [number, number] | [number, number][];
   /**
-      The x domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The x domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `xConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn. A full `xConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `xConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   xDomain?: (number | string | Date)[];
   /** The x2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -1005,10 +1184,16 @@ export interface D3plusConfig {
   */
   yBreak?: [number, number] | [number, number][];
   /**
-      The y domain as an array. On a continuous axis it is `[min, max]`,
-      and an undefined end is calculated from the data. On a discrete axis it
-      lists the categories to show, in order; data in other categories is not
-      drawn.
+      The y domain as an array. On a continuous axis it is `[min, max]`.
+      Setting just one end (`[min]` or `[undefined, max]`) pins only that
+      end: the data fills the other, rounded where the axis would round it
+      with no domain set (left at the data when `yConfig`'s `rounding`
+      is "none"; time axes aren't rounded). With both ends set, neither is
+      rounded. On a discrete axis it lists the categories to show, in
+      order; data in other categories is not drawn. A full `yConfig`
+      `domain` is the lower-level override: it wins over this, and is drawn
+      exactly as given (rounded only by `yConfig`'s own `rounding`),
+      without stretching to the chart's `baseline`.
   */
   yDomain?: (number | string | Date)[];
   /** The y2 domain as an array. If either value is undefined, it is calculated from the data. */
@@ -1017,6 +1202,8 @@ export interface D3plusConfig {
   ySort?: (a: DataPoint, b: DataPoint) => number;
   /** Defines a custom sorting comparator function for discrete y2 axes. */
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
+  /** Calendar: formats the year beside each year block — a d3-time-format specifier (default `"%Y"`), a function of the year's first day, or `false` for none. */
+  yearFormat?: string | ((date: Date) => string) | false;
   /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
   zoom?: boolean;
   /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */

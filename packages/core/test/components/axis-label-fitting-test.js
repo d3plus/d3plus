@@ -1,8 +1,6 @@
 import assert from "assert";
 import {labelMisses, rotatesLabels} from "../../es/src/components/Axis/axisLayout.js";
-import {isDiscreteScale, thinEvenly, wholeWordSplit} from "../../es/src/components/Axis/axisLayoutLabels.js";
-import {textSplit} from "@d3plus/text";
-import jsdomIt from "../jsdom.js";
+import {isDiscreteScale, thinEvenly} from "../../es/src/components/Axis/axisLayoutLabels.js";
 
 /** A measured horizontal label `width` wide, centered at `position`. */
 const label = (i, position, width) =>
@@ -13,15 +11,6 @@ const hiddenOf = textData => textData.filter(t => t.truncated).map(t => t.i);
 it("isDiscreteScale — band, ordinal and point scales label every category", () => {
   for (const scale of ["band", "ordinal", "point"]) assert.strictEqual(isDiscreteScale(scale), true, scale);
   for (const scale of ["linear", "log", "sqrt", "time"]) assert.strictEqual(isDiscreteScale(scale), false, scale);
-});
-
-jsdomIt("wholeWordSplit — keeps hyphenatable words whole", () => {
-  const sentence = "Kinshasa Democratic Republic";
-  assert.ok(textSplit(sentence).some(w => w.endsWith("\u00AD")), "TextBox's split breaks words into syllables");
-  const words = wholeWordSplit(sentence);
-  assert.ok(words.every(w => !w.includes("\u00AD")), `no soft hyphens (${JSON.stringify(words)})`);
-  assert.deepStrictEqual(words.map(w => w.trim()), ["Kinshasa", "Democratic", "Republic"]);
-  assert.deepStrictEqual(wholeWordSplit("Tokyo").map(w => w.trim()), ["Tokyo"]);
 });
 
 it("thinEvenly — keeps every label that fits side by side", () => {

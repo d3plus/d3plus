@@ -31,6 +31,8 @@ it("BoxWhisker places boxes on numeric discrete categories", async function () {
           .data(data)
           .groupBy("id")
           .duration(0)
+          // Each chart reserves its 600px, so later ones sit below the fold.
+          .detectVisible(false)
           .width(800)
           .height(600);
         if (horizontal) viz.discrete("y").x("value").y("year");

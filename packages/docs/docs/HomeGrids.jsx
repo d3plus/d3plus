@@ -6,13 +6,18 @@ const charts = [
   ["Bar Chart", "barchart"],
   ["Beeswarm", "beeswarm"],
   ["Box & Whisker", "boxwhisker"],
+  ["Bullet", "bullet"],
   ["Bump Chart", "bumpchart"],
+  ["Calendar", "calendar"],
   ["Chord", "chord"],
   ["Donut", "donut"],
+  ["Dumbbell", "dumbbell"],
+  ["Fan Chart", "fanchart"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
   ["Line Plot", "lineplot"],
+  ["Lollipop", "lollipop"],
   ["Matrix", "matrix"],
   ["Network", "network"],
   ["Pack", "pack"],
@@ -30,6 +35,8 @@ const charts = [
   ["Tree", "tree"],
   ["Treemap", "treemap"],
   ["Violin", "violin"],
+  ["Waffle", "waffle"],
+  ["Waterfall", "waterfall"],
 ];
 
 const sites = [
