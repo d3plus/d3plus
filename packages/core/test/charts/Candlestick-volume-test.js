@@ -367,6 +367,25 @@ it("Candlestick keeps candles out of the volume strip while zoomed", async funct
   assert.strictEqual(out.bars, 30, "the strip stays drawn");
 });
 
+it("Candlestick keeps the volume axis labeled while zoomed", async function () {
+  this.timeout(120000);
+  const out = await run(async () => {
+    const data = window.__prices(30);
+    const {el, viz} = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
+    const labels = () => Array.from(el.querySelectorAll("[data-key='candlestick-volume-axis'] text")).map(t => t.textContent);
+    // The axis sits left of the plot, so the zoom's clip of the plot content would hide it.
+    const inZoomContent = () => window.__walk(viz._chartScene, n => n.key === "plot-zoom-content")
+      .some(c => window.__walk(c.children, n => n.key === "candlestick-volume-axis").length);
+    const before = labels();
+    el.querySelector(".zoom-in").click();
+    await new Promise(r => setTimeout(r, 900));
+    return {before, zoomed: labels(), inside: inZoomContent()};
+  });
+  assert.ok(out.before.length, "the volume axis is labeled");
+  assert.deepStrictEqual(out.zoomed, out.before, "a zoom leaves the volume axis's labels in place");
+  assert.strictEqual(out.inside, false, "the volume axis sits outside the zoom's clipped content");
+});
+
 it("Candlestick's volume strip and axis stay clear of the plot's domain clip", async function () {
   this.timeout(120000);
   const out = await run(async () => {

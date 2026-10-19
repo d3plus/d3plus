@@ -616,6 +616,9 @@ export function plotEmit(
     // data marks: it's drawn at data values a domain can cut off.
     const shapesStart = marks.length;
     emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
+    // An emitter's own axis (Candlestick's volume axis) paints with the
+    // plot's axes, clear of the plot's clips and masks.
+    const shapeAxes = takeAxisNodes(marks, shapesStart);
     if (viz._plotUnderlay) marks.splice(shapesStart, 0, ...viz._plotUnderlay(marks.slice(shapesStart), x, y));
     // The plot area reaches down through any room reserved under the value
     // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
@@ -646,7 +649,15 @@ export function plotEmit(
     if (endLabels) tagAxisGroup(endLabels);
 
     // Ticks, tick labels, domain bar, title, and end labels render on top of the shapes.
-    return [...content, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
+    return [...content, ...shapeAxes, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
+}
+
+/** Removes the axis-tagged nodes from `nodes` (from index `start` on) and returns them. */
+function takeAxisNodes(nodes: SceneNode[], start: number): SceneNode[] {
+  const axes: SceneNode[] = [];
+  for (let i = nodes.length - 1; i >= start; i--)
+    if ((nodes[i] as {interactionGroup?: string}).interactionGroup === "axis") axes.unshift(...nodes.splice(i, 1));
+  return axes;
 }
 
 /** Key of the group `plotEmit` wraps a zoomable plot's non-axis content in. */
