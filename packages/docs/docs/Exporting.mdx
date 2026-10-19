@@ -38,7 +38,7 @@ saveElement(document.querySelector("#chart"), {filename: "revenue", type: "png"}
 | --- | --- | --- |
 | `filename` | `"download"` | Name of the saved file. The extension comes from `type`. |
 | `type` | `"png"` | `"png"`, `"jpg"`, or `"svg"`. |
-| `callback` | — | Called once the file has been handed to the browser. |
+| `callback` | — | Called once the file has been handed to the browser. If the element can't be rendered, it is called with the `Error` instead; without a callback, the error is logged to the console. |
 
 The third argument is passed straight through to html-to-image. The one to
 know is `backgroundColor`: a chart with a transparent background comes out
