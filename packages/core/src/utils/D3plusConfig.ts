@@ -726,7 +726,7 @@ export interface D3plusConfig {
   emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
-  /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
+  /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`, for both axes or per axis as `{x, y}`), `title`, and `titleConfig`. */
   facetConfig?: FacetConfig;
   /**
       Fills the area between two series' lines, in the color of whichever

@@ -15,7 +15,7 @@ import {barWidthAccessor, labelBarWidth} from "../Plot/barWidth.js";
 import {resolveStackOffset} from "../Plot/stackHelpers.js";
 import {pyramidStackOrder} from "../Pyramid/stackOrder.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {marimekkoAxisDefaults} from "./axis.js";
+import {marimekkoAxisDefaults, marimekkoFacetAxes, marimekkoFixedAxes} from "./axis.js";
 
 /** Each bar's total along the value axis, labeled "Bar Total" in tooltips. */
 function barTotal(viz: VizInstance) {
@@ -30,8 +30,7 @@ export const marimekkoDef: ChartDefinition = {
   paintDriven: true,
   features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
-  // Each panel's categories sit at its own bar centers, so every panel labels its axes.
-  facet: {axes: "all"},
+  facet: {axes: marimekkoFacetAxes, fixedAxes: marimekkoFixedAxes},
 
   setup: viz => {
     viz._stackOffset = resolveStackOffset("expand");

@@ -1,6 +1,7 @@
 /* global describe */
 import assert from "assert";
 import {
+  alignInsets,
   coerceFacet,
   compareFacetValues,
   facetActive,
@@ -12,6 +13,7 @@ import {
   facetGrid,
   facetGroups,
   facetKey,
+  facetOuterAxes,
   facetPanelAt,
   facetPanelNode,
   facetScalesShared,
@@ -31,6 +33,7 @@ import {
   panelLabels,
   panelTitle,
   prefixKeys,
+  resolveFacetAxes,
   resolveFacetConfig,
   sortFacetValues,
   toFacetValue,
@@ -229,6 +232,27 @@ describe("facet label gutter", () => {
     assert.deepStrictEqual(exp[""], NO_SIDES);
   });
 
+  it("labelExpansions: measured from a baseline panel when an axis is labeled on every panel", () => {
+    const exp = labelExpansions({
+      xy: {top: 6, right: 12, bottom: 30, left: 50},
+      x: {top: 0, right: 12, bottom: 30, left: 10},
+    }, {x: true, y: false});
+    assert.deepStrictEqual(exp.xy, {top: 6, right: 0, bottom: 0, left: 40});
+    assert.deepStrictEqual(exp.x, NO_SIDES);
+  });
+
+  it("alignInsets: grows every panel's plot inset to the furthest any panel's sits in", () => {
+    const aligned = alignInsets([
+      {top: 4, right: 10, bottom: 30, left: 6},
+      {top: 4, right: 14, bottom: 60, left: 6},
+    ]);
+    assert.deepStrictEqual(aligned, [
+      {top: 0, right: -4, bottom: -30, left: 0},
+      {top: 0, right: 0, bottom: 0, left: 0},
+    ]);
+    assert.deepStrictEqual(alignInsets([]), []);
+  });
+
   it("labelGutter: y-labeled room on the left, x-labeled room on the bottom, the most of any above and right", () => {
     const gutter = labelGutter({
       xy: {top: 6, right: 12, bottom: 26, left: 50},
@@ -307,6 +331,38 @@ describe("facet layout helpers", () => {
     assert.deepStrictEqual(panelLabels(cell(), true), {x: false, y: true});
     assert.deepStrictEqual(panelLabels(cell({edges: {top: false, right: true, bottom: true, left: false}}), true), {x: true, y: false});
     assert.deepStrictEqual(panelLabels(cell(), false), {x: true, y: true});
+  });
+
+  it("panelLabels: each axis outer or labeled on every panel on its own", () => {
+    const bottomRight = cell({edges: {top: false, right: true, bottom: true, left: false}});
+    assert.deepStrictEqual(panelLabels(cell(), {x: false, y: true}), {x: true, y: true});
+    assert.deepStrictEqual(panelLabels(bottomRight, {x: false, y: true}), {x: true, y: false});
+    assert.deepStrictEqual(panelLabels(cell(), {x: true, y: false}), {x: false, y: true});
+  });
+
+  it("resolveFacetAxes: one mode for both axes, or valid modes per axis", () => {
+    assert.strictEqual(resolveFacetAxes("all"), "all");
+    assert.strictEqual(resolveFacetAxes("outer"), "outer");
+    assert.deepStrictEqual(resolveFacetAxes({x: "all", y: "outer"}), {x: "all", y: "outer"});
+    assert.deepStrictEqual(resolveFacetAxes({x: "all", y: "nope"}), {x: "all"});
+    assert.strictEqual(resolveFacetAxes({x: "nope"}), undefined);
+    assert.strictEqual(resolveFacetAxes("nope"), undefined);
+    assert.strictEqual(resolveFacetAxes(undefined), undefined);
+    assert.deepStrictEqual(resolveFacetConfig({axes: {y: "all"}}).axes, {y: "all"});
+  });
+
+  it("facetOuterAxes: facetConfig, then the chart's default, then outer, while scales are shared or fixed", () => {
+    const viz = {};
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, {}, true), {x: true, y: true});
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, {}, false), {x: false, y: false}, "independent scales label every panel");
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, {axes: "all"}, true), {x: false, y: false});
+    const chart = {axes: () => ({x: "all", y: "outer"})};
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, chart, true), {x: false, y: true});
+    assert.deepStrictEqual(facetOuterAxes(viz, {axes: {x: "outer"}}, chart, true), {x: true, y: true}, "config wins per axis");
+    assert.deepStrictEqual(facetOuterAxes(viz, {axes: "all"}, chart, true), {x: false, y: false});
+    const fixed = {...chart, fixedAxes: () => ({y: true})};
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, chart, false), {x: false, y: false});
+    assert.deepStrictEqual(facetOuterAxes(viz, {}, fixed, false), {x: false, y: true}, "a fixed axis stays outer");
   });
 
   it("panelTitle: above its cell, across its base area", () => {

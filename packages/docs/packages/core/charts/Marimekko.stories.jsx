@@ -129,7 +129,7 @@ SmallMultiples.args = {
   y: "Revenue",
   facet: "Year",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, while each region's label and tooltip show its share of that year's own total, so every year's shares add to 100%."}}};
+SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one mosaic per year on a shared width scale, so a narrower panel is a smaller market, while each region's label and tooltip show its share of that year's own total, so every year's shares add to 100%. Every panel labels its own regions, but the 0–100% axis is the same in each, so only the left column draws it, leaving the other panels' bars its room."}}};
 
 export const SmallMultiplesIndependent = Template.bind({});
 SmallMultiplesIndependent.args = {
@@ -140,7 +140,7 @@ SmallMultiplesIndependent.args = {
   facet: "Year",
   facetConfig: {scales: "independent"},
 };
-SmallMultiplesIndependent.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facetConfig({scales: \"independent\"})` fits each year's mosaic to its own panel, so every panel fills its width and each region's label shows its share of that year's total."}}};
+SmallMultiplesIndependent.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facetConfig({scales: \"independent\"})` fits each year's mosaic to its own panel, so every panel fills its width and each region's label shows its share of that year's total. The 0–100% axis still reads the same in every panel, so it stays on the left column alone; `facetConfig({axes: \"all\"})` gives every panel its own."}}};
 
 export const VariableWidthBarChart = (args) => <BarChart config={configify(args, barChartArgTypes)} />;
 VariableWidthBarChart.args = {

@@ -56,19 +56,6 @@ export {
 } from "./src/charts/Pyramid/pyramidData.js";
 export {pyramidStackOrder} from "./src/charts/Pyramid/stackOrder.js";
 export {
-  applyBarWidths,
-  barKey,
-  barSpanAxisConfig,
-  barWidthAccessor,
-  barWidthLabel,
-  barWidthTooltipRows,
-  labelBarWidth,
-  layoutBarSpans,
-  measureBars,
-} from "./src/charts/Plot/barWidth.js";
-export type {BarSpan, BarSpanLayout, BarWidthAccessor, MeasuredBar} from "./src/charts/Plot/barWidth.js";
-export {isExpandOffset, marimekkoAxisDefaults, percentText} from "./src/charts/Marimekko/axis.js";
-export {
   gutterAxisDefaults,
   gutterInset,
   gutterStackOffset,
@@ -198,6 +185,7 @@ export {
 export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export * from "./src/charts/Funnel/internal.js";
+export * from "./src/charts/Marimekko/internal.js";
 export {
   largestRadius,
   lollipopBuffer,
@@ -447,11 +435,15 @@ export {
   FACET_PADDING,
   FACET_TITLE_DEFAULTS,
   facetActive,
+  facetOuterAxes,
   facetScalesShared,
+  resolveFacetAxes,
   resolveFacetConfig,
 } from "./src/charts/facet/facetConfig.js";
 export type {
   FacetAccessor,
+  FacetAxes,
+  FacetAxesMode,
   FacetCell,
   FacetEdges,
   FacetHooks,
@@ -485,6 +477,7 @@ export {
 export type {FacetTitle} from "./src/charts/facet/facetScene.js";
 export {clearPanelSlots, facetPanelAt, withFacetPanel} from "./src/charts/facet/facetPanel.js";
 export {
+  alignInsets,
   expandArea,
   LABEL_COMBOS,
   labelExpansions,
