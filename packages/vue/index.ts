@@ -19,6 +19,7 @@ import {
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
+  ParallelCoordinates as ParallelCoordinatesClass,
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
@@ -102,6 +103,8 @@ export const Matrix = createD3plusComponent(MatrixClass, "chart");
 export const Network = createD3plusComponent(NetworkClass, "chart");
 /** Vue component for rendering a d3plus Pack visualization. */
 export const Pack = createD3plusComponent(PackClass, "chart");
+/** Vue component for rendering a d3plus ParallelCoordinates visualization. */
+export const ParallelCoordinates = createD3plusComponent(ParallelCoordinatesClass, "chart");
 /** Vue component for rendering a d3plus Pie visualization. */
 export const Pie = createD3plusComponent(PieClass, "chart");
 /** Vue component for rendering a d3plus Plot visualization. */

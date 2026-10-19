@@ -16,7 +16,9 @@ export interface TranslationStrings {
   Count: string;
   Decrease: string;
   Density: string;
+  "Double-click or Escape to Clear": string;
   Download: string;
+  "Drag to Filter": string;
   Equation: string;
   Exponential: string;
   Forecast: string;
@@ -84,7 +86,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u0627\u0644\u0639\u062f\u062f",
     Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
+    "Double-click or Escape to Clear": "\u0627\u0646\u0642\u0631 \u0646\u0642\u0631\u064b\u0627 \u0645\u0632\u062f\u0648\u062c\u064b\u0627 \u0623\u0648 \u0627\u0636\u063a\u0637 Esc \u0644\u0644\u0645\u0633\u062d",
     Download: "\u062a\u062d\u0645\u064a\u0644",
+    "Drag to Filter": "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
@@ -148,7 +152,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Recuento",
     Decrease: "Disminuci\u00f3n",
     Density: "Densidad",
+    "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
     Download: "Descargar",
+    "Drag to Filter": "Arrastrar para Filtrar",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
@@ -207,7 +213,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "Contagem",
     Decrease: "Redu\u00e7\u00e3o",
     Density: "Densidade",
+    "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
     Download: "Baixar",
+    "Drag to Filter": "Arraste para Filtrar",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
@@ -266,7 +274,9 @@ const translateLocale: Record<string, TranslationStrings> = {
     Count: "\u8ba1\u6570",
     Decrease: "\u51cf\u5c11",
     Density: "\u5bc6\u5ea6",
+    "Double-click or Escape to Clear": "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
     Download: "\u4e0b\u8f7d",
+    "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",

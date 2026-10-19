@@ -4,6 +4,8 @@ import type {DataPoint} from "@d3plus/data";
 import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
+import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
+import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {ConstOrAccessor, CssColor, Orient, SideOrient} from "../shapes/shapeConfig.js";
 import type {
@@ -527,6 +529,26 @@ export interface D3plusConfig {
   bands?:
     | (number | {min?: number; max?: number; color?: string})[]
     | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      ParallelCoordinates: the brush strips over each axis — `width` (px), the
+      selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and
+      `inactiveOpacity`, the stroke opacity of the grayed lines outside the
+      brushes (by default 30% of each line's own opacity).
+  */
+  brushConfig?: Record<string, unknown>;
+  /**
+      ParallelCoordinates: the active brush filters, keyed by dimension — a
+      numeric `[min, max]` or a list of selected categories. Rows must pass
+      every brush. Brushing an axis updates it, and `on("brush", fn)` is called
+      with the new value; `{}` clears every brush.
+  */
+  brushes?: BrushSelection;
+  /**
+      ParallelCoordinates: whether each axis can be brushed to filter the
+      lines (default `true`). Clicking an axis outside its brush,
+      double-clicking it, or pressing Escape while it has focus clears it.
+  */
+  brushing?: boolean;
   /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
   bulletSize?: number;
   /** Whether to cache the processed data between renders. */
@@ -615,8 +637,13 @@ export interface D3plusConfig {
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
   */
   crosshairConfig?: Record<string, unknown>;
-  /** Funnel: how the width changes between stages, `"linear"` (straight sides) or `"smooth"` (curved). */
-  curve?: "linear" | "smooth";
+  /**
+      Funnel: how the width changes between stages, `"linear"` (straight
+      sides) or `"smooth"` (curved). ParallelCoordinates: `"linear"`
+      (default) draws straight segments between the axes; `"bump"` curves
+      into and out of each axis.
+  */
+  curve?: "linear" | "smooth" | "bump";
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /**
@@ -630,6 +657,18 @@ export interface D3plusConfig {
   decreaseColor?: string;
   /** Active depth level for nested groupings. */
   depth?: number;
+  /**
+      ParallelCoordinates: per-dimension options, keyed by dimension — `domain`
+      (either end of a numeric domain may be `undefined`), `reverse`, `title`,
+      and any Axis config (`tickFormat`, `ticks`, `scale`, …).
+  */
+  dimensionConfig?: Record<string, DimensionOptions>;
+  /**
+      ParallelCoordinates: the data keys to draw an axis for, in order.
+      Defaults to every numeric key except the `groupBy` keys and `id`; a key
+      whose values aren't all numbers gets a categorical axis.
+  */
+  dimensions?: string[];
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
@@ -836,6 +875,8 @@ export interface D3plusConfig {
       exact ring values.
   */
   levels?: number | number[];
+  /** ParallelCoordinates: the lines' stroke opacity, or `"auto"` (default) to fade them as their number grows. */
+  lineOpacity?: number | "auto";
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
