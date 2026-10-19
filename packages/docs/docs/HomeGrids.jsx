@@ -13,6 +13,7 @@ const charts = [
   ["Donut", "donut"],
   ["Dumbbell", "dumbbell"],
   ["Fan Chart", "fanchart"],
+  ["Funnel", "funnel"],
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],

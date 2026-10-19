@@ -10,6 +10,7 @@ export {
   Donut,
   Dumbbell,
   FanChart,
+  Funnel,
   Gauge,
   Geomap,
   Histogram,
@@ -89,6 +90,11 @@ export type {
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
 export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
+export type {
+  FunnelConversion,
+  FunnelConversionOption,
+} from "./src/charts/Funnel/funnelLabels.js";
+export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 export type {BrushRange, BrushSelection} from "./src/charts/ParallelCoordinates/brushFilter.js";

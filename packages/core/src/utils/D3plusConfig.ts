@@ -592,8 +592,6 @@ export interface D3plusConfig {
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
   comparisonConfig?: Record<string, unknown>;
-  /** Waterfall: line styles for the connectors between bars (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the row the connector leaves and its index. */
-  connectorConfig?: Record<string, unknown>;
   /** Waterfall: draws a thin line from the end of each bar to the start of the next. */
   connectors?: boolean;
   /**
@@ -622,11 +620,25 @@ export interface D3plusConfig {
       (Path keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
+  /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
+  connector?: boolean;
+  /**
+      Funnel: paint for the necks between stages (`fill`, `opacity`,
+      `stroke`, `strokeWidth`), each optionally a function of the stage the
+      neck leads into. Waterfall: line styles for the connectors between bars
+      (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each
+      optionally a function of the row the connector leaves and its index.
+  */
+  connectorConfig?: Record<string, unknown>;
+  /** Funnel: the conversion rates each stage's label shows: `"first"`, `"previous"`, `"both"` (or `true`), or `false`. */
+  conversion?: boolean | "first" | "previous" | "both" | ("first" | "previous")[];
   /**
       Paint for the shared tooltip's crosshair guide line (`stroke`,
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
   */
   crosshairConfig?: Record<string, unknown>;
+  /** Funnel: how the width changes between stages, `"linear"` (straight sides) or `"smooth"` (curved). */
+  curve?: "linear" | "smooth";
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /** ParallelCoordinates: `"linear"` (default) draws straight segments between the axes; `"bump"` curves into and out of each axis. */
@@ -983,6 +995,8 @@ export interface D3plusConfig {
       width.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
+  stagePadding?: number;
   /** Whether to stack series. */
   stacked?: boolean;
   /**
@@ -1064,6 +1078,8 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Funnel: narrows each stage toward the next stage's width, drawing a continuous funnel instead of flat bars. */
+  taper?: boolean;
   /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
   target?: string | number | ((d: DataPoint, i: number) => number) | false;
   /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
@@ -1131,6 +1147,8 @@ export interface D3plusConfig {
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Funnel and Gauge: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
+  valueFormat?: (value: number, d: DataPoint) => string;
   /** Calendar: formats the weekday names — a d3-time-format specifier read in the chart's `locale` (default `"%a"`), a function of a date on that weekday, or `false` for none. */
   weekdayFormat?: string | ((date: Date) => string) | false;
   /** Calendar: the first day of the week, `0` (Sunday) through `6` (Saturday) or a day name such as `"monday"`. Defaults to the first day of the week in the `locale`'s region. */
