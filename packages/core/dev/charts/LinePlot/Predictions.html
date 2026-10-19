@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>Predictions · LinePlot</title>
-  <meta name="description" content="Observed and predicted series as separate lines, with a title and subtitle.">
+  <meta name="description" content="Observed and predicted series as separate lines, with the predicted rows marked as a forecast, a title and a subtitle.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
 
@@ -283,18 +283,8 @@
       "Type": "Predicted"
     }
   ],
+  forecast: d => d["Type"] === "Predicted",
   groupBy: ["Type", "Flow"],
-  // shapeConfig: {
-  //   Line: {
-  //     strokeDasharray: funcify(
-  //       d => {
-  //         if (d["Type"] === "Predicted") return "10";
-  //         return "0";
-  //       },
-  //       "d => {if (d['Type'] === 'Predicted') return '10'; return '0'; }"
-  //     )
-  //   }
-  // },
   time: "Year",
   // timeline: false,
   x: "Year",

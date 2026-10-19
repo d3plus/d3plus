@@ -37,7 +37,7 @@ strategy:
 <Geomap config={{
   data, groupBy: "id", colorScale: "value",
   colorScaleConfig: {scale: "jenks"},   // "linear" | "jenks" | "quantile" | "buckets"
-  colorScalePosition: "right"           // "top" | "bottom" | "left" | "right" | false
+  colorScalePosition: "right"           // "auto" | "top" | "bottom" | "left" | "right" | false
 }} />
 ```
 
@@ -69,7 +69,7 @@ per-shape `labelConfig`:
 
 ```jsx
 <Treemap config={{
-  data, groupBy: "id", size: "value",
+  data, groupBy: "id", sum: "value",
   fontFamily: "Inter",
   shapeConfig: {
     labelConfig: {fontSize: 14, fontColor: "#222"}

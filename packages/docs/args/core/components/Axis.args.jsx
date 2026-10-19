@@ -56,7 +56,7 @@ export const argTypes = assign(
         type: "number"
       },
       defaultValue: 0,
-      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      description: "The value the axis's `baselineBreak` returns to: the tick kept below\n(or above) the break. Defaults to `0`. To start a Plot's value axis at\na value, set the chart's `baseline` instead, which sets the axis's\nminimum exactly like `yDomain([n])`, break back to this tick included.",
       table: {
         defaultValue: {
           summary: "0"
@@ -72,7 +72,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick;\nturned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "false"
@@ -85,7 +85,7 @@ export const argTypes = assign(
     },
     baselineBreakConfig: {
       control: {},
-      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the bars, default `false`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
+      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the shapes, default `true`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -173,7 +173,7 @@ export const argTypes = assign(
         0,
         10
       ],
-      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
+      description: "The axis's domain: `[min, max]` on a continuous axis, or the\ncategories to show on a discrete one. In a Plot's\n`xConfig`/`yConfig`, a full domain wins over `xDomain`/`yDomain`,\nwhile one with a single end set (`[min]` or `[undefined, max]`) on a\ncontinuous axis works exactly like `yDomain([min])`: it pins that\nend, and the data fills the other, rounded as `rounding` says.",
       table: {
         defaultValue: {
           summary: "[0,10]"
@@ -181,7 +181,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;number&gt;"
+        summary: "array.&lt;string | number | date | undefined&gt;"
       }
     },
     domainTicks: {
@@ -520,10 +520,15 @@ export const argTypes = assign(
     },
     rounding: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "none",
-      description: "",
+      description: "How a linear or log axis rounds its domain to \"nice\" values:\n\"outside\" widens each end past the data, \"inside\" pulls each end in\n(marking them with the `roundingInside*` prefixes and suffixes), and\n\"none\" keeps the domain as given. Defaults to \"none\" on an Axis; a\nPlot rounds \"outside\" unless its axis config says otherwise. With a\nuser domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a\none-sided `domain` here) only an end left open is rounded:\n`yDomain([n])` keeps `n` exactly and rounds the far end where the\naxis would with no domain set, and \"none\" leaves that end at the\ndata. A `yDomain` with both ends set isn't rounded unless `rounding`\nis set here.",
+      options: [
+        "none",
+        "outside",
+        "inside"
+      ],
       table: {
         defaultValue: {
           summary: "none"
@@ -531,7 +536,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "\"none\" | \"outside\" | \"inside\""
       }
     },
     roundingInsideMaxPrefix: {

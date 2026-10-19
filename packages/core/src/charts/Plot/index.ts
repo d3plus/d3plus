@@ -19,15 +19,17 @@ import {
 import {accessor, constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
+import {baselineValue, setBaseline} from "./baselineDomain.js";
 
 // E4: Plot's identity-coerce accessor schema. installFluent installs it on
 // the instance's prototype alongside vizSchema's accessors.
 const plotSchema = [
   {key: "barPadding", coerce: "identity" as const},
-  {key: "baseline", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},
   {key: "fillBetweenConfig", merge: true, factory: fillBetweenDefaults},
+  {key: "forecast", coerce: "identity" as const},
+  {key: "forecastConfig", merge: true, factory: forecastDefaults},
   {key: "lineLabels", coerce: "identity" as const},
   {key: "shapeSort", coerce: "identity" as const},
   {key: "sizeMax", coerce: "identity" as const},
@@ -68,6 +70,7 @@ import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import {validateConfidenceConfig} from "./confidenceConfig.js";
 import {resolveConfidenceBands, type ConfidenceBand} from "./confidenceBands.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
+import {forecastDefaults} from "./forecast.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
@@ -460,9 +463,9 @@ export default class Plot extends Viz {
   }
 
   /**
-      Zooms by rescaling the plot's linear axes instead of scaling the
+      Zooms by rescaling the plot's linear and time axes instead of scaling the
       rendered picture (see `Plot/plotZoom.ts`). Returns false when no axis
-      is linear, so the plot falls back to picture zoom.
+      is linear or time, so the plot falls back to picture zoom.
       @private
 */
   _zoomRescale(t: ZoomState, duration = 0): boolean {
@@ -492,6 +495,15 @@ Additionally, each config object can also contain an optional "layer" key, which
     return arguments.length
       ? ((this._axisPersist = _), this)
       : this._axisPersist;
+  }
+
+  /**
+      Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is "none"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
+*/
+  baseline(_?: number): this | number | undefined {
+    return arguments.length
+      ? (setBaseline(this as unknown as VizInstance, _), this)
+      : baselineValue(this as unknown as VizInstance);
   }
 
   /**
@@ -798,7 +810,6 @@ Stacked charts always fit one line to the stack totals.
 }
 
 resolvesReset(
-  Plot.prototype,
-  "backgroundConfig", "confidenceConfig", "crosshairConfig", "labelConnectorConfig", "lineMarkerConfig",
-  "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+  Plot.prototype, "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig",
+  "lineMarkerConfig", "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
 );

@@ -70,7 +70,9 @@ it("labelExtent — a label with no lines takes no space", () => {
 
 it("vertical category axis — labels with room all show", async () => {
   for (const renderer of ["svg", "canvas"]) {
-    for (const [n, height] of [[12, 400], [15, 400], [12, 300]]) {
+    // 12 rows at 304px leave a 207px plot: room for 12 rows spaced by glyph
+    // plus one padding (204px), not for the padding counted twice (264px).
+    for (const [n, height] of [[12, 400], [15, 400], [12, 304]]) {
       const r = await run(n, height, renderer);
       assert.strictEqual(r.shown.length, n, `${renderer} ${n} rows at ${height}px: ${r.shown.join(", ")}`);
       if (renderer === "svg") assert.ok(!overlaps(r.boxes), `${n} rows at ${height}px: labels don't overlap`);

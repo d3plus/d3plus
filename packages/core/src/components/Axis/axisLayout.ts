@@ -33,10 +33,11 @@ import {
   computeBuffers,
   createTextData,
   isDiscreteScale,
+  wholeLineLabels,
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
-import {axisScaleData, axisTimeLocale} from "./timeValues.js";
+import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -85,6 +86,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  resetAxisDates(axis);
   axis._scaleData = axisScaleData(axis);
 
   let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
@@ -108,13 +110,20 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
 
   // Left to decide, a horizontal axis of categories rotates its labels when
-  // that leaves fewer of them cut short or hidden.
-  if (setting === undefined && horizontal && rotatesLabels(axis, labels)) {
-    const misses = labelMisses(textData);
-    if (misses) {
+  // that leaves fewer of them cut short or hidden. Dates and numbers thin
+  // instead, and rotate only when even their first label alone can't lie
+  // flat on one line.
+  if (setting === undefined && horizontal) {
+    const rotate = rotatesLabels(axis, labels)
+      ? (data: AxisTextDatum[]) => labelMisses(data)
+      : wholeLineLabels(axis, labels)
+        ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
+        : undefined;
+    const misses = rotate ? rotate(textData) : 0;
+    if (rotate && misses) {
       axis._labelRotation = true;
       textData = layoutLabels(axis, rescale(), labelCtx);
-      if (labelMisses(textData) >= misses) {
+      if (rotate(textData) >= misses) {
         axis._labelRotation = false;
         textData = layoutLabels(axis, rescale(), labelCtx);
       }
@@ -177,31 +186,48 @@ function layoutLabels(
   if (offsetEnabled)
     textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
 
-  const spillovers = [0, 1].map((index: number) => {
-    const datum = textData[index ? textData.length - 1 : 0];
-    if (!datum) return 0;
-    const {height: dHeight, position, rotate, width: dWidth} = datum;
-    const compPosition = index ? rangeOuter[1] : rangeOuter[0];
-    const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
-    // Room between the label's tick and the end of the range it faces.
-    const room = index ? compPosition - position : position - compPosition;
-    return room >= halfSpace ? 0 : halfSpace - room;
-  });
+  // Narrowing the range can change which labels a time axis draws (its ticks
+  // follow the range); a new first or last label is measured again, a few
+  // times at most.
+  let [first, last] = scale.range;
+  for (let pass = 0; pass < 3; pass++) {
+    // Only the labels left shown reach past the range: a category axis
+    // thinned evenly can end on a label several categories in from the end.
+    const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+    const spillovers = [0, 1].map((index: number) => {
+      const datum = shown[index ? shown.length - 1 : 0];
+      if (!datum) return 0;
+      const {height: dHeight, position, rotate, width: dWidth} = datum;
+      const compPosition = index ? rangeOuter[1] : rangeOuter[0];
+      const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
+      // Room between the label's tick and the end of the range it faces.
+      const room = index ? compPosition - position : position - compPosition;
+      return room >= halfSpace ? 0 : halfSpace - room;
+    });
 
-  const [first, last] = scale.range;
-  const newRange = [first + spillovers[0], last - spillovers[1]];
-  if (axis.schema.range) {
-    if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
-    if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
-      newRange[1] = axis.schema.range[axis.schema.range.length - 1];
-  }
+    const newRange = [first + spillovers[0], last - spillovers[1]];
+    if (axis.schema.range) {
+      if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
+      if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
+        newRange[1] = axis.schema.range[axis.schema.range.length - 1];
+    }
 
-  if (newRange[0] !== first || newRange[1] !== last) {
+    if (newRange[0] === first && newRange[1] === last) break;
+    const ends = endLabels(textData);
+    [first, last] = newRange;
     ({labels} = rescale(newRange));
     textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
+    if (endLabels(textData) === ends) break;
   }
 
   return textData;
+}
+
+/** The values of the first and last labels shown, to tell when they change. */
+function endLabels(textData: AxisTextDatum[]): string {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  const ends = [shown[0], shown[shown.length - 1]];
+  return ends.map((t?: AxisTextDatum) => (t ? `${t.d instanceof Date ? +t.d : t.d}` : "")).join(",");
 }
 
 /**

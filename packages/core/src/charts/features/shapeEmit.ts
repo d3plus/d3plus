@@ -34,6 +34,7 @@ import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
+import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
 import type {LabelWidth, PlotAxisFn, PlotDatum} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -81,6 +82,9 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+
+  /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
+  zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
 
 /** An emitter: produces the scene nodes for one shape group. */
@@ -200,6 +204,17 @@ function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
   const {viz, values} = ctx;
   const axis = viz.schema.discrete as string;
   if ((axis === "x" ? ctx.xScale : ctx.yScale) !== "Time") return values;
+  // Zoomed, the domain is the visible window; bars keep to the unzoomed
+  // domain, which spans where the unzoomed plot range landed.
+  const zoomRange = ctx.zoomRanges?.[axis as "x" | "y"];
+  if (zoomRange) {
+    const scale = axis === "x" ? ctx.x : ctx.y;
+    const [lo, hi] = extent(zoomRange) as [number, number];
+    return values.filter(d => {
+      const at = scale(d[axis]);
+      return at >= lo - 0.5 && at <= hi + 0.5;
+    });
+  }
   const [lo, hi] = extent((axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number)) as [number, number];
   return values.filter(d => {
     const at = +(d[axis] as number);
@@ -210,7 +225,7 @@ function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
 const barEmit: ShapeEmitter = emitCtx => {
   const ctx = {...emitCtx, values: barsInDomain(emitCtx)};
-  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values} = ctx;
+  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values, zoomRanges} = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
     .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
@@ -223,19 +238,25 @@ const barEmit: ShapeEmitter = emitCtx => {
   const scaleType = viz.schema.discrete === "x" ? xScale : yScale;
   const vals = viz.schema.discrete === "x" ? xDomain : yDomain;
   const range = viz.schema.discrete === "x" ? xRange : yRange;
+  // Zoomed, a time axis's bars keep their unzoomed spacing, scaled: the
+  // first and last bars mirror about where the unzoomed plot edges landed,
+  // not about the visible edges they may sit on or past.
+  const zoomRange = zoomRanges?.[viz.schema.discrete as "x" | "y"];
   if (scaleType !== "Point" && vals.length === 2) {
     const allPositions = Array.from(
       new Set(values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
     );
+    const first = allPositions[0] as number;
+    const last = allPositions[allPositions.length - 1] as number;
     allPositions.unshift(
-      (range[0] as number) -
-        (allPositions[0] as number) -
-        (range[0] as number),
+      zoomRange
+        ? 2 * zoomRange[0] - first
+        : (range[0] as number) - first - (range[0] as number),
     );
     allPositions.push(
-      (range[1] as number) +
-        (range[1] as number) -
-        (allPositions[allPositions.length - 1] as number),
+      zoomRange
+        ? 2 * zoomRange[1] - last
+        : (range[1] as number) + (range[1] as number) - last,
     );
     space = allPositions.reduce((n: number, d, i, arr) => {
       if (i) {
@@ -367,7 +388,11 @@ const lineEmit: ShapeEmitter = ctx => {
       : false,
   });
 
-  out.push(...finishShape(ctx, "Line", s));
+  // A forecast draws each line dashed from where its forecast starts.
+  const forecastDash = forecastLineDash(viz, values as PlotDatum[], ctx.shapeConfig, ctx);
+  out.push(...finishShape(ctx, "Line", s, forecastDash
+    ? user => ({strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray)})
+    : undefined));
 
   const markers = makeShape("Circle")
     .renderMode("compute")
@@ -390,7 +415,10 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
   Line: lineEmit,
 };
 
-/** Dispatch a shape group to its emitter (falling back to the generic path). */
+/**
+    Dispatch a shape group to its emitter: the chart's own override for the key
+    (`viz._plotShapeEmitters`), else the registry, else the generic path.
+*/
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (shapeEmitters[key] ?? genericEmit)(ctx, key);
+  return (ctx.viz._plotShapeEmitters?.[key] ?? shapeEmitters[key] ?? genericEmit)(ctx, key);
 }

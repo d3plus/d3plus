@@ -52,6 +52,8 @@ it("charts render at very small sizes without errors or NaN attributes", async f
             .data(data)
             .groupBy("id")
             .duration(0)
+            // Each chart reserves its size, so later ones sit below the fold.
+            .detectVisible(false)
             .width(width)
             .height(height);
           if (viz.x) viz.x("year").y("value");

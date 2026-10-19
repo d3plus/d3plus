@@ -109,11 +109,7 @@ const viz = new d3plus.LinePlot()
     //     }
     //     return true;
     // },
-    shapeConfig: {
-    	Line: {
-    		strokeDasharray: (d) => d.Type === "Predicted" ? "10" : "0",
-    	},
-    },
+    forecast: d => d.Type === "Predicted",
     x: "Year",
     y: "Trade Value"
   });

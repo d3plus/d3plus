@@ -3,13 +3,18 @@ export {
   BarChart,
   Beeswarm,
   BoxWhisker,
+  Bullet,
   BumpChart,
+  Calendar,
   Chord,
   Donut,
+  Dumbbell,
+  FanChart,
   Gauge,
   Geomap,
   Histogram,
   LinePlot,
+  Lollipop,
   Matrix,
   Network,
   Pack,
@@ -27,6 +32,8 @@ export {
   Tree,
   Treemap,
   Viz,
+  Waffle,
+  Waterfall,
 } from "./src/charts/index.js";
 
 export {
@@ -81,6 +88,7 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
 export type {BrushRange, BrushSelection} from "./src/charts/ParallelCoordinates/brushFilter.js";

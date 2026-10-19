@@ -42,6 +42,14 @@ export interface PlotConfigScales {
   y2ConfigScale: string;
 }
 
+/** An axis whose user domain sets one end and leaves the other to the data. */
+export interface PlotOpenEnd {
+  /** Which ends (low, high) the user set. */
+  pinned: [boolean, boolean];
+  /** The axis's domain with no user domain: the data's extent, stretched to the chart's baseline. */
+  auto: (number | string | Date)[];
+}
+
 /**
     @interface VizContext
     The value that flows through the chart pipeline. Each stage reads from it
@@ -107,6 +115,8 @@ export interface VizContext {
   plotScales?: PlotScales;
   plotConfigScales?: PlotConfigScales;
   plotOpps?: {opp?: string; opp2?: string; opps: string[]};
+  /** The x/y axes whose user domain leaves an end open (output of `computePlotScales`; see `Plot/openDomainEnds.ts`). */
+  plotOpenEnds?: Partial<Record<"x" | "y", PlotOpenEnd>>;
   /** Pre-measured test axes + label-test shapes for `measurePlotLineLabels`. */
   plotTestAxes?: {xTest: Axis; yTest: Axis};
   plotLineLabelTest?: {testLineShape: Shape; testTextBox: TextBox};
