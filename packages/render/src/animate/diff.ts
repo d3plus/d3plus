@@ -6,8 +6,10 @@ import {
   collapse,
   collapseTo,
   fadeSwapOpacity,
+  groupEnterStart,
   interpolateNode,
   isFlipEligible,
+  isWrapperGroup,
   sameTextLayout,
 } from "./interpolate.js";
 import type {Interp} from "./interpolate.js";
@@ -166,6 +168,7 @@ function interpolateChildren(
       : arcEnterStart(n) ??
         pathEnterStart(n) ??
         rectEnterStart(n) ??
+        groupEnterStart(n) ??
         (flip?.enterFrom && isFlipEligible(n)
           ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
           : collapse(n));
@@ -182,11 +185,10 @@ function interpolateChildren(
   // `DrawOptions.instantExitKey`. `instantExitAll` does the same for every
   // exiting node this draw — the drill-up counterpart, since a reunion's
   // former children all disappear together (no single key names them).
+  // A wrapper group hides at once too, as on SVG (see `isWrapperGroup`).
   const animatedExit = flip?.instantExitAll
     ? []
-    : flip?.instantExitKey === undefined
-      ? exit
-      : exit.filter(n => n.key !== flip.instantExitKey);
+    : exit.filter(n => n.key !== flip?.instantExitKey && !isWrapperGroup(n));
 
   const exits: Interp<SceneNode>[] = animatedExit.map(n => {
     const swap = fadeSwapInterp(n, undefined);
@@ -195,9 +197,9 @@ function interpolateChildren(
       ? collapseTo(n, flip.exitTo, flip.exitToBody)
       : collapse(n);
     const interp = interpolateNode(n, end);
-    if (n.type === "group") {
-      return wrapGroup(interp, interpolateChildren(n.children, [], undefined, flip));
-    }
+    // A group with its own opacity fades out over its children as they
+    // stand, as SVG does, rather than also collapsing each of them.
+    if (n.type === "group") return wrapGroup(interp, () => n.children);
     return interp;
   });
 
