@@ -23,7 +23,7 @@ coverage:
         target: 90%
         flags: [element]
       export:
-        target: 40%
+        target: 95%
         flags: [export]
       format:
         target: 70%

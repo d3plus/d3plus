@@ -22,6 +22,7 @@ export {
   rowsExtent,
 } from "./src/charts/Calendar/applyLayout.js";
 export {applyChordLayout} from "./src/charts/Chord/applyLayout.js";
+export {applyFunnelLayout} from "./src/charts/Funnel/applyLayout.js";
 export {applyGaugeLayout} from "./src/charts/Gauge/applyLayout.js";
 export {applyGeomapLayout} from "./src/charts/Geomap/applyLayout.js";
 export {applyMatrixLayout} from "./src/charts/Matrix/applyLayout.js";
@@ -182,6 +183,7 @@ export {
 } from "./src/charts/Calendar/calendarFormat.js";
 export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
+export * from "./src/charts/Funnel/internal.js";
 export {
   largestRadius,
   lollipopBuffer,
@@ -223,6 +225,7 @@ export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";
+export {funnelDef} from "./src/charts/Funnel/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
@@ -427,6 +430,7 @@ export {
   FACET_PADDING,
   FACET_TITLE_DEFAULTS,
   facetActive,
+  facetScalesShared,
   resolveFacetConfig,
 } from "./src/charts/facet/facetConfig.js";
 export type {
