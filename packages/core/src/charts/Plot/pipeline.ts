@@ -432,6 +432,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     locale: viz.schema.locale,
     rounding: plotAxisRounding(viz, "y", yRounding),
     scalePadding: y.padding ? y.padding() : 0,
+    scaleAlign: y.align ? y.align() : 0.5,
     ...baselineBreakAxisConfig(viz, "y"),
   };
   if (!showX && showY && !viz._swarm) {

@@ -215,6 +215,9 @@ export type {
 export {waffleCellGeometryNode, waffleCellShape} from "./src/charts/Waffle/emit.js";
 export type {WaffleCellShape} from "./src/charts/Waffle/emit.js";
 export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/tooltip.js";
+export * from "./src/charts/helpers/densityInternal.js";
+export * from "./src/charts/Violin/internal.js";
+export * from "./src/charts/Ridgeline/internal.js";
 export * from "./src/charts/ParallelCoordinates/internal.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
@@ -240,9 +243,11 @@ export {priestleyDef} from "./src/charts/Priestley/index.js";
 export {pyramidDef} from "./src/charts/Pyramid/index.js";
 export {radarDef} from "./src/charts/Radar/index.js";
 export {radialMatrixDef} from "./src/charts/RadialMatrix/index.js";
+export {ridgelineDef} from "./src/charts/Ridgeline/index.js";
 export {sunburstDef} from "./src/charts/Sunburst/index.js";
 export {treeDef} from "./src/charts/Tree/index.js";
 export {treemapDef} from "./src/charts/Treemap/index.js";
+export {violinDef} from "./src/charts/Violin/index.js";
 export {waffleDef} from "./src/charts/Waffle/index.js";
 export {waterfallDef} from "./src/charts/Waterfall/index.js";
 

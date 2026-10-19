@@ -26,12 +26,14 @@ import {
   Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
+  Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
   StackedArea as StackedAreaClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Violin as ViolinClass,
   Waterfall as WaterfallClass,
   Viz as VizClass,
   Waffle as WaffleClass,
@@ -117,6 +119,8 @@ export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 export const Radar = createD3plusComponent(RadarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
+/** Vue component for rendering a d3plus Ridgeline visualization. */
+export const Ridgeline = createD3plusComponent(RidgelineClass, "chart");
 /** Vue component for rendering a d3plus Rings visualization. */
 export const Rings = createD3plusComponent(RingsClass, "chart");
 /** Vue component for rendering a d3plus Sankey visualization. */
@@ -129,6 +133,8 @@ export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 export const Tree = createD3plusComponent(TreeClass, "chart");
 /** Vue component for rendering a d3plus Treemap visualization. */
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
+/** Vue component for rendering a d3plus Violin visualization. */
+export const Violin = createD3plusComponent(ViolinClass, "chart");
 /** Vue component for rendering a d3plus Waterfall visualization. */
 export const Waterfall = createD3plusComponent(WaterfallClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */

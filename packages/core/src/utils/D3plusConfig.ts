@@ -655,6 +655,27 @@ export interface D3plusConfig {
   date?: string | ((d: DataPoint, i: number) => Date | number | string);
   /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
   decreaseColor?: string;
+  /**
+      Kernel density options for Violin and Ridgeline curves: `kernel`
+      (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each
+      group's own Silverman rule-of-thumb bandwidth by default), `points` (how
+      many values each curve is evaluated at, default 80), and `cut` (how far
+      each curve runs past its group's smallest and largest value, in
+      bandwidths: 2 for Violin, 3 for Ridgeline).
+  */
+  densityConfig?: {
+    kernel?: "gaussian" | "epanechnikov" | ((u: number) => number);
+    bandwidth?: number | ((values: number[]) => number);
+    points?: number;
+    cut?: number;
+  };
+  /**
+      How Violin and Ridgeline curves are sized against each other: `"area"`
+      (default) gives every shape the same area, `"count"` makes areas
+      proportional to each group's observations, and `"width"` scales every
+      shape to the full width (Violin) or height (Ridgeline).
+  */
+  densityScale?: "area" | "count" | "width";
   /** Active depth level for nested groupings. */
   depth?: number;
   /**
@@ -786,6 +807,15 @@ export interface D3plusConfig {
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
   increaseColor?: string;
+  /**
+      What Violin draws inside each violin: `"box"` (default; a narrow box
+      plot), `"quartiles"` (a solid line at the median and dashed lines at the
+      quartiles), `"points"` (the observations packed into a swarm), an array
+      of several, or `false` for nothing.
+  */
+  inner?: "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[] | false;
+  /** Styles for Violin's `inner` overlays: `box` (Box config), `quartiles` (Line config), and `points` (Circle config). */
+  innerConfig?: {box?: Record<string, unknown>; quartiles?: Record<string, unknown>; points?: Record<string, unknown>};
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
   /**
@@ -887,6 +917,8 @@ export interface D3plusConfig {
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
   measureSize?: number;
+  /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
+  medianSort?: false | "ascending" | "descending";
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
@@ -920,6 +952,12 @@ export interface D3plusConfig {
       Shapes also accept a per-datum accessor.
   */
   orient?: ConstOrAccessor<Orient | SideOrient>;
+  /**
+      How far Ridgeline's tallest ridge rises, in category steps (default
+      1.5): 1 reaches the next baseline up, larger values overlap the ridges
+      above.
+  */
+  overlap?: number;
   /**
       Room (px) the Radar reserves around its web for the metric labels.
       `"auto"` (the default) measures the labels and gives the web the largest
@@ -998,6 +1036,12 @@ export interface D3plusConfig {
       width.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /**
+      With two groupBy levels, Violin places violins by the first and sets
+      them side by side by the second. `split` draws a category holding
+      exactly two violins as the two halves of one shape instead.
+  */
+  split?: boolean;
   /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
   stagePadding?: number;
   /** Whether to stack series. */

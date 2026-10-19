@@ -163,7 +163,7 @@ function finishShape(
 }
 
 /** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */
-const genericEmit: ShapeEmitter = (ctx, key) => {
+export const genericEmit: ShapeEmitter = (ctx, key) => {
   const s = makeShape(key)
     .renderMode("compute")
     .config(buildInner(ctx, key))

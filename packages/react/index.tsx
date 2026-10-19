@@ -28,12 +28,14 @@ import {
   Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
+  Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
   StackedArea as StackedAreaClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Violin as ViolinClass,
   Waterfall as WaterfallClass,
   Viz as VizClass,
   Waffle as WaffleClass,
@@ -176,6 +178,10 @@ export const Radar = (props: D3plusComponentProps) => (
 export const RadialMatrix = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={RadialMatrixClass} {...props} />
 );
+/** React component for rendering a d3plus Ridgeline visualization. */
+export const Ridgeline = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={RidgelineClass} {...props} />
+);
 /** React component for rendering a d3plus Rings visualization. */
 export const Rings = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={RingsClass} {...props} />
@@ -199,6 +205,10 @@ export const Tree = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Treemap visualization. */
 export const Treemap = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={TreemapClass} {...props} />
+);
+/** React component for rendering a d3plus Violin visualization. */
+export const Violin = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ViolinClass} {...props} />
 );
 /** React component for rendering a d3plus Waterfall visualization. */
 export const Waterfall = (props: D3plusComponentProps) => (

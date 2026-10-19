@@ -49,7 +49,7 @@ export type {CanvasBackend} from "./src/canvas/backend.js";
 
 export {patternTileSvg} from "./src/canvas/patternTile.js";
 
-export {curveFor, linePath, areaPath} from "./src/paths.js";
+export {curveFor, flattenPath, linePath, areaPath} from "./src/paths.js";
 
 export {domToScene} from "./src/dom.js";
 

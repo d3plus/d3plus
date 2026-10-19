@@ -323,6 +323,7 @@ export function setAxisScale(
 
   if (axis._d3Scale!.padding)
     axis._d3Scale!.padding(axis.schema.scalePadding);
+  if (axis._d3Scale!.align) axis._d3Scale!.align(axis.schema.scaleAlign);
   if (axis._d3Scale!.paddingInner)
     axis._d3Scale!.paddingInner(axis.schema.paddingInner);
   if (axis._d3Scale!.paddingOuter)

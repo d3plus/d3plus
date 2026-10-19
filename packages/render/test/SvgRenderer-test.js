@@ -85,6 +85,22 @@ it("SvgRenderer starts a flip-eligible entering node at enterFrom, not its own c
   renderer.destroy();
 });
 
+it("SvgRenderer starts an entering path at its own enterD at its own opacity", () => {
+  const renderer = new SvgRenderer();
+  renderer.mount({container: document.body, width: 200, height: 100});
+
+  renderer.drawScene(
+    scene([{type: "path", key: "v", d: "M0,0L10,5L0,10Z", enterD: "M0,0L0,5L0,10Z", paint: {fill: "red", opacity: 0.8}}]),
+    {duration: 400},
+  );
+
+  const el = document.querySelector('[data-key="v"]');
+  assert.strictEqual(el.getAttribute("d"), "M0,0L0,5L0,10Z", "starts at enterD");
+  assert.strictEqual(el.getAttribute("opacity"), "0.8", "at its own opacity");
+
+  renderer.destroy();
+});
+
 it("SvgRenderer ignores enterFrom for a node tagged with an interactionGroup (chrome)", () => {
   const renderer = new SvgRenderer();
   renderer.mount({container: document.body, width: 200, height: 100});

@@ -58,7 +58,7 @@ function renderSource(node, src) {
   if (
     ts.isCallExpression(expr) &&
     ts.isIdentifier(expr.expression) &&
-    ["accessor", "constant"].includes(expr.expression.text) &&
+    /^(constant|\w*[aA]ccessor)$/.test(expr.expression.text) &&
     expr.arguments.length === 1
   )
     return renderSource(expr.arguments[0], src);
@@ -126,6 +126,66 @@ const propKey = prop =>
 const findProp = (obj, key) =>
   obj.properties.find(p => ts.isPropertyAssignment(p) && propKey(p) === key);
 
+/** Parses the `{key, default}` objects of a `fields` array literal. */
+function parseFields(elements, src, filePath) {
+  const fields = [];
+  for (const obj of elements) {
+    if (ts.isSpreadElement(obj)) {
+      fields.push(...spreadFields(obj.expression, src, filePath));
+      continue;
+    }
+    if (!ts.isObjectLiteralExpression(obj)) continue;
+    const keyProp = findProp(obj, "key");
+    const key =
+      keyProp && ts.isStringLiteral(keyProp.initializer)
+        ? keyProp.initializer.text
+        : null;
+    if (!key) continue;
+    const defProp = findProp(obj, "default");
+    const factoryProp = findProp(obj, "factory");
+    fields.push({
+      key,
+      default: defProp ? renderDefault(defProp.initializer) : null,
+      defaultText: renderSource((defProp || factoryProp)?.initializer, src),
+      ...splitDoc(leadingDoc(obj, src)),
+    });
+  }
+  return fields;
+}
+
+/**
+ * Follows a `...helperFields()` spread in `fields` to the helper it calls,
+ * when that helper is imported from a relative module and returns an array
+ * literal of fields, so shared fields keep their JSDoc comments.
+ */
+function spreadFields(expr, src, filePath) {
+  if (!ts.isCallExpression(expr) || !ts.isIdentifier(expr.expression)) return [];
+  const name = expr.expression.text;
+  let from = null;
+  for (const stmt of src.statements) {
+    if (!ts.isImportDeclaration(stmt) || !ts.isStringLiteral(stmt.moduleSpecifier)) continue;
+    const named = stmt.importClause?.namedBindings;
+    if (!named || !ts.isNamedImports(named)) continue;
+    if (named.elements.some(e => e.name.text === name && !e.propertyName))
+      from = stmt.moduleSpecifier.text;
+  }
+  if (!from || !from.startsWith(".")) return [];
+  const helperPath = path.resolve(path.dirname(filePath), from).replace(/\.js$/, ".ts");
+  let code;
+  try {
+    code = fs.readFileSync(helperPath, "utf8");
+  } catch {
+    return [];
+  }
+  const helperSrc = ts.createSourceFile(helperPath, code, ts.ScriptTarget.Latest, true);
+  const fn = helperSrc.statements.find(
+    s => ts.isFunctionDeclaration(s) && s.name?.text === name && s.body,
+  );
+  const ret = fn?.body.statements.find(s => ts.isReturnStatement(s));
+  if (!ret || !ret.expression || !ts.isArrayLiteralExpression(ret.expression)) return [];
+  return parseFields(ret.expression.elements, helperSrc, helperPath);
+}
+
 /**
  * Parses one chart `index.ts` →
  * `{base, fields: [{key, default, defaultText, description}]}` or null.
@@ -166,26 +226,7 @@ export function parseChartDef(filePath) {
       if (!d.initializer || !ts.isObjectLiteralExpression(d.initializer)) continue;
       const fieldsProp = findProp(d.initializer, "fields");
       if (!fieldsProp || !ts.isArrayLiteralExpression(fieldsProp.initializer)) continue;
-      for (const obj of fieldsProp.initializer.elements) {
-        if (!ts.isObjectLiteralExpression(obj)) continue;
-        const keyProp = findProp(obj, "key");
-        const key =
-          keyProp && ts.isStringLiteral(keyProp.initializer)
-            ? keyProp.initializer.text
-            : null;
-        if (!key) continue;
-        const defProp = findProp(obj, "default");
-        const factoryProp = findProp(obj, "factory");
-        fields.push({
-          key,
-          default: defProp ? renderDefault(defProp.initializer) : null,
-          defaultText: renderSource(
-            (defProp || factoryProp)?.initializer,
-            src,
-          ),
-          ...splitDoc(leadingDoc(obj, src)),
-        });
-      }
+      fields.push(...parseFields(fieldsProp.initializer.elements, src, filePath));
     }
   }
   return {base, fields, accessors: accessorDocs(src)};
