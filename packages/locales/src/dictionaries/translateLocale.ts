@@ -1,4 +1,6 @@
 export interface TranslationStrings {
+  "% of First Stage": string;
+  "% of Previous Stage": string;
   and: string;
   Back: string;
   Band: string;
@@ -14,23 +16,34 @@ export interface TranslationStrings {
   Close: string;
   Comparison: string;
   Count: string;
+  Decrease: string;
   Density: string;
+  "Double-click or Escape to Clear": string;
   Download: string;
+  "Drag to Filter": string;
   Equation: string;
   Exponential: string;
   Forecast: string;
   High: string;
+  Increase: string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
   Low: string;
   "Lower Bound": string;
+  "Lower Quartile": string;
   Match: string;
   Matches: string;
+  Maximum: string;
+  Median: string;
+  Minimum: string;
   more: string;
+  "No Data": string;
   "No Data Available": string;
   "No Matches": string;
   Observations: string;
+  "of first": string;
+  "of previous": string;
   Open: string;
   "Percent of Total": string;
   Polynomial: string;
@@ -40,14 +53,17 @@ export interface TranslationStrings {
   Range: string;
   "Relative Frequency": string;
   "Reset Zoom": string;
+  "Running Total": string;
   Search: string;
   Share: string;
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  Target: string;
   Total: string;
   "Trend Line": string;
   "Upper Bound": string;
+  "Upper Quartile": string;
   Value: string;
   Values: string;
   Volume: string;
@@ -60,6 +76,8 @@ export interface TranslationStrings {
 */
 const translateLocale: Record<string, TranslationStrings> = {
   "ar-SA": {
+    "% of First Stage": "% \u0645\u0646 \u0627\u0644\u0645\u0631\u062d\u0644\u0629 \u0627\u0644\u0623\u0648\u0644\u0649",
+    "% of Previous Stage": "% \u0645\u0646 \u0627\u0644\u0645\u0631\u062d\u0644\u0629 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
     Band: "\u0646\u0637\u0627\u0642",
@@ -79,25 +97,36 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "\u0627\u0644\u0625\u063a\u0644\u0627\u0642",
     Comparison: "\u0627\u0644\u0645\u0642\u0627\u0631\u0646\u0629",
     Count: "\u0627\u0644\u0639\u062f\u062f",
+    Decrease: "\u0627\u0646\u062e\u0641\u0627\u0636",
     Density: "\u0627\u0644\u0643\u062b\u0627\u0641\u0629",
+    "Double-click or Escape to Clear": "\u0627\u0646\u0642\u0631 \u0646\u0642\u0631\u064b\u0627 \u0645\u0632\u062f\u0648\u062c\u064b\u0627 \u0623\u0648 \u0627\u0636\u063a\u0637 Esc \u0644\u0644\u0645\u0633\u062d",
     Download: "\u062a\u062d\u0645\u064a\u0644",
+    "Drag to Filter": "\u0627\u0633\u062d\u0628 \u0644\u0644\u062a\u0635\u0641\u064a\u0629",
     Equation: "\u0627\u0644\u0645\u0639\u0627\u062f\u0644\u0629",
     Exponential: "\u0623\u0633\u064a",
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
+    Increase: "\u0632\u064a\u0627\u062f\u0629",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
     Logarithmic: "\u0644\u0648\u063a\u0627\u0631\u064a\u062a\u0645\u064a",
     Low: "\u0627\u0644\u0623\u062f\u0646\u0649",
     "Lower Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
+    "Lower Quartile": "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u062f\u0646\u0649",
+    "No Data": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Data Available":
       "\u0644\u0627 \u062a\u062a\u0648\u0641\u0631 \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Matches": "\u0644\u0627 \u062a\u0648\u062c\u062f \u0646\u062a\u0627\u0626\u062c",
     Match: "\u062a\u0637\u0627\u0628\u0642",
     Matches: "\u062a\u0637\u0627\u0628\u0642\u0627\u062a",
+    Maximum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0642\u0635\u0649",
+    Median: "\u0627\u0644\u0648\u0633\u064a\u0637",
+    Minimum: "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     more: "\u0623\u062e\u0631\u0649",
     Observations: "\u0627\u0644\u0645\u0634\u0627\u0647\u062f\u0627\u062a",
+    "of first": "\u0645\u0646 \u0627\u0644\u0623\u0648\u0644\u0649",
+    "of previous": "\u0645\u0646 \u0627\u0644\u0633\u0627\u0628\u0642\u0629",
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Percent of Total": "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
     Polynomial: "\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u062d\u062f\u0648\u062f",
@@ -108,6 +137,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "\u0627\u0644\u0646\u0637\u0627\u0642",
     "Relative Frequency": "\u0627\u0644\u062a\u0643\u0631\u0627\u0631 \u0627\u0644\u0646\u0633\u0628\u064a",
     "Reset Zoom": "\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646 \u0627\u0644\u062a\u0643\u0628\u064a\u0631",
+    "Running Total": "\u0627\u0644\u0645\u062c\u0645\u0648\u0639 \u0627\u0644\u062a\u0631\u0627\u0643\u0645\u064a",
     Search: "\u0628\u062d\u062b",
     Share: "\u0645\u0634\u0627\u0631\u0643\u0629",
     "Share of Parent": "\u0627\u0644\u062d\u0635\u0629 \u0645\u0646 \u0627\u0644\u0645\u0633\u062a\u0648\u0649 \u0627\u0644\u0623\u0639\u0644\u0649",
@@ -115,9 +145,11 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    Target: "\u0627\u0644\u0647\u062f\u0641",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
     "Upper Bound": "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
+    "Upper Quartile": "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u0639\u0644\u0649",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
@@ -125,6 +157,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
   },
   "es-ES": {
+    "% of First Stage": "% de la Primera Etapa",
+    "% of Previous Stage": "% de la Etapa Anterior",
     and: "y",
     Back: "Atr\u00e1s",
     Band: "Banda",
@@ -140,23 +174,34 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "Cierre",
     Comparison: "Comparaci\u00f3n",
     Count: "Recuento",
+    Decrease: "Disminuci\u00f3n",
     Density: "Densidad",
+    "Double-click or Escape to Clear": "Doble Clic o Escape para Borrar",
     Download: "Descargar",
+    "Drag to Filter": "Arrastrar para Filtrar",
     Equation: "Ecuaci\u00f3n",
     Exponential: "Exponencial",
     Forecast: "Pron\u00f3stico",
     High: "M\u00e1ximo",
+    Increase: "Aumento",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
     Low: "M\u00ednimo",
     "Lower Bound": "L\u00edmite Inferior",
+    "Lower Quartile": "Cuartil Inferior",
     Match: "Coincidencia",
     Matches: "Coincidencias",
+    Maximum: "M\u00e1ximo",
+    Median: "Mediana",
+    Minimum: "M\u00ednimo",
     more: "m\u00e1s",
+    "No Data": "Sin Datos",
     "No Data Available": "Datos No Disponibles",
     "No Matches": "Sin Coincidencias",
     Observations: "Observaciones",
+    "of first": "de la primera",
+    "of previous": "de la anterior",
     Open: "Apertura",
     "Percent of Total": "Porcentaje del Total",
     Polynomial: "Polin\u00f3mica",
@@ -166,14 +211,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "Rango",
     "Relative Frequency": "Frecuencia Relativa",
     "Reset Zoom": "Restablecer Zoom",
+    "Running Total": "Total Acumulado",
     Search: "Buscar",
     Share: "Porcentaje",
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    Target: "Objetivo",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
+    "Upper Quartile": "Cuartil Superior",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
@@ -181,6 +229,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom Out": "Alejar",
   },
   "pt-BR": {
+    "% of First Stage": "% da Primeira Etapa",
+    "% of Previous Stage": "% da Etapa Anterior",
     and: "e",
     Back: "Voltar",
     Band: "Faixa",
@@ -196,23 +246,34 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "Fechamento",
     Comparison: "Compara\u00e7\u00e3o",
     Count: "Contagem",
+    Decrease: "Redu\u00e7\u00e3o",
     Density: "Densidade",
+    "Double-click or Escape to Clear": "Clique Duplo ou Esc para Limpar",
     Download: "Baixar",
+    "Drag to Filter": "Arraste para Filtrar",
     Equation: "Equa\u00e7\u00e3o",
     Exponential: "Exponencial",
     Forecast: "Previs\u00e3o",
     High: "M\u00e1xima",
+    Increase: "Aumento",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
     Low: "M\u00ednima",
     "Lower Bound": "Limite Inferior",
+    "Lower Quartile": "Quartil Inferior",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
+    Maximum: "M\u00e1ximo",
+    Median: "Mediana",
+    Minimum: "M\u00ednimo",
     more: "mais",
+    "No Data": "Sem Dados",
     "No Data Available": "Dados N\u00e3o Dispon\u00edveis",
     "No Matches": "Sem Correspond\u00eancias",
     Observations: "Observa\u00e7\u00f5es",
+    "of first": "da primeira",
+    "of previous": "da anterior",
     Open: "Abertura",
     "Percent of Total": "Porcentagem do Total",
     Polynomial: "Polinomial",
@@ -222,14 +283,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "Intervalo",
     "Relative Frequency": "Frequ\u00eancia Relativa",
     "Reset Zoom": "Redefinir Zoom",
+    "Running Total": "Total Acumulado",
     Search: "Pesquisar",
     Share: "Porcentagem",
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    Target: "Meta",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
+    "Upper Quartile": "Quartil Superior",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
@@ -237,6 +301,8 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Zoom Out": "Afastar",
   },
   "zh-CN": {
+    "% of First Stage": "\u5360\u7b2c\u4e00\u9636\u6bb5\u7684\u767e\u5206\u6bd4",
+    "% of Previous Stage": "\u5360\u4e0a\u4e00\u9636\u6bb5\u7684\u767e\u5206\u6bd4",
     and: "\u548c",
     Back: "\u540e\u9762",
     Band: "\u533a\u95f4",
@@ -252,23 +318,34 @@ const translateLocale: Record<string, TranslationStrings> = {
     Close: "\u6536\u76d8",
     Comparison: "\u5bf9\u6bd4",
     Count: "\u8ba1\u6570",
+    Decrease: "\u51cf\u5c11",
     Density: "\u5bc6\u5ea6",
+    "Double-click or Escape to Clear": "\u53cc\u51fb\u6216\u6309 Esc \u6e05\u9664",
     Download: "\u4e0b\u8f7d",
+    "Drag to Filter": "\u62d6\u52a8\u4ee5\u7b5b\u9009",
     Equation: "\u65b9\u7a0b",
     Exponential: "\u6307\u6570",
     Forecast: "\u9884\u6d4b",
     High: "\u6700\u9ad8",
+    Increase: "\u589e\u52a0",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
     Low: "\u6700\u4f4e",
     "Lower Bound": "\u4e0b\u9650",
+    "Lower Quartile": "\u4e0b\u56db\u5206\u4f4d\u6570",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
+    Maximum: "\u6700\u5927\u503c",
+    Median: "\u4e2d\u4f4d\u6570",
+    Minimum: "\u6700\u5c0f\u503c",
     more: "\u66f4\u591a",
+    "No Data": "\u65e0\u6570\u636e",
     "No Data Available": "\u65e0\u53ef\u7528\u6570\u636e",
     "No Matches": "\u65e0\u5339\u914d\u9879",
     Observations: "\u89c2\u6d4b\u6570",
+    "of first": "\u5360\u7b2c\u4e00\u9636\u6bb5",
+    "of previous": "\u5360\u4e0a\u4e00\u9636\u6bb5",
     Open: "\u5f00\u76d8",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
     Polynomial: "\u591a\u9879\u5f0f",
@@ -278,14 +355,17 @@ const translateLocale: Record<string, TranslationStrings> = {
     Range: "\u8303\u56f4",
     "Relative Frequency": "\u76f8\u5bf9\u9891\u7387",
     "Reset Zoom": "\u91cd\u7f6e\u7f29\u653e",
+    "Running Total": "\u7d2f\u8ba1\u603b\u6570",
     Search: "\u641c\u7d22",
     Share: "\u5171\u4eab",
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    Target: "\u76ee\u6807",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",
+    "Upper Quartile": "\u4e0a\u56db\u5206\u4f4d\u6570",
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",

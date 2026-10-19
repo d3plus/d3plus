@@ -111,6 +111,9 @@ const charts = [
     groupBy: "id", x: "x", y: "y", yBreak: [80, 900], confidence: ["lci", "hci"],
   }],
   ["BoxWhisker", {data: series, groupBy: ["id", "y"], x: "id", y: "y"}],
+  ["Bullet", {data: [{id: "Revenue", unit: "US$", value: 270, target: 250, forecast: 290}, {id: "Profit", unit: "%", value: 22.5, target: 27}], bands: [100, 200], subLabel: "unit"}],
+  ["Bullet", {data: [{id: "Q1", value: 42, target: 55}, {id: "Q2", value: 61, target: 60}], sharedDomain: true, orient: "vertical", title: "Title"}],
+  ["Bullet", {data: [{id: "Revenue", value: 270, target: 250, region: "east"}, {id: "Revenue", value: 180, target: 250, region: "west"}], bands: [150, 225], facet: "region"}],
   ["BumpChart", {...plot, discrete: "x"}],
   ["Chord", {links}],
   ["Donut", {data: tree, groupBy: "id", value: "value"}],
@@ -164,8 +167,12 @@ const charts = [
   ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  ["Waffle", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", unit: 2, cellShape: "circle", fillDirection: "column", fillStart: "bottom-right"}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", facet: "parent", cellShape: "rounded", threshold: 0.1}],
   ["BarChart", {...plot, shapeConfig: {Bar: image}}],
   ["Chord", {links, shapeConfig: image}],
+  ["Bullet", {data: [{id: "Q1", value: 42, target: 55, forecast: 58}], shapeConfig: {...image, texture: "lines"}, forecastConfig: image}],
   ["Gauge", {data: [{id: "Speed", value: 72}], domain: [0, 100], indicator: "progress", shapeConfig: image}],
   ["Geomap", {data: [{id: "x", value: 3}], tiles: false, topojson, shapeConfig: {Path: image}}],
   ["Matrix", {data: [{row: "R1", column: "C1", value: 10}, {row: "R2", column: "C2", value: 30}], groupBy: ["row", "column"], row: "row", column: "column", shapeConfig: {Rect: image}}],
@@ -175,6 +182,8 @@ const charts = [
   ["Radar", {data: radar, groupBy: "id", metric: "metric", value: "value", shapeConfig: image}],
   ["Sankey", {links, shapeConfig: {Rect: image}}],
   ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", shapeConfig: {...image, backgroundImageFit: "contain"}}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", shapeConfig: image}],
+  ["Waffle", {data: tree, groupBy: "id", sum: "value", icon: image.backgroundImage}],
 ];
 
 /**

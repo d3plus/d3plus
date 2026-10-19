@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Lollipop Size Legend</title>
+    <meta name="description" content="Lollipop heads sized by a size accessor, keyed by a size legend whose circles match the heads: beside a color legend, on horizontal stems with a sqrt scale and a bottom placement, and shared across small multiples.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 440px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid">
+      <div><h3>size("growth") with a color legend</h3><div class="viz" id="vertical"></div></div>
+      <div><h3>Horizontal, sizeScale("sqrt"), sizeLegendPosition("bottom"), legend inset off</h3><div class="viz" id="horizontal"></div></div>
+      <div><h3>Small multiples share one size scale (facet: "region")</h3><div class="viz" id="facet"></div></div>
+      <div><h3>sizeMin(3).sizeMax(16), legend inset off</h3><div class="viz" id="margin"></div></div>
+    </div>
+
+  </body>
+
+  <script>
+
+    const cities = [
+      {city: "Tokyo", region: "Asia", population: 37.4, growth: 0.2},
+      {city: "Delhi", region: "Asia", population: 31.0, growth: 3.1},
+      {city: "Shanghai", region: "Asia", population: 27.1, growth: 2.9},
+      {city: "Dhaka", region: "Asia", population: 21.7, growth: 3.4},
+      {city: "São Paulo", region: "Americas", population: 22.0, growth: 0.9},
+      {city: "Mexico City", region: "Americas", population: 21.8, growth: 0.6},
+      {city: "New York", region: "Americas", population: 18.8, growth: 0.1},
+      {city: "Buenos Aires", region: "Americas", population: 15.2, growth: 0.9},
+      {city: "Cairo", region: "Africa", population: 21.3, growth: 2.0},
+      {city: "Lagos", region: "Africa", population: 14.9, growth: 3.5},
+      {city: "Kinshasa", region: "Africa", population: 14.3, growth: 4.4},
+      {city: "Luanda", region: "Africa", population: 8.9, growth: 4.0},
+    ];
+
+    const stores = [];
+    ["North", "South", "East", "West"].forEach((region, r) => {
+      ["Q1", "Q2", "Q3", "Q4"].forEach((quarter, q) => {
+        stores.push({region, quarter, sales: 30 + ((r * 11 + q * 7) % 23), stores: 4 + ((r * 5 + q * 3) % 13) * (r + 1)});
+      });
+    });
+
+    new d3plus.Lollipop()
+      .select("#vertical")
+      .data(cities)
+      .groupBy("city")
+      .color("region")
+      .x("city")
+      .y("population")
+      .size("growth")
+      .sizeMin(4)
+      .sizeMax(14)
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#horizontal")
+      .data(cities)
+      .groupBy("city")
+      .color("region")
+      .discrete("y")
+      .x("population")
+      .y("city")
+      .ySort((a, b) => a.population - b.population)
+      .size("growth")
+      .sizeScale("sqrt")
+      .sizeMin(2)
+      .sizeMax(12)
+      .sizeLegendPosition("bottom")
+      .legendInset(false)
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#facet")
+      .data(stores)
+      .groupBy("quarter")
+      .facet("region")
+      .x("quarter")
+      .y("sales")
+      .size("stores")
+      .sizeMax(12)
+      .legend(false)
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#margin")
+      .data(cities)
+      .groupBy("city")
+      .color("region")
+      .x("city")
+      .y("population")
+      .size("growth")
+      .sizeMin(3)
+      .sizeMax(16)
+      .legendInset(false)
+      .shapeConfig({Line: {strokeWidth: 1, strokeDasharray: "3 2"}})
+      .render();
+
+  </script>
+
+</html>

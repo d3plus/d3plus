@@ -37,7 +37,7 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
-import {axisScaleData, axisTimeLocale} from "./timeValues.js";
+import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -86,6 +86,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  resetAxisDates(axis);
   axis._scaleData = axisScaleData(axis);
 
   let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
@@ -198,8 +199,11 @@ function layoutLabels(
   // times at most.
   let [first, last] = scale.range;
   for (let pass = 0; pass < 3; pass++) {
+    // Only the labels left shown reach past the range: a category axis
+    // thinned evenly can end on a label several categories in from the end.
+    const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
     const spillovers = [0, 1].map((index: number) => {
-      const datum = textData[index ? textData.length - 1 : 0];
+      const datum = shown[index ? shown.length - 1 : 0];
       if (!datum) return 0;
       const {height: dHeight, position, rotate, width: dWidth} = datum;
       const compPosition = index ? rangeOuter[1] : rangeOuter[0];
@@ -227,9 +231,10 @@ function layoutLabels(
   return textData;
 }
 
-/** The values of the first and last labels, to tell when they change. */
+/** The values of the first and last labels shown, to tell when they change. */
 function endLabels(textData: AxisTextDatum[]): string {
-  const ends = [textData[0], textData[textData.length - 1]];
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  const ends = [shown[0], shown[shown.length - 1]];
   return ends.map((t?: AxisTextDatum) => (t ? `${t.d instanceof Date ? +t.d : t.d}` : "")).join(",");
 }
 

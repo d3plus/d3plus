@@ -18,7 +18,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
-import {configOpenDomain, hasUserDomain, userAxisDomain} from "./baselineDomain.js";
+import {configOpenDomain, hasUserDomain, plotAxisRounding, secondaryAxisRounding, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
@@ -28,6 +28,7 @@ import {applyPaddedDomains} from "./facetScales.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
+import {xAxisRounding} from "../features/xAxisConfig.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
@@ -95,9 +96,17 @@ export function plotSizeScale(viz: Parameters<TransformStage>[0]["viz"], sizes: 
 }
 
 /**
+    Whether rows of `shape` draw as circles sized by `size`, so the size
+    legend keys them: `"Circle"` rows, or the shapes a chart names in
+    `viz._plotCircleShapes`.
+*/
+const drawsSizedCircle = (viz: Parameters<TransformStage>[0]["viz"], shape: unknown): boolean =>
+  (viz._plotCircleShapes ?? ["Circle"]).includes(shape as string);
+
+/**
     Plot's size-legend scale, available before layout: the same scale
     `formatPlotData` builds, over the plottable rows. Null when there's no
-    `size` accessor or none of those rows draws as a circle.
+    `size` accessor or none of those rows draws as a sized circle.
 */
 export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): SizeLegendScale | null {
   if (!viz._size) return null;
@@ -107,7 +116,7 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
   rows.forEach((d, i) => {
     if (isBadAxisValue(viz._x!(d, i)) || isBadAxisValue(viz._y!(d, i))) return;
     sizes.push(viz._size!(d, i));
-    if (viz.schema.shape(d, i) === "Circle") circles = true;
+    if (drawsSizedCircle(viz, viz.schema.shape(d, i))) circles = true;
   });
   return circles ? (plotSizeScale(viz, sizes) as unknown as SizeLegendScale) : null;
 }
@@ -204,7 +213,7 @@ export const formatPlotData: TransformStage = ({viz}) => {
     ? viz._plotFacetScales?.size ??
       plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
     : () => viz.schema.sizeMin;
-  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => d.shape === "Circle")
+  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => drawsSizedCircle(viz, d.shape))
     ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
     : null;
 
@@ -397,8 +406,18 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     title: false,
     tickSize: 0,
   };
-  const defaultX2Config = {...(x2Exists ? {data: x2Data} : defaultConfig), baselineBreak: false};
-  const defaultY2Config = {...(y2Exists ? {data: y2Data} : defaultConfig), baselineBreak: false};
+  // An axis config's full `domain` is drawn as given (see `plotAxisRounding`).
+  const yRounding = hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside";
+  const defaultX2Config = {
+    ...(x2Exists ? {data: x2Data} : defaultConfig),
+    baselineBreak: false,
+    rounding: secondaryAxisRounding(viz, "x2", xAxisRounding(viz)),
+  };
+  const defaultY2Config = {
+    ...(y2Exists ? {data: y2Data} : defaultConfig),
+    baselineBreak: false,
+    rounding: secondaryAxisRounding(viz, "y2", yRounding),
+  };
   const showX =
     viz.schema.discrete === "x"
       ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
@@ -411,8 +430,9 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   const yC: Record<string, unknown> = {
     data: yData,
     locale: viz.schema.locale,
-    rounding: hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside",
+    rounding: plotAxisRounding(viz, "y", yRounding),
     scalePadding: y.padding ? y.padding() : 0,
+    scaleAlign: y.align ? y.align() : 0.5,
     ...baselineBreakAxisConfig(viz, "y"),
   };
   if (!showX && showY && !viz._swarm) {

@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
+      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -211,7 +211,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick;\nturned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -328,7 +328,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
+      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -784,7 +784,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -827,7 +827,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
+      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
       table: {
         defaultValue: {
           summary: "undefined"

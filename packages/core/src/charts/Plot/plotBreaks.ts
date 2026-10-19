@@ -9,15 +9,19 @@
     two parallel lines with the gap between them. With a mask, the plot
     content is wrapped in a group whose clip path covers everything except
     that gap — a real clip, so whatever sits behind the chart shows through
-    on SVG and Canvas alike, in any theme.
+    on SVG and Canvas alike, in any theme. Value and line labels stay
+    outside the mask, so a label over a break reads whole.
 */
-import type {LineNode, Paint, SceneNode} from "@d3plus/render";
+import type {GroupNode, LineNode, Paint, SceneNode} from "@d3plus/render";
 
 import type Axis from "../../components/Axis/Axis.js";
 import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
 import {configToPaint} from "../../components/Axis/axisRender.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+
+/** Whether a node is a value or line label, which the mask leaves whole. */
+const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
 
 /** A polygon as `[x, y]` points. */
 type Polygon = [number, number][];
@@ -136,13 +140,14 @@ export function bandPolygon(gap: [number, number], extent: [number, number], ver
 /**
     Wraps `nodes` (the plot content) in a clip group per axis with masked
     breaks, so every shape gets each break's gap cut straight across it.
-    Returns `nodes` unchanged when no break asks for a mask.
+    Labels split the content into runs and stay outside the clip groups, in
+    paint order, so no label is cut. Returns `nodes` unchanged when no
+    break asks for a mask.
 */
 export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFrame): SceneNode[] {
   const outer: Polygon = [[-1e6, -1e6], [1e6, -1e6], [1e6, 1e6], [-1e6, 1e6]];
   const placed = placedBreaks(viz, frame);
-  let content = nodes;
-  for (const vertical of [true, false]) {
+  const clips = [true, false].flatMap(vertical => {
     const holes = placed
       .filter(p => p.vertical === vertical && p.brk.mask)
       .map(({axis, brk, gap, extent}) => {
@@ -150,21 +155,42 @@ export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFram
         const inset = style.lines ? (breakLinePaint(axis, brk).strokeWidth ?? 1) / 2 : 0;
         return bandPolygon(gap, extent, vertical, inset);
       });
-    if (!holes.length) continue;
-    content = [{
+    return holes.length ? [{axis: vertical ? "y" : "x", d: maskPath(outer, holes)}] : [];
+  });
+  if (!clips.length) return nodes;
+  const out: SceneNode[] = [];
+  let run: SceneNode[] = [];
+  let runs = 0;
+  const flush = (): void => {
+    if (!run.length) return;
+    const suffix = runs++ ? `-${runs - 1}` : "";
+    const wrapped = clips.reduce<SceneNode[]>((children, {axis, d}) => [{
       type: "group",
-      key: `${BREAK_MASK_KEY}-${vertical ? "y" : "x"}`,
-      clip: {type: "path", d: maskPath(outer, holes)},
-      children: content,
-    }];
+      key: `${BREAK_MASK_KEY}-${axis}${suffix}`,
+      clip: {type: "path", d},
+      children,
+    }], run);
+    out.push(...wrapped);
+    run = [];
+  };
+  for (const node of nodes) {
+    if (isLabel(node)) {
+      flush();
+      out.push(node);
+    }
+    else run.push(node);
   }
-  return content;
+  flush();
+  return out;
 }
 
-/** The plot content inside any break-mask groups. */
+/** Whether a node is one of `maskBreaks`'s clip groups. */
+const isBreakMask = (node: SceneNode): node is GroupNode =>
+  node.type === "group" && String(node.key).startsWith(BREAK_MASK_KEY);
+
+/** The plot content inside any break-mask groups, in paint order. */
 export function unwrapBreakMasks(nodes: SceneNode[]): SceneNode[] {
-  let list = nodes;
-  while (list.length === 1 && list[0].type === "group" && String(list[0].key).startsWith(BREAK_MASK_KEY))
-    list = list[0].children;
-  return list;
+  return nodes.some(isBreakMask)
+    ? nodes.flatMap(node => (isBreakMask(node) ? unwrapBreakMasks(node.children) : [node]))
+    : nodes;
 }

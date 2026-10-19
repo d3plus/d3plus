@@ -41,6 +41,9 @@ export interface D3Scale<Out = number> {
   /** Band / point scales only: get/set padding. */
   padding?(): number;
   padding?(padding: number): D3Scale<Out>;
+  /** Band / point scales only: get/set how the outer padding splits between the ends (0 to 1). */
+  align?(): number;
+  align?(align: number): D3Scale<Out>;
   /** Band scales only: get/set inner padding. */
   paddingInner?(): number;
   paddingInner?(padding: number): D3Scale<Out>;

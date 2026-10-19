@@ -255,6 +255,8 @@ export interface BoxConfig {
   /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
   backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
   data?: DataPoint[];
+  /** Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value. */
+  id?: ConstOrAccessor<string | number>;
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
   orient?: ConstOrAccessor<Orient>;

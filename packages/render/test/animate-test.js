@@ -1,6 +1,9 @@
 import assert from "assert";
 
 import {collapse, collapseTo, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, isFlipEligible, parseGradient, TrailLog} from "../es/index.js";
+import {pathEnterStart, rectEnterStart} from "../es/src/animate/interpolate.js";
+import {flattenPath} from "../es/index.js";
+import {enterStart} from "../es/src/svg/svgFlip.js";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");
@@ -275,6 +278,82 @@ it("interpolateScene grows an entering path from its own enterArc", () => {
   assert.notStrictEqual(mid.d, start.d, "the wedge grows");
   const plain = interpolateScene(null, {...next, root: {...next.root, children: [{...next.root.children[0], enterArc: undefined}]}});
   assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterArc it fades in");
+});
+
+it("rectEnterStart starts a rect at its own enterRect, else returns null", () => {
+  const rect = {type: "rect", key: "r", x: 10, y: 20, width: 30, height: 40, paint: {opacity: 1}};
+  const start = rectEnterStart({...rect, enterRect: {x: 0, y: 0, width: 30, height: 0}});
+  assert.deepStrictEqual([start.x, start.y, start.width, start.height], [0, 0, 30, 0]);
+  assert.strictEqual(start.paint.opacity, 1, "keeps its own opacity");
+  assert.strictEqual(rectEnterStart(rect), null);
+  assert.strictEqual(rectEnterStart({type: "circle", key: "c", cx: 0, cy: 0, r: 1, enterRect: {x: 0, y: 0, width: 0, height: 0}}), null);
+});
+
+it("interpolateScene grows an entering rect from its own enterRect", () => {
+  const rect = {type: "rect", key: "r", x: 0, y: 100, width: 50, height: 100, paint: {opacity: 1}};
+  const next = {
+    width: 200,
+    height: 200,
+    root: {type: "group", key: "root", children: [{...rect, enterRect: {x: 0, y: 200, width: 50, height: 0}}]},
+  };
+  const interp = interpolateScene(null, next);
+  const start = interp(0).root.children[0];
+  assert.deepStrictEqual([start.y, start.height, start.paint.opacity], [200, 0, 1]);
+  assert.deepStrictEqual([interp(1).root.children[0].y, interp(1).root.children[0].height], [100, 100]);
+  const plain = interpolateScene(null, {...next, root: {...next.root, children: [rect]}});
+  assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterRect it fades in");
+});
+
+it("pathEnterStart starts a path at its own enterD, else returns null", () => {
+  const path = {type: "path", key: "p", d: "M0,0L10,5L0,10Z", paint: {opacity: 0.6}};
+  const start = pathEnterStart({...path, enterD: "M5,0L5,5L5,10Z"});
+  assert.strictEqual(start.d, "M5,0L5,5L5,10Z");
+  assert.strictEqual(start.paint.opacity, 0.6, "keeps its own opacity");
+  assert.strictEqual(pathEnterStart(path), null);
+  assert.strictEqual(pathEnterStart({type: "rect", key: "r", x: 0, y: 0, width: 1, height: 1, enterD: "M0,0"}), null);
+  const wedge = pathEnterStart({...path, arc: {innerRadius: 0, outerRadius: 5, startAngle: 0, endAngle: 1}, enterD: "M0,0L0,10Z"});
+  assert.strictEqual(wedge.arc, undefined, "the start morphs its d, not an arc");
+});
+
+it("SVG and Canvas enters both start a path at its own enterD", () => {
+  const node = {type: "path", key: "p", d: "M0,0L10,5L0,10Z", enterD: "M5,0L5,5L5,10Z", paint: {opacity: 1}};
+  const svg = enterStart(node, undefined);
+  assert.deepStrictEqual([svg.d, svg.paint.opacity], ["M5,0L5,5L5,10Z", 1], "SVG start");
+  const canvas = interpolateScene(null, {width: 20, height: 20, root: {type: "group", key: "root", children: [node]}})(0).root.children[0];
+  assert.deepStrictEqual([canvas.d, canvas.paint.opacity], ["M5,0L5,5L5,10Z", 1], "Canvas start");
+  const plain = enterStart({...node, enterD: undefined}, undefined);
+  assert.deepStrictEqual([plain.d, plain.paint.opacity], [node.d, 0], "without enterD it fades in place");
+});
+
+it("interpolateScene grows an entering path from its own enterD point by point", () => {
+  const d = "M0,0C10,0,20,5,20,10L20,40C20,45,10,50,0,50Z";
+  const enterD = flattenPath(d, "x", 0);
+  const next = {
+    width: 100,
+    height: 100,
+    root: {type: "group", key: "root", children: [{type: "path", key: "v", shapeType: "Area", d, enterD, paint: {opacity: 1}}]},
+  };
+  const interp = interpolateScene(null, next);
+  assert.strictEqual(interp(0).root.children[0].d, enterD, "starts at enterD");
+  assert.strictEqual(interp(0).root.children[0].paint.opacity, 1, "keeps its own opacity");
+  const nums = s => s.match(/-?[\d.]+/g).map(Number);
+  const mid = interp(0.5).root.children[0].d;
+  assert.strictEqual(mid.replace(/[-\d.,\s]+/g, ""), "MCLCZ", "same commands as d");
+  const [a, b] = [nums(enterD), nums(d)];
+  nums(mid).forEach((v, i) => assert.ok(Math.abs(v - (a[i] + b[i]) / 2) < 1e-6, `point ${i} halfway`));
+  assert.strictEqual(interp(1).root.children[0].d, d);
+  const plain = interpolateScene(null, {...next, root: {...next.root, children: [{...next.root.children[0], enterD: undefined}]}});
+  assert.strictEqual(plain(0).root.children[0].paint.opacity, 0, "without enterD it fades in");
+});
+
+it("flattenPath collapses every point onto one line, keeping the commands", () => {
+  assert.strictEqual(flattenPath("M1,2L3,4C5,6,7,8,9,10Z", "x", 0), "M0,2L0,4C0,6,0,8,0,10Z");
+  assert.strictEqual(flattenPath("M1,2L3,4C5,6,7,8,9,10Z", "y", 7), "M1,7L3,7C5,7,7,7,9,7Z");
+  assert.strictEqual(flattenPath("M1,2H5V9Q2,3,4,5", "x", 0), "M0,2H0V9Q0,3,0,5");
+  assert.strictEqual(flattenPath("M1,2H5V9", "y", 0), "M1,0H5V0");
+  assert.strictEqual(flattenPath("m1,2l3,4 5,6h2z", "x", 9), "m9,2l0,4,0,6h0z", "relative offsets go to 0");
+  assert.strictEqual(flattenPath("M1e-7,2L3,4", "x", 1), "M1,2L1,4", "exponents are numbers, not commands");
+  assert.strictEqual(flattenPath("M0,0A5,5,0,0,1,10,10", "y", 3), "M0,3A5,5,0,0,1,10,3", "an arc keeps its radii and flags");
 });
 
 it("interpolateScene morphs a flip-eligible entering node from an external enterFrom box", () => {

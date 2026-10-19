@@ -81,6 +81,7 @@ export const SEARCH_INPUT_STYLE_OPEN: Record<string, string> = {
 const SEARCH_INPUT_BASE_STYLE: Record<string, string> = {
   height: "20px",
   "box-sizing": "border-box",
+  margin: "0",
   // `inherit` picked up whatever font-size the host page's body/chart
   // container happened to set — often much larger than this 20px-tall
   // control was designed for. An explicit size matches the rest of the
@@ -136,6 +137,7 @@ const SEARCH_CLEAR_STYLE_SHOWN: Record<string, string> = {
   visibility: "visible",
   width: "16px",
   height: "16px",
+  margin: "0",
   padding: "0",
   border: "none",
   background: "none",

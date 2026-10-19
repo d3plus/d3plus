@@ -4,6 +4,7 @@ export {default as titleCaseLocale} from "./src/dictionaries/titleCaseLocale.js"
 export {default as locale} from "./src/dictionaries/timeLocale.js";
 
 export {default as findLocale} from "./src/findLocale.js";
+export {default as findWeekStart} from "./src/findWeekStart.js";
 
 export type {TranslationStrings} from "./src/dictionaries/translateLocale.js";
 export type {FormatLocaleDefinition} from "./src/dictionaries/formatLocale.js";

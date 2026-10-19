@@ -76,17 +76,20 @@ function legendCouldFit(viz: VizInstance): boolean {
   return entries * MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY <= frame.width * frame.height;
 }
 
+/** Whether a `legendPosition`/`colorScalePosition` accessor resolves to `"auto"` for this draw. */
+function isAutoPosition(viz: VizInstance, position: (config: unknown) => unknown): boolean {
+  return position.bind(viz)(resolveSpec(viz)) === "auto";
+}
+
 /**
     The candidates this draw may place inside the chart, in priority order.
-    A legend or colorScale whose position the user set explicitly stays
-    where they put it.
+    Only a legend or colorScale whose position is `"auto"` (the default) is
+    a candidate: one the user put on a side (or hid) stays where they put it.
 */
 function insetCandidates(viz: VizInstance): InsetKey[] {
-  const auto = viz._insetAutoPositions;
   return INSET_PRIORITY.filter(key => {
-    if (key === "legend")
-      return (!auto || viz.schema.legendPosition === auto.legend) && legendCouldFit(viz);
-    if (key === "colorScale") return !auto || viz.schema.colorScalePosition === auto.colorScale;
+    if (key === "legend") return isAutoPosition(viz, viz.schema.legendPosition) && legendCouldFit(viz);
+    if (key === "colorScale") return isAutoPosition(viz, viz.schema.colorScalePosition);
     return true;
   });
 }
@@ -103,7 +106,7 @@ function isShowing(viz: VizInstance, key: InsetKey): boolean {
   if (key === "sizeLegend") return Boolean(bottomRightControlsBox(viz)?.inset);
   if (key === "legend") return Boolean(viz._legendClass?._data?.length);
   return Boolean(viz.schema.colorScale) &&
-    sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz))) !== false &&
+    sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)), viz) !== false &&
     !viz.schema.colorScaleConfig.select;
 }
 

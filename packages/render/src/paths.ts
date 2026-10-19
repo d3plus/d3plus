@@ -62,3 +62,44 @@ export function areaPath(node: AreaNode): string {
     .y1((_, i) => topline[i][1]);
   return gen(topline.map((_, i) => i)) ?? "";
 }
+
+/** How many numbers each SVG path command takes per segment. */
+const PATH_ARITY: Record<string, number> = {a: 7, c: 6, h: 1, l: 2, m: 2, q: 4, s: 4, t: 2, v: 1, z: 0};
+
+/**
+    A path's `d` collapsed onto the line where one coordinate equals `at`:
+    every point keeps its other coordinate and moves onto that line, so the
+    result has the same commands and point count as `d` and morphs into it
+    point by point. Relative commands keep a zero offset on the collapsed
+    axis.
+    @param d The SVG path data.
+    @param axis The coordinate to collapse: `"x"` flattens onto the vertical
+        line `x = at`, `"y"` onto the horizontal line `y = at`.
+    @param at Where the collapsed coordinate lands.
+*/
+export function flattenPath(d: string, axis: "x" | "y", at: number): string {
+  const out: string[] = [];
+  let first = true;
+  for (const [, cmd, args] of d.matchAll(/([MLHVCSQTAZ])([^MLHVCSQTAZ]*)/gi)) {
+    const lower = cmd.toLowerCase();
+    const arity = PATH_ARITY[lower];
+    const nums = (args.match(/[-+]?(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?/gi) ?? []).map(Number);
+    if (!arity) {
+      out.push(cmd + args.trim());
+      continue;
+    }
+    const relative = cmd === lower;
+    const flattened = nums.map((n, i) => {
+      const j = i % arity;
+      // A relative moveto's first pair is absolute when it opens the path.
+      const value = relative && !(first && lower === "m" && i < 2) ? 0 : at;
+      if (lower === "h") return axis === "x" ? value : n;
+      if (lower === "v") return axis === "y" ? value : n;
+      if (lower === "a") return j === (axis === "x" ? 5 : 6) ? value : n;
+      return j % 2 === (axis === "x" ? 0 : 1) ? value : n;
+    });
+    first = false;
+    out.push(cmd + flattened.join(","));
+  }
+  return out.join("");
+}
