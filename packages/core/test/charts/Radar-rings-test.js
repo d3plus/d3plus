@@ -74,3 +74,11 @@ it("emitRadarRings always closes the web with an outer ring at the radius", () =
   assert.deepStrictEqual(group.children.map(c => [c.r, c.paint.stroke]), [[70, "g"], [140, "g"], [200, "a"]]);
   assert.deepStrictEqual(emitRadarRings([], 0, 0, {}, {}), [], "no radius, no rings");
 });
+
+it("emitRadarRings keys its nodes with a prefix, radar by default", () => {
+  const [group] = emitRadarRings([{value: 50, r: 50}], 100, 100, {}, {}, "polararea");
+  assert.strictEqual(group.key, "polararea-radial-circles");
+  assert.deepStrictEqual(group.children.map(c => c.key), ["polararea-ring-50", "polararea-ring-outer"]);
+  const [radar] = emitRadarRings([{value: 50, r: 50}], 100, 100, {}, {});
+  assert.deepStrictEqual(radar.children.map(c => c.key), ["radar-ring-50", "radar-ring-outer"]);
+});
