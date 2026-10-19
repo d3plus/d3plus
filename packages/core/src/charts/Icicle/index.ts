@@ -9,6 +9,7 @@
       - `layout.ts` — the shared partition placed as rectangles.
       - `geometry.ts` — pure bands, rectangles, and zoom collapse targets.
       - `labelFit.ts` — pure upright/rotated label fitting.
+      - `enterStagger.ts` — where and when entering rectangles grow in.
       - `interaction.ts` — the zoom origin and node lookup for the shared
         partition interaction.
 */
@@ -38,6 +39,7 @@ import {
 import {partitionShadeDefaults} from "../partition/shade.js";
 
 import {applyIcicleLayout} from "./applyLayout.js";
+import {icicleShowWrappers} from "./enterStagger.js";
 import {icicleEmit} from "./emit.js";
 import {icicleInteraction} from "./interaction.js";
 
@@ -47,6 +49,7 @@ export const icicleDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyIcicleLayout,
   emit: icicleEmit,
+  decorateScene: (_viz, scene) => icicleShowWrappers(scene),
 
   thresholdFunction: partitionThreshold,
 

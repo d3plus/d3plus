@@ -6,6 +6,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import type {EnterWindow} from "@d3plus/render";
 
 import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
@@ -17,6 +18,7 @@ import {
   partitionRemoved,
   partitionRenderBase,
   partitionReturning,
+  partitionZoomOutFocus,
 } from "../partition/zoom.js";
 
 import {icicleBands, icicleCollapse, icicleExtent} from "./geometry.js";
@@ -26,6 +28,7 @@ import type {
   IcicleRect,
   IcicleZoomOrigin,
 } from "./geometry.js";
+import {icicleStagger} from "./enterStagger.js";
 import {icicleLayout} from "./layout.js";
 import type {IcicleNode} from "./layout.js";
 
@@ -137,6 +140,7 @@ export const applyIcicleLayout: TransformStage = ({viz}) => {
     viz.ctx.icicleBands = undefined;
     viz.ctx.icicleFrame = frame;
     viz.ctx.icicleEnterRects = new Map<string, IcicleRect>();
+    viz.ctx.icicleEnterWindows = new Map<string, EnterWindow>();
     return {shapeData: []};
   }
 
@@ -166,10 +170,25 @@ export const applyIcicleLayout: TransformStage = ({viz}) => {
     origin && previous
       ? icicleGhosts(previous, nodes, origin, bands, frame)
       : [];
-  viz.ctx.icicleEnterRects =
+  const returning =
     previous && previousBands && base.frame
       ? icicleReturning(previous, nodes, previousBands, base.frame)
       : new Map<string, IcicleRect>();
+  // A zoom's entering rectangles keep the zoom's own motion; any other draw
+  // grows its entering rectangles out from the root edge, level by level.
+  const zoomed =
+    Boolean(origin) ||
+    Boolean(previous && partitionZoomOutFocus(previous, nodes));
+  const drawn = new Set((previous ?? []).map(n => n.id));
+  const stagger = zoomed
+    ? {rects: returning, windows: new Map<string, EnterWindow>()}
+    : icicleStagger(
+        nodes,
+        new Set(nodes.filter(n => !drawn.has(n.id)).map(n => n.id)),
+        frame.orient,
+      );
+  viz.ctx.icicleEnterRects = stagger.rects;
+  viz.ctx.icicleEnterWindows = stagger.windows;
   viz.ctx.icicleLaid = nodes;
   viz.ctx.icicleBands = bands;
   viz.ctx.icicleFrame = frame;

@@ -1,7 +1,7 @@
 /**
-    Icicle's pipeline pieces (layout, geometry, label fit) and the partition
-    helpers it shares with Sunburst (hierarchy, zoom, shade, label words),
-    re-exported by `@d3plus/core/internal`.
+    Icicle's pipeline pieces (layout, geometry, label fit, enter stagger)
+    and the partition helpers it shares with Sunburst (hierarchy, zoom,
+    shade, label words), re-exported by `@d3plus/core/internal`.
 
     @module
 */
@@ -29,3 +29,5 @@ export type {IcicleNode} from "./layout.js";
 export {icicleBands, icicleCollapse, icicleRect} from "./geometry.js";
 export type {IcicleOrient, IcicleRect} from "./geometry.js";
 export {icicleLabelBox} from "./labelFit.js";
+export {icicleRootEdge, icicleShowWrappers, icicleStagger} from "./enterStagger.js";
+export type {IcicleStagger} from "./enterStagger.js";

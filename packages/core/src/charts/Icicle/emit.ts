@@ -7,7 +7,7 @@
 import {colorContrast} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
-import type {FadeSwap, SceneNode, TextNode} from "@d3plus/render";
+import type {EnterWindow, FadeSwap, SceneNode, TextNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
 import {
@@ -117,6 +117,10 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
     string,
     IcicleRect
   >;
+  const enterWindows = (viz.ctx.icicleEnterWindows ?? new Map()) as Map<
+    string,
+    EnterWindow
+  >;
 
   const rectNodes: SceneNode[] = nodes.map(node => {
     const i = node.i ?? 0;
@@ -127,8 +131,10 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
       y: node.y,
       width: node.width,
       height: node.height,
-      // A zoom-out grows a returning rectangle in from where it folded away.
+      // Where an entering rectangle grows from (its root edge, or on a
+      // zoom-out where it folded away), and when (see `icicleStagger`).
       enterRect: enterRects.get(node.id),
+      enterWindow: enterWindows.get(node.id),
       datum: node.datum,
       paint: {
         fill: textureFill(sc, node.datum, i, fillOf(node)),
@@ -199,6 +205,13 @@ export const icicleEmit: ChartEmit = ({viz, shapeData}) => {
   // moves, retexts, or resizes it, it fades out where it was and back in
   // where it lands. A label whose rectangle stays put stays put.
   for (const n of labelNodes) (n as TextNode).fadeSwap = ICICLE_LABEL_FADE;
+
+  // A rectangle's image and label enter with it.
+  const windowOf = new Map(
+    nodes.map(n => [n.datum, enterWindows.get(n.id)] as const),
+  );
+  for (const n of [...imageNodes, ...labelNodes])
+    if (n.datum) n.enterWindow = windowOf.get(rowOf(n.datum));
 
   return [
     ...ghostNodes(viz, fillOf),
