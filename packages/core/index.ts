@@ -19,6 +19,7 @@ export {
   Matrix,
   Network,
   Pack,
+  ParallelCoordinates,
   Pie,
   Plot,
   Priestley,
@@ -98,6 +99,8 @@ export type {
 export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
+export type {BrushRange, BrushSelection} from "./src/charts/ParallelCoordinates/brushFilter.js";
+export type {DimensionOptions} from "./src/charts/ParallelCoordinates/dimensions.js";
 export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
 
 export type {

@@ -132,6 +132,19 @@ const hasParent = ({augments}) =>
 // generated paths match the flat layout the stories import.
 const collapseCategory = p => (p ? `/${p.split("/").filter(Boolean)[0]}` : "");
 
+/**
+ * Drops an interface doc scoped to another class. A shared config key whose
+ * description opens with a documented class's name (`"ParallelCoordinates: …"`)
+ * documents that class's option, not a same-named one elsewhere (Timeline
+ * `brushing`).
+ */
+const ownDoc = (doc, name, stories) => {
+  const scope = doc && /^([A-Z][A-Za-z]+): /.exec(doc.description || "");
+  return scope && scope[1] !== name && stories.some(d => d.name === scope[1])
+    ? undefined
+    : doc;
+};
+
 export default function (
   story,
   allMethods,
@@ -356,7 +369,11 @@ export default function (
       if (cleanKey in parentConfig) continue;
       if (formattedMethods[cleanKey]) continue;
       if (hideRe && hideRe.test(cleanKey)) continue;
-      const doc = ifaceSpecific[cleanKey] || ifaceMerged[cleanKey];
+      const doc = ownDoc(
+        ifaceSpecific[cleanKey] || ifaceMerged[cleanKey],
+        name,
+        stories,
+      );
       formattedMethods[cleanKey] = configArgType(ownConfig[key], doc, cleanKey);
     }
 
@@ -547,7 +564,8 @@ function chartArgTypes(
       if (method && method.description) return method.description;
       ancestor = stories.find(d => d.name === hasParent(ancestor));
     }
-    return (typed[key] || merged[key] || {}).description || "";
+    const doc = ownDoc(typed[key] || merged[key], story.name, stories);
+    return (doc || {}).description || "";
   };
 
   const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
@@ -586,7 +604,7 @@ function chartArgTypes(
       continue;
     }
 
-    const iface = typed[key] || merged[key];
+    const iface = ownDoc(typed[key] || merged[key], story.name, stories);
     const arg = doc.type
       ? withDefault(typedArg(doc.type), value)
       : configArgType(value, iface, key);

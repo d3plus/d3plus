@@ -21,6 +21,7 @@ import {
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
+  ParallelCoordinates as ParallelCoordinatesClass,
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
@@ -148,6 +149,10 @@ export const Network = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Pack visualization. */
 export const Pack = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={PackClass} {...props} />
+);
+/** React component for rendering a d3plus ParallelCoordinates visualization. */
+export const ParallelCoordinates = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={ParallelCoordinatesClass} {...props} />
 );
 /** React component for rendering a d3plus Pie visualization. */
 export const Pie = (props: D3plusComponentProps) => (
