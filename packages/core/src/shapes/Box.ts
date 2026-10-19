@@ -16,6 +16,7 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
+import {uniqueIds} from "./uniqueIds.js";
 import Whisker from "./Whisker.js";
 
 const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
@@ -34,6 +35,7 @@ const toAccessor = (
 const boxSchema: ConfigField[] = [
   {key: "backgroundImage", coerce: "const"},
   {key: "backgroundImageFit", coerce: "const"},
+  {key: "id", coerce: "accessor"},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
   {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
   {key: "rectWidth", coerce: "const", default: constant(50)},
@@ -128,6 +130,7 @@ function collectOutliers(
         (dataObj as Record<string, unknown>).__d3plus__ = true;
         (dataObj as Record<string, unknown>).data = eachValue;
         (dataObj as Record<string, unknown>).i = index;
+        (dataObj as Record<string, unknown>).id = `${d.id}-outlier-${index}`;
         (dataObj as Record<string, unknown>).outlier = box.schema.outlier(
           eachValue,
           index,
@@ -153,8 +156,8 @@ function collectOutliers(
 */
 function computeBoxGroup(
   box: Box,
-  key: DataPoint[keyof DataPoint],
-  groupData: DataPoint[],
+  [key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]],
+  id: string,
   outlierData: DataPoint[],
 ): DataPoint {
   const d: DataPoint = {key, values: groupData} as unknown as DataPoint;
@@ -164,6 +167,8 @@ function computeBoxGroup(
   (d as Record<string, unknown>).i = box._data.indexOf(
     (d.values as unknown as DataPoint[])[0],
   );
+  // The box's identity, which keys every part it draws.
+  (d as Record<string, unknown>).id = id;
   (d as Record<string, unknown>).orient = box.schema.orient(
     d.data as DataPoint,
     d.i as number,
@@ -234,6 +239,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
           __d3plus__: true,
           data: d,
           i,
+          id: `${d.id}-whisker-top`,
           x,
           y: topY,
           length: topLength,
@@ -243,6 +249,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
           __d3plus__: true,
           data: d,
           i,
+          id: `${d.id}-whisker-bottom`,
           x,
           y: bottomY,
           length: bottomLength,
@@ -257,6 +264,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
           __d3plus__: true,
           data: d,
           i,
+          id: `${d.id}-whisker-right`,
           x: topX,
           y,
           length: bottomLength,
@@ -266,6 +274,7 @@ function buildWhiskerData(filteredData: DataPoint[]): DataPoint[] {
           __d3plus__: true,
           data: d,
           i,
+          id: `${d.id}-whisker-left`,
           x: bottomX,
           y,
           length: topLength,
@@ -345,17 +354,27 @@ export default class Box extends BaseClass {
 
     const outlierData: DataPoint[] = [];
 
-    const filteredData = groups(this._data, (d: DataPoint, i: number) =>
+    const boxGroups = groups(this._data, (d: DataPoint, i: number) =>
       this.schema.orient(d, i) === "vertical"
         ? this.schema.x(d, i)
         : this.schema.y(d, i),
-    ).map(([key, groupData]: [DataPoint[keyof DataPoint], DataPoint[]]) =>
-      computeBoxGroup(this, key, groupData, outlierData),
+    );
+    // Each box's id: the `id` accessor on its first row, else its group key.
+    const ids = uniqueIds(
+      boxGroups.map(([key, groupData]) => {
+        const first = groupData[0];
+        const id = this.schema.id ? this.schema.id(first, this._data.indexOf(first)) : undefined;
+        return `${id ?? key}`;
+      }),
+    );
+    const filteredData = boxGroups.map((group, i) =>
+      computeBoxGroup(this, group, ids[i], outlierData),
     );
 
     // Draw box.
     this._box = new Rect()
       .data(filteredData)
+      .id((d: DataPoint) => `${d.id}-box`)
       .x((d: DataPoint) => d.x)
       .y((d: DataPoint) => d.y)
       .renderMode(compute ? "compute" : "full")
@@ -371,6 +390,7 @@ export default class Box extends BaseClass {
     // Draw median.
     this._median = new Rect()
       .data(filteredData)
+      .id((d: DataPoint) => `${d.id}-median`)
       .x((d: DataPoint) => (d.orient === "vertical" ? d.x : d.median))
       .y((d: DataPoint) => (d.orient === "vertical" ? d.median : d.y))
       .height((d: DataPoint) => (d.orient === "vertical" ? 1 : d.height))

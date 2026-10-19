@@ -1,0 +1,126 @@
+<!doctype html>
+<html>
+
+<head>
+
+  <meta charset="utf-8">
+  <title>ZoomTimeAxis · Plot</title>
+  <meta name="description" content="Zooming and panning time axes: the dates rescale and re-tick (years to months to days) while lines, bands, trend lines and bars follow.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px; font-family: sans-serif; }
+    .chart { height: 340px; }
+    h3 { margin: 0 0 4px; font-size: 14px; }
+    p { margin: 0 0 8px; font-size: 12px; color: #666; }
+  </style>
+
+</head>
+
+<body>
+  <div>
+    <h3>LinePlot, daily data over three years, with a trend line</h3>
+    <p>Wheel, drag, the zoom buttons or the brush: the dates step from months down to days.</p>
+    <div class="chart" id="daily"></div>
+  </div>
+  <div>
+    <h3>BarChart, monthly data</h3>
+    <p>Bars widen as the time axis zooms, also with the first or last bar at the edge.</p>
+    <div class="chart" id="monthly"></div>
+  </div>
+  <div>
+    <h3>Daily closing price with its high–low range</h3>
+    <p>A price line and its daily range band (a candlestick without the candles), in Spanish.</p>
+    <div class="chart" id="prices"></div>
+  </div>
+  <div>
+    <h3>Horizontal BarChart, a time y axis</h3>
+    <p>The y axis zooms its dates; bars thicken with it.</p>
+    <div class="chart" id="horizontal"></div>
+  </div>
+  <div>
+    <h3>BarChart with category bars (unchanged)</h3>
+    <p>A discrete (point) axis stays put: zoom rescales the value axis only.</p>
+    <div class="chart" id="discrete"></div>
+  </div>
+  <div>
+    <h3>LinePlot with two monthly series and confidence bands</h3>
+    <p>Bands and lines move with the zoom and stay inside the plot.</p>
+    <div class="chart" id="bands"></div>
+  </div>
+</body>
+
+<script>
+
+  // A deterministic wobble, so every load draws the same data.
+  const wobble = i => Math.sin(i / 23) * 7 + Math.sin(i / 5.3) * 3 + Math.cos(i / 61) * 11;
+
+  const daily = [];
+  for (let i = 0; i < 1100; i++) {
+    daily.push({id: "Visitors", date: new Date(2022, 0, 1 + i), value: 120 + i / 12 + wobble(i)});
+  }
+
+  const monthly = [];
+  for (let i = 0; i < 36; i++) {
+    monthly.push({id: "Sales", date: new Date(2022, i, 1), value: 40 + ((i * 7) % 17) + i / 2});
+  }
+
+  const prices = [];
+  let close = 100;
+  for (let i = 0; i < 365; i++) {
+    const date = new Date(2024, 0, 1 + i);
+    if (date.getDay() === 0 || date.getDay() === 6) continue;
+    close += Math.sin(i / 9) * 1.4 + Math.cos(i / 3.7) * 0.9;
+    const swing = 1.5 + Math.abs(Math.sin(i / 4)) * 2;
+    prices.push({id: "Close", date, close, low: close - swing, high: close + swing * 0.8});
+  }
+
+  const bands = [];
+  ["North", "South"].forEach((id, s) => {
+    for (let i = 0; i < 48; i++) {
+      const value = 50 + s * 15 + wobble(i * 4) * (s ? 0.6 : 1);
+      bands.push({id, date: new Date(2021, i, 1), value, lci: value - 6 - (i % 4), hci: value + 6 + (i % 3)});
+    }
+  });
+
+  const categories = ["Apples", "Bananas", "Cherries", "Dates", "Elderberries", "Figs"]
+    .map((id, i) => ({id, value: 12 + ((i * 5) % 9)}));
+
+  const make = (Chart, select, config) =>
+    new d3plus[Chart]().select(select).config({timeline: false, zoomMax: 64, ...config}).render();
+
+  make("LinePlot", "#daily", {
+    data: daily, groupBy: "id", x: "date", time: "date", y: "value",
+    trendLine: "linear",
+  });
+
+  make("BarChart", "#monthly", {
+    data: monthly, groupBy: "id", x: "date", time: "date", y: "value",
+    legend: false,
+  });
+
+  make("LinePlot", "#prices", {
+    data: prices, groupBy: "id", x: "date", time: "date", y: "close",
+    confidence: ["low", "high"],
+    locale: "es-ES",
+    legend: false,
+  });
+
+  make("BarChart", "#horizontal", {
+    data: monthly.slice(0, 24), groupBy: "id", discrete: "y", y: "date", time: "date", x: "value",
+    legend: false,
+  });
+
+  make("BarChart", "#discrete", {
+    data: categories, groupBy: "id", x: "id", y: "value",
+    legend: false,
+  });
+
+  make("LinePlot", "#bands", {
+    data: bands, groupBy: "id", x: "date", time: "date", y: "value",
+    confidence: ["lci", "hci"],
+  });
+
+</script>
+
+</html>

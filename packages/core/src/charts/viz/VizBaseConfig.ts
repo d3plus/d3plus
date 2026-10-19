@@ -8,6 +8,7 @@ import {accessor, BaseClass, constant} from "../../utils/index.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {broadcastLink} from "./linkGroup.js";
+import {shapeHoverEnabled} from "./shapeHover.js";
 import type {VizInstance} from "./vizTypes.js";
 import type VizBase from "./VizBase.js";
 import {mergeConfigBag, resolvesReset} from "../../fluent.js";
@@ -304,7 +305,7 @@ Defaults to an empty array (`[]`).
       - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
       - `padding`: the space between panels, in pixels (default `20`).
       - `sort`: panel order — `"ascending"` (default), `"descending"`, `"data"` (first appearance), a comparator over facet values, or an Array of values.
-      - `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows.
+      - `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows. Funnel defaults to `"independent"` (each panel sized to its own widest stage); `"shared"` sizes every panel against the widest stage across all panels.
       - `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid's left and bottom edges; `"all"` labels every panel.
       - `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.
       - `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).
@@ -449,7 +450,7 @@ Defaults to an empty array (`[]`).
     // forEach above is a no-op for them. Repaint so the scene's
     // interaction-opacity pass re-reads `_hover` and dims the non-matching
     // nodes (or restores them when `_` is `false`). Also repaint for a
-    // colorScale-bucket hover even when per-shape dimming is off
+    // colorScale-bucket hover even when per-shape hover is off
     // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
     // same pass, so without a repaint the map would never re-compose. Coalesced
     // to one paint per frame so a fast pointer sweep doesn't saturate the main
@@ -457,7 +458,7 @@ Defaults to an empty array (`[]`).
     if (
       this._sceneRenderer &&
       _ !== undefined &&
-      (this.schema.shapeConfig.hoverOpacity !== 1 || this._hoverBucket)
+      (shapeHoverEnabled(this) || this._hoverBucket)
     )
       this._scheduleSceneRepaint();
 

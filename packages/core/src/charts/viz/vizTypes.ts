@@ -24,6 +24,7 @@
 import type {PlotZoomBase, ZoomState} from "../Plot/plotZoom.js";
 import type {TrendFit, TrendLineType} from "../Plot/trendLines.js";
 import type {SwarmState} from "../Plot/swarm.js";
+import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
@@ -240,6 +241,11 @@ export interface VizInstance {
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;
   /** True while the current hover came from a colorScale bucket swatch. */
   _hoverBucket?: boolean;
+  /**
+      Hovering a shape outlines it even when nothing else dims
+      (`hoverOpacity` 1), as Calendar's days do (see `shapeHoverEnabled`).
+  */
+  _hoverOutline?: boolean;
   _highlight?: ((d: DataPoint, i?: number) => boolean) | false;
   /** The `link` group this chart is registered under (see `linkGroup.ts`). */
   _linkGroup?: string;
@@ -437,6 +443,30 @@ export interface VizInstance {
   _plotInsetTop?: number;
   /** Axis config a chart supplies beneath the user's `xConfig`/`yConfig`. */
   _plotAxisDefaults?: {x?: Record<string, unknown>; y?: Record<string, unknown>};
+  /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
+  _plotShapeEmitters?: Record<string, ShapeEmitter>;
+  /**
+      Row shapes a chart draws as circles sized by `size` (e.g. Lollipop's
+      Bar rows, drawn as stems with Circle heads), so Plot's size legend keys
+      them like Circle rows. `["Circle"]` when unset.
+  */
+  _plotCircleShapes?: string[];
+  /**
+      For charts whose marks read as one per category (Lollipop, Dumbbell):
+      builds the hover predicate Plot's snapped hover sets for the hovered
+      column, from the rows of the column's marks. When unset, only a
+      stacked bar column highlights.
+  */
+  _plotColumnHighlight?: (rows: Set<DataPoint>) => (d: DataPoint, i: number) => boolean;
+  /** Scene nodes a chart draws beneath a Plot's shapes, given those shapes' nodes and the axis position functions. */
+  _plotUnderlay?: (shapes: SceneNode[], x: (v: unknown) => number, y: (v: unknown) => number) => SceneNode[];
+  /**
+      Whether a stacked Plot stamps each row with its share of its stack
+      (`share` / `__d3plusShare`), which feeds the share label line and the
+      Share tooltip row; on unless `false`. A chart whose stacks hold one
+      bar apiece (Waterfall) turns it off, since every share would be 1.
+  */
+  _stackShares?: boolean;
   _buffer?: Record<string, unknown>;
 
   /* 9. Feature/component class references */

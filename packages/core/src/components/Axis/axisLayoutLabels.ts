@@ -98,16 +98,32 @@ export function computeBuffers(
   return {hBuff, wBuff};
 }
 
-/** Wraps + measures a single label, returning its sized text result. */
+/** A label's wrapped lines and measured size (see `calculateLabelSize`). */
+type LabelSize = {lines: string[]; widths: number[]; width: number; height: number; fits: boolean};
+
+/**
+    Wraps + measures a single label, returning its sized text result. Given a
+    `cache`, a label whose text, font, and space match one measured before
+    reuses that measurement.
+*/
 function calculateLabelSize(
   axis: Axis,
   datum: AxisTextDatum,
   ctx: LabelLayoutCtx,
-): {lines: string[]; widths: number[]; width: number; height: number; fits: boolean} {
+  cache?: Map<string, LabelSize>,
+): LabelSize {
   const {horizontal, hBuff, p, tickFormat} = ctx;
   const {d, i, fF, fP, fS, rotate, space} = datum;
   const h = rotate ? "width" : "height",
     w = rotate ? "height" : "width";
+
+  const lineHeight = axis.schema.shapeConfig.lineHeight
+    ? axis.schema.shapeConfig.lineHeight(d, i)
+    : undefined;
+  const text = tickFormat(d);
+  const key = cache && JSON.stringify([text, fF, fP, fS, lineHeight, rotate, space]);
+  const cached = key ? cache!.get(key) : undefined;
+  if (cached) return {...cached, lines: cached.lines.slice(), widths: cached.widths.slice()};
 
   const wSize = min([axis.schema.maxSize, axis.schema.width]);
   const hSize = min([axis.schema.maxSize, axis.schema.height]);
@@ -115,11 +131,7 @@ function calculateLabelSize(
   const wrap = textWrap()
     .fontFamily(fF)
     .fontSize(fS)
-    .lineHeight(
-      axis.schema.shapeConfig.lineHeight
-        ? axis.schema.shapeConfig.lineHeight(d, i)
-        : undefined,
-    );
+    .lineHeight(lineHeight);
 
   wrap[w](
     horizontal
@@ -132,7 +144,6 @@ function calculateLabelSize(
       : space,
   );
 
-  const text = tickFormat(d);
   type Sized = ReturnType<typeof wrap> & {width: number; height: number; fits: boolean};
   let res: Sized, fits: boolean;
   if (ctx.wholeLine) {
@@ -160,6 +171,7 @@ function calculateLabelSize(
   res.height = res.lines.length
     ? Math.ceil(res.lines.length * (wrap.lineHeight() as number)) + fP
     : 0;
+  if (key) cache!.set(key, {lines: res.lines.slice(), widths: res.widths.slice(), width: res.width, height: res.height, fits});
   return res;
 }
 
@@ -275,9 +287,12 @@ export function createTextData(
           return max([max([prevSpace, nextSpace])! * mod, s])!;
         }, 0);
 
+  // Thinning measures the labels again as they read the ones shown (see
+  // `show`), mostly to the same text, so each text is measured once.
+  const measured = new Map<string, LabelSize>();
   const size = (datum: AxisTextDatum): AxisTextDatum => {
     datum.space = maxSpace - datum.fP * 2;
-    const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx);
+    const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx, measured);
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
     if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(width));

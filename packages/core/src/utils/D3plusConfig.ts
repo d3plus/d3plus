@@ -4,6 +4,8 @@ import type {DataPoint} from "@d3plus/data";
 import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
+import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
+import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
 import type {ConstOrAccessor, CssColor, Orient, SideOrient} from "../shapes/shapeConfig.js";
 import type {
@@ -83,8 +85,9 @@ export interface AxisConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
@@ -102,7 +105,7 @@ export interface AxisConfig {
       the axis line's `barConfig` style), `lineConfig` (those lines'
       `stroke`, `stroke-width`, and other line styles, layered over the axis
       line style), `mask` (whether a Plot cuts the gap between the two
-      lines straight across the shapes, default `false`), plus `stroke`,
+      lines straight across the shapes, default `true`), plus `stroke`,
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.
   */
@@ -120,9 +123,8 @@ export interface AxisConfig {
   break?: false | [number, number] | [number, number][];
   /**
       Style of the ranges set with `break`: the same `space`, `gap`, `size`,
-      `angle`, `lines`, `lineConfig`, and mark line styles as
-      `baselineBreakConfig`, with `mask` (whether a Plot cuts the gap between
-      the break's two lines straight across the shapes) defaulting to `true`.
+      `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
+      same defaults, as `baselineBreakConfig`.
   */
   breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
   /** Grid values of the axis. */
@@ -521,7 +523,8 @@ export interface D3plusConfig {
       `xDomain([n])`). Bars and areas still grow from the chart's own
       `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
       `baselineBreak` on (their default) the axis breaks back to a `0`
-      tick and bars run through the break, and with it off the axis
+      tick and bars run through the break, with its gap cut across them,
+      and with it off the axis
       stretches down to `0`. As with `yDomain([n])`, only `n` is
       pinned: the far end comes from the data and is rounded where the
       axis would round it with no domain set (left at the data when the
@@ -540,15 +543,53 @@ export interface D3plusConfig {
       in the axis line, then the domain spans the rest. Style it with the
       axis's `baselineBreakConfig`. In a Plot it applies to a user-supplied
       value domain (`yDomain`/`yConfig.domain`, or the x versions for
-      horizontal charts), and bars and areas start at the baseline tick;
-      turned off, a `yDomain` stretches to reach the baseline while a
+      horizontal charts), and bars and areas start at the baseline tick,
+      with the break's gap cut across them (`baselineBreakConfig`'s
+      `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
       to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
       `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
+  /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
+  bands?:
+    | (number | {min?: number; max?: number; color?: string})[]
+    | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /**
+      ParallelCoordinates: the brush strips over each axis — `width` (px), the
+      selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and
+      `inactiveOpacity`, the stroke opacity of the grayed lines outside the
+      brushes (by default 30% of each line's own opacity).
+  */
+  brushConfig?: Record<string, unknown>;
+  /**
+      ParallelCoordinates: the active brush filters, keyed by dimension — a
+      numeric `[min, max]` or a list of selected categories. Rows must pass
+      every brush. Brushing an axis updates it, and `on("brush", fn)` is called
+      with the new value; `{}` clears every brush.
+  */
+  brushes?: BrushSelection;
+  /**
+      ParallelCoordinates: whether each axis can be brushed to filter the
+      lines (default `true`). Clicking an axis outside its brush,
+      double-clicking it, or pressing Escape while it has focus clears it.
+  */
+  brushing?: boolean;
+  /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
+  bulletSize?: number;
   /** Whether to cache the processed data between renders. */
   cache?: boolean;
+  /** Calendar: styles the weekday, month, and year labels (`fontColor`, `fontFamily`, `fontSize`, default `11`, and `fontWeight`). */
+  calendarLabelConfig?: {
+    fontColor?: string;
+    fontFamily?: string | string[];
+    fontSize?: number;
+    fontWeight?: number | string;
+  };
+  /** Matrix and Calendar: the gap between neighboring cells, in pixels. */
+  cellPadding?: number;
+  /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
+  cellRadius?: number;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -577,6 +618,8 @@ export interface D3plusConfig {
   comparison?: string | ((d: DataPoint, i: number) => number) | false;
   /** Pyramid: line styles for the comparison outline (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each optionally a function of the side value and its index. */
   comparisonConfig?: Record<string, unknown>;
+  /** Waterfall: draws a thin line from the end of each bar to the start of the next. */
+  connectors?: boolean;
   /**
       The confidence interval as `[lower, upper]` bounds — each given as an
       accessor function or a static data key (e.g. `["lci", "hci"]`), or `false`
@@ -603,19 +646,82 @@ export interface D3plusConfig {
       (Path keys and `capWidth`); any other key logs a warning.
   */
   confidenceConfig?: Record<string, unknown>;
+  /** Funnel: fills the gap between consecutive stages with a neck joining their widths. */
+  connector?: boolean;
+  /**
+      Funnel: paint for the necks between stages (`fill`, `opacity`,
+      `stroke`, `strokeWidth`), each optionally a function of the stage the
+      neck leads into. Waterfall: line styles for the connectors between bars
+      (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`), each
+      optionally a function of the row the connector leaves and its index.
+  */
+  connectorConfig?: Record<string, unknown>;
+  /** Funnel: the conversion rates each stage's label shows: `"first"`, `"previous"`, `"both"` (or `true`), or `false`. */
+  conversion?: boolean | "first" | "previous" | "both" | ("first" | "previous")[];
   /**
       Paint for the shared tooltip's crosshair guide line (`stroke`,
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
   */
   crosshairConfig?: Record<string, unknown>;
+  /**
+      Funnel: how the width changes between stages, `"linear"` (straight
+      sides) or `"smooth"` (curved). ParallelCoordinates: `"linear"`
+      (default) draws straight segments between the axes; `"bump"` curves
+      into and out of each axis.
+  */
+  curve?: "linear" | "smooth" | "bump";
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
+  /**
+      Calendar: the day each row falls on, as a data key or accessor returning
+      a `Date`, a millisecond timestamp, or a date string (a bare
+      `"YYYY-MM-DD"` is read as that local day). Defaults to the row's `date`,
+      else its `time`.
+  */
+  date?: string | ((d: DataPoint, i: number) => Date | number | string);
+  /** Waterfall: fill for bars that lower the running total. Defaults to `colorDefaults.off`. */
+  decreaseColor?: string;
+  /**
+      Kernel density options for Violin and Ridgeline curves: `kernel`
+      (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each
+      group's own Silverman rule-of-thumb bandwidth by default), `points` (how
+      many values each curve is evaluated at, default 80), and `cut` (how far
+      each curve runs past its group's smallest and largest value, in
+      bandwidths: 2 for Violin, 3 for Ridgeline).
+  */
+  densityConfig?: {
+    kernel?: "gaussian" | "epanechnikov" | ((u: number) => number);
+    bandwidth?: number | ((values: number[]) => number);
+    points?: number;
+    cut?: number;
+  };
+  /**
+      How Violin and Ridgeline curves are sized against each other: `"area"`
+      (default) gives every shape the same area, `"count"` makes areas
+      proportional to each group's observations, and `"width"` scales every
+      shape to the full width (Violin) or height (Ridgeline).
+  */
+  densityScale?: "area" | "count" | "width";
   /** Active depth level for nested groupings. */
   depth?: number;
+  /**
+      ParallelCoordinates: per-dimension options, keyed by dimension — `domain`
+      (either end of a numeric domain may be `undefined`), `reverse`, `title`,
+      and any Axis config (`tickFormat`, `ticks`, `scale`, …).
+  */
+  dimensionConfig?: Record<string, DimensionOptions>;
+  /**
+      ParallelCoordinates: the data keys to draw an axis for, in order.
+      Defaults to every numeric key except the `groupBy` keys and `id`; a key
+      whose values aren't all numbers gets a categorical axis.
+  */
+  dimensions?: string[];
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y";
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
+  /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
+  emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
   /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
@@ -663,8 +769,18 @@ export interface D3plusConfig {
       `false` marks nothing, not even a projection. On bar charts the
       backdrop starts at the edge of the first forecast bar, and bars keep
       their own styles. Defaults to `"auto"` on a FanChart.
+
+      Bullet: each row's forecast (or other comparative measure), drawn as
+      a paler bar behind the measure: a data key, an accessor returning the
+      row's value, a number shared by every row, or `false`.
   */
-  forecast?: boolean | "auto" | number | string | Date | ((d: DataPoint, i: number) => boolean);
+  forecast?:
+    | boolean
+    | "auto"
+    | number
+    | string
+    | Date
+    | ((d: DataPoint, i: number) => boolean | number);
   /**
       Styles for the `forecast` marker: the backdrop's `fill` and
       `fillOpacity` (default `0.05`; `fill: false` hides it), the rule's
@@ -682,8 +798,21 @@ export interface D3plusConfig {
       `textureDefault`) or `backgroundImage` (a URL,
       fit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off
       by default.
+
+      Bullet: the forecast bar's `size` (a fraction of the band's
+      thickness), `opacity`, `fill`, `texture`, and
+      `backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`
+      accessor.
   */
   forecastConfig?: Record<string, unknown>;
+  /**
+      Dumbbell: orders the categories by their gap, the distance between each
+      category's smallest and largest value. `"descending"` puts the widest gap
+      first (at the top of horizontal dumbbells, at the left of vertical ones),
+      `"ascending"` the narrowest, and `false` keeps the category axis's own
+      order. A `ySort`/`xSort` comparator on the category axis takes precedence.
+  */
+  gapSort?: false | "ascending" | "descending";
   /** Grouping key(s) or accessor function(s). */
   groupBy?:
     | string
@@ -702,6 +831,17 @@ export interface D3plusConfig {
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
+  increaseColor?: string;
+  /**
+      What Violin draws inside each violin: `"box"` (default; a narrow box
+      plot), `"quartiles"` (a solid line at the median and dashed lines at the
+      quartiles), `"points"` (the observations packed into a swarm), an array
+      of several, or `false` for nothing.
+  */
+  inner?: "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[] | false;
+  /** Styles for Violin's `inner` overlays: `box` (Box config), `quartiles` (Line config), and `points` (Circle config). */
+  innerConfig?: {box?: Record<string, unknown>; quartiles?: Record<string, unknown>; points?: Record<string, unknown>};
   /** Label accessor for shapes. */
   label?: string | string[] | false | AccessorFn;
   /**
@@ -791,6 +931,8 @@ export interface D3plusConfig {
       exact ring values.
   */
   levels?: number | number[];
+  /** ParallelCoordinates: the lines' stroke opacity, or `"auto"` (default) to fade them as their number grows. */
+  lineOpacity?: number | "auto";
   /** Whether to show labels on line charts. */
   lineLabels?: boolean;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
@@ -799,12 +941,26 @@ export interface D3plusConfig {
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
+  /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
+  measureSize?: number;
+  /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
+  medianSort?: false | "ascending" | "descending";
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
   minimap?: boolean;
   /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
   minimapClassName?: string;
+  /**
+      Calendar: formats the month names along year blocks and the titles of
+      month blocks — a d3-time-format specifier read in the chart's `locale`,
+      a function of the month's first day, or `false` for none.
+  */
+  monthFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: whether to outline each month inside year blocks. Defaults to `true`. */
+  monthOutline?: boolean;
+  /** Calendar: styles the month outlines (`stroke`, `strokeWidth`, `strokeDasharray`). */
+  monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
@@ -823,6 +979,12 @@ export interface D3plusConfig {
   */
   orient?: ConstOrAccessor<Orient | SideOrient>;
   /**
+      How far Ridgeline's tallest ridge rises, in category steps (default
+      1.5): 1 reaches the next baseline up, larger values overlap the ridges
+      above.
+  */
+  overlap?: number;
+  /**
       Room (px) the Radar reserves around its web for the metric labels.
       `"auto"` (the default) measures the labels and gives the web the largest
       radius at which every label fits inside the chart, wrapping long labels
@@ -833,6 +995,8 @@ export interface D3plusConfig {
   outerPadding?: number | "auto";
   /** Pyramid: draws each value as a fraction of the frame's total, with the axis and tooltip reading percentages. */
   percent?: boolean;
+  /** Calendar: what each block covers — `"year"` (the default; whole years, stacked) or `"month"` (whole months, as a grid of small calendars). */
+  period?: "year" | "month";
   /** Coordinate accessor for point-based geomaps. */
   point?: (d: DataPoint) => number[];
   /** Point size accessor for geomaps. */
@@ -869,6 +1033,8 @@ export interface D3plusConfig {
       all shapes of a given type.
   */
   shapeSort?: (a: string, b: string) => number;
+  /** Bullet: whether every bullet reads against one shared domain, labeled by a single value axis. */
+  sharedDomain?: boolean;
   /** Pyramid: the side values (the first `groupBy` level) as `[left, right]`. */
   sides?: unknown[];
   /** Pyramid: TextBox styles for the side titles. */
@@ -896,6 +1062,14 @@ export interface D3plusConfig {
       width.
   */
   sizeLegendPosition?: "right" | "bottom";
+  /**
+      With two groupBy levels, Violin places violins by the first and sets
+      them side by side by the second. `split` draws a category holding
+      exactly two violins as the two halves of one shape instead.
+  */
+  split?: boolean;
+  /** Funnel: the gap between consecutive stages, as a fraction (0–1) of each stage's slot. */
+  stagePadding?: number;
   /** Whether to stack series. */
   stacked?: boolean;
   /**
@@ -918,6 +1092,14 @@ export interface D3plusConfig {
     | string[]
     | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
     | ((d: DataPoint) => unknown);
+  /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
+  subLabel?: string | ((d: DataPoint, i: number) => string) | false;
+  /**
+      Waterfall: marks subtotal rows (a data key or accessor; truthy marks the
+      row). A subtotal bar draws from zero to the running total; when the row
+      has its own value, the running total resets to that value.
+  */
+  subtotal?: string | ((d: DataPoint, i: number) => unknown);
   /** Subtitle text, or an accessor returning it. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
@@ -969,6 +1151,12 @@ export interface D3plusConfig {
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
+  /** Funnel: narrows each stage toward the next stage's width, drawing a continuous funnel instead of flat bars. */
+  taper?: boolean;
+  /** Bullet: each row's target, drawn as a marker across the band: a data key, an accessor, a number shared by every row, or `false`. */
+  target?: string | number | ((d: DataPoint, i: number) => number) | false;
+  /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
+  targetConfig?: Record<string, unknown>;
   /** Threshold value for grouping small slices. */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
@@ -1026,10 +1214,18 @@ export interface D3plusConfig {
   topojsonFill?: CssColor;
   /** Accessor function for topojson feature IDs. */
   topojsonId?: (obj: Record<string, unknown>) => string;
+  /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
+  totalColor?: string;
   /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
+  /** Funnel and Gauge: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
+  valueFormat?: (value: number, d: DataPoint) => string;
+  /** Calendar: formats the weekday names — a d3-time-format specifier read in the chart's `locale` (default `"%a"`), a function of a date on that weekday, or `false` for none. */
+  weekdayFormat?: string | ((date: Date) => string) | false;
+  /** Calendar: the first day of the week, `0` (Sunday) through `6` (Saturday) or a day name such as `"monday"`. Defaults to the first day of the week in the `locale`'s region. */
+  weekStart?: number | string;
   /** Overall width of the visualization in pixels. */
   width?: number;
   /** Key, index, or accessor function for x-axis values. */
@@ -1091,6 +1287,8 @@ export interface D3plusConfig {
   ySort?: (a: DataPoint, b: DataPoint) => number;
   /** Defines a custom sorting comparator function for discrete y2 axes. */
   y2Sort?: (a: DataPoint, b: DataPoint) => number;
+  /** Calendar: formats the year beside each year block — a d3-time-format specifier (default `"%Y"`), a function of the year's first day, or `false` for none. */
+  yearFormat?: string | ((date: Date) => string) | false;
   /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
   zoom?: boolean;
   /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */

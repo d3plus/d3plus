@@ -4,6 +4,9 @@ coverage:
       default:
         target: auto
         threshold: 1%
+      angular:
+        target: 95%
+        flags: [angular]
       color:
         target: 95%
         flags: [color]
@@ -20,7 +23,7 @@ coverage:
         target: 90%
         flags: [element]
       export:
-        target: 40%
+        target: 95%
         flags: [export]
       format:
         target: 70%
@@ -57,6 +60,10 @@ coverage:
         informational: true
 
 flags:
+  angular:
+    paths:
+      - packages/angular/
+    carryforward: true
   color:
     paths:
       - packages/color/

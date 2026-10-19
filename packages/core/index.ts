@@ -3,30 +3,41 @@ export {
   BarChart,
   Beeswarm,
   BoxWhisker,
+  Bullet,
   BumpChart,
+  Calendar,
   Chord,
   Donut,
+  Dumbbell,
+  FanChart,
+  Funnel,
   Gauge,
   Geomap,
   Histogram,
   LinePlot,
+  Lollipop,
   Marimekko,
   Matrix,
   Network,
   Pack,
+  ParallelCoordinates,
   Pie,
   Plot,
   Priestley,
   Pyramid,
   Radar,
   RadialMatrix,
+  Ridgeline,
   Rings,
   Sankey,
   StackedArea,
   Sunburst,
   Tree,
   Treemap,
+  Violin,
   Viz,
+  Waffle,
+  Waterfall,
 } from "./src/charts/index.js";
 
 export {
@@ -81,8 +92,16 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
+export type {
+  FunnelConversion,
+  FunnelConversionOption,
+} from "./src/charts/Funnel/funnelLabels.js";
+export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
+export type {BrushRange, BrushSelection} from "./src/charts/ParallelCoordinates/brushFilter.js";
+export type {DimensionOptions} from "./src/charts/ParallelCoordinates/dimensions.js";
 export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
 
 export type {

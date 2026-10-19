@@ -65,6 +65,28 @@ export function userDomainBreaksBaseline(
 }
 
 /**
+    `points` (in shape coordinates) with every value-axis coordinate that
+    falls inside the value axis's baseline break moved onto the break's
+    domain edge, so a label fitted to them sits in the plotted domain rather
+    than across the break. Returns `points` itself when there's no baseline
+    break.
+*/
+export function outsideBaselineBreak(viz: VizInstance, points: [number, number][]): [number, number][] {
+  const vertical = valueAxis(viz) === "y";
+  const brk = (vertical ? viz._yAxis : viz._xAxis)?._baselineBreak;
+  const position = (vertical ? viz._yFunc : viz._xFunc) as ((v: unknown) => number) | undefined;
+  if (!brk || !position) return points;
+  const edge = position(brk.edge);
+  const base = position(brk.value);
+  if (!Number.isFinite(edge) || !Number.isFinite(base)) return points;
+  const i = vertical ? 1 : 0;
+  return points.map(p => {
+    if ((p[i] - edge) * (base - edge) <= 0) return p;
+    return vertical ? [p[0], edge] : [edge, p[1]];
+  });
+}
+
+/**
     The pixel span of a Plot's value axis in shape coordinates, for clamping
     bars. Vertical positions carry the same `x2Height` shift the shape
     accessors apply.

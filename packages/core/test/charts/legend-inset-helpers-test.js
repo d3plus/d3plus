@@ -145,6 +145,23 @@ it("fitInset: centers along an axis that touches neither edge, and returns null 
   assert.strictEqual(fitInset([{x: 0, y: 0, width: 10, height: 10}], bounds, 20, 20), null);
 });
 
+it("markBoxes: counts nodes without a datum only when asked for all of them", () => {
+  const nodes = [
+    {type: "rect", key: "mark", datum: {}, x: 0, y: 0, width: 10, height: 10},
+    {type: "rect", key: "empty", x: 20, y: 0, width: 10, height: 10},
+    {type: "group", key: "g", transform: {x: 5, y: 5}, children: [
+      {type: "text", key: "label", x: 0, y: 0, lines: [{text: "A", x: 0, y: 0, width: 6}], font: {size: 10, baseline: "hanging"}},
+    ]},
+    {type: "rect", key: "mark::hit", datum: {}, x: 0, y: 0, width: 99, height: 99},
+  ];
+  assert.deepStrictEqual(markBoxes(nodes), [{x: 0, y: 0, width: 10, height: 10}]);
+  assert.deepStrictEqual(markBoxes(nodes, undefined, undefined, true), [
+    {x: 0, y: 0, width: 10, height: 10},
+    {x: 20, y: 0, width: 10, height: 10},
+    {x: 5, y: 5, width: 6, height: 10},
+  ]);
+});
+
 it("sceneInsetRegion: defaults to the chart area, with the scene's marks as obstacles", () => {
   const viz = fakeViz({
     schema: {width: 200, height: 100},

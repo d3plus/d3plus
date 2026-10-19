@@ -25,7 +25,7 @@ const config = {
     {id: "beta", value: 10},
   ],
   groupBy: "id",
-  size: "value",
+  sum: "value",
 };
 
 <Treemap config={config} />;
@@ -64,7 +64,7 @@ ReactDOM.createRoot(document.getElementById("viz")).render(
         {id: "beta", value: 10},
       ],
       groupBy: "id",
-      size: "value",
+      sum: "value",
     })
     .render();
 </script>

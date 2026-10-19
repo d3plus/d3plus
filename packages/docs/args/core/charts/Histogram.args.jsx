@@ -127,7 +127,7 @@ export const argTypes = assign(
       description: "Accessor function or string key for each row's numeric observation.",
       table: {
         defaultValue: {
-          summary: "keyedAccessor(\"value\")"
+          summary: "\"value\""
         }
       },
       type: {

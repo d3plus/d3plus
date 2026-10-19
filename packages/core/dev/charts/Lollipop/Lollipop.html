@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Lollipop</title>
+    <meta name="description" content="Lollipop variants: vertical stems, horizontal stems sorted by value, two dodged series per category, negative values, sized heads with styled stems, error bars, and small multiples on canvas.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 400px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid">
+      <div><h3>Vertical (default)</h3><div class="viz" id="vertical"></div></div>
+      <div><h3>Horizontal, sorted by value (discrete: "y")</h3><div class="viz" id="horizontal"></div></div>
+      <div><h3>Two series per category, dodged</h3><div class="viz" id="grouped"></div></div>
+      <div><h3>Negative values</h3><div class="viz" id="negative"></div></div>
+      <div><h3>Sized heads, styled stems</h3><div class="viz" id="sized"></div></div>
+      <div><h3>Error bars (confidence)</h3><div class="viz" id="confidence"></div></div>
+      <div><h3>Small multiples (facet: "region"), canvas</h3><div class="viz" id="facet"></div></div>
+      <div><h3>Baseline break: yDomain([150, 190])</h3><div class="viz" id="broken"></div></div>
+    </div>
+
+  </body>
+
+  <script>
+
+    const coffee = [
+      {country: "Finland", kg: 12},
+      {country: "Norway", kg: 9.9},
+      {country: "Iceland", kg: 9},
+      {country: "Denmark", kg: 8.7},
+      {country: "Netherlands", kg: 8.4},
+      {country: "Sweden", kg: 8.2},
+      {country: "Switzerland", kg: 7.9},
+      {country: "Belgium", kg: 6.8},
+      {country: "Canada", kg: 6.5},
+      {country: "Austria", kg: 5.5},
+    ];
+
+    const sales = [];
+    ["Q1", "Q2", "Q3", "Q4"].forEach((quarter, q) => {
+      sales.push({quarter, year: "2024", sales: [42, 51, 47, 63][q]});
+      sales.push({quarter, year: "2025", sales: [48, 49, 58, 71][q]});
+    });
+
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const anomaly = months.map((month, i) => ({month, anomaly: [-1.2, -0.4, 0.6, 1.4, 0.9, -0.3, 1.8, 2.1, 0.7, -0.8, -1.5, 0.2][i]}));
+
+    const cities = [
+      {city: "Tokyo", region: "Asia", population: 37.4, growth: 0.2},
+      {city: "Delhi", region: "Asia", population: 31.0, growth: 3.1},
+      {city: "Shanghai", region: "Asia", population: 27.1, growth: 2.9},
+      {city: "Dhaka", region: "Asia", population: 21.7, growth: 3.4},
+      {city: "São Paulo", region: "Americas", population: 22.0, growth: 0.9},
+      {city: "Mexico City", region: "Americas", population: 21.8, growth: 0.6},
+      {city: "New York", region: "Americas", population: 18.8, growth: 0.1},
+      {city: "Buenos Aires", region: "Americas", population: 15.2, growth: 0.9},
+      {city: "Cairo", region: "Africa", population: 21.3, growth: 2.0},
+      {city: "Lagos", region: "Africa", population: 14.9, growth: 3.5},
+      {city: "Kinshasa", region: "Africa", population: 14.3, growth: 4.4},
+      {city: "Luanda", region: "Africa", population: 8.9, growth: 4.0},
+    ];
+
+    const scores = [
+      {team: "Alpha", score: 72, low: 66, high: 78},
+      {team: "Bravo", score: 64, low: 60, high: 69},
+      {team: "Charlie", score: 81, low: 74, high: 86},
+      {team: "Delta", score: 58, low: 51, high: 63},
+      {team: "Echo", score: 69, low: 65, high: 74},
+    ];
+
+    const regional = [];
+    ["Africa", "Americas", "Asia", "Europe"].forEach((region, r) => {
+      ["Q1", "Q2", "Q3", "Q4"].forEach((quarter, q) => {
+        regional.push({region, quarter, year: "2024", sales: 20 + ((r * 7 + q * 5) % 17)});
+        regional.push({region, quarter, year: "2025", sales: 24 + ((r * 5 + q * 9) % 19)});
+      });
+    });
+
+    const heights = [
+      {country: "Netherlands", cm: 183.8},
+      {country: "Denmark", cm: 181.9},
+      {country: "Germany", cm: 180.3},
+      {country: "United States", cm: 177.1},
+      {country: "Brazil", cm: 173.6},
+      {country: "Japan", cm: 172.1},
+      {country: "India", cm: 166.5},
+    ];
+
+    new d3plus.Lollipop()
+      .select("#vertical")
+      .data(coffee)
+      .groupBy("country")
+      .x("country")
+      .y("kg")
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#horizontal")
+      .data(coffee)
+      .groupBy("country")
+      .discrete("y")
+      .x("kg")
+      .y("country")
+      .ySort((a, b) => a.kg - b.kg)
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#grouped")
+      .data(sales)
+      .groupBy("year")
+      .x("quarter")
+      .y("sales")
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#negative")
+      .data(anomaly)
+      .groupBy("month")
+      .x("month")
+      .y("anomaly")
+      .color(d => (d.anomaly < 0 ? "#4c6ef5" : "#f03e3e"))
+      .legend(false)
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#sized")
+      .data(cities)
+      .groupBy("city")
+      .color("region")
+      .discrete("y")
+      .x("population")
+      .y("city")
+      .size("growth")
+      .sizeMin(4)
+      .sizeMax(12)
+      .shapeConfig({Line: {strokeWidth: 1, strokeDasharray: "3 2"}})
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#confidence")
+      .data(scores)
+      .groupBy("team")
+      .x("team")
+      .y("score")
+      .confidence(["low", "high"])
+      .confidenceConfig({capWidth: 12})
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#facet")
+      .renderer("canvas")
+      .data(regional)
+      .groupBy("year")
+      .facet("region")
+      .x("quarter")
+      .y("sales")
+      .render();
+
+    new d3plus.Lollipop()
+      .select("#broken")
+      .data(heights)
+      .groupBy("country")
+      .x("country")
+      .y("cm")
+      .yDomain([150, 190])
+      .shapeConfig({Circle: {r: 8}, Line: {strokeWidth: 3}})
+      .render();
+
+  </script>
+
+</html>

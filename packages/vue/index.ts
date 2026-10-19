@@ -3,30 +3,41 @@ import {
   BarChart as BarChartClass,
   Beeswarm as BeeswarmClass,
   BoxWhisker as BoxWhiskerClass,
+  Bullet as BulletClass,
   BumpChart as BumpChartClass,
+  Calendar as CalendarClass,
   Chord as ChordClass,
   Donut as DonutClass,
+  Dumbbell as DumbbellClass,
+  FanChart as FanChartClass,
+  Funnel as FunnelClass,
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Histogram as HistogramClass,
   LinePlot as LinePlotClass,
+  Lollipop as LollipopClass,
   Marimekko as MarimekkoClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
+  ParallelCoordinates as ParallelCoordinatesClass,
   Pie as PieClass,
   Plot as PlotClass,
   Priestley as PriestleyClass,
   Pyramid as PyramidClass,
   Radar as RadarClass,
   RadialMatrix as RadialMatrixClass,
+  Ridgeline as RidgelineClass,
   Rings as RingsClass,
   Sankey as SankeyClass,
   StackedArea as StackedAreaClass,
   Sunburst as SunburstClass,
   Tree as TreeClass,
   Treemap as TreemapClass,
+  Violin as ViolinClass,
+  Waterfall as WaterfallClass,
   Viz as VizClass,
+  Waffle as WaffleClass,
   Axis as AxisClass,
   AxisBottom as AxisBottomClass,
   AxisLeft as AxisLeftClass,
@@ -63,12 +74,22 @@ export const BarChart = createD3plusComponent(BarChartClass, "chart");
 export const Beeswarm = createD3plusComponent(BeeswarmClass, "chart");
 /** Vue component for rendering a d3plus BoxWhisker visualization. */
 export const BoxWhisker = createD3plusComponent(BoxWhiskerClass, "chart");
+/** Vue component for rendering a d3plus Bullet visualization. */
+export const Bullet = createD3plusComponent(BulletClass, "chart");
 /** Vue component for rendering a d3plus BumpChart visualization. */
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
+/** Vue component for rendering a d3plus Calendar visualization. */
+export const Calendar = createD3plusComponent(CalendarClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */
 export const Donut = createD3plusComponent(DonutClass, "chart");
+/** Vue component for rendering a d3plus Dumbbell visualization. */
+export const Dumbbell = createD3plusComponent(DumbbellClass, "chart");
+/** Vue component for rendering a d3plus FanChart visualization. */
+export const FanChart = createD3plusComponent(FanChartClass, "chart");
+/** Vue component for rendering a d3plus Funnel visualization. */
+export const Funnel = createD3plusComponent(FunnelClass, "chart");
 /** Vue component for rendering a d3plus Gauge visualization. */
 export const Gauge = createD3plusComponent(GaugeClass, "chart");
 /** Vue component for rendering a d3plus Geomap visualization. */
@@ -77,6 +98,8 @@ export const Geomap = createD3plusComponent(GeomapClass, "chart");
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
+/** Vue component for rendering a d3plus Lollipop visualization. */
+export const Lollipop = createD3plusComponent(LollipopClass, "chart");
 /** Vue component for rendering a d3plus Marimekko visualization. */
 export const Marimekko = createD3plusComponent(MarimekkoClass, "chart");
 /** Vue component for rendering a d3plus Matrix visualization. */
@@ -85,6 +108,8 @@ export const Matrix = createD3plusComponent(MatrixClass, "chart");
 export const Network = createD3plusComponent(NetworkClass, "chart");
 /** Vue component for rendering a d3plus Pack visualization. */
 export const Pack = createD3plusComponent(PackClass, "chart");
+/** Vue component for rendering a d3plus ParallelCoordinates visualization. */
+export const ParallelCoordinates = createD3plusComponent(ParallelCoordinatesClass, "chart");
 /** Vue component for rendering a d3plus Pie visualization. */
 export const Pie = createD3plusComponent(PieClass, "chart");
 /** Vue component for rendering a d3plus Plot visualization. */
@@ -97,6 +122,8 @@ export const Pyramid = createD3plusComponent(PyramidClass, "chart");
 export const Radar = createD3plusComponent(RadarClass, "chart");
 /** Vue component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = createD3plusComponent(RadialMatrixClass, "chart");
+/** Vue component for rendering a d3plus Ridgeline visualization. */
+export const Ridgeline = createD3plusComponent(RidgelineClass, "chart");
 /** Vue component for rendering a d3plus Rings visualization. */
 export const Rings = createD3plusComponent(RingsClass, "chart");
 /** Vue component for rendering a d3plus Sankey visualization. */
@@ -109,8 +136,14 @@ export const Sunburst = createD3plusComponent(SunburstClass, "chart");
 export const Tree = createD3plusComponent(TreeClass, "chart");
 /** Vue component for rendering a d3plus Treemap visualization. */
 export const Treemap = createD3plusComponent(TreemapClass, "chart");
+/** Vue component for rendering a d3plus Violin visualization. */
+export const Violin = createD3plusComponent(ViolinClass, "chart");
+/** Vue component for rendering a d3plus Waterfall visualization. */
+export const Waterfall = createD3plusComponent(WaterfallClass, "chart");
 /** Vue component for rendering a base d3plus Viz instance. */
 export const Viz = createD3plusComponent(VizClass, "chart");
+/** Vue component for rendering a d3plus Waffle visualization. */
+export const Waffle = createD3plusComponent(WaffleClass, "chart");
 
 /** Vue component for rendering a d3plus Axis. */
 export const Axis = createD3plusComponent(AxisClass, "component");

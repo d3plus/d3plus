@@ -1,5 +1,6 @@
 import type {DataPoint} from "@d3plus/data";
 import {colorScaleBucketOf, colorScaleBucketPredicate} from "../features/colorScaleBucket.js";
+import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type Viz from "../viz/Viz.js";
 
@@ -33,7 +34,10 @@ export default function (this: Viz, d: DataPoint, i: number): void {
   }
 
   this._hoverBucket = false;
-  if (this.schema.shapeConfig.hoverOpacity !== 1) {
+  // A snapped hover on a chart with its own column emphasis
+  // (`_plotColumnHighlight`) owns it too: it highlights the mark's column.
+  if (this._sharedHoverActive && this._plotColumnHighlight) return;
+  if (shapeHoverEnabled(this)) {
     let filterIds = this._id(d, i);
     if (!(filterIds instanceof Array)) filterIds = [filterIds];
 

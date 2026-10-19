@@ -7,10 +7,13 @@
     then the chart's own layout stage via `runChartDraw`, and its
     `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` delegate to
     `def.thresholdFunction` / `def.sizeLegendScale` / `def.insetRegion` if
-    present, and `_facetHooks` layers `def.facet` over the base chart's.
+    present, `_facetHooks` layers `def.facet` over the base chart's, and
+    `toScene` passes the base chart's scene through `def.decorateScene`.
 
     A chart's `index.ts` becomes literally `export default makeChart(def)`.
 */
+
+import type {Scene} from "@d3plus/render";
 
 import {applyDefinition} from "./applyDefinition.js";
 import {runChartDraw} from "../pipeline/runChartDraw.js";
@@ -46,6 +49,11 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
         runChartDraw(this as unknown as VizInstance, def, def.layoutStage, def.chartTransform);
       }
       return this;
+    }
+
+    toScene(): Scene {
+      const scene = super.toScene() as Scene;
+      return def.decorateScene ? def.decorateScene(this as unknown as VizInstance, scene) : scene;
     }
 
     _sizeLegendScale(available: {width: number; height: number}) {
