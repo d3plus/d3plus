@@ -45,6 +45,34 @@ const helpers = () => {
     Array.from(el.querySelectorAll("*")).filter(n =>
       Array.from(n.attributes).some(a => a.value.includes("NaN")),
     ).length;
+  // Each density area's enter start against its own d: the commands of both,
+  // whether each enterD point keeps d's value-axis coordinate, and where each
+  // lands on the collapsed axis, in client pixels.
+  window.__enter = (el, axis) =>
+    Array.from(el.querySelectorAll("path[data-key^='density-']"))
+      .filter(p => !/^density-(box|q1|q3|median|point)-/.test(p.getAttribute("data-key")))
+      .map(p => {
+        const n = p.__data__;
+        const cmds = d => d.replace(/[-+\d.,e\s]+/gi, "");
+        const pairs = d => {
+          const nums = d.match(/-?[\d.]+(?:e[-+]?\d+)?/gi).map(Number);
+          return Array.from({length: nums.length / 2}, (_, i) => [nums[2 * i], nums[2 * i + 1]]);
+        };
+        const t = n.transform || {};
+        const flat = axis === "x" ? 0 : 1;
+        const m = p.parentNode.getScreenCTM();
+        const toGlobal = v => {
+          const local = (t[axis] || 0) + v * (t.scale ?? 1);
+          return axis === "x" ? m.e + local * m.a : m.f + local * m.d;
+        };
+        return {
+          key: n.key,
+          same: cmds(n.enterD) === cmds(n.d),
+          lines: pairs(n.enterD).map(q => toGlobal(q[flat])),
+          kept: pairs(n.enterD).every((q, i) => Math.abs(q[1 - flat] - pairs(n.d)[i][1 - flat]) < 1e-6),
+          opacity: n.paint.opacity,
+        };
+      });
   window.__z = 0;
   window.__draw = (configure, size = [800, 500]) =>
     new Promise(resolve => {
@@ -107,6 +135,24 @@ it("Ridgeline stacks one ridge per group, first on top, rising from its baseline
   assert.ok(out.areas.high.cx > out.areas.low.cx, "values run along x");
   assert.ok(out.xDomain[0] < 0.5 && out.xDomain[1] > 9.5, "x axis covers every tail");
   assert.strictEqual(out.xTitle, "v");
+});
+
+it("Ridgeline grows each ridge up from its baseline", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v"));
+    const bottoms = Object.fromEntries(Object.entries(window.__areas(el)).map(([k, a]) => [k, a.bottom]));
+    return {enter: window.__enter(el, "y"), bottoms};
+  });
+  assert.strictEqual(out.enter.length, 3);
+  out.enter.forEach(e => {
+    const id = e.key.slice(8);
+    assert.ok(e.same, `${id}: enterD has d's commands`);
+    assert.ok(e.kept, `${id}: every point keeps its x`);
+    const line = e.lines[0];
+    assert.ok(e.lines.every(v => Math.abs(v - line) < 1e-6), `${id}: zero height`);
+    assert.ok(Math.abs(line - out.bottoms[id]) < 1.5, `${id}: on its baseline`);
+  });
 });
 
 it("Ridgeline: overlap sets ridge height, densityScale width equalizes peaks", async function () {

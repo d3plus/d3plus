@@ -29,3 +29,4 @@ export {
   unwrapRow,
 } from "./densityChart.js";
 export type {DensityLayout, DensityMeta} from "./densityChart.js";
+export {growFromLine, growRectsFromCenter} from "./densityEnter.js";

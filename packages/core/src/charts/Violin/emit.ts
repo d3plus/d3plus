@@ -6,6 +6,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {densityMeta, densityShapeId} from "../helpers/densityChart.js";
+import {growFromLine} from "../helpers/densityEnter.js";
 import {genericEmit, type ShapeEmitter} from "../features/shapeEmit.js";
 import {emitInner, type PlacedViolin} from "./inner.js";
 import {categoryStep, violinEdges, violinOutline, violinSlots} from "./violinLayout.js";
@@ -58,5 +59,6 @@ export const violinEmit: ShapeEmitter = (ctx, key) => {
     : {x: pos, x0: pos, x1: null, y: high, y0: high, y1: low};
 
   const nodes: SceneNode[] = genericEmit({...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}}, key);
+  growFromLine(nodes, axis, new Map(placed.map(({row, slot}) => [densityShapeId(row), slot.center])));
   return nodes.concat(emitInner(ctx, placed, {vertical, value: v => value(v)}));
 };

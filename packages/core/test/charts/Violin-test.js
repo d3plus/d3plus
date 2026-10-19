@@ -46,6 +46,34 @@ const helpers = () => {
     Array.from(el.querySelectorAll("*")).filter(n =>
       Array.from(n.attributes).some(a => a.value.includes("NaN")),
     ).length;
+  // Each density area's enter start against its own d: the commands of both,
+  // whether each enterD point keeps d's value-axis coordinate, and where each
+  // lands on the collapsed axis, in client pixels.
+  window.__enter = (el, axis) =>
+    Array.from(el.querySelectorAll("path[data-key^='density-']"))
+      .filter(p => !/^density-(box|q1|q3|median|point)-/.test(p.getAttribute("data-key")))
+      .map(p => {
+        const n = p.__data__;
+        const cmds = d => d.replace(/[-+\d.,e\s]+/gi, "");
+        const pairs = d => {
+          const nums = d.match(/-?[\d.]+(?:e[-+]?\d+)?/gi).map(Number);
+          return Array.from({length: nums.length / 2}, (_, i) => [nums[2 * i], nums[2 * i + 1]]);
+        };
+        const t = n.transform || {};
+        const flat = axis === "x" ? 0 : 1;
+        const m = p.parentNode.getScreenCTM();
+        const toGlobal = v => {
+          const local = (t[axis] || 0) + v * (t.scale ?? 1);
+          return axis === "x" ? m.e + local * m.a : m.f + local * m.d;
+        };
+        return {
+          key: n.key,
+          same: cmds(n.enterD) === cmds(n.d),
+          lines: pairs(n.enterD).map(q => toGlobal(q[flat])),
+          kept: pairs(n.enterD).every((q, i) => Math.abs(q[1 - flat] - pairs(n.d)[i][1 - flat]) < 1e-6),
+          opacity: n.paint.opacity,
+        };
+      });
   window.__z = 0;
   window.__draw = (configure, size = [800, 500]) =>
     new Promise(resolve => {
@@ -131,6 +159,63 @@ it("Violin draws horizontally with discrete('y')", async function () {
   ["low", "mid", "high"].forEach(id => assert.ok(Math.abs(out.areas[id].cy - out.ticks[id].y) < 1.5, `${id} centered on its tick`));
   assert.strictEqual(out.xTitle, "v");
   assert.strictEqual(out.yTitle, undefined);
+});
+
+it("Violin grows each violin out of its center line, vertical and horizontal", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const probe = async discrete => {
+      const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").discrete(discrete).inner(["box", "quartiles"]));
+      const axis = discrete === "y" ? "y" : "x";
+      const lines = Array.from(el.querySelectorAll("[data-key='violin-quartiles'] path")).map(p => p.__data__);
+      const rects = Array.from(el.querySelectorAll("[data-key='violin-box'] rect")).map(r => r.__data__);
+      return {
+        enter: window.__enter(el, axis),
+        ticks: window.__ticks(el, axis),
+        quartiles: lines.every(n => n.enterD && n.enterD.match(/-?[\d.]+/g).filter((_, i) => i % 2 === (axis === "x" ? 0 : 1)).every(v => Math.abs(v) < 1e-6)),
+        box: rects.length > 0 && rects.every(n => n.enterRect && n.enterRect[axis === "x" ? "width" : "height"] === 0),
+        boxGroups: Array.from(el.querySelectorAll("[data-key='violin-box'] > [data-key]")).map(g => {
+          const keys = Array.from(g.children).map(c => c.getAttribute("data-key"));
+          return [g.getAttribute("data-key"), new Set(keys).size === keys.length];
+        }),
+      };
+    };
+    return {vertical: await probe("x"), horizontal: await probe("y")};
+  });
+  Object.entries(out).forEach(([orient, {enter, ticks, quartiles, box, boxGroups}]) => {
+    assert.deepStrictEqual(boxGroups, [["density-box-low", true], ["density-box-mid", true], ["density-box-high", true]], `${orient}: one box group per violin, keys unique`);
+    assert.strictEqual(enter.length, 3, `${orient}: one start per violin`);
+    enter.forEach(e => {
+      const id = e.key.slice(8);
+      const tick = ticks[id][orient === "vertical" ? "x" : "y"];
+      assert.ok(e.same, `${orient} ${id}: enterD has d's commands`);
+      assert.ok(e.kept, `${orient} ${id}: every point keeps its value-axis position`);
+      assert.ok(e.lines.every(v => Math.abs(v - tick) < 1.5), `${orient} ${id}: zero width on its center line`);
+      assert.strictEqual(e.opacity, 1);
+    });
+    assert.ok(quartiles, `${orient}: quartile lines collapse onto the center line`);
+    assert.ok(box, `${orient}: the box widens out of its center line`);
+  });
+});
+
+it("Violin starts entering violins on their center line and morphs updates from the old shape", async function () {
+  this.timeout(60000);
+  const out = await run(async () => {
+    const {el, viz} = await window.__draw(v => v.data(window.__rows().filter(d => d.id !== "high")).groupBy("id").value("v").inner(false));
+    const before = Object.fromEntries(Array.from(el.querySelectorAll("path[data-key^='density-']")).map(p => [p.getAttribute("data-key"), p.getAttribute("d")]));
+    viz.duration(5000).data(window.__rows()).render();
+    for (let i = 0; i < 100 && !el.querySelector("path[data-key='density-high']"); i++)
+      await new Promise(resolve => setTimeout(resolve, 10));
+    const now = Object.fromEntries(Array.from(el.querySelectorAll("path[data-key^='density-']")).map(p => [p.getAttribute("data-key"), {d: p.getAttribute("d"), enterD: p.__data__.enterD, final: p.__data__.d}]));
+    return {before, now};
+  });
+  const near = (a, b) => {
+    const [x, y] = [a, b].map(s => s.match(/-?[\d.]+(?:e[-+]?\d+)?/gi).map(Number));
+    return x.length === y.length && x.every((v, i) => Math.abs(v - y[i]) < 2);
+  };
+  assert.ok(near(out.now["density-high"].d, out.now["density-high"].enterD), "the entering violin starts at its enterD");
+  assert.ok(!near(out.now["density-high"].d, out.now["density-high"].final), "and grows from there");
+  ["density-low", "density-mid"].forEach(k => assert.ok(near(out.now[k].d, out.before[k]), `${k} morphs from its old shape`));
 });
 
 it("Violin inner overlays: box, quartiles, and swarmed points", async function () {

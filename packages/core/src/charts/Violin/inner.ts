@@ -8,6 +8,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import {densityAt} from "../helpers/densityData.js";
 import type {DensityMeta} from "../helpers/densityChart.js";
+import {growFromLine, growRectsFromCenter} from "../helpers/densityEnter.js";
 import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
@@ -55,45 +56,63 @@ function at(frame: InnerFrame, value: number, offset: number): {x: number; y: nu
   return frame.vertical ? {x: offset, y: v} : {x: v, y: offset};
 }
 
-/** The box plot overlay: Box over each violin's observations. */
+/**
+    Box draws its box, median, whiskers and outliers as siblings keyed by
+    index, so the same key repeats. This keys each node by its shape type and
+    numbers repeats, counting a line's `::hit` twin alongside its mark, so
+    every node keeps its own identity across draws.
+*/
+function uniqueKeys(nodes: SceneNode[]): SceneNode[] {
+  const seen = new Map<string, number>();
+  return nodes.map(node => {
+    const key = `${node.key}`;
+    const hit = key.endsWith("::hit") ? "::hit" : "";
+    const base = `${node.shapeType ?? node.type}-${key.slice(0, key.length - hit.length)}`;
+    const n = seen.get(base + hit) ?? 0;
+    seen.set(base + hit, n + 1);
+    return {...node, key: `${base}${n ? `~${n}` : ""}${hit}`};
+  });
+}
+
+/** The box plot overlay: a Box over each violin's observations, in its own keyed group. */
 function boxNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: InnerFrame, ink: string): SceneNode[] {
   const {viz} = ctx;
-  const data: DataPoint[] = [];
-  placed.forEach(({row, meta, slot}) => {
-    const center = slot.side === "both" ? slot.center : slot.center + (slot.side === "start" ? -1 : 1) * Math.min(4, slot.half / 4);
-    meta.summary.values.forEach((v, i) =>
-      data.push({...at(frame, v, center), id: `density-box-${row.id}`, i} as DataPoint),
-    );
-  });
   const widths = placed.map(p => p.slot.half * (p.slot.side === "both" ? 0.16 : 0.08));
   const rectWidth = Math.max(3, Math.min(10, Math.min(...widths)));
   const vertical = frame.vertical;
   const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
   const background = node ? backgroundColor(node) : "#fff";
-  const box = makeShape("Box")
-    .renderMode("compute")
-    .config({
-      orient: vertical ? "vertical" : "horizontal",
-      rectWidth,
-      rectConfig: {fill: ink, stroke: ink, strokeWidth: 0},
-      medianConfig: {fill: background},
-      outlierConfig: {Circle: {fill: ink, r: 1.5, strokeWidth: 0}},
-      whiskerConfig: {
-        endpoint: "Rect",
-        endpointConfig: {
-          Rect: {
-            fill: ink,
-            height: vertical ? 1 : rectWidth / 2,
-            width: vertical ? rectWidth / 2 : 1,
+  const nodes = placed.map(({row, meta, slot}): SceneNode => {
+    const id = `density-box-${row.id}`;
+    const center = slot.side === "both" ? slot.center : slot.center + (slot.side === "start" ? -1 : 1) * Math.min(4, slot.half / 4);
+    const data = meta.summary.values.map((v, i) => ({...at(frame, v, center), id, i}) as DataPoint);
+    const box = makeShape("Box")
+      .renderMode("compute")
+      .config({
+        orient: vertical ? "vertical" : "horizontal",
+        rectWidth,
+        rectConfig: {fill: ink, stroke: ink, strokeWidth: 0},
+        medianConfig: {fill: background},
+        outlierConfig: {Circle: {fill: ink, r: 1.5, strokeWidth: 0}},
+        whiskerConfig: {
+          endpoint: "Rect",
+          endpointConfig: {
+            Rect: {
+              fill: ink,
+              height: vertical ? 1 : rectWidth / 2,
+              width: vertical ? rectWidth / 2 : 1,
+            },
           },
+          lineConfig: {stroke: ink, strokeWidth: 1},
         },
-        lineConfig: {stroke: ink, strokeWidth: 1},
-      },
-    })
-    .config(((viz.schema.innerConfig as Record<string, unknown>)?.box ?? {}) as Record<string, unknown>)
-    .data(data);
-  box.render();
-  return inert(collectComputed(box));
+      })
+      .config(((viz.schema.innerConfig as Record<string, unknown>)?.box ?? {}) as Record<string, unknown>)
+      .data(data);
+    box.render();
+    return {type: "group", key: id, children: uniqueKeys(collectComputed(box))};
+  });
+  growRectsFromCenter(nodes, vertical ? "x" : "y");
+  return inert(nodes);
 }
 
 /** The quartile overlay: a solid line at each median, dashed lines at the quartiles. */
@@ -102,12 +121,14 @@ function quartileNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: Inn
   const user = ((viz.schema.innerConfig as Record<string, unknown>)?.quartiles ?? {}) as Record<string, unknown>;
   const lines = (keys: ("q1" | "median" | "q3")[], dash: string) => {
     const data: DataPoint[] = [];
+    const centers = new Map<string, number>();
     placed.forEach(({row, meta, slot}) => {
       keys.forEach(k => {
         const value = meta.summary[k];
         const extent = densityAt(meta.summary.curve, value) * meta.scale * slot.half;
         const [low, high] = violinEdges(slot, extent);
         const id = `density-${k}-${row.id}`;
+        centers.set(id, slot.center);
         data.push({id, ...at(frame, value, low)} as DataPoint, {id, ...at(frame, value, high)} as DataPoint);
       });
     });
@@ -117,7 +138,9 @@ function quartileNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: Inn
       .config(user)
       .data(data);
     line.render();
-    return inert(collectComputed(line));
+    const nodes = collectComputed(line);
+    growFromLine(nodes, frame.vertical ? "x" : "y", centers);
+    return inert(nodes);
   };
   return [...lines(["q1", "q3"], "4 3"), ...lines(["median"], "0")];
 }

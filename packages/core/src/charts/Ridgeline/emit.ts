@@ -6,6 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import {densityMeta, densityShapeId} from "../helpers/densityChart.js";
+import {growFromLine} from "../helpers/densityEnter.js";
 import {genericEmit, type ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {categoryStep} from "../Violin/violinLayout.js";
@@ -58,5 +59,7 @@ export const ridgelineEmit: ShapeEmitter = (ctx, key) => {
   const base = (d: RidgeDatum) => d.__base;
   const top = (d: RidgeDatum) => d.__top;
   const geometry = {x: pos, x0: pos, x1: null, y: base, y0: base, y1: top};
-  return genericEmit({...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}}, key);
+  const nodes = genericEmit({...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}}, key);
+  growFromLine(nodes, "y", new Map(rows.map(({row, base}) => [densityShapeId(row), base])));
+  return nodes;
 };
