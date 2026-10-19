@@ -31,7 +31,7 @@ export type {LineAxis, ParallelCurve, ParallelOrient} from "./paths.js";
 export {axisDomain, dimensionAxisConfig, dimensionTitleStyle, layoutAxes} from "./axes.js";
 export type {AxesLayout, PlacedAxis} from "./axes.js";
 export {brushTarget, parallelDimensionKeys, parallelOrient} from "./applyLayout.js";
-export {stripLength, stripSelection, syncBrushDom} from "./brushDom.js";
+export {clearStrip, stripLength, stripSelection, syncBrushDom} from "./brushDom.js";
 export type {BrushTarget} from "./brushDom.js";
 export {lineAriaLabel, parallelEmit, resolveLineOpacity} from "./emit.js";
 export type {ParallelLine} from "./emit.js";

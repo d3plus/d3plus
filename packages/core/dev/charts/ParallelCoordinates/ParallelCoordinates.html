@@ -5,7 +5,7 @@
 
   <meta charset="utf-8">
   <title>ParallelCoordinates</title>
-  <meta name="description" content="ParallelCoordinates variants on a cars dataset: auto-detected dimensions, a categorical axis with per-dimension format/reverse and bump curves, a vertical layout, 1000 rows on canvas with preset brushes, and small multiples by origin. Drag along any axis to brush.">
+  <meta name="description" content="ParallelCoordinates variants on a cars dataset: auto-detected dimensions, a categorical axis with per-dimension format/reverse and bump curves, a vertical layout, 1000 rows on canvas with preset brushes, and small multiples by origin. Drag along any axis to brush; click the axis outside the brush, double-click it, or press Escape on a focused brush to clear it.">
   <script src="/umd/d3plus-core.full.js"></script>
   <script src="/dev.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -17,11 +17,14 @@
     h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
     button { font: inherit; margin-left: 8px; }
     output { font-size: 12px; margin-left: 8px; color: #666; }
+    p { font-size: 13px; color: #444; margin: 0 0 16px; }
+    kbd { font: 12px monospace; border: 1px solid #ccc; border-radius: 3px; padding: 0 3px; }
   </style>
 
 </head>
 
 <body>
+  <p>Drag along an axis to brush it. To clear a brush, click its axis outside the selection, double-click the axis, or <kbd>Tab</kbd> to a brushed axis and press <kbd>Esc</kbd>. Clearing the last brush restores every line.</p>
   <div class="grid">
     <div class="wide"><h3>Auto-detected dimensions, colored by origin <output id="brushed"></output></h3><div class="viz" id="basic"></div></div>
     <div><h3>Categorical origin axis, reversed mpg, formatted weight, bump curves</h3><div class="viz" id="configured"></div></div>

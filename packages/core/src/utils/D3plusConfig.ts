@@ -540,10 +540,14 @@ export interface D3plusConfig {
       ParallelCoordinates: the active brush filters, keyed by dimension — a
       numeric `[min, max]` or a list of selected categories. Rows must pass
       every brush. Brushing an axis updates it, and `on("brush", fn)` is called
-      with the new value.
+      with the new value; `{}` clears every brush.
   */
   brushes?: BrushSelection;
-  /** ParallelCoordinates: whether each axis can be brushed to filter the lines (default `true`). */
+  /**
+      ParallelCoordinates: whether each axis can be brushed to filter the
+      lines (default `true`). Clicking an axis outside its brush,
+      double-clicking it, or pressing Escape while it has focus clears it.
+  */
   brushing?: boolean;
   /** Bullet: the most each bullet's band can be thick, in pixels (default 40); raise it to let rows fill a tall chart. */
   bulletSize?: number;

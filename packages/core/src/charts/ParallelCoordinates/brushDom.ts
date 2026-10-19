@@ -7,6 +7,10 @@
     resizes, and on small multiples every panel's strip for the same
     dimension moves together. Brushing repaints the scene without a new
     layout (see `lineStates.ts`).
+
+    A brush clears with a plain click on its strip outside the selection
+    (d3-brush's own gesture), a double-click anywhere on the strip, or Escape
+    while the strip has focus: a brushed strip joins the tab order.
 */
 
 import {brushX, brushY} from "d3-brush";
@@ -47,6 +51,8 @@ interface StripState {
   target: BrushTarget;
   signature: string;
   active: boolean;
+  /** The strip's hint while it holds a brush. */
+  clearLabel: string;
 }
 
 type Strip = Selection<SVGGElement, BrushTarget, null, undefined>;
@@ -84,16 +90,26 @@ function styleStrip(g: Strip, style: Record<string, unknown>, label: string): vo
   g.selectAll("rect.overlay").attr("aria-label", label);
 }
 
-function onBrush(viz: VizInstance, el: SVGGElement, event: D3BrushEvent<BrushTarget>): void {
+/** Puts a brushed strip in the tab order with a hint for clearing it, and takes an empty one out. */
+function markStrip(el: SVGGElement, brushed: boolean): void {
+  const label = states.get(el)?.clearLabel;
+  const g = select(el).attr("tabindex", brushed ? 0 : null);
+  g.selectAll(":scope > title").remove();
+  if (brushed && label) g.insert("title", ":first-child").text(label);
+}
+
+/**
+    Stores `range` (or, with null, removes) as the brush on `el`'s dimension,
+    moves every panel's strip for that dimension (`el` itself only with
+    `moveSelf`), calls `on("brush")`, and repaints.
+*/
+function setBrush(viz: VizInstance, el: SVGGElement, range: BrushRange | null, moveSelf: boolean): void {
   const state = states.get(el);
-  if (!state || !event.sourceEvent) return;
-  const t = state.target;
-  state.active = event.type !== "end";
-  const sel = event.selection as [number, number] | null;
-  const range = sel ? brushFromPixels([sel[0] + t.alongStart, sel[1] + t.alongStart], t) : null;
+  if (!state) return;
+  const key = state.target.key;
   const next: BrushSelection = {...((viz.schema.brushes ?? {}) as BrushSelection)};
-  if (range) next[t.key] = range;
-  else delete next[t.key];
+  if (range) next[key] = range;
+  else delete next[key];
   viz.schema.brushes = next;
 
   const layer = el.parentNode;
@@ -102,14 +118,38 @@ function onBrush(viz: VizInstance, el: SVGGElement, event: D3BrushEvent<BrushTar
       .selectAll<SVGGElement, BrushTarget>(`g.${STRIP_CLASS}`)
       .each(function(o) {
         const other = states.get(this);
-        const snap = this === el && event.type === "end" && t.type === "categorical";
-        if (!other || o.key !== t.key || (this === el && !snap)) return;
+        if (!other || o.key !== key) return;
+        markStrip(this, Boolean(range));
+        if (this === el && !moveSelf) return;
         select<SVGGElement, BrushTarget>(this).call(other.brush.move, stripSelection(range ?? undefined, other.target));
       });
   }
   const handler = viz.schema.on?.brush as ((b: BrushSelection) => void) | undefined;
   if (typeof handler === "function") handler.call(viz, next);
   viz._scheduleSceneRepaint();
+}
+
+function onBrush(viz: VizInstance, el: SVGGElement, event: D3BrushEvent<BrushTarget>): void {
+  const state = states.get(el);
+  if (!state || !event.sourceEvent) return;
+  const t = state.target;
+  state.active = event.type !== "end";
+  const sel = event.selection as [number, number] | null;
+  // A press outside the selection starts an empty one: no brush until it spans a pixel.
+  const range = sel && Math.abs(sel[1] - sel[0]) >= 1
+    ? brushFromPixels([sel[0] + t.alongStart, sel[1] + t.alongStart], t)
+    : null;
+  setBrush(viz, el, range, event.type === "end" && t.type === "categorical");
+}
+
+/** Clears the brush on `el`'s dimension. Returns whether there was one. */
+export function clearStrip(viz: VizInstance, el: SVGGElement): boolean {
+  const state = states.get(el);
+  const brushes = (viz.schema.brushes ?? {}) as BrushSelection;
+  if (!state || !(state.target.key in brushes)) return false;
+  state.active = false;
+  setBrush(viz, el, null, true);
+  return true;
 }
 
 /**
@@ -139,12 +179,23 @@ export function syncBrushDom(viz: VizInstance, targets: BrushTarget[], style: Re
     let state = states.get(this);
     if (!state) {
       const brush = (t.orient === "horizontal" ? brushY<BrushTarget>() : brushX<BrushTarget>());
-      state = {brush, target: t, signature: "", active: false};
+      state = {brush, target: t, signature: "", active: false, clearLabel: ""};
       states.set(this, state);
       const el = this;
       brush.on("start brush end", (event: D3BrushEvent<BrushTarget>) => onBrush(viz, el, event));
+      g.on("dblclick.clear", (event: MouseEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        clearStrip(viz, el);
+      }).on("keydown.clear", (event: KeyboardEvent) => {
+        if (event.key === "Escape" && clearStrip(viz, el)) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+      });
     }
     state.target = t;
+    state.clearLabel = `${t.title}: ${translate("Double-click or Escape to Clear")}`;
     g.attr("transform", `translate(${t.x},${t.y})`);
     if (state.active) return;
     const signature = `${t.width}x${t.height}`;
@@ -155,5 +206,6 @@ export function syncBrushDom(viz: VizInstance, targets: BrushTarget[], style: Re
     }
     styleStrip(g, style, `${t.title}: ${translate("Drag to Filter")}`);
     g.call(state.brush.move, stripSelection(brushes[t.key], t));
+    markStrip(this, t.key in brushes);
   });
 }

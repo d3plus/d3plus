@@ -14,7 +14,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a parallel coordinates chart from an array of data: one axis per\ndimension and one line per row, crossing each axis at the row's value.\nBrush along an axis to filter the lines.",
+        component: "Creates a parallel coordinates chart from an array of data: one axis per\ndimension and one line per row, crossing each axis at the row's value.\nBrush along an axis to filter the lines; double-click it to clear the brush.",
       },
     },
   }
@@ -104,7 +104,7 @@ Brushing.args = {
   dimensions: ["cylinders", "horsepower", "weight", "acceleration", "mpg"],
   brushes: {horsepower: [60, 100], mpg: [25, 45]},
 };
-Brushing.parameters = {controls: {include: ["brushes", "brushing", "brushConfig"]}, docs: {description: {story: "Drag along an axis to brush it: lines outside the brush gray out, and every brush must match (AND). Click an axis outside its brush to clear it. `brushes` sets them from code and holds the current selection; `on(\"brush\", fn)` reports each change."}}};
+Brushing.parameters = {controls: {include: ["brushes", "brushing", "brushConfig"]}, docs: {description: {story: "Drag along an axis to brush it: lines outside the brush gray out, and every brush must match (AND). To clear a brush, click its axis outside the selection, double-click the axis, or press Escape while the brushed axis has keyboard focus; clearing the last one restores every line. `brushes` sets them from code and holds the current selection; `on(\"brush\", fn)` reports each change."}}};
 
 export const VerticalOrient = Template.bind({});
 VerticalOrient.args = {

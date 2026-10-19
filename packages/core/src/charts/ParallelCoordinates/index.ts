@@ -94,11 +94,16 @@ export const parallelCoordinatesDef: DataDrivenChartDefinition = {
     /**
         The active brush filters, keyed by dimension: a numeric `[min, max]`,
         or the selected categories. Brushing an axis updates it; set it to
-        brush from code.
+        brush from code, or to `{}` to clear every brush.
         @type {Record<string, [number, number] | string[]>}
     */
     {key: "brushes", default: {}},
-    /** Whether each axis can be brushed to filter the lines. */
+    /**
+        Whether each axis can be brushed to filter the lines. Drag along an
+        axis to brush it. To clear a brush, click its axis outside the
+        selection, double-click the axis, or press Escape while the brushed
+        axis has keyboard focus.
+    */
     {key: "brushing", default: true},
     /**
         `"linear"` draws straight segments between axes; `"bump"` curves into and out of each axis.
@@ -186,6 +191,6 @@ export const parallelCoordinatesDef: DataDrivenChartDefinition = {
 /**
     Creates a parallel coordinates chart from an array of data: one axis per
     dimension and one line per row, crossing each axis at the row's value.
-    Brush along an axis to filter the lines.
+    Brush along an axis to filter the lines; double-click it to clear the brush.
 */
 export default makeChart(parallelCoordinatesDef);

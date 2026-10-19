@@ -54,7 +54,7 @@ export const argTypes = assign(
     },
     brushes: {
       control: {},
-      description: "The active brush filters, keyed by dimension: a numeric `[min, max]`, or the selected categories. Brushing an axis updates it; set it to brush from code.",
+      description: "The active brush filters, keyed by dimension: a numeric `[min, max]`, or the selected categories. Brushing an axis updates it; set it to brush from code, or to `{}` to clear every brush.",
       table: {
         defaultValue: {
           summary: "{}"
@@ -70,7 +70,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: true,
-      description: "Whether each axis can be brushed to filter the lines.",
+      description: "Whether each axis can be brushed to filter the lines. Drag along an axis to brush it. To clear a brush, click its axis outside the selection, double-click the axis, or press Escape while the brushed axis has keyboard focus.",
       table: {
         defaultValue: {
           summary: "true"
