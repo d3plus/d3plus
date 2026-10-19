@@ -85,9 +85,23 @@ export async function closeBrowser() {
  * @param {*} [arg] Optional serializable argument passed to pageFunction.
  * @returns {Promise<*>} Whatever pageFunction resolves with.
  */
-export async function render(bodyHtml, pageFunction, arg) {
+export function render(bodyHtml, pageFunction, arg) {
+  return withPage(bodyHtml, page => page.evaluate(pageFunction, arg));
+}
+
+/**
+ * Opens a page with d3plus loaded, hands it to `run`, and closes it once `run`
+ * settles: `render` for tests that drive the page from Node, such as through
+ * its fake clock (`page.clock`, installed when `options.clock` is set).
+ * @param {String} bodyHtml Markup placed inside <body> (e.g. an <svg> target).
+ * @param {Function} run Receives the Playwright page; may return a Promise.
+ * @param {{clock?: boolean}} [options]
+ * @returns {Promise<*>} Whatever `run` resolves with.
+ */
+export async function withPage(bodyHtml, run, options = {}) {
   const [b, umd] = await Promise.all([browser(), bundle()]);
   const page = await b.newPage();
+  if (options.clock) await page.clock.install();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   // Tests render real map tile URLs (Geomap's default basemap, or a custom
@@ -101,7 +115,7 @@ export async function render(bodyHtml, pageFunction, arg) {
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});
     await page.addScriptTag({content: umd});
-    const result = await page.evaluate(pageFunction, arg);
+    const result = await run(page);
     if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
     return result;
   } finally {
