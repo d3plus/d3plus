@@ -5,7 +5,7 @@
 
     <meta charset="utf-8">
     <title>AxisBreaks · BarChart</title>
-    <meta name="description" content="Axis breaks on bar and line charts (baseline breaks, outlier breaks, masks, horizontal bars) with an SVG/Canvas toggle.">
+    <meta name="description" content="Axis breaks on bar and line charts (baseline and outlier breaks, masked by default or with mask: false, horizontal bars) with an SVG/Canvas toggle.">
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -46,6 +46,10 @@
       <section>
         <h3>Baseline break: yDomain([1100, 1700])</h3>
         <div class="viz" id="baseline"></div>
+      </section>
+      <section>
+        <h3>Same, yConfig.baselineBreakConfig({mask: false})</h3>
+        <div class="viz" id="baselineNoMask"></div>
       </section>
       <section>
         <h3>baselineBreak(false): yDomain stretches to 0</h3>
@@ -121,6 +125,14 @@
           .x("year")
           .y("starts")
           .yDomain([1100, 1700]),
+        new d3plus.BarChart()
+          .select("#baselineNoMask")
+          .data(starts)
+          .groupBy("year")
+          .x("year")
+          .y("starts")
+          .yDomain([1100, 1700])
+          .yConfig({baselineBreakConfig: {mask: false}}),
         new d3plus.BarChart()
           .select("#baselineOff")
           .data(starts)

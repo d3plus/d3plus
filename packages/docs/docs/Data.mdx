@@ -16,7 +16,7 @@ The common accessors across charts:
 |---|---|
 | `groupBy` | The property (or array of properties for nesting) that defines each series/group. |
 | `x`, `y` | Positional accessors for plot-based charts. |
-| `value` / `size` | The magnitude accessor for Treemap, Pie, Pack, etc. |
+| `sum` / `value` / `size` | The magnitude accessor: `sum` for Treemap and Pack, `value` for Pie, and `size` for Plot, Network, and Rings. |
 | `time` | Enables the timeline and time-filtering (see **Guides → Interactivity**). |
 | `id` | Unique identifier for a datum (defaults to `groupBy`). |
 
@@ -40,7 +40,7 @@ Pass an array to `groupBy` to build a hierarchy. The first key is the top level;
 deeper keys drive drill-down and nested layouts:
 
 ```jsx
-<Treemap config={{data, groupBy: ["sector", "company"], size: "value"}} />
+<Treemap config={{data, groupBy: ["sector", "company"], sum: "value"}} />
 ```
 
 ## Loading from a URL

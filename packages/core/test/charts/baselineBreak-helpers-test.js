@@ -3,12 +3,13 @@ import it from "../jsdom.js";
 import {
   baselineBreakAxisConfig,
   clampBarConfig,
+  outsideBaselineBreak,
   userDomainBreaksBaseline,
   valueAxis,
   valueAxisExtent,
 } from "../../es/internal.js";
 import {buildXConfig} from "../../es/src/charts/features/xAxisConfig.js";
-import {BarChart, LinePlot} from "../../es/index.js";
+import {AreaPlot, BarChart, Histogram, LinePlot, StackedArea} from "../../es/index.js";
 
 /**
     Plot's side of the baseline axis break (#645): which axis breaks, the axis
@@ -67,6 +68,22 @@ it("valueAxisExtent reads the value axis range in shape coordinates", () => {
   );
 });
 
+it("outsideBaselineBreak moves points inside the baseline break onto its domain edge", () => {
+  // y: 0 sits at 400, the domain starts (1100) at 364.
+  const brk = {value: 0, edge: 1100, position: 400, edgePosition: 364};
+  const y = v => (v === 0 ? 400 : v === 1100 ? 364 : NaN);
+  const vertical = {schema: {discrete: "x"}, _yAxis: {_baselineBreak: brk}, _yFunc: y};
+  const pts = [[0, 400], [10, 380], [10, 364], [10, 100], [0, 100]];
+  assert.deepStrictEqual(outsideBaselineBreak(vertical, pts), [[0, 364], [10, 364], [10, 364], [10, 100], [0, 100]]);
+  // Horizontal: 0 sits at x 0, the domain starts at 36.
+  const x = v => (v === 0 ? 0 : 36);
+  const horizontal = {schema: {discrete: "y"}, _xAxis: {_baselineBreak: brk}, _xFunc: x};
+  assert.deepStrictEqual(outsideBaselineBreak(horizontal, [[0, 5], [20, 5], [200, 5]]), [[36, 5], [36, 5], [200, 5]]);
+  const none = [[0, 400]];
+  assert.strictEqual(outsideBaselineBreak({schema: {discrete: "x"}, _yAxis: {_baselineBreak: null}, _yFunc: y}, none), none, "no break");
+  assert.strictEqual(outsideBaselineBreak({schema: {discrete: "x"}, _yAxis: {_baselineBreak: brk}}, none), none, "no positions yet");
+});
+
 it("clampBarConfig clamps the value-axis accessors and leaves the rest", () => {
   const discreteFn = d => d.x * 1000;
   const config = {x: discreteFn, y: d => d.v, y0: 500, y1: d => d.v, label: "keep"};
@@ -91,8 +108,11 @@ it("buildXConfig carries the x break settings into the shared x-axis config", ()
   assert.strictEqual(buildXConfig(new BarChart(), inputs).baselineBreak, false, "vertical bars don't break x");
 });
 
-it("BarChart defaults baselineBreak on; Plot charts leave it off", () => {
+it("BarChart, AreaPlot, StackedArea, and Histogram default baselineBreak on; other Plots leave it off", () => {
   assert.strictEqual(new BarChart().baselineBreak(), true);
+  assert.strictEqual(new AreaPlot().baselineBreak(), true);
+  assert.strictEqual(new StackedArea().baselineBreak(), true);
+  assert.strictEqual(new Histogram().baselineBreak(), true);
   assert.ok(!new LinePlot().baselineBreak(), "LinePlot does not break");
   assert.strictEqual(new BarChart().baselineBreak(false).baselineBreak(), false, "opt out");
 });

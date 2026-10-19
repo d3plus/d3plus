@@ -255,7 +255,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
+    description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -452,7 +452,7 @@ export const argTypes = {
   },
   facetConfig: {
     control: {},
-    description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows. PolarArea and RadialBar default to `\"independent\"` (each panel's rings and ticks fit its own values); `\"shared\"` gives every panel the same value domain.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
+    description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows. Funnel defaults to `\"independent\"` (each panel sized to its own widest stage); `\"shared\"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `\"independent\"` (each panel's rings and ticks fit its own values); `\"shared\"` gives every panel the same value domain.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -523,7 +523,7 @@ export const argTypes = {
   },
   hiddenColor: {
     control: {
-      type: "text"
+      type: "color"
     },
     description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
     table: {
@@ -639,7 +639,7 @@ export const argTypes = {
     control: {
       type: "boolean"
     },
-    description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+    description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -682,7 +682,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
+    description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
     table: {
       defaultValue: {
         summary: "undefined"

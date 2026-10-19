@@ -20,3 +20,8 @@ it("isSvgTarget is false for other svg-namespaced elements", () => {
 it("isSvgTarget is false when tagName is missing", () => {
   assert.strictEqual(isSvgTarget({}), false);
 });
+
+it("isSvgTarget is false for a nullish element", () => {
+  assert.strictEqual(isSvgTarget(null), false);
+  assert.strictEqual(isSvgTarget(undefined), false);
+});

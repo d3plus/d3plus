@@ -37,7 +37,7 @@ export type FacetConfig = {
   padding?: number;
   /** Panel order. Defaults to `"ascending"`. */
   sort?: FacetSort;
-  /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to the value domains of PolarArea and RadialBar, where it defaults to `"independent"`. */
+  /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to Funnel's stage widths and the value domains of PolarArea and RadialBar, where it defaults to `"independent"`. */
   scales?: "shared" | "independent";
   /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel (BumpChart). */
   axes?: "outer" | "all";

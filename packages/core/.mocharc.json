@@ -1,3 +1,5 @@
 {
-  "timeout": 60000
+  "timeout": 60000,
+  "parallel": true,
+  "require": ["test/setup.js"]
 }

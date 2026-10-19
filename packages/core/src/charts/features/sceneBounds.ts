@@ -12,7 +12,7 @@ import type {SceneNode, TextNode, Transform} from "@d3plus/render";
 type Point = [number, number];
 
 /** Maps a point through a node transform: rotate (about its anchor), scale, then translate. */
-function applyTransform([px, py]: Point, t: Transform | undefined): Point {
+export function applyTransform([px, py]: Point, t: Transform | undefined): Point {
   if (!t) return [px, py];
   let x = px, y = py;
   if (t.rotate) {
@@ -91,15 +91,18 @@ function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
     Boxes, in the coordinate space of `nodes` after `base` is applied, of
     every data mark and label in a scene: datum-bearing nodes at any depth,
     with group transforms composed. `::hit` duplicates and chart decorations
-    (axes, gridlines and other nodes without a datum) are skipped.
+    (axes, gridlines and other nodes without a datum) are skipped, unless
+    `all` is set.
     @param nodes The chart's scene nodes (e.g. `viz._chartScene`).
     @param base A transform applied to all of them (e.g. `viz._chartTransform`).
     @param skip Excludes a node and everything inside it, for decorations that carry a datum (like axis ticks).
+    @param all Counts nodes without a datum too, for charts whose decorations (labels, outlines, empty cells) must stay clear as well.
 */
 export function markBoxes(
   nodes: SceneNode[],
   base?: Transform,
   skip?: (node: SceneNode) => boolean,
+  all = false,
 ): Bounds[] {
   const out: Bounds[] = [];
   const walk = (list: SceneNode[], chain: Transform[]): void => {
@@ -110,7 +113,7 @@ export function markBoxes(
         walk(node.children, next);
         continue;
       }
-      if (node.datum === undefined) continue;
+      if (!all && node.datum === undefined) continue;
       const map = mapper(next);
       for (const b of ownBoxes(node)) {
         if ([b.x, b.y, b.width, b.height].every(Number.isFinite)) out.push(mapBox(b, map));

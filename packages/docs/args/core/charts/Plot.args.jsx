@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "The baseline value: where a Plot's bars and areas start, and the value\nan axis's `baselineBreak` returns to. Defaults to `0` on an axis.",
+      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -211,7 +211,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal bars), and bars start at the baseline tick; turned off, a\n`yDomain` stretches to reach the baseline while a `yConfig.domain` is\nkept and cuts its bars off at the axis. Defaults to `true` for BarChart\nand `false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -328,7 +328,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
+      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -342,7 +342,7 @@ export const argTypes = assign(
     confidence: {
       control: {},
       defaultValue: false,
-      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.",
+      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.\n\nPass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label (\"Band 1\", \"Band 2\", … when unlabeled), and bars draw the first band's error bar.",
       table: {
         defaultValue: {
           summary: false
@@ -356,7 +356,7 @@ export const argTypes = assign(
     confidenceConfig: {
       control: {},
       defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
+      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
       table: {
         defaultValue: {
           detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
@@ -529,6 +529,37 @@ export const argTypes = assign(
         summary: "facetconfig"
       }
     },
+    fillBetween: {
+      control: {
+        type: "object"
+      },
+      defaultValue: false,
+      description: "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean | array.&lt;(string|number)&gt; | array.&lt;array.&lt;(string|number)&gt;&gt;"
+      }
+    },
+    fillBetweenConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
+      }
+    },
     fontFamily: {
       control: {
         type: "text"
@@ -542,6 +573,36 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | array.&lt;string&gt;"
+      }
+    },
+    forecast: {
+      control: {
+        type: "number"
+      },
+      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | number | boolean | date | function"
+      }
+    },
+    forecastConfig: {
+      control: {
+        type: "object"
+      },
+      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     },
     groupBy: {
@@ -577,7 +638,7 @@ export const argTypes = assign(
     },
     hiddenColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
       table: {
@@ -723,7 +784,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. A legend or colorScale whose position was set explicitly stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -766,7 +827,7 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"top\"`, `\"bottom\"`, `\"left\"`, and `\"right\"`.",
+      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1959,7 +2020,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The x domain as an array. If either value is undefined, it is calculated from the data.",
+      description: "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2105,7 +2166,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The y domain as an array. If either value is undefined, it is calculated from the data.",
+      description: "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
       table: {
         defaultValue: {
           summary: "undefined"
