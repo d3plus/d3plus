@@ -186,3 +186,12 @@ it("emitRadarLevelLabels builds a non-interactive group of text nodes", () => {
 it("emitRadarLevelLabels returns nothing for no labels", () => {
   assert.deepStrictEqual(emitRadarLevelLabels([], paint()), []);
 });
+
+it("emitRadarLevelLabels keys its nodes with a prefix, radar by default", () => {
+  const labels = radarLevelLabels(labelOpts());
+  const [group] = emitRadarLevelLabels(labels, paint(), "radialbar");
+  assert.strictEqual(group.key, "radialbar-level-labels");
+  assert.deepStrictEqual(group.children.map(c => c.key), labels.map(l => `radialbar-level-label-${l.value}`));
+  const [radar] = emitRadarLevelLabels(labels, paint());
+  assert.strictEqual(radar.children[0].key, `radar-level-label-${labels[0].value}`);
+});

@@ -25,9 +25,11 @@ import {
   ParallelCoordinates as ParallelCoordinatesClass,
   Pie as PieClass,
   Plot as PlotClass,
+  PolarArea as PolarAreaClass,
   Priestley as PriestleyClass,
   Pyramid as PyramidClass,
   Radar as RadarClass,
+  RadialBar as RadialBarClass,
   RadialMatrix as RadialMatrixClass,
   Ridgeline as RidgelineClass,
   Rings as RingsClass,
@@ -167,6 +169,10 @@ export const Pie = (props: D3plusComponentProps) => (
 export const Plot = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={PlotClass} {...props} />
 );
+/** React component for rendering a d3plus PolarArea visualization. */
+export const PolarArea = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={PolarAreaClass} {...props} />
+);
 /** React component for rendering a d3plus Priestley visualization. */
 export const Priestley = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={PriestleyClass} {...props} />
@@ -178,6 +184,10 @@ export const Pyramid = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Radar visualization. */
 export const Radar = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={RadarClass} {...props} />
+);
+/** React component for rendering a d3plus RadialBar visualization. */
+export const RadialBar = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={RadialBarClass} {...props} />
 );
 /** React component for rendering a d3plus RadialMatrix visualization. */
 export const RadialMatrix = (props: D3plusComponentProps) => (
