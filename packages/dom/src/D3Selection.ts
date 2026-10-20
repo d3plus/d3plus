@@ -17,7 +17,6 @@ export type D3Selection = ReturnType<typeof select<BaseType, unknown>>;
 export type D3Transition = ReturnType<typeof transition>;
 
 /**
-    @interface Attrable
     Anything that supports `.attr(name, value)` — both Selection and Transition.
 */
 export interface Attrable {
@@ -25,7 +24,6 @@ export interface Attrable {
 }
 
 /**
-    @interface Stylable
     Anything that supports `.style(name, value)` — both Selection and Transition.
 */
 export interface Stylable {

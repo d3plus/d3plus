@@ -30,13 +30,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
-| [`dateFormatter`](#dateformatter) | Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval  |
-| [`dateFullFormatter`](#datefullformatter) | Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against `dataArray`, reading  |
+| [`dateFormatter`](#dateformatter) | Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval and position of every date once up front, so labeling all of them takes linear time. |
+| [`dateFullFormatter`](#datefullformatter) | Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against `dataArray`, reading the interval its dates step by once up front. |
 | [`format`](#format) |  |
-| [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. `1200000` t |
-| [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the  |
-| [`formatDateFull`](#formatdatefull) | Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `d |
-| [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting t |
+| [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. |
+| [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points. |
+| [`formatDateFull`](#formatdatefull) | Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day. |
+| [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters. |
 
 ## Functions
 

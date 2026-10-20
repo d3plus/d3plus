@@ -30,19 +30,19 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
-| [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary. This is used internally in new d3plus visualiz |
-| [`concat`](#concat) | Reduce and concat all the elements included in arrayOfArrays if they are arrays. If it is a JSON object try to concat th |
-| [`fold`](#fold) | Given a JSON object where the data values and headers have been split into separate key lookups, this function will comb |
-| [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid d |
+| [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary. |
+| [`concat`](#concat) | Reduce and concat all the elements included in arrayOfArrays if they are arrays. |
+| [`fold`](#fold) | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
+| [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. |
 | [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
 | [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
-| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A ro |
+| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. |
 | [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
 | [`unique`](#unique) | ES5 implementation to reduce an Array of values to unique instances. |
 
 | Interfaces | Description |
 | --- | --- |
-| [`DataPoint`](#datapoint) | DataPoint |
+| [`DataPoint`](#datapoint) | Represents a single data point object used throughout d3plus visualizations. |
 | [`MergedDataPoint`](#mergeddatapoint) |  |
 
 ## Functions
@@ -292,9 +292,8 @@ unique(["apple", "banana", "apple"]);
 
 ### DataPoint
 
-Defined in: [DataPoint.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/DataPoint.ts#L5)
+Defined in: [DataPoint.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/data/src/DataPoint.ts#L4)
 
-DataPoint
 Represents a single data point object used throughout d3plus visualizations.
 
 #### Indexable

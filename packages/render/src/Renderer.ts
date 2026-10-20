@@ -4,7 +4,6 @@ import type {TrailCatchup} from "./animate/trailLog.js";
 import type {Scene, SceneNode, TransitionRect} from "./scene.js";
 
 /**
-    @interface RenderTarget
     Describes where a renderer should mount. The container is renderer-agnostic
     (a plain element); the backend creates its own <svg> or <canvas> inside it.
 */
@@ -17,7 +16,6 @@ export interface RenderTarget {
 }
 
 /**
-    @interface DrawOptions
     Per-frame options for a drawScene call. A duration of 0 (or omitted) commits
     immediately; a positive duration animates from the previous scene.
 */
@@ -110,7 +108,6 @@ export interface DrawOptions {
 }
 
 /**
-    @interface RenderHandle
     The result of a drawScene call. `finished` resolves when any animation completes,
     letting callers (e.g. Viz.render) await a stable, painted state.
 */
@@ -121,7 +118,6 @@ export interface RenderHandle {
 }
 
 /**
-    @interface PickResult
     The outcome of a hit-test: the topmost interactive node at a point.
 */
 export interface PickResult {
@@ -143,7 +139,6 @@ export type SceneEventType =
   | "mousemove";
 
 /**
-    @interface SceneEvent
     A backend-neutral pointer event, carrying the local point and the picked node
     (if any), so interaction handling is decoupled from DOM event targets.
 */
@@ -161,7 +156,6 @@ export interface SceneEvent {
 export type RendererKind = "svg" | "canvas" | "webgl";
 
 /**
-    @interface Renderer
     The pluggable backend contract. Chart logic emits a Scene; a Renderer realizes
     it. The same Scene must produce equivalent output and equivalent pick() results
     across backends — that equivalence is the parity guarantee of the architecture.

@@ -17,28 +17,8 @@ const prune = process.argv.includes("--prune");
 import readmeHeader from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
-import {chartDefMap} from "./stubs/chartDefs.js";
-import {buildPublicDocs, getCommentText, typeToNames} from "./typedoc.js";
-
-/**
- * Replaces each chart's `> **Name**: VizCtor` line (TypeDoc's view of a
- * `makeChart(...)` value) with the base class it extends plus a table of the
- * chart-specific config declared in its ChartDefinition `fields`.
- */
-function injectChartConfig(readme, defMap) {
-  for (const [name, def] of Object.entries(defMap)) {
-    const anchor = def.base.toLowerCase();
-    let block = `Extends [\`${def.base}\`](#${anchor}) — accepts all of its configuration.`;
-    if (def.fields.length) {
-      block += " Adds or overrides these defaults:\n\n| Method | Default |\n| --- | --- |\n";
-      for (const f of def.fields)
-        block += `| \`${f.key}\` | ${f.default != null ? `\`${f.default}\`` : "—"} |\n`;
-    }
-    const re = new RegExp(`> \\*\\*${name}\\*\\*: \`[^\\n]*\``);
-    readme = readme.replace(re, block);
-  }
-  return readme;
-}
+import {chartDefMap, injectChartConfig, publicChartDefs} from "./stubs/chartDefs.js";
+import {buildPublicDocs, getCommentText, tocSummary, typeToNames} from "./typedoc.js";
 
 /**
  * Documents each `makeChart(...)` chart as the class it constructs. TypeDoc
@@ -56,6 +36,31 @@ function promoteCharts(docs, defMap) {
     doc.augments = [def.base];
     doc.chartDef = def;
   }
+}
+
+/**
+ * Imports a package's built ESM entry for constructing its charts, with the
+ * ResizeObserver stub Viz needs in Node; null when the build is missing.
+ */
+async function loadChartModule(folder) {
+  const entry = path.resolve(folder, "es/index.js");
+  if (!fs.existsSync(entry)) return null;
+  stubResizeObserver();
+  try {
+    return await import(pathToFileURL(entry).href);
+  } catch {
+    return null;
+  }
+}
+
+/** Viz's constructor wires a ResizeObserver; stub it so charts construct in Node. */
+function stubResizeObserver() {
+  if (typeof globalThis.ResizeObserver === "undefined")
+    globalThis.ResizeObserver = class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
 }
 
 /**
@@ -132,13 +137,7 @@ async function collectConfigDefaults(folder, stories) {
     );
     return out;
   }
-  // Viz's constructor wires a ResizeObserver; stub it so charts construct in Node.
-  if (typeof globalThis.ResizeObserver === "undefined")
-    globalThis.ResizeObserver = class {
-      observe() {}
-      unobserve() {}
-      disconnect() {}
-    };
+  stubResizeObserver();
   let mod;
   try {
     mod = await import(pathToFileURL(entry).href);
@@ -311,12 +310,7 @@ function buildTableOfContents(project) {
     md += `| --- | --- |\n`;
     for (const item of items) {
       const comment = item.comment || item.signatures?.[0]?.comment;
-      const desc =
-        comment?.summary
-          ?.map(c => c.text)
-          .join("")
-          .trim() || "";
-      const summary = desc.split("\n")[0].slice(0, 120);
+      const summary = tocSummary(comment?.summary?.map(c => c.text).join(""));
       const anchor = item.name.toLowerCase().replace(/[^a-z0-9]+/g, "-");
       md += `| [\`${item.name}\`](#${anchor}) | ${summary} |\n`;
     }
@@ -457,7 +451,12 @@ async function generateMarkdown() {
     // `VizCtor` variables with no config. Read each chart's ChartDefinition and
     // replace that useless type line with the base it extends + its declared
     // config fields (full inherited config stays documented on the base class).
-    const chartDefs = chartDefMap(`${folder}/src/charts`);
+    // @d3plus/types re-exports core's charts from their declaration files.
+    const chartsFrom = name === "@d3plus/types" ? "packages/core" : folder;
+    const chartDefs = publicChartDefs(
+      chartDefMap(`${chartsFrom}/src/charts`),
+      await loadChartModule(chartsFrom),
+    );
     readme = injectChartConfig(readme, chartDefs);
 
     // Copy the generated README back to the package folder

@@ -68,7 +68,6 @@ export interface FeatureLayout {
 }
 
 /**
-    @interface FeatureModule
     A chart-level component (title, subtitle, total, legend, timeline,
     colorScale, back, attribution) expressed as a pure value. Each feature:
       - contributes config keys to the chart's schema (`configFields`),

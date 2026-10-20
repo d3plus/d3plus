@@ -9,7 +9,6 @@ import {resolveGeomapTiles} from "./geomapTiles.js";
 import {installMeasureContext} from "./measure.js";
 
 /**
-    @interface RasterRenderOptions
     Options for the raster (canvas/PNG) helpers.
 */
 export interface RasterRenderOptions

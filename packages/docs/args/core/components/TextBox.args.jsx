@@ -457,7 +457,9 @@ export const argTypes = assign(
       }
     },
     rotateAnchor: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The anchor point around which to rotate the text box.",
       table: {
         defaultValue: {
@@ -466,7 +468,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "* | function"
+        summary: "[number, number] | function"
       }
     },
     select: {

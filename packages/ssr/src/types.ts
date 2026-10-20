@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    @interface RenderableViz
     The structural surface `@d3plus/ssr` drives on a chart. Every d3plus chart
     (`Treemap`, `BarChart`, `Geomap`, …) satisfies it; the index signature keeps
     the helpers usable with any subclass without importing concrete classes.
@@ -22,7 +21,6 @@ export interface RenderableViz {
 }
 
 /**
-    @interface GeomapTileOptions
     Server-side basemap tile fetching options, applied when rendering a `Geomap`
     with tiles enabled. Ignored for other charts.
 */
@@ -48,7 +46,6 @@ export interface GeomapTileOptions {
 }
 
 /**
-    @interface StaticRenderOptions
     Options shared by the static render helpers.
 */
 export interface StaticRenderOptions extends GeomapTileOptions {

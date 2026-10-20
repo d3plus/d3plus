@@ -40,7 +40,6 @@ function trailSpec(a: SceneNode, b: SceneNode): TrailSpec | null {
 }
 
 /**
-    @interface GroupDiff
     The result of matching two child lists by key: nodes to add (enter), nodes
     present in both (update, as [previous, next] pairs), and nodes to remove (exit).
 */
@@ -73,7 +72,6 @@ export function diffChildren(prev: SceneNode[], next: SceneNode[]): GroupDiff {
 }
 
 /**
-    @interface FlipTransition
     The drill-morph override for one draw: the box entering nodes collapse
     FROM and/or exiting nodes collapse TO, in place of their own degenerate
     center. See `DrawOptions.enterFrom`/`exitTo`.

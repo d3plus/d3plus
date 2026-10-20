@@ -51,7 +51,6 @@ export interface PlotOpenEnd {
 }
 
 /**
-    @interface VizContext
     The value that flows through the chart pipeline. Each stage reads from it
     and returns the fields it derives. The runner (`Viz._preDraw`) folds the
     stages together and writes the result back onto the Viz instance so

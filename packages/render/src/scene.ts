@@ -9,7 +9,6 @@ import type {DataPoint} from "@d3plus/data";
 export type CurveName = string;
 
 /**
-    @interface Paint
     A fully-resolved paint description. No accessor functions survive into a scene —
     every value here is a concrete primitive computed during scene construction,
     which is what lets a backend paint without re-running data accessors.
@@ -36,7 +35,6 @@ export interface Paint {
 }
 
 /**
-    @interface Transform
     A 2D affine transform, replacing the SVG transform string that
     Shape._applyTransform builds today. Uniform scale only, matching Shape._scale.
 */
@@ -50,7 +48,6 @@ export interface Transform {
 }
 
 /**
-    @interface SceneGradient
     A resolved, serializable gradient fill, encoded into `Paint.fill` as the
     token `gradient:<json>` (the same scheme as the `pattern:<json>` texture
     token). Coordinates are in objectBoundingBox units (0–1), so a backend
@@ -98,7 +95,6 @@ export function parseGradient(fill?: string): SceneGradient | null {
 export type FontStyle = "normal" | "italic";
 
 /**
-    @interface FontSpec
     Resolved font metrics for a TextNode. Text is laid out (wrapped, positioned)
     during scene construction, so backends only paint pre-computed lines.
 */
@@ -114,7 +110,6 @@ export interface FontSpec {
 }
 
 /**
-    @interface TextRun
     An inline span within a TextLine with optional per-run style overrides
     (e.g. bold/italic produced by HTML markup in TextBox). Backends emit
     nested <tspan>s for SVG or weight-aware paints for Canvas.
@@ -147,7 +142,6 @@ export type HitShape =
   | {type: "path"; d: string};
 
 /**
-    @interface TransitionRect
     A plain geometry box used by the drill-morph enter/exit override
     (`DrawOptions.enterFrom`/`exitTo`): flip-eligible entering/exiting nodes
     collapse to/from this box instead of their own degenerate center.
@@ -160,7 +154,6 @@ export interface TransitionRect {
 }
 
 /**
-    @interface AriaSpec
     Accessibility metadata. The SVG backend applies these as role/aria-label
     attributes natively; the Canvas backend mirrors them in a shadow tree.
 */
@@ -171,7 +164,6 @@ export interface AriaSpec {
 }
 
 /**
-    @interface InteractionPoint
     One point of a multi-point shape (Line/Area): its position in pre-zoom
     content space and the source datum it came from.
 */
@@ -183,7 +175,6 @@ export interface InteractionPoint {
 }
 
 /**
-    @interface ShapeOwner
     A composite shape (Box, Whisker) that drew a scene node through one of its
     inner shapes, and the datum and index it drew that part from.
 */
@@ -197,7 +188,6 @@ export interface ShapeOwner {
 }
 
 /**
-    @interface NodeBase
     Fields shared by every scene node.
 */
 export interface NodeBase {
@@ -600,7 +590,6 @@ export type SceneNode =
   | HtmlOverlayNode;
 
 /**
-    @interface Scene
     A complete, backend-agnostic description of one frame of a visualization.
 */
 export interface Scene {

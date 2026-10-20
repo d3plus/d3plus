@@ -53,7 +53,9 @@ export const argTypes = assign(
       }
     },
     brushes: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "The active brush filters, keyed by dimension: a numeric `[min, max]`, or the selected categories. Brushing an axis updates it; set it to brush from code, or to `{}` to clear every brush.",
       table: {
         defaultValue: {
@@ -111,7 +113,9 @@ export const argTypes = assign(
       }
     },
     dimensionConfig: {
-      control: {},
+      control: {
+        type: "object"
+      },
       description: "Per-dimension options, keyed by dimension: `domain`, `reverse`, `title`, and any Axis config (`tickFormat`, `ticks`, `scale`, …).",
       table: {
         defaultValue: {

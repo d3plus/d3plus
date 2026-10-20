@@ -11,18 +11,19 @@ export const Marimekko = ({ config }) => <D3plusMarimekko config={config} />;
 export const argTypes = assign(
 
   /**
-   * Inherits BarChart's argTypes and overrides the defaults Marimekko changes.
+   * Filters out unused argTypes from the BarChart primitive and
+   * overrides any defaults that have been changed in Marimekko
    */
-  barChartArgTypes,
+  Object.keys(barChartArgTypes)
+    .reduce((obj, k) => (obj[k] = barChartArgTypes[k], obj), {}),
 
   /**
-   * Marimekko-specific defaults
+   * Marimekko-specific methods
    */
+  
   {
     barWidth: {
-      ...barChartArgTypes.barWidth,
-      defaultValue: undefined,
-      description: "Each bar's width: a data key or accessor, read off the merge of the bar's rows. Defaults to the bar's total (its rows' summed `y`, or `x` when the bars run along `y`).",
+      description: "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.\n\nMarimekko defaults to each bar's total: its rows' summed `y`, or `x` when the bars run along `y`, shown as \"Bar Total\" in tooltips.",
       table: {
         defaultValue: {
           summary: "the bar's total"
@@ -30,9 +31,8 @@ export const argTypes = assign(
       }
     },
     barWidthShare: {
-      ...barChartArgTypes.barWidthShare,
       defaultValue: true,
-      description: "Whether each category's axis label also shows its bar's share of the total width: beneath the name along a horizontal axis, in parentheses after it along a vertical one. A name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. The tooltip always shows the share. In small multiples (`facet`), each panel's shares are of that panel's own total and add to 100%, even when shared scales draw a smaller panel narrower. Defaults to `true`; `false` shows the name alone.",
+      description: "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.\n\nMarimekko shows the shares by default (\"Retail\" over \"50%\"); `false` shows the name alone. The tooltip always shows the share. In small multiples (`facet`), each panel's shares add to 100%, even when shared scales (the default) draw a smaller panel narrower.",
       table: {
         defaultValue: {
           summary: "true"
@@ -40,25 +40,22 @@ export const argTypes = assign(
       }
     },
     groupPadding: {
-      ...barChartArgTypes.groupPadding,
       defaultValue: 1,
       table: {
         defaultValue: {
-          summary: 1
+          summary: "1"
         }
       }
     },
     stackOffset: {
-      ...barChartArgTypes.stackOffset,
       defaultValue: "expand",
       table: {
         defaultValue: {
-          summary: "\"expand\""
+          summary: "expand"
         }
       }
     },
     stacked: {
-      ...barChartArgTypes.stacked,
       defaultValue: true,
       table: {
         defaultValue: {
@@ -67,7 +64,6 @@ export const argTypes = assign(
       }
     },
     tooltipShared: {
-      ...barChartArgTypes.tooltipShared,
       defaultValue: false,
       table: {
         defaultValue: {

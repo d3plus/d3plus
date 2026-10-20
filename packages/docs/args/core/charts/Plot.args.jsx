@@ -196,7 +196,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars and areas still grow from the chart's own `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
+      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -211,7 +211,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for BarChart, AreaPlot, StackedArea, and Histogram, and\n`false` for other Plots and a standalone Axis.",
+      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for the Plots whose marks grow from `0`, such as BarChart,\nAreaPlot, Histogram, and Lollipop (each chart lists its own default),\nand `false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -542,7 +542,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "boolean | array.&lt;(string|number)&gt; | array.&lt;array.&lt;(string|number)&gt;&gt;"
+        summary: "boolean | [string|number, string|number] | array.&lt;[string|number, string|number]&gt;"
       }
     },
     fillBetweenConfig: {
@@ -579,7 +579,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.\n\nBullet: each row's forecast (or other comparative measure), drawn as\na paler bar behind the measure: a data key, an accessor returning the\nrow's value, a number shared by every row, or `false`.",
+      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -594,7 +594,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.\n\nBullet: the forecast bar's `size` (a fraction of the band's\nthickness), `opacity`, `fill`, `texture`, and\n`backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`\naccessor.",
+      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -784,7 +784,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave room (Plot, Network, Pack, Pie, Rings, Tree, and Geomap). After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -1982,7 +1982,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "* | array.&lt;*&gt;"
+        summary: "[number, number] | array.&lt;[number, number]&gt;"
       }
     },
     xConfig: {
@@ -2128,7 +2128,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "* | array.&lt;*&gt;"
+        summary: "[number, number] | array.&lt;[number, number]&gt;"
       }
     },
     yConfig: {

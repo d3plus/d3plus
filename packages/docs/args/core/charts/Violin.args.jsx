@@ -79,6 +79,14 @@ export const argTypes = assign(
         summary: "\"x\" | \"y\""
       }
     },
+    groupPadding: {
+      defaultValue: 16,
+      table: {
+        defaultValue: {
+          summary: "16"
+        }
+      }
+    },
     inner: {
       control: {
         type: "radio"

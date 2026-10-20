@@ -154,6 +154,19 @@ function removeStartEndQuotes(str) {
   return str.replace(/^['"]|['"]$/g, "");
 }
 
+/**
+ * Whether a lowercased type name is an object, array, or tuple
+ * (`array.<…>`, `string[]`, `[number, number]`), which gets the JSON
+ * editor control.
+ */
+const isStructured = t =>
+  t === "object" ||
+  t.startsWith("record") ||
+  t.startsWith("array") ||
+  t.startsWith("{") ||
+  t.startsWith("[") ||
+  t.endsWith("[]");
+
 const hasParent = ({augments}) =>
   augments && augments.length ? augments[0] : false;
 
@@ -163,18 +176,47 @@ const hasParent = ({augments}) =>
 // generated paths match the flat layout the stories import.
 const collapseCategory = p => (p ? `/${p.split("/").filter(Boolean)[0]}` : "");
 
+/** A documented class's name and the names of the classes it extends. */
+function lineage(name, stories) {
+  const names = [];
+  let story = stories.find(d => d.name === name);
+  while (story && !names.includes(story.name)) {
+    names.push(story.name);
+    story = stories.find(d => d.name === hasParent(story));
+  }
+  return names;
+}
+
+// A paragraph that opens with documented class names and a colon
+// ("Bullet: …", "BarChart/Marimekko with `barWidth`: …", "Matrix and
+// Calendar: …") documents those classes' option.
+const SCOPE = /^([A-Z]\w*(?:(?:\/|, | and )[A-Z]\w*)*)(?: with [^:\n]*)?: /;
+
 /**
- * Drops an interface doc scoped to another class. A shared config key whose
- * description opens with a documented class's name (`"ParallelCoordinates: …"`)
- * documents that class's option, not a same-named one elsewhere (Timeline
- * `brushing`).
+ * Narrows a shared config-interface doc to the paragraphs that apply to one
+ * class. `D3plusConfig` documents every chart's option under one key, so a
+ * key two charts share (`forecast`) carries a general paragraph plus
+ * paragraphs scoped to a chart by name ("Bullet: …"). The class keeps the
+ * paragraphs scoped to it or to a class it extends; when there are none, it
+ * keeps the general (unscoped) paragraphs. Returns undefined when nothing
+ * applies, e.g. Timeline's `brushing` against a doc scoped to
+ * ParallelCoordinates.
  */
-const ownDoc = (doc, name, stories) => {
-  const scope = doc && /^([A-Z][A-Za-z]+): /.exec(doc.description || "");
-  return scope && scope[1] !== name && stories.some(d => d.name === scope[1])
-    ? undefined
-    : doc;
-};
+export function scopedDoc(doc, name, stories) {
+  if (!doc || !doc.description) return doc;
+  const known = new Set(stories.map(d => d.name));
+  const own = new Set(lineage(name, stories));
+  const scoped = [];
+  const general = [];
+  for (const para of doc.description.split(/\n\s*\n/)) {
+    const match = SCOPE.exec(para);
+    const names = match ? match[1].split(/\/|, | and /) : [];
+    if (!names.length || !names.every(n => known.has(n))) general.push(para);
+    else if (names.some(n => own.has(n))) scoped.push(para);
+  }
+  const kept = scoped.length ? scoped : general;
+  return kept.length ? {...doc, description: kept.join("\n\n")} : undefined;
+}
 
 export default function (
   story,
@@ -289,7 +331,7 @@ export default function (
             d =>
               d.params &&
               d.params.length &&
-              ((overrides.hasOwnProperty(d.name) &&
+              ((Object.hasOwn(overrides, d.name) &&
                 ancestorClasses.includes(d.memberof)) ||
                 d.memberof === name ||
                 // BaseClass is the universal root every viz/shape/component
@@ -306,7 +348,7 @@ export default function (
 
   const formattedMethods = (myMethods || []).reduce((obj, d) => {
     const {name, optional, type} = d;
-    const defaultvalue = overrides.hasOwnProperty(name)
+    const defaultvalue = Object.hasOwn(overrides, name)
       ? overrides[name]
       : d.defaultvalue;
 
@@ -330,7 +372,11 @@ export default function (
       argObject.control.type =
         argObject.options.length < 5 ? "radio" : "select";
     } else {
-      if (types.includes("object") || types.includes("array"))
+      if (
+        types.includes("object") ||
+        types.includes("array") ||
+        types.some(t => t.startsWith("["))
+      )
         argObject.control.type = "object";
       else if (types.includes("number")) argObject.control.type = "number";
       else if (types.includes("string")) argObject.control.type = "text";
@@ -388,8 +434,7 @@ export default function (
       chartArgTypes(story, {
         allMethods,
         stories,
-        ownConfig,
-        parentConfig,
+        configDefaults,
         interfaceDocs,
         hideRe,
       }),
@@ -400,7 +445,7 @@ export default function (
       if (cleanKey in parentConfig) continue;
       if (formattedMethods[cleanKey]) continue;
       if (hideRe && hideRe.test(cleanKey)) continue;
-      const doc = ownDoc(
+      const doc = scopedDoc(
         ifaceSpecific[cleanKey] || ifaceMerged[cleanKey],
         name,
         stories,
@@ -534,9 +579,7 @@ function typedArg(type) {
     arg.control.type = arg.options.length < 5 ? "radio" : "select";
   } else {
     const lower = names.map(n => n.toLowerCase());
-    const structured = n =>
-      n === "object" || n.startsWith("{") || n.startsWith("[") || n.endsWith("[]");
-    if (lower.some(structured)) arg.control.type = "object";
+    if (lower.some(isStructured)) arg.control.type = "object";
     else if (lower.includes("number")) arg.control.type = "number";
     else if (lower.includes("string")) arg.control.type = "text";
     else if (lower.includes("boolean")) arg.control.type = "boolean";
@@ -556,10 +599,12 @@ function colorTypedArg(arg, key, description, value) {
 }
 
 /**
- * A docs-table summary for a chart's default: its runtime value when that
- * renders plainly, else its source (`"value"` for `accessor("value")`).
+ * A docs-table summary for a chart's default: its `@default` tag, else its
+ * runtime value when that renders plainly, else its source (`"value"` for
+ * `accessor("value")`).
  */
 function defaultSummary(value, field) {
+  if (field && field.defaultTag) return field.defaultTag;
   if (value !== undefined) {
     const rendered = renderValue(value);
     if (rendered) return rendered;
@@ -570,34 +615,62 @@ function defaultSummary(value, field) {
 
 /**
  * Builds the argTypes for a makeChart chart's own config: its ChartDefinition
- * `fields` plus any accessors its `setup` installs. Each is documented by the
- * JSDoc comment above it, whose optional `@type {…}` tag sets the type and
- * control; otherwise both come from `D3plusConfig` (else the runtime default).
+ * `fields`, the keys its `defaults` and `setup` set, and any accessors its
+ * `setup` installs. Each is documented by the JSDoc comment above it, whose
+ * optional `@type {…}` tag sets the type and control and `@default …` tag the
+ * default's summary; otherwise both come from `D3plusConfig` (else the
+ * runtime default).
  *
- * A key the parent chart doesn't have becomes a full argType. A field that
- * overrides an inherited key becomes a partial argType that `assign` merges
+ * A key the parent chart doesn't have becomes a full argType. A key that
+ * overrides an inherited one becomes a partial argType that `assign` merges
  * over the parent's: its new default, its own `@type`, and its comment
- * appended to the inherited description.
+ * appended to the description the parent's args give the key.
  */
 function chartArgTypes(
   story,
-  {allMethods, stories, ownConfig, parentConfig, interfaceDocs, hideRe},
+  {allMethods, stories, configDefaults, interfaceDocs, hideRe},
 ) {
   const {fields, accessors} = story.chartDef;
+  const ownConfig = configDefaults[story.name] || {};
+  const parentName = hasParent(story);
+  const parentConfig = (parentName && configDefaults[parentName]) || {};
   const typed = (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
   const merged = interfaceDocs.merged || {};
-  const inheritedDescription = key => {
-    let ancestor = stories.find(d => d.name === hasParent(story));
-    while (ancestor) {
-      const method = allMethods.find(
-        d => d.memberof === ancestor.name && d.name === key,
-      );
-      if (method && method.description) return method.description;
-      ancestor = stories.find(d => d.name === hasParent(ancestor));
-    }
-    const doc = ownDoc(typed[key] || merged[key], story.name, stories);
-    return (doc || {}).description || "";
+  const byName = name => stories.find(d => d.name === name);
+  const chartDoc = (s, key) => {
+    const field = s.chartDef.fields.find(f => f.key === key);
+    return (field && field.description) || (s.chartDef.accessors[key] || {}).description || "";
   };
+  // Whether a class's parent (or an ancestor) has `key`: an installFluent
+  // accessor, a documented method, or a chart's own config.
+  const inherits = (s, key) => {
+    const parent = byName(hasParent(s));
+    if (!parent) return false;
+    if (key in (configDefaults[parent.name] || {})) return true;
+    for (let a = parent; a; a = byName(hasParent(a))) {
+      if (a.chartDef && a.chartDef.fields.some(f => f.key === key)) return true;
+      if (allMethods.some(d => d.memberof === a.name && d.name === key)) return true;
+    }
+    return false;
+  };
+  // The description `s`'s own args give `key`: a chart's field doc (appended
+  // to its parent's when it overrides an inherited key), a class's method doc,
+  // or the shared interface doc narrowed to this chart.
+  const describe = (s, key) => {
+    if (s.chartDef) {
+      const own = chartDoc(s, key);
+      const parent = byName(hasParent(s));
+      if (!parent || !inherits(s, key)) return own || sharedDoc(key);
+      const inherited = describe(parent, key);
+      return own ? [inherited, own].filter(Boolean).join("\n\n") : inherited;
+    }
+    const method = allMethods.find(d => d.memberof === s.name && d.name === key);
+    if (method && method.description) return method.description;
+    const parent = byName(hasParent(s));
+    return parent ? describe(parent, key) : sharedDoc(key);
+  };
+  const sharedDoc = key =>
+    (scopedDoc(typed[key] || merged[key], story.name, stories) || {}).description || "";
 
   const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
   const keys = [...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)])];
@@ -608,22 +681,23 @@ function chartArgTypes(
     const doc = {...(accessors[key] || {})};
     if (field && field.description) doc.description = field.description;
     if (field && field.type) doc.type = field.type;
-    const value = ownConfig[key];
+    // A `defaults`/`setup` key with a hand-written accessor is missing from
+    // the runtime config surface; its literal default stands in.
+    const value = key in ownConfig ? ownConfig[key] : field && field.value;
 
-    if (key in parentConfig) {
+    if (key in parentConfig || inherits(story, key)) {
       if (!field && !doc.description) continue;
       const arg = doc.type ? typedArg(doc.type) : {};
-      if (doc.description) {
-        const inherited = inheritedDescription(key);
-        arg.description = inherited
-          ? `${inherited}\n\n${doc.description}`
-          : doc.description;
-      }
+      if (doc.description) arg.description = describe(story, key);
       const rendered = renderValue(value);
       const inheritsDefault =
-        value === parentConfig[key] ||
-        (rendered !== null && rendered === renderValue(parentConfig[key]));
-      if (!inheritsDefault) {
+        key in parentConfig &&
+        (value === parentConfig[key] ||
+          (rendered !== null && rendered === renderValue(parentConfig[key])));
+      if (field && field.defaultTag) {
+        if (isPlainDefault(value)) arg.defaultValue = value;
+        arg.table = {defaultValue: {summary: field.defaultTag}};
+      } else if (!inheritsDefault) {
         if (isPlainDefault(value)) withDefault(arg, value);
         else {
           const summary = defaultSummary(value, field);
@@ -635,13 +709,13 @@ function chartArgTypes(
       continue;
     }
 
-    const iface = ownDoc(typed[key] || merged[key], story.name, stories);
+    const iface = scopedDoc(typed[key] || merged[key], story.name, stories);
     const arg = doc.type
       ? withDefault(typedArg(doc.type), value)
       : configArgType(value, iface, key);
     arg.description = doc.description || (iface && iface.description) || "";
     if (doc.type) colorTypedArg(arg, key, arg.description, value);
-    if (arg.defaultValue === undefined) {
+    if (arg.defaultValue === undefined || (field && field.defaultTag)) {
       const summary = defaultSummary(value, field);
       if (summary) arg.table = {defaultValue: {summary}};
     }
@@ -704,16 +778,7 @@ function configArgType(value, doc, key) {
         )
         .filter(Boolean);
       arg.control.type = arg.options.length < 5 ? "radio" : "select";
-    } else if (
-      types.some(
-        t =>
-          t === "object" ||
-          t.startsWith("record") ||
-          t.startsWith("array") ||
-          t.endsWith("[]"),
-      )
-    )
-      arg.control.type = "object";
+    } else if (types.some(isStructured)) arg.control.type = "object";
     else if (types.includes("number")) arg.control.type = "number";
     else if (types.includes("string")) arg.control.type = "text";
     else if (types.includes("boolean")) arg.control.type = "boolean";
@@ -792,9 +857,10 @@ const formatAst = ast => {
       return "this";
     case "MemberExpression":
       return `${formatAst(ast.object)}.${formatAst(ast.property)}`;
-    case "ObjectExpression":
+    case "ObjectExpression": {
       const properties = ast.properties.map(formatAst);
       return `{${properties.length === 1 ? properties[0] : properties.join(", ")}}`;
+    }
     case "BlockStatement":
       return `{\n  ${printAst(ast.stmts).replaceAll(/\n(?=.*\n)/g, "\n  ")}}`;
     case "KeyValueProperty":
@@ -805,12 +871,14 @@ const formatAst = ast => {
       return `(${ast.params.map(d => d.value).join(", ")}) => ${formatAst(ast.body)}`;
     case "CallExpression":
       switch (ast.callee.value) {
-        case "constant":
+        case "constant": {
           const constants = ast.arguments.map(d => formatAst(d.expression));
           return constants.length === 1 ? constants[0] : constants;
-        case "accessor":
+        }
+        case "accessor": {
           const [key, def] = ast.arguments.map(d => formatAst(d.expression));
           return `d => d["${key}"]${def ? ` || ${def}` : ""}`;
+        }
         default:
           if (depth === 1) {
             const values = ast.arguments.map(d => formatAst(d.expression));
@@ -820,9 +888,10 @@ const formatAst = ast => {
             return `${formatAst(ast.callee)}(${values.join(", ")})`;
           }
       }
-    case "ConditionalExpression":
+    case "ConditionalExpression": {
       const {test, consequent, alternate} = ast;
       return `${formatAst(test)} ? ${formatAst(consequent)} : ${formatAst(alternate)}`;
+    }
     case "NumericLiteral":
     case "StringLiteral":
       return ast.value;
@@ -830,16 +899,17 @@ const formatAst = ast => {
       return `...${formatAst(ast.arguments)}`;
     case "RegExpLiteral":
       return `/${ast.pattern}/${ast.flags}`;
-    case "TemplateLiteral":
+    case "TemplateLiteral": {
       const expressions = ast.expressions;
       return ast.quasis.reduce((str, d, i) => {
         const value = d.cooked;
         str +=
           i === expressions.length
             ? `${value}\``
-            : `${value}\$\{${formatAst(expressions[i])}\}`;
+            : `${value}\${${formatAst(expressions[i])}}`;
         return str;
       }, "`");
+    }
     case "BooleanLiteral":
       return ast.value;
     case "NullLiteral":

@@ -88,6 +88,7 @@ export const argTypes = assign(
       }
     },
     legend: {
+      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nRadialBar hides the legend when each row is its own entry and the chart's labels already name it: the circular bar chart's category labels, or the track labels unless the sweep leaves them no room.",
       table: {
         defaultValue: {
           summary: "polarLegend"

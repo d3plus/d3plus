@@ -30,32 +30,32 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 | Functions | Description |
 | --- | --- |
-| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
+| [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations. |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
-| [`epanechnikovKernel`](#epanechnikovkernel) | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel |
+| [`epanechnikovKernel`](#epanechnikovkernel) | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: `3 / (4√5) · (1 - u²/5)` for `\|u\| ≤ √5`, otherwise 0. |
 | [`gaussianKernel`](#gaussiankernel) | The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`. |
-| [`kernelDensity`](#kerneldensity) | Estimates the probability density of a set of observations with a kernel |
-| [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
-| [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
-| [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − |
+| [`kernelDensity`](#kerneldensity) | Estimates the probability density of a set of observations with a kernel density estimate, evaluated on an evenly spaced grid. |
+| [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios. |
+| [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/Sxx)`. |
+| [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − x̄)²/Sxx)`. |
 | [`lineIntersection`](#lineintersection) | Finds the intersection point (if there is one) of the lines p1q1 and p2q2. |
-| [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely |
+| [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely outside the marks described by `obstacles`. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
-| [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, |
+| [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation). |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
 | [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
 | [`polygonInside`](#polygoninside) | Checks if one polygon is inside another polygon. |
-| [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on |
+| [`polygonRayCast`](#polygonraycast) | Gives the two closest intersection points between a ray cast from a point inside a polygon. |
 | [`polygonRotate`](#polygonrotate) | Rotates a polygon around a given origin. |
-| [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domai |
+| [`regression`](#regression) | Fits a regression model to a set of `[x, y]` points. |
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
-| [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
-| [`silvermanBandwidth`](#silvermanbandwidth) | Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: |
-| [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
+| [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel distance and radian angle. |
+| [`silvermanBandwidth`](#silvermanbandwidth) | Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: `0.9 · min(σ, IQR / 1.34) · n^(-1/5)`. |
+| [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. |
 | [`studentTCdf`](#studenttcdf) | The cumulative distribution function of Student's t-distribution. |
-| [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportio |
+| [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies. |
 
 | Interfaces | Description |
 | --- | --- |
