@@ -48,15 +48,13 @@ import {buildXConfig} from "./xAxisConfig.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {LabelWidth, PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+import {solveFinalAxes, xRightInset} from "./axesFinal.js";
+import type {AxisBounds, YAxisMeasure} from "./axesFinal.js";
 
-/** A measured axis's outer bounding box. */
-type AxisBounds = {width: number; height: number; x: number; y: number};
 
 /** A queued production-axis scene, drained after the shape loop; `gridOnly` keeps just its gridlines. */
 type AxisScene = {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean};
 
-/** The y/y2 bounds + claimed widths a y-axis measure pass produces. */
-type YAxisMeasure = {yBounds: AxisBounds; yWidth: number | undefined; y2Bounds: AxisBounds; y2Width: number | undefined};
 
 /** Zoom settings the chart's config doesn't set back (see `Plot/plotZoom.ts`), so an unzoomed paint draws as the chart first did. */
 const UNZOOMED_AXIS = {domainTicks: true, fixedSize: undefined};
@@ -290,34 +288,6 @@ function measureXTestAxes(
 }
 
 /**
-    The room the plot leaves on its right for the y2 axis and for the x/x2
-    axes' last labels, once those axes start at `xOffsetLeft`. The x and x2
-    test axes are re-measured from there: where an axis starts decides its
-    ticks, and so which label is last and how far it reaches past the
-    range's end.
-*/
-function xRightInset(
-  axes: {
-    xTest: Axis;
-    x2Test: Axis;
-    showX: boolean;
-    x2Exists: boolean;
-    xRangeMax: number | undefined;
-    width: number;
-  },
-  xOffsetLeft: number,
-  y2Width: number | undefined,
-): number {
-  const {xTest, x2Test, showX, x2Exists, width} = axes;
-  const xRangeMax = axes.xRangeMax || undefined;
-  if (showX) xTest.range([xOffsetLeft, xRangeMax]).measure();
-  if (x2Exists) x2Test.range([xOffsetLeft, xRangeMax]).measure();
-  const xEnd = (xTest._getRange() as number[])[1];
-  const x2End = (x2Test._getRange() as number[])[1];
-  return max([0, y2Width, width - xEnd, width - x2End] as number[])!;
-}
-
-/**
     MEASURE half of the joint axis solve. Configures + measures the four
     throwaway test axes, solves the coupled offsets, writes the resulting
     four-side claim to `viz._padding.*`, and returns the offsets + the
@@ -344,63 +314,6 @@ export function measureAxes(
   viz._padding.top += xResult.x2Height + xResult.topOffset;
 
   return {yBounds, y2Bounds, yWidth, y2Width, xC, ...xResult};
-}
-
-/**
-    Re-measure the y/y2 axes against `yRange` and resolve the final left/right
-    offsets they claim.
-*/
-function solveFinalYAxes(
-  viz: Viz,
-  pCtx: PlotPaintContext,
-  yRange: number[],
-): YAxisMeasure & {xOffsetLeft: number; xOffsetRight: number} {
-  const {yDomain, y2Domain, yConfigScale, y2ConfigScale} = pCtx;
-  const {defaultY2Config, showY, y2Exists, yC} = pCtx;
-  const {yTicks, x2TestRange, xTestRange, height, width} = pCtx;
-  const {yTest, y2Test} = pCtx;
-  let {xOffsetRight} = pCtx;
-
-  if (showY) {
-    yTest
-      .domain(yDomain)
-      .height(height)
-      .maxSize(width / 2)
-      .range(yRange)
-      .ticks(yTicks)
-      .width(width)
-      .config(yC)
-      .config(plotAxisConfig(viz, "y"))
-      .scale(yConfigScale)
-      .measure();
-  }
-
-  const yBounds = yTest.outerBounds() as AxisBounds;
-  const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
-
-  if (y2Exists) {
-    y2Test
-      .config(yC)
-      .domain(y2Domain)
-      .gridSize(0)
-      .height(height)
-      .range(yRange)
-      .width(width - max([0, xOffsetRight - (pCtx.y2Width as number)])!)
-      .title(false)
-      .config(viz._y2Config)
-      .config(defaultY2Config)
-      .scale(y2ConfigScale)
-      .measure();
-  }
-
-  const y2Bounds = y2Test.outerBounds() as AxisBounds;
-  const y2Width = y2Bounds.width
-    ? y2Bounds.width + y2Test.padding()
-    : undefined;
-  xOffsetRight = xRightInset(pCtx, xOffsetLeft, y2Width);
-
-  return {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight};
 }
 
 /**
@@ -633,18 +546,12 @@ function renderYAxes(
 export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
     let {x, y} = pCtx;
     const {labelWidths} = pCtx;
-    const {xHeight, x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
-
-    const yBottom = height - (xHeight + topOffset + verticalMargin);
-    // Room a chart reserves between the value axis and the x axis.
-    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
-    let yRange = [x2Height, yBottom - insetBottom];
-
-    // A `frozen` layout (a zoom repaint) keeps the previous draw's axis sizes
-    // and plot rect, so changing tick labels can't make the plot area jump
-    // mid-gesture; the axes still re-render their ticks for the new domains.
-    const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} =
-      frozen || solveFinalYAxes(viz, pCtx, yRange);
+    const final = solveFinalAxes(viz, pCtx, frozen);
+    pCtx = final.pCtx;
+    const {x2Height, horizontalMargin} = pCtx;
+    let yRange = final.yRange;
+    const {insetBottom, yBottom} = final;
+    const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} = final.solved;
 
     const xRange = frozen?.xRange ?? [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
 
