@@ -17,6 +17,7 @@ import {
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Histogram as HistogramClass,
+  Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
   Matrix as MatrixClass,
@@ -136,6 +137,10 @@ export const Geomap = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Histogram visualization. */
 export const Histogram = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={HistogramClass} {...props} />
+);
+/** React component for rendering a d3plus Icicle visualization. */
+export const Icicle = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={IcicleClass} {...props} />
 );
 /** React component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = (props: D3plusComponentProps) => (
