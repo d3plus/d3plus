@@ -89,8 +89,9 @@ export interface AxisConfig {
       with the break's gap cut across them (`baselineBreakConfig`'s
       `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
-      to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
-      `false` for other Plots and a standalone Axis.
+      to `true` for the Plots whose marks grow from `0`, such as BarChart,
+      AreaPlot, Histogram, and Lollipop (each chart lists its own default),
+      and `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
   /**
@@ -529,9 +530,10 @@ export interface D3plusConfig {
   /**
       Starts a Plot's value axis (the x axis for horizontal charts) at a
       value: `baseline(n)` renders exactly like `yDomain([n])` (or
-      `xDomain([n])`). Bars and areas still grow from the chart's own
-      `0` (BarChart, AreaPlot, StackedArea, and Histogram), so with
-      `baselineBreak` on (their default) the axis breaks back to a `0`
+      `xDomain([n])`). Bars, areas, and stems still grow from the chart's
+      own `0` in the Plots that draw from one (such as BarChart, AreaPlot,
+      Histogram, and Lollipop), so with `baselineBreak` on (their default)
+      the axis breaks back to a `0`
       tick and bars run through the break, with its gap cut across them,
       and with it off the axis
       stretches down to `0`. As with `yDomain([n])`, only `n` is
@@ -556,8 +558,9 @@ export interface D3plusConfig {
       with the break's gap cut across them (`baselineBreakConfig`'s
       `mask`); turned off, a `yDomain` stretches to reach the baseline while a
       `yConfig.domain` is kept and cuts its bars off at the axis. Defaults
-      to `true` for BarChart, AreaPlot, StackedArea, and Histogram, and
-      `false` for other Plots and a standalone Axis.
+      to `true` for the Plots whose marks grow from `0`, such as BarChart,
+      AreaPlot, Histogram, and Lollipop (each chart lists its own default),
+      and `false` for other Plots and a standalone Axis.
   */
   baselineBreak?: boolean;
   /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */

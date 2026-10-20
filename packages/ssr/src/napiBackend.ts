@@ -3,7 +3,6 @@ import type {CanvasBackend} from "@d3plus/render";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    @interface ServerCanvas
     The subset of a native (`@napi-rs/canvas`) canvas the raster helpers expose,
     so the public API doesn't leak the optional peer's types to consumers who
     haven't installed it.
@@ -18,7 +17,6 @@ export interface ServerCanvas {
 }
 
 /**
-    @interface NapiBackendOptions
     Raster-specific options for the native canvas backend.
 */
 export interface NapiBackendOptions {
@@ -33,7 +31,6 @@ export interface NapiBackendOptions {
 }
 
 /**
-    @interface NapiHandle
     An installed native backend plus a `restore()` that undoes the globals it set.
 */
 export interface NapiHandle {

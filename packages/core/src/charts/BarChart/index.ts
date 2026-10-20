@@ -39,10 +39,12 @@ export const barChartDef: ChartDefinition = {
     /**
         With `barWidth`, adds each bar's share of the total width to its
         category's axis label: on a second line beneath the name along a
-        horizontal axis, in parentheses after it along a vertical one.
-        Labels the axis rotates to fit show the name alone. In small
-        multiples, each panel's shares are of that panel's own total width.
-        Off (`false`) by default.
+        horizontal axis, in parentheses after it along a vertical one. Along
+        a horizontal axis, a name wraps to fit a narrow bar, widening into
+        room its neighbors leave; a label that still can't fit is left out,
+        and the labels rotate, showing the name alone, only when half or
+        more can't fit. In small multiples, each panel's shares are of that
+        panel's own total width. Off (`false`) by default.
     */
     {key: "barWidthShare", default: false},
     {key: "baseline", default: 0},

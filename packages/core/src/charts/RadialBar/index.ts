@@ -142,10 +142,15 @@ export const radialBarDef: DataDrivenChartDefinition = {
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
+    /**
+        RadialBar hides the legend when each row is its own entry and the
+        chart's labels already name it: the circular bar chart's category
+        labels, or the track labels unless the sweep leaves them no room.
+        @default polarLegend
+    */
     {
       key: "legend",
       coerce: "const",
-      // Track labels name every row, unless the sweep leaves them no room.
       factory: (viz: VizInstance) =>
         polarLegend(
           viz,

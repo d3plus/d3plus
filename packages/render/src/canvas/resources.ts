@@ -27,7 +27,6 @@ function base64Utf8(text: string): string {
 }
 
 /**
-    @class CanvasResources
     Owns the Canvas backend's async resources — decoded `<image>` bitmaps and
     tiled texture `CanvasPattern`s — plus the machinery to wait for them.
 

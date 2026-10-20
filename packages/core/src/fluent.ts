@@ -91,7 +91,6 @@ export function containsReset(value: unknown): boolean {
 }
 
 /**
-    @interface ConfigField
     Declares one config key the fluent factory will generate an accessor for.
 */
 export interface ConfigField {
@@ -130,7 +129,6 @@ export interface ConfigField {
 }
 
 /**
-    @interface FluentInstance
     The shape a `createFluent` factory returns. Mirrors `BaseClass.config()`'s
     public contract.
 */
@@ -206,7 +204,6 @@ export function createFluent<C extends Record<string, unknown>>(
 }
 
 /**
-    @interface FluentHost
     An object that stores its fluent config on `schema`, and (for every
     `BaseClass`) exposes the default snapshot `RESET` restores from.
 */

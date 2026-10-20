@@ -3,7 +3,6 @@ import {GLOBAL_KEYS} from "./globalKeys.js";
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 /**
-    @interface DomEnvOptions
     Options controlling the headless DOM `installDom` stands up.
 */
 export interface DomEnvOptions {
@@ -18,7 +17,6 @@ export interface DomEnvOptions {
 }
 
 /**
-    @interface DomEnv
     A live headless DOM whose globals are currently mirrored onto `globalThis`.
     Always call {@link DomEnv.teardown} when finished to restore the prior state.
 */
