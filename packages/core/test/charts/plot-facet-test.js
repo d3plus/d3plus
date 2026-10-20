@@ -79,8 +79,8 @@ describe("Plot facet helpers", () => {
   });
 
   it("plotFacetHooks.capture: the per-panel state Plot's hover reads", () => {
-    const viz = {_plotArea: 1, _plotAxisDomains: 2, _xFunc: 3, _yFunc: 4, _trendFits: 5, _other: 6};
-    assert.deepStrictEqual(plotFacetHooks.capture(viz), {_plotArea: 1, _plotAxisDomains: 2, _xFunc: 3, _yFunc: 4, _trendFits: 5});
+    const viz = {_plotArea: 1, _plotAxisDomains: 2, _xFunc: 3, _yFunc: 4, _trendFits: 5, _barSpans: 7, _other: 6};
+    assert.deepStrictEqual(plotFacetHooks.capture(viz), {_plotArea: 1, _plotAxisDomains: 2, _xFunc: 3, _yFunc: 4, _trendFits: 5, _barSpans: 7});
   });
 
   it("applyPaddedDomains: continuous scales take the shared padded domain; others are untouched", () => {

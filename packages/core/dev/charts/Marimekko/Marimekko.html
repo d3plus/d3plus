@@ -1,0 +1,182 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Marimekko</title>
+  <meta name="description" content="Marimekko (mosaic) charts: 100% and absolute stacks, barWidth measures, width-share labels that wrap, widen, or hide, horizontal bars, shared and independent small multiples, and variable-width BarCharts.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <style>
+    body { font-family: sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .viz { height: 400px; }
+    .wide { grid-column: span 2; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Default (width = each region's total, segments stacked to 100%); a label too long for its bar hides, its tooltip keeps the share</h3><div class="viz" id="basic"></div></div>
+    <div><h3>barWidth("Market Size") with aggs max, groupPadding(6)</h3><div class="viz" id="measure"></div></div>
+    <div><h3>stackOffset("none"): absolute heights</h3><div class="viz" id="absolute"></div></div>
+    <div><h3>Horizontal: discrete("y"), each region's width share after its name</h3><div class="viz" id="horizontal"></div></div>
+    <div><h3>BarChart with barWidth (width = population, height = GDP per capita)</h3><div class="viz" id="barchart"></div></div>
+    <div><h3>xSort by width, descending</h3><div class="viz" id="sorted"></div></div>
+    <div><h3>barWidthShare(false): category names without width shares</h3><div class="viz" id="noshare"></div></div>
+    <div><h3>BarChart with barWidth and unstacked series, barWidthShare(true)</h3><div class="viz" id="series"></div></div>
+    <div class="wide"><h3>Bars wide enough for flat labels (three regions): each region's width share on a second line</h3><div class="viz" id="flat"></div></div>
+    <div class="wide"><h3>Small multiples: facet("Year"), one shared width scale (default): the smaller market draws a narrower mosaic, each year's shares add to 100%, and only the left column draws the 0–100% axis</h3><div class="viz" id="facet"></div></div>
+    <div class="wide"><h3>facetConfig({scales: "independent"}): each panel fills its own width, and the 0–100% axis stays on the left column</h3><div class="viz" id="facetIndependent"></div></div>
+  </div>
+</body>
+
+<script>
+
+  // Illustrative smartphone revenue ($B) by region and brand.
+  const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
+  const regions = {
+    "North America": [62, 24, 1, 1, 9],
+    "Europe": [38, 30, 12, 6, 14],
+    "Asia Pacific": [70, 34, 40, 38, 58],
+    "Latin America": [6, 14, 7, 3, 8],
+    "Middle East & Africa": [8, 12, 6, 5, 16],
+  };
+  const sizes = {"North America": 120, "Europe": 110, "Asia Pacific": 260, "Latin America": 40, "Middle East & Africa": 50};
+  const sales = Object.entries(regions).flatMap(([region, values]) =>
+    values.map((revenue, i) => ({Region: region, Brand: brands[i], Revenue: revenue, "Market Size": sizes[region]})),
+  );
+  // The market grows each year, so a shared width scale draws the earlier years narrower.
+  const byYear = [2020, 2022, 2024].flatMap((year, y) =>
+    sales.map((d, i) => ({...d, Year: year, Revenue: Math.round(d.Revenue * (0.5 + 0.25 * y + ((i * 7) % 5) * 0.04))})),
+  );
+
+  new d3plus.Marimekko()
+    .select("#basic")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#flat")
+    .data(sales.filter(d => ["North America", "Europe", "Asia Pacific"].includes(d.Region)))
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#measure")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .barWidth("Market Size")
+    // Every row repeats its region's market size, so merge it with max.
+    .aggs({"Market Size": (rows, value) => Math.max(...rows.map(value))})
+    .groupPadding(6)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#absolute")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .stackOffset("none")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#horizontal")
+    .data(sales)
+    .groupBy("Brand")
+    .discrete("y")
+    .x("Revenue")
+    .y("Region")
+    .render();
+
+  const countries = [
+    {Country: "United States", Population: 335, "GDP per Capita": 81},
+    {Country: "China", Population: 1410, "GDP per Capita": 12.6},
+    {Country: "India", Population: 1430, "GDP per Capita": 2.5},
+    {Country: "Japan", Population: 124, "GDP per Capita": 33.8},
+    {Country: "Germany", Population: 84, "GDP per Capita": 52.7},
+    {Country: "Brazil", Population: 216, "GDP per Capita": 10.3},
+  ];
+
+  new d3plus.BarChart()
+    .select("#barchart")
+    .data(countries)
+    .groupBy("Country")
+    .x("Country")
+    .y("GDP per Capita")
+    .barWidth("Population")
+    .groupPadding(2)
+    .legend(false)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#sorted")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .xSort((a, b) => b.Revenue - a.Revenue)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#noshare")
+    .data(sales)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .barWidthShare(false)
+    .render();
+
+  // Illustrative revenue ($B) by sector and year; width = employees (M), the same on every row.
+  const sectors = {Retail: [42, 48, 30], Technology: [55, 70, 12], Energy: [38, 33, 6], Healthcare: [30, 36, 18]};
+  const sectorRows = Object.entries(sectors).flatMap(([Sector, [a, b, Employees]]) => [
+    {Sector, Year: "2023", Revenue: a, Employees},
+    {Sector, Year: "2024", Revenue: b, Employees},
+  ]);
+
+  new d3plus.BarChart()
+    .select("#series")
+    .data(sectorRows)
+    .groupBy("Year")
+    .x("Sector")
+    .y("Revenue")
+    .barWidth("Employees")
+    .aggs({Employees: (rows, value) => Math.max(...rows.map(value))})
+    .barWidthShare(true)
+    .barPadding(2)
+    .groupPadding(8)
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#facet")
+    .data(byYear)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .facet("Year")
+    .render();
+
+  new d3plus.Marimekko()
+    .select("#facetIndependent")
+    .data(byYear)
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")
+    .facet("Year")
+    .facetConfig({scales: "independent"})
+    .render();
+
+</script>
+
+</html>

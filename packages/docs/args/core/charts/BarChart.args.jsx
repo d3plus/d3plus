@@ -23,6 +23,37 @@ export const argTypes = assign(
    */
   
   {
+    barWidth: {
+      control: {
+        type: "text"
+      },
+      description: "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "string | false | function"
+      }
+    },
+    barWidthShare: {
+      control: {
+        type: "boolean"
+      },
+      defaultValue: false,
+      description: "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.",
+      table: {
+        defaultValue: {
+          summary: "false"
+        }
+      },
+      type: {
+        required: false,
+        summary: "boolean"
+      }
+    },
     baseline: {
       defaultValue: 0,
       table: {
@@ -57,7 +88,7 @@ export const argTypes = assign(
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "stackShareTooltipConfig"
+          summary: "barTooltipConfig"
         }
       }
     }

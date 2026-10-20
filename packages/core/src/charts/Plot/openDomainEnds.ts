@@ -3,8 +3,8 @@
     one-sided `yConfig.domain`, or a set `baseline`) pins only the end the
     user set. The data fills the other end, which is then rounded exactly
     where the axis would round it with no user domain, honoring the axis's
-    `rounding` ("outside" unless the user's axis config says otherwise; with
-    "none", the end stays at the data). A domain with both ends set isn't
+    `rounding` ("outside" unless the user's axis config, or the chart's own,
+    says otherwise; with "none", the end stays at the data). A domain with both ends set isn't
     rounded. Time axes aren't rounded either way.
 
     @module
@@ -61,9 +61,15 @@ export function roundOpenEnd(
   return out;
 }
 
-/** The rounding the axis would apply with no user domain: the user's axis-config `rounding`, else "outside". */
+/**
+    The rounding the axis would apply with no user domain: the user's
+    axis-config `rounding`, else the chart's own (`_plotAxisDefaults`, e.g.
+    Marimekko's "none" on its 100% axis), else "outside".
+*/
 const axisRounding = (viz: VizInstance, axis: "x" | "y"): string =>
-  ((viz[`_${axis}Config`] as {rounding?: string} | undefined)?.rounding) ?? "outside";
+  ((viz[`_${axis}Config`] as {rounding?: string} | undefined)?.rounding) ??
+  (viz._plotAxisDefaults?.[axis]?.rounding as string | undefined) ??
+  "outside";
 
 /**
     `roundPlotOpenEnds` — runs after `extendPlotOppScales`. Rounds the open

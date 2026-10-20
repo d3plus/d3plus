@@ -157,6 +157,12 @@ export interface AxisConfig {
   */
   range?: (number | undefined)[];
   /**
+      Tick formatter for labels drawn rotated (see `labelRotation`), in place
+      of `tickFormat`: rotation is decided by measuring the labels this way,
+      so a long label can rotate in a shorter form.
+  */
+  rotatedTickFormat?: (d: number | string) => string | number;
+  /**
       How a linear or log axis rounds its domain to "nice" values:
       "outside" widens each end past the data, "inside" pulls each end in
       (marking them with the `roundingInside*` prefixes and suffixes), and
@@ -497,6 +503,30 @@ export interface D3plusConfig {
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
+      BarChart/Marimekko: makes each bar as wide as its own measure (a data
+      key or accessor, read off the merge of the bar's rows, so numbers sum
+      unless `aggs` says otherwise). The bars sit end to end along a
+      continuous axis of cumulative width, each labeled at its center, and
+      tooltips show each bar's width and its share of the total. Off by
+      default on BarChart; on Marimekko, `false` turns it off.
+  */
+  barWidth?: string | false | ((d: DataPoint, i?: number) => number);
+  /**
+      BarChart/Marimekko with `barWidth`: whether each category's axis label
+      also shows its bar's share of the total width, beneath the name along
+      a horizontal axis ("Retail" over "50%") and after it along a vertical
+      one ("Retail (50%)"). Along a horizontal axis, a name wraps to fit
+      a narrow bar, widening into room its neighbors leave; a label that
+      still can't fit is left out, and the labels rotate, showing the name
+      alone, only when half or more can't fit. The tooltip always shows the
+      share. In small
+      multiples (`facet`), each panel's shares are of that panel's own total
+      width and add to 100%, even when shared scales draw a smaller panel
+      narrower.
+      On for Marimekko, off for BarChart.
+  */
+  barWidthShare?: boolean;
+  /**
       Starts a Plot's value axis (the x axis for horizontal charts) at a
       value: `baseline(n)` renders exactly like `yDomain([n])` (or
       `xDomain([n])`). Bars and areas still grow from the chart's own
@@ -712,7 +742,7 @@ export interface D3plusConfig {
   emptyFill?: string;
   /** Splits the chart into small multiples: one equally sized panel per distinct value of this data key or accessor, sharing one legend, color scale, title, and timeline. `false` draws a single chart. */
   facet?: string | ((d: DataPoint, i: number) => unknown) | false;
-  /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`), `title`, and `titleConfig`. */
+  /** Layout and scale sharing for small multiples (see `facet`): `columns`, `rows`, `padding`, `sort`, `scales` (`"shared"` or `"independent"`), `axes` (`"outer"` or `"all"`, for both axes or per axis as `{x, y}`), `title`, and `titleConfig`. */
   facetConfig?: FacetConfig;
   /**
       Fills the area between two series' lines, in the color of whichever

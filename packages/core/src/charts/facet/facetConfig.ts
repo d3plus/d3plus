@@ -25,6 +25,12 @@ export type FacetSort =
   | ((a: FacetValue, b: FacetValue) => number)
   | FacetValue[];
 
+/** Whether an axis is labeled only along the grid's outer edges (`"outer"`) or on every panel (`"all"`). */
+export type FacetAxesMode = "outer" | "all";
+
+/** `facetConfig.axes`: one mode for both axes, or a mode per axis. */
+export type FacetAxes = FacetAxesMode | {x?: FacetAxesMode; y?: FacetAxesMode};
+
 // A type alias rather than an interface, so the docs generator doesn't read
 // its keys (such as `padding`) as the meaning of other components' keys.
 /** The object form of `facetConfig`. */
@@ -39,8 +45,8 @@ export type FacetConfig = {
   sort?: FacetSort;
   /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to Funnel's stage widths and the value domains of PolarArea and RadialBar, where it defaults to `"independent"`. */
   scales?: "shared" | "independent";
-  /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel (BumpChart). */
-  axes?: "outer" | "all";
+  /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. An object sets each axis on its own (`{x: "all", y: "outer"}`): every panel then labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel: BumpChart labels every axis on every panel, and Marimekko labels its categories on every panel and its 0–100% share axis only on the outer edge, even with independent scales. */
+  axes?: FacetAxes;
   /** Each panel's title: a function of the panel's facet value and rows, or `false` to hide panel titles. */
   title?: false | ((value: FacetValue, data: DataPoint[]) => string);
   /** TextBox config for the panel titles (`fontSize`, `fontColor`, `fontWeight`, `textAnchor`, `padding`, …). */
@@ -55,8 +61,8 @@ export interface ResolvedFacetConfig {
   sort: FacetSort;
   /** Undefined defers to the chart's default (`FacetHooks.scales`). */
   scales?: "shared" | "independent";
-  /** Undefined defers to the chart's default (`FacetHooks.axes`). */
-  axes?: "outer" | "all";
+  /** Undefined (or an axis left out) defers to the chart's default (`FacetHooks.axes`). */
+  axes?: FacetAxes;
   /** `false` hides panel titles; undefined draws the default (the formatted facet value). */
   title?: false | ((value: FacetValue, data: DataPoint[]) => string);
   titleConfig: Record<string, unknown>;
@@ -103,8 +109,14 @@ export interface FacetHooks {
   aspect?: number;
   /** The chart's default for `FacetConfig.scales` (`"shared"` when unset). */
   scales?: "shared" | "independent";
-  /** The chart's default for `FacetConfig.axes` (`"outer"` when unset). */
-  axes?: "outer" | "all";
+  /** The chart's default for `FacetConfig.axes` (`"outer"` when unset), or a function of the chart returning it. */
+  axes?: FacetAxes | ((viz: VizInstance) => FacetAxes);
+  /**
+      The axes that read the same in every panel even when panels fit their
+      own scales (`scales: "independent"`), such as Marimekko's 0–100% share
+      axis. Set to `"outer"`, these still label only the grid's outer edges.
+  */
+  fixedAxes?: (viz: VizInstance) => {x?: boolean; y?: boolean};
   /** Computes the scales every panel shares from each panel's rows (one array per panel). Runs before any panel draws, when scales are shared. */
   share?: (viz: VizInstance, panels: DataPoint[][]) => unknown;
   /** Applies a panel's overrides before it draws; returns a function undoing them. */
@@ -178,10 +190,48 @@ export function resolveFacetConfig(config: FacetConfig | undefined): ResolvedFac
     padding: typeof c.padding === "number" && c.padding >= 0 ? c.padding : FACET_PADDING,
     sort: c.sort ?? "ascending",
     scales: c.scales === "shared" || c.scales === "independent" ? c.scales : undefined,
-    axes: c.axes === "all" || c.axes === "outer" ? c.axes : undefined,
+    axes: resolveFacetAxes(c.axes),
     title: c.title === false || typeof c.title === "function" ? c.title : undefined,
     titleConfig: {...FACET_TITLE_DEFAULTS, ...(c.titleConfig ?? {})},
   };
+}
+
+/** Whether `value` is an axes mode. */
+const isAxesMode = (value: unknown): value is FacetAxesMode => value === "outer" || value === "all";
+
+/** A `facetConfig.axes` value with invalid modes dropped (an object keeps its valid axes). */
+export function resolveFacetAxes(value: unknown): FacetAxes | undefined {
+  if (isAxesMode(value)) return value;
+  if (!value || typeof value !== "object") return undefined;
+  const {x, y} = value as Record<string, unknown>;
+  const out: {x?: FacetAxesMode; y?: FacetAxesMode} = {};
+  if (isAxesMode(x)) out.x = x;
+  if (isAxesMode(y)) out.y = y;
+  return out.x || out.y ? out : undefined;
+}
+
+/** `axis`'s mode in a `FacetAxes` value, if it sets one. */
+function axisMode(value: FacetAxes | undefined, axis: "x" | "y"): FacetAxesMode | undefined {
+  return typeof value === "object" ? value[axis] : value;
+}
+
+/**
+    Which axes label only the grid's outer edges this draw, per axis:
+    `facetConfig.axes`, else the chart's default, else `"outer"`, and only
+    while panels share scales or the chart says the axis reads the same in
+    every panel anyway (`FacetHooks.fixedAxes`).
+*/
+export function facetOuterAxes(
+  viz: VizInstance,
+  config: Pick<ResolvedFacetConfig, "axes">,
+  hooks: Pick<FacetHooks, "axes" | "fixedAxes">,
+  shared: boolean,
+): {x: boolean; y: boolean} {
+  const chart = typeof hooks.axes === "function" ? hooks.axes(viz) : hooks.axes;
+  const fixed = hooks.fixedAxes ? hooks.fixedAxes(viz) : {};
+  const outer = (axis: "x" | "y") =>
+    (axisMode(config.axes, axis) ?? axisMode(chart, axis) ?? "outer") === "outer" && (shared || !!fixed[axis]);
+  return {x: outer("x"), y: outer("y")};
 }
 
 /** Whether panels share scales: `facetConfig.scales`, else the chart's default, else shared. */

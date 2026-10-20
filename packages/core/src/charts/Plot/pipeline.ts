@@ -17,6 +17,7 @@ import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-arra
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
+import {applyBarWidths} from "./barWidth.js";
 import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
 import {configOpenDomain, hasUserDomain, plotAxisRounding, secondaryAxisRounding, userAxisDomain} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
@@ -196,12 +197,13 @@ export const formatPlotData: TransformStage = ({viz}) => {
   const categories = discreteDomainCategories(viz);
   const keepRow = (d: Record<string, unknown>) =>
     isPlottableRow(d) && (!categories || categories.has(d[viz.schema.discrete]));
-  const formattedData = (viz._formattedData = viz._filteredData
-    .map(prepData)
-    .filter(keepRow));
-  const axisData = viz._axisPersist
-    ? viz._data.map(prepData).filter(keepRow)
-    : formattedData;
+  const plotted = viz._filteredData.map(prepData).filter(keepRow);
+  const [formattedData, axisData] = applyBarWidths(
+    viz,
+    plotted,
+    viz._axisPersist ? viz._data.map(prepData).filter(keepRow) : plotted,
+  );
+  viz._formattedData = formattedData;
 
   const swarm = (viz._swarm = resolveSwarm(viz.schema.swarm, axisData));
   if (swarm) {
@@ -573,7 +575,7 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || viz.schema[`${axis}Sort`] || viz._swarm?.cross === axis
+      : (!isSpanAxis(viz, axis) && (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) || viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
     const domain = user[axis] ? userDomain(user[axis]!, viz[`_${axis}Time`]) : domains[axis],

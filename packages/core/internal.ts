@@ -188,6 +188,7 @@ export {
 export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export * from "./src/charts/Funnel/internal.js";
+export * from "./src/charts/Marimekko/internal.js";
 export {
   largestRadius,
   lollipopBuffer,
@@ -240,6 +241,7 @@ export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
 export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
+export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
 export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
@@ -443,11 +445,15 @@ export {
   FACET_PADDING,
   FACET_TITLE_DEFAULTS,
   facetActive,
+  facetOuterAxes,
   facetScalesShared,
+  resolveFacetAxes,
   resolveFacetConfig,
 } from "./src/charts/facet/facetConfig.js";
 export type {
   FacetAccessor,
+  FacetAxes,
+  FacetAxesMode,
   FacetCell,
   FacetEdges,
   FacetHooks,
@@ -481,6 +487,7 @@ export {
 export type {FacetTitle} from "./src/charts/facet/facetScene.js";
 export {clearPanelSlots, facetPanelAt, withFacetPanel} from "./src/charts/facet/facetPanel.js";
 export {
+  alignInsets,
   expandArea,
   LABEL_COMBOS,
   labelExpansions,

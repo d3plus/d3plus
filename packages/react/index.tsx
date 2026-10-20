@@ -20,6 +20,7 @@ import {
   Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
+  Marimekko as MarimekkoClass,
   Matrix as MatrixClass,
   Network as NetworkClass,
   Pack as PackClass,
@@ -149,6 +150,10 @@ export const LinePlot = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Lollipop visualization. */
 export const Lollipop = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={LollipopClass} {...props} />
+);
+/** React component for rendering a d3plus Marimekko visualization. */
+export const Marimekko = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={MarimekkoClass} {...props} />
 );
 /** React component for rendering a d3plus Matrix visualization. */
 export const Matrix = (props: D3plusComponentProps) => (

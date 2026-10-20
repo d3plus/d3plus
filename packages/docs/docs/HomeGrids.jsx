@@ -21,6 +21,7 @@ const charts = [
   ["Icicle", "icicle"],
   ["Line Plot", "lineplot"],
   ["Lollipop", "lollipop"],
+  ["Marimekko", "marimekko"],
   ["Matrix", "matrix"],
   ["Network", "network"],
   ["Pack", "pack"],

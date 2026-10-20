@@ -518,6 +518,19 @@ export const argTypes = assign(
         summary: "function"
       }
     },
+    rotatedTickFormat: {
+      control: {},
+      description: "Tick formatter for labels drawn rotated (see `labelRotation`), in place\nof `tickFormat`: rotation is decided by measuring the labels this way,\nso a long label can rotate in a shorter form.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "function"
+      }
+    },
     rounding: {
       control: {
         type: "radio"

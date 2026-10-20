@@ -4,6 +4,7 @@ export interface TranslationStrings {
   and: string;
   Back: string;
   Band: string;
+  "Bar Total": string;
   "Brush Zoom": string;
   Change: string;
   Clear: string;
@@ -67,6 +68,7 @@ export interface TranslationStrings {
   Value: string;
   Values: string;
   Volume: string;
+  Width: string;
   "Zoom In": string;
   "Zoom Out": string;
 }
@@ -81,6 +83,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     and: "\u0648",
     Back: "\u0644\u0644\u062e\u0644\u0641",
     Band: "\u0646\u0637\u0627\u0642",
+    "Bar Total": "\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0639\u0645\u0648\u062f",
     "Brush Zoom": "\u062a\u0643\u0628\u064a\u0631 \u0628\u0627\u0644\u062a\u062d\u062f\u064a\u062f",
     Change: "\u0627\u0644\u062a\u063a\u064a\u064a\u0631",
     Clear: "\u0645\u0633\u062d",
@@ -153,6 +156,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
+    Width: "\u0627\u0644\u0639\u0631\u0636",
     "Zoom In": "\u062a\u0643\u0628\u064a\u0631",
     "Zoom Out": "\u062a\u0635\u063a\u064a\u0631",
   },
@@ -162,6 +166,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     and: "y",
     Back: "Atr\u00e1s",
     Band: "Banda",
+    "Bar Total": "Total de la Barra",
     "Brush Zoom": "Zoom de Selecci\u00f3n",
     Change: "Variaci\u00f3n",
     Clear: "Borrar",
@@ -225,6 +230,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
+    Width: "Ancho",
     "Zoom In": "Acercar",
     "Zoom Out": "Alejar",
   },
@@ -234,6 +240,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     and: "e",
     Back: "Voltar",
     Band: "Faixa",
+    "Bar Total": "Total da Barra",
     "Brush Zoom": "Zoom de Seleção",
     Change: "Varia\u00e7\u00e3o",
     Clear: "Limpar",
@@ -297,6 +304,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
+    Width: "Largura",
     "Zoom In": "Aproximar",
     "Zoom Out": "Afastar",
   },
@@ -306,6 +314,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     and: "\u548c",
     Back: "\u540e\u9762",
     Band: "\u533a\u95f4",
+    "Bar Total": "\u67f1\u603b\u8ba1",
     "Brush Zoom": "\u6846\u9009\u7f29\u653e",
     Change: "\u6da8\u8dcc\u5e45",
     Clear: "\u6e05\u9664",
@@ -369,6 +378,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",
+    Width: "\u5bbd\u5ea6",
     "Zoom In": "\u653e\u5927",
     "Zoom Out": "\u7f29\u5c0f",
   },

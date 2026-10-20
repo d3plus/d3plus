@@ -18,6 +18,7 @@ export {
   Icicle,
   LinePlot,
   Lollipop,
+  Marimekko,
   Matrix,
   Network,
   Pack,

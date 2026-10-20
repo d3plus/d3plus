@@ -105,7 +105,11 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
-  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale};
+  // Labels at given values naming things (one per variable-width bar) wrap
+  // within their own share of the axis, so a wide bar's label lies flat
+  // across it while a narrow one's wraps (see `fitOwnSpaces`).
+  const ownSpace = horizontal && !isDiscreteScale(axis.schema.scale) && rotatesLabels(axis, labels, tickFormat);
+  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace};
   const setting = axis._labelRotationSetting;
   axis._labelRotation = setting ?? false;
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
@@ -122,13 +126,16 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // instead, and rotate only when even their first label alone can't lie
   // flat on one line.
   if (setting === undefined && horizontal) {
-    const rotate = rotatesLabels(axis, labels)
+    const rotate = rotatesLabels(axis, labels, tickFormat)
       ? (data: AxisTextDatum[]) => labelMisses(data)
       : wholeLineLabels(axis, labels)
         ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
         : undefined;
     const misses = rotate ? rotate(textData) : 0;
-    if (rotate && misses) {
+    // Labels in their own shares rotate only as a last resort: a label that
+    // can't fit is hidden, and the rest stay flat (each with its share line,
+    // which a rotated label leaves out) unless half or more are hidden.
+    if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
       axis._labelRotation = true;
       textData = layoutLabels(axis, rescale(), labelCtx);
       if (rotate(textData) >= misses) {
@@ -183,16 +190,17 @@ function layoutLabels(
     p: number;
     tickFormat: (d: unknown) => string;
     rescale: (newRange?: number[]) => {range: number[]; labels: unknown[]};
+    ownSpace?: boolean;
   },
 ): AxisTextDatum[] {
-  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale} = ctx;
+  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
   let {labels} = scale;
 
-  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat});
+  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace});
   const offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
   if (offsetEnabled)
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: 2});
 
   // Narrowing the range can change which labels a time axis draws (its ticks
   // follow the range); a new first or last label is measured again, a few
@@ -224,7 +232,7 @@ function layoutLabels(
     const ends = endLabels(textData);
     [first, last] = newRange;
     ({labels} = rescale(newRange));
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: offsetEnabled ? 2 : 1});
     if (endLabels(textData) === ends) break;
   }
 
@@ -240,12 +248,20 @@ function endLabels(textData: AxisTextDatum[]): string {
 
 /**
     Whether the axis may rotate its labels on its own: one label per category
-    (a discrete scale), naming things rather than numbers or dates, which
-    read in sequence even with every other one left out.
+    naming things rather than numbers or dates, which read in sequence even
+    with every other one left out. That's a discrete scale's values, or a
+    continuous axis labeled at a given list of values whose formatted text
+    names them (a variable-width bar axis, see `Plot/barWidth.ts`).
 */
-export function rotatesLabels(axis: Axis, labels: unknown[]): boolean {
-  return isDiscreteScale(axis.schema.scale) &&
-    labels.some((d: unknown) => !(d instanceof Date) && isNaN(d as number));
+export function rotatesLabels(
+  axis: Axis,
+  labels: unknown[],
+  tickFormat?: (d: unknown) => string,
+): boolean {
+  const named = (d: unknown) => !(d instanceof Date) && isNaN(d as number);
+  if (isDiscreteScale(axis.schema.scale)) return labels.some(named);
+  return Array.isArray(axis.schema.labels) && !!tickFormat &&
+    labels.some((d: unknown) => named(tickFormat(d)));
 }
 
 /** How many labels don't fit whole, or are hidden to make room for others. */

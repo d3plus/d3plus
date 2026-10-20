@@ -46,10 +46,15 @@ export function labelKey(labels: FacetLabels): string {
 
 /**
     How far each label combination's plot insets (measured from probe panels,
-    keyed by `labelKey`) exceed the bare panel's, per side, never negative.
+    keyed by `labelKey`) exceed the `baseline` panel's, per side, never
+    negative. The baseline is the bare panel, or, when an axis is labeled on
+    every panel, the panel labeling that axis alone.
 */
-export function labelExpansions(insets: Record<string, FacetSides>): Record<string, FacetSides> {
-  const bare = insets[labelKey({x: false, y: false})] ?? NO_SIDES;
+export function labelExpansions(
+  insets: Record<string, FacetSides>,
+  baseline: FacetLabels = {x: false, y: false},
+): Record<string, FacetSides> {
+  const bare = insets[labelKey(baseline)] ?? NO_SIDES;
   const out: Record<string, FacetSides> = {};
   for (const [key, sides] of Object.entries(insets)) {
     out[key] = {
@@ -95,6 +100,24 @@ export function panelBase(cell: FacetCell, titleHeight: number, gutter: FacetSid
     width: Math.max(0, cell.width - left - right),
     height: Math.max(0, cell.height - top - bottom),
   };
+}
+
+/**
+    Per-panel room that lines up the panels' plot areas when each panel
+    labels an axis of its own (see `FacetConfig.axes`): from how far each
+    panel's plot sits in from its base area on each side (`insets`), how far
+    each panel's chart area must grow (never positive) for every plot to sit
+    as far in as the furthest.
+*/
+export function alignInsets(insets: FacetSides[]): FacetSides[] {
+  const sides = ["top", "right", "bottom", "left"] as const;
+  const most = Object.fromEntries(sides.map(s => [s, Math.max(...insets.map(i => i[s]))])) as unknown as FacetSides;
+  return insets.map(i => ({
+    top: i.top - most.top,
+    right: i.right - most.right,
+    bottom: i.bottom - most.bottom,
+    left: i.left - most.left,
+  }));
 }
 
 /** `area` grown by `sides`. */

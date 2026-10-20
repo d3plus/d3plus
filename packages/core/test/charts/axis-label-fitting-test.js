@@ -117,6 +117,20 @@ it("category labels — the axis decides again on every render", async () => {
   assert.deepStrictEqual(r, {narrow: true, wide: false});
 });
 
+for (const renderer of ["svg", "canvas"]) {
+  it(`category labels — rotated labels paint rotatedTickFormat, flat ones tickFormat (${renderer})`, async () => {
+    const setup = `${cityBars}.xConfig({tickFormat: d => d + "\\n12.5%", rotatedTickFormat: d => d})`;
+    const wide = await run(setup, 900, 260, renderer);
+    assert.strictEqual(wide.rotated, false, "900px keeps labels flat");
+    assert.strictEqual(wide.painted.Tokyo, "Tokyo 12.5%", "flat labels keep their second line");
+    const narrow = await run(setup, 480, 260, renderer);
+    assert.strictEqual(narrow.rotated, true, "480px rotates");
+    const painted = Object.values(narrow.painted);
+    assert.ok(painted.length >= 2 && painted.every(t => !t.includes("%")), `rotated: names alone (${painted})`);
+    assert.strictEqual(narrow.painted.Tokyo, "Tokyo");
+  });
+}
+
 it("category labels — too many to fit even rotated thin evenly", async () => {
   const codes = Array.from({length: 60}, (_, i) => `C${String(i + 1).padStart(2, "0")}`);
   const setup = `new d3plus.BarChart()

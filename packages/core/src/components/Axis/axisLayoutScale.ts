@@ -29,8 +29,23 @@ import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, roundedDomain} from "./axisRounding.js";
 
 
-/** Builds the tick label formatter (user-supplied or scale-derived). */
+/**
+    Builds the tick label formatter (user-supplied or scale-derived). With a
+    `rotatedTickFormat`, the formatter reads `axis._labelRotation` on every
+    call, so labels measured and painted rotated use that one instead.
+*/
 export function buildTickFormat(
+  axis: Axis,
+  timeLocaleObj: TimeLocaleDefinition,
+  getTicks: () => unknown[],
+): (d: unknown) => string {
+  const format = baseTickFormat(axis, timeLocaleObj, getTicks);
+  const rotated = axis.schema.rotatedTickFormat as ((d: unknown) => string) | undefined;
+  return rotated ? (d: unknown) => (axis._labelRotation ? rotated : format)(d) : format;
+}
+
+/** The tick label formatter for unrotated labels: `tickFormat`, else the scale's default. */
+function baseTickFormat(
   axis: Axis,
   timeLocaleObj: TimeLocaleDefinition,
   getTicks: () => unknown[],
