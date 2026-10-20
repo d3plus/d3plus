@@ -24,6 +24,7 @@ import {vizRender} from "./vizRender.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
 import type {VizInstance} from "./vizTypes.js";
+import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -564,11 +565,7 @@ export default class Viz extends VizBase {
     pick: PickResult,
     _event: SceneEvent,
   ): {d: unknown; i: number; x: unknown} {
-    const rawDatum = pick.datum as {data?: unknown; i?: number} | null | undefined;
-    const sourceDatum = rawDatum && rawDatum.data ? rawDatum.data : rawDatum;
-    const sourceIndex =
-      rawDatum && typeof rawDatum.i === "number" ? rawDatum.i : pick.index ?? 0;
-    return {d: sourceDatum, i: sourceIndex, x: rawDatum};
+    return handlerDatum(pick.datum, pick.index ?? 0);
   }
 
   /**
@@ -650,8 +647,7 @@ export default class Viz extends VizBase {
           lastPick.i,
           lastPick.x,
         );
-        if (!lastPick.isLegend && lastPick.shapeType)
-          fire(`mouseleave.${lastPick.shapeType}`, lastPick.d, lastPick.i, lastPick.x);
+        for (const t of lastPick.shapeTargets) fire(`mouseleave.${t.shapeType}`, t.d, t.i, t.x);
         fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
       }
       this._lastScenePick = null;
@@ -664,10 +660,7 @@ export default class Viz extends VizBase {
     }
     if (!pick || !pick.node) return;
     // Scene nodes carry interaction metadata stamped by Viz.toScene.
-    const nodeAny = pick.node as {
-      interactionGroup?: string;
-      shapeType?: string;
-    };
+    const nodeAny = pick.node as {interactionGroup?: string};
     // Axis ticks/labels, the timeline, and Plot's trend lines are chrome —
     // they carry data but are not chart shapes, so they must not fire shape
     // tooltips/handlers (a trend line's own tooltip runs in `_sharedHover`).
@@ -699,10 +692,16 @@ export default class Viz extends VizBase {
       pick,
       event,
     );
-    const shapeType =
-      typeof nodeAny.shapeType === "string" ? nodeAny.shapeType : null;
+    // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`): the
+    // node's own shape type, then any composite it is a part of (`"click.Box"`
+    // on a box's whisker). On the scene path this is the only place these fire
+    // (compute-mode shapes wire no DOM listeners). Legend nodes are excluded so
+    // a legend swatch's shape type can't masquerade as a chart-shape handler.
+    const shapeTargets = isLegendNode
+      ? []
+      : shapeClassTargets(pick.node, {d: sourceDatum, i: sourceIndex, x: rawDatum});
     this._lastScenePick = {
-      d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeType,
+      d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeTargets,
       // The live picked node's own geometry, read synchronously by clickShape
       // (before the drill-down re-render replaces this frame) to arm the
       // forward drill-down morph.
@@ -710,14 +709,7 @@ export default class Viz extends VizBase {
     };
     this._hoverDatum = rawDatum;
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
-    // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`). The
-    // emitting shape stamps its type onto the node; on the scene path this is
-    // the only place these fire (compute-mode shapes wire no DOM listeners).
-    // Legend nodes are excluded so a legend swatch's shape type can't
-    // masquerade as a chart-shape handler.
-    if (!isLegendNode && shapeType) {
-      fire(`${event.type}.${shapeType}`, sourceDatum, sourceIndex, rawDatum);
-    }
+    for (const t of shapeTargets) fire(`${event.type}.${t.shapeType}`, t.d, t.i, t.x);
     // Also fire the un-suffixed handler (e.g. "mousemove") so user-registered
     // global handlers see the event too.
     fire(event.type, sourceDatum, sourceIndex, rawDatum);
