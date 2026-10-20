@@ -292,6 +292,52 @@ it("Pyramid paints on the Canvas backend", async function () {
   assert.strictEqual(out.left, out.right, "the same sub-group paints both sides of the center");
 });
 
+for (const renderer of ["svg", "canvas"]) {
+  it(`Pyramid adds its side titles, gutter labels, and outlines through decorateScene (${renderer})`, async function () {
+    this.timeout(60000);
+    const out = await render(body, ([data, renderer]) => new Promise(resolve => {
+      const {Pyramid, pyramidDef} = window.d3plus;
+      const viz = new Pyramid()
+        .data(data).groupBy("sex").y("age").x("pop").comparison("before")
+        .renderer(renderer).duration(0).detectVisible(false).select("#viz");
+      const keys = scene => {
+        const out = [];
+        const walk = n => {
+          if (/^pyramid-(side-titles|categories|comparison-\d)$/.test(String(n.key))) out.push(n.key);
+          (n.children || []).forEach(walk);
+        };
+        walk(scene.root);
+        return out.sort();
+      };
+      viz.render(() => {
+        const painted = keys(viz._paintedScene);
+        // The scene the base chart builds, before Pyramid's pass.
+        const base = Object.getPrototypeOf(Pyramid.prototype).toScene.call(viz);
+        const plain = keys(base);
+        const decorated = keys(pyramidDef.decorateScene(viz, base));
+        viz.hover(d => d.age === "0-9");
+        requestAnimationFrame(() => setTimeout(() => resolve({
+          hook: typeof pyramidDef.decorateScene,
+          own: Object.prototype.hasOwnProperty.call(viz, "toScene"),
+          painted,
+          toScene: keys(viz.toScene()),
+          plain,
+          decorated,
+          hovered: keys(viz._paintedScene),
+        }), 50));
+      });
+    }), [rows, renderer]);
+    const expected = ["pyramid-categories", "pyramid-comparison-0", "pyramid-comparison-1", "pyramid-side-titles"];
+    assert.strictEqual(out.hook, "function", "Pyramid's def declares decorateScene");
+    assert.ok(!out.own, "and the instance keeps the class's toScene");
+    assert.deepStrictEqual(out.plain, [], "the base chart's scene has none of Pyramid's nodes");
+    assert.deepStrictEqual(out.decorated, expected, "decorateScene adds them");
+    assert.deepStrictEqual(out.painted, expected, "the painted scene holds them");
+    assert.deepStrictEqual(out.toScene, expected, "toScene() returns them to its callers");
+    assert.deepStrictEqual(out.hovered, expected, "a hover repaint keeps them");
+  });
+}
+
 /** Renders a Pyramid with `config` and reports its value axis break state, domain, ticks, and ink. */
 const axisProbe = ([data, config]) =>
   new Promise(resolve => {
