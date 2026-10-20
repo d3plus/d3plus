@@ -139,6 +139,25 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
 }
 
 /**
+ * Opens a page with d3plus loaded (see `openPage`), hands it to `run`, and
+ * closes it once `run` settles, for tests that drive the page from Node.
+ * @param {String} bodyHtml Markup placed inside <body> (e.g. an <svg> target).
+ * @param {Function} run Receives the Playwright page; may return a Promise.
+ * @param {{clock?: boolean}} [options] Passed to `openPage`.
+ * @returns {Promise<*>} Whatever `run` resolves with.
+ */
+export async function withPage(bodyHtml, run, options = {}) {
+  const {page, errors, close} = await openPage(bodyHtml, options);
+  try {
+    const result = await run(page);
+    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
+    return result;
+  } finally {
+    await close();
+  }
+}
+
+/**
  * Starts recording a page's JS coverage when running under c8. Call before the
  * UMD bundle is added to the page.
  * @param {import("playwright").Page} page
