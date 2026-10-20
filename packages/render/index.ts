@@ -26,6 +26,7 @@ export type {
   HtmlOverlayNode,
   SceneNode,
   SceneGradient,
+  ShapeOwner,
   Scene,
 } from "./src/scene.js";
 

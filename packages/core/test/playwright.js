@@ -128,7 +128,9 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});
     await page.addScriptTag({content: umd});
-    if (clock) await page.clock.pauseAt(1000);
+    // The fake clock runs while the bundle loads, which can take longer than
+    // any fixed time under coverage; pause a moment past wherever it is now.
+    if (clock) await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1000);
   } catch (err) {
     await close();
     throw err;
