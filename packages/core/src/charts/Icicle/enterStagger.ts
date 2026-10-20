@@ -7,7 +7,7 @@
     fading in, so the first levels read at full strength.
 */
 
-import type {EnterWindow, GroupNode, Scene} from "@d3plus/render";
+import type {EnterWindow} from "@d3plus/render";
 
 import type {IcicleOrient, IcicleRect} from "./geometry.js";
 import type {IcicleNode} from "./layout.js";
@@ -59,26 +59,4 @@ export function icicleStagger(
     windows.set(node.id, {start: k / levels, end: (k + 1) / levels});
   }
   return {rects, windows};
-}
-
-/** The enter window of a node that shows at once, at its own opacity. */
-const AT_ONCE: EnterWindow = {start: 0, end: 0};
-
-/** Marks `group` and the wrapper groups (those without a datum) inside it to show at once. */
-function showWrappers(group: GroupNode): void {
-  group.enterWindow ??= AT_ONCE;
-  for (const child of group.children)
-    if (child.type === "group" && !child.datum) showWrappers(child);
-}
-
-/**
-    Shows the groups wrapping the chart's rectangles at once when they enter,
-    instead of fading them in over the whole draw, so the first draw's
-    staggered levels read at full strength from the first window on.
-    @param scene The chart's finished scene.
-*/
-export function icicleShowWrappers(scene: Scene): Scene {
-  const cells = scene.root.children.find(n => n.key === "viz-chart-cells");
-  if (cells?.type === "group") showWrappers(cells);
-  return scene;
 }

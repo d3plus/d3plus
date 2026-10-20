@@ -29,5 +29,5 @@ export type {IcicleNode} from "./layout.js";
 export {icicleBands, icicleCollapse, icicleRect} from "./geometry.js";
 export type {IcicleOrient, IcicleRect} from "./geometry.js";
 export {icicleLabelBox} from "./labelFit.js";
-export {icicleRootEdge, icicleShowWrappers, icicleStagger} from "./enterStagger.js";
+export {icicleRootEdge, icicleStagger} from "./enterStagger.js";
 export type {IcicleStagger} from "./enterStagger.js";

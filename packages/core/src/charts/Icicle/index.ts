@@ -39,7 +39,6 @@ import {
 import {partitionShadeDefaults} from "../partition/shade.js";
 
 import {applyIcicleLayout} from "./applyLayout.js";
-import {icicleShowWrappers} from "./enterStagger.js";
 import {icicleEmit} from "./emit.js";
 import {icicleInteraction} from "./interaction.js";
 
@@ -49,7 +48,6 @@ export const icicleDef: DataDrivenChartDefinition = {
   features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyIcicleLayout,
   emit: icicleEmit,
-  decorateScene: (_viz, scene) => icicleShowWrappers(scene),
 
   thresholdFunction: partitionThreshold,
 

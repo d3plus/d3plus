@@ -1,7 +1,6 @@
 import assert from "assert";
 import {
   icicleRootEdge,
-  icicleShowWrappers,
   icicleStagger,
 } from "../../es/src/charts/Icicle/enterStagger.js";
 
@@ -40,22 +39,4 @@ it("icicleStagger counts only entering levels, and leaves drawn nodes alone", ()
   assert.deepStrictEqual(windows.get("acd"), {start: 0.5, end: 1});
   assert.deepStrictEqual(icicleStagger(nodes, new Set(["acd"]), "horizontal").windows.get("acd"), {start: 0, end: 1});
   assert.strictEqual(icicleStagger(nodes, new Set(), "horizontal").windows.size, 0);
-});
-
-it("icicleShowWrappers shows the chart's wrapper groups at once, not its datum groups", () => {
-  const image = {type: "group", key: "img", datum: {a: 1}, children: []};
-  const body = {type: "group", key: "viz-chart-body", children: [{type: "rect", key: "r"}, image]};
-  const cells = {type: "group", key: "viz-chart-cells", children: [{type: "group", key: "viz-zoom", children: [body]}]};
-  const legend = {type: "group", key: "viz-legend", children: []};
-  const scene = {width: 1, height: 1, root: {type: "group", key: "viz-root", children: [cells, legend]}};
-  assert.strictEqual(icicleShowWrappers(scene), scene, "the same scene");
-  const atOnce = {start: 0, end: 0};
-  assert.deepStrictEqual(
-    [cells.enterWindow, cells.children[0].enterWindow, body.enterWindow],
-    [atOnce, atOnce, atOnce],
-  );
-  assert.strictEqual(image.enterWindow, undefined, "a rect's image keeps its own window");
-  assert.strictEqual(legend.enterWindow, undefined, "the chrome is left alone");
-  const noCells = {width: 1, height: 1, root: {type: "group", key: "viz-root", children: [legend]}};
-  assert.strictEqual(icicleShowWrappers(noCells), noCells);
 });
