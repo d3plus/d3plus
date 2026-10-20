@@ -3,11 +3,10 @@
     of its root-side edge (the left edge, or the top edge for a vertical
     Icicle), and each level of entering rectangles starts once the level it
     grows out of has finished, the draw's duration split into one window per
-    level. The groups wrapping the rectangles show at once rather than
-    fading in, so the first levels read at full strength.
+    level.
 */
 
-import type {EnterWindow} from "@d3plus/render";
+import {cubicInOut, type EnterWindow} from "@d3plus/render";
 
 import type {IcicleOrient, IcicleRect} from "./geometry.js";
 import type {IcicleNode} from "./layout.js";
@@ -32,8 +31,10 @@ export interface IcicleStagger {
     The enter start and window of each node `entering` names. A node's window
     follows those of its entering ancestors: one whose parent is drawn
     already takes the first window, its entering children the next, and so
-    on, so the windows split the transition evenly between the levels of
-    entering nodes.
+    on, so the windows split the transition's time evenly between the levels
+    of entering nodes. A window is a share of the transition's eased
+    progress, so each level's share of the time is mapped through the
+    renderers' easing.
     @param nodes This draw's nodes, parents before children.
     @param entering The ids of the nodes that enter this draw.
     @param orient Which way the levels run.
@@ -56,7 +57,7 @@ export function icicleStagger(
     const k = step.get(node.id);
     if (k === undefined) continue;
     rects.set(node.id, icicleRootEdge(node, orient));
-    windows.set(node.id, {start: k / levels, end: (k + 1) / levels});
+    windows.set(node.id, {start: cubicInOut(k / levels), end: cubicInOut((k + 1) / levels)});
   }
   return {rects, windows};
 }

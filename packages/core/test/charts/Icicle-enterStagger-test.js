@@ -1,4 +1,5 @@
 import assert from "assert";
+import {cubicInOut} from "@d3plus/render";
 import {
   icicleRootEdge,
   icicleStagger,
@@ -23,10 +24,10 @@ it("icicleRootEdge collapses a rect onto the midpoint of its root-side edge", ()
 it("icicleStagger gives each entering level the next window of the transition", () => {
   const nodes = tree();
   const {rects, windows} = icicleStagger(nodes, new Set(nodes.map(n => n.id)), "horizontal");
-  assert.deepStrictEqual(windows.get("a"), {start: 0, end: 1 / 3});
-  assert.deepStrictEqual(windows.get("ab"), {start: 1 / 3, end: 2 / 3});
+  assert.deepStrictEqual(windows.get("a"), {start: 0, end: cubicInOut(1 / 3)});
+  assert.deepStrictEqual(windows.get("ab"), {start: cubicInOut(1 / 3), end: cubicInOut(2 / 3)});
   assert.deepStrictEqual(windows.get("ac"), windows.get("ab"), "siblings share a window");
-  assert.deepStrictEqual(windows.get("acd"), {start: 2 / 3, end: 1});
+  assert.deepStrictEqual(windows.get("acd"), {start: cubicInOut(2 / 3), end: 1});
   assert.deepStrictEqual(rects.get("acd"), {x: 20, y: 70, width: 0, height: 0});
   assert.deepStrictEqual(icicleStagger(nodes, new Set(nodes.map(n => n.id)), "vertical").rects.get("a"), {x: 5, y: 0, width: 0, height: 0});
 });

@@ -1,4 +1,5 @@
 import assert from "assert";
+import {cubicInOut} from "@d3plus/render";
 import {render, closeBrowser} from "../playwright.js";
 
 after(async () => {
@@ -67,7 +68,7 @@ it("Icicle: the first draw grows each rect out of its root edge, each level afte
     }
     const windowAt = depth => out.rects.find(r => r.depth === depth).enterWindow;
     assert.ok(out.rects.every(r => JSON.stringify(r.enterWindow) === JSON.stringify(windowAt(r.depth))), "one window per level");
-    assert.deepStrictEqual(windowAt(1), {start: 0, end: 1 / 3});
+    assert.deepStrictEqual(windowAt(1), {start: 0, end: cubicInOut(1 / 3)});
     assert.strictEqual(windowAt(2).start, windowAt(1).end, "the second level starts as the first ends");
     assert.strictEqual(windowAt(3).start, windowAt(2).end);
     assert.strictEqual(windowAt(3).end, 1, "the last ends with the transition");
@@ -105,9 +106,9 @@ it("Icicle: a data update staggers only its entering rects; zooms keep their own
     'icicle-["Tests","Unit"]',
     'icicle-["Tests"]',
   ].sort(), "only the new rects enter");
-  assert.deepStrictEqual(out.updated['icicle-["Tests"]'], {start: 0, end: 1 / 3});
-  assert.deepStrictEqual(out.updated['icicle-["Tests","Unit","Icicle"]'], {start: 2 / 3, end: 1});
-  assert.deepStrictEqual(out.updated['icicle-["App","Charts","Pie"]'], {start: 0, end: 1 / 3}, "a new leaf under a drawn parent starts at once");
+  assert.deepStrictEqual(out.updated['icicle-["Tests"]'], {start: 0, end: cubicInOut(1 / 3)});
+  assert.deepStrictEqual(out.updated['icicle-["Tests","Unit","Icicle"]'], {start: cubicInOut(2 / 3), end: 1});
+  assert.deepStrictEqual(out.updated['icicle-["App","Charts","Pie"]'], {start: 0, end: cubicInOut(1 / 3)}, "a new leaf under a drawn parent starts at once");
   assert.strictEqual(out.zoomIn, 0, "a zoom-in adds no enter starts");
   assert.ok(out.zoomOut.some(k => k.includes("Docs")), "a zoom-out still grows returning rects in from the zoomed view");
   assert.strictEqual(out.zoomOutWindows, 0, "without a stagger");
