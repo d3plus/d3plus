@@ -56,24 +56,6 @@ function at(frame: InnerFrame, value: number, offset: number): {x: number; y: nu
   return frame.vertical ? {x: offset, y: v} : {x: v, y: offset};
 }
 
-/**
-    Box draws its box, median, whiskers and outliers as siblings keyed by
-    index, so the same key repeats. This keys each node by its shape type and
-    numbers repeats, counting a line's `::hit` twin alongside its mark, so
-    every node keeps its own identity across draws.
-*/
-function uniqueKeys(nodes: SceneNode[]): SceneNode[] {
-  const seen = new Map<string, number>();
-  return nodes.map(node => {
-    const key = `${node.key}`;
-    const hit = key.endsWith("::hit") ? "::hit" : "";
-    const base = `${node.shapeType ?? node.type}-${key.slice(0, key.length - hit.length)}`;
-    const n = seen.get(base + hit) ?? 0;
-    seen.set(base + hit, n + 1);
-    return {...node, key: `${base}${n ? `~${n}` : ""}${hit}`};
-  });
-}
-
 /** The box plot overlay: a Box over each violin's observations, in its own keyed group. */
 function boxNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: InnerFrame, ink: string): SceneNode[] {
   const {viz} = ctx;
@@ -89,6 +71,8 @@ function boxNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: InnerFra
     const box = makeShape("Box")
       .renderMode("compute")
       .config({
+        // Keys every part by the violin, so each moves with its own violin.
+        id: (d: DataPoint) => d.id,
         orient: vertical ? "vertical" : "horizontal",
         rectWidth,
         rectConfig: {fill: ink, stroke: ink, strokeWidth: 0},
@@ -109,7 +93,7 @@ function boxNodes(ctx: ShapeEmitContext, placed: PlacedViolin[], frame: InnerFra
       .config(((viz.schema.innerConfig as Record<string, unknown>)?.box ?? {}) as Record<string, unknown>)
       .data(data);
     box.render();
-    return {type: "group", key: id, children: uniqueKeys(collectComputed(box))};
+    return {type: "group", key: id, children: collectComputed(box)};
   });
   growRectsFromCenter(nodes, vertical ? "x" : "y");
   return inert(nodes);

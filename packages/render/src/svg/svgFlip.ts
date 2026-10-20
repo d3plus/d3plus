@@ -5,6 +5,7 @@ import {
   arcEnterStart,
   collapse,
   collapseTo,
+  groupEnterStart,
   isFlipEligible,
   pathEnterStart,
   rectEnterStart,
@@ -23,7 +24,8 @@ type RenderTransition = Transition<BaseType, unknown, null, undefined>;
     when it's the drill-up morph's reunion node (`flip.reunionEnterKey` — see
     `DrawOptions.reunionEnterKey`), so it starts at the full size its former
     children currently occupy and animates down to its own target; a path's
-    own `enterArc` or `enterD` (a rect's own `enterRect`) when it carries one; the
+    own `enterArc` or `enterD` (a rect's own `enterRect`) when it carries one;
+    a wrapper group as it is (see {@link groupEnterStart}); the
     drill-morph override (collapsed to `flip.enterFrom`) when the node is
     {@link isFlipEligible} and a drill-down morph is active for this draw;
     otherwise the node's own degenerate center — same choices for both
@@ -34,7 +36,7 @@ type RenderTransition = Transition<BaseType, unknown, null, undefined>;
 export function enterStart(node: SceneNode, flip: FlipTransition | undefined): SceneNode {
   if (flip?.reunionEnterKey !== undefined && node.key === flip.reunionEnterKey)
     return collapseTo(node, flip.reunionEnterFrom!, undefined, true);
-  const own = arcEnterStart(node) ?? pathEnterStart(node) ?? rectEnterStart(node);
+  const own = arcEnterStart(node) ?? pathEnterStart(node) ?? rectEnterStart(node) ?? groupEnterStart(node);
   if (own) return own;
   return flip?.enterFrom && isFlipEligible(node)
     ? collapseTo(node, flip.enterFrom, flip.enterFromBody, true)

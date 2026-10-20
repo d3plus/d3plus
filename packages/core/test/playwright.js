@@ -85,23 +85,31 @@ export async function closeBrowser() {
  * @param {*} [arg] Optional serializable argument passed to pageFunction.
  * @returns {Promise<*>} Whatever pageFunction resolves with.
  */
-export function render(bodyHtml, pageFunction, arg) {
-  return withPage(bodyHtml, page => page.evaluate(pageFunction, arg));
+export async function render(bodyHtml, pageFunction, arg) {
+  const {page, errors, close} = await openPage(bodyHtml);
+  try {
+    const result = await page.evaluate(pageFunction, arg);
+    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
+    return result;
+  } finally {
+    await close();
+  }
 }
 
 /**
- * Opens a page with d3plus loaded, hands it to `run`, and closes it once `run`
- * settles: `render` for tests that drive the page from Node, such as through
- * its fake clock (`page.clock`, installed when `options.clock` is set).
- * @param {String} bodyHtml Markup placed inside <body> (e.g. an <svg> target).
- * @param {Function} run Receives the Playwright page; may return a Promise.
- * @param {{clock?: boolean}} [options]
- * @returns {Promise<*>} Whatever `run` resolves with.
+ * Opens a page with d3plus loaded, for tests that drive it in steps from
+ * Node (e.g. advancing a paused clock between evaluations).
+ * @param {String} bodyHtml Markup placed inside <body>.
+ * @param {Object} [options]
+ * @param {Boolean} [options.clock] Installs Playwright's fake clock before
+ *   d3plus loads, paused, so `page.clock.runFor(ms)` steps every timer,
+ *   animation frame and `performance.now()` together.
+ * @returns {Promise<{page: import("playwright").Page, errors: String[], close: Function}>}
+ *   `errors` collects the page's uncaught errors; `close()` closes the page.
  */
-export async function withPage(bodyHtml, run, options = {}) {
+export async function openPage(bodyHtml, {clock = false} = {}) {
   const [b, umd] = await Promise.all([browser(), bundle()]);
   const page = await b.newPage();
-  if (options.clock) await page.clock.install();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   // Tests render real map tile URLs (Geomap's default basemap, or a custom
@@ -111,16 +119,39 @@ export async function withPage(bodyHtml, run, options = {}) {
   // hermetic and avoids flakiness under a long run's accumulated load.
   await page.route(/^https?:\/\//, route => route.abort());
   await startCoverage(page);
+  const close = async () => {
+    await stopCoverage(page, umd);
+    await page.close();
+  };
   try {
+    if (clock) await page.clock.install({time: 0});
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});
     await page.addScriptTag({content: umd});
+    if (clock) await page.clock.pauseAt(1000);
+  } catch (err) {
+    await close();
+    throw err;
+  }
+  return {page, errors, close};
+}
+
+/**
+ * Opens a page with d3plus loaded (see `openPage`), hands it to `run`, and
+ * closes it once `run` settles, for tests that drive the page from Node.
+ * @param {String} bodyHtml Markup placed inside <body> (e.g. an <svg> target).
+ * @param {Function} run Receives the Playwright page; may return a Promise.
+ * @param {{clock?: boolean}} [options] Passed to `openPage`.
+ * @returns {Promise<*>} Whatever `run` resolves with.
+ */
+export async function withPage(bodyHtml, run, options = {}) {
+  const {page, errors, close} = await openPage(bodyHtml, options);
+  try {
     const result = await run(page);
     if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
     return result;
   } finally {
-    await stopCoverage(page, umd);
-    await page.close();
+    await close();
   }
 }
 
