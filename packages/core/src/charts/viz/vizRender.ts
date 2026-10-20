@@ -87,11 +87,39 @@ function autoSize(viz: Viz): void {
 }
 
 /**
-    Applies the root SVG attributes/transition, parent positioning, opacity, and
+    Sizes the root SVG to the chart's width and height. An SVG this library has
+    not drawn into yet takes the size at once: growing it from the browser's
+    default 300×150 would clip the first draw to the growing box (and, under
+    `content-visibility: auto`, measure it as 0×0 and defer the draw). Later
+    size changes transition over `duration`.
+    @private
+*/
+function applyRootSize(viz: Viz): void {
+  const width = viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined;
+  const height = viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined;
+  if (!viz._select.classed("d3plus-viz")) {
+    viz._select
+      .style("width", width)
+      .style("height", height)
+      .attr("width", width)
+      .attr("height", height);
+  }
+  viz._select
+    .transition()
+    .duration(viz.schema.duration)
+    .style("width", width)
+    .style("height", height)
+    .attr("width", width)
+    .attr("height", height);
+}
+
+/**
+    Applies the root SVG attributes and size, parent positioning, opacity, and
     the accessibility `<title>`/`<desc>` tags.
     @private
 */
 function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void {
+  applyRootSize(viz);
   viz._select
     .attr("class", "d3plus-viz")
     .attr("aria-hidden", viz.schema.ariaHidden)
@@ -107,22 +135,7 @@ function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void 
     // so it needs no intrinsic size, and tooltips live outside it so are not
     // clipped. Unset with detectVisible(false), which also keeps it out of
     // static SVG/PNG output.
-    .style("content-visibility", viz.schema.detectVisible ? "auto" : null)
-    .transition()
-    .duration(viz.schema.duration)
-    .style(
-      "width",
-      viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined,
-    )
-    .style(
-      "height",
-      viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined,
-    )
-    .attr("width", viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined)
-    .attr(
-      "height",
-      viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined,
-    );
+    .style("content-visibility", viz.schema.detectVisible ? "auto" : null);
 
   // sets "position: relative" on the SVG parent if currently undefined
   const position = parent.style("position");
