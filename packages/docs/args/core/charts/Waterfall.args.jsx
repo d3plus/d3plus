@@ -56,7 +56,7 @@ export const argTypes = assign(
     },
     decreaseColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Fill for bars that lower the running total. Defaults to `colorDefaults.off`.",
       table: {
@@ -66,12 +66,12 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "CssColor | function"
       }
     },
     increaseColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Fill for bars that raise the running total. Defaults to `colorDefaults.on`.",
       table: {
@@ -81,7 +81,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "CssColor | function"
       }
     },
     legend: {
@@ -109,7 +109,7 @@ export const argTypes = assign(
     },
     totalColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "Fill for subtotal bars. Defaults to `colorDefaults.sequential`.",
       table: {
@@ -119,7 +119,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string"
+        summary: "CssColor | function"
       }
     }
   }

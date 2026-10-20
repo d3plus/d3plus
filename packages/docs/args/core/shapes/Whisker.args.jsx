@@ -187,7 +187,7 @@ export const argTypes = assign(
     },
     orient: {
       control: {},
-      description: "",
+      description: "Side the whisker points toward.",
       table: {
         defaultValue: {
           summary: "undefined"

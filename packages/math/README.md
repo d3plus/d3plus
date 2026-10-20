@@ -32,6 +32,9 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
+| [`epanechnikovKernel`](#epanechnikovkernel) | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel |
+| [`gaussianKernel`](#gaussiankernel) | The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`. |
+| [`kernelDensity`](#kerneldensity) | Estimates the probability density of a set of observations with a kernel |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspe |
 | [`linearConfidence`](#linearconfidence) | Builds the confidence band for the mean response of a simple linear regression of `points`: `ŷ ± t·s·√(1/n + (x − x̄)²/S |
 | [`linearPrediction`](#linearprediction) | Builds the prediction band for a new observation under a simple linear regression of `points`: `ŷ ± t·s·√(1 + 1/n + (x − |
@@ -49,6 +52,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`segmentBoxContains`](#segmentboxcontains) | Checks whether a point is inside the bounding box of a line segment. |
 | [`segmentsIntersect`](#segmentsintersect) | Checks whether the line segments p1q1 && p2q2 intersect. |
 | [`shapeEdgePoint`](#shapeedgepoint) | Calculates the x/y position of a point at the edge of a shape, from the center of the shape, given a specified pixel dis |
+| [`silvermanBandwidth`](#silvermanbandwidth) | Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate: |
 | [`simplify`](#simplify) | Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplificatio |
 | [`studentTCdf`](#studenttcdf) | The cumulative distribution function of Student's t-distribution. |
 | [`studentTQuantile`](#studenttquantile) | The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportio |
@@ -56,12 +60,16 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | Interfaces | Description |
 | --- | --- |
 | [`Bounds`](#bounds) | An axis-aligned box: top-left corner plus size. |
+| [`KernelDensityOptions`](#kerneldensityoptions) |  |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
 | [`RegressionOptions`](#regressionoptions) |  |
 | [`RegressionResult`](#regressionresult) |  |
 
 | Type Aliases | Description |
 | --- | --- |
+| [`DensityPoint`](#densitypoint) | One evaluated point of a density curve: `[value, density]`. |
+| [`Kernel`](#kernel) | A kernel function of the scaled distance `u = (x - xi) / bandwidth`. |
+| [`KernelName`](#kernelname) | The built-in kernels, by name. |
 | [`RegressionType`](#regressiontype) |  |
 
 ## Functions
@@ -109,6 +117,82 @@ Finds the closest numeric value in an array.
 #### Returns
 
 `number` \| `undefined`
+
+***
+
+<a id="epanechnikovkernel"></a>
+
+### epanechnikovKernel()
+
+> **epanechnikovKernel**(`u`: `number`): `number`
+
+Defined in: [kernelDensity.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L52)
+
+The Epanechnikov kernel, scaled to unit variance like the gaussian kernel
+so a bandwidth smooths about as much with either:
+`3 / (4√5) · (1 - u²/5)` for `|u| ≤ √5`, otherwise 0. Its density reaches
+exactly zero √5 bandwidths past the outermost observations.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `u` | `number` | The scaled distance from an observation. |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="gaussiankernel"></a>
+
+### gaussianKernel()
+
+> **gaussianKernel**(`u`: `number`): `number`
+
+Defined in: [kernelDensity.ts:39](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L39)
+
+The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `u` | `number` | The scaled distance from an observation. |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="kerneldensity"></a>
+
+### kernelDensity()
+
+> **kernelDensity**(`values`: readonly `number`[], `options?`: [`KernelDensityOptions`](#kerneldensityoptions)): [`DensityPoint`](#densitypoint)[]
+
+Defined in: [kernelDensity.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L101)
+
+Estimates the probability density of a set of observations with a kernel
+density estimate, evaluated on an evenly spaced grid. Each observation
+contributes one kernel scaled to the bandwidth, and the sum is normalized
+so the curve's area is 1. Non-finite values are ignored; an empty input
+returns an empty array.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `values` | readonly `number`[] | The observations. |
+| `options` | [`KernelDensityOptions`](#kerneldensityoptions) | The kernel, bandwidth, and evaluation grid. |
+
+#### Returns
+
+[`DensityPoint`](#densitypoint)[]
+
+The `[value, density]` points, in ascending value order.
 
 ***
 
@@ -557,6 +641,32 @@ Calculates the x/y position of a point at the edge of a shape, from the center o
 
 ***
 
+<a id="silvermanbandwidth"></a>
+
+### silvermanBandwidth()
+
+> **silvermanBandwidth**(`values`: readonly `number`[]): `number`
+
+Defined in: [kernelDensity.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L73)
+
+Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate:
+`0.9 · min(σ, IQR / 1.34) · n^(-1/5)`. When one of the two spreads is zero
+the other is used; when the values don't vary at all (including a single
+value) the spread falls back to a tenth of their magnitude, or 1 for zeros.
+Non-finite values are ignored. Returns NaN when there are no values.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `values` | readonly `number`[] | The observations. |
+
+#### Returns
+
+`number`
+
+***
+
 <a id="simplify"></a>
 
 ### simplify()
@@ -650,6 +760,24 @@ An axis-aligned box: top-left corner plus size.
 
 ***
 
+<a id="kerneldensityoptions"></a>
+
+### KernelDensityOptions
+
+Defined in: [kernelDensity.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L12)
+
+#### Properties
+
+| Property | Type | Description | Defined in |
+| ------ | ------ | ------ | ------ |
+| <a id="property-bandwidth"></a> `bandwidth?` | `number` \| ((`values`: `number`[]) => `number`) | The bandwidth (smoothing window) in data units, or a function that returns one for the finite input values. Defaults to Silverman's rule of thumb (see `silvermanBandwidth`). | [kernelDensity.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L20) |
+| <a id="property-cut"></a> `cut?` | `number` | How far past the smallest and largest value to evaluate, in bandwidths. Defaults to 3, where a gaussian density has fallen to about 1% of its peak. Use 0 to stop at the data's extent. Ignored when `extent` is set. | [kernelDensity.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L28) |
+| <a id="property-extent"></a> `extent?` | \[`number`, `number`\] | An explicit `[min, max]` range to evaluate across. | [kernelDensity.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L30) |
+| <a id="property-kernel"></a> `kernel?` | [`Kernel`](#kernel) \| [`KernelName`](#kernelname) | The kernel: `"gaussian"` (default), `"epanechnikov"`, or a custom kernel function. | [kernelDensity.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L14) |
+| <a id="property-points"></a> `points?` | `number` | How many evenly spaced points to evaluate the density at. Defaults to 100 (minimum 2). | [kernelDensity.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L22) |
+
+***
+
 <a id="negativespaceoptions"></a>
 
 ### NegativeSpaceOptions
@@ -695,13 +823,59 @@ Defined in: [regression.ts:8](https://github.com/d3plus/d3plus/blob/main/package
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
 | <a id="property-coefficients"></a> `coefficients` | `number`[] | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
-| <a id="property-extent"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | [regression.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L26) |
+| <a id="property-extent-1"></a> `extent` | \[`number`, `number`\] | The smallest and largest x values used in the fit. | [regression.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L26) |
 | <a id="property-n"></a> `n` | `number` | The number of points used in the fit. | [regression.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L24) |
 | <a id="property-predict"></a> `predict` | (`x`: `number`) => `number` | Predicts y for a given x. | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
 | <a id="property-r2"></a> `r2` | `number` | The coefficient of determination, measured in original y units. | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
 | <a id="property-type"></a> `type` | [`RegressionType`](#regressiontype) | The type of regression that was fit. | [regression.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L10) |
 
 ## Type Aliases
+
+<a id="densitypoint"></a>
+
+### DensityPoint
+
+> **DensityPoint** = \[`number`, `number`\]
+
+Defined in: [kernelDensity.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L10)
+
+One evaluated point of a density curve: `[value, density]`.
+
+***
+
+<a id="kernel"></a>
+
+### Kernel
+
+> **Kernel** = (`u`: `number`) => `number`
+
+Defined in: [kernelDensity.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L4)
+
+A kernel function of the scaled distance `u = (x - xi) / bandwidth`.
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `u` | `number` |
+
+#### Returns
+
+`number`
+
+***
+
+<a id="kernelname"></a>
+
+### KernelName
+
+> **KernelName** = `"gaussian"` \| `"epanechnikov"`
+
+Defined in: [kernelDensity.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L7)
+
+The built-in kernels, by name.
+
+***
 
 <a id="regressiontype"></a>
 

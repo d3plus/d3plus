@@ -117,7 +117,7 @@ export const argTypes = assign(
       control: {
         type: "boolean"
       },
-      description: "Whether to rotate horizontal axis labels -90 degrees.",
+      description: "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -125,7 +125,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "boolean"
+        summary: "boolean | undefined"
       }
     },
     locale: {
