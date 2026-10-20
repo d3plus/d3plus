@@ -82,7 +82,7 @@ function solveFinalYAxes(
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0]] as number[])!;
+  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
 
   if (y2Exists) {
     y2Test
@@ -137,18 +137,24 @@ export function solveFinalAxes(
   viz: Viz,
   pCtx: PlotPaintContext,
   frozen?: PlotMeasureResult,
-): {pCtx: PlotPaintContext; yRange: number[]; solved: FinalYAxes} {
+): {pCtx: PlotPaintContext; yRange: number[]; yBottom: number; insetBottom: number; solved: FinalYAxes} {
   const {x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
-  const range = (xHeight: number) => [x2Height, height - (xHeight + topOffset + verticalMargin)];
-  let yRange = range(pCtx.xHeight);
-  let solved = frozen || solveFinalYAxes(viz, pCtx, yRange);
+  // The plot's bottom edge for an x axis `xHeight` tall, less the room a
+  // chart reserves between the value axis and the x axis.
+  const bottom = (xHeight: number) => {
+    const yBottom = height - (xHeight + topOffset + verticalMargin);
+    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
+    return {yBottom, insetBottom, yRange: [x2Height, yBottom - insetBottom]};
+  };
+  let fit = bottom(pCtx.xHeight);
+  let solved = frozen || solveFinalYAxes(viz, pCtx, fit.yRange);
   for (let pass = 0; !frozen && pass < 3; pass++) {
     const xHeight = finalXHeight(pCtx, [solved.xOffsetLeft, pCtx.width - (solved.xOffsetRight + horizontalMargin)]);
     if (xHeight === undefined || xHeight === pCtx.xHeight) break;
     viz._padding.bottom += xHeight - pCtx.xHeight;
     pCtx = {...pCtx, xHeight};
-    yRange = range(xHeight);
-    solved = solveFinalYAxes(viz, pCtx, yRange);
+    fit = bottom(xHeight);
+    solved = solveFinalYAxes(viz, pCtx, fit.yRange);
   }
-  return {pCtx, yRange, solved};
+  return {pCtx, ...fit, solved};
 }

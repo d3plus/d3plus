@@ -10,6 +10,7 @@ import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} 
 import {enterStart, reconcileExit} from "./svgFlip.js";
 import {clockedTransition, trackTransition} from "./svgClock.js";
 import {fadeSwapText} from "./svgFade.js";
+import {enterWindowed, markEntering} from "./svgWindow.js";
 import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {configureTexture} from "../textureConfig.js";
@@ -360,6 +361,7 @@ export default class SvgRenderer implements Renderer {
       const s = select(this);
       applyStatic(s, d);
       applyGeometry(s, enterStart(d, flip), false, resolveFill);
+      markEntering(this, d);
     });
 
     const merged = enter.merge(sel);
@@ -377,6 +379,7 @@ export default class SvgRenderer implements Renderer {
         __d3plusTextPrev__?: TextNode;
         __d3plusTrailPrev__?: TrailParts;
       };
+      const windowed = enterWindowed(this, d);
       const canTrail = d.trail && (d.type === "circle" || d.type === "rect");
       const persistTrail = canTrail && isPersistTrail(d) && self._trailActive;
       const prevText =
@@ -388,12 +391,12 @@ export default class SvgRenderer implements Renderer {
         applyGeometry(el, d, false, resolveFill);
       };
       // A fade-swap label (TextNode.fadeSwap) fades instead of gliding.
-      if (duration && fadeSwapText(s, d, prevText, () => trackTransition(s.transition(t), t), draw)) {
+      if (duration && fadeSwapText(s, d, prevText, () => windowed(trackTransition(s.transition(t), t)), draw)) {
         // Its tween does the rest.
       } else if (duration) {
         applyStatic(s, d);
         const tsel = trackTransition(s.transition(t), t);
-        applyGeometry(tsel, d, true, resolveFill);
+        applyGeometry(windowed(tsel), d, true, resolveFill);
         const font = d.type === "text" ? (d as TextNode).font : undefined;
         if (prevText?.font && font && prevText.font.size !== font.size) {
           // Override the transform tween: glide position/rotation and ease the

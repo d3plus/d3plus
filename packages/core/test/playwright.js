@@ -128,12 +128,33 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});
     await page.addScriptTag({content: umd});
-    if (clock) await page.clock.pauseAt(1000);
+    // The fake clock runs while the bundle loads, which can take longer than
+    // any fixed time under coverage; pause a moment past wherever it is now.
+    if (clock) await page.clock.pauseAt((await page.evaluate(() => Date.now())) + 1000);
   } catch (err) {
     await close();
     throw err;
   }
   return {page, errors, close};
+}
+
+/**
+ * Opens a page with d3plus loaded (see `openPage`), hands it to `run`, and
+ * closes it once `run` settles, for tests that drive the page from Node.
+ * @param {String} bodyHtml Markup placed inside <body> (e.g. an <svg> target).
+ * @param {Function} run Receives the Playwright page; may return a Promise.
+ * @param {{clock?: boolean}} [options] Passed to `openPage`.
+ * @returns {Promise<*>} Whatever `run` resolves with.
+ */
+export async function withPage(bodyHtml, run, options = {}) {
+  const {page, errors, close} = await openPage(bodyHtml, options);
+  try {
+    const result = await run(page);
+    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
+    return result;
+  } finally {
+    await close();
+  }
 }
 
 /**

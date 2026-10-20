@@ -108,8 +108,13 @@ it("a Canvas BarChart's bars match SVG's opacity and size halfway through the fi
       Math.abs(canvas.opacity - svg.opacity) < 0.06,
       `${svg.key}: Canvas opacity ${canvas.opacity.toFixed(2)} matches SVG ${svg.opacity.toFixed(2)}`,
     );
+    // The two renderers can start their first frame a tick apart, and near
+    // the middle of a cubicInOut transition a bar grows by about 1.5 × its
+    // final height per unit of progress, so allow two 60fps frames of growth
+    // (the halfway height is about half the final height).
+    const frameGrowth = 1.5 * (svg.box.height * 2) * (1000 / 60) / DURATION;
     assert.ok(
-      Math.abs(canvas.height - svg.box.height) < 3,
+      Math.abs(canvas.height - svg.box.height) < Math.max(3, 2 * frameGrowth),
       `${svg.key}: Canvas height ${canvas.height.toFixed(1)} matches SVG ${svg.box.height.toFixed(1)}`,
     );
   }

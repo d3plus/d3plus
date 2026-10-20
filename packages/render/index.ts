@@ -15,6 +15,7 @@ export type {
   LineNode,
   AreaNode,
   ArcGeometry,
+  EnterWindow,
   FadeSwap,
   PathNode,
   ImageNode,
@@ -25,6 +26,7 @@ export type {
   HtmlOverlayNode,
   SceneNode,
   SceneGradient,
+  ShapeOwner,
   Scene,
 } from "./src/scene.js";
 
@@ -57,7 +59,7 @@ export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 
 export {resetInjectedBoxes} from "./src/boxReset.js";
 
-export {collapse, collapseTo, cubicInOut, fadeSwapOpacity, interpolateNode, isFlipEligible, sameTextLayout} from "./src/animate/interpolate.js";
+export {collapse, collapseTo, cubicInOut, enterWindowProgress, fadeSwapOpacity, interpolateNode, isFlipEligible, sameTextLayout} from "./src/animate/interpolate.js";
 export type {Interp} from "./src/animate/interpolate.js";
 export {diffChildren, interpolateScene} from "./src/animate/diff.js";
 export type {FlipTransition, GroupDiff} from "./src/animate/diff.js";

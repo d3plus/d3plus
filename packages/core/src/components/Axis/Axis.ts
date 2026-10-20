@@ -124,6 +124,11 @@ export default class Axis extends BaseClass {
       Date labels read which of them carry the year (see `formatDate`).
   */
   _shownLabels?: unknown[];
+  /**
+      Which of the label lists the layout pass is trying, when `labels` holds
+      a list of them (see `labelSets`).
+  */
+  _labelSet?: number;
   // Standalone scene renderer (used when rendered on its own, not inside a
   // Viz). Reused across re-renders by paintComponentScene().
   _sceneRenderer?: SvgRenderer;

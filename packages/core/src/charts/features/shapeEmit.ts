@@ -34,6 +34,7 @@ import {barSeries, seriesSlot} from "../Plot/barWidth.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
+import {stackEnterWindows} from "../Plot/stackEnter.js";
 import {swarmPlacements, type SwarmPlacement} from "../Plot/swarm.js";
 import {forecastDashOr, forecastLineDash} from "../Plot/forecastScene.js";
 import {collectComputed, makeShape, shapeConfigFor} from "./emitHelpers.js";
@@ -83,6 +84,10 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+  /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
+  insetBottom?: number;
+  /** The x2 axis's height: `yRange` minus this is content space. */
+  x2Height?: number;
 
   /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
   zoomRanges?: Partial<Record<"x" | "y", number[]>>;
@@ -153,14 +158,15 @@ function finishShape(
   s.render();
   const nodes = collectComputed(s);
   if (key !== "Bar") return nodes;
-  // Error bars paint over their bars but under the bar labels.
+  // Error bars paint over their bars but under the bar labels. Stacked bars
+  // grow in one stack level after another.
   const errorBars = emitBarConfidence(ctx, nodes);
-  if (!errorBars.length) return nodes;
+  if (!errorBars.length) return stackEnterWindows(ctx, nodes);
   let last = -1;
   nodes.forEach((n, i) => {
     if (n.shapeType === "Bar") last = i;
   });
-  return [...nodes.slice(0, last + 1), ...errorBars, ...nodes.slice(last + 1)];
+  return stackEnterWindows(ctx, [...nodes.slice(0, last + 1), ...errorBars, ...nodes.slice(last + 1)]);
 }
 
 /** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */

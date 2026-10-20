@@ -36,7 +36,7 @@ import {
   wholeLineLabels,
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
-import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
+import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
 import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
@@ -98,6 +98,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // keeps the ticks the formatter reads in step with it.
   const rescale = (newRange?: number[]) =>
     ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet, newRange));
+  axis._labelSet = 0;
   rescale();
 
   applyTitleMargin(axis, {range, p, height, margin});
@@ -112,6 +113,13 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   const setting = axis._labelRotationSetting;
   axis._labelRotation = setting ?? false;
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
+  // Given a list of label lists, the axis labels the first whose labels all
+  // fit whole, else the last one, thinned.
+  const sets = labelSets(axis)?.length ?? 0;
+  for (let set = 1; set < sets && labelMisses(textData); set++) {
+    axis._labelSet = set;
+    textData = layoutLabels(axis, rescale(), labelCtx);
+  }
 
   // Left to decide, a horizontal axis of categories rotates its labels when
   // that leaves fewer of them cut short or hidden. Dates and numbers thin
