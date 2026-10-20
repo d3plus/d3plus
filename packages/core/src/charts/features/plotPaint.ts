@@ -221,6 +221,8 @@ export interface PlotMeasureResult {
   labelPositions: Record<string, number>;
   /** The x axis's positioned end labels (see `axisEndLabels.ts`); empty unless its ends are labeled. */
   xEndLabels?: EndLabelBox[];
+  /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
+  insetBottom?: number;
 }
 
 /**
@@ -481,6 +483,8 @@ function emitShapeLoop(
     width,
     values: [],
     valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
+    insetBottom: mCtx.insetBottom ?? 0,
+    x2Height: pCtx.x2Height,
     zoomRanges: pCtx.zoomRanges,
   };
   shapeData.forEach(([key, values]) => {
@@ -495,8 +499,9 @@ function emitShapeExits(viz: Viz, shapeData: [string, DataPoint[]][], shapeConfi
     if (viz._confidence) dataShapes.push("Area");
     if (viz._lineMarkers) dataShapes.push("Circle");
   }
+  // A chart's own emitters draw with registry shapes, so their keys have nothing to exit.
   const exitShapes = viz._previousShapes!.filter(
-    d => !dataShapes.includes(d),
+    d => !dataShapes.includes(d) && !viz._plotShapeEmitters?.[d],
   );
 
   // Run exits in compute mode so Box/Whisker/Shape don't fall through
@@ -611,8 +616,14 @@ export function plotEmit(
     // data marks: it's drawn at data values a domain can cut off.
     const shapesStart = marks.length;
     emitShapeLoop(viz, marks, pCtx, mCtx, shapeConfig);
+    // An emitter's own axis (Candlestick's volume axis) paints with the
+    // plot's axes, clear of the plot's clips and masks.
+    const shapeAxes = takeAxisNodes(marks, shapesStart);
     if (viz._plotUnderlay) marks.splice(shapesStart, 0, ...viz._plotUnderlay(marks.slice(shapesStart), x, y));
-    out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange, x2Height: pCtx.x2Height, yOffset})));
+    // The plot area reaches down through any room reserved under the value
+    // axis's range (see `_plotInsetBottom`), so marks drawn there stay.
+    const clipRange = [yRange[0], yRange[1] + (mCtx.insetBottom ?? 0)];
+    out.push(...(clip ? marks : clipToPlotArea(marks, {xRange, yRange: clipRange, x2Height: pCtx.x2Height, yOffset})));
 
     emitShapeExits(viz, shapeData, shapeConfig);
 
@@ -638,7 +649,15 @@ export function plotEmit(
     if (endLabels) tagAxisGroup(endLabels);
 
     // Ticks, tick labels, domain bar, title, and end labels render on top of the shapes.
-    return [...content, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
+    return [...content, ...shapeAxes, ...axisScenes.rest, ...(endLabels ? [endLabels] : [])];
+}
+
+/** Removes the axis-tagged nodes from `nodes` (from index `start` on) and returns them. */
+function takeAxisNodes(nodes: SceneNode[], start: number): SceneNode[] {
+  const axes: SceneNode[] = [];
+  for (let i = nodes.length - 1; i >= start; i--)
+    if ((nodes[i] as {interactionGroup?: string}).interactionGroup === "axis") axes.unshift(...nodes.splice(i, 1));
+  return axes;
 }
 
 /** Key of the group `plotEmit` wraps a zoomable plot's non-axis content in. */
@@ -690,11 +709,13 @@ export function plotPaintMeasured(
   };
   // `xRange` is measured from the chart area's left edge, which is where
   // `_chartTransform` puts content space's origin.
+  // The plot area takes in any room reserved under the value axis, which
+  // charts draw into (Candlestick's volume strip).
   viz._plotArea = {
     x: xRange[0],
     y: 0,
     width: xRange[1] - xRange[0],
-    height: yRange[1] - yRange[0],
+    height: yRange[1] - yRange[0] + (layout.insetBottom ?? 0),
   };
   return {nodes: plotEmit(viz, pCtx, layout, clip), layout};
 }

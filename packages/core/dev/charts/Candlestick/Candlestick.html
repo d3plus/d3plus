@@ -1,0 +1,270 @@
+<!doctype html>
+<html dir="ltr">
+
+<head>
+
+  <meta charset="utf-8">
+  <title>Candlestick</title>
+  <meta name="description" content="Candlestick variants: hollow candles over evenly spaced trading days, OHLC bars, a continuous time axis with weekend gaps and filled custom colors, 500 periods on canvas, tickers as small multiples, intraday rows rolled up to daily candles, a volume strip (with OHLC bars, calendar gaps, canvas, and facets), a dark background, texture plus backgroundImage on filled candles (hollow candles stay hollow), and two years of trading days at narrow widths, naming both years.">
+  <script src="/umd/d3plus-core.full.js"></script>
+  <script src="/dev.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: Inter, sans-serif; margin: 20px; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    .wide { grid-column: 1 / -1; }
+    .viz { height: 360px; }
+    .tall { height: 520px; }
+    .dark { background: #1a1b1e; color: #e9ecef; padding: 8px; }
+    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
+    .narrow { display: flex; flex-wrap: wrap; gap: 16px; }
+    .narrow .viz { flex: none; }
+  </style>
+
+</head>
+
+<body>
+  <div class="grid">
+    <div><h3>Default: hollow up candles, evenly spaced trading days</h3><div class="viz" id="basic"></div></div>
+    <div><h3>variant: "ohlc"</h3><div class="viz" id="ohlc"></div></div>
+    <div><h3>skipGaps: false (weekend gaps), hollow: false, custom colors</h3><div class="viz" id="gaps"></div></div>
+    <div><h3>Hourly rows rolled up to daily candles (first open, highest high, lowest low, last close)</h3><div class="viz" id="intraday"></div></div>
+    <div><h3>volume: a volume strip under the candles</h3><div class="viz" id="volume"></div></div>
+    <div><h3>volume with variant: "ohlc", skipGaps: false, and a taller strip</h3><div class="viz" id="volumeOhlc"></div></div>
+    <div class="dark"><h3>volume on a dark background</h3><div class="viz" id="volumeDark"></div></div>
+    <div><h3>volume with texture + backgroundImage on filled marks</h3><div class="viz" id="volumeTextured"></div></div>
+    <div class="wide"><h3>volume on canvas, 500 trading days</h3><div class="viz" id="volumeDense"></div></div>
+    <div class="wide"><h3>volume per ticker panel (facet, independent scales)</h3><div class="tall" id="volumeFacet"></div></div>
+    <div class="dark"><h3>Dark background</h3><div class="viz" id="dark"></div></div>
+    <div><h3>shapeConfig texture + backgroundImage (hollow candles stay hollow)</h3><div class="viz" id="textured"></div></div>
+    <div><h3>shapeConfig texture + backgroundImage, hollow: false</h3><div class="viz" id="texturedFilled"></div></div>
+    <div class="wide"><h3>500 trading days on canvas</h3><div class="viz" id="dense"></div></div>
+    <div class="wide"><h3>Tickers as small multiples (facet, independent scales)</h3><div class="tall" id="facet"></div></div>
+    <div class="wide" id="narrow">
+      <h3>300 trading days across 2023 and 2024 at 260, 320, and 420px, without and with volume: each axis names both years</h3>
+      <div class="narrow">
+        <div class="viz" id="narrow260" style="width: 260px"></div>
+        <div class="viz" id="narrow320" style="width: 320px"></div>
+        <div class="viz" id="narrow420" style="width: 420px"></div>
+        <div class="viz" id="narrowVolume260" style="width: 260px"></div>
+        <div class="viz" id="narrowVolume320" style="width: 320px"></div>
+        <div class="viz" id="narrowVolume420" style="width: 420px"></div>
+      </div>
+    </div>
+  </div>
+</body>
+
+<script>
+
+  // A seeded random walk of trading days (weekdays only), so the page renders
+  // identically every load.
+  function prices(symbol, days, start, seed) {
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const rows = [];
+    const day = new Date(Date.UTC(2023, 0, 2));
+    let close = start;
+    while (rows.length < days) {
+      const weekday = day.getUTCDay();
+      if (weekday !== 0 && weekday !== 6) {
+        const open = close * (1 + (random() - 0.5) * 0.02);
+        close = open * (1 + (random() - 0.48) * 0.04);
+        const high = Math.max(open, close) * (1 + random() * 0.015);
+        const low = Math.min(open, close) * (1 - random() * 0.015);
+        const round = v => Math.round(v * 100) / 100;
+        rows.push({
+          symbol,
+          date: day.toISOString().slice(0, 10),
+          open: round(open),
+          high: round(high),
+          low: round(low),
+          close: round(close),
+          // Busier on big moves; no extra random draws, so the prices stay put.
+          volume: Math.round(1e6 * (1 + (rows.length * 7919 % 13) / 13 + Math.abs(close - open) / open * 60)),
+        });
+      }
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+    return rows;
+  }
+
+  const acme = prices("ACME", 60, 120, 11);
+
+  // Seven hourly rows per trading day; rows that share a day merge into one
+  // candle.
+  function intraday(symbol, days, start, seed) {
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const round = v => Math.round(v * 100) / 100;
+    const rows = [];
+    const day = new Date(Date.UTC(2023, 0, 2));
+    let price = start, n = 0;
+    while (n < days) {
+      const weekday = day.getUTCDay();
+      if (weekday !== 0 && weekday !== 6) {
+        const date = day.toISOString().slice(0, 10);
+        for (let hour = 10; hour <= 16; hour++) {
+          const open = price;
+          price = open * (1 + (random() - 0.49) * 0.012);
+          rows.push({
+            symbol,
+            day: date,
+            time: `${date}T${hour}:00`,
+            open: round(open),
+            high: round(Math.max(open, price) * (1 + random() * 0.004)),
+            low: round(Math.min(open, price) * (1 - random() * 0.004)),
+            close: round(price),
+            volume: Math.round(2e5 * (1 + (rows.length * 7919 % 11) / 11)),
+          });
+        }
+        n++;
+      }
+      day.setUTCDate(day.getUTCDate() + 1);
+    }
+    return rows;
+  }
+
+  new d3plus.Candlestick()
+    .select("#basic")
+    .data(acme)
+    .groupBy("symbol")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#ohlc")
+    .data(acme)
+    .groupBy("symbol")
+    .variant("ohlc")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#gaps")
+    .data(acme.slice(0, 30))
+    .groupBy("symbol")
+    .skipGaps(false)
+    .hollow(false)
+    .upColor("#1c7ed6")
+    .downColor("#e8590c")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#intraday")
+    .data(intraday("ACME", 30, 120, 7))
+    .groupBy("symbol")
+    .x("day")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volume")
+    .data(acme)
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeOhlc")
+    .data(acme.slice(0, 30))
+    .groupBy("symbol")
+    .variant("ohlc")
+    .skipGaps(false)
+    .volume(d => d.volume)
+    .volumeConfig({height: 0.3})
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeDark")
+    .data(acme)
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeTextured")
+    .data(acme.slice(0, 20))
+    .groupBy("symbol")
+    .hollow(false)
+    .volume("volume")
+    .shapeConfig({texture: "lines", backgroundImage: "./Landscape.svg"})
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeDense")
+    .renderer("canvas")
+    .data(prices("ACME", 500, 80, 29))
+    .groupBy("symbol")
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#volumeFacet")
+    .data([
+      ...prices("ACME", 90, 120, 11),
+      ...prices("BOLT", 90, 42, 23),
+      ...prices("CORE", 90, 310, 37),
+      ...prices("DYNO", 90, 8, 53),
+    ])
+    .groupBy("symbol")
+    .facet("symbol")
+    .facetConfig({scales: "independent"})
+    .volume("volume")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#dark")
+    .data(acme)
+    .groupBy("symbol")
+    .render();
+
+  const textured = {texture: d => d.close < d.open ? "lines" : false, backgroundImage: d => d.close >= d.open ? "./Landscape.svg" : false};
+
+  new d3plus.Candlestick()
+    .select("#textured")
+    .data(acme.slice(0, 20))
+    .groupBy("symbol")
+    .shapeConfig({texture: "lines", backgroundImage: "./Landscape.svg"})
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#texturedFilled")
+    .data(acme.slice(0, 20))
+    .groupBy("symbol")
+    .hollow(false)
+    .shapeConfig(textured)
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#dense")
+    .renderer("canvas")
+    .data(prices("ACME", 500, 80, 29))
+    .groupBy("symbol")
+    .render();
+
+  new d3plus.Candlestick()
+    .select("#facet")
+    .data([
+      ...prices("ACME", 90, 120, 11),
+      ...prices("BOLT", 90, 42, 23),
+      ...prices("CORE", 90, 310, 37),
+      ...prices("DYNO", 90, 8, 53),
+    ])
+    .groupBy("symbol")
+    .facet("symbol")
+    .facetConfig({scales: "independent"})
+    .render();
+
+  const twoYears = prices("ACME", 300, 120, 11);
+  [260, 320, 420].forEach(width => {
+    new d3plus.Candlestick()
+      .select(`#narrow${width}`)
+      .data(twoYears)
+      .groupBy("symbol")
+      .render();
+    new d3plus.Candlestick()
+      .select(`#narrowVolume${width}`)
+      .data(twoYears)
+      .groupBy("symbol")
+      .volume("volume")
+      .render();
+  });
+
+</script>
+
+</html>

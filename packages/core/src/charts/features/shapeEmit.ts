@@ -83,6 +83,10 @@ export interface ShapeEmitContext {
 
   /** Pixel span of the value axis; bars are clamped inside it. */
   valueExtent?: [number, number];
+  /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
+  insetBottom?: number;
+  /** The x2 axis's height: `yRange` minus this is content space. */
+  x2Height?: number;
 
   /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
   zoomRanges?: Partial<Record<"x" | "y", number[]>>;

@@ -53,6 +53,17 @@ it("clipToPlotArea clips points in their own run, grown by radius plus half-stro
     "the point on the top edge draws whole");
 });
 
+it("clipToPlotArea keeps axis chrome drawn among the marks out of the clip", () => {
+  const axis = {
+    type: "group", key: "axis", interactionGroup: "axis", transform: {x: 10, y: 0},
+    children: [{type: "line", key: "bar", points: [[0, 10], [0, 120]], interactionGroup: "axis", paint: {stroke: "#000"}}],
+  };
+  const nodes = [line("a", [[50, 60], [150, 160]]), axis, line("b", [[50, 60], [150, 70]])];
+  const out = clipToPlotArea(nodes, frame);
+  assert.deepStrictEqual(out.map(n => n.key), [`${DOMAIN_CLIP_KEY}-0`, "axis", "b"]);
+  assert.strictEqual(clipToPlotArea([axis], frame)[0], axis, "an axis left of the plot isn't cut off");
+});
+
 it("clipToPlotArea only measures a point by its center", () => {
   const nodes = [point("edge", 250, 110, 20)];
   assert.strictEqual(clipToPlotArea(nodes, frame), nodes);
