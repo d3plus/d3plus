@@ -13,6 +13,7 @@ import constant from "../../utils/constant.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {columnHighlight} from "../Plot/columnHighlight.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
@@ -111,6 +112,9 @@ export const candlestickDef: ChartDefinition = {
     installVolumeStrip(viz);
     viz._buffer = {...viz._buffer, [CANDLESTICK_SHAPE]: candlestickBuffer};
     viz._plotShapeEmitters = {[CANDLESTICK_SHAPE]: emitCandlesticks};
+    // Each period is its own mark: hovering one highlights its candle and
+    // volume bar and dims the other periods, though they share a series id.
+    viz._plotColumnHighlight = columnHighlight(viz);
     // The tooltip's own rows list the period and its values.
     viz._tooltipAxisRows = false;
     // The value axis spans every period's range, so it takes no title from `close`.
