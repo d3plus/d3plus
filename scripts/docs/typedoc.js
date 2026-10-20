@@ -23,6 +23,17 @@ export function getCommentText(comment) {
 }
 
 /**
+ * A table-of-contents summary: the first sentence of a comment (through the
+ * first period followed by whitespace or the end, skipping "e.g." and "i.e."),
+ * with its wrapped lines joined. Pipes are escaped for the markdown table.
+ */
+export function tocSummary(text) {
+  const para = (text || "").trim().split(/\n\s*\n/)[0].replace(/\s*\n\s*/g, " ");
+  const sentence = /^.*?(?<!\b(?:e\.g|i\.e))\.(?=\s|$)/.exec(para);
+  return (sentence ? sentence[0] : para).replace(/\|/g, "\\|");
+}
+
+/**
  * Gets the source file info from a reflection.
  */
 export function getSource(reflection) {
@@ -58,9 +69,27 @@ export function typeToString(type) {
       return "Boolean";
     case "typeOperator":
       return typeToString(type.target);
+    case "tuple":
+      return `[${type.elements.map(elementString).join(", ")}]`;
+    case "namedTupleMember":
+      return `${elementString(type.element)}${type.isOptional ? "?" : ""}`;
+    case "optional":
+      return `${elementString(type.elementType)}?`;
+    case "rest":
+      return `...${elementString(type.elementType)}`;
     default:
       return "*";
   }
+}
+
+/**
+ * A tuple element's type. Its union members are joined without spaces
+ * (`[string|number, string|number]`), so the summary's top-level ` | ` still
+ * separates only the members of the outer union.
+ */
+function elementString(type) {
+  if (type?.type === "union") return type.types.map(elementString).join("|");
+  return typeToString(type);
 }
 
 /**
