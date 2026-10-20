@@ -310,7 +310,7 @@ it("Candlestick: filled candles take texture and backgroundImage on SVG and Canv
           texture: String(c.paint.fill).startsWith("pattern:") ? JSON.parse(String(c.paint.fill).slice(8)) : null,
           image: images.includes(c.key + "-bgimage-img"),
         }));
-        // Only the candle path snaps; its image group shares the datum but adds no point.
+        // A candle's image group shares its datum but adds no snap point.
         const extraPoints = window.__candles(viz).filter(c => c.type !== "path" && c.interactionPoints).length;
         el.remove();
         return {marks, extraPoints};

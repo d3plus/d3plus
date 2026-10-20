@@ -1,3 +1,4 @@
+/* global getComputedStyle, MutationObserver, requestAnimationFrame */
 import assert from "assert";
 import {bundle, closeBrowser, openPage} from "../playwright.js";
 
@@ -6,7 +7,8 @@ import {bundle, closeBrowser, openPage} from "../playwright.js";
     moves: hovering a period, through the plot's snapped hover or directly
     over its candle, keeps that candle and its volume bar bright with an
     emphasized stroke and dims every other period, while a legend swatch
-    still highlights its whole series.
+    still highlights its whole series; and the snapped tooltip never shows
+    its arrow, even while the pointer crosses onto a candle.
 */
 
 before(async function () {
@@ -89,8 +91,10 @@ const marks = () => {
     Draws `config`, moves the pointer onto `target` (an index into the drawn
     candles; with `beside`, right of and above it, in the plot's snapped
     hover; else through its hover target's middle), and reports the marks
-    before and after, and the hovered candle's key. With `legend`, the
-    pointer moves onto the first legend swatch instead.
+    before and after, the hovered candle's key, and how often a tooltip arrow
+    showed while the pointer moved, sampled every frame and on every DOM
+    change. With `legend`, the pointer moves onto the first legend swatch
+    instead.
 */
 async function hover(config, renderer, {target = 6, beside = false, legend = false} = {}) {
   const {page, errors, close} = await openPage("<div id='viz' style='width:600px;height:400px'></div>");
@@ -102,6 +106,22 @@ async function hover(config, renderer, {target = 6, beside = false, legend = fal
     const m = before.marks[key];
     // Beside: a third of the way to the next period, still nearest this one.
     const dx = beside ? (before.marks[keys[target + 1]].x - m.x) / 3 : 0;
+    await page.evaluate(() => {
+      window.__arrows = 0;
+      const check = () => document.querySelectorAll(".d3plus-tooltip").forEach(tip => {
+        const arrow = tip.querySelector(".d3plus-tooltip-arrow");
+        const style = getComputedStyle(tip);
+        if (arrow && getComputedStyle(arrow).display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0)
+          window.__arrows++;
+      });
+      const frame = () => {
+        check();
+        requestAnimationFrame(frame);
+      };
+      frame();
+      window.__observer = new MutationObserver(check);
+      window.__observer.observe(document.body, {subtree: true, attributes: true, childList: true});
+    });
     if (legend) await page.mouse.move(before.legend[0].x, before.legend[0].y, {steps: 4});
     else {
       // Start above the candle, clear of it, then move in steps.
@@ -109,9 +129,13 @@ async function hover(config, renderer, {target = 6, beside = false, legend = fal
       await page.mouse.move(m.x + dx, beside ? m.top - 20 : m.middle, {steps: 12});
     }
     await page.waitForTimeout(100);
+    const arrows = await page.evaluate(() => {
+      window.__observer.disconnect();
+      return window.__arrows;
+    });
     const after = await page.evaluate(marks);
     if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
-    return {before, after, key};
+    return {before, after, key, arrows};
   }
   finally {
     await close();
@@ -153,6 +177,15 @@ for (const renderer of ["svg", "canvas"]) {
     it(`Candlestick ${renderer} — hovering a candle directly highlights it (${name})`, async function () {
       this.timeout(60000);
       highlightsOne(await hover(config, renderer), volume);
+    });
+
+    it(`Candlestick ${renderer} — moving onto a candle never shows the tooltip arrow (${name})`, async function () {
+      this.timeout(60000);
+      // Down candles are filled, up candles hollow: cross onto one of each.
+      for (const target of [4, 5, 6, 7]) {
+        const {arrows} = await hover(config, renderer, {target});
+        assert.strictEqual(arrows, 0, `no arrow over candle ${target} (${arrows} samples showed one)`);
+      }
     });
   }
 

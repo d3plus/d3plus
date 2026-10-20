@@ -211,6 +211,15 @@ export function volumeStripRect(ctx: ShapeEmitContext): VolumeStrip | undefined 
   return {top, bottom: priceBottom + inset, left: ctx.xRange[0], right: ctx.xRange[ctx.xRange.length - 1]};
 }
 
+/**
+    Whether a node computed for a candle or volume bar snaps the hover to its
+    period: the mark itself, or its `::hit` hover target, which the pointer
+    crosses first; not its backgroundImage group.
+    @param node A node computed for a candle or volume bar.
+*/
+export const snapsToPeriod = (node: SceneNode): boolean =>
+  node.type === "path" || String(node.key).endsWith("::hit");
+
 /** One volume bar's layout. */
 export interface VolumeBar {
   cx: number;
@@ -279,8 +288,7 @@ export function emitVolume(
   viz._wirePlotShapeEvents!(path, shapeKey, ctx.events);
   const nodes = collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
-    // Only the bar itself snaps; its backgroundImage group shares the datum.
-    const point = d && node.type === "path" ? {interactionPoints: candles.get(d)?.interactionPoints} : {};
+    const point = d && snapsToPeriod(node) ? {interactionPoints: candles.get(d)?.interactionPoints} : {};
     return {...node, shapeType: shapeKey, ...point} as SceneNode;
   });
 

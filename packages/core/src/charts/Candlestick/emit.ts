@@ -33,7 +33,7 @@ import {
   type Ohlc,
 } from "./ohlc.js";
 import {candleAriaLabel, volumeAriaLabel} from "./tooltip.js";
-import {emitVolume, volumeEnabled, volumeStripRect} from "./volume.js";
+import {emitVolume, snapsToPeriod, volumeEnabled, volumeStripRect} from "./volume.js";
 
 /** The shape key candles are drawn under. */
 export const CANDLESTICK_SHAPE = "Candlestick";
@@ -199,8 +199,7 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
   const candles = collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
     const l = d && layouts.get(d);
-    // Only the candle itself snaps; its backgroundImage group shares the datum.
-    const point = l && node.type === "path" ? {interactionPoints: snapPoints(d!, l)} : {};
+    const point = l && snapsToPeriod(node) ? {interactionPoints: snapPoints(d!, l)} : {};
     return {...node, shapeType: CANDLESTICK_SHAPE, ...point} as SceneNode;
   });
   if (!volumeEnabled(viz) || !volumeStripRect(ctx)) return candles;
