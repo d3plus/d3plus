@@ -29,9 +29,10 @@ function reset() {
   calls.length = 0;
   results.toBlob = null;
   results.toSvg = "";
+  results.error = null;
 }
 
-/** Runs saveElement and resolves once its `callback` fires. */
+/** Runs saveElement and resolves with whatever its `callback` receives. */
 function save(elem, options = {}, renderOptions) {
   return new Promise(resolve =>
     saveElement(elem, {...options, callback: resolve}, renderOptions),
@@ -106,11 +107,60 @@ it("saveElement saves without a callback", async () => {
   assert.strictEqual(saved[0].name, "download.png");
 });
 
-it("saveElement saves nothing when toBlob yields no Blob", async () => {
+it("saveElement passes an error to the callback when toBlob yields no Blob", async () => {
   reset();
-  let called = false;
-  saveElement(container, {callback: () => (called = true)});
-  await new Promise(resolve => setTimeout(resolve));
+  const error = await save(container);
+  assert.ok(error instanceof Error, "callback receives an Error");
   assert.strictEqual(saved.length, 0, "nothing is downloaded");
-  assert.strictEqual(called, false, "callback does not fire");
+});
+
+it("saveElement passes toBlob's rejection to the callback", async () => {
+  reset();
+  results.error = new Error("tainted canvas");
+  const error = await save(container, {type: "jpg"});
+  assert.strictEqual(error, results.error, "an Error rejection is passed through");
+  assert.strictEqual(saved.length, 0);
+});
+
+it("saveElement wraps a non-Error rejection from toSvg", async () => {
+  reset();
+  const event = new dom.window.Event("error");
+  results.error = event;
+  const error = await save(container, {type: "svg"});
+  assert.ok(error instanceof Error);
+  assert.strictEqual(error.cause, event, "the original rejection is the cause");
+  assert.strictEqual(saved.length, 0);
+});
+
+it("saveElement passes an error to the callback when the SVG data URL can't be read", async () => {
+  reset();
+  results.toSvg = "data:image/svg+xml;charset=utf-8,";
+  global.XMLHttpRequest = class {
+    open() {}
+    send() {
+      setTimeout(() => this.onerror(new dom.window.ProgressEvent("error")));
+    }
+  };
+  try {
+    const error = await save(container, {type: "svg"});
+    assert.ok(error instanceof Error);
+    assert.strictEqual(saved.length, 0);
+  } finally {
+    global.XMLHttpRequest = dom.window.XMLHttpRequest;
+  }
+});
+
+it("saveElement logs the error when there is no callback", async () => {
+  reset();
+  results.error = new Error("tainted canvas");
+  const {error: consoleError} = console;
+  const logged = [];
+  console.error = e => logged.push(e);
+  try {
+    saveElement(container);
+    await new Promise(resolve => setTimeout(resolve));
+  } finally {
+    console.error = consoleError;
+  }
+  assert.deepStrictEqual(logged, [results.error]);
 });

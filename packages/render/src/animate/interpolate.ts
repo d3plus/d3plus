@@ -398,6 +398,28 @@ export function rectEnterStart(node: SceneNode): SceneNode | null {
   return {...node, ...node.enterRect};
 }
 
+/**
+    Whether a node is a wrapper group: a group with no opacity of its own,
+    there to hold, place or clip its children. It never fades by itself:
+    SVG snaps an unset `opacity` to its target when the transition starts,
+    so a wrapper group shows at once on enter, while its children run
+    their own enter animations, and hides at once on exit. A group with
+    its own opacity fades like any other node.
+    @param node The node to test.
+*/
+export function isWrapperGroup(node: SceneNode): boolean {
+  return node.type === "group" && node.paint?.opacity === undefined;
+}
+
+/**
+    A wrapper group's enter start (see {@link isWrapperGroup}): the group
+    itself, so it shows at once and leaves the animation to its children.
+    Null for any other node.
+*/
+export function groupEnterStart(node: SceneNode): SceneNode | null {
+  return isWrapperGroup(node) ? node : null;
+}
+
 export function collapse(node: SceneNode): SceneNode {
   const paint: Paint = {...node.paint, opacity: 0};
   switch (node.type) {
