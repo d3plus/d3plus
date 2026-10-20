@@ -1,8 +1,9 @@
 /**
     Column emphasis for Plot charts whose marks read as one per category
-    (Lollipop, Dumbbell): Plot's snapped hover keeps the hovered column's marks
-    bright and dims every other mark the chart plots, the way hovering a bar
-    dims the other bars. Set as a chart's `viz._plotColumnHighlight`.
+    (Lollipop, Dumbbell, Candlestick): Plot's snapped hover keeps the hovered
+    column's marks bright and dims every other mark the chart plots, the way
+    hovering a bar dims the other bars. Set as a chart's
+    `viz._plotColumnHighlight`.
 
     @module
 */
