@@ -15,6 +15,7 @@ import {
   Gauge as GaugeClass,
   Geomap as GeomapClass,
   Histogram as HistogramClass,
+  Icicle as IcicleClass,
   LinePlot as LinePlotClass,
   Lollipop as LollipopClass,
   Marimekko as MarimekkoClass,
@@ -101,6 +102,8 @@ export const Gauge = createD3plusComponent(GaugeClass, "chart");
 export const Geomap = createD3plusComponent(GeomapClass, "chart");
 /** Vue component for rendering a d3plus Histogram visualization. */
 export const Histogram = createD3plusComponent(HistogramClass, "chart");
+/** Vue component for rendering a d3plus Icicle visualization. */
+export const Icicle = createD3plusComponent(IcicleClass, "chart");
 /** Vue component for rendering a d3plus LinePlot visualization. */
 export const LinePlot = createD3plusComponent(LinePlotClass, "chart");
 /** Vue component for rendering a d3plus Lollipop visualization. */

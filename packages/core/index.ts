@@ -15,6 +15,7 @@ export {
   Gauge,
   Geomap,
   Histogram,
+  Icicle,
   LinePlot,
   Lollipop,
   Marimekko,

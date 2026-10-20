@@ -354,14 +354,24 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   }
 
   // Text drawn before a web font finished loading was laid out with the
-  // fallback font's metrics; redraw once it arrives. A render still waiting
-  // on its callback is retried rather than dropped.
+  // fallback font's metrics; redraw once it arrives. The redraw waits for a
+  // render still on its callback and for a running transition to finish, so
+  // it never cuts an entrance short, and fonts that arrive meanwhile share
+  // the one pending redraw.
+  let pending: ReturnType<typeof setTimeout> | undefined;
   const redraw = (): void => {
+    pending = undefined;
     if (!viz._fontsUnsubscribe) return;
-    if (viz._callback) setTimeout(redraw, viz.schema.duration);
+    const wait = viz._callback
+      ? viz.schema.duration
+      : (viz._transitionEndsAt ?? 0) - Date.now();
+    if (wait > 0) pending = setTimeout(redraw, wait);
     else viz.render();
   };
-  viz._fontsUnsubscribe ??= onFontsLoaded(redraw);
+  const queueRedraw = (): void => {
+    if (pending === undefined) redraw();
+  };
+  viz._fontsUnsubscribe ??= onFontsLoaded(queueRedraw);
 
   if (viz.schema.detectResize && (viz._autoWidth || viz._autoHeight)) {
     viz._resizeObserver?.observe(viz._select.node().parentNode);

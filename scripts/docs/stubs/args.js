@@ -79,6 +79,7 @@ const hiddenMethods = {
   ],
   FanChart: ["barPadding", "groupPadding", "swarm", "swarmConfig"],
   Histogram: ["shape", "x", "x2", "y", "y2", "discrete"],
+  Icicle: ["shape"],
   LinePlot: ["shape"],
   Lollipop: [
     "shape",

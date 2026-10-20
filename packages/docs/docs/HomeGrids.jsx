@@ -18,6 +18,7 @@ const charts = [
   ["Gauge", "gauge"],
   ["Geomap", "geomap"],
   ["Histogram", "histogram"],
+  ["Icicle", "icicle"],
   ["Line Plot", "lineplot"],
   ["Lollipop", "lollipop"],
   ["Marimekko", "marimekko"],

@@ -37,6 +37,7 @@ export {applyPriestleyLayout} from "./src/charts/Priestley/applyLayout.js";
 export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
+export {applyIcicleLayout} from "./src/charts/Icicle/applyLayout.js";
 export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
@@ -223,6 +224,7 @@ export * from "./src/charts/Violin/internal.js";
 export * from "./src/charts/Ridgeline/internal.js";
 export * from "./src/charts/ParallelCoordinates/internal.js";
 export * from "./src/charts/Candlestick/internal.js";
+export * from "./src/charts/Icicle/internal.js";
 export * from "./src/charts/polar/internal.js";
 
 // ── ChartDefinition values ───────────────────────────────────────────────────
@@ -237,6 +239,7 @@ export {funnelDef} from "./src/charts/Funnel/index.js";
 export {gaugeDef} from "./src/charts/Gauge/index.js";
 export {geomapDef} from "./src/charts/Geomap/index.js";
 export {histogramDef} from "./src/charts/Histogram/index.js";
+export {icicleDef} from "./src/charts/Icicle/index.js";
 export {lollipopDef} from "./src/charts/Lollipop/index.js";
 export {marimekkoDef} from "./src/charts/Marimekko/index.js";
 export {matrixDef} from "./src/charts/Matrix/index.js";
