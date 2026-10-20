@@ -192,8 +192,7 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
   const extra = typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
   leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
     .tbody([
-      axisRow(viz, "x", hover),
-      axisRow(viz, "y", hover),
+      ...(viz._tooltipAxisRows === false ? [] : [axisRow(viz, "x", hover), axisRow(viz, "y", hover)]),
       ...(row.projected ? [] : confidenceRows(viz, row.datum, row.index, v => axisValue(viz, other(hover.axis), v))),
       ...(Array.isArray(extra) ? extra : []),
     ])

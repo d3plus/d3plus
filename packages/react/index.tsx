@@ -8,6 +8,7 @@ import {
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
+  Candlestick as CandlestickClass,
   Chord as ChordClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
@@ -100,6 +101,10 @@ export const BumpChart = (props: D3plusComponentProps) => (
 /** React component for rendering a d3plus Calendar visualization. */
 export const Calendar = (props: D3plusComponentProps) => (
   <Renderer className="chart" constructor={CalendarClass} {...props} />
+);
+/** React component for rendering a d3plus Candlestick visualization. */
+export const Candlestick = (props: D3plusComponentProps) => (
+  <Renderer className="chart" constructor={CandlestickClass} {...props} />
 );
 /** React component for rendering a d3plus Chord visualization. */
 export const Chord = (props: D3plusComponentProps) => (

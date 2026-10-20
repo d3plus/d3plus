@@ -6,6 +6,7 @@ import {
   Bullet as BulletClass,
   BumpChart as BumpChartClass,
   Calendar as CalendarClass,
+  Candlestick as CandlestickClass,
   Chord as ChordClass,
   Donut as DonutClass,
   Dumbbell as DumbbellClass,
@@ -82,6 +83,8 @@ export const Bullet = createD3plusComponent(BulletClass, "chart");
 export const BumpChart = createD3plusComponent(BumpChartClass, "chart");
 /** Vue component for rendering a d3plus Calendar visualization. */
 export const Calendar = createD3plusComponent(CalendarClass, "chart");
+/** Vue component for rendering a d3plus Candlestick visualization. */
+export const Candlestick = createD3plusComponent(CandlestickClass, "chart");
 /** Vue component for rendering a d3plus Chord visualization. */
 export const Chord = createD3plusComponent(ChordClass, "chart");
 /** Vue component for rendering a d3plus Donut visualization. */

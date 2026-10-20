@@ -133,7 +133,12 @@ export interface AxisConfig {
   /** Grid size of the axis. */
   gridSize?: number;
   label?: string;
-  /** Visible tick labels of the axis. */
+  /**
+      Visible tick labels of the axis. Also takes a list of label lists, from
+      the most labels to the fewest: the axis labels the first list whose
+      labels all fit whole without crowding, else the last one, thinned. Its
+      ticks then follow the chosen list unless `ticks` is set.
+  */
   labels?: unknown[];
   labelOffset?: false | number;
   /**
@@ -168,7 +173,7 @@ export interface AxisConfig {
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
-  /** Tick formatter. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
+  /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
   /** Tick values of the axis. */
   ticks?: unknown[];
@@ -529,6 +534,8 @@ export interface D3plusConfig {
   bands?:
     | (number | {min?: number; max?: number; color?: string})[]
     | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+  /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
+  bodyWidth?: number;
   /**
       ParallelCoordinates: the brush strips over each axis — `width` (px), the
       selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and
@@ -564,6 +571,11 @@ export interface D3plusConfig {
   cellPadding?: number;
   /** Calendar: each cell's corner radius, in pixels (kept below a third of the cell). Defaults to `2`. */
   cellRadius?: number;
+  /**
+      Candlestick: accessor or data key for each period's closing value
+      (default `"close"`). It is the chart's `y`: setting `y` sets it.
+  */
+  close?: string | ((d: DataPoint, i: number) => number);
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -692,6 +704,8 @@ export interface D3plusConfig {
   dimensions?: string[];
   /** Sets orientation of main category axis. */
   discrete?: "x" | "y" | "radius" | "angle";
+  /** Candlestick: the color of periods that closed below their open, or an accessor of the row. Defaults to red. */
+  downColor?: string | ((d: DataPoint, i: number) => string);
   /** Default duration of transitions, in milliseconds. */
   duration?: number;
   /** Calendar: the fill of days without a value. Defaults to a faint tint of the chart's text color, legible on light and dark backgrounds. */
@@ -803,8 +817,16 @@ export interface D3plusConfig {
   hiddenOpacity?: number | ((d: DataPoint, i: number) => number);
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /** Candlestick: accessor or data key for each period's highest value (default `"high"`). */
+  high?: string | ((d: DataPoint, i: number) => number);
   /** Persistently emphasizes matching marks (keep color) and grays the rest. */
   highlight?: ((d: DataPoint, i: number) => boolean) | false | null;
+  /**
+      Candlestick: draws rising candles as outlines and falling candles
+      filled (default `true`), so direction reads without relying on color;
+      `false` fills both.
+  */
+  hollow?: boolean;
   /** Waterfall: fill for bars that raise the running total. Defaults to `colorDefaults.on`. */
   increaseColor?: string;
   /**
@@ -920,6 +942,8 @@ export interface D3plusConfig {
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
+  /** Candlestick: accessor or data key for each period's lowest value (default `"low"`). */
+  low?: string | ((d: DataPoint, i: number) => number);
   /** Bullet: the measure bar's thickness, as a fraction of the band's thickness. */
   measureSize?: number;
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
@@ -950,6 +974,8 @@ export interface D3plusConfig {
   ocean?: string | {light: string; dark: string};
   /** Event listeners keyed by event name. */
   on?: Record<string, (event: Event) => void>;
+  /** Candlestick: accessor or data key for each period's opening value (default `"open"`). */
+  open?: string | ((d: DataPoint, i: number) => number);
   /**
       Layout direction. Charts that can be drawn either way take
       `"horizontal"` or `"vertical"`, as do Box shapes. Whisker shapes take the
@@ -1025,6 +1051,13 @@ export interface D3plusConfig {
   sideTitleConfig?: TextBoxConfig;
   /** Pyramid: draws the name of each side above its half of the chart. */
   sideTitles?: boolean;
+  /**
+      Candlestick: places periods one slot apart in date order (default
+      `true`), so days without data (weekends, holidays) leave no gap, with
+      ticks on calendar boundaries; `false` places each period at its date
+      on a continuous time axis.
+  */
+  skipGaps?: boolean;
   /** Size accessor key. */
   size?: string;
   /**
@@ -1208,10 +1241,36 @@ export interface D3plusConfig {
   totalColor?: string;
   /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
+  /** Candlestick: the color of periods that closed at or above their open, or an accessor of the row. Defaults to green. */
+  upColor?: string | ((d: DataPoint, i: number) => string);
   /** Value accessor for the visualization. */
   value?: DataPointAccessor<number>;
   /** Funnel and Gauge: formats each value shown in labels and tooltips, as `(value, datum) => string`. */
   valueFormat?: (value: number, d: DataPoint) => string;
+  /**
+      Candlestick: how each period draws — `"candlestick"` (default), a wick
+      from the high to the low around a body from the open to the close; or
+      `"ohlc"`, a high-low line with the open ticked left and the close
+      ticked right.
+  */
+  variant?: "candlestick" | "ohlc";
+  /**
+      Candlestick: accessor (or data key) for each period's volume. Off by
+      default; when set, a strip of volume bars draws under the candles, and
+      the tooltip adds a Volume row. `false` turns it off.
+  */
+  volume?: string | ((d: DataPoint, i: number) => number) | false;
+  /**
+      Candlestick: the volume strip's `height` (a share of the plot, default
+      `0.2`; pixels above 1), `gap` (pixels, default `16`), `axisConfig`
+      (its axis), and `shapeConfig` (its bars).
+  */
+  volumeConfig?: {
+    height?: number;
+    gap?: number;
+    axisConfig?: AxisConfig;
+    shapeConfig?: Record<string, unknown>;
+  };
   /** Calendar: formats the weekday names — a d3-time-format specifier read in the chart's `locale` (default `"%a"`), a function of a date on that weekday, or `false` for none. */
   weekdayFormat?: string | ((date: Date) => string) | false;
   /** Calendar: the first day of the week, `0` (Sunday) through `6` (Saturday) or a day name such as `"monday"`. Defaults to the first day of the week in the `locale`'s region. */

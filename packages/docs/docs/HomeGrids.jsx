@@ -9,6 +9,7 @@ const charts = [
   ["Bullet", "bullet"],
   ["Bump Chart", "bumpchart"],
   ["Calendar", "calendar"],
+  ["Candlestick", "candlestick"],
   ["Chord", "chord"],
   ["Donut", "donut"],
   ["Dumbbell", "dumbbell"],

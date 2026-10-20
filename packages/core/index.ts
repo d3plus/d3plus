@@ -6,6 +6,7 @@ export {
   Bullet,
   BumpChart,
   Calendar,
+  Candlestick,
   Chord,
   Donut,
   Dumbbell,

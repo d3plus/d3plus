@@ -222,6 +222,7 @@ export * from "./src/charts/helpers/densityInternal.js";
 export * from "./src/charts/Violin/internal.js";
 export * from "./src/charts/Ridgeline/internal.js";
 export * from "./src/charts/ParallelCoordinates/internal.js";
+export * from "./src/charts/Candlestick/internal.js";
 export * from "./src/charts/Icicle/internal.js";
 export * from "./src/charts/polar/internal.js";
 
@@ -229,6 +230,7 @@ export * from "./src/charts/polar/internal.js";
 export {beeswarmDef} from "./src/charts/Beeswarm/index.js";
 export {bulletDef} from "./src/charts/Bullet/index.js";
 export {calendarDef, defaultCalendarDate} from "./src/charts/Calendar/index.js";
+export {candlestickDef} from "./src/charts/Candlestick/index.js";
 export {chordDef} from "./src/charts/Chord/index.js";
 export {connectorStroke, dumbbellDef} from "./src/charts/Dumbbell/index.js";
 export {fanChartDef} from "./src/charts/FanChart/index.js";

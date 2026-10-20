@@ -5,6 +5,7 @@ export {default as BoxWhisker} from "./BoxWhisker/index.js";
 export {default as Bullet} from "./Bullet/index.js";
 export {default as BumpChart} from "./BumpChart/index.js";
 export {default as Calendar} from "./Calendar/index.js";
+export {default as Candlestick} from "./Candlestick/index.js";
 export {default as Chord} from "./Chord/index.js";
 export {default as Donut} from "./Donut/index.js";
 export {default as Dumbbell} from "./Dumbbell/index.js";
