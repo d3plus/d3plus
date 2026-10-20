@@ -173,7 +173,7 @@ export const argTypes = assign(
         0,
         10
       ],
-      description: "The axis's domain: `[min, max]` on a continuous axis, or the\ncategories to show on a discrete one. In a Plot's\n`xConfig`/`yConfig`, a full domain wins over `xDomain`/`yDomain`,\nwhile one with a single end set (`[min]` or `[undefined, max]`) on a\ncontinuous axis works exactly like `yDomain([min])`: it pins that\nend, and the data fills the other, rounded as `rounding` says.",
+      description: "The axis's domain: `[min, max]` on a continuous axis, or the\ncategories to show on a discrete one. A full domain is drawn exactly\nas given unless this axis config's `rounding` says otherwise, just as\non an Axis. In a Plot's axis configs it is a lower-level override than\n`xDomain`/`yDomain`: it wins over them, isn't stretched to the\nchart's `baseline`, and isn't rounded by Plot's own \"outside\"\ndefault. In `xConfig`/`yConfig`, one with a single end set (`[min]`\nor `[undefined, max]`) on a continuous axis works exactly like\n`yDomain([min])` instead: it pins that end, and the data fills the\nother, rounded as `rounding` says.",
       table: {
         defaultValue: {
           summary: "[0,10]"
@@ -327,7 +327,7 @@ export const argTypes = assign(
         type: "boolean"
       },
       defaultValue: false,
-      description: "Whether to rotate horizontal axis labels -90 degrees.",
+      description: "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
       table: {
         defaultValue: {
           summary: false
@@ -335,14 +335,14 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "boolean"
+        summary: "boolean | undefined"
       }
     },
     labels: {
       control: {
         type: "object"
       },
-      description: "Visible tick labels of the axis.",
+      description: "Visible tick labels of the axis. Also takes a list of label lists, from\nthe most labels to the fewest: the axis labels the first list whose\nlabels all fit whole without crowding, else the last one, thinned. Its\nticks then follow the chosen list unless `ticks` is set.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -536,7 +536,7 @@ export const argTypes = assign(
         type: "radio"
       },
       defaultValue: "none",
-      description: "How a linear or log axis rounds its domain to \"nice\" values:\n\"outside\" widens each end past the data, \"inside\" pulls each end in\n(marking them with the `roundingInside*` prefixes and suffixes), and\n\"none\" keeps the domain as given. Defaults to \"none\" on an Axis; a\nPlot rounds \"outside\" unless its axis config says otherwise. With a\nuser domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a\none-sided `domain` here) only an end left open is rounded:\n`yDomain([n])` keeps `n` exactly and rounds the far end where the\naxis would with no domain set, and \"none\" leaves that end at the\ndata. A `yDomain` with both ends set isn't rounded unless `rounding`\nis set here.",
+      description: "How a linear or log axis rounds its domain to \"nice\" values:\n\"outside\" widens each end past the data, \"inside\" pulls each end in\n(marking them with the `roundingInside*` prefixes and suffixes), and\n\"none\" keeps the domain as given. Defaults to \"none\" on an Axis; a\nPlot rounds \"outside\" unless its axis config says otherwise or sets a\nfull `domain`, which is rounded only when asked for here. With a\nuser domain on a Plot (`xDomain`/`yDomain`, `baseline`, or a\none-sided `domain` here) only an end left open is rounded:\n`yDomain([n])` keeps `n` exactly and rounds the far end where the\naxis would with no domain set, and \"none\" leaves that end at the\ndata. A `yDomain` with both ends set isn't rounded unless `rounding`\nis set here.",
       options: [
         "none",
         "outside",
@@ -710,7 +710,7 @@ export const argTypes = assign(
     },
     tickFormat: {
       control: {},
-      description: "Tick formatter.",
+      description: "Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format (\"1.5k\"), with years printed in full (\"1990\") when the axis's values are all whole numbers from 1000 through 2999.",
       table: {
         defaultValue: {
           summary: "undefined"

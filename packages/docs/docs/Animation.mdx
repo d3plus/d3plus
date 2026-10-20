@@ -20,6 +20,30 @@ Every visualization eases between renders over a configurable `duration`
 Text animates too: a label whose font-size changes between renders grows or
 shrinks into place instead of jumping.
 
+## Entering marks
+
+New marks grow into place rather than popping in: bars rise from their
+baseline, circles grow from their center, areas spread out of a flat line, and
+Pie wedges sweep open. Some charts give their marks an entrance of their own:
+
+- **Stacked bars** (a stacked BarChart, stacked Histogram series, Pyramid
+  sub-groups, Marimekko) grow one segment at a time on the first draw: the
+  bottom segments of every stack grow together, then the next level up, and so
+  on, within the one `duration`. Diverging stacks count outward from zero on
+  each side.
+- **Bullet** measures and forecasts grow along the track from the bullet's
+  baseline.
+- **Violin** and **Ridgeline** shapes grow out of the line they're drawn
+  from: a violin's center line, or a ridge's baseline.
+- **Icicle** rectangles grow out of their parent's edge, one level at a time
+  from the root outward.
+
+Stacked bars stagger only on the first draw: later updates, such as new data or
+a timeline step, animate them over the whole transition. When building on
+`@d3plus/render` directly, a scene node's `enterWindow` (`{start, end}`, shares
+of the transition from 0 to 1) delays its entrance to that slice of the
+transition, which is how these staggered entrances are timed.
+
 ## Motion trails
 
 When a mark moves between timeline frames (press **play**, or step the timeline),

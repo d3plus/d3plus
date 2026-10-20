@@ -113,6 +113,19 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    id: {
+      control: {},
+      description: "Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
     locale: {
       control: {
         type: "object"

@@ -262,6 +262,9 @@ workspace package — the release flow relies on this.
   false`.
 - **Linting:** ESLint flat config (`eslint.config.js`). Fix lint before
   committing; `max-lines` rules are enforced — split oversized files.
+  Package entry points (`index.ts`, core's `internal.ts` and `umd-entry.ts`)
+  are export lists, exempt from `max-lines`, and may hold only imports and
+  re-exports.
 - **TypeDoc:** add TypeDoc comments to public methods; `pnpm run docs` reads
   them.
 

@@ -518,7 +518,7 @@ export const argTypes = assign(
     },
     facetConfig: {
       control: {},
-      description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
+      description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows. Funnel defaults to `\"independent\"` (each panel sized to its own widest stage); `\"shared\"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `\"independent\"` (each panel's rings and ticks fit its own values); `\"shared\"` gives every panel the same value domain.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel. An object sets each axis on its own, as in `{x: \"all\", y: \"outer\"}`: every panel labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. BumpChart defaults to `\"all\"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -579,7 +579,7 @@ export const argTypes = assign(
       control: {
         type: "number"
       },
-      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.",
+      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.\n\nBullet: each row's forecast (or other comparative measure), drawn as\na paler bar behind the measure: a data key, an accessor returning the\nrow's value, a number shared by every row, or `false`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -594,7 +594,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.",
+      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.\n\nBullet: the forecast bar's `size` (a fraction of the band's\nthickness), `opacity`, `fill`, `texture`, and\n`backgroundImage`/`backgroundImageFit`, each a value or a `(d, i)`\naccessor.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2020,7 +2020,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
+      description: "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `xConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `xConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2028,7 +2028,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;number | date&gt;"
+        summary: "array.&lt;string | number | date&gt;"
       }
     },
     xSort: {
@@ -2166,7 +2166,7 @@ export const argTypes = assign(
       control: {
         type: "object"
       },
-      description: "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn.",
+      description: "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `yConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `yConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
       table: {
         defaultValue: {
           summary: "undefined"
@@ -2174,7 +2174,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "array.&lt;number | date&gt;"
+        summary: "array.&lt;string | number | date&gt;"
       }
     },
     ySort: {

@@ -46,12 +46,12 @@ import {D3plusContext} from "@d3plus/react";
 
 Every d3plus class is exported as a React component:
 
-- **Charts** — `AreaPlot`, `BarChart`, `BoxWhisker`, `BumpChart`, `Calendar`, `Donut`, `Gauge`, `Geomap`, `LinePlot`, `Matrix`, `Network`, `Pack`, `ParallelCoordinates`, `Pie`, `Plot`, `PolarArea`, `Priestley`, `Radar`, `RadialBar`, `RadialMatrix`, `Rings`, `Sankey`, `StackedArea`, `Sunburst`, `Tree`, `Treemap`, `Viz`, `Waffle`
-- **Components** — `Axis`, `AxisBottom`, `AxisLeft`, `AxisRight`, `AxisTop`, `ColorScale`, `Legend`, `Message`, `TextBox`, `Timeline`, `Tooltip`
+- **Charts** — `AreaPlot`, `BarChart`, `Beeswarm`, `BoxWhisker`, `Bullet`, `BumpChart`, `Calendar`, `Candlestick`, `Chord`, `Donut`, `Dumbbell`, `FanChart`, `Funnel`, `Gauge`, `Geomap`, `Histogram`, `Icicle`, `LinePlot`, `Lollipop`, `Marimekko`, `Matrix`, `Network`, `Pack`, `ParallelCoordinates`, `Pie`, `Plot`, `PolarArea`, `Priestley`, `Pyramid`, `Radar`, `RadialBar`, `RadialMatrix`, `Ridgeline`, `Rings`, `Sankey`, `StackedArea`, `Sunburst`, `Tree`, `Treemap`, `Violin`, `Viz`, `Waffle`, `Waterfall`
+- **Components** — `Axis`, `AxisBottom`, `AxisLeft`, `AxisRight`, `AxisTop`, `ColorScale`, `Legend`, `Message`, `SizeLegend`, `TextBox`, `Timeline`, `Tooltip`
 - **Shapes** — `Area`, `Bar`, `Box`, `Circle`, `Image`, `Line`, `Path`, `Rect`, `Shape`, `Whisker`
 - **Utilities** — `BaseClass`
 
-The package also exports `D3plusContext`, the `Renderer` component each of the above is built on, and the `RendererProps` / `D3plusConfig` / `D3plusConstructor` types.
+The package also exports `D3plusContext` and the `D3plusComponentProps` / `RendererProps` / `D3plusConfig` / `D3plusConstructor` types.
 
 ## Props
 

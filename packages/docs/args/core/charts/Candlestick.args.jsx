@@ -56,7 +56,7 @@ export const argTypes = assign(
     },
     downColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       defaultValue: "#e03131",
       description: "The color of periods that closed below their open: a color string, or an accessor of the row. Defaults to red.",
@@ -171,7 +171,7 @@ export const argTypes = assign(
     },
     upColor: {
       control: {
-        type: "text"
+        type: "color"
       },
       defaultValue: "#2f9e44",
       description: "The color of periods that closed at or above their open: a color string, or an accessor of the row. Defaults to green.",
@@ -206,7 +206,9 @@ export const argTypes = assign(
       }
     },
     volume: {
-      control: {},
+      control: {
+        type: "text"
+      },
       description: "Accessor (or data key) for each period's traded volume. Off by default; when set, a strip under the candles draws one bar per candle, as tall as its volume on the strip's own axis (ticks abbreviated, e.g. \"1.2M\"), in its candle's up or down color, and the tooltip adds a Volume row. Bars are always filled, hollow candles included, and take `shapeConfig.texture` and `shapeConfig.backgroundImage` like filled candles; they hover with their candle. The price axis shrinks to make room, and the x axis sits under the strip. Merged rows add their volumes; an `aggs` entry overrides it as it does for `open`. Set `false` to turn it off.",
       table: {
         defaultValue: {
@@ -215,7 +217,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "unknown"
+        summary: "string | false | function"
       }
     },
     volumeConfig: {
@@ -230,7 +232,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "record"
+        summary: "object"
       }
     }
   }

@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.",
+        component: "A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.\n\nWithout shown, the year rides on the first and last dates and on each January 1st. Given shown (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.",
       },
     },
   }

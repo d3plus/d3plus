@@ -28,7 +28,7 @@ Zooming magnifies the whole grid as one picture.
 
 ## Layout
 
-The grid sizes itself. D3plus tries every column count and keeps the one that draws the panels largest for the chart's shape: close to square for a Pie, Donut, Radar, Pack, Rings, Network, or Matrix, and a little wider than tall for everything else. Most charts need no layout options at all.
+The grid sizes itself. D3plus tries every column count and keeps the one that draws the panels largest for the chart's shape: close to square for round or grid-shaped charts (Pie, Donut, Sunburst, Radar, PolarArea, RadialBar, Chord, Pack, Rings, Network, Matrix, RadialMatrix, and Waffle), wider for a Bullet, a ParallelCoordinates, or a Calendar (shaped like a year of weeks), and a little wider than tall for everything else. Most charts need no layout options at all.
 
 `facetConfig` adjusts the grid when you want something else:
 
@@ -51,16 +51,19 @@ facetConfig: {
 
 ## Shared and independent scales
 
-In the Plot family (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker, BumpChart, and Plot itself), every panel uses the same x and y scales by default. Each axis spans every panel's values, including stacks, bubble sizes, and whiskers, so equal heights mean equal values in any panel.
+In the Plot family (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker, BumpChart, Beeswarm, Candlestick, Dumbbell, FanChart, Histogram, Lollipop, Marimekko, Pyramid, Ridgeline, Violin, Waterfall, and Plot itself), every panel uses the same x and y scales by default. Each axis spans every panel's values, including stacks, bubble sizes, and whiskers, so equal heights mean equal values in any panel, and a Histogram bins every panel with the same edges.
 
-Because the scales match, axes are labeled only along the grid's edges. The left column labels the y axis and the bottom panels label the x axis, and those panels get extra room for their labels so every plot area is the same size. Set `axes: "all"` to label every panel. BumpChart labels every panel by default, since each panel ranks its own series.
+Because the scales match, axes are labeled only along the grid's edges. The left column labels the y axis and the bottom panels label the x axis, and those panels get extra room for their labels so every plot area is the same size. Set `axes: "all"` to label every panel, or pass an object to set each axis on its own: `{x: "all", y: "outer"}` labels every panel's x axis but only the left column's y axis. BumpChart labels every panel by default, since each panel ranks its own series. Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.
 
 ```jsx
 facetConfig: {scales: "independent"}   // each panel fits its own rows
 facetConfig: {axes: "all"}             // shared scales, labels on every panel
+facetConfig: {axes: {x: "all"}}        // x labels on every panel, y along the edge
 ```
 
 With `scales: "independent"`, each panel fits its own data and labels its own axes. Use it when panels differ so much in size that a shared scale would flatten the small ones.
+
+A few charts without x/y axes share scales too. By default a Bullet reads each row against the same domain in every panel, a Calendar gives every panel the same date range (so a day sits in the same cell in each), and a ParallelCoordinates shares each dimension's domain and labels its axes on every panel. Funnel, PolarArea, and RadialBar default to `"independent"` instead, since each panel reads best sized to its own values; set `scales: "shared"` to size every Funnel against the widest stage in any panel, or to give every PolarArea or RadialBar the same value domain.
 
 ## Charts without axes
 
@@ -69,3 +72,5 @@ A data-driven chart such as a Pie, Treemap, or Pack is drawn in each panel exact
 ## Examples
 
 See the [small multiples examples](/docs/core-charts-viz--d3plus#small-multiples): a [BarChart](/docs/core-charts-viz--d3plus#small-multiples), a [LinePlot with custom panel padding](/docs/core-charts-viz--d3plus#small-multiples-line-plot), [independent scales](/docs/core-charts-viz--d3plus#small-multiples-independent-scales), [Donuts in a custom order](/docs/core-charts-viz--d3plus#small-multiples-donut), [Treemaps with a timeline and custom titles](/docs/core-charts-viz--d3plus#small-multiples-treemap), and [Matrices sharing a colorScale](/docs/core-charts-viz--d3plus#small-multiples-matrix).
+
+These chart pages have a small multiples example of their own: [Bullet](/docs/core-charts-bullet--d3plus#small-multiples), [Calendar](/docs/core-charts-calendar--d3plus#small-multiples), [Candlestick](/docs/core-charts-candlestick--d3plus#small-multiples), [Dumbbell](/docs/core-charts-dumbbell--d3plus#small-multiples), [FanChart](/docs/core-charts-fanchart--d3plus#small-multiples), [Funnel](/docs/core-charts-funnel--d3plus#small-multiples), [Icicle](/docs/core-charts-icicle--d3plus#small-multiples), [Lollipop](/docs/core-charts-lollipop--d3plus#small-multiples), [Marimekko](/docs/core-charts-marimekko--d3plus#small-multiples), [ParallelCoordinates](/docs/core-charts-parallelcoordinates--d3plus#small-multiples), [PolarArea](/docs/core-charts-polararea--d3plus#small-multiples), [RadialBar](/docs/core-charts-radialbar--d3plus#small-multiples), [Ridgeline](/docs/core-charts-ridgeline--d3plus#small-multiples), [Violin](/docs/core-charts-violin--d3plus#small-multiples), [Waffle](/docs/core-charts-waffle--d3plus#small-multiples), and [Waterfall](/docs/core-charts-waterfall--d3plus#small-multiples).

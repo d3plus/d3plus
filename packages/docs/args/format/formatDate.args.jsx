@@ -45,5 +45,18 @@ export const argTypes = {
       required: false,
       summary: "dateformatter"
     }
+  },
+  shown: {
+    control: {},
+    description: "Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date).",
+    table: {
+      defaultValue: {
+        summary: "undefined"
+      }
+    },
+    type: {
+      required: false,
+      summary: "array.&lt;date&gt;"
+    }
   }
 };

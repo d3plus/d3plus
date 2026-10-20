@@ -132,7 +132,7 @@ trails** by default, and `trailPersist` can keep the whole path visible. See
 
 ## Zoom & pan
 
-Every chart zooms and pans its content by default, with controls in the
+Charts zoom and pan their content by default, with controls in the
 chart's top-right corner (zoom in, zoom out, reset, and a drag-to-zoom brush
 that ends after one selection), wheel zoom, and drag-to-pan.
 
@@ -143,7 +143,10 @@ zoomed in. Geomap and Network are pan-and-zoom surfaces, so they zoom on any
 wheel. Set `zoomScroll` to `true` (any wheel), `"modifier"`, or `false` (no
 wheel zoom) to choose. A title,
 subtitle, total, or top/right legend wraps or shifts to leave room for the
-controls. Set `zoom: false` to turn it all off. Zoomed content is clipped to
+controls. Set `zoom: false` to turn it all off. Zoom starts off where it
+doesn't help read the chart (Bullet, Calendar, Funnel, Gauge, and Waffle) and
+on ParallelCoordinates, where it would slide the axes out from under their
+brushes; set `zoom: true` to turn it on. Zoomed content is clipped to
 the chart area, so the legend, title, and timeline stay put.
 
 The control buttons are real `<button>`s: the brush toggle carries
@@ -163,10 +166,11 @@ your mount function returned, if any. The attribution credit's "ⓘ" badge (see
 `attribution`) takes the same treatment via `attributionIcon`.
 
 Plot-based charts (BarChart, LinePlot, AreaPlot, StackedArea, BoxWhisker,
-BumpChart, and Plot itself) zoom their data instead of the picture: each
-linear axis stays in place and rescales its domain, while category, time, and
-log axes stay fixed. A bar chart zooms and pans along its value axis only; a
-scatter plot with two linear axes zooms in both directions.
+BumpChart, Plot itself, and the other charts built on Plot) zoom their data
+instead of the picture: each linear or time axis stays in place and rescales
+its domain, re-ticking for the window it shows, while category and log axes
+stay fixed. A bar chart of categories zooms and pans along its value axis
+only; a scatter plot with two linear axes zooms in both directions.
 
 How far you can zoom in adapts to what's drawn:
 by default, the limit is the scale at which the chart's smallest shape fills
