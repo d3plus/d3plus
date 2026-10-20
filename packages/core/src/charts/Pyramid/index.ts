@@ -7,7 +7,6 @@
 
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
-import type {Scene} from "@d3plus/render";
 
 import TextBox from "../../components/TextBox.js";
 import accessor from "../../utils/accessor.js";
@@ -332,13 +331,10 @@ export const pyramidDef: ChartDefinition = {
       preDraw();
       preparePyramid(viz);
     };
-    const toScene = (viz.toScene as unknown as () => Scene).bind(viz);
-    (viz as unknown as {toScene: () => Scene}).toScene = () => {
-      const scene = toScene();
-      // Small multiples add these to each panel as it draws (see `facet` below).
-      return viz._facetPanels ? scene : pyramidScene(viz, scene, sceneInput(viz));
-    };
   },
+
+  // Small multiples add these to each panel as it draws (see `facet` below).
+  decorateScene: (viz, scene) => (viz._facetPanels ? scene : pyramidScene(viz, scene, sceneInput(viz))),
 
   facet: {
     scene: (viz, nodes) => pyramidPanelScene(viz, nodes, sceneInput(viz)),
