@@ -16,6 +16,8 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
+import {stampOwners} from "./shapeOwners.js";
+import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
 import Whisker from "./Whisker.js";
 
@@ -300,6 +302,8 @@ export default class Box extends BaseClass {
   _median!: Rect;
   _whisker!: Whisker;
   _whiskerEndpoint: (Circle | Rect)[];
+  /** Each record handed to an inner shape → the box it belongs to (see `toScene`). */
+  _owned: Map<object, Owned>;
 
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
@@ -327,6 +331,7 @@ export default class Box extends BaseClass {
     };
     this.schema.whiskerConfig = {};
     this._whiskerEndpoint = [];
+    this._owned = new Map();
   }
 
   /**
@@ -367,9 +372,14 @@ export default class Box extends BaseClass {
         return `${id ?? key}`;
       }),
     );
-    const filteredData = boxGroups.map((group, i) =>
-      computeBoxGroup(this, group, ids[i], outlierData),
-    );
+    this._owned = new Map();
+    const filteredData = boxGroups.map((group, i) => {
+      const start = outlierData.length;
+      const d = computeBoxGroup(this, group, ids[i], outlierData);
+      const owned = {datum: d, index: i};
+      for (const record of [d, ...outlierData.slice(start)]) this._owned.set(record, owned);
+      return d;
+    });
 
     // Draw box.
     this._box = new Rect()
@@ -435,7 +445,8 @@ export default class Box extends BaseClass {
       `renderMode("compute")`, the inner Rect/Whisker/Circle/etc.
       shapes are mounted scene-only (no parent <g>); their `toScene()`
       methods produce GroupNodes that we wrap into a single Box-level
-      group so collectComputed(boxInstance) yields the union.
+      group so collectComputed(boxInstance) yields the union. Each part
+      names its box in `owners`, so `"click.Box"` handlers fire on it.
   */
   toScene(): GroupNode {
     const children: SceneNode[] = [];
@@ -451,7 +462,7 @@ export default class Box extends BaseClass {
     return {
       type: "group",
       key: "d3plus-Box-scene",
-      children,
+      children: stampOwners(children, "Box", this._owned),
     };
   }
 

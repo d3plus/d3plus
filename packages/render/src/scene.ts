@@ -183,6 +183,20 @@ export interface InteractionPoint {
 }
 
 /**
+    @interface ShapeOwner
+    A composite shape (Box, Whisker) that drew a scene node through one of its
+    inner shapes, and the datum and index it drew that part from.
+*/
+export interface ShapeOwner {
+  /** The composite shape's type, as `"click.<shapeType>"` handlers name it. */
+  shapeType: string;
+  /** The composite's own datum for this part (a Box's box record). */
+  datum: DataPoint;
+  /** The datum's position in the composite's data. */
+  index: number;
+}
+
+/**
     @interface NodeBase
     Fields shared by every scene node.
 */
@@ -213,6 +227,15 @@ export interface NodeBase {
       metadata only — backends never read it for drawing.
   */
   shapeType?: string;
+  /**
+      The composite shapes this node was drawn as part of, innermost first. A
+      Box draws its parts through inner shapes, so its whisker line carries
+      `shapeType: "Line"` and `owners: [{shapeType: "Whisker", …}, {shapeType:
+      "Box", …}]`. The pointer bridge fires each owner's shape-class-scoped
+      handlers (`"click.Box"`) with that owner's datum. Interaction metadata
+      only — backends never read it for drawing.
+  */
+  owners?: ShapeOwner[];
   /**
       The chart-level interactive component this node belongs to ("legend"),
       stamped by Viz.toScene so the pointer bridge can route component-scoped

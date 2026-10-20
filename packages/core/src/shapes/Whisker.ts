@@ -16,6 +16,8 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Line from "./Line.js";
 import Rect from "./Rect.js";
+import {stampOwners} from "./shapeOwners.js";
+import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
 import type {WhiskerConfig} from "./shapeConfig.js";
 
@@ -44,6 +46,8 @@ export default class Whisker extends BaseClass {
   _select!: D3Selection;
   _line!: Line;
   _whiskerEndpoint: (Circle | Rect)[];
+  /** Each datum → its whisker's datum and index (see `toScene`). */
+  _owned: Map<object, Owned>;
 
   /**
       Invoked when creating a new class instance, and overrides any default parameters inherited from BaseClass.
@@ -55,6 +59,7 @@ export default class Whisker extends BaseClass {
     this.schema.endpointConfig = {Circle: {r: accessor("r", 5)}};
     this.schema.lineConfig = {};
     this._whiskerEndpoint = [];
+    this._owned = new Map();
   }
 
   /**
@@ -77,6 +82,8 @@ export default class Whisker extends BaseClass {
       if (compute) return null as unknown as D3Selection["node"];
       return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
     };
+
+    this._owned = new Map(this._data.map((d: DataPoint, i: number) => [d, {datum: d, index: i}]));
 
     // Each whisker's identity keys its line and its endpoint.
     const ids = uniqueIds(this._data.map((d: DataPoint, i: number) => `${d.id ?? i}`));
@@ -181,7 +188,7 @@ export default class Whisker extends BaseClass {
   /**
       Compute-mode scene aggregation, mirroring Box.toScene(). Returns a
       GroupNode containing the inner Line's scene children plus each
-      endpoint shape's scene children.
+      endpoint shape's scene children, each naming its whisker in `owners`.
   */
   toScene(): GroupNode {
     const children: SceneNode[] = [];
@@ -192,7 +199,7 @@ export default class Whisker extends BaseClass {
     push(this._line);
     if (Array.isArray(this._whiskerEndpoint))
       for (const ep of this._whiskerEndpoint) push(ep);
-    return {type: "group", key: "d3plus-Whisker-scene", children};
+    return {type: "group", key: "d3plus-Whisker-scene", children: stampOwners(children, "Whisker", this._owned)};
   }
 
   /**
