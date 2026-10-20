@@ -6,8 +6,8 @@ export interface SaveElementOptions {
   filename?: string;
   /** File type of the saved document. Accepted values are "png", "jpg", and "svg". */
   type?: "png" | "jpg" | "svg";
-  /** Function to be invoked after saving is complete. */
-  callback?: () => void;
+  /** Function to be invoked after saving is complete. Receives the error when the element could not be rendered. */
+  callback?: (error?: Error) => void;
 }
 
 export interface SaveElementRenderOptions {
@@ -73,7 +73,7 @@ function serializeSvg(elem: SVGElement): Blob {
     @param options Additional options to specify.
     @param options .filename = "download"] Filename for the downloaded file, without the extension.
     @param options .type = "png"] File type of the saved document. Accepted values are `"png"` and `"jpg"`.
-    @param options .callback] Function to be invoked after saving is complete.
+    @param options .callback] Function to be invoked after saving is complete. Receives the error when the element could not be rendered; without a callback, the error is logged.
     @param renderOptions Custom options to be passed to the html-to-image function.
 */
 export default function (
@@ -84,9 +84,23 @@ export default function (
   if (!elem) return;
   const {filename, type, renderOpts} = resolveSaveOptions(options, renderOptions);
 
+  function done(error?: Error): void {
+    if (options.callback) options.callback(error);
+    else if (error) console.error(error);
+  }
+
   function finish(blob: Blob): void {
     saveAs(blob, `${filename}.${type}`);
-    if (options.callback) options.callback();
+    done();
+  }
+
+  // html-to-image rejects with a bare Event when an image fails to load.
+  function fail(cause: unknown): void {
+    done(
+      cause instanceof Error
+        ? cause
+        : new Error("Could not render the element to an image.", {cause}),
+    );
   }
 
   if (type === "svg" && isSvgTarget(elem)) {
@@ -97,11 +111,13 @@ export default function (
       xhr.open("GET", dataUrl);
       xhr.responseType = "blob";
       xhr.onload = () => finish(xhr.response as Blob);
+      xhr.onerror = fail;
       xhr.send();
-    });
+    }, fail);
   } else {
-    toBlob(elem as HTMLElement, renderOpts).then((blob: Blob | null) => {
-      if (blob) finish(blob);
-    });
+    toBlob(elem as HTMLElement, renderOpts).then(
+      (blob: Blob | null) => (blob ? finish(blob) : fail(blob)),
+      fail,
+    );
   }
 }
