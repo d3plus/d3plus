@@ -14,18 +14,23 @@ import type {DataPoint} from "@d3plus/data";
 import {backgroundColor, rtl} from "@d3plus/dom";
 import {largestRect} from "@d3plus/math";
 
+import {isValidDate} from "../../components/Axis/timeValues.js";
 import {constant} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {outsideBaselineBreak} from "./baselineBreak.js";
 import {defaultSize, outside} from "./labelPlacement.js";
+import {axisValue} from "./sharedTooltip.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
 function areaConfig(self: VizInstance) {
   return {
     label: (d: DataPoint, i: number) => (self.schema.stacked ? self._drawLabel(d, i) : false),
     labelBounds: (d: DataPoint, i: number, aes: {points: [number, number][]}) => {
-      let r = largestRect(aes.points, {angle: range(-20, 20, 5)});
+      // The label fits the area's plotted part, clear of any baseline break.
+      const points = outsideBaselineBreak(self, aes.points);
+      let r = largestRect(points, {angle: range(-20, 20, 5)});
       if (!r || r.height < 20 || r.width < 50)
-        r = largestRect(aes.points, {angle: range(-80, 80, 5)});
+        r = largestRect(points, {angle: range(-80, 80, 5)});
       if (!r) return null;
       const x = min(aes.points, (p: [number, number]) => p[0]) as unknown as number;
       const y = max(
@@ -50,19 +55,21 @@ function areaConfig(self: VizInstance) {
 
 /** Builds the top-level `ariaLabel` accessor; `self` is the Plot instance. */
 function ariaLabelConfig(self: VizInstance) {
+  // Dates read as their axis labels them (see `axisValue`), other values as given.
+  const value = (k: "x" | "y", v: unknown) => (isValidDate(v) ? axisValue(self, k, v) : v);
   return (d: DataPoint, i: number) => {
     let ariaLabelStr = "";
     if (d.nested) ariaLabelStr = `${self._drawLabel(d.data as DataPoint, d.i as number)}`;
     else {
       ariaLabelStr = `${self._drawLabel(d, i)}`;
       if (self._x!(d, i) !== undefined)
-        ariaLabelStr += `, x: ${self._x!(d, i)}`;
+        ariaLabelStr += `, x: ${value("x", self._x!(d, i))}`;
       if (self._y!(d, i) !== undefined)
-        ariaLabelStr += `, y: ${self._y!(d, i)}`;
+        ariaLabelStr += `, y: ${value("y", self._y!(d, i))}`;
       if (self._x2!(d, i) !== undefined)
-        ariaLabelStr += `, x2: ${self._x2!(d, i)}`;
+        ariaLabelStr += `, x2: ${value("x", self._x2!(d, i))}`;
       if (self._y2!(d, i) !== undefined)
-        ariaLabelStr += `, y2: ${self._y2!(d, i)}`;
+        ariaLabelStr += `, y2: ${value("y", self._y2!(d, i))}`;
     }
     return `${ariaLabelStr}.`;
   };

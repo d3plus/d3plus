@@ -75,6 +75,8 @@ export interface RadarLevelLabelOpts {
   /** Measures a label's text width in pixels. */
   measure: (text: string) => number;
   fontSize: number;
+  /** Maps a ring value onto its radius; defaults to a linear scale over `domain`. */
+  toRadius?: (value: number) => number;
 }
 
 /**
@@ -86,6 +88,7 @@ export interface RadarLevelLabelOpts {
 */
 export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
   const {ticks, domain, radius, angle, format, measure, fontSize} = opts;
+  const toRadius = opts.toRadius ?? ((v: number) => radarRadius(v, domain, radius));
   const radians = (angle * Math.PI) / 180;
   // Unit vectors along the label direction (d) and perpendicular to its
   // clockwise side (p), in screen coordinates (y down).
@@ -100,7 +103,7 @@ export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
   const labels = ticks
     .filter(t => t >= domain[0] && t <= domain[1])
     .map((value): RadarLevelLabel => {
-      const r = radarRadius(value, domain, radius);
+      const r = toRadius(value);
       const text = format(value);
       const width = measure(text);
       const height = fontSize;
@@ -132,10 +135,11 @@ export interface RadarLevelLabelPaint {
   fontWeight: number | string;
 }
 
-/** Builds the text scene nodes for laid-out level labels. */
+/** Builds the text scene nodes for laid-out level labels, keyed with `prefix`. */
 export function emitRadarLevelLabels(
   labels: RadarLevelLabel[],
   paint: RadarLevelLabelPaint,
+  prefix = "radar",
 ): SceneNode[] {
   if (!labels.length) return [];
   const children: SceneNode[] = [];
@@ -143,7 +147,7 @@ export function emitRadarLevelLabels(
     const offset = l.anchor === "start" ? -l.width / 2 : l.anchor === "end" ? l.width / 2 : 0;
     children.push({
       type: "text",
-      key: `radar-level-label-${l.value}`,
+      key: `${prefix}-level-label-${l.value}`,
       interactive: false,
       x: 0,
       y: 0,
@@ -159,5 +163,5 @@ export function emitRadarLevelLabels(
       paint: {fill: paint.fontColor, opacity: paint.fontOpacity},
     });
   }
-  return [{type: "group", key: "radar-level-labels", interactive: false, children}];
+  return [{type: "group", key: `${prefix}-level-labels`, interactive: false, children}];
 }

@@ -17,6 +17,7 @@ import type {VizContext} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes, brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
+import {timeDataInDomain} from "./timeValues.js";
 
 export {isNegative};
 
@@ -41,12 +42,14 @@ const maxTimezoneOffset = 1000 * 60 * 60 * 26;
 /**
  * Calculates ticks from a given scale (negative and/or positive)
  * @param {scale} scale A d3-scale object
+ * @param {Array} scaleData The time axis's data inside the scale's domain.
  * @private
 */
 function calculateStep(
   this: Axis,
   scale: D3Scale,
-  minorTicks: boolean = false,
+  minorTicks: boolean,
+  scaleData: Date[],
 ): number {
   const stepScale = scales
     .scaleLinear()
@@ -57,9 +60,9 @@ function calculateStep(
   let step = Math.floor(stepScale(size));
 
   if (this.schema.scale === "time") {
-    if (this._scaleData.length) {
-      const dataExtent = extent(this._scaleData as number[]);
-      const distance = this._scaleData.reduce(
+    if (scaleData.length) {
+      const dataExtent = extent(scaleData as unknown as number[]);
+      const distance = (scaleData as unknown[]).reduce(
         (n: number, d: unknown, i: number, arr: unknown[]) => {
           if (i) {
             const dist = Math.abs((d as number) - (arr[i - 1] as number));
@@ -97,15 +100,18 @@ export function calculateTicks(
   let ticks: unknown[] = [];
 
   const scaleClone = scale.copy();
-  if (this.schema.scale === "time" && this._scaleData.length) {
-    const newDomain = extent(this._scaleData as number[]) as number[];
+  // A time axis ticks the data it shows: the dates inside its domain, so a
+  // domain narrower than the data (a zoomed view) re-ticks for that window.
+  const scaleData = this.schema.scale === "time" ? timeDataInDomain(this._scaleData as Date[], scale) : [];
+  if (scaleData.length) {
+    const newDomain = extent(scaleData) as unknown as number[];
     const range = newDomain.map(d => scale(d));
     scaleClone.domain(newDomain).range(range);
   }
 
   const domain = scaleClone.domain() as number[];
   const inverted = domain[1] < domain[0];
-  const step = calculateStep.bind(this)(scaleClone, minorTicks);
+  const step = calculateStep.call(this, scaleClone, minorTicks, scaleData);
 
   if (!minorTicks && this.schema.scale === "log") {
     const roundDomain = domain.map((d: number) =>
@@ -485,17 +491,19 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
   const position = ["top", "left"].includes(axis.schema.orient)
     ? axis._outerBounds[yKey] + axis._outerBounds[height] - offset
     : axis._outerBounds[yKey] + offset;
+  // A point scale's outer padding splits between its ends by `align`.
+  const align = axis.schema.scale === "point" && axis._d3Scale!.align ? axis._d3Scale!.align() : 0.5;
   const x1mod =
     axis.schema.scale === "band"
       ? axis._d3Scale!.step!() - axis._d3Scale!.bandwidth!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!() * 2 * align
         : 0;
   const x2mod =
     axis.schema.scale === "band"
       ? axis._d3Scale!.step!()
       : axis.schema.scale === "point"
-        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!()
+        ? axis._d3Scale!.step!() * axis._d3Scale!.padding!() * 2 * (1 - align)
         : 0;
   const sortedDomain = (
     axis._d3ScaleNegative ? axis._d3ScaleNegative.domain() : []

@@ -35,6 +35,32 @@ export const argTypes = assign(
         summary: "function | null"
       }
     },
+    backgroundImage: {
+      control: {},
+      description: "An image drawn inside each box (see `ShapeConfig.backgroundImage`); `rectConfig.backgroundImage` overrides it.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    backgroundImageFit: {
+      control: {},
+      description: "How the box's `backgroundImage` fits it: `\"cover\"` (default) or `\"contain\"`.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
     colorDefaults: {
       control: {},
       description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
@@ -234,6 +260,34 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "d3plusconfig"
+      }
+    },
+    texture: {
+      control: {},
+      description: "Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor"
+      }
+    },
+    textureDefault: {
+      control: {
+        type: "object"
+      },
+      description: "Default texture config merged into the box's texture.",
+      table: {
+        defaultValue: {
+          summary: "undefined"
+        }
+      },
+      type: {
+        required: false,
+        summary: "record"
       }
     },
     translate: {

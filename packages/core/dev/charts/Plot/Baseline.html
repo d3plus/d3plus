@@ -1,0 +1,96 @@
+<!doctype html>
+<html>
+
+  <head>
+
+    <meta charset="utf-8">
+    <title>Baseline · Plot</title>
+    <meta name="description" content="baseline(n) renders exactly like yDomain([n]): each row draws baseline(980) next to yDomain([980]), break to 0 and rounded far end included, on bars, areas, stacks, lines and horizontal bars.">
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 280px;
+      }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="grid" id="grid"></div>
+
+    <script>
+
+      const quarters = ["Q1", "Q2", "Q3", "Q4"];
+      const rows = values => quarters.flatMap((quarter, i) =>
+        ["North", "South"].map((region, j) => ({quarter, region, value: values(i, j)})));
+
+      // Every value sits just above 980.
+      const above = rows((i, j) => (j ? 990 + i * 5 : 1000 + i * 8));
+      // North's first quarter dips below 980.
+      const crossing = rows((i, j) => (j ? 990 + i * 5 : 960 + i * 20));
+      // Every value sits below -80.
+      const negative = rows((i, j) => (j ? -90 - i * 5 : -100 - i * 8));
+
+      const north = above.filter(d => d.region === "North");
+      const sideways = c => c.discrete("y").x("value").y("quarter");
+
+      // Each row: [type, data, label, baseline setup, label, domain setup].
+      // The two charts in a row should look identical. Only the baseline end
+      // is pinned: the far end is rounded where the axis would round it with
+      // no domain set.
+      const pairs = [
+        ["BarChart", north, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["AreaPlot", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["StackedArea", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["LinePlot", above, "baseline(980)", c => c.baseline(980), "yDomain([980])", c => c.yDomain([980])],
+        ["BarChart", north, "horizontal, baseline(980)", c => sideways(c).baseline(980), "horizontal, xDomain([980])", c => sideways(c).xDomain([980])],
+        ["BarChart", north, "baselineBreak(false).baseline(980)", c => c.baselineBreak(false).baseline(980), "baselineBreak(false).yDomain([980])", c => c.baselineBreak(false).yDomain([980])],
+        ["BarChart", crossing.filter(d => d.region === "North"), "values below baseline(980)", c => c.baseline(980), "values below yDomain([980])", c => c.yDomain([980])],
+        ["BarChart", negative.filter(d => d.region === "North"), "baseline(-80) above every value", c => c.baseline(-80), "yDomain([undefined, -80])", c => c.yDomain([undefined, -80])],
+        ["BarChart", north, "yDomain([990]).baseline(980): the domain wins", c => c.yDomain([990]).baseline(980), "yDomain([990])", c => c.yDomain([990])],
+        // The far end rounds as it would with no domain set, unless rounding is off.
+        ["BarChart", north, "baseline(980), rounding \"none\": ends at the data", c => c.baseline(980).yConfig({rounding: "none"}), "yDomain([980, 1024])", c => c.yDomain([980, 1024])],
+      ];
+      const examples = pairs.flatMap(([type, data, a, setA, b, setB]) => [
+        [`${type} · ${a}`, type, data, setA],
+        [`${type} · ${b}`, type, data, setB],
+      ]);
+
+      const grid = document.getElementById("grid");
+      examples.forEach(([title, type, data, configure], i) => {
+        const section = document.createElement("section");
+        section.innerHTML = `<h3>${title}</h3><div class="viz" id="viz${i}"></div>`;
+        grid.appendChild(section);
+        const chart = new d3plus[type]()
+          .select(`#viz${i}`)
+          .data(data)
+          .groupBy("region")
+          .x("quarter")
+          .y("value")
+          .legend(false);
+        configure(chart).render();
+      });
+
+    </script>
+
+  </body>
+
+</html>

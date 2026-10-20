@@ -2,13 +2,14 @@
     `ChartDefinition` — charts as *values*, not classes.
 
     A chart in v4 is the def value `{name, fields?, ctx?, features, stages,
-    layoutStage?, emit, chartTransform?, setup?, thresholdFunction?}`. Each
+    layoutStage?, emit, chartTransform?, decorateScene?, setup?,
+    thresholdFunction?}`. Each
     chart's def lives next to its applyLayout + emit in `./<ChartName>/`;
     `makeChart(def, Base?)` produces the chart class from the def.
 */
 
 import type {DataPoint} from "@d3plus/data";
-import type {SceneNode} from "@d3plus/render";
+import type {Scene, SceneNode} from "@d3plus/render";
 
 import type {FacetHooks} from "../facet/facetConfig.js";
 import type {FeatureModule} from "../features/features.js";
@@ -95,6 +96,22 @@ interface ChartDefinitionBase {
       body is a diameter-sized square, not the full chart area).
   */
   chartBodyRect?: (viz: VizInstance) => {x: number; y: number; width: number; height: number};
+  /**
+      Optional pass over the chart's finished scene, run each time the chart
+      builds it (`toScene()`): after the chart cells, components, and feature
+      panels are composed, on every paint — the first render, redraws, and
+      the repaints that skip layout (hover and active restyles, zoom and pan,
+      table-view toggles), with either renderer. Returns the scene to paint.
+
+      With small multiples it runs once, on the composed scene holding every
+      panel; per-panel nodes belong in `facet.scene` instead. When
+      `makeChart` specializes another chart class, each def's hook runs once
+      per build, the base chart's first.
+
+      It runs on every hover frame, so keep it cheap and free of layout
+      work, and return the same `scene` object when it changes nothing.
+  */
+  decorateScene?: (viz: VizInstance, scene: Scene) => Scene;
   /**
       Imperative per-instance setup hook — runs once after `applyDefinition`
       seeds the chart. Use for event handler overrides and shadowed methods

@@ -272,6 +272,12 @@ export interface RectNode extends NodeBase {
   height: number;
   rx?: number;
   ry?: number;
+  /**
+      Where this rect starts whenever it enters: the chart's own collapsed
+      start (e.g. an Icicle rect growing back in from an edge on zoom-out). It
+      grows from there at its own opacity instead of fading in where it lands.
+  */
+  enterRect?: {x: number; y: number; width: number; height: number};
 }
 
 export interface CircleNode extends NodeBase {
@@ -349,6 +355,13 @@ export interface PathNode extends NodeBase {
       `arc`, instead of fading in where it lands.
   */
   enterArc?: ArcGeometry;
+  /**
+      Where this path starts whenever it enters: the chart's own collapsed
+      `d` (e.g. a Violin's outline flattened onto its center line), with the
+      same commands and point count as `d` so it morphs point by point. It
+      grows from there at its own opacity instead of fading in where it lands.
+  */
+  enterD?: string;
 }
 
 export interface ImageNode extends NodeBase {

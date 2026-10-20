@@ -36,6 +36,12 @@ let browserPromise;
  * Builds the full UMD bundle (once) and returns its source.
  */
 export function bundle() {
+  // Under `mocha --parallel`, the global setup in setup.js builds the bundle
+  // once before the workers start, so they read it instead of racing to
+  // rewrite the same file.
+  if (!bundlePromise && process.env.D3PLUS_UMD_BUILT) {
+    bundlePromise = Promise.resolve(fs.readFileSync(umdPath, "utf8"));
+  }
   if (!bundlePromise) {
     bundlePromise = new Promise((resolve, reject) => {
       const child = spawn("node", [buildScript], {cwd: coreDir, stdio: "ignore"});
@@ -80,6 +86,28 @@ export async function closeBrowser() {
  * @returns {Promise<*>} Whatever pageFunction resolves with.
  */
 export async function render(bodyHtml, pageFunction, arg) {
+  const {page, errors, close} = await openPage(bodyHtml);
+  try {
+    const result = await page.evaluate(pageFunction, arg);
+    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
+    return result;
+  } finally {
+    await close();
+  }
+}
+
+/**
+ * Opens a page with d3plus loaded, for tests that drive it in steps from
+ * Node (e.g. advancing a paused clock between evaluations).
+ * @param {String} bodyHtml Markup placed inside <body>.
+ * @param {Object} [options]
+ * @param {Boolean} [options.clock] Installs Playwright's fake clock before
+ *   d3plus loads, paused, so `page.clock.runFor(ms)` steps every timer,
+ *   animation frame and `performance.now()` together.
+ * @returns {Promise<{page: import("playwright").Page, errors: String[], close: Function}>}
+ *   `errors` collects the page's uncaught errors; `close()` closes the page.
+ */
+export async function openPage(bodyHtml, {clock = false} = {}) {
   const [b, umd] = await Promise.all([browser(), bundle()]);
   const page = await b.newPage();
   const errors = [];
@@ -91,17 +119,21 @@ export async function render(bodyHtml, pageFunction, arg) {
   // hermetic and avoids flakiness under a long run's accumulated load.
   await page.route(/^https?:\/\//, route => route.abort());
   await startCoverage(page);
+  const close = async () => {
+    await stopCoverage(page, umd);
+    await page.close();
+  };
   try {
+    if (clock) await page.clock.install({time: 0});
     await page.setContent(`<!doctype html><html><body>${bodyHtml}</body></html>`);
     await page.addScriptTag({content: cryptoPolyfill});
     await page.addScriptTag({content: umd});
-    const result = await page.evaluate(pageFunction, arg);
-    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
-    return result;
-  } finally {
-    await stopCoverage(page, umd);
-    await page.close();
+    if (clock) await page.clock.pauseAt(1000);
+  } catch (err) {
+    await close();
+    throw err;
   }
+  return {page, errors, close};
 }
 
 /**

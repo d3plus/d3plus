@@ -6,6 +6,8 @@ export type {
   AxisConfig,
   ColorDefaultsConfig,
   ColorScaleConfig,
+  ConfidenceBandSetting,
+  ConfidenceBound,
   LegendConfig,
   SizeLegendConfig,
   TextBoxConfig,

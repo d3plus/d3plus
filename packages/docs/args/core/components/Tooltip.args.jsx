@@ -52,7 +52,7 @@ export const argTypes = assign(
     },
     background: {
       control: {
-        type: "text"
+        type: "color"
       },
       description: "The background color accessor for each tooltip.",
       table: {
@@ -62,7 +62,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "csscolor | function"
       }
     },
     body: {

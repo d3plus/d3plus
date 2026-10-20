@@ -1,5 +1,5 @@
 import assert from "assert";
-import {Circle, Path, Rect} from "../../es/index.js";
+import {Area, Circle, Line, Path, Rect} from "../../es/index.js";
 
 // Finds the shape geometry node, wrapping group + inner <image> for a shape's
 // background image.
@@ -112,4 +112,24 @@ it("Circle backgroundImage covers the circle and is clipped to it", () => {
   );
   assert.strictEqual(group.clip.type, "path", "circle clipped via a path region");
   assert.ok(/^M-60,0a60,60 /.test(group.clip.d), "clip is a radius-60 circle path");
+});
+
+// A Line is stroked, not filled: an image clipped to its open path would paint
+// it as a polygon, so it draws none. Any shape with no fill is skipped the same
+// way, while a filled shape of the same data keeps its image.
+it("stroke-only shapes (a Line, or any shape with no fill) draw no background image", () => {
+  const points = [{id: "a", x: 0, y: 10}, {id: "a", x: 50, y: 40}, {id: "a", x: 100, y: 20}];
+  assert.strictEqual(bgImage(new Line().data(points).backgroundImage(URL)).image, null, "a Line draws none");
+  assert.strictEqual(
+    bgImage(new Path().data([{id: "a", path: "M0,0 L10,0 L10,10 Z"}]).fill("none").backgroundImage(URL)).image,
+    null,
+    "an unfilled Path draws none",
+  );
+  assert.strictEqual(
+    bgImage(new Line().data(points).backgroundImage(URL).texture("lines")).shapeNode.paint.fill,
+    "none",
+    "a Line takes no texture either",
+  );
+  assert.ok(bgImage(new Area().data(points.map(d => ({...d, y0: 0}))).backgroundImage(URL)).image, "an Area keeps its image");
+  assert.ok(bgImage(new Line().data(points).fill("red").backgroundImage(URL)).image, "a Line given a fill is a filled mark and draws it");
 });

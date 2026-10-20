@@ -37,7 +37,7 @@ export type FacetConfig = {
   padding?: number;
   /** Panel order. Defaults to `"ascending"`. */
   sort?: FacetSort;
-  /** Whether every panel shares one set of x/y scales (`"shared"`, the default) or fits its own (`"independent"`). Applies to charts with axes. */
+  /** Whether every panel shares one set of scales (`"shared"`) or fits its own (`"independent"`). Applies to charts with axes, where it defaults to `"shared"`, and to Funnel's stage widths and the value domains of PolarArea and RadialBar, where it defaults to `"independent"`. */
   scales?: "shared" | "independent";
   /** With shared scales, `"outer"` labels axes only along the grid's left and bottom edges; `"all"` labels every panel. Defaults to `"outer"`, except on charts whose axis labels differ from panel to panel (BumpChart). */
   axes?: "outer" | "all";
@@ -53,7 +53,8 @@ export interface ResolvedFacetConfig {
   rows?: number;
   padding: number;
   sort: FacetSort;
-  scales: "shared" | "independent";
+  /** Undefined defers to the chart's default (`FacetHooks.scales`). */
+  scales?: "shared" | "independent";
   /** Undefined defers to the chart's default (`FacetHooks.axes`). */
   axes?: "outer" | "all";
   /** `false` hides panel titles; undefined draws the default (the formatted facet value). */
@@ -100,6 +101,8 @@ export interface FacetPanelContext {
 export interface FacetHooks {
   /** The panel width/height ratio the chart reads best at, used to pick the grid shape. */
   aspect?: number;
+  /** The chart's default for `FacetConfig.scales` (`"shared"` when unset). */
+  scales?: "shared" | "independent";
   /** The chart's default for `FacetConfig.axes` (`"outer"` when unset). */
   axes?: "outer" | "all";
   /** Computes the scales every panel shares from each panel's rows (one array per panel). Runs before any panel draws, when scales are shared. */
@@ -174,11 +177,19 @@ export function resolveFacetConfig(config: FacetConfig | undefined): ResolvedFac
     rows: count(c.rows),
     padding: typeof c.padding === "number" && c.padding >= 0 ? c.padding : FACET_PADDING,
     sort: c.sort ?? "ascending",
-    scales: c.scales === "independent" ? "independent" : "shared",
+    scales: c.scales === "shared" || c.scales === "independent" ? c.scales : undefined,
     axes: c.axes === "all" || c.axes === "outer" ? c.axes : undefined,
     title: c.title === false || typeof c.title === "function" ? c.title : undefined,
     titleConfig: {...FACET_TITLE_DEFAULTS, ...(c.titleConfig ?? {})},
   };
+}
+
+/** Whether panels share scales: `facetConfig.scales`, else the chart's default, else shared. */
+export function facetScalesShared(
+  config: Pick<ResolvedFacetConfig, "scales">,
+  hooks: Pick<FacetHooks, "scales">,
+): boolean {
+  return (config.scales ?? hooks.scales ?? "shared") === "shared";
 }
 
 /** Whether `viz` splits its data into small multiples this draw. */

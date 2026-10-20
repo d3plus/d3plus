@@ -13,11 +13,12 @@ import {configPrep} from "../../utils/index.js";
 import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
-import {cornerInsets, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
+import {cornerPlacements, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
+import type Legend from "../../components/Legend/Legend.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
-import {zoomControlsBox} from "../drawSteps/zoomControlsMarkup.js";
+import {zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
-import {topLeftControlsBox} from "../drawSteps/topLeftControlsMarkup.js";
+import {topLeftControlsReach} from "../drawSteps/topLeftControlsMarkup.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -122,45 +123,33 @@ export function buildLegendData(viz: VizInstance): LegendData {
 }
 
 /**
-    How far a legend must inset/drop to clear the zoom-controls panel
-    (top-right) and/or the shared top-left controls panel (back/table-view/
-    search). A top legend (centered) insets both sides via the shared
-    `cornerInsets` helper (the same one `textBlockLayout` uses), staying
-    centered on the chart; a right legend drops below the zoom panel, a left
-    legend below the top-left panel. Against the bottom-right panel, a
-    bottom legend pulls its right edge in (`insetRight`) and a side legend
-    shortens to end above it (`shorten`). Extracted from `renderLegendFeature` to
-    keep it under the per-function line budget.
+    How far a side or bottom legend must drop/inset to clear the corner
+    control panels. A right legend drops below the zoom panel (top-right), a
+    left legend below the top-left panel (back/table-view/search). Against
+    the bottom-right panel, a bottom legend pulls its right edge in
+    (`insetRight`) and a side legend shortens to end above it (`shorten`).
+    A top legend finds its own place beside them (see `paintTopLegend`).
 */
 function legendCornerClearance(
   viz: VizInstance,
   position: string | false,
   layoutMargin: Required<MarginClaim>,
   padding: {top: number; right: number; bottom: number; left: number},
-): {inset: number; drop: number; insetRight: number; shorten: number} {
-  const inset =
-    position === "top"
-      ? cornerInsets(
-          viz,
-          layoutMargin.top,
-          layoutMargin.left + padding.left,
-          layoutMargin.right + padding.right,
-        ).symmetric
-      : 0;
+): {drop: number; insetRight: number; shorten: number} {
   const dropRight =
     position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
-      ? zoomControlsBox(viz as never)!.height - layoutMargin.top
+      ? zoomControlsReach(viz as never) - layoutMargin.top
       : 0;
   const dropLeft =
     position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
-      ? topLeftControlsBox(viz as never, getTopLeftContributions(viz as never))!.height - layoutMargin.top
+      ? topLeftControlsReach(viz as never, getTopLeftContributions(viz as never)) - layoutMargin.top
       : 0;
   // The bottom-right corner panel (size legend): a bottom legend pulls its
   // right edge in beside it, a left/right legend stops short above it.
   const corner = bottomRightClearance(
     viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
   );
-  return {inset, drop: dropRight || dropLeft, insetRight: corner.inset, shorten: corner.drop};
+  return {drop: dropRight || dropLeft, insetRight: corner.inset, shorten: corner.drop};
 }
 
 /** Where and how the legend lays itself out for one render. */
@@ -239,13 +228,63 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
 }
 
 /**
+    Whether every legend entry is drawn with its whole label: none dropped
+    to a bare swatch, cut short, or wrapped onto extra lines to squeeze the
+    legend into its width, and the legend itself not dropped for want of room.
+*/
+export function legendLabelsWhole(legend: Legend): boolean {
+  const {width, height} = legend.outerBounds();
+  if (!width || !height) return false;
+  return (legend._lineData || []).every((d: Record<string, unknown>) => {
+    if (!d.sentence) return true;
+    const lines = (d.lines as string[]).length;
+    return (
+      (d.width as number) > 0 &&
+      !d.truncated &&
+      lines <= `${d.sentence}`.split("\n").length &&
+      (d.height as number) <= (d.og as {height: number}).height
+    );
+  });
+}
+
+/**
+    Paints a top legend into the first of `cornerPlacements` beside the
+    corner control panels where every entry keeps its whole label (see
+    `legendLabelsWhole`): centered between them, then inset from each by its
+    own amount, and last a full-width row below them. Returns how far the
+    legend dropped below `frame.y`.
+*/
+function paintTopLegend(
+  viz: VizInstance,
+  built: LegendData,
+  frame: LegendFrame,
+  top: number,
+  right: number,
+): number {
+  const placements = frame.visible && !viz.schema.legendConfig.select
+    ? cornerPlacements(viz, top, frame.x, right, true)
+    : [{left: 0, right: 0, drop: 0}];
+  for (const [i, {left: l, right: r, drop}] of placements.entries()) {
+    paintLegend(viz, built, {
+      ...frame,
+      x: frame.x + l,
+      y: frame.y + drop,
+      width: frame.width - l - r,
+      height: frame.height - drop,
+    });
+    if (i === placements.length - 1 || legendLabelsWhole(viz._legendClass!)) return drop;
+  }
+  return 0;
+}
+
+/**
     Whether the legend shows at all: `position === false` forces it off so
     `.legendPosition(false)` is an actual hide signal (the legend's render
     runs against [] data, which exits any prior DOM and emits no scene).
 */
 function legendVisible(viz: VizInstance, built: LegendData): boolean {
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
+  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
   return position === false ? false : Boolean(viz.schema.legend.bind(viz)(config, built.legendData));
 }
 
@@ -299,21 +338,21 @@ function renderLegendFeature(
   }
 
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config));
+  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
   const wide = ["top", "bottom"].includes(position as string);
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  const {inset, drop, insetRight, shorten} = legendCornerClearance(viz, position, layoutMargin, padding);
+  const {drop, insetRight, shorten} = legendCornerClearance(viz, position, layoutMargin, padding);
 
-  paintLegend(viz, built, {
-    x: (wide ? layoutMargin.left + padding.left : layoutMargin.left) + inset,
+  const frame: LegendFrame = {
+    x: wide ? layoutMargin.left + padding.left : layoutMargin.left,
     y: (wide ? layoutMargin.top : layoutMargin.top + padding.top) + drop,
     width:
       (wide
         ? viz.schema.width -
             (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
-        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - inset * 2 - insetRight,
+        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - insetRight,
     height:
       (wide
         ? viz.schema.height - (layoutMargin.bottom + layoutMargin.top)
@@ -323,14 +362,17 @@ function renderLegendFeature(
     direction: wide ? "row" : "column",
     verticalAlign: !wide ? "middle" : (position as string),
     visible: legendVisible(viz, built),
-  });
+  };
+  let topDrop = 0;
+  if (position === "top") topDrop = paintTopLegend(viz, built, frame, layoutMargin.top, layoutMargin.right + padding.right);
+  else paintLegend(viz, built, frame);
 
   const legendBounds = viz._legendClass!.outerBounds();
   const margin: MarginClaim = {};
   if (!viz.schema.legendConfig.select && legendBounds.height) {
     if (wide)
       (margin as Record<string, number>)[position as string] =
-        legendBounds.height + viz._legendClass!.padding() * 2;
+        topDrop + legendBounds.height + viz._legendClass!.padding() * 2;
     else
       (margin as Record<string, number>)[position as string] =
         legendBounds.width + viz._legendClass!.padding() * 2;

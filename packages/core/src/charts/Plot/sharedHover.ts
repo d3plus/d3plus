@@ -428,14 +428,23 @@ function handleTrendHover(viz: VizInstance, trend: TrendFit, event: SceneEvent):
     Hover emphasis: a shared stacked-bar column highlights its whole stack
     (other stacks dim; non-bar marks and legend swatches stay put), and a
     shared Line/Area column dims nothing. A single hover leaves emphasis to
-    the default enter/leave handlers, clearing only a shared highlight.
+    the default enter/leave handlers, clearing only a shared highlight. A
+    chart with its own column emphasis (`_plotColumnHighlight`) highlights the
+    hovered column in either mode, unless `hoverOpacity` turns dimming off.
 */
 function sharedHighlight(viz: VizInstance, hover: SharedHover, prevMode?: string): void {
   const stack = hover.stack;
   const clear = (): void => {
     if (typeof viz._hover === "function") viz.hover!(false);
   };
-  if (hover.mode === "single") {
+  const column = viz._plotColumnHighlight;
+  if (column && viz.schema.shapeConfig.hoverOpacity === 1) clear();
+  else if (column) {
+    const rows = new Set(hover.rows.map(row => row.datum));
+    linkAs(viz, (d: DataPoint) => rows.has(d));
+    viz.hover!(column(rows));
+  }
+  else if (hover.mode === "single") {
     if (prevMode === "shared") clear();
   }
   else if (stack) {

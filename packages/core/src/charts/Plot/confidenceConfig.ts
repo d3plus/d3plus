@@ -13,7 +13,7 @@ import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
 const scope = {
   method: "confidenceConfig",
   shapes: {Area: "Area", Bar: "Path"},
-  extra: {"": ["capWidth", "tooltip"], Bar: ["capWidth"]},
+  extra: {"": ["bandOpacity", "capWidth", "tooltip"], Bar: ["capWidth"]},
 };
 
 /**

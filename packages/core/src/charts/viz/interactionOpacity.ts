@@ -154,6 +154,29 @@ function matchesChain(predicate: Predicate, row: DataPoint, i: number): boolean 
   return false;
 }
 
+/**
+    Whether `predicate` matches a scene node: its datum's row (unwrapped one
+    level, the way the renderer→handler bridge does — `rawDatum.data ??
+    rawDatum` — so the predicate sees the row the hover predicate was built
+    from), or, for a multi-point node with no datum of its own that is drawn
+    on behalf of its points (Dumbbell's connectors), any point's row. Null
+    when the node carries neither, so the walk leaves it as is.
+*/
+function nodeMatches(node: SceneNode, predicate: Predicate): boolean | null {
+  const datum = node.datum as (DataPoint & {data?: DataPoint}) | undefined;
+  if (datum) {
+    const row = (datum.data ?? datum) as DataPoint & {i?: number};
+    const i = typeof node.index === "number" ? node.index : typeof row.i === "number" ? row.i : 0;
+    return matchesChain(predicate, row, i);
+  }
+  const points = node.interactionPoints;
+  if (!points || !points.length) return null;
+  return points.some((p, k) => {
+    const d = p.datum as DataPoint & {i?: number};
+    return matchesChain(predicate, d, typeof d.i === "number" ? d.i : k);
+  });
+}
+
 export function applyInteractionOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
@@ -171,20 +194,9 @@ export function applyInteractionOpacity(
     const group = (node as {interactionGroup?: string}).interactionGroup;
     if (group === "axis" || group === "timeline") return node;
     let next = node;
-    const datum = node.datum as (DataPoint & {data?: DataPoint; i?: number}) | undefined;
-    if (datum) {
-      // Mirror the renderer→handler bridge's one-level unwrap
-      // (`rawDatum.data ?? rawDatum`) so the predicate sees the same row the
-      // hover predicate was built from — for shape nodes the datum is already
-      // the row; for label nodes it's the layout node whose `.data` is the row.
-      const row = (datum.data ?? datum) as DataPoint;
-      const i =
-        typeof node.index === "number"
-          ? node.index
-          : typeof (row as {i?: number}).i === "number"
-            ? (row as {i: number}).i
-            : 0;
-      if (!matchesChain(predicate, row, i)) {
+    const matched = nodeMatches(node, predicate);
+    if (matched !== null) {
+      if (!matched) {
         const paint = (node.paint ?? {}) as Record<string, unknown>;
         if (gray) {
           // highlight: recolor the mark to the de-emphasis gray so the
@@ -205,7 +217,7 @@ export function applyInteractionOpacity(
         // while hovered, rather than dropping to the thinner hover stroke.
         if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
           const active =
-            kind === "active" || (activePredicate ? matchesChain(activePredicate, row, i) : false);
+            kind === "active" || (activePredicate ? nodeMatches(node, activePredicate) === true : false);
           next = active ? emphasizeStroke(node, 1, 3) : emphasizeStroke(node, 0.5, 2);
         }
         if (isHover) {

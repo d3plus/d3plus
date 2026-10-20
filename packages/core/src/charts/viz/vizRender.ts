@@ -7,6 +7,8 @@ import {fontFamilyStringify} from "@d3plus/text";
 import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
+import {reserveContainerSize} from "./reserveContainerSize.js";
+import {resetChromeBoxes} from "./resetChromeBoxes.js";
 import type Viz from "./Viz.js";
 import {
   canObserveVisibility,
@@ -72,18 +74,52 @@ function autoSize(viz: Viz): void {
     (!viz.schema.width || !viz.schema.height) &&
     (!viz.schema.detectVisible || isVisible(viz))
   ) {
-    viz._autoWidth = viz.schema.width === undefined;
-    viz._autoHeight = viz.schema.height === undefined;
+    // A size this function measured on an earlier render stays automatic: a
+    // RESET height re-enters here with the measured width still in `schema`.
+    viz._autoWidth =
+      viz.schema.width === undefined ||
+      (!!viz._autoWidth && viz.schema.width === viz._measuredWidth);
+    viz._autoHeight =
+      viz.schema.height === undefined ||
+      (!!viz._autoHeight && viz.schema.height === viz._measuredHeight);
     viz._setSVGSize();
   }
 }
 
 /**
-    Applies the root SVG attributes/transition, parent positioning, opacity, and
+    Sizes the root SVG to the chart's width and height. An SVG this library has
+    not drawn into yet takes the size at once: growing it from the browser's
+    default 300×150 would clip the first draw to the growing box (and, under
+    `content-visibility: auto`, measure it as 0×0 and defer the draw). Later
+    size changes transition over `duration`.
+    @private
+*/
+function applyRootSize(viz: Viz): void {
+  const width = viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined;
+  const height = viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined;
+  if (!viz._select.classed("d3plus-viz")) {
+    viz._select
+      .style("width", width)
+      .style("height", height)
+      .attr("width", width)
+      .attr("height", height);
+  }
+  viz._select
+    .transition()
+    .duration(viz.schema.duration)
+    .style("width", width)
+    .style("height", height)
+    .attr("width", width)
+    .attr("height", height);
+}
+
+/**
+    Applies the root SVG attributes and size, parent positioning, opacity, and
     the accessibility `<title>`/`<desc>` tags.
     @private
 */
 function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void {
+  applyRootSize(viz);
   viz._select
     .attr("class", "d3plus-viz")
     .attr("aria-hidden", viz.schema.ariaHidden)
@@ -99,22 +135,7 @@ function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void 
     // so it needs no intrinsic size, and tooltips live outside it so are not
     // clipped. Unset with detectVisible(false), which also keeps it out of
     // static SVG/PNG output.
-    .style("content-visibility", viz.schema.detectVisible ? "auto" : null)
-    .transition()
-    .duration(viz.schema.duration)
-    .style(
-      "width",
-      viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined,
-    )
-    .style(
-      "height",
-      viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined,
-    )
-    .attr("width", viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined)
-    .attr(
-      "height",
-      viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined,
-    );
+    .style("content-visibility", viz.schema.detectVisible ? "auto" : null);
 
   // sets "position: relative" on the SVG parent if currently undefined
   const position = parent.style("position");
@@ -396,7 +417,13 @@ export function vizRender(viz: Viz, callback?: () => void): Viz {
 
   ensureSvgSelect(viz);
   scopeTooltip(viz);
+  resetChromeBoxes(viz);
+  // Before measuring too, so a spacer left by an earlier explicit size can't
+  // prop the container open to that size; again after, once autoSize has
+  // settled which dimensions are measured.
+  reserveContainerSize(viz);
   autoSize(viz);
+  reserveContainerSize(viz);
 
   const parent = select(viz._select.node().parentNode);
   applyRootAttributes(viz, parent);

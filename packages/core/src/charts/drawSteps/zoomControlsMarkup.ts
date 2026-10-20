@@ -142,6 +142,9 @@ const ICON_BUTTON_CLASS: Record<ZoomControlIconKey, string> = {
   zoomBrush: "zoom-brush",
 };
 
+/** How far the zoom buttons sit in from the chart's top and right edges. */
+export const ZOOM_PANEL_PADDING = 4;
+
 /**
     The panel's own layout: a right-aligned flex row. Spacing lives here, not
     on the buttons — per-button `margin` doesn't collapse between flex
@@ -157,8 +160,8 @@ export const ZOOM_PANEL_STYLE: Record<string, string> = {
   justifyContent: "flex-end",
   gap: "4px",
   boxSizing: "border-box",
-  paddingTop: "4px",
-  paddingRight: "4px",
+  paddingTop: `${ZOOM_PANEL_PADDING}px`,
+  paddingRight: `${ZOOM_PANEL_PADDING}px`,
 };
 
 /**
@@ -234,7 +237,7 @@ export function showsZoomControls(viz: Viz): boolean {
 }
 
 /** Panel size before it has been measured (the default 20px buttons). */
-const ESTIMATED_BOX = {width: 4 * 20 + 3 * 4 + 4, height: 20 + 4};
+const ESTIMATED_BOX = {width: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING, height: 20 + ZOOM_PANEL_PADDING};
 
 /**
     The zoom-control panel's size (padding included) as it will render in the
@@ -272,4 +275,15 @@ export function zoomControlsBox(viz: Viz): {width: number; height: number} | nul
   }
   viz._zoomControlsBox = {...box, signature};
   return viz._zoomControlsBox;
+}
+
+/**
+    How far down the chart content must start to clear the zoom buttons
+    with the same gap below them as above: the panel's height (its top
+    padding included) plus that padding again. Zero when the chart shows no
+    controls.
+*/
+export function zoomControlsReach(viz: Viz): number {
+  const box = zoomControlsBox(viz);
+  return box && box.height ? box.height + ZOOM_PANEL_PADDING : 0;
 }

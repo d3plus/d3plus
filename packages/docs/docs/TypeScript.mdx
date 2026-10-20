@@ -19,7 +19,7 @@ import type {Treemap} from "@d3plus/types";
 const config: Treemap = {
   data: [{id: "alpha", value: 29}],
   groupBy: "id",
-  size: "value"
+  sum: "value"
 };
 ```
 
@@ -41,7 +41,7 @@ importing a chart class from `@d3plus/core` or `@d3plus/react` already types its
 ```ts
 import {Treemap} from "@d3plus/core";
 
-new Treemap().config({groupBy: "id", size: "value"}); // config is type-checked
+new Treemap().config({groupBy: "id", sum: "value"}); // config is type-checked
 ```
 
 ## Advanced: the internal pipeline

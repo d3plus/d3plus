@@ -32,10 +32,12 @@ import {
   computeAxisBounds,
   computeBuffers,
   createTextData,
+  isDiscreteScale,
+  wholeLineLabels,
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, setAxisScale} from "./axisLayoutScale.js";
-import {axisScaleData, axisTimeLocale} from "./timeValues.js";
+import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
     Result of `measureAxis()`. Holds layout artifacts the paint phase of
@@ -84,6 +86,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     typeof tickValue !== "function" ? () => tickValue : tickValue;
 
   const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  resetAxisDates(axis);
   axis._scaleData = axisScaleData(axis);
 
   let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
@@ -91,54 +94,47 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
   axis._labelFormat = tickFormat;
 
-  ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet));
+  // Rebuilds the scale (over `newRange`, else the configured range) and
+  // keeps the ticks the formatter reads in step with it.
+  const rescale = (newRange?: number[]) =>
+    ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet, newRange));
+  rescale();
 
   applyTitleMargin(axis, {range, p, height, margin});
 
   const {hBuff, wBuff} = computeBuffers(axis, ticks, tickGet, height);
 
-  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat});
-  const offsetEnabled =
-    axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
-  if (offsetEnabled)
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
+  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale};
+  const setting = axis._labelRotationSetting;
+  axis._labelRotation = setting ?? false;
+  let textData = layoutLabels(axis, {range, labels}, labelCtx);
 
-  const spillovers = [0, 1].map((index: number) => {
-    const datum = textData[index ? textData.length - 1 : 0];
-    if (!datum) return 0;
-    const {height: dHeight, position, rotate, width: dWidth} = datum;
-    const compPosition = index ? rangeOuter[1] : rangeOuter[0];
-    const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
-    // Room between the label's tick and the end of the range it faces.
-    const room = index ? compPosition - position : position - compPosition;
-    return room >= halfSpace ? 0 : halfSpace - room;
-  });
-
-  const [first, last] = range;
-  const newRange = [first + spillovers[0], last - spillovers[1]];
-  if (axis.schema.range) {
-    if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
-    if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
-      newRange[1] = axis.schema.range[axis.schema.range.length - 1];
+  // Left to decide, a horizontal axis of categories rotates its labels when
+  // that leaves fewer of them cut short or hidden. Dates and numbers thin
+  // instead, and rotate only when even their first label alone can't lie
+  // flat on one line.
+  if (setting === undefined && horizontal) {
+    const rotate = rotatesLabels(axis, labels)
+      ? (data: AxisTextDatum[]) => labelMisses(data)
+      : wholeLineLabels(axis, labels)
+        ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
+        : undefined;
+    const misses = rotate ? rotate(textData) : 0;
+    if (rotate && misses) {
+      axis._labelRotation = true;
+      textData = layoutLabels(axis, rescale(), labelCtx);
+      if (rotate(textData) >= misses) {
+        axis._labelRotation = false;
+        textData = layoutLabels(axis, rescale(), labelCtx);
+      }
+    }
   }
 
-  if (newRange[0] !== first || newRange[1] !== last) {
-    ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet, newRange));
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
-  }
+  // The ticks whose labels the layout hides no longer count as visible.
+  const hidden = new Set(textData.filter((t: AxisTextDatum) => t.truncated).map((t: AxisTextDatum) => t.d));
+  if (hidden.size) axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
-  axis._labelRotation =
-    horizontal && axis._labelRotation === undefined
-      ? textData.some((datum: AxisTextDatum) => {
-          const {i, height: dH, position, truncated} = datum;
-          const prev = textData[i - 1];
-          return (
-            truncated ||
-            (i && prev.position + prev.height / 2 > position - dH / 2)
-          );
-        })
-      : axis._labelRotation;
 
   const globalOffset = axis.schema.labelOffset
     ? max(textData, (d: AxisTextDatum) => d.offset || 0)
@@ -161,4 +157,90 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     labelHeight,
     bounds,
   };
+}
+
+/**
+    Measures every label against the axis and narrows the range by however
+    far the first and last labels reach past its ends, rebuilding the scale
+    over the narrowed range and measuring again. Reads `axis._labelRotation`
+    for the labels' orientation.
+*/
+function layoutLabels(
+  axis: Axis,
+  scale: {range: number[]; labels: unknown[]},
+  ctx: {
+    rangeOuter: number[];
+    horizontal: boolean;
+    hBuff: number;
+    p: number;
+    tickFormat: (d: unknown) => string;
+    rescale: (newRange?: number[]) => {range: number[]; labels: unknown[]};
+  },
+): AxisTextDatum[] {
+  const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale} = ctx;
+  let {labels} = scale;
+
+  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat});
+  const offsetEnabled =
+    axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
+  if (offsetEnabled)
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: 2});
+
+  // Narrowing the range can change which labels a time axis draws (its ticks
+  // follow the range); a new first or last label is measured again, a few
+  // times at most.
+  let [first, last] = scale.range;
+  for (let pass = 0; pass < 3; pass++) {
+    // Only the labels left shown reach past the range: a category axis
+    // thinned evenly can end on a label several categories in from the end.
+    const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+    const spillovers = [0, 1].map((index: number) => {
+      const datum = shown[index ? shown.length - 1 : 0];
+      if (!datum) return 0;
+      const {height: dHeight, position, rotate, width: dWidth} = datum;
+      const compPosition = index ? rangeOuter[1] : rangeOuter[0];
+      const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
+      // Room between the label's tick and the end of the range it faces.
+      const room = index ? compPosition - position : position - compPosition;
+      return room >= halfSpace ? 0 : halfSpace - room;
+    });
+
+    const newRange = [first + spillovers[0], last - spillovers[1]];
+    if (axis.schema.range) {
+      if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
+      if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
+        newRange[1] = axis.schema.range[axis.schema.range.length - 1];
+    }
+
+    if (newRange[0] === first && newRange[1] === last) break;
+    const ends = endLabels(textData);
+    [first, last] = newRange;
+    ({labels} = rescale(newRange));
+    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset: offsetEnabled ? 2 : 1});
+    if (endLabels(textData) === ends) break;
+  }
+
+  return textData;
+}
+
+/** The values of the first and last labels shown, to tell when they change. */
+function endLabels(textData: AxisTextDatum[]): string {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
+  const ends = [shown[0], shown[shown.length - 1]];
+  return ends.map((t?: AxisTextDatum) => (t ? `${t.d instanceof Date ? +t.d : t.d}` : "")).join(",");
+}
+
+/**
+    Whether the axis may rotate its labels on its own: one label per category
+    (a discrete scale), naming things rather than numbers or dates, which
+    read in sequence even with every other one left out.
+*/
+export function rotatesLabels(axis: Axis, labels: unknown[]): boolean {
+  return isDiscreteScale(axis.schema.scale) &&
+    labels.some((d: unknown) => !(d instanceof Date) && isNaN(d as number));
+}
+
+/** How many labels don't fit whole, or are hidden to make room for others. */
+export function labelMisses(textData: AxisTextDatum[]): number {
+  return textData.filter((t: AxisTextDatum) => !t.fits || t.truncated).length;
 }

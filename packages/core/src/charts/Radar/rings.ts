@@ -62,7 +62,8 @@ export function radarRingPaint(style: RadarRingStyle, ring: RadarRing, i: number
 
 /**
     Builds the ring group: every ring inside `radius` in the grid style, and
-    the outer ring (always drawn at `radius`) in the axis-line style.
+    the outer ring (always drawn at `radius`) in the axis-line style. Node
+    keys start with `prefix`.
 */
 export function emitRadarRings(
   rings: RadarRing[],
@@ -70,18 +71,19 @@ export function emitRadarRings(
   outerValue: number,
   gridStyle: RadarRingStyle,
   outerStyle: RadarRingStyle,
+  prefix = "radar",
 ): SceneNode[] {
   if (!(radius > 0)) return [];
   const inner = rings.filter(ring => ring.r > 0 && ring.r < radius);
   const all = [...inner, {value: outerValue, r: radius}];
   const children: SceneNode[] = all.map((ring, i) => ({
     type: "circle",
-    key: i === inner.length ? "radar-ring-outer" : `radar-ring-${ring.value}`,
+    key: i === inner.length ? `${prefix}-ring-outer` : `${prefix}-ring-${ring.value}`,
     interactive: false,
     cx: 0,
     cy: 0,
     r: ring.r,
     paint: radarRingPaint(i === inner.length ? outerStyle : gridStyle, ring, i),
   }));
-  return [{type: "group", key: "radar-radial-circles", interactive: false, children}];
+  return [{type: "group", key: `${prefix}-radial-circles`, interactive: false, children}];
 }

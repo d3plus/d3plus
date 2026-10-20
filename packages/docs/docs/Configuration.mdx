@@ -16,7 +16,7 @@ In **vanilla JS**, chain setters and finish with `.render()`:
 new d3plus.Treemap()
   .data([{id: "alpha", value: 29}, {id: "beta", value: 10}])
   .groupBy("id")
-  .size("value")
+  .sum("value")
   .render();
 ```
 
@@ -27,7 +27,7 @@ new d3plus.Treemap()
   .config({
     data: [{id: "alpha", value: 29}, {id: "beta", value: 10}],
     groupBy: "id",
-    size: "value"
+    sum: "value"
   })
   .render();
 ```
@@ -38,7 +38,7 @@ In **React**, you always pass the `config` object:
 <Treemap config={{
   data: [{id: "alpha", value: 29}, {id: "beta", value: 10}],
   groupBy: "id",
-  size: "value"
+  sum: "value"
 }} />
 ```
 
