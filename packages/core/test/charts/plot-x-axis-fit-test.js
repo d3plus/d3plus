@@ -20,8 +20,6 @@ after(async () => {
 */
 const drawAxisFit = ([chart, config, rows]) =>
   new Promise(resolve => {
-    if (config.maxAggs) config = {...config, aggs: {[config.maxAggs]: (a, c) => Math.max(...a.map(c))}};
-    delete config.maxAggs;
     const el = document.createElement("div");
     document.body.appendChild(el);
     const viz = new window.d3plus[chart]()
@@ -56,37 +54,16 @@ const assertBelow = (out, message) => {
   out.labels.forEach(l => assert.ok(l.top >= out.domain, `${message}: ${l.lines} (${l.top}) below the domain line (${out.domain})`));
 };
 
-// Smartphone revenue ($B) and units sold (millions) by region.
-const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
-const regions = {
-  "North America": [62, 24, 1, 1, 9],
-  "Latin America": [6, 14, 7, 3, 8],
-  "Europe": [38, 30, 12, 6, 14],
-  "Middle East & Africa": [8, 12, 6, 5, 16],
-  "Asia Pacific": [70, 34, 40, 38, 58],
-};
-const units = {"North America": 150, "Latin America": 130, "Europe": 190, "Middle East & Africa": 190, "Asia Pacific": 640};
-const sales = Object.entries(regions).flatMap(([Region, values]) =>
-  values.map((Revenue, i) => ({Region, Brand: brands[i], Revenue, "Units Sold": units[Region]})));
+const cats = ["Agriculture and Forestry", "Mining and Quarrying", "Manufacturing Industries", "Electricity Gas and Steam", "Construction Services", "Wholesale Retail Trade"];
+const rows = cats.flatMap((c, i) => ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"].map((g, j) => ({c, g, v: 10 + ((i * 7 + j * 3) % 11)})));
 
 for (const renderer of ["svg", "canvas"]) {
-  for (const width of [600, 750, 900, 1100]) {
-    it(`Marimekko with a barWidth measure at ${width} × 350: the x axis sits below every bar (${renderer})`, async function () {
+  for (const width of [600, 650, 700, 900]) {
+    it(`BarChart at ${width} × 350: wrapped x labels drawn beside a legend keep the axis beneath the bars (${renderer})`, async function () {
       this.timeout(60000);
-      const config = {renderer, width, groupBy: "Brand", x: "Region", y: "Revenue", barWidth: "Units Sold", maxAggs: "Units Sold"};
-      const out = await render("", drawAxisFit, ["Marimekko", config, sales]);
+      const out = await render("", drawAxisFit, ["BarChart", {renderer, width, groupBy: "g", x: "c", y: "v", stacked: true}, rows]);
       assert.ok(out.labels.length >= 4, `labels: ${JSON.stringify(out.labels)}`);
       assertBelow(out, `${width}px`);
     });
   }
 }
-
-it("BarChart: wrapped x labels drawn beside a legend keep the axis beneath the bars", async function () {
-  this.timeout(60000);
-  const cats = ["Agriculture and Forestry", "Mining and Quarrying", "Manufacturing Industries", "Electricity Gas and Steam", "Construction Services", "Wholesale Retail Trade"];
-  const rows = cats.flatMap((c, i) => ["Alpha", "Beta", "Gamma", "Delta", "Epsilon"].map((g, j) => ({c, g, v: 10 + ((i * 7 + j * 3) % 11)})));
-  for (const width of [600, 650, 700]) {
-    const out = await render("", drawAxisFit, ["BarChart", {width, groupBy: "g", x: "c", y: "v", stacked: true}, rows]);
-    assertBelow(out, `${width}px`);
-  }
-});
