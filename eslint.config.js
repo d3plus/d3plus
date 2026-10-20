@@ -53,6 +53,23 @@ export default [
     },
   },
   {
+    // Package entry points are export lists, not code: they grow by a line or
+    // two with every new export, so they're exempt from file size, and may
+    // hold only imports and re-exports so they stay that way.
+    files: ["packages/core/internal.ts", "packages/core/umd-entry.ts", "packages/*/index.ts"],
+    ignores: ["packages/{element,svelte,vue}/index.ts"],
+    rules: {
+      "max-lines": "off",
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "Program > :not(ImportDeclaration, ExportAllDeclaration, ExportNamedDeclaration:not([declaration]))",
+          message: "Package entry points hold only imports and re-exports; put code in src/.",
+        },
+      ],
+    },
+  },
+  {
     // Translation/data dictionaries are data, not code — exempt from file size.
     files: ["packages/locales/**/*.ts"],
     rules: {
