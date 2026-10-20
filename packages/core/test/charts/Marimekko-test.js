@@ -327,17 +327,20 @@ const names = out =>
 const regionNames = Object.keys(regions).sort();
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Marimekko: rotated category labels show the name alone, at the dev page's sizes (${renderer})`, async function () {
+  it(`Marimekko: at the dev page's sizes, category labels lie flat with their shares, hiding only the narrowest bar's (${renderer})`, async function () {
     this.timeout(120000);
     // A dev-page grid cell is 618px wide.
     const config = {width: 618, height: 400, renderer};
     const out = await render("", draw, ["Marimekko", config, sales]);
     const x = out.scene["plot-x-axis"];
-    assert.strictEqual(x.rotated, true, "the narrowest bars rotate the labels");
-    assert.deepStrictEqual(x.labels.slice().sort(), regionNames, `every region, no share: ${x.labels}`);
-    // Rotation was decided on, and drawn with, the names alone.
+    assert.strictEqual(x.rotated, false, "one label that can't fit doesn't rotate the rest");
+    const shown = x.labels.map(l => l.split("\n").slice(0, -1).join(" "));
+    assert.deepStrictEqual(shown, Object.keys(regions).filter(r => r !== "Latin America"), `every region but the narrowest: ${x.labels}`);
+    assert.ok(x.labels.every(l => /\n[\d.]+%$/.test(l)), `each with its share: ${x.labels}`);
+    // barWidthShare(false) shows the names alone.
     const plain = await render("", draw, ["Marimekko", {...config, barWidthShare: false}, sales]);
-    assert.deepStrictEqual(plain.scene["plot-x-axis"], x, "the same axis as barWidthShare(false)");
+    assert.strictEqual(plain.scene["plot-x-axis"].rotated, false);
+    assert.ok(plain.scene["plot-x-axis"].labels.every(l => !l.includes("%")), "names alone");
 
     // Left flat, a label keeps its share line.
     const wide = await render("", draw, ["Marimekko", {renderer}, data]);
@@ -353,14 +356,14 @@ for (const renderer of ["svg", "canvas"]) {
   });
 }
 
-it("Marimekko: a rotated label's tooltip still shows its bar's width share", async function () {
+it("Marimekko: a hidden label's tooltip still shows its bar's width share", async function () {
   this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {width: 618, height: 400}, sales, "Apple_Latin America"]);
-  assert.ok(out.xLabels.includes("Latin America"), `rotated, name alone: ${out.xLabels}`);
+  assert.ok(!out.xLabels.some(l => l.startsWith("Latin")), `hidden: ${out.xLabels}`);
   assert.strictEqual(Object.fromEntries(out.tooltip)["Bar Total"], "38 (7.28%)");
 });
 
-it("Marimekko: rotation settles the same way on every render", async function () {
+it("Marimekko: the labels settle the same way on every render", async function () {
   this.timeout(60000);
   const out = await render("", ([rows]) => new Promise(resolve => {
     const el = document.createElement("div");
@@ -376,9 +379,10 @@ it("Marimekko: rotation settles the same way on every render", async function ()
       });
     });
   }), [sales]);
-  assert.strictEqual(out.first.rotated, true);
-  assert.ok(out.first.labels.every(l => !l.includes("%")), `rotated: ${out.first.labels}`);
+  assert.strictEqual(out.first.rotated, false);
+  assert.ok(out.first.labels.every(l => l.includes("%")), `flat: ${out.first.labels}`);
   assert.strictEqual(out.wide.rotated, false);
+  assert.strictEqual(out.wide.labels.length, 5, `every region: ${out.wide.labels}`);
   assert.ok(out.wide.labels.every(l => l.includes("%")), `flat: ${out.wide.labels}`);
   assert.deepStrictEqual(out.again, out.first);
 });

@@ -106,7 +106,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
 
   // Labels at given values naming things (one per variable-width bar) wrap
   // within their own share of the axis, so a wide bar's label lies flat
-  // across it while a narrow one's wraps.
+  // across it while a narrow one's wraps (see `fitOwnSpaces`).
   const ownSpace = horizontal && !isDiscreteScale(axis.schema.scale) && rotatesLabels(axis, labels, tickFormat);
   const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace};
   const setting = axis._labelRotationSetting;
@@ -124,7 +124,10 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
         ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
         : undefined;
     const misses = rotate ? rotate(textData) : 0;
-    if (rotate && misses) {
+    // Labels in their own shares rotate only as a last resort: a label that
+    // can't fit is hidden, and the rest stay flat (each with its share line,
+    // which a rotated label leaves out) unless half or more are hidden.
+    if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
       axis._labelRotation = true;
       textData = layoutLabels(axis, rescale(), labelCtx);
       if (rotate(textData) >= misses) {

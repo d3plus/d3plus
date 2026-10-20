@@ -32,7 +32,7 @@ export const argTypes = assign(
     barWidthShare: {
       ...barChartArgTypes.barWidthShare,
       defaultValue: true,
-      description: "Whether each category's axis label also shows its bar's share of the total width: beneath the name along a horizontal axis, in parentheses after it along a vertical one. Labels the axis rotates to fit show the name alone, while the tooltip always shows the share. In small multiples (`facet`), each panel's shares are of that panel's own total and add to 100%, even when shared scales draw a smaller panel narrower. Defaults to `true`; `false` shows the name alone.",
+      description: "Whether each category's axis label also shows its bar's share of the total width: beneath the name along a horizontal axis, in parentheses after it along a vertical one. A name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. The tooltip always shows the share. In small multiples (`facet`), each panel's shares are of that panel's own total and add to 100%, even when shared scales draw a smaller panel narrower. Defaults to `true`; `false` shows the name alone.",
       table: {
         defaultValue: {
           summary: "true"

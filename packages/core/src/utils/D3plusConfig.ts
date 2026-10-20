@@ -511,8 +511,10 @@ export interface D3plusConfig {
       also shows its bar's share of the total width, beneath the name along
       a horizontal axis ("Retail" over "50%") and after it along a vertical
       one ("Retail (50%)"). Along a horizontal axis, a name wraps to fit
-      a narrow bar; when even wrapped names can't fit, the labels rotate and
-      show the name alone. The tooltip always shows the share. In small
+      a narrow bar, widening into room its neighbors leave; a label that
+      still can't fit is left out, and the labels rotate, showing the name
+      alone, only when half or more can't fit. The tooltip always shows the
+      share. In small
       multiples (`facet`), each panel's shares are of that panel's own total
       width and add to 100%, even when shared scales draw a smaller panel
       narrower.

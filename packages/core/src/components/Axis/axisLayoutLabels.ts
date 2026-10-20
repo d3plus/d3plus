@@ -297,8 +297,8 @@ export function createTextData(
   // Thinning measures the labels again as they read the ones shown (see
   // `show`), mostly to the same text, so each text is measured once.
   const measured = new Map<string, LabelSize>();
-  const size = (datum: AxisTextDatum): AxisTextDatum => {
-    datum.space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2;
+  const size = (datum: AxisTextDatum, space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2): AxisTextDatum => {
+    datum.space = space;
     const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx, measured);
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
@@ -309,19 +309,20 @@ export function createTextData(
       datum.space = Math.ceil(height);
     return Object.assign(datum, {lines, widths, width, height, fits});
   };
-  textData = textData.map(size);
+  textData = textData.map((datum: AxisTextDatum) => size(datum));
 
   // Date labels read which labels are shown (see `Axis._shownLabels`), so a
   // whole-line axis measures them again each time it thins them.
   const show = (shown: AxisTextDatum[], resize: AxisTextDatum[] = shown) => {
     axis._shownLabels = shown.map((t: AxisTextDatum) => t.d);
-    resize.forEach(size);
+    resize.forEach((datum: AxisTextDatum) => size(datum));
   };
   if (isDiscreteScale(axis.schema.scale))
     thinEvenly(textData, horizontal, wholeLine ? (step: number, all: boolean) => {
       const shown = textData.filter((_t: AxisTextDatum, i: number) => i % step === 0);
       show(shown, all ? textData : shown);
     } : undefined);
+  else if (spaces && horizontal && !axis._labelRotation) fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 
@@ -343,6 +344,60 @@ export function ownLabelSpaces(positions: number[], rangeOuter: number[]): numbe
       .filter((n: number | undefined): n is number => n !== undefined)
       .map((n: number) => Math.abs(position - n));
     return Math.min(...gaps);
+  });
+}
+
+/**
+    Fits flat labels that each wrap within their own share of the axis (see
+    `ownLabelSpaces`, which gives `spaces`). A label too long for its share,
+    even wrapped, widens into the room its neighbors leave unused, staying
+    centered on its tick and its padding clear of them. Labels widen in
+    order of their ticks' slots (laid end to end from the start of the
+    scale's `range`, each tick at its slot's center: one bar each, for one
+    label per bar), so where two narrow neighbors can't both fit, the
+    narrower bar's label is the one hidden; every other label stays as it
+    is. `resize` measures a label again at a given width.
+*/
+export function fitOwnSpaces(
+  textData: AxisTextDatum[],
+  spaces: number[],
+  range: number[],
+  resize: (datum: AxisTextDatum, space: number) => AxisTextDatum,
+): void {
+  const share = (t: AxisTextDatum) => spaces[t.i] - t.fP * 2;
+  const pending = new Set(textData.filter((t: AxisTextDatum) => !t.fits));
+  // A label still waiting to widen keeps to its own share for now.
+  const extent = (t: AxisTextDatum) => (pending.has(t) ? Math.min(t.width, share(t)) : t.width);
+  // The nearest label shown on either side, past any still waiting to widen when `skip`.
+  const shown = (from: number, step: number, skip: boolean) => {
+    for (let i = from + step; i >= 0 && i < textData.length; i += step)
+      if (!textData[i].truncated && !(skip && pending.has(textData[i]))) return textData[i];
+    return undefined;
+  };
+  // Widens a label into its neighbors' unused room, if that's more than its share.
+  const widen = (datum: AxisTextDatum, skip: boolean) => {
+    const widths = [shown(datum.i, -1, skip), shown(datum.i, 1, skip)]
+      .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
+      .map((t: AxisTextDatum) => 2 * (Math.abs(t.position - datum.position) - extent(t) / 2 - datum.fP));
+    // With no label shown beside it, a label may span the whole range.
+    const space = Math.floor(widths.length ? Math.min(...widths) : Math.max(...range) - Math.min(...range));
+    if (space > share(datum)) resize(datum, space);
+    return datum.fits;
+  };
+  // Each tick's slot, as if the slots ran end to end from the range's
+  // start with each tick at its slot's center (one slot per bar).
+  let edge = Math.min(...range);
+  const slots = textData.map((t: AxisTextDatum) => {
+    const slot = Math.max(0, 2 * (t.position - edge));
+    edge += slot;
+    return slot;
+  });
+  [...pending].sort((a: AxisTextDatum, b: AxisTextDatum) => slots[b.i] - slots[a.i]).forEach((datum: AxisTextDatum) => {
+    pending.delete(datum);
+    // A label that can't fit beside its neighbors' shares takes the room of
+    // any narrower bars' labels still waiting, which then fit around it or hide.
+    if (!widen(datum, false)) widen(datum, true);
+    datum.truncated = !datum.fits;
   });
 }
 

@@ -26,6 +26,9 @@ const byYear = [2020, 2022, 2024].flatMap((year, y) => [
   Revenue: Math.round(revenue * (0.5 + 0.25 * y + ((i * 7) % 5) * 0.04)),
 }))));
 const panelKeys = ["facet-2020", "facet-2022", "facet-2024"];
+const regionOrder = ["North America", "Europe", "Asia Pacific", "Latin America"];
+/** The region each label names, its lines joined and its share line left off. */
+const regionsShown = labels => labels.map(l => l.split("\n").filter(line => !/%$/.test(line)).join(" "));
 
 /**
     Renders faceted Marimekko and reads back, per panel: each axis's painted
@@ -86,12 +89,12 @@ for (const facetConfig of [{}, {scales: "independent"}]) {
     assert.ok(first.y.includes("0%") && first.y.includes("80%"), `the left panel's y axis: ${first.y}`);
     assert.ok(first.y.includes("Revenue"), "with its title");
     rest.forEach((p, i) => assert.deepStrictEqual(p.y, [], `${panelKeys[i + 1]} draws no y labels`));
-    // Every panel labels its own categories.
-    panelKeys.forEach(k => assert.deepStrictEqual(
-      panels[k].x.map(l => l.split("\n")[0]),
-      ["North America", "Europe", "Asia Pacific", "Latin America"],
-      `${k} labels its bars`,
-    ));
+    // Every panel labels its own categories, but for one too long for its bar.
+    panelKeys.forEach(k => {
+      const shown = regionsShown(panels[k].x);
+      assert.ok(shown.length >= 3, `${k} labels its bars: ${panels[k].x}`);
+      assert.deepStrictEqual(shown, regionOrder.filter(r => shown.includes(r)), `${k}: whole names, in bar order`);
+    });
     // Every plot spans the same height, so the left axis reads for all.
     rest.forEach(p => {
       near(p.top, first.top, 1, "plot tops line up");
@@ -120,7 +123,7 @@ it("Marimekko facet: facetConfig axes sets each axis on its own, or both at once
   panelKeys.forEach(k => assert.ok(both[k].y.includes("0%"), `${k} labels its y axis`));
   const outer = await render("", draw, [{facetConfig: {axes: "outer"}}, byYear]);
   // One row: every panel is on the bottom edge, so each still labels its categories.
-  panelKeys.forEach(k => assert.strictEqual(outer[k].x.length, 4, `${k} x labels`));
+  panelKeys.forEach(k => assert.ok(outer[k].x.length >= 3, `${k} x labels: ${outer[k].x}`));
   assert.deepStrictEqual(outer["facet-2022"].y, []);
 });
 

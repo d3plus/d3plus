@@ -56,11 +56,12 @@ export const marimekkoDef: ChartDefinition = {
     /**
         Marimekko labels each category with its bar's share of the total
         width by default ("Retail" over "50%"); `false` shows the name alone.
-        A name wraps to fit a narrow bar; when even wrapped names can't fit,
-        the labels rotate and show the name alone, while the tooltip always
-        shows the share. In small multiples (`facet`), each panel's shares
-        are of that panel's own total and add to 100%, even when shared
-        scales (the default) draw a smaller panel narrower.
+        A name wraps to fit a narrow bar, widening into room its neighbors
+        leave; a label that still can't fit is left out, and the labels
+        rotate, showing the name alone, only when half or more can't fit.
+        The tooltip always shows the share. In small multiples (`facet`),
+        each panel's shares are of that panel's own total and add to 100%,
+        even when shared scales (the default) draw a smaller panel narrower.
     */
     {key: "barWidthShare", default: true},
     {key: "stacked", default: true},

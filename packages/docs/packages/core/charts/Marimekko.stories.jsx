@@ -67,7 +67,7 @@ BasicExample.args = {
   x: "Region",
   y: "Revenue",
 };
-BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market on a line beneath its name, which wraps to fit a narrow bar; when bars are too narrow for even a wrapped name, the labels rotate and show the name alone. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
+BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market on a line beneath its name, which wraps to fit a narrow bar and can widen into room its neighbors leave. A label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. Hover a segment for its revenue, its share of the region, and the region's total and share of the market."}}};
 
 export const WithoutWidthShares = Template.bind({});
 WithoutWidthShares.args = {
