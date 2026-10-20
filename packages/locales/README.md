@@ -31,18 +31,18 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | Functions | Description |
 | --- | --- |
 | [`findLocale`](#findlocale) | Converts a 2-letter language code into a full language-region locale string (e.g., "en" to "en-US"). |
-| [`findWeekStart`](#findweekstart) | Returns the first day of the week (0 = Sunday … 6 = Saturday) in a locale's region, per CLDR: `"en-US"` → 0, `"de-DE"` → |
+| [`findWeekStart`](#findweekstart) | Returns the first day of the week (0 = Sunday … 6 = Saturday) in a locale's region, per CLDR: `"en-US"` → 0, `"de-DE"` → 1, `"ar-EG"` → 6. |
 
 | Variables | Description |
 | --- | --- |
 | [`formatLocale`](#formatlocale) |  |
-| [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when |
-| [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kep |
-| [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, to |
+| [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips. |
+| [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase. |
+| [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. |
 
 | Interfaces | Description |
 | --- | --- |
-| [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale |
+| [`FormatLocaleDefinition`](#formatlocaledefinition) | formatLocale A set of default locale formatters used when assigning suffixes and currency in numbers. |
 | [`TimeLocaleDefinition`](#timelocaledefinition) |  |
 | [`TitleCaseRules`](#titlecaserules) |  |
 | [`TranslationStrings`](#translationstrings) |  |

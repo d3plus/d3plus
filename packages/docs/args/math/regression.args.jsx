@@ -30,7 +30,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "array.&lt;*&gt;"
+      summary: "array.&lt;[number, number]&gt;"
     }
   },
   type: {

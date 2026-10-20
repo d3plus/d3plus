@@ -105,6 +105,14 @@ export const argTypes = assign(
         summary: "number"
       }
     },
+    groupPadding: {
+      defaultValue: 1,
+      table: {
+        defaultValue: {
+          summary: "1"
+        }
+      }
+    },
     stacked: {
       defaultValue: true,
       table: {

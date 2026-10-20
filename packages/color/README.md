@@ -32,10 +32,10 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | --- | --- |
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
-| [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on to |
+| [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. |
 | [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
 | [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
-| [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, |
+| [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next. |
 | [`colorSubtract`](#colorsubtract) | Subtracts one color from another. |
 | [`colorValidate`](#colorvalidate) | Validates a chart color palette against the computable accessibility checks. |
 
@@ -49,11 +49,11 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`ColorDefaults`](#colordefaults) |  |
 | [`ColorRampOptions`](#colorrampoptions) | Options for colorRamp. |
 | [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate. |
-| [`ColorValidation`](#colorvalidation) | The result of validating a palette. `ok` is true when no check hard-fails. |
+| [`ColorValidation`](#colorvalidation) | The result of validating a palette. |
 
 | Type Aliases | Description |
 | --- | --- |
-| [`CheckState`](#checkstate) | The state of a single check. `warn` passes but obligates secondary encoding. |
+| [`CheckState`](#checkstate) | The state of a single check. |
 
 ## Functions
 

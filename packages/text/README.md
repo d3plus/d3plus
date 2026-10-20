@@ -34,7 +34,7 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 | [`strip`](#strip) | Removes all non ASCII characters from a string. |
 | [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
 | [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
-| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both |
+| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both directions: the locale's minor words (articles, short conjunctions/ prepositions) are forced lowercase in the middle and known acronyms are forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and "jack smith, ceo" becomes "Jack Smith, CEO". |
 
 | Variables | Description |
 | --- | --- |
