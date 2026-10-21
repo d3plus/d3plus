@@ -28,7 +28,7 @@ import {
   bulletKey,
   rowNumber,
 } from "./applyLayout.js";
-import {chartBackground} from "../Gauge/emit.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import {bulletEmit} from "./emit.js";
 
 /** The width of the background-colored outline around each measure bar. */

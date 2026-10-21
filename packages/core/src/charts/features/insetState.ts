@@ -9,10 +9,10 @@
 */
 
 import {colorContrast} from "@d3plus/color";
-import {backgroundColor} from "@d3plus/dom";
 import type {Bounds} from "@d3plus/math";
 import type {SceneNode} from "@d3plus/render";
 
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The chrome that can be drawn inside the chart, in the order it is tried. */
@@ -103,12 +103,6 @@ export function insetFrame(
   return orient === "column"
     ? {width: area.width * 0.4, height: area.height * 0.6}
     : {width: area.width * 0.6, height: area.height * 0.4};
-}
-
-/** The chart's background color, as the default fill for the inset box. */
-function chartBackground(viz: VizInstance): string {
-  const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
-  return node ? backgroundColor(node) : "rgb(255, 255, 255)";
 }
 
 /** The semi-transparent box drawn behind inset chrome, so it stays legible over marks panned beneath it. */

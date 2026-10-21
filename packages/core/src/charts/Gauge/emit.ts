@@ -8,7 +8,6 @@
 import {interpolateRgb} from "d3-interpolate";
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor} from "@d3plus/dom";
 import type {SceneNode} from "@d3plus/render";
 import {fontFamilyStringify} from "@d3plus/text";
 
@@ -19,6 +18,7 @@ import {
   resolveAccessor,
   shapeConfigFor,
 } from "../features/emitHelpers.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasName} from "./applyLayout.js";
 import type {GaugeDatum, GaugeShared} from "./applyLayout.js";
@@ -37,13 +37,6 @@ interface AxisShapeConfig {
 
 /** The width of the background-colored outline that separates each needle from the dial. */
 export const NEEDLE_OUTLINE = 1.5;
-
-/** The chart's background color, as detected behind its container. */
-export function chartBackground(viz: VizInstance): string {
-  return viz._select
-    ? backgroundColor(viz._select.node())
-    : "rgb(255, 255, 255)";
-}
 
 /**
     The colors a dial is drawn in when `axisConfig` doesn't set them, read
