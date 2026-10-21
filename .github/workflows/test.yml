@@ -13,9 +13,33 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
+  # Version-independent checks run once rather than on every matrix leg.
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      FORCE_COLOR: "1"
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - run: pnpm install
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck (build types)
+        run: pnpm -r --if-present run build:types
+      - name: Test docs generator
+        run: pnpm test:docs
+      - name: Build docs site (Storybook)
+        run: pnpm --filter @d3plus/docs build
+
   test:
 
     runs-on: ubuntu-latest
+    timeout-minutes: 45
     # Node 26 is still "Current" (LTS begins 2026-10-28), so run it as a
     # forward-compat canary that reports but doesn't block merges when a
     # bleeding-edge dependency lags. The supported LTS lines (22, 24) block.
@@ -33,9 +57,9 @@ jobs:
         node-version: [22.x, 24.x, 26.x]
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
@@ -45,7 +69,7 @@ jobs:
         run: echo "version=$(pnpm --filter @d3plus/core exec playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.playwright-version.outputs.version }}
@@ -69,26 +93,14 @@ jobs:
             if [ "$n" -ge 3 ]; then echo "playwright install-deps chromium failed after $n attempts"; exit 1; fi
             echo "playwright install-deps chromium failed (attempt $n); retrying in 15s..."; sleep 15
           done
+      # Linting runs in the check job. 22.x runs the suites once, under c8,
+      # instead of a plain pass followed by a coverage pass.
       - name: Run tests
         if: matrix.node-version != '22.x'
-        run: pnpm test
-      # The coverage run executes the same suites, so 22.x lints separately and
-      # runs them once, under c8, instead of a plain pass followed by a
-      # coverage pass.
-      - name: Lint
-        if: matrix.node-version == '22.x'
-        run: pnpm lint
+        run: pnpm -r --if-present run build:esm && pnpm -r --if-present run test
       - name: Run tests with coverage
         if: matrix.node-version == '22.x'
         run: pnpm test:coverage
-      - name: Typecheck (build types)
-        run: pnpm -r --if-present run build:types
-      - name: Test docs generator
-        if: matrix.node-version == '22.x'
-        run: pnpm test:docs
-      - name: Build docs site (Storybook)
-        if: matrix.node-version == '22.x'
-        run: pnpm --filter @d3plus/docs build
       # One upload per package, flagged with its directory name to match the
       # flags in codecov.yml. lcov paths are relative to each package, so they
       # are prefixed with its directory first. The commit, PR and branch are
