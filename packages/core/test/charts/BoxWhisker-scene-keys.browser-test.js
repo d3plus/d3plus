@@ -128,9 +128,17 @@ const transition = ([renderer, next]) =>
     });
   });
 
+// The key check reads the same DCBA redraw the travel check samples.
+const runs = new Map();
+const transitionOnce = (renderer, next) => {
+  const key = `${renderer}:${next.join("")}`;
+  if (!runs.has(key)) runs.set(key, render("", transition, [renderer, next]));
+  return runs.get(key);
+};
+
 for (const renderer of ["svg", "canvas"]) {
   it(`BoxWhisker scene keys are unique and stable per category (${renderer})`, async function () {
-    const out = await render("", transition, [renderer, ["D", "C", "B", "A"]]);
+    const out = await transitionOnce(renderer, ["D", "C", "B", "A"]);
     assert.deepStrictEqual(out.repeated, [], "no key repeats among its siblings");
     assert.deepStrictEqual(out.keys, [
       "B-box",
@@ -147,7 +155,7 @@ for (const renderer of ["svg", "canvas"]) {
 
   for (const next of [["D", "C", "B", "A"], ["B", "C", "D", "E"]]) {
     it(`BoxWhisker boxes travel with their category, ABCD -> ${next.join("")} (${renderer})`, async function () {
-      const out = await render("", transition, [renderer, next]);
+      const out = await transitionOnce(renderer, next);
       assert.deepStrictEqual(out.moved, [], "no SVG element switches category");
       for (const cat of next.filter(c => c in out.before)) {
         const from = out.before[cat];
