@@ -1,8 +1,7 @@
 import {select} from "d3-selection";
 import textures from "textures";
+import {SVG_NS} from "../svg/svgNodeAttrs.js";
 import {configureTexture} from "../textureConfig.js";
-
-const SVG_NS = "http://www.w3.org/2000/svg";
 
 /**
     Builds standalone SVG markup for one tile of a `pattern:<json>` texture

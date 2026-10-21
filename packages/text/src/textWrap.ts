@@ -1,7 +1,7 @@
 import {textWidth} from "@d3plus/dom";
 
+import {softHyphen} from "./softHyphen.js";
 import defaultSplit from "./textSplit.js";
-const softHyphen = "\u00AD";
 
 /**
     Coerces value into a String.

@@ -1,6 +1,4 @@
-import {textSplit} from "@d3plus/text";
-
-const softHyphen = "­";
+import {softHyphen, textSplit} from "@d3plus/text";
 
 /**
     Wraps a split function so it keeps each word whole: the hyphenated
