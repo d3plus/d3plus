@@ -18,7 +18,7 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 import {forEachSceneRow} from "../viz/sceneRows.js";
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
-import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
+import {controlButtonStyles, escapeHtml, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
 import {
   searchControlStyleActiveDefault,
   searchControlStyleDefault,
@@ -31,13 +31,12 @@ export function isSearchOpen(viz: Viz): boolean {
 }
 
 /** The resolved base / active / hover button styles for a chart — also the cheap, non-DOM basis for `searchContribution`'s `styleSignature` (see `Contribution.styleSignature`). */
-export function searchButtonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
-  const className = Boolean(viz.schema.searchControlClassName);
-  return {
-    base: resolveControlStyle(viz.schema.searchControlStyle, searchControlStyleDefault, className),
-    active: resolveControlStyle(viz.schema.searchControlStyleActive, searchControlStyleActiveDefault, className),
-    hover: resolveControlStyle(viz.schema.searchControlStyleHover, searchControlStyleHoverDefault, className),
-  };
+export function searchButtonStyles(viz: Viz): ControlButtonStyles {
+  return controlButtonStyles(viz.schema, "searchControl", {
+    base: searchControlStyleDefault,
+    active: searchControlStyleActiveDefault,
+    hover: searchControlStyleHoverDefault,
+  });
 }
 
 /** Paints the search toggle button's inline style for its current state. Mirrors `paintZoomButton`. */
@@ -200,13 +199,6 @@ export function applySearchCount(viz: Viz, el: HTMLElement, hasTerm: boolean, in
   const {text, label} = formatMatchCount(viz, index, total);
   el.textContent = hasTerm ? text : "";
   el.setAttribute("aria-label", label);
-}
-
-/** Escapes a value for safe interpolation into `innerHTML`. */
-function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>"']/g, c => (
-    {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c] as string
-  ));
 }
 
 /**

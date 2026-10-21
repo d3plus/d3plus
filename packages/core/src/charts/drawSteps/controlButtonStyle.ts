@@ -74,3 +74,40 @@ export function paintControlButton(
       if (v !== undefined && v !== null && v !== false) setControlStyle(btn, key, String(v));
     }
 }
+
+/** A control button's resolved base, active, and hover styles. */
+export interface ControlButtonStyles {
+  base: StyleObject;
+  active: StyleObject;
+  hover: StyleObject;
+}
+
+/**
+    Resolves a control's `<prefix>Style`, `<prefix>StyleActive`, and
+    `<prefix>StyleHover` against its own defaults (see `resolveControlStyle`),
+    with `<prefix>ClassName` disabling whichever are still the defaults.
+    @param schema The chart's schema.
+    @param prefix The control's schema prefix, e.g. `"zoomControl"`.
+    @param defaults The control's default base, active, and hover styles.
+*/
+export function controlButtonStyles(
+  schema: Record<string, unknown>,
+  prefix: string,
+  defaults: {base: ControlStyleValue; active: ControlStyleValue; hover: ControlStyleValue},
+): ControlButtonStyles {
+  const className = Boolean(schema[`${prefix}ClassName`]);
+  const style = (suffix: string, fallback: ControlStyleValue) =>
+    resolveControlStyle(schema[`${prefix}Style${suffix}`] as ControlStyleValue, fallback, className);
+  return {
+    base: style("", defaults.base),
+    active: style("Active", defaults.active),
+    hover: style("Hover", defaults.hover),
+  };
+}
+
+/** Escapes a value for safe interpolation into `innerHTML`. */
+export function escapeHtml(value: unknown): string {
+  return String(value ?? "").replace(/[&<>"']/g, c => (
+    {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c] as string
+  ));
+}
