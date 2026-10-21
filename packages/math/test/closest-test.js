@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as closest} from "../es/src/closest.js";
+import {default as closest} from "../src/closest.ts";
 
 it("closest", () => {
   assert.strictEqual(closest(9, [0, 10]), 10, "Closest Over");

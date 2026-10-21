@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as simplify} from "../es/src/simplify.js";
+import {default as simplify} from "../src/simplify.ts";
 
 it("math/simplify returns polygons of two or fewer points untouched", () => {
   const single = [[0, 0]];

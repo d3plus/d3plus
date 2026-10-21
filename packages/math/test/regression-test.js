@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as regression} from "../es/src/regression.js";
+import {default as regression} from "../src/regression.ts";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) < tol, `${msg}: ${actual} vs ${expected}`);

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as unique} from "../es/src/unique.js";
+import {default as unique} from "../src/unique.ts";
 
 it("unique", () => {
   assert.strictEqual(unique(["a", "a", "b"]).join(","), "a,b", "Strings");

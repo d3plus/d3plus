@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as contrast} from "../es/src/contrast.js";
-import {default as defaults} from "../es/src/defaults.js";
+import {default as contrast} from "../src/contrast.ts";
+import {default as defaults} from "../src/defaults.ts";
 
 it("contrast", () => {
   // Text color is chosen to MAXIMIZE the WCAG contrast ratio against the

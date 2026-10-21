@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   colorToOklab,
@@ -6,7 +7,7 @@ import {
   oklabToColor,
   oklchToColor,
   relativeLuminance,
-} from "../es/src/oklab.js";
+} from "../src/oklab.ts";
 
 it("oklab", () => {
   // White and black anchor the lightness axis at 1 and 0.

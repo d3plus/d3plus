@@ -1,4 +1,4 @@
-/* global describe */
+import {describe, it} from "vitest";
 import assert from "node:assert/strict";
 
 import {

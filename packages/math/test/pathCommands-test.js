@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {pathCommands} from "../es/src/pathParse.js";
+import {pathCommands} from "../src/pathParse.ts";
 
 it("pathCommands keeps each command as written", () => {
   assert.deepStrictEqual(pathCommands("M10,20L30 40h5v-6Z"), [

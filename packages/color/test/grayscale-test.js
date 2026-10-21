@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as grayscale} from "../es/src/grayscale.js";
+import {default as grayscale} from "../src/grayscale.ts";
 
 it("grayscale", () => {
   assert.strictEqual(grayscale("#ff0000"), "rgb(128, 128, 128)", "keeps lightness");

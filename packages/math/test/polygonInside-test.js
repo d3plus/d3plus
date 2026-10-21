@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as polygonInside} from "../es/src/polygonInside.js";
+import {default as polygonInside} from "../src/polygonInside.ts";
 
 it("geom/polygonInside", () => {
   const square = [

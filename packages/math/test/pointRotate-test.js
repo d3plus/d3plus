@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as pointRotate} from "../es/src/pointRotate.js";
+import {default as pointRotate} from "../src/pointRotate.ts";
 
 it("geom/pointRotate", () => {
   assert.strictEqual(

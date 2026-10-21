@@ -37,7 +37,7 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project locales",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project locales --coverage --coverage.include='packages/locales/{index.ts,src/**}' --coverage.reportsDirectory=packages/locales/coverage"
   }
 }

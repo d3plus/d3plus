@@ -30,7 +30,7 @@
     "release": "node scripts/release.js",
     "test": "pnpm lint && pnpm -r --if-present run test",
     "test:coverage": "pnpm -r --if-present run test:coverage",
-    "test:docs": "mocha 'scripts/docs/test/**/*-test.js'",
+    "test:docs": "vitest run --project docs-scripts",
     "test:dev-pages": "pnpm --filter @d3plus/core run test:dev-pages"
   },
   "devDependencies": {

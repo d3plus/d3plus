@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as concat} from "../es/src/concat.js";
+import {default as concat} from "../src/concat.ts";
 
 it("data/concat", () => {
   const array1 = ["a", "b", "c"];

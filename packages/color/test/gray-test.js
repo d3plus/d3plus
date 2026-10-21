@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {colorDefaults, colorGray} from "../es/index.js";
+import {colorDefaults, colorGray} from "../index.ts";
 import {hsl} from "d3-color";
 
 it("colorGray", () => {

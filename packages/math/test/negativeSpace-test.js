@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as negativeSpace} from "../es/src/negativeSpace.js";
+import {default as negativeSpace} from "../src/negativeSpace.ts";
 
 const bounds = {x: 0, y: 0, width: 100, height: 100};
 const overlaps = (a, b) =>

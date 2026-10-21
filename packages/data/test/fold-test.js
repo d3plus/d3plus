@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as fold} from "../es/src/fold.js";
+import {default as fold} from "../src/fold.ts";
 
 it("data/fold", () => {
   const data = fold({

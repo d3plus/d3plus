@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as polygonRayCast} from "../es/src/polygonRayCast.js";
+import {default as polygonRayCast} from "../src/polygonRayCast.ts";
 
 it("geom/polygonRayCast", () => {
   const poly = [

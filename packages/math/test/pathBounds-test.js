@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {pathBounds, path2polygon} from "../es/index.js";
+import {pathBounds, path2polygon} from "../index.ts";
 
 const near = (a, b, eps = 1e-6) => Math.abs(a - b) <= eps;
 const boxNear = (got, exp, eps = 1e-4) =>

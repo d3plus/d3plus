@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as lighter} from "../es/src/lighter.js";
+import {default as lighter} from "../src/lighter.ts";
 
 it("lighter", () => {
   assert.strictEqual("rgb(207, 82, 82)", lighter("#440000"));

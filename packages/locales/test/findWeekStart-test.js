@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as findWeekStart} from "../es/src/findWeekStart.js";
+import {default as findWeekStart} from "../src/findWeekStart.ts";
 
 it("findWeekStart follows CLDR regions", () => {
   const expected = {

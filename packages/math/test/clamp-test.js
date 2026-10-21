@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as clamp} from "../es/src/clamp.js";
+import {default as clamp} from "../src/clamp.ts";
 
 it("clamp", () => {
   assert.strictEqual(clamp(5, 0, 10), 5, "inside the range");

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as nest, nestGroups} from "../es/src/nest.js";
+import {default as nest, nestGroups} from "../src/nest.ts";
 
 it("nest wraps a single key accessor and groups rows under it", () => {
   const data = [

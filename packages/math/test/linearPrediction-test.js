@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as linearConfidence} from "../es/src/linearConfidence.js";
-import {default as linearPrediction} from "../es/src/linearPrediction.js";
+import {default as linearConfidence} from "../src/linearConfidence.ts";
+import {default as linearPrediction} from "../src/linearPrediction.ts";
 
 const points = [[1, 2.1], [2, 3.9], [3, 6.2], [4, 7.8], [5, 10.1], [6, 11.9]];
 
