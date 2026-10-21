@@ -41,8 +41,8 @@ import {max} from "d3-array";
 import type Axis from "../../components/Axis/Axis.js";
 import {frozenAxis} from "./frozenAxis.js";
 
-import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measureEndLabels, placeEndLabels} from "./axisEndLabels.js";
-import type {XLabelMode} from "./axisEndLabels.js";
+import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measureEndLabels, placeEndLabels} from "./plotEndLabels.js";
+import type {XLabelMode} from "./plotEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
 import {buildXConfig} from "./xAxisConfig.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";

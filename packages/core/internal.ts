@@ -553,7 +553,7 @@ export {
   layoutEndLabels,
   measureEndLabels,
   placeEndLabels,
-} from "./src/charts/features/axisEndLabels.js";
+} from "./src/charts/features/plotEndLabels.js";
 export {frozenAxis} from "./src/charts/features/frozenAxis.js";
 export {computeAxisLayout, measureAxis} from "./src/components/Axis/Axis.js";
 
@@ -782,7 +782,7 @@ export type {VizContext} from "./src/charts/pipeline/stages.js";
 export type {VizDrawResult} from "./src/charts/pipeline/vizDraw.js";
 export type {VizPreDrawResult} from "./src/charts/pipeline/preDrawData.js";
 export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
-export type {EndLabel, EndLabelBox, EndLabelMeasure, XLabelMode} from "./src/charts/features/axisEndLabels.js";
+export type {EndLabel, EndLabelBox, EndLabelMeasure, XLabelMode} from "./src/charts/features/plotEndLabels.js";
 export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {VizInstance, VizRenderer} from "./src/charts/viz/vizTypes.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";
