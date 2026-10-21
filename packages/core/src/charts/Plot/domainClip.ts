@@ -149,11 +149,16 @@ export function clipToPlotArea(nodes: SceneNode[], frame: ClipFrame): SceneNode[
     const key = `${DOMAIN_CLIP_KEY}-${runs++}`;
     if (run.some(node => overflows(node, inside))) {
       const r = grow(rect, widest(run));
+      // A sorted run (Plot's circles by size, their background images above
+      // them) keeps its place among its siblings: the backends order each
+      // group's children by `z`.
+      const zs = run.map(node => node.z).filter((z): z is number => typeof z === "number");
       out.push({
         type: "group",
         key,
         clip: {type: "rect", x: r.x0, y: r.y0, width: r.x1 - r.x0, height: r.y1 - r.y0},
         children: run,
+        ...(zs.length ? {z: Math.min(...zs)} : {}),
       });
       clipped = true;
     }
