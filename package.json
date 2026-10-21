@@ -72,7 +72,7 @@
     "mocha": "^11.1.0",
     "rollup": "^4.34.9",
     "terser": "^5.39.0",
-    "typedoc": "^0.28.18",
+    "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "catalog:",
     "typescript-eslint": "^8.0.0",

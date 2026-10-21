@@ -323,9 +323,10 @@ function buildTableOfContents(project) {
 /** Shared typedoc-plugin-markdown options for all packages. */
 const markdownOptions = {
   plugin: ["typedoc-plugin-markdown"],
-  // Link source to a stable branch ref instead of the current commit SHA, so
-  // regenerating the READMEs doesn't churn every "Defined in" link each commit.
-  gitRevision: "main",
+  // Source links point at a stable branch instead of the current commit SHA
+  // (see sourceLinks below), so regenerating the docs doesn't churn every
+  // "Defined in" link each commit.
+  disableGit: true,
   router: "module",
   mergeReadme: true,
   readme: "none",
@@ -395,6 +396,15 @@ async function generateMarkdown() {
       tsconfig: `${folder}/tsconfig.json`,
       outputs: [{name: "markdown", path: tempDir}],
       ...markdownOptions,
+      // {path} is relative to the package; links are shown relative to src/.
+      // @d3plus/types documents other packages' generated declarations, which
+      // aren't in the repo, so it names them without a link.
+      ...(name === "@d3plus/types"
+        ? {basePath: "packages"}
+        : {
+            basePath: `${folder}/src`,
+            sourceLinkTemplate: `https://github.com/d3plus/d3plus/blob/main/${folder}/{path}#L{line}`,
+          }),
     });
 
     // Members named with a leading underscore are internal by convention
