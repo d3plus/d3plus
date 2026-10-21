@@ -1,3 +1,6 @@
+// Adapted from Simplify.js, (c) 2017 Vladimir Agafonkin, BSD 2-Clause License
+// (https://github.com/mourner/simplify-js/blob/master/LICENSE).
+
 import type {Point} from "./lineIntersection.js";
 import pointDistanceSquared from "./pointDistanceSquared.js";
 

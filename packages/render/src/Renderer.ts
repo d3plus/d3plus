@@ -1,4 +1,4 @@
-import type {DataPoint} from "@d3plus/data";
+import type {DataPoint} from "./scene.js";
 
 import type {TrailCatchup} from "./animate/trailLog.js";
 import type {Scene, SceneNode, TransitionRect} from "./scene.js";
