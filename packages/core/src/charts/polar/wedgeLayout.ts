@@ -10,10 +10,10 @@ import {groups} from "d3-array";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
+import {arcPath} from "@d3plus/render";
 import type {ArcGeometry, Paint, SceneNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
-import {arcPath} from "../Gauge/emitDial.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {RadarLevels} from "../Radar/levels.js";
 

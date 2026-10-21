@@ -5,8 +5,8 @@
     targets; the indicators and their hit areas carry the interaction.
 */
 
-import {arc as d3Arc} from "d3-shape";
 import {textWidth} from "@d3plus/dom";
+import {arcPath} from "@d3plus/render";
 import type {ArcGeometry, PathNode, SceneNode, TextNode} from "@d3plus/render";
 
 import type {DialLayout} from "./dialLayout.js";
@@ -22,12 +22,6 @@ export interface DialStyle {
   fontFamily: string;
   tickFormat: (value: number) => string;
 }
-
-const arcGen = d3Arc<ArcGeometry>();
-
-/** The SVG path for an annular sector. */
-export const arcPath = (geometry: ArcGeometry): string =>
-  arcGen(geometry) ?? "";
 
 /** An annular-sector path node, carrying its geometry so updates tween as arcs. */
 export function arcNode(

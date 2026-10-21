@@ -4,10 +4,10 @@
 */
 
 import {formatAbbreviate} from "@d3plus/format";
+import {arcPath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
-import {arcPath} from "../Gauge/emitDial.js";
 import {polarWedgeNodes} from "../polar/config.js";
 import type {PolarFrame, PolarWedge} from "../polar/wedgeLayout.js";
 

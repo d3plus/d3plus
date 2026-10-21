@@ -5,13 +5,13 @@
 
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
+import {arcPath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
-import {arcPath} from "../Gauge/emitDial.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 

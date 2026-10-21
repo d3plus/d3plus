@@ -7,6 +7,7 @@ import {colorContrast} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 import {largestRect, path2polygon} from "@d3plus/math";
 import type {DataPoint} from "@d3plus/data";
+import {FULL_TURN} from "@d3plus/render";
 import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
@@ -20,9 +21,6 @@ type Slice = PieArcDatum<DataPoint> & {
   i?: number;
   share?: number;
 };
-
-/** d3.pie()'s default span (Pie/applyLayout.ts never overrides startAngle/endAngle) — the range every slice's own startAngle/endAngle is relative to. */
-const FULL_TURN = Math.PI * 2;
 
 /** Shared, per-draw context `buildPathNode` needs for every slice — bundled to keep its own parameter list short. */
 interface PathNodeCtx {

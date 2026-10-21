@@ -30,7 +30,7 @@ import type {
     STRING between two differently-curved shapes (see `ArcGeometry`).
 */
 /** d3.pie()'s span — a wedge's own startAngle/endAngle are always within [0, FULL_TURN]. */
-const FULL_TURN = Math.PI * 2;
+export const FULL_TURN = Math.PI * 2;
 
 const arcGenerator = d3Arc<ArcGeometry>()
   .innerRadius(d => d.innerRadius)
@@ -39,6 +39,7 @@ const arcGenerator = d3Arc<ArcGeometry>()
   .endAngle(d => d.endAngle)
   .padAngle(d => d.padAngle ?? 0);
 
+/** The SVG path `d` for an annular sector (a Pie/Donut wedge, a gauge band, …). */
 export function arcPath(params: ArcGeometry): string {
   return arcGenerator(params) ?? "";
 }

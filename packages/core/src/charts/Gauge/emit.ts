@@ -8,6 +8,7 @@
 import {interpolateRgb} from "d3-interpolate";
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
+import {arcPath} from "@d3plus/render";
 import type {SceneNode} from "@d3plus/render";
 import {fontFamilyStringify} from "@d3plus/text";
 
@@ -24,7 +25,7 @@ import {hasName} from "./applyLayout.js";
 import type {GaugeDatum, GaugeShared} from "./applyLayout.js";
 import {dialLayout} from "./dialLayout.js";
 import type {DialLayout} from "./dialLayout.js";
-import {arcPath, emitDialLabels, emitDialParts} from "./emitDial.js";
+import {emitDialLabels, emitDialParts} from "./emitDial.js";
 import type {DialStyle} from "./emitDial.js";
 import {needlePath, toDegrees} from "./gaugeGeometry.js";
 
