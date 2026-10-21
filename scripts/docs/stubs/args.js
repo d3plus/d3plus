@@ -758,7 +758,7 @@ function withDefault(arg, value) {
  * functions/unset values get no control but are still listed so `configify`
  * keeps story-set values and the key shows in the Code view.
  */
-function configArgType(value, doc, key) {
+export function configArgType(value, doc, key) {
   if (doc && doc.names && doc.names.length) {
     const types = doc.names.map(t => t.toLowerCase());
     const arg = {

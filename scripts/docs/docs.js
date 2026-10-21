@@ -15,6 +15,7 @@ const log = Logger("documentation");
 const prune = process.argv.includes("--prune");
 
 import readmeHeader, {apiHeader} from "./stubs/README.js";
+import {injectConfigAccessors} from "./stubs/accessors.js";
 import argsStub from "./stubs/args.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
 import {chartDefMap, injectChartConfig, publicChartDefs} from "./stubs/chartDefs.js";
@@ -444,15 +445,6 @@ async function generateMarkdown() {
     );
     readme = injectChartConfig(readme, chartDefs);
 
-    // The reference goes to API.md, which stays out of the published files;
-    // the README (always published to npm) only links to it.
-    fs.writeFileSync(`${folder}/API.md`, readme);
-    fs.writeFileSync(`${folder}/README.md`, readmeHeader(packageJSON));
-    fs.rmSync(tempDir, {recursive: true, force: true});
-
-    // Generate Storybook args and stories from the same TypeDoc project
-    log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
-
     const reflections = (project.children || []).filter(r => {
       if (
         r.kind === ReflectionKind.Interface ||
@@ -471,6 +463,17 @@ async function generateMarkdown() {
     const configDefaults = await collectConfigDefaults(folder, stories);
     // Types + descriptions for those accessors, borrowed from the config interfaces.
     const interfaceDocs = collectInterfaceDocs(project);
+
+    readme = injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs});
+
+    // The reference goes to API.md, which stays out of the published files;
+    // the README (always published to npm) only links to it.
+    fs.writeFileSync(`${folder}/API.md`, readme);
+    fs.writeFileSync(`${folder}/README.md`, readmeHeader(packageJSON));
+    fs.rmSync(tempDir, {recursive: true, force: true});
+
+    // Generate Storybook args and stories from the same TypeDoc project
+    log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
 
     const written = new Set();
     stories.forEach(story => {
