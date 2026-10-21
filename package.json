@@ -62,6 +62,9 @@
     "@types/d3-transition": "^3.0.9",
     "@types/d3-zoom": "^3.0.8",
     "@types/topojson-client": "^3.1.5",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitest/browser-playwright": "5.0.5",
+    "@vitest/coverage-v8": "5.0.5",
     "c8": "^11.0.0",
     "canvas": "^3.1.0",
     "chokidar": "^4.0.3",
@@ -69,12 +72,15 @@
     "globals": "^17.13.0",
     "jsdom": "^26.0.0",
     "mocha": "^11.1.0",
+    "playwright": "1.59.1",
     "rollup": "^4.34.9",
     "terser": "^5.39.0",
     "typedoc": "^0.28.20",
     "typedoc-plugin-markdown": "^4.11.0",
     "typescript": "catalog:",
     "typescript-eslint": "^8.0.0",
+    "vite": "catalog:",
+    "vitest": "5.0.5",
     "yocto-spinner": "^1.1.0"
   }
 }

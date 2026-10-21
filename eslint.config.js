@@ -18,7 +18,7 @@ export default [
     ],
   },
   {
-    files: ["**/*.js", "**/*.mjs"],
+    files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     plugins: {
       js,
     },
