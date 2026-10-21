@@ -80,10 +80,12 @@
 | [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
 | [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the ancestor chain until a non-transparent background is found. |
 | [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations. |
+| [`clamp`](#clamp) | Constrains a number to the range from `min` to `max`, inclusive. |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
 | [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. |
+| [`colorGrayscale`](#colorgrayscale) | Strips a color's saturation while keeping its lightness and alpha, so a de-emphasized mark keeps the contrast it had (and a transparent fill stays transparent). |
 | [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
 | [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
 | [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next. |
@@ -100,6 +102,7 @@
 | [`epanechnikovKernel`](#epanechnikovkernel) | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: `3 / (4√5) · (1 - u²/5)` for `\|u\| ≤ √5`, otherwise 0. |
 | [`findLocale`](#findlocale) | Converts a 2-letter language code into a full language-region locale string (e.g., "en" to "en-US"). |
 | [`findWeekStart`](#findweekstart) | Returns the first day of the week (0 = Sunday … 6 = Saturday) in a locale's region, per CLDR: `"en-US"` → 0, `"de-DE"` → 1, `"ar-EG"` → 6. |
+| [`finite`](#finite) | Whether a value is a finite number: not `NaN`, `±Infinity`, or a non-number such as a numeric string, `null`, or an array. |
 | [`fold`](#fold) | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
 | [`fontFamilyStringify`](#fontfamilystringify) | Converts an Array of font-family names into a CSS font-family string. |
 | [`format`](#format) |  |
@@ -127,6 +130,7 @@
 | [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation). |
+| [`pathCommands`](#pathcommands) | Tokenizes an SVG path `d` string into its commands as written, without resolving them to absolute coordinates. |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
 | [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
@@ -160,6 +164,7 @@
 | [`formatLocale`](#formatlocale) |  |
 | [`locale`](#locale) | d3-time-format locale definitions (date and time patterns, period, day, and month names) keyed by locale code, used when formatting dates on axes, timelines, and tooltips. |
 | [`RESET`](#reset) | String constant used to reset an individual config property. |
+| [`softHyphen`](#softhyphen) | The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated word with it, and `textWrap` draws it as a hyphen only where a line breaks. |
 | [`titleCaseLocale`](#titlecaselocale) | Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase. |
 | [`translateLocale`](#translatelocale) | Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as `en-US` or `es-ES`. |
 
@@ -193,6 +198,7 @@
 | [`MergedDataPoint`](#mergeddatapoint) |  |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
 | [`Padding`](#padding) | Padding object with all four sides. |
+| [`PathCommand`](#pathcommand) | One command of an SVG path as written: its letter (case kept, so relative commands stay relative) and its arguments, one array per segment when the command repeats implicitly. |
 | [`PathConfig`](#pathconfig) | Path-specific config (raw SVG path d string or generator). |
 | [`RectConfig`](#rectconfig) | Rect-specific config (width + height on top of base). |
 | [`RegressionOptions`](#regressionoptions) |  |
@@ -13067,41 +13073,13 @@ Determines whether the x and y axes should have their scales persist while users
 
 `boolean` \| [`Plot`](#plot)
 
-<a id="backconfig"></a>
-
-##### backConfig()
-
-> **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:41
-
-Configuration object for the back button. Superseded by
-`.backControlStyle()`/`.backControlClassName()` for the button's
-appearance (it renders as a real `<button>`, like the zoom/search
-controls, not a configurable text node) — kept for backwards
-compatibility, but no longer affects how the button looks.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-[`Viz`](#viz).[`backConfig`](#backconfig-1)
-
 <a id="backcontrolclassname"></a>
 
 ##### backControlClassName()
 
 > **backControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:45
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:37
 
 An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
 
@@ -13125,7 +13103,7 @@ An additional CSS class name (or space-separated list of class names) applied to
 
 > **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:49
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:41
 
 An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
@@ -13209,7 +13187,7 @@ Determines whether or not to add additional padding at the ends of x or y scales
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:55
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:47
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -13299,7 +13277,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:59
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:51
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -13323,7 +13301,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:63
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:55
 
 A pass-through to the config method of ColorScale.
 
@@ -13347,7 +13325,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:75
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:67
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -13371,7 +13349,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:67
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:59
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -13395,7 +13373,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Plot`](#plot) \| (() => `string` \| `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:71
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:63
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -13546,7 +13524,7 @@ current config.
 
 > **data**(`_?`: `string` \| [`DataPoint`](#datapoint)[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: [`DataPoint`](#datapoint)[]) => `Record`\<`string`, `unknown`\> \| [`DataPoint`](#datapoint)[]): [`Plot`](#plot) \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:88
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:80
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -13579,7 +13557,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:180
+Defined in: core/types/src/charts/viz/Viz.d.ts:158
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -13597,7 +13575,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:95
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:87
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -13621,7 +13599,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:99
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:91
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -13645,7 +13623,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:103
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:95
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -13669,7 +13647,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:107
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:99
 
 The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
@@ -13693,7 +13671,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:111
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:103
 
 When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
@@ -13737,7 +13715,7 @@ When the width or height of the chart is less than or equal to this pixel value,
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`)): [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:115
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:107
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -13763,7 +13741,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:126
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:118
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -13786,7 +13764,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:127
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:119
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -13817,7 +13795,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Plot`](#plot) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:131
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:123
 
 The font family used throughout the visualization.
 
@@ -13841,7 +13819,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Plot`](#plot) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:135
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:127
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -13885,7 +13863,7 @@ The pixel space between groups of bars.
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:139
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:131
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13909,7 +13887,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:143
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:135
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13933,7 +13911,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:155
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:147
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -13961,7 +13939,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:147
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:139
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -13985,7 +13963,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:161
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:153
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -14051,7 +14029,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:165
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:157
 
 Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
@@ -14075,7 +14053,7 @@ Whether to display the legend. By default, the legend shows when it has more tha
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:169
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:161
 
 Configuration object passed to the legend's config method.
 
@@ -14099,7 +14077,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:173
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:165
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -14123,7 +14101,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:177
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:169
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -14147,7 +14125,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:181
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:173
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -14171,7 +14149,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:185
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:177
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -14195,7 +14173,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:189
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:181
 
 Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
 
@@ -14219,7 +14197,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Plot`](#plot) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:193
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:185
 
 Configuration object for the legend tooltip.
 
@@ -14796,7 +14774,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:67
+Defined in: core/types/src/charts/viz/Viz.d.ts:66
 
 Draws the visualization given the specified configuration.
 
@@ -14822,7 +14800,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:88
+Defined in: core/types/src/charts/viz/Viz.d.ts:87
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14840,7 +14818,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:89
+Defined in: core/types/src/charts/viz/Viz.d.ts:88
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14859,84 +14837,6 @@ Boolean arguments both normalize to `"svg"`.
 ###### Inherited from
 
 [`Viz`](#viz).[`renderer`](#renderer-1)
-
-<a id="rendermode"></a>
-
-##### renderMode()
-
-###### Call Signature
-
-> **renderMode**(): `"full"` \| `"compute"`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:96
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Returns
-
-`"full"` \| `"compute"`
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderMode`](#rendermode-1)
-
-###### Call Signature
-
-> **renderMode**(`_`: `"full"` \| `"compute"`): `this`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:97
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_` | `"full"` \| `"compute"` |
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderMode`](#rendermode-1)
-
-<a id="renderscene"></a>
-
-##### renderScene()
-
-> **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:105
-
-Public entry point that renders this chart through the @d3plus/render
-pluggable backends. The compute pass happens via render() (in an svg
-auto-created inside the target div); SvgRenderer/CanvasRenderer paints
-the scene to the target. Returns `{renderer, scene}` so callers can
-interact with the renderer (e.g. for picking) or read the scene data.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `target` | `Element` |
-| `opts?` | \{ `kind?`: `"svg"` \| `"canvas"`; \} |
-| `opts.kind?` | `"svg"` \| `"canvas"` |
-
-###### Returns
-
-`Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderScene`](#renderscene-1)
 
 <a id="scrollcontainer"></a>
 
@@ -15790,7 +15690,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:82
+Defined in: core/types/src/charts/viz/Viz.d.ts:81
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -15879,7 +15779,7 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 
 > **toSVGString**(): `string`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:75
+Defined in: core/types/src/charts/viz/Viz.d.ts:74
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -21744,41 +21644,13 @@ Configuration object for the attribution style.
 
 `VizBase.attributionStyle`
 
-<a id="backconfig-1"></a>
-
-##### backConfig()
-
-> **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:41
-
-Configuration object for the back button. Superseded by
-`.backControlStyle()`/`.backControlClassName()` for the button's
-appearance (it renders as a real `<button>`, like the zoom/search
-controls, not a configurable text node) — kept for backwards
-compatibility, but no longer affects how the button looks.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-[`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
-
-###### Inherited from
-
-`VizBase.backConfig`
-
 <a id="backcontrolclassname-1"></a>
 
 ##### backControlClassName()
 
 > **backControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:45
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:37
 
 An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
 
@@ -21802,7 +21674,7 @@ An additional CSS class name (or space-separated list of class names) applied to
 
 > **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:49
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:41
 
 An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
@@ -21826,7 +21698,7 @@ An object containing CSS key/value pairs that is used to style the back button. 
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:55
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:47
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -21916,7 +21788,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint))
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:59
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:51
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -21940,7 +21812,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:63
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:55
 
 A pass-through to the config method of ColorScale.
 
@@ -21964,7 +21836,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:75
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:67
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -21988,7 +21860,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:67
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:59
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -22012,7 +21884,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Viz`](#viz) \| (() => `string` \| `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:71
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:63
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -22078,7 +21950,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(`_?`: `string` \| [`DataPoint`](#datapoint)[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: [`DataPoint`](#datapoint)[]) => `Record`\<`string`, `unknown`\> \| [`DataPoint`](#datapoint)[]): [`Viz`](#viz) \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:88
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:80
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -22111,7 +21983,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:180
+Defined in: core/types/src/charts/viz/Viz.d.ts:158
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -22125,7 +21997,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:95
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:87
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -22149,7 +22021,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:99
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:91
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -22173,7 +22045,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:103
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:95
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -22197,7 +22069,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:107
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:99
 
 The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
@@ -22221,7 +22093,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:111
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:103
 
 When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
@@ -22245,7 +22117,7 @@ When `true` (the default) and `detectVisible` is enabled, the Viz releases its D
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`)): [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:115
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:107
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -22271,7 +22143,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:126
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:118
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -22294,7 +22166,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:127
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:119
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -22325,7 +22197,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Viz`](#viz) \| `string`[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:131
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:123
 
 The font family used throughout the visualization.
 
@@ -22349,7 +22221,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)) \| (`string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)))[]): [`Viz`](#viz) \| (`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)[]
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:135
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:127
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -22373,7 +22245,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:139
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:131
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22397,7 +22269,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)): `number` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `number`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:143
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:135
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22421,7 +22293,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:155
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:147
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -22449,7 +22321,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `boolean`)): `this`
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:147
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:139
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -22473,7 +22345,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: [`DataPoint`](#datapoint), `i`: `number`) => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:161
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:153
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -22499,7 +22371,7 @@ per-datum object key — pass a function for that).
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: [`DataPoint`](#datapoint)[]) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:165
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:157
 
 Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
@@ -22523,7 +22395,7 @@ Whether to display the legend. By default, the legend shows when it has more tha
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:169
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:161
 
 Configuration object passed to the legend's config method.
 
@@ -22547,7 +22419,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:173
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:165
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -22571,7 +22443,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:177
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:169
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -22595,7 +22467,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:181
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:173
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -22619,7 +22491,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:185
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:177
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -22643,7 +22515,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:189
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:181
 
 Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
 
@@ -22667,7 +22539,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): [`Viz`](#viz) \| `Record`\<`string`, `unknown`\>
 
-Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:193
+Defined in: core/types/src/charts/viz/VizBaseConfig.d.ts:185
 
 Configuration object for the legend tooltip.
 
@@ -23204,7 +23076,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:67
+Defined in: core/types/src/charts/viz/Viz.d.ts:66
 
 Draws the visualization given the specified configuration.
 
@@ -23226,7 +23098,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:88
+Defined in: core/types/src/charts/viz/Viz.d.ts:87
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -23240,7 +23112,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:89
+Defined in: core/types/src/charts/viz/Viz.d.ts:88
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -23255,72 +23127,6 @@ Boolean arguments both normalize to `"svg"`.
 ###### Returns
 
 `this`
-
-<a id="rendermode-1"></a>
-
-##### renderMode()
-
-###### Call Signature
-
-> **renderMode**(): `"full"` \| `"compute"`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:96
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Returns
-
-`"full"` \| `"compute"`
-
-###### Call Signature
-
-> **renderMode**(`_`: `"full"` \| `"compute"`): `this`
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:97
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_` | `"full"` \| `"compute"` |
-
-###### Returns
-
-`this`
-
-<a id="renderscene-1"></a>
-
-##### renderScene()
-
-> **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-Defined in: core/types/src/charts/viz/Viz.d.ts:105
-
-Public entry point that renders this chart through the @d3plus/render
-pluggable backends. The compute pass happens via render() (in an svg
-auto-created inside the target div); SvgRenderer/CanvasRenderer paints
-the scene to the target. Returns `{renderer, scene}` so callers can
-interact with the renderer (e.g. for picking) or read the scene data.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `target` | `Element` |
-| `opts?` | \{ `kind?`: `"svg"` \| `"canvas"`; \} |
-| `opts.kind?` | `"svg"` \| `"canvas"` |
-
-###### Returns
-
-`Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
 <a id="scrollcontainer-1"></a>
 
@@ -24099,7 +23905,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:82
+Defined in: core/types/src/charts/viz/Viz.d.ts:81
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -24164,13 +23970,12 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:30
+Defined in: core/types/src/charts/viz/Viz.d.ts:29
 
 Composes a backend-agnostic scene graph from the shapes/features produced
 by the most recent render. Combines:
 - `_chartScene` (cells from `chartDef.emit`, or `Plot._paint` for the
   paint-driven Plot family) wrapped in viz-chart-cells
-- `_shapes` (still used by some charts) — each shape's toScene
 - chart-level components (Legend/ColorScale/Timeline) via their toScene
 - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
 
@@ -24184,7 +23989,7 @@ by the most recent render. Combines:
 
 > **toSVGString**(): `string`
 
-Defined in: core/types/src/charts/viz/Viz.d.ts:75
+Defined in: core/types/src/charts/viz/Viz.d.ts:74
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -25458,6 +25263,30 @@ Clusters one-dimensional numeric data into a specified number of groups using th
 
 ***
 
+<a id="clamp"></a>
+
+### clamp()
+
+> **clamp**(`value`: `number`, `min`: `number`, `max`: `number`): `number`
+
+Defined in: math/types/src/clamp.d.ts:7
+
+Constrains a number to the range from `min` to `max`, inclusive.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `number` | The number to constrain. |
+| `min` | `number` | The lower bound. |
+| `max` | `number` | The upper bound; when it is below `min`, `min` wins. |
+
+#### Returns
+
+`number`
+
+***
+
 <a id="closest"></a>
 
 ### closest()
@@ -25545,6 +25374,31 @@ Based on the color provided, this function will return a "white" or "black" colo
 | ------ | ------ | ------ |
 | `c` | `string` | A valid CSS color string. |
 | `u?` | `Partial`\<[`ColorDefaults`](#colordefaults-23)\> | An object containing overrides of the default colors. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="colorgrayscale"></a>
+
+### colorGrayscale()
+
+> **colorGrayscale**(`c`: `string`): `string`
+
+Defined in: color/types/src/grayscale.d.ts:8
+
+Strips a color's saturation while keeping its lightness and alpha, so a
+de-emphasized mark keeps the contrast it had (and a transparent fill stays
+transparent). Values d3-color can't parse, such as `"none"`, are returned
+unchanged.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `c` | `string` | A CSS color string. |
 
 #### Returns
 
@@ -25705,9 +25559,9 @@ Reduce and concat all the elements included in arrayOfArrays if they are arrays.
 
 ### configPrep()
 
-> **configPrep**(`this`: `VizContext`, `config?`: `ConfigObject`, `type?`: `string`, `nest?`: `string` \| `false`): `ConfigObject`
+> **configPrep**(`this`: `ConfigPrepHost`, `config?`: `ConfigObject`, `type?`: `string`, `nest?`: `string` \| `false`): `ConfigObject`
 
-Defined in: core/types/src/utils/configPrep.d.ts:30
+Defined in: core/types/src/utils/configPrep.d.ts:31
 
 Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
 
@@ -25715,7 +25569,7 @@ Preps a config object for d3plus data, and optionally bubbles up a specific nest
 
 | Parameter | Type | Description |
 | ------ | ------ | ------ |
-| `this` | `VizContext` | - |
+| `this` | `ConfigPrepHost` | - |
 | `config?` | `ConfigObject` | The configuration object to parse. |
 | `type?` | `string` | The event classifier to user for "on" events. For example, the default event type of "shape" will apply all events in the "on" config object with that key, like "click.shape" and "mouseleave.shape", in addition to any gloval events like "click" and "mouseleave". |
 | `nest?` | `string` \| `false` | An optional nested key to bubble up to the parent config level. |
@@ -25981,6 +25835,29 @@ The region table is static on purpose: `Intl.Locale` week info differs across No
 #### Returns
 
 `number`
+
+***
+
+<a id="finite"></a>
+
+### finite()
+
+> **finite**(`value`: `unknown`): `value is number`
+
+Defined in: math/types/src/finite.d.ts:6
+
+Whether a value is a finite number: not `NaN`, `±Infinity`, or a
+non-number such as a numeric string, `null`, or an array.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `unknown` | The value to check. |
+
+#### Returns
+
+`value is number`
 
 ***
 
@@ -26667,6 +26544,32 @@ origin for an empty/unparseable path.
 | `width` | `number` | math/types/src/pathBounds.d.ts:11 |
 | `x` | `number` | math/types/src/pathBounds.d.ts:9 |
 | `y` | `number` | math/types/src/pathBounds.d.ts:10 |
+
+***
+
+<a id="pathcommands"></a>
+
+### pathCommands()
+
+> **pathCommands**(`d`: `string`): [`PathCommand`](#pathcommand)[]
+
+Defined in: math/types/src/pathParse.d.ts:54
+
+Tokenizes an SVG path `d` string into its commands as written, without
+resolving them to absolute coordinates. Arc
+flags are read as single `0`/`1` characters, so compact arcs such as
+`a1 1 0 011 1` tokenize correctly. Stops at the first character that is
+not a path command.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `d` | `string` | An SVG path string (the `d` attribute of a `<path>`). |
+
+#### Returns
+
+[`PathCommand`](#pathcommand)[]
 
 ***
 
@@ -28214,7 +28117,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `track` | `true` |
 | `trackPadding` | `0.25` |
 | `value` | `accessor(…)` |
-| `legend` | `polarLegend` |
+| `legend` | `rowLegend` |
 | `levelLabelConfig` | `{…}` |
 | `axisConfig` | — |
 | `trackConfig` | — |
@@ -28360,6 +28263,19 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 Defined in: core/types/src/charts/Sankey/index.d.ts:6
 
 Creates a Sankey visualization based on a defined set of nodes and links.
+
+***
+
+<a id="softhyphen"></a>
+
+### softHyphen
+
+> `const` **softHyphen**: `"­"` = "\u00AD"
+
+Defined in: text/types/src/softHyphen.d.ts:5
+
+The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated
+word with it, and `textWrap` draws it as a hyphen only where a line breaks.
 
 ***
 
@@ -29728,6 +29644,25 @@ Padding object with all four sides.
 | <a id="property-left-1"></a> `left` | `number` | core/types/src/charts/viz/vizTypes.d.ts:55 |
 | <a id="property-right-1"></a> `right` | `number` | core/types/src/charts/viz/vizTypes.d.ts:56 |
 | <a id="property-top-1"></a> `top` | `number` | core/types/src/charts/viz/vizTypes.d.ts:53 |
+
+***
+
+<a id="pathcommand"></a>
+
+### PathCommand
+
+Defined in: math/types/src/pathParse.d.ts:42
+
+One command of an SVG path as written: its letter (case kept, so relative
+commands stay relative) and its arguments, one array per segment when the
+command repeats implicitly.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-command"></a> `command` | `string` | math/types/src/pathParse.d.ts:43 |
+| <a id="property-segments"></a> `segments` | `number`[][] | math/types/src/pathParse.d.ts:44 |
 
 ***
 

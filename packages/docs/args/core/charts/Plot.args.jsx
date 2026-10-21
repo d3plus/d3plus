@@ -121,19 +121,6 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
-    backConfig: {
-      control: {},
-      description: "Configuration object for the back button. Superseded by\n`.backControlStyle()`/`.backControlClassName()` for the button's\nappearance (it renders as a real `<button>`, like the zoom/search\ncontrols, not a configurable text node) — kept for backwards\ncompatibility, but no longer affects how the button looks.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
     backControlClassName: {
       control: {
         type: "text"
@@ -1106,38 +1093,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    renderMode: {
-      control: {
-        type: "radio"
-      },
-      description: "\"full\" runs the DOM enter/update/exit for every shape; \"compute\"\nskips DOM work and only populates the scene data (`_textData`,\n`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by\n`renderScene` callers; users can also opt-in.",
-      options: [
-        "full",
-        "compute"
-      ],
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "\"full\" | \"compute\""
-      }
-    },
-    renderScene: {
-      control: {},
-      description: "Public entry point that renders this chart through the @d3plus/render\npluggable backends. The compute pass happens via render() (in an svg\nauto-created inside the target div); SvgRenderer/CanvasRenderer paints\nthe scene to the target. Returns `{renderer, scene}` so callers can\ninteract with the renderer (e.g. for picking) or read the scene data.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "element"
       }
     },
     renderer: {

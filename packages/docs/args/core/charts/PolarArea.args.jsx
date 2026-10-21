@@ -79,7 +79,7 @@ export const argTypes = assign(
     legend: {
       table: {
         defaultValue: {
-          summary: "polarLegend"
+          summary: "rowLegend"
         }
       }
     },

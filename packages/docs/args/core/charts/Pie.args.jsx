@@ -41,7 +41,7 @@ export const argTypes = assign(
     legend: {
       table: {
         defaultValue: {
-          summary: "function"
+          summary: "rowLegend"
         }
       }
     },
@@ -94,6 +94,13 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function | null"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: [shareRow(viz, \"value\")]}"
+        }
       }
     },
     value: {

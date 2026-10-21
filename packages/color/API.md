@@ -5,6 +5,7 @@
 | [`colorAdd`](#coloradd) | Adds two colors together. |
 | [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
 | [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. |
+| [`colorGrayscale`](#colorgrayscale) | Strips a color's saturation while keeping its lightness and alpha, so a de-emphasized mark keeps the contrast it had (and a transparent fill stays transparent). |
 | [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
 | [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
 | [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next. |
@@ -94,6 +95,31 @@ Based on the color provided, this function will return a "white" or "black" colo
 | ------ | ------ | ------ |
 | `c` | `string` | A valid CSS color string. |
 | `u` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
+
+#### Returns
+
+`string`
+
+***
+
+<a id="colorgrayscale"></a>
+
+### colorGrayscale()
+
+> **colorGrayscale**(`c`: `string`): `string`
+
+Defined in: [grayscale.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/grayscale.ts#L10)
+
+Strips a color's saturation while keeping its lightness and alpha, so a
+de-emphasized mark keeps the contrast it had (and a transparent fill stays
+transparent). Values d3-color can't parse, such as `"none"`, are returned
+unchanged.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `c` | `string` | A CSS color string. |
 
 #### Returns
 
@@ -276,7 +302,7 @@ are a lighter second ring of the same hues, for high-cardinality fallback
 
 > `const` **colorGray**: `object`
 
-Defined in: gray.ts:6
+Defined in: [gray.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L6)
 
 The gray scale d3plus uses for neutral ink (axes, gridlines, missing data),
 keyed by lightness step from 50 (lightest) to 900 (darkest). Values are the
@@ -286,16 +312,16 @@ keyed by lightness step from 50 (lightest) to 900 (darkest). Values are the
 
 | Name | Type | Default | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-100"></a> `100` | `"#f1f3f5"` | `"#f1f3f5"` | gray.ts:8 |
-| <a id="property-200"></a> `200` | `"#e9ecef"` | `"#e9ecef"` | gray.ts:9 |
-| <a id="property-300"></a> `300` | `"#dee2e6"` | `"#dee2e6"` | gray.ts:10 |
-| <a id="property-400"></a> `400` | `"#ced4da"` | `"#ced4da"` | gray.ts:11 |
-| <a id="property-50"></a> `50` | `"#f8f9fa"` | `"#f8f9fa"` | gray.ts:7 |
-| <a id="property-500"></a> `500` | `"#adb5bd"` | `"#adb5bd"` | gray.ts:12 |
-| <a id="property-600"></a> `600` | `"#868e96"` | `"#868e96"` | gray.ts:13 |
-| <a id="property-700"></a> `700` | `"#495057"` | `"#495057"` | gray.ts:14 |
-| <a id="property-800"></a> `800` | `"#343a40"` | `"#343a40"` | gray.ts:15 |
-| <a id="property-900"></a> `900` | `"#212529"` | `"#212529"` | gray.ts:16 |
+| <a id="property-100"></a> `100` | `"#f1f3f5"` | `"#f1f3f5"` | [gray.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L8) |
+| <a id="property-200"></a> `200` | `"#e9ecef"` | `"#e9ecef"` | [gray.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L9) |
+| <a id="property-300"></a> `300` | `"#dee2e6"` | `"#dee2e6"` | [gray.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L10) |
+| <a id="property-400"></a> `400` | `"#ced4da"` | `"#ced4da"` | [gray.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L11) |
+| <a id="property-50"></a> `50` | `"#f8f9fa"` | `"#f8f9fa"` | [gray.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L7) |
+| <a id="property-500"></a> `500` | `"#adb5bd"` | `"#adb5bd"` | [gray.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L12) |
+| <a id="property-600"></a> `600` | `"#868e96"` | `"#868e96"` | [gray.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L13) |
+| <a id="property-700"></a> `700` | `"#495057"` | `"#495057"` | [gray.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L14) |
+| <a id="property-800"></a> `800` | `"#343a40"` | `"#343a40"` | [gray.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L15) |
+| <a id="property-900"></a> `900` | `"#212529"` | `"#212529"` | [gray.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L16) |
 
 ## Interfaces
 

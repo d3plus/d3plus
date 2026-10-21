@@ -12807,7 +12807,7 @@ Creates an x/y plot based on an array of data.
 
 > **active**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L34)
+Defined in: [charts/viz/VizBaseConfig.ts:32](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L32)
 
 The active callback function for highlighting shapes.
 
@@ -12831,7 +12831,7 @@ The active callback function for highlighting shapes.
 
 > **aggs**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L54)
+Defined in: [charts/viz/VizBaseConfig.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L51)
 
 Custom aggregation methods for each data key.
 
@@ -12877,7 +12877,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 
 > **attribution**(`_?`: `string` \| `boolean`): `string` \| `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L63)
+Defined in: [charts/viz/VizBaseConfig.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L60)
 
 Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
 
@@ -12901,7 +12901,7 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 
 > **attributionIcon**(`_?`: `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))): `string` \| [`Plot`](#plot) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L72)
+Defined in: [charts/viz/VizBaseConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L69)
 
 Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
 
@@ -12925,7 +12925,7 @@ Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), wh
 
 > **attributionStyle**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L86)
+Defined in: [charts/viz/VizBaseConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L83)
 
 Configuration object for the attribution style.
 
@@ -12963,41 +12963,13 @@ Determines whether the x and y axes should have their scales persist while users
 
 `boolean` \| [`Plot`](#plot)
 
-<a id="backconfig"></a>
-
-##### backConfig()
-
-> **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
-
-Defined in: [charts/viz/VizBaseConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L101)
-
-Configuration object for the back button. Superseded by
-`.backControlStyle()`/`.backControlClassName()` for the button's
-appearance (it renders as a real `<button>`, like the zoom/search
-controls, not a configurable text node) — kept for backwards
-compatibility, but no longer affects how the button looks.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-`Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
-
-###### Inherited from
-
-[`Viz`](#viz).[`backConfig`](#backconfig-1)
-
 <a id="backcontrolclassname"></a>
 
 ##### backControlClassName()
 
 > **backControlClassName**(`_?`: `string`): `string` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L110)
+Defined in: [charts/viz/VizBaseConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L94)
 
 An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
 
@@ -13021,7 +12993,7 @@ An additional CSS class name (or space-separated list of class names) applied to
 
 > **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L119)
+Defined in: [charts/viz/VizBaseConfig.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L103)
 
 An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
@@ -13105,7 +13077,7 @@ Determines whether or not to add additional padding at the ends of x or y scales
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L132)
+Defined in: [charts/viz/VizBaseConfig.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L116)
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -13195,7 +13167,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:150](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L150)
+Defined in: [charts/viz/VizBaseConfig.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L134)
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -13219,7 +13191,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L169)
+Defined in: [charts/viz/VizBaseConfig.ts:153](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L153)
 
 A pass-through to the config method of ColorScale.
 
@@ -13243,7 +13215,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L204)
+Defined in: [charts/viz/VizBaseConfig.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L188)
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -13267,7 +13239,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L180)
+Defined in: [charts/viz/VizBaseConfig.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L164)
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -13291,7 +13263,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Plot`](#plot) \| (() => `string` \| `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:192](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L192)
+Defined in: [charts/viz/VizBaseConfig.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L176)
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -13442,7 +13414,7 @@ current config.
 
 > **data**(`_?`: `string` \| `DataPoint`[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: `DataPoint`[]) => `Record`\<`string`, `unknown`\> \| `DataPoint`[]): [`Plot`](#plot) \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L222)
+Defined in: [charts/viz/VizBaseConfig.ts:206](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L206)
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -13475,7 +13447,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: [charts/viz/Viz.ts:743](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L743)
+Defined in: [charts/viz/Viz.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L676)
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -13493,7 +13465,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L250)
+Defined in: [charts/viz/VizBaseConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L234)
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -13517,7 +13489,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:259](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L259)
+Defined in: [charts/viz/VizBaseConfig.ts:243](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L243)
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -13541,7 +13513,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:268](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L268)
+Defined in: [charts/viz/VizBaseConfig.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L252)
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -13565,7 +13537,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L277)
+Defined in: [charts/viz/VizBaseConfig.ts:261](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L261)
 
 The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
@@ -13589,7 +13561,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:286](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L286)
+Defined in: [charts/viz/VizBaseConfig.ts:270](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L270)
 
 When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
@@ -13633,7 +13605,7 @@ When the width or height of the chart is less than or equal to this pixel value,
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L295)
+Defined in: [charts/viz/VizBaseConfig.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L279)
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -13659,7 +13631,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: [charts/viz/VizBaseConfig.ts:313](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L313)
+Defined in: [charts/viz/VizBaseConfig.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L297)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -13682,7 +13654,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: [charts/viz/VizBaseConfig.ts:314](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L314)
+Defined in: [charts/viz/VizBaseConfig.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L298)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -13713,7 +13685,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Plot`](#plot) \| `string`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:324](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L324)
+Defined in: [charts/viz/VizBaseConfig.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L308)
 
 The font family used throughout the visualization.
 
@@ -13737,7 +13709,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`) \| (`string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`))[]): [`Plot`](#plot) \| (`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L357)
+Defined in: [charts/viz/VizBaseConfig.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L341)
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -13781,7 +13753,7 @@ The pixel space between groups of bars.
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:394](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L394)
+Defined in: [charts/viz/VizBaseConfig.ts:378](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L378)
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13805,7 +13777,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)): `number` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `number`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:405](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L405)
+Defined in: [charts/viz/VizBaseConfig.ts:389](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L389)
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -13829,7 +13801,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:476](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L476)
+Defined in: [charts/viz/VizBaseConfig.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L454)
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -13857,7 +13829,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `this`
 
-Defined in: [charts/viz/VizBaseConfig.ts:417](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L417)
+Defined in: [charts/viz/VizBaseConfig.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L401)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -13881,7 +13853,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L493)
+Defined in: [charts/viz/VizBaseConfig.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L471)
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -13947,7 +13919,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L504)
+Defined in: [charts/viz/VizBaseConfig.ts:482](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L482)
 
 Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
@@ -13971,7 +13943,7 @@ Whether to display the legend. By default, the legend shows when it has more tha
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:520](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L520)
+Defined in: [charts/viz/VizBaseConfig.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L498)
 
 Configuration object passed to the legend's config method.
 
@@ -13995,7 +13967,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L529)
+Defined in: [charts/viz/VizBaseConfig.ts:507](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L507)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -14019,7 +13991,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:541](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L541)
+Defined in: [charts/viz/VizBaseConfig.ts:519](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L519)
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -14043,7 +14015,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:552](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L552)
+Defined in: [charts/viz/VizBaseConfig.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L530)
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -14067,7 +14039,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Plot`](#plot) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:561](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L561)
+Defined in: [charts/viz/VizBaseConfig.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L539)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -14091,7 +14063,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Plot`](#plot) \| (() => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:573](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L573)
+Defined in: [charts/viz/VizBaseConfig.ts:551](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L551)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
 
@@ -14115,7 +14087,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/viz/VizBaseConfig.ts:583](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L583)
+Defined in: [charts/viz/VizBaseConfig.ts:561](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L561)
 
 Configuration object for the legend tooltip.
 
@@ -14692,7 +14664,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [charts/viz/Viz.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L295)
+Defined in: [charts/viz/Viz.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L266)
 
 Draws the visualization given the specified configuration.
 
@@ -14718,7 +14690,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: [charts/viz/Viz.ts:327](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L327)
+Defined in: [charts/viz/Viz.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L298)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14736,7 +14708,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: [charts/viz/Viz.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L328)
+Defined in: [charts/viz/Viz.ts:299](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L299)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14755,84 +14727,6 @@ Boolean arguments both normalize to `"svg"`.
 ###### Inherited from
 
 [`Viz`](#viz).[`renderer`](#renderer-1)
-
-<a id="rendermode"></a>
-
-##### renderMode()
-
-###### Call Signature
-
-> **renderMode**(): `"full"` \| `"compute"`
-
-Defined in: [charts/viz/Viz.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L341)
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Returns
-
-`"full"` \| `"compute"`
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderMode`](#rendermode-1)
-
-###### Call Signature
-
-> **renderMode**(`_`: `"full"` \| `"compute"`): `this`
-
-Defined in: [charts/viz/Viz.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L342)
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_` | `"full"` \| `"compute"` |
-
-###### Returns
-
-`this`
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderMode`](#rendermode-1)
-
-<a id="renderscene"></a>
-
-##### renderScene()
-
-> **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-Defined in: [charts/viz/Viz.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L356)
-
-Public entry point that renders this chart through the @d3plus/render
-pluggable backends. The compute pass happens via render() (in an svg
-auto-created inside the target div); SvgRenderer/CanvasRenderer paints
-the scene to the target. Returns `{renderer, scene}` so callers can
-interact with the renderer (e.g. for picking) or read the scene data.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `target` | `Element` |
-| `opts?` | \{ `kind?`: `"svg"` \| `"canvas"`; \} |
-| `opts.kind?` | `"svg"` \| `"canvas"` |
-
-###### Returns
-
-`Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-###### Inherited from
-
-[`Viz`](#viz).[`renderScene`](#renderscene-1)
 
 <a id="scrollcontainer"></a>
 
@@ -15686,7 +15580,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: [charts/viz/Viz.ts:316](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L316)
+Defined in: [charts/viz/Viz.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L287)
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -15775,7 +15669,7 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 
 > **toSVGString**(): `string`
 
-Defined in: [charts/viz/Viz.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L306)
+Defined in: [charts/viz/Viz.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L277)
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -21506,7 +21400,7 @@ An object with CSS keys and values to be applied to all <tr> elements inside of 
 
 ### Viz
 
-Defined in: [charts/viz/Viz.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L60)
+Defined in: [charts/viz/Viz.ts:59](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L59)
 
 The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 
@@ -21526,7 +21420,7 @@ The base class every d3plus chart extends. Owns the shared configuration surface
 
 > **active**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L34)
+Defined in: [charts/viz/VizBaseConfig.ts:32](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L32)
 
 The active callback function for highlighting shapes.
 
@@ -21550,7 +21444,7 @@ The active callback function for highlighting shapes.
 
 > **aggs**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L54)
+Defined in: [charts/viz/VizBaseConfig.ts:51](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L51)
 
 Custom aggregation methods for each data key.
 
@@ -21574,7 +21468,7 @@ Custom aggregation methods for each data key.
 
 > **attribution**(`_?`: `string` \| `boolean`): `string` \| `boolean` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L63)
+Defined in: [charts/viz/VizBaseConfig.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L60)
 
 Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
 
@@ -21598,7 +21492,7 @@ Sets text to be shown positioned absolute on top of the visualization in the bot
 
 > **attributionIcon**(`_?`: `string` \| ((`el`: `HTMLElement`) => `void` \| (() => `void`))): `string` \| [`Viz`](#viz) \| ((`el`: `HTMLElement`) => `void` \| (() => `void`)) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:72](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L72)
+Defined in: [charts/viz/VizBaseConfig.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L69)
 
 Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
 
@@ -21622,7 +21516,7 @@ Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), wh
 
 > **attributionStyle**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L86)
+Defined in: [charts/viz/VizBaseConfig.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L83)
 
 Configuration object for the attribution style.
 
@@ -21640,41 +21534,13 @@ Configuration object for the attribution style.
 
 `VizBase.attributionStyle`
 
-<a id="backconfig-1"></a>
-
-##### backConfig()
-
-> **backConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
-
-Defined in: [charts/viz/VizBaseConfig.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L101)
-
-Configuration object for the back button. Superseded by
-`.backControlStyle()`/`.backControlClassName()` for the button's
-appearance (it renders as a real `<button>`, like the zoom/search
-controls, not a configurable text node) — kept for backwards
-compatibility, but no longer affects how the button looks.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_?` | `Record`\<`string`, `unknown`\> |
-
-###### Returns
-
-`Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
-
-###### Inherited from
-
-`VizBase.backConfig`
-
 <a id="backcontrolclassname-1"></a>
 
 ##### backControlClassName()
 
 > **backControlClassName**(`_?`: `string`): `string` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L110)
+Defined in: [charts/viz/VizBaseConfig.ts:94](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L94)
 
 An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
 
@@ -21698,7 +21564,7 @@ An additional CSS class name (or space-separated list of class names) applied to
 
 > **backControlStyle**(`_?`: `false` \| `Record`\<`string`, `unknown`\>): `false` \| `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L119)
+Defined in: [charts/viz/VizBaseConfig.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L103)
 
 An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
 
@@ -21722,7 +21588,7 @@ An object containing CSS key/value pairs that is used to style the back button. 
 
 > **color**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L132)
+Defined in: [charts/viz/VizBaseConfig.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L116)
 
 Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
 
@@ -21812,7 +21678,7 @@ scale: ["#1b9e77", "#d95f02", "#7570b3"]
 
 > **colorScale**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:150](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L150)
+Defined in: [charts/viz/VizBaseConfig.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L134)
 
 Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
 
@@ -21836,7 +21702,7 @@ Defines the value to be used for a color scale. Can be either an accessor functi
 
 > **colorScaleConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:169](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L169)
+Defined in: [charts/viz/VizBaseConfig.ts:153](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L153)
 
 A pass-through to the config method of ColorScale.
 
@@ -21860,7 +21726,7 @@ A pass-through to the config method of ColorScale.
 
 > **colorScaleMaxSize**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L204)
+Defined in: [charts/viz/VizBaseConfig.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L188)
 
 The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
 
@@ -21884,7 +21750,7 @@ The maximum pixel size for drawing the color scale: width for horizontal scales 
 
 > **colorScalePadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L180)
+Defined in: [charts/viz/VizBaseConfig.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L164)
 
 Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -21908,7 +21774,7 @@ Tells the colorScale whether or not to use the internal padding defined by the v
 
 > **colorScalePosition**(`_?`: `string` \| `boolean` \| (() => `string` \| `boolean`)): `string` \| `boolean` \| [`Viz`](#viz) \| (() => `string` \| `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:192](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L192)
+Defined in: [charts/viz/VizBaseConfig.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L176)
 
 Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
 
@@ -21974,7 +21840,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(`_?`: `string` \| `DataPoint`[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: `DataPoint`[]) => `Record`\<`string`, `unknown`\> \| `DataPoint`[]): [`Viz`](#viz) \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L222)
+Defined in: [charts/viz/VizBaseConfig.ts:206](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L206)
 
 The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -22007,7 +21873,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: [charts/viz/Viz.ts:743](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L743)
+Defined in: [charts/viz/Viz.ts:676](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L676)
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -22021,7 +21887,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **detectResize**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L250)
+Defined in: [charts/viz/VizBaseConfig.ts:234](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L234)
 
 If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
 
@@ -22045,7 +21911,7 @@ If the width and/or height of a Viz is not user-defined, it is determined by the
 
 > **detectResizeDelay**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:259](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L259)
+Defined in: [charts/viz/VizBaseConfig.ts:243](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L243)
 
 When resizing the browser window, this is the millisecond delay to trigger the resize event.
 
@@ -22069,7 +21935,7 @@ When resizing the browser window, this is the millisecond delay to trigger the r
 
 > **detectVisible**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:268](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L268)
+Defined in: [charts/viz/VizBaseConfig.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L252)
 
 Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
 
@@ -22093,7 +21959,7 @@ Toggles whether or not the Viz should try to detect if it visible in the current
 
 > **detectVisibleInterval**(`_?`: `number`): `number` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L277)
+Defined in: [charts/viz/VizBaseConfig.ts:261](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L261)
 
 The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
 
@@ -22117,7 +21983,7 @@ The interval, in milliseconds, for checking if the visualization is visible on t
 
 > **detectVisibleUnload**(`_?`: `boolean`): `boolean` \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:286](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L286)
+Defined in: [charts/viz/VizBaseConfig.ts:270](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L270)
 
 When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
 
@@ -22141,7 +22007,7 @@ When `true` (the default) and `detectVisible` is enabled, the Viz releases its D
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`)): [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L295)
+Defined in: [charts/viz/VizBaseConfig.ts:279](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L279)
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -22167,7 +22033,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: [charts/viz/VizBaseConfig.ts:313](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L313)
+Defined in: [charts/viz/VizBaseConfig.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L297)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -22190,7 +22056,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: [charts/viz/VizBaseConfig.ts:314](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L314)
+Defined in: [charts/viz/VizBaseConfig.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L298)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 - `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.
@@ -22221,7 +22087,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Viz`](#viz) \| `string`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:324](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L324)
+Defined in: [charts/viz/VizBaseConfig.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L308)
 
 The font family used throughout the visualization.
 
@@ -22245,7 +22111,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`) \| (`string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`))[]): [`Viz`](#viz) \| (`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBaseConfig.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L357)
+Defined in: [charts/viz/VizBaseConfig.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L341)
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -22269,7 +22135,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **hiddenColor**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:394](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L394)
+Defined in: [charts/viz/VizBaseConfig.ts:378](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L378)
 
 Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22293,7 +22159,7 @@ Defines the color used for legend shapes when the corresponding grouping is hidd
 
 > **hiddenOpacity**(`_?`: `number` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)): `number` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `number`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:405](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L405)
+Defined in: [charts/viz/VizBaseConfig.ts:389](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L389)
 
 Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
 
@@ -22317,7 +22183,7 @@ Defines the opacity used for legend labels when the corresponding grouping is hi
 
 > **highlight**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBaseConfig.ts:476](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L476)
+Defined in: [charts/viz/VizBaseConfig.ts:454](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L454)
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -22345,7 +22211,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `this`
 
-Defined in: [charts/viz/VizBaseConfig.ts:417](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L417)
+Defined in: [charts/viz/VizBaseConfig.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L401)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -22369,7 +22235,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **label**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): `string` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:493](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L493)
+Defined in: [charts/viz/VizBaseConfig.ts:471](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L471)
 
 Accessor function, or a constant string applied to every data point's
 label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -22395,7 +22261,7 @@ per-datum object key — pass a function for that).
 
 > **legend**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>, `arr`: `DataPoint`[]) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:504](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L504)
+Defined in: [charts/viz/VizBaseConfig.ts:482](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L482)
 
 Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
 
@@ -22419,7 +22285,7 @@ Whether to display the legend. By default, the legend shows when it has more tha
 
 > **legendConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:520](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L520)
+Defined in: [charts/viz/VizBaseConfig.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L498)
 
 Configuration object passed to the legend's config method.
 
@@ -22443,7 +22309,7 @@ Configuration object passed to the legend's config method.
 
 > **legendFilterInvert**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:529](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L529)
+Defined in: [charts/viz/VizBaseConfig.ts:507](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L507)
 
 Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
 
@@ -22467,7 +22333,7 @@ Defines the click functionality of categorical legend squares. When set to false
 
 > **legendInset**(`_?`: `boolean` \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`config`: `Record`\<`string`, `unknown`\>) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:541](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L541)
+Defined in: [charts/viz/VizBaseConfig.ts:519](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L519)
 
 Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
 
@@ -22491,7 +22357,7 @@ Whether the chart may draw one of its legends inside the empty space around its 
 
 > **legendInsetConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:552](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L552)
+Defined in: [charts/viz/VizBaseConfig.ts:530](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L530)
 
 Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
 
@@ -22515,7 +22381,7 @@ Style of the box drawn behind a legend placed inside the chart (see `legendInset
 
 > **legendPadding**(`_?`: `boolean` \| ((`viz`: `VizBase`) => `boolean`)): `boolean` \| [`Viz`](#viz) \| ((`viz`: `VizBase`) => `boolean`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:561](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L561)
+Defined in: [charts/viz/VizBaseConfig.ts:539](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L539)
 
 Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
 
@@ -22539,7 +22405,7 @@ Tells the legend whether or not to use the internal padding defined by the visua
 
 > **legendPosition**(`_?`: `string` \| (() => `string`)): `string` \| [`Viz`](#viz) \| (() => `string`)
 
-Defined in: [charts/viz/VizBaseConfig.ts:573](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L573)
+Defined in: [charts/viz/VizBaseConfig.ts:551](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L551)
 
 Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
 
@@ -22563,7 +22429,7 @@ Defines which side of the visualization to anchor the legend. Expected values ar
 
 > **legendTooltip**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Viz`](#viz)
 
-Defined in: [charts/viz/VizBaseConfig.ts:583](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L583)
+Defined in: [charts/viz/VizBaseConfig.ts:561](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBaseConfig.ts#L561)
 
 Configuration object for the legend tooltip.
 
@@ -23100,7 +22966,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [charts/viz/Viz.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L295)
+Defined in: [charts/viz/Viz.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L266)
 
 Draws the visualization given the specified configuration.
 
@@ -23122,7 +22988,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: [charts/viz/Viz.ts:327](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L327)
+Defined in: [charts/viz/Viz.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L298)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -23136,7 +23002,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: [charts/viz/Viz.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L328)
+Defined in: [charts/viz/Viz.ts:299](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L299)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -23151,72 +23017,6 @@ Boolean arguments both normalize to `"svg"`.
 ###### Returns
 
 `this`
-
-<a id="rendermode-1"></a>
-
-##### renderMode()
-
-###### Call Signature
-
-> **renderMode**(): `"full"` \| `"compute"`
-
-Defined in: [charts/viz/Viz.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L341)
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Returns
-
-`"full"` \| `"compute"`
-
-###### Call Signature
-
-> **renderMode**(`_`: `"full"` \| `"compute"`): `this`
-
-Defined in: [charts/viz/Viz.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L342)
-
-"full" runs the DOM enter/update/exit for every shape; "compute"
-skips DOM work and only populates the scene data (`_textData`,
-`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-`renderScene` callers; users can also opt-in.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `_` | `"full"` \| `"compute"` |
-
-###### Returns
-
-`this`
-
-<a id="renderscene-1"></a>
-
-##### renderScene()
-
-> **renderScene**(`target`: `Element`, `opts?`: `object`): `Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
-
-Defined in: [charts/viz/Viz.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L356)
-
-Public entry point that renders this chart through the @d3plus/render
-pluggable backends. The compute pass happens via render() (in an svg
-auto-created inside the target div); SvgRenderer/CanvasRenderer paints
-the scene to the target. Returns `{renderer, scene}` so callers can
-interact with the renderer (e.g. for picking) or read the scene data.
-
-###### Parameters
-
-| Parameter | Type |
-| ------ | ------ |
-| `target` | `Element` |
-| `opts?` | \{ `kind?`: `"svg"` \| `"canvas"`; \} |
-| `opts.kind?` | `"svg"` \| `"canvas"` |
-
-###### Returns
-
-`Promise`\<\{ `renderer`: `Renderer`; `scene`: `Scene`; \}\>
 
 <a id="scrollcontainer-1"></a>
 
@@ -23995,7 +23795,7 @@ Tells the title whether or not to use the internal padding defined by the visual
 
 > **toCanvas**(): `unknown`
 
-Defined in: [charts/viz/Viz.ts:316](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L316)
+Defined in: [charts/viz/Viz.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L287)
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -24060,13 +23860,12 @@ Configuration object for the tooltip.
 
 > **toScene**(): `Scene`
 
-Defined in: [charts/viz/Viz.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L89)
+Defined in: [charts/viz/Viz.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L87)
 
 Composes a backend-agnostic scene graph from the shapes/features produced
 by the most recent render. Combines:
 - `_chartScene` (cells from `chartDef.emit`, or `Plot._paint` for the
   paint-driven Plot family) wrapped in viz-chart-cells
-- `_shapes` (still used by some charts) — each shape's toScene
 - chart-level components (Legend/ColorScale/Timeline) via their toScene
 - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
 
@@ -24080,7 +23879,7 @@ by the most recent render. Combines:
 
 > **toSVGString**(): `string`
 
-Defined in: [charts/viz/Viz.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L306)
+Defined in: [charts/viz/Viz.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L277)
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -25204,9 +25003,9 @@ return d["id"];
 
 ### configPrep()
 
-> **configPrep**(`this`: `VizContext`, `config?`: `ConfigObject`, `type?`: `string`, `nest?`: `string` \| `false`): `ConfigObject`
+> **configPrep**(`this`: `ConfigPrepHost`, `config?`: `ConfigObject`, `type?`: `string`, `nest?`: `string` \| `false`): `ConfigObject`
 
-Defined in: [utils/configPrep.ts:47](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configPrep.ts#L47)
+Defined in: [utils/configPrep.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configPrep.ts#L48)
 
 Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' `this` context.
 
@@ -25214,7 +25013,7 @@ Preps a config object for d3plus data, and optionally bubbles up a specific nest
 
 | Parameter | Type | Default | Description |
 | ------ | ------ | ------ | ------ |
-| `this` | `VizContext` | *required* | - |
+| `this` | `ConfigPrepHost` | *required* | - |
 | `config` | `ConfigObject` | `...` | The configuration object to parse. |
 | `type` | `string` | `"shape"` | The event classifier to user for "on" events. For example, the default event type of "shape" will apply all events in the "on" config object with that key, like "click.shape" and "mouseleave.shape", in addition to any gloval events like "click" and "mouseleave". |
 | `nest` | `string` \| `false` | `false` | An optional nested key to bubble up to the parent config level. |
@@ -25335,7 +25134,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shape` | `"Area"` |
 
 
-Defined in: [charts/AreaPlot/index.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/AreaPlot/index.ts#L30)
+Defined in: [charts/AreaPlot/index.ts:28](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/AreaPlot/index.ts#L28)
 
 Creates an area plot based on an array of data.
 
@@ -25359,7 +25158,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `legend` | — |
 
 
-Defined in: [charts/BarChart/index.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L87)
+Defined in: [charts/BarChart/index.ts:85](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BarChart/index.ts#L85)
 
 Creates a bar chart based on an array of data. When stacked, each bar's
 fraction of its stack total is available to tooltip accessors as `share`
@@ -25379,7 +25178,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `swarm` | `true` |
 
 
-Defined in: [charts/Beeswarm/index.ts:46](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Beeswarm/index.ts#L46)
+Defined in: [charts/Beeswarm/index.ts:40](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Beeswarm/index.ts#L40)
 
 Creates a beeswarm from an array of data: each circle sits at its value
 along the axis set by `x` (or `y`), packed beside its neighbors so none
@@ -25403,7 +25202,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/BoxWhisker/index.ts:50](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BoxWhisker/index.ts#L50)
+Defined in: [charts/BoxWhisker/index.ts:48](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BoxWhisker/index.ts#L48)
 
 Creates a simple box and whisker based on an array of data.
 
@@ -25439,7 +25238,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Bullet/index.ts:272](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Bullet/index.ts#L272)
+Defined in: [charts/Bullet/index.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Bullet/index.ts#L266)
 
 Creates a bullet graph from an array of data: one compact bar per row
 reading its `value` against qualitative `bands`, with a `target` marker,
@@ -25460,7 +25259,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shape` | `"Line"` |
 
 
-Defined in: [charts/BumpChart/index.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BumpChart/index.ts#L78)
+Defined in: [charts/BumpChart/index.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BumpChart/index.ts#L76)
 
 Creates a bump chart based on an array of data.
 
@@ -25496,7 +25295,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `monthOutlineConfig` | `{…}` |
 
 
-Defined in: [charts/Calendar/index.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Calendar/index.ts#L215)
+Defined in: [charts/Calendar/index.ts:209](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Calendar/index.ts#L209)
 
 Draws one square cell per day in a calendar grid, each colored by its
 `colorScale` value: weekdays down the side and weeks across, one block per
@@ -25531,7 +25330,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Candlestick/index.ts:244](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Candlestick/index.ts#L244)
+Defined in: [charts/Candlestick/index.ts:241](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Candlestick/index.ts#L241)
 
 Creates a candlestick (or OHLC bar) chart of financial periods, from rows
 with a date and open, high, low, and close values. Each row's date is read
@@ -25566,7 +25365,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Chord/index.ts:250](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Chord/index.ts#L250)
+Defined in: [charts/Chord/index.ts:239](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Chord/index.ts#L239)
 
 Creates a Chord diagram based on a defined set of nodes and links.
 
@@ -25584,7 +25383,7 @@ Extends [`Pie`](#pie) — accepts all of its configuration. Adds or overrides th
 | `innerRadius` | — |
 
 
-Defined in: [charts/Donut/index.ts:42](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Donut/index.ts#L42)
+Defined in: [charts/Donut/index.ts:41](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Donut/index.ts#L41)
 
 Extends the Pie visualization to create a donut chart.
 
@@ -25603,7 +25402,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Dumbbell/index.ts:89](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Dumbbell/index.ts#L89)
+Defined in: [charts/Dumbbell/index.ts:87](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Dumbbell/index.ts#L87)
 
 Creates a dumbbell (range dot) chart from an array of data with one row per
 category and series, such as a country's value in 2010 and in 2020. Each
@@ -25627,7 +25426,7 @@ Extends [`LinePlot`](#lineplot) — accepts all of its configuration. Adds or ov
 | `forecast` | `"auto"` |
 
 
-Defined in: [charts/FanChart/index.ts:40](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/FanChart/index.ts#L40)
+Defined in: [charts/FanChart/index.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/FanChart/index.ts#L34)
 
 Creates a fan chart from an array of data: a line per series with nested
 `confidence` bands around it, outermost first, shaded from the widest
@@ -25661,7 +25460,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Funnel/index.ts:205](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Funnel/index.ts#L205)
+Defined in: [charts/Funnel/index.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Funnel/index.ts#L199)
 
 Creates a funnel chart from an array of data: one stage per row, in data
 order unless `sort` reorders them, drawn as a centered bar whose width encodes its value, with necks
@@ -25696,7 +25495,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `zoom` | `false` |
 
 
-Defined in: [charts/Gauge/index.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L167)
+Defined in: [charts/Gauge/index.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L162)
 
 Creates a gauge (speedometer) from an array of data: a single dial that
 reads each row's `value` against its `domain`. One row shows its value
@@ -25731,7 +25530,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Geomap/index.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L597)
+Defined in: [charts/Geomap/index.ts:595](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L595)
 
 Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
 
@@ -25759,7 +25558,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `groupPadding` | `1` |
 
 
-Defined in: [charts/Histogram/index.ts:248](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Histogram/index.ts#L248)
+Defined in: [charts/Histogram/index.ts:231](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Histogram/index.ts#L231)
 
 Creates a histogram from an array of raw observations: the `value` of each
 row is binned along a linear x axis, and bar heights show each bin's
@@ -25788,7 +25587,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Icicle/index.ts:141](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Icicle/index.ts#L141)
+Defined in: [charts/Icicle/index.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Icicle/index.ts#L134)
 
 Draws a hierarchy as nested rectangles, one band per `groupBy` level from
 the root edge out, where each node's breadth is proportional to its summed
@@ -25809,7 +25608,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shape` | `"Line"` |
 
 
-Defined in: [charts/LinePlot/index.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/LinePlot/index.ts#L27)
+Defined in: [charts/LinePlot/index.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/LinePlot/index.ts#L25)
 
 Creates a line plot based on an array of data.
 
@@ -25831,7 +25630,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Lollipop/index.ts:88](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Lollipop/index.ts#L88)
+Defined in: [charts/Lollipop/index.ts:86](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Lollipop/index.ts#L86)
 
 Creates a lollipop chart from an array of data: each row draws a thin stem
 from the baseline (or the value axis's break) to a circle at its value,
@@ -25859,7 +25658,7 @@ Extends [`BarChart`](#barchart) — accepts all of its configuration. Adds or ov
 | `stackOffset` | `"expand"` |
 
 
-Defined in: [charts/Marimekko/index.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Marimekko/index.ts#L79)
+Defined in: [charts/Marimekko/index.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Marimekko/index.ts#L77)
 
 Creates a Marimekko (mosaic) chart from an array of data: one bar per
 discrete value (`x`), as wide as its `barWidth` (by default its total),
@@ -25891,7 +25690,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `label` | — |
 
 
-Defined in: [charts/Matrix/index.ts:137](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L137)
+Defined in: [charts/Matrix/index.ts:135](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L135)
 
 Creates a simple rows/columns Matrix view of any dataset.
 
@@ -25922,7 +25721,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Network/index.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L442)
+Defined in: [charts/Network/index.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L429)
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -25946,7 +25745,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `on` | — |
 
 
-Defined in: [charts/Pack/index.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L195)
+Defined in: [charts/Pack/index.ts:183](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L183)
 
 Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
 
@@ -25975,7 +25774,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/ParallelCoordinates/index.ts:196](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/ParallelCoordinates/index.ts#L196)
+Defined in: [charts/ParallelCoordinates/index.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/ParallelCoordinates/index.ts#L194)
 
 Creates a parallel coordinates chart from an array of data: one axis per
 dimension and one line per row, crossing each axis at the row's value.
@@ -26002,7 +25801,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Pie/index.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L190)
+Defined in: [charts/Pie/index.ts:153](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L153)
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -26038,7 +25837,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legendTooltip` | — |
 
 
-Defined in: [charts/PolarArea/index.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/PolarArea/index.ts#L171)
+Defined in: [charts/PolarArea/index.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/PolarArea/index.ts#L166)
 
 Creates a polar area chart (Nightingale rose or coxcomb) from an array of
 data: every category gets an equal slice of the circle, and each wedge's
@@ -26063,7 +25862,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Priestley/index.ts:109](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Priestley/index.ts#L109)
+Defined in: [charts/Priestley/index.ts:107](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Priestley/index.ts#L107)
 
 Creates a Priestley timeline based on an array of data.
 
@@ -26092,7 +25891,7 @@ Extends [`BarChart`](#barchart) — accepts all of its configuration. Adds or ov
 | `groupPadding` | `1` |
 
 
-Defined in: [charts/Pyramid/index.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pyramid/index.ts#L440)
+Defined in: [charts/Pyramid/index.ts:438](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pyramid/index.ts#L438)
 
 Creates a population pyramid: horizontal bars for two groups (the first
 `groupBy` level, e.g. Male / Female) extending in opposite directions
@@ -26125,7 +25924,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `axisConfig` | — |
 
 
-Defined in: [charts/Radar/index.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Radar/index.ts#L114)
+Defined in: [charts/Radar/index.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Radar/index.ts#L112)
 
 Creates a radar visualization based on an array of data.
 
@@ -26157,7 +25956,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `track` | `true` |
 | `trackPadding` | `0.25` |
 | `value` | `accessor(…)` |
-| `legend` | `polarLegend` |
+| `legend` | `rowLegend` |
 | `levelLabelConfig` | `{…}` |
 | `axisConfig` | — |
 | `trackConfig` | — |
@@ -26165,7 +25964,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/RadialBar/index.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialBar/index.ts#L214)
+Defined in: [charts/RadialBar/index.ts:209](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialBar/index.ts#L209)
 
 Creates a radial bar chart from an array of data: each row is a
 concentric track whose arc length shows its value, or, with
@@ -26193,7 +25992,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `label` | — |
 
 
-Defined in: [charts/RadialMatrix/index.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L188)
+Defined in: [charts/RadialMatrix/index.ts:186](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L186)
 
 Creates a radial layout of a rows/columns Matrix of any dataset.
 
@@ -26231,7 +26030,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `shapeConfig` | `{…}` |
 
 
-Defined in: [charts/Ridgeline/index.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Ridgeline/index.ts#L54)
+Defined in: [charts/Ridgeline/index.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Ridgeline/index.ts#L52)
 
 Creates a ridgeline (joyplot) from an array of raw observations: the
 `value` of each row is summarized per group as a kernel density estimate,
@@ -26266,7 +26065,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig` | — |
 
 
-Defined in: [charts/Rings/index.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L305)
+Defined in: [charts/Rings/index.ts:289](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Rings/index.ts#L289)
 
 Creates a ring visualization based on a defined set of nodes and edges.
 
@@ -26300,7 +26099,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Sankey/index.ts:286](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L286)
+Defined in: [charts/Sankey/index.ts:273](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L273)
 
 Creates a Sankey visualization based on a defined set of nodes and links.
 
@@ -26318,7 +26117,7 @@ Extends [`AreaPlot`](#areaplot) — accepts all of its configuration. Adds or ov
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/StackedArea/index.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/StackedArea/index.ts#L29)
+Defined in: [charts/StackedArea/index.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/StackedArea/index.ts#L27)
 
 Creates a stacked area plot based on an array of data. Each point's
 fraction of its stack total is available to tooltip accessors as `share`
@@ -26349,7 +26148,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Sunburst/index.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sunburst/index.ts#L175)
+Defined in: [charts/Sunburst/index.ts:168](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sunburst/index.ts#L168)
 
 Draws a hierarchy as concentric rings, one per `groupBy` level, where each
 node's arc angle is proportional to its summed value. Click an arc to zoom
@@ -26373,7 +26172,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legendTooltip` | — |
 
 
-Defined in: [charts/Tree/index.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Tree/index.ts#L112)
+Defined in: [charts/Tree/index.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Tree/index.ts#L110)
 
 Uses d3's tree layout to create a tidy tree chart based on an array of data.
 
@@ -26398,7 +26197,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend` | — |
 
 
-Defined in: [charts/Treemap/index.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L199)
+Defined in: [charts/Treemap/index.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L162)
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
@@ -26427,7 +26226,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `groupPadding` | `16` |
 
 
-Defined in: [charts/Violin/index.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Violin/index.ts#L75)
+Defined in: [charts/Violin/index.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Violin/index.ts#L73)
 
 Creates a violin plot from an array of raw observations: the `value` of
 each row is summarized per group as a kernel density estimate, drawn as a
@@ -26461,7 +26260,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legendSort` | — |
 
 
-Defined in: [charts/Waffle/index.ts:186](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waffle/index.ts#L186)
+Defined in: [charts/Waffle/index.ts:180](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waffle/index.ts#L180)
 
 Draws a grid of unit cells filled in order by category, each category
 getting cells in proportion to its value. By default the grid is 10 × 10,
@@ -26489,7 +26288,7 @@ Extends [`BarChart`](#barchart) — accepts all of its configuration. Adds or ov
 | `tooltipConfig` | — |
 
 
-Defined in: [charts/Waterfall/index.ts:237](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waterfall/index.ts#L237)
+Defined in: [charts/Waterfall/index.ts:235](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waterfall/index.ts#L235)
 
 Creates a waterfall chart: one bar per category (`x`, or `y` with
 `discrete("y")` for horizontal bars) whose value is the change it makes
@@ -27201,7 +27000,7 @@ Per-dimension options: any Axis config key, plus `reverse` and `title`.
 
 ### GaugeBand
 
-Defined in: [charts/Gauge/gaugeGeometry.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L12)
+Defined in: [charts/Gauge/gaugeGeometry.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L14)
 
 A colored zone along the dial, e.g. `{min: 80, color: "red"}`.
 
@@ -27209,9 +27008,9 @@ A colored zone along the dial, e.g. `{min: 80, color: "red"}`.
 
 | Property | Type | Description | Defined in |
 | ------ | ------ | ------ | ------ |
-| <a id="property-color-1"></a> `color?` | `string` | The band's fill color. | [charts/Gauge/gaugeGeometry.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L18) |
-| <a id="property-max"></a> `max?` | `number` | Where the band ends. Defaults to the domain's maximum. | [charts/Gauge/gaugeGeometry.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L16) |
-| <a id="property-min"></a> `min?` | `number` | Where the band starts. Defaults to the previous band's end, or the domain's minimum. | [charts/Gauge/gaugeGeometry.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L14) |
+| <a id="property-color-1"></a> `color?` | `string` | The band's fill color. | [charts/Gauge/gaugeGeometry.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L20) |
+| <a id="property-max"></a> `max?` | `number` | Where the band ends. Defaults to the domain's maximum. | [charts/Gauge/gaugeGeometry.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L18) |
+| <a id="property-min"></a> `min?` | `number` | Where the band starts. Defaults to the previous band's end, or the domain's minimum. | [charts/Gauge/gaugeGeometry.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/gaugeGeometry.ts#L16) |
 
 ***
 
@@ -28073,7 +27872,7 @@ How the profile's width changes between two knots.
 
 > **GaugeIndicator** = `"needle"` \| `"progress"`
 
-Defined in: [charts/Gauge/dialLayout.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/dialLayout.ts#L11)
+Defined in: [charts/Gauge/dialLayout.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/dialLayout.ts#L13)
 
 How a gauge shows its value: a needle, or an arc filled from the minimum.
 

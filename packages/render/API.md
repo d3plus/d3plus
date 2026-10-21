@@ -9,6 +9,7 @@
 | Functions | Description |
 | --- | --- |
 | [`applyDeclarativeEvents`](#applydeclarativeevents) | Declarative event delegation for `HtmlOverlayNode.events`. |
+| [`arcPath`](#arcpath) | The SVG path `d` for an annular sector (a Pie/Donut wedge, a gauge band, …). |
 | [`areaPath`](#areapath) | Generates an SVG path string for an area node. |
 | [`collapse`](#collapse) |  |
 | [`collapseTo`](#collapseto) | Produces the start form of an entering node (or end form of an exiting node) for the drill-morph transition: the node's paint fades from/to 0 opacity, same as collapse, but its geometry collapses to/from an explicit external box instead of its own center — e.g. a Treemap cell entering from the clicked parent's on-screen rect, or a Bar exiting into the reappearing parent's rect. |
@@ -17,7 +18,6 @@
 | [`cubicInOut`](#cubicinout) | The default easing curve, identical to d3-transition's default (cubic in-out), so Canvas frame interpolation matches SVG transition motion. |
 | [`curveFor`](#curvefor) | Resolves a curve name to a d3-shape curve factory, defaulting to linear. |
 | [`diffChildren`](#diffchildren) | Matches two sibling node lists by their stable `key`, classifying each into enter/update/exit. |
-| [`domToScene`](#domtoscene) | Converts a rendered SVG subtree into a scene graph. |
 | [`enterWindowProgress`](#enterwindowprogress) | An entering node's own progress at the transition's eased progress `t`, given its `NodeBase.enterWindow`: 0 until the window's `start`, rising linearly to 1 at its `end`, and 1 after. |
 | [`fadeSwapOpacity`](#fadeswapopacity) | A `fadeSwap` node's opacity at eased progress `t`, and whether it has taken its new layout yet. |
 | [`flattenPath`](#flattenpath) | A path's `d` collapsed onto the line where one coordinate equals `at`: every point keeps its other coordinate and moves onto that line, so the result has the same commands and point count as `d` and morphs into it point by point. |
@@ -35,6 +35,10 @@
 | [`resetInjectedBoxes`](#resetinjectedboxes) | Registers `selectors` with the box-model reset in the document (or shadow root) that holds `node`. |
 | [`sameTextLayout`](#sametextlayout) | Whether two text nodes draw the same text at the same place and size. |
 | [`setCanvasBackend`](#setcanvasbackend) | Install the canvas backend `CanvasRenderer` uses. |
+
+| Variables | Description |
+| --- | --- |
+| [`FULL_TURN`](#full-turn) | d3.pie()'s span — a wedge's own startAngle/endAngle are always within [0, FULL_TURN]. |
 
 | Interfaces | Description |
 | --- | --- |
@@ -681,13 +685,35 @@ delegated listeners just gets its spec replaced.
 
 ***
 
+<a id="arcpath"></a>
+
+### arcPath()
+
+> **arcPath**(`params`: [`ArcGeometry`](#arcgeometry)): `string`
+
+Defined in: [animate/interpolate.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L43)
+
+The SVG path `d` for an annular sector (a Pie/Donut wedge, a gauge band, …).
+
+#### Parameters
+
+| Parameter | Type |
+| ------ | ------ |
+| `params` | [`ArcGeometry`](#arcgeometry) |
+
+#### Returns
+
+`string`
+
+***
+
 <a id="areapath"></a>
 
 ### areaPath()
 
 > **areaPath**(`node`: [`AreaNode`](#areanode)): `string`
 
-Defined in: [paths.ts:56](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L56)
+Defined in: [paths.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L58)
 
 Generates an SVG path string for an area node. The topline and baseline share
 x positions by index (as d3plus areas do); the area is filled between them.
@@ -819,7 +845,7 @@ time: forward grows it, backward rewinds it.
 
 > **cubicInOut**(`t`: `number`): `number`
 
-Defined in: [animate/interpolate.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L74)
+Defined in: [animate/interpolate.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L75)
 
 The default easing curve, identical to d3-transition's default (cubic in-out),
 so Canvas frame interpolation matches SVG transition motion.
@@ -842,7 +868,7 @@ so Canvas frame interpolation matches SVG transition motion.
 
 > **curveFor**(`name?`: `string`): `CurveFactory`
 
-Defined in: [paths.ts:35](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L35)
+Defined in: [paths.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L37)
 
 Resolves a curve name to a d3-shape curve factory, defaulting to linear.
 Both the SVG and Canvas backends share this so a curve looks identical on each.
@@ -885,40 +911,13 @@ interpolateScene.
 
 ***
 
-<a id="domtoscene"></a>
-
-### domToScene()
-
-> **domToScene**(`el`: `Element`, `keyPrefix?`: `string`): [`GroupNode`](#groupnode)
-
-Defined in: [dom.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/render/src/dom.ts#L100)
-
-Converts a rendered SVG subtree into a scene graph. This is a migration bridge:
-components that haven't been natively ported to emit a scene (Axis, Legend, …)
-can be snapshotted from their rendered DOM so they participate in the scene and
-render through any backend (including Canvas), with parity guaranteed by being a
-faithful copy. Natively-ported shapes should emit their own precise toScene().
-
-#### Parameters
-
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `el` | `Element` | *required* | The root SVG element to convert. |
-| `keyPrefix` | `string` | `"dom"` | Prefix for synthesized keys on elements without a data-key. |
-
-#### Returns
-
-[`GroupNode`](#groupnode)
-
-***
-
 <a id="enterwindowprogress"></a>
 
 ### enterWindowProgress()
 
 > **enterWindowProgress**(`t`: `number`, `window?`: [`EnterWindow`](#enterwindow)): `number`
 
-Defined in: [animate/interpolate.ts:381](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L381)
+Defined in: [animate/interpolate.ts:382](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L382)
 
 An entering node's own progress at the transition's eased progress `t`,
 given its `NodeBase.enterWindow`: 0 until the window's `start`, rising
@@ -945,7 +944,7 @@ itself. A window that ends at or before it starts jumps from 0 to 1 at
 
 > **fadeSwapOpacity**(`t`: `number`, `swap`: [`FadeSwap`](#fadeswap), `from`: `number`, `to`: `number`, `phase`: `"update"` \| `"enter"` \| `"exit"`): `object`
 
-Defined in: [animate/interpolate.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L357)
+Defined in: [animate/interpolate.ts:358](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L358)
 
 A `fadeSwap` node's opacity at eased progress `t`, and whether it has
 taken its new layout yet. Updating, it fades from `from` to 0 over the
@@ -969,8 +968,8 @@ hidden until that last share; exiting, it only fades out.
 
 | Name | Type | Defined in |
 | ------ | ------ | ------ |
-| `opacity` | `number` | [animate/interpolate.ts:363](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L363) |
-| `swapped` | `boolean` | [animate/interpolate.ts:363](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L363) |
+| `opacity` | `number` | [animate/interpolate.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L364) |
+| `swapped` | `boolean` | [animate/interpolate.ts:364](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L364) |
 
 ***
 
@@ -980,7 +979,7 @@ hidden until that last share; exiting, it only fades out.
 
 > **flattenPath**(`d`: `string`, `axis`: `"x"` \| `"y"`, `at`: `number`): `string`
 
-Defined in: [paths.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L80)
+Defined in: [paths.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L79)
 
 A path's `d` collapsed onto the line where one coordinate equals `at`:
 every point keeps its other coordinate and moves onto that line, so the
@@ -1046,7 +1045,7 @@ Encodes a [SceneGradient](#scenegradient) as a `gradient:<json>` `Paint.fill` to
 
 > **interpolateNode**(`from`: [`SceneNode`](#scenenode), `to`: [`SceneNode`](#scenenode)): [`Interp`](#interp)\<[`SceneNode`](#scenenode)\>
 
-Defined in: [animate/interpolate.ts:243](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L243)
+Defined in: [animate/interpolate.ts:244](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L244)
 
 Builds an interpolator between two nodes of the same type. When the types differ
 (a rare key reuse across shape kinds) it snaps to the target. Group children are
@@ -1153,7 +1152,7 @@ Whether a node opts into a persistent trail (a positive count or `true`).
 
 > **linePath**(`node`: [`LineNode`](#linenode)): `string`
 
-Defined in: [paths.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L43)
+Defined in: [paths.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/render/src/paths.ts#L45)
 
 Generates an SVG path string for a line node.
 
@@ -1230,7 +1229,7 @@ Decodes a `gradient:<json>` token, or returns null if `fill` is not one.
 
 > **patternTileSvg**(`token`: `string`): \{ `height`: `number`; `svg`: `string`; `width`: `number`; \} \| `null`
 
-Defined in: [canvas/patternTile.ts:23](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/patternTile.ts#L23)
+Defined in: [canvas/patternTile.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/patternTile.ts#L22)
 
 Builds standalone SVG markup for one tile of a `pattern:<json>` texture
 token, plus the tile's pixel dimensions.
@@ -1313,7 +1312,7 @@ root) that holds `node`. Does nothing for a node that isn't attached yet.
 
 > **sameTextLayout**(`a`: [`TextNode`](#textnode), `b`: [`TextNode`](#textnode)): `boolean`
 
-Defined in: [animate/interpolate.ts:333](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L333)
+Defined in: [animate/interpolate.ts:334](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L334)
 
 Whether two text nodes draw the same text at the same place and size.
 
@@ -1351,6 +1350,18 @@ backend before rendering and restores the default afterward.
 #### Returns
 
 `void`
+
+## Variables
+
+<a id="full_turn"></a>
+
+### FULL\_TURN
+
+> `const` **FULL\_TURN**: `number`
+
+Defined in: [animate/interpolate.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L33)
+
+d3.pie()'s span — a wedge's own startAngle/endAngle are always within [0, FULL_TURN].
 
 ## Interfaces
 
@@ -2665,7 +2676,7 @@ Defined in: [scene.ts:142](https://github.com/d3plus/d3plus/blob/main/packages/r
 
 > **Interp**\<`T`\> = (`t`: `number`) => `T`
 
-Defined in: [animate/interpolate.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L67)
+Defined in: [animate/interpolate.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/render/src/animate/interpolate.ts#L68)
 
 #### Type Parameters
 
