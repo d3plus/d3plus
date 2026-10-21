@@ -43,7 +43,7 @@ Converts an Array of font-family names into a CSS font-family string.
 
 > **strip**(`value`: `string`, `spacer?`: `string`): `string`
 
-Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.ts#L33)
+Defined in: [strip.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.ts#L20)
 
 Removes all non ASCII characters from a string.
 
