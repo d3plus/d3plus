@@ -173,10 +173,10 @@ export const argTypes = assign(
       control: {
         type: "text"
       },
-      description: "The map projection for the topojson and coordinate points: any projection from [d3-geo](https://github.com/d3/d3-geo#projections), as its name (e.g. `\"geoMercator\"`) or the projection itself. Map tiles only line up with Mercator (the default), so any other projection turns `tiles` off.",
+      description: "The map projection for the topojson and coordinate points: a projection function, or the name of one of the [d3-geo projections](https://github.com/d3/d3-geo#projections) or of `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson` and `geoWinkel3` (e.g. `\"geoAlbersUsa\"`). Map tiles only line up with Mercator (the default), so any other projection turns `tiles` off.",
       table: {
         defaultValue: {
-          summary: "d3Geo.geoMercator()"
+          summary: "geoMercator()"
         }
       },
       type: {

@@ -12,7 +12,7 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "ES5 implementation to reduce an Array of values to unique instances.",
+        component: "Reduces an Array of values to unique instances, keeping the first of each.\nDates compare by time.",
       },
     },
   }
