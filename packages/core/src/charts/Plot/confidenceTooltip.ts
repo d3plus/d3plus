@@ -9,6 +9,7 @@
     `confidenceConfig.tooltip: false` leaves them out.
 */
 import type {DataPoint} from "@d3plus/data";
+import {finite} from "@d3plus/math";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {ConfidenceBounds} from "./barConfidence.js";
@@ -16,8 +17,6 @@ import {confidenceBands, rowBands} from "./confidenceBands.js";
 
 /** Formats a bound the way the tooltip formats the value it bounds. */
 type Format = (value: number) => string;
-
-const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /** Whether tooltips list the confidence bounds (`confidenceConfig.tooltip`, default `true`). */
 export function confidenceTooltipEnabled(viz: VizInstance): boolean {

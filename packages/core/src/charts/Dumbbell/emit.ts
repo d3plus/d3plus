@@ -11,6 +11,7 @@
 */
 
 import type {SceneNode} from "@d3plus/render";
+import {finite} from "@d3plus/math";
 
 import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
 import type {PlotDatum} from "../features/plotPaint.js";
@@ -38,8 +39,6 @@ interface ConnectorEnd {
   i: number;
   category: string;
 }
-
-const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /**
     Each category's span, in first-seen order: the rows holding its smallest

@@ -4,6 +4,8 @@
     emit (to draw).
 */
 
+import {clamp} from "@d3plus/math";
+
 import {unionBox} from "./gaugeGeometry.js";
 import type {GaugeBox} from "./gaugeGeometry.js";
 
@@ -60,9 +62,6 @@ export interface DialLayout {
   nameFontSize: number;
   nameMaxWidth: number;
 }
-
-const clamp = (v: number, lo: number, hi: number) =>
-  Math.max(lo, Math.min(hi, v));
 
 /**
     The tracks of a dial of radius `r`: a single track for a needle, or one

@@ -4,6 +4,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 import type {LineNode, Paint, Scene, SceneNode} from "@d3plus/render";
+import {clamp} from "@d3plus/math";
 
 import TextBox from "../../components/TextBox.js";
 import {PLOT_ZOOM_CONTENT_KEY} from "../features/plotPaint.js";
@@ -126,8 +127,7 @@ export function sideTitleBoxes(
   bounds: {left: number; right: number; inner: [number, number]; top: number; height: number},
 ): SideTitle[] {
   const {left, right, top, height} = bounds;
-  const clamp = (v: number) => Math.max(left, Math.min(right, v));
-  const halves = [[left, clamp(bounds.inner[0])], [clamp(bounds.inner[1]), right]];
+  const halves = [[left, clamp(bounds.inner[0], left, right)], [clamp(bounds.inner[1], left, right), right]];
   return labels.slice(0, 2).map((text, i) => ({
     text,
     x: halves[i][0],

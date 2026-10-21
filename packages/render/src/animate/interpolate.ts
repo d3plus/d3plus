@@ -1,7 +1,7 @@
 import {arc as d3Arc} from "d3-shape";
 import {interpolateNumber, interpolateRgb} from "d3-interpolate";
 import {interpolatePath} from "d3-interpolate-path";
-import {pathBounds} from "@d3plus/math";
+import {clamp, pathBounds} from "@d3plus/math";
 
 import {textVisualCenter} from "../scene.js";
 
@@ -380,12 +380,11 @@ export function fadeSwapOpacity(
 */
 export function enterWindowProgress(t: number, window?: EnterWindow): number {
   if (!window) return t;
-  const clamp = (v: number) => Math.min(1, Math.max(0, v));
-  const start = clamp(window.start), end = clamp(window.end);
+  const start = clamp(window.start, 0, 1), end = clamp(window.end, 0, 1);
   if (t >= 1) return 1;
   if (t < start) return 0;
   if (end <= start) return 1;
-  return clamp((t - start) / (end - start));
+  return clamp((t - start) / (end - start), 0, 1);
 }
 
 /**

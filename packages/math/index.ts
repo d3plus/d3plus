@@ -1,5 +1,7 @@
 export {default as ckmeans} from "./src/ckmeans.js";
+export {default as clamp} from "./src/clamp.js";
 export {default as closest} from "./src/closest.js";
+export {default as finite} from "./src/finite.js";
 export {
   default as kernelDensity,
   epanechnikovKernel,

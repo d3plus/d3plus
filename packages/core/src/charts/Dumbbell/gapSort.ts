@@ -6,6 +6,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import {finite} from "@d3plus/math";
 
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -23,8 +24,6 @@ export interface GapSortState {
   axis?: "x" | "y";
   sort?: CategoryComparator;
 }
-
-const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /**
     Each category's gap: its largest value minus its smallest. A category
