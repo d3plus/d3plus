@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
-import {shared, withIO} from "./stubIntersectionObserver.js";
+import {shared, withIO} from "~test/stubIntersectionObserver.js";
 import {
   syncUnloadObserver,
   vizReload,
