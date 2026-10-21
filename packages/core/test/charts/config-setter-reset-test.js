@@ -127,6 +127,8 @@ it("every hand-written setter that merges a config bag is tagged to resolve RESE
     if (typeof C !== "function" || !(C.prototype instanceof core.BaseClass || C === core.BaseClass)) continue;
     for (let p = C.prototype; p && p !== Object.prototype; p = Object.getPrototypeOf(p)) {
       for (const key of Object.getOwnPropertyNames(p)) {
+        // A class's source text holds every method, so skip the class itself.
+        if (key === "constructor") continue;
         const fn = Object.getOwnPropertyDescriptor(p, key).value;
         if (typeof fn === "function" && fn.toString().includes("mergeConfigBag") && !fn[RESOLVES_RESET]) {
           untagged.push(`${name}.${key}`);
