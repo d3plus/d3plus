@@ -2,9 +2,7 @@ import {date} from "@d3plus/dom";
 
 import type {D3Scale} from "../../utils/index.js";
 import type Axis from "./Axis.js";
-
-/* catches for -0 and less*/
-export const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
+import {isNegative} from "./axisRounding.js";
 
 /**
     The share of the regular tick spacing a forced domain-end label must clear

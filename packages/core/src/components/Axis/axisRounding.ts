@@ -6,14 +6,18 @@
 */
 import {max} from "d3-array";
 
+/** Whether `d` is negative, counting -0. */
 export const isNegative = (d: number): boolean => d < 0 || Object.is(d, -0);
+/** The power of ten at or below `|d|`, carrying `d`'s sign. */
 export const floorPow = (d: number): number =>
   Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
   Math.pow(-1, isNegative(d) ? 1 : 0);
-const ceilPow = (d: number): number =>
+/** The power of ten at or above `|d|`, carrying `d`'s sign. */
+export const ceilPow = (d: number): number =>
   Math.pow(10, Math.ceil(Math.log10(Math.abs(d)))) *
   Math.pow(-1, isNegative(d) ? 1 : 0);
-const fixFloat = (d: number): number => {
+/** `d` with floating-point noise (runs of 0s or 9s) trimmed; tiny values become 0. */
+export const fixFloat = (d: number): number => {
   const str = `${d}`;
   if (str.includes("e-") || str === "0") return 0;
   const nineMatch = str.match(/(-*[0-9]+\.[0]*)([0-8]+)9{3,}[0-9]+$/);
