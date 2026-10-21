@@ -6,7 +6,6 @@
 import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
@@ -15,7 +14,6 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export const boxWhiskerDef: ChartDefinition = {
   name: "BoxWhisker",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 

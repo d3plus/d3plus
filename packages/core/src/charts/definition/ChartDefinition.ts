@@ -1,9 +1,8 @@
 /**
     `ChartDefinition` — charts as *values*, not classes.
 
-    A chart in v4 is the def value `{name, fields?, ctx?, features, stages,
-    layoutStage?, emit, chartTransform?, decorateScene?, setup?,
-    thresholdFunction?}`. Each
+    A chart in v4 is the def value `{name, fields?, ctx?, layoutStage?, emit,
+    chartTransform?, decorateScene?, setup?, thresholdFunction?}`. Each
     chart's def lives next to its applyLayout + emit in `./<ChartName>/`;
     `makeChart(def, Base?)` produces the chart class from the def.
 */
@@ -12,7 +11,6 @@ import type {DataPoint} from "@d3plus/data";
 import type {Scene, SceneNode} from "@d3plus/render";
 
 import type {FacetHooks} from "../facet/facetConfig.js";
-import type {FeatureModule} from "../features/features.js";
 import type {InsetRegion} from "../features/insetState.js";
 import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -31,8 +29,6 @@ interface ChartDefinitionBase {
   defaults?: Record<string, unknown>;
   /** Fluent accessor declarations; `makeChart` installs each as `viz.<key>()`. */
   fields?: import("../../fluent.js").ConfigField[];
-  /** Chart-level features composed in; order is layout order. */
-  features: FeatureModule[];
   /**
       Chart-specific layout stage run in `_draw` after the shared chart-shell
       prep (`vizPreDrawPure`). If absent, `makeChart` doesn't invoke

@@ -6,7 +6,6 @@
 import {colorContrast, colorGray} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
 
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {columnHighlight} from "../Plot/columnHighlight.js";
@@ -27,7 +26,6 @@ export function connectorStroke(viz: VizInstance): string {
 export const dumbbellDef: ChartDefinition = {
   name: "Dumbbell",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   setup: viz => {
     const state: GapSortState = {};

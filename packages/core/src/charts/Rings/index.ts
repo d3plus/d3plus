@@ -12,7 +12,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {runPostDrawFeatures} from "../pipeline/runVizPipeline.js";
@@ -143,7 +142,6 @@ function installRingsAccessors(viz: VizInstance): void {
 export const ringsDef: ChartDefinition = {
   name: "Rings",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRingsLayout,
   sizeLegendScale: (viz, {width, height}) => ringsSizeLegendScale(viz, width, height),
   emit: ringsEmit,

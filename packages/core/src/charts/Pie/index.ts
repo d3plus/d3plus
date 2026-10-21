@@ -13,7 +13,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
 import {summedShare} from "../features/shareKey.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
@@ -28,7 +27,6 @@ import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 export const pieDef: DataDrivenChartDefinition = {
   name: "Pie",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPieLayout,
   emit: pieEmit,
   insetRegion: sceneInsetRegion,

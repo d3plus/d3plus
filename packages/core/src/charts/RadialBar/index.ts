@@ -17,11 +17,6 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {gridStroke} from "../../components/Axis/gridStroke.js";
@@ -39,7 +34,6 @@ import {radialBarTrackLabels} from "./trackLayout.js";
 export const radialBarDef: DataDrivenChartDefinition = {
   name: "RadialBar",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRadialBarLayout,
   emit: radialBarEmit,
   insetRegion: sceneInsetRegion,

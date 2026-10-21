@@ -16,11 +16,6 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
@@ -91,7 +86,6 @@ export const bulletFacet: FacetHooks = {
 export const bulletDef: DataDrivenChartDefinition = {
   name: "Bullet",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyBulletLayout,
   emit: bulletEmit,
   facet: bulletFacet,

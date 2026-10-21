@@ -8,7 +8,6 @@
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
@@ -117,7 +116,6 @@ function configureLegend(viz: VizInstance): void {
 export const waterfallDef: ChartDefinition = {
   name: "Waterfall",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   setup: viz => {
     viz.ctx.waterfall = {

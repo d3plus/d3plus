@@ -17,11 +17,6 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -45,7 +40,6 @@ export const defaultCalendarDate = (
 export const calendarDef: DataDrivenChartDefinition = {
   name: "Calendar",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyCalendarLayout,
   emit: calendarEmit,
   // Chrome goes in the open space around the calendar when it fits.

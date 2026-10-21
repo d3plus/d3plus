@@ -17,11 +17,6 @@
 import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -45,7 +40,6 @@ import {icicleInteraction} from "./interaction.js";
 export const icicleDef: DataDrivenChartDefinition = {
   name: "Icicle",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyIcicleLayout,
   emit: icicleEmit,
 

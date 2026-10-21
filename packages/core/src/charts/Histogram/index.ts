@@ -11,7 +11,6 @@ import constant from "../../utils/constant.js";
 import {facetActive, resolveFacetConfig} from "../facet/facetConfig.js";
 import type {FacetAccessor, FacetConfig} from "../facet/facetConfig.js";
 import {facetKey, toFacetValue} from "../facet/facetData.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {computeTimeFilter} from "../pipeline/vizPreDrawPure.js";
@@ -130,7 +129,6 @@ function binBeforePreDraw(viz: VizInstance) {
 export const histogramDef: ChartDefinition = {
   name: "Histogram",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
 
   setup: viz => {

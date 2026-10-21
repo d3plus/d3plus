@@ -13,11 +13,6 @@
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -52,7 +47,6 @@ const isAggregated = (d: DataPoint): boolean =>
 export const waffleDef: DataDrivenChartDefinition = {
   name: "Waffle",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyWaffleLayout,
   emit: waffleEmit,
   insetRegion: sceneInsetRegion,

@@ -14,7 +14,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -34,7 +33,6 @@ const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
 export const packDef: ChartDefinition = {
   name: "Pack",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPackLayout,
   emit: packEmit,
   insetRegion: sceneInsetRegion,

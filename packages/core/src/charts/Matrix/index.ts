@@ -10,7 +10,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {Axis} from "../../components/index.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {getProp} from "../../utils/index.js";
@@ -39,7 +38,6 @@ const localeCompare = (
 export const matrixDef: ChartDefinition = {
   name: "Matrix",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyMatrixLayout,
   emit: matrixEmit,
 

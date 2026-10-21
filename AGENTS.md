@@ -68,7 +68,7 @@ packages/core/src/charts/<Chart>/
 ```
 
 `ChartDefinition` (`charts/definition/ChartDefinition.ts`) is
-`{name, features, fields?, ctx?, layoutStage?, emit?, thresholdFunction?,
+`{name, fields?, ctx?, layoutStage?, emit?, thresholdFunction?,
 chartTransform?, setup?, …}`. `makeChart(def, Base = Viz)`
 (`charts/definition/makeChart.ts`) produces the class: its constructor runs
 `applyDefinition(this, def)` (seeding `fields`/`ctx` and installing fluent
@@ -89,10 +89,13 @@ Two kinds of def:
 ### Feature modules
 
 Chart "chrome" (legend, color scale, timeline, title/subtitle/total, back
-button, attribution, zoom controls) are **opt-in `FeatureModule`s**
-(`charts/features/`). A def lists the features it composes in
-(`features: [backFeature, titleFeature, …]`); `runLayout` runs each feature's
-`layout()`, which claims margin and returns a panel to compose into the scene.
+button, attribution, zoom controls) are **`FeatureModule`s**
+(`charts/features/`), shared by every chart. `vizDrawPure`
+(`charts/pipeline/vizDrawPure.ts`) lays out the margin-claiming ones (title,
+subtitle, total, timeline, legend, colorScale) in order, and `runVizPipeline`
+runs the post-draw overlays (zoom, minimap, top-left controls, attribution,
+table view); `runLayout` runs each feature's `layout()`, which claims margin
+and returns a panel to compose into the scene.
 
 ### Small multiples (`facet`)
 
@@ -275,7 +278,7 @@ Pass `VERBOSE=1` to any build script for per-file output; by default piped
      reads the viz and attaches laid-out `shapeData`.
    - `emit.ts` — export a pure `emit(ctx) → SceneNode[]` (use the helpers in
      `charts/features/emitHelpers.ts`). Skip this for a paint-driven chart.
-   - `index.ts` — declare the `ChartDefinition` (`name`, `features`, `fields`,
+   - `index.ts` — declare the `ChartDefinition` (`name`, `fields`,
      `layoutStage`, `emit`, …) and `export default makeChart(def[, Base])`.
      Put `ctx` + `fields` last in the def object.
 2. Export the class from `packages/core/src/charts/index.ts`.

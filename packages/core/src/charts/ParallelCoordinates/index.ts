@@ -18,7 +18,6 @@
 import type {DataPoint} from "@d3plus/data";
 import type {Scene} from "@d3plus/render";
 
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
@@ -65,7 +64,6 @@ function decorateParallelScene(viz: VizInstance, scene: Scene): Scene {
 export const parallelCoordinatesDef: DataDrivenChartDefinition = {
   name: "ParallelCoordinates",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyParallelLayout,
   emit: parallelEmit,
   decorateScene: decorateParallelScene,

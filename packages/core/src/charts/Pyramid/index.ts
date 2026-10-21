@@ -10,7 +10,6 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import TextBox from "../../components/TextBox.js";
 import accessor from "../../utils/accessor.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
@@ -291,7 +290,6 @@ function sceneInput(viz: VizInstance): PyramidSceneInput {
 export const pyramidDef: ChartDefinition = {
   name: "Pyramid",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
 
   setup: viz => {

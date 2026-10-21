@@ -30,7 +30,6 @@ import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {shapeConfigFor} from "../features/emitHelpers.js";
 import {xAxisRounding} from "../features/xAxisConfig.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {TransformStage} from "../pipeline/stages.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
@@ -43,12 +42,6 @@ type DomainValue = number | string | Date;
 
 export {computePlotInitialDomains} from "./pipelineDomains.js";
 export {measurePlotLineLabels} from "./pipelineLineLabels.js";
-
-const defaultChartFeatures = [
-  titleFeature,
-  subtitleFeature,
-  totalFeature,
-];
 
 /**
     A plotted axis value that can't be turned into a pixel coordinate: a
@@ -679,7 +672,6 @@ export const plotDef: ChartDefinition = {
     tooltipShared: true,
     trendLine: false,
   },
-  features: defaultChartFeatures,
   // Plot._paint populates `viz._chartScene` from `plotPaint`; no emit step.
   paintDriven: true,
 };

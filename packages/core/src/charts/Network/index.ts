@@ -14,7 +14,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {ensureZoomDom} from "../features/ensureZoomDom.js";
@@ -311,7 +310,6 @@ function setupNetworkFluent(v: NetworkViz) {
 export const networkDef: ChartDefinition = {
   name: "Network",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyNetworkLayout,
   sizeLegendScale: (viz, {width, height}) => networkSizeLegendScale(viz, width, height),
   emit: networkEmit,

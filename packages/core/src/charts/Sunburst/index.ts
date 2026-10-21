@@ -15,11 +15,6 @@ import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -44,7 +39,6 @@ import {sunburstInteraction} from "./interaction.js";
 export const sunburstDef: DataDrivenChartDefinition = {
   name: "Sunburst",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applySunburstLayout,
   emit: sunburstEmit,
   insetRegion: sceneInsetRegion,

@@ -3,11 +3,6 @@
     axis and are packed side by side along the other.
 */
 
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
@@ -15,7 +10,6 @@ import Plot from "../Plot/index.js";
 export const beeswarmDef: ChartDefinition = {
   name: "Beeswarm",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 

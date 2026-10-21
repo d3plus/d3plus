@@ -12,11 +12,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -32,7 +27,6 @@ import {polarAreaEmit} from "./emit.js";
 export const polarAreaDef: DataDrivenChartDefinition = {
   name: "PolarArea",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPolarAreaLayout,
   emit: polarAreaEmit,
   insetRegion: sceneInsetRegion,
