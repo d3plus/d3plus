@@ -261,6 +261,136 @@ const charts = [
     .links([
       {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "B", target: "C"},
     ])`],
+  ["beeswarm", `lib => new lib.Beeswarm()
+    .groupBy("id")
+    .data(Array.from({length: 40}, (_, i) => ({id: "p" + i, group: ["Low", "High"][i % 2], value: (i * 37) % 23 + (i % 2) * 8})))
+    .color("group")
+    .x("value")`],
+  ["bullet", `lib => new lib.Bullet()
+    .data([
+      {id: "Revenue", value: 270, target: 250, unit: "USD (thousands)"},
+      {id: "Profit", value: 22, target: 26, unit: "%"},
+    ])
+    .bands(d => (d.id === "Revenue" ? [150, 225, 300] : [10, 20, 30]))
+    .subLabel("unit")`],
+  ["calendar", `lib => new lib.Calendar()
+    .data(Array.from({length: 60}, (_, k) => {
+      const d = new Date(2024, 2, 1 + k);
+      const pad = v => String(v).padStart(2, "0");
+      return {date: d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()), value: (k % 7) + 1};
+    }))`],
+  ["candlestick", `lib => new lib.Candlestick()
+    .data([
+      ["2024-01-02", 100, 104, 99, 103], ["2024-01-03", 103, 105, 101, 102],
+      ["2024-01-04", 102, 103, 97, 98], ["2024-01-05", 98, 101, 96, 100],
+      ["2024-01-08", 100, 106, 100, 105], ["2024-01-09", 105, 107, 103, 104],
+      ["2024-01-10", 104, 104, 99, 100], ["2024-01-11", 100, 103, 98, 102],
+    ].map(([date, open, high, low, close]) => ({symbol: "ACME", date, open, high, low, close})))
+    .groupBy("symbol")`],
+  ["dumbbell", `lib => new lib.Dumbbell()
+    .data([
+      {country: "Brazil", year: 2000, value: 70}, {country: "Brazil", year: 2020, value: 76},
+      {country: "India", year: 2000, value: 63}, {country: "India", year: 2020, value: 70},
+      {country: "Japan", year: 2000, value: 81}, {country: "Japan", year: 2020, value: 85},
+    ])
+    .groupBy("year")
+    .x("value")
+    .y("country")`],
+  ["fan-chart", `lib => new lib.FanChart()
+    .data(Array.from({length: 10}, (_, t) => {
+      const row = {id: "CPI", year: 2000 + t, value: 10 + t};
+      if (t >= 5) {
+        const w = t - 5;
+        Object.assign(row, {p5: row.value - 2 * w, p95: row.value + 2 * w, p25: row.value - w, p75: row.value + w});
+      }
+      return row;
+    }))
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .confidence([["p5", "p95", "90%"], ["p25", "p75", "50%"]])
+    .legend(false)`],
+  ["funnel", `lib => new lib.Funnel()
+    .data([
+      {id: "Visited", value: 12400}, {id: "Pricing", value: 6900}, {id: "Trial", value: 3100},
+      {id: "Activated", value: 1850}, {id: "Subscribed", value: 760},
+    ])`],
+  ["gauge", `lib => new lib.Gauge()
+    .data([{id: "Speed", value: 72}])
+    .domain([0, 100])
+    .bands([{value: 50, label: "Low"}, {value: 80, label: "Medium"}, {value: 100, label: "High"}])`],
+  ["histogram", `lib => new lib.Histogram()
+    .data(Array.from({length: 60}, (_, i) => ({id: i, group: ["Low", "High"][i % 2], value: (i * 37) % 23 + (i % 2) * 8})))
+    .groupBy("group")
+    .value("value")`],
+  ["lollipop", `lib => new lib.Lollipop()
+    .data([
+      {country: "Finland", kg: 12}, {country: "Norway", kg: 9.9}, {country: "Iceland", kg: 9},
+      {country: "Denmark", kg: 8.7}, {country: "Sweden", kg: 8.2},
+    ])
+    .groupBy("country")
+    .x("country")
+    .y("kg")`],
+  ["marimekko", `lib => new lib.Marimekko()
+    .data([
+      {Region: "North", Brand: "Acme", Revenue: 40}, {Region: "North", Brand: "Bolt", Revenue: 25},
+      {Region: "South", Brand: "Acme", Revenue: 15}, {Region: "South", Brand: "Bolt", Revenue: 35},
+      {Region: "West", Brand: "Acme", Revenue: 30}, {Region: "West", Brand: "Bolt", Revenue: 10},
+    ])
+    .groupBy("Brand")
+    .x("Region")
+    .y("Revenue")`],
+  ["parallel-coordinates", `lib => new lib.ParallelCoordinates()
+    .data([
+      {name: "Alpha", origin: "USA", cylinders: 8, hp: 190, weight: 4300, mpg: 13},
+      {name: "Bravo", origin: "USA", cylinders: 6, hp: 110, weight: 3200, mpg: 20},
+      {name: "Delta", origin: "Japan", cylinders: 4, hp: 70, weight: 2100, mpg: 34},
+      {name: "Echo", origin: "Japan", cylinders: 4, hp: 95, weight: 2400, mpg: 30},
+      {name: "Foxtrot", origin: "Europe", cylinders: 4, hp: 78, weight: 2300, mpg: 31},
+    ])
+    .groupBy(["origin", "name"])`],
+  ["polar-area", `lib => new lib.PolarArea()
+    .data(["Jan", "Feb", "Mar", "Apr", "May", "Jun"].flatMap((month, i) => [
+      {cause: "Disease", month, deaths: 40 + i * 12},
+      {cause: "Wounds", month, deaths: 10 + i * 4},
+    ]))
+    .groupBy("cause")
+    .metric("month")
+    .value("deaths")`],
+  ["pyramid", `lib => new lib.Pyramid()
+    .data(["Male", "Female"].flatMap((sex, s) => ["0-9", "10-19", "20-29", "30-39"].map((age, b) => ({sex, age, population: 900 - b * 150 + s * 40}))))
+    .groupBy("sex")
+    .y("age")
+    .x("population")`],
+  ["radial-bar", `lib => new lib.RadialBar()
+    .data([
+      {id: "Safari", value: 20}, {id: "Chrome", value: 64}, {id: "Edge", value: 5}, {id: "Firefox", value: 15},
+    ])`],
+  ["ridgeline", `lib => new lib.Ridgeline()
+    .data([["low", 2], ["mid", 5], ["high", 8]].flatMap(([id, mean]) =>
+      Array.from({length: 30}, (_, i) => ({id, v: mean + ((i * 7) % 11 - 5) / 4}))))
+    .groupBy("id")
+    .value("v")`],
+  ["violin", `lib => new lib.Violin()
+    .data([["low", 2], ["mid", 5], ["high", 8]].flatMap(([id, mean]) =>
+      Array.from({length: 30}, (_, i) => ({id, v: mean + ((i * 7) % 11 - 5) / 4}))))
+    .groupBy("id")
+    .value("v")`],
+  ["waffle", `lib => new lib.Waffle()
+    .data([
+      {source: "Car", value: 48}, {source: "Bus", value: 22}, {source: "Bike", value: 12}, {source: "Walk", value: 18},
+    ])
+    .groupBy("source")
+    .sum("value")`],
+  ["waterfall", `lib => new lib.Waterfall()
+    .data([
+      {item: "Revenue", amount: 420, sub: true}, {item: "Cost of Goods", amount: -180},
+      {item: "Gross Profit", sub: true}, {item: "Marketing", amount: -45},
+      {item: "Other Income", amount: 25}, {item: "Net Income", sub: true},
+    ])
+    .x("item")
+    .y("amount")
+    .subtotal("sub")`],
 ];
 
 // Runs in-page: build + render the chart, then walk the rendered SVG and
