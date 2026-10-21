@@ -144,7 +144,6 @@ export interface VizInstance {
   _legendData: DataPoint[];
   _hidden: (string | number)[];
   _solo: (string | number)[];
-  _filter?: (d: DataPoint, i: number) => boolean;
   /**
       Whether the chart has already run `filter` over a row of `_data`
       (Histogram's bins, binned from rows that passed it). The pipeline
@@ -152,13 +151,11 @@ export interface VizInstance {
   */
   _filterApplied?: (d: DataPoint) => boolean;
   _timeFilter?: (d: DataPoint, i: number) => boolean;
-  _noDataMessage?: false | string | ((config: VizInstance) => string);
 
   /* 3. Grouping & aggregation */
   _groupBy: ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[];
   _depth?: number;
   _drawDepth: number;
-  _discrete?: "x" | "y";
   _aggs: Record<string, (leaves: DataPoint[]) => unknown>;
   /**
       Merges the rows that share a group and discrete position into one
@@ -175,15 +172,11 @@ export interface VizInstance {
   _y?: (d: DataPoint, i: number) => number | Date | string;
   _x2?: (d: DataPoint, i: number) => number | Date | string;
   _y2?: (d: DataPoint, i: number) => number | Date | string;
-  _shape: (d: DataPoint, i: number) => string;
   _size?: (d: DataPoint, i?: number) => number;
   /** The data key `size` was set to, when it was set with a string; the size legend's default title. */
   _sizeKey?: string;
-  _value?: (d: DataPoint, i: number) => number;
   _time?: (d: DataPoint, i: number) => string | number | Date;
-  _sort?: ((a: DataPoint, b: DataPoint) => number) | null;
   _label?: (d: DataPoint, i: number) => string;
-  _thresholdName?: (d: DataPoint, i: number) => string;
   _sum?: (d: DataPoint, i: number) => number;
 
   /* 5. Config slots */
@@ -192,13 +185,6 @@ export interface VizInstance {
   _x2Config?: Record<string, unknown>;
   _y2Config?: Record<string, unknown>;
   _backgroundConfig?: Record<string, unknown>;
-  _legendConfig?: Record<string, unknown>;
-  _colorScaleConfig?: Record<string, unknown>;
-  _timelineConfig?: Record<string, unknown>;
-  _backConfig?: Record<string, unknown>;
-  _titleConfig?: Record<string, unknown>;
-  _subtitleConfig?: Record<string, unknown>;
-  _axisConfig?: Record<string, unknown>;
 
   /* 6. Scene & output */
   _chartScene?: SceneNode[];
@@ -268,7 +254,6 @@ export interface VizInstance {
   _transitionEndsAt?: number;
   _userHover?: number;
   _userDuration?: number;
-  _dataCutoff: number;
   _brushing?: boolean;
   /** Whether the table-view toggle is currently showing the data table instead of the chart. */
   _tableView?: boolean;
@@ -410,7 +395,6 @@ export interface VizInstance {
   _baseline?: number;
   /** The `baseline` the user set: one end of the value axis's domain, like `yDomain([n])` (see `Plot/baselineDomain.ts`). */
   _userBaseline?: number;
-  _stacked?: boolean;
   _stackOffset?: (series: number[][][], order: number[]) => void;
   /** d3-stack order: an accessor, or an explicit array of series keys. */
   _stackOrder?: ((series: number[][][]) => number[]) | unknown[];
@@ -418,9 +402,7 @@ export interface VizInstance {
   _confidence?: [ConfidenceAccessor | false, ConfidenceAccessor | false] | false;
   /** Every `confidence` band, outermost first; `_confidence` holds the first band's pair. */
   _confidenceBands?: ConfidenceBand[];
-  _lineLabels?: ((d: DataPoint, i: number) => boolean) | boolean;
   _lineMarkers?: boolean;
-  _barPadding?: number;
   _groupPadding?: number;
   _annotations?: Record<string, unknown>[];
   _axisPersist?: boolean;
@@ -435,8 +417,6 @@ export interface VizInstance {
   _trendFits?: TrendFit[];
   /** The swarm resolved by `formatPlotData` for the current draw, or null when off. */
   _swarm?: SwarmState | null;
-  _xCutoff?: number;
-  _yCutoff?: number;
   _discreteCutoff?: number;
   /** Per-datum `[start, end]` along the discrete axis; makes that axis continuous (see Plot/discreteSpan.ts). */
   _discreteExtent?: (d: DataPoint) => [number, number];
@@ -490,18 +470,11 @@ export interface VizInstance {
   _subtitleClass?: TextBox;
   _messageClass?: Message;
   _tooltipClass?: Tooltip;
-  _legendSort?: (a: DataPoint, b: DataPoint) => number;
-  _legendPosition?: (config: VizInstance) => string | false;
-  _legend?: ((config: VizInstance, data: DataPoint[]) => boolean) | boolean;
   _legendDepth?: number;
   /** The color category each legend entry stands for, when the legend is labelled by color rather than groupBy. */
   _legendCategories?: WeakMap<DataPoint, string>;
   _colorScalePosition?: (config: VizInstance) => string | false;
   _colorScale?: false | string | ((d: DataPoint, i: number) => string);
-  _title?: ((data: DataPoint[]) => string | false) | string | false;
-  _subtitle?: ((data: DataPoint[]) => string | false) | string | false;
-  _attribution?: string | false;
-  _attributionStyle?: Record<string, unknown>;
   _timeline?: boolean;
   _total?: boolean | ((d: DataPoint[], i: number) => number);
 
