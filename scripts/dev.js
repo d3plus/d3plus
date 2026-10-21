@@ -1,5 +1,6 @@
 import fs from "node:fs";
-import {join} from "node:path";
+import {join, relative} from "node:path";
+import {fileURLToPath} from "node:url";
 import {spawn} from "node:child_process";
 import http from "node:http";
 import chokidar from "chokidar";
@@ -8,6 +9,7 @@ import rollup from "./utils/rollup.js";
 import Logger from "./utils/log.js";
 const log = Logger("development environment");
 const port = Number(process.env.DEV_PORT) || 4000;
+const packagesDir = fileURLToPath(new URL("../packages", import.meta.url));
 
 process.on("SIGINT", () => {
   process.stdout.write("\x1B[?25h"); // restore cursor visibility
@@ -67,7 +69,7 @@ const liveReloadSnippet = `
 </script>`;
 
 chokidar
-  .watch(join(process.env.INIT_CWD, "packages"), {
+  .watch(packagesDir, {
     ignored: (path, stats) =>
       path.includes("node_modules") ||
       (stats?.isFile() &&
@@ -78,7 +80,7 @@ chokidar
     if (event === "change") {
       const folder = path.match(/packages\/([a-z]+)\//)[1];
       if (folder !== name) {
-        const filename = path.split("d3plus/packages/")[1];
+        const filename = relative(packagesDir, path);
         log.update(`change detected in ${filename}`);
 
         const prev = activeBuilds.get(folder);

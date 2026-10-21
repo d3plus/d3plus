@@ -63,12 +63,16 @@ function augmentWindow(window: any): void {
 
 /**
     Creates a fresh jsdom window. Imported dynamically so `jsdom` is only
-    required when a caller doesn't bring their own `window`.
+    required when a caller doesn't bring their own `window`; `load` is
+    overridable so tests can simulate a missing install.
 */
-async function createJsdomWindow(html: string): Promise<any> {
+export async function createJsdomWindow(
+  html: string,
+  load: () => Promise<any> = () => import("jsdom"),
+): Promise<any> {
   let JSDOM: any;
   try {
-    ({JSDOM} = await import("jsdom"));
+    ({JSDOM} = await load());
   } catch {
     throw new Error(
       "@d3plus/ssr: no `window` was provided and the optional peer dependency " +

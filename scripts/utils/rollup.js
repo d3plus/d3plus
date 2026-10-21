@@ -12,6 +12,25 @@ const {description, homepage, license, name, version} = JSON.parse(
 );
 const fileName = name.slice(1).replace("/", "-");
 
+// The browser globals that the standalone (non-full) bundle reads its
+// dependencies from: d3's own bundle exposes every d3-* module as `d3`.
+const globals = {
+  "@chenglou/pretext": "pretext",
+  "@floating-ui/dom": "FloatingUIDOM",
+  "file-saver": "saveAs",
+  "html-to-image": "htmlToImage",
+  hyphenated: "hyphenated",
+  "open-color/open-color.js": "openColor",
+  textures: "textures",
+  "topojson-client": "topojson",
+};
+
+const browserGlobal = id => {
+  if (id.startsWith("d3-")) return "d3";
+  if (id.startsWith("@d3plus/")) return "d3plus";
+  return globals[id];
+};
+
 export default async function (opts = {}) {
   const env = opts.env || "production";
   const log = opts.log;
@@ -36,7 +55,7 @@ export default async function (opts = {}) {
 
   const plugins = [
     tsExtensions,
-    replace({"process.env.NODE_ENV": JSON.stringify(env)}),
+    replace({"process.env.NODE_ENV": JSON.stringify(env), preventAssignment: true}),
     swc(),
   ];
 
@@ -53,7 +72,11 @@ export default async function (opts = {}) {
   const input = {
     input: entry,
     plugins,
-    onwarn: () => {},
+    // The standalone bundle leaves every package import to the page.
+    external: opts.deps ? undefined : id => !id.startsWith(".") && !path.isAbsolute(id),
+    onwarn(warning, warn) {
+      if (warning.code !== "CIRCULAR_DEPENDENCY") warn(warning);
+    },
   };
 
   const folder = `${env === "development" ? "dev/" : ""}umd/`;
@@ -70,6 +93,7 @@ export default async function (opts = {}) {
     extend: true,
     file: filePath,
     format: "umd",
+    globals: browserGlobal,
     name: "d3plus",
     sourcemap: true,
     sourcemapFile: filePath,
@@ -80,7 +104,7 @@ export default async function (opts = {}) {
       Custom event handler for rollup watch bundle.
       @private
   */
-  function onwarn(e) {
+  function onWatchEvent(e) {
     switch (e.code) {
       case "BUNDLE_START":
         log.update(`bundling ${output.file}`);
@@ -89,8 +113,6 @@ export default async function (opts = {}) {
         log.done(`bundled ${output.file} in ${e.duration}ms`);
         if (opts.onBuild) opts.onBuild();
         if (opts.watch) log.timer("watching for changes...");
-        return undefined;
-      case "CIRCULAR_DEPENDENCY":
         return undefined;
       case "ERROR":
       case "FATAL":
@@ -106,6 +128,6 @@ export default async function (opts = {}) {
   log.timer(`bundling ${output.file}`);
   fs.mkdirSync(folder, {recursive: true});
   if (opts.watch)
-    return watch(Object.assign(input, {output: [output]})).on("event", onwarn);
+    return watch(Object.assign(input, {output: [output]})).on("event", onWatchEvent);
   else return rollup(input).then(bundle => bundle.write(output));
 }
