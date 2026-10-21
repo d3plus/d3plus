@@ -28,7 +28,8 @@ interface ConfigObject extends D3plusConfig {
   [key: string]: unknown;
 }
 
-export interface VizContext {
+/** The `this` a d3plus class binds when calling `configPrep`. */
+export interface ConfigPrepHost {
   schema: {
     shapeConfig: ConfigObject;
     duration?: number;
@@ -45,7 +46,7 @@ export interface VizContext {
     @param nest An optional nested key to bubble up to the parent config level.
 */
 export default function configPrep(
-  this: VizContext,
+  this: ConfigPrepHost,
   config: ConfigObject = this.schema.shapeConfig,
   type: string = "shape",
   nest: string | false = false,

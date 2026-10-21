@@ -90,8 +90,8 @@ Two kinds of def:
 
 Chart "chrome" (legend, color scale, timeline, title/subtitle/total, back
 button, attribution, zoom controls) are **`FeatureModule`s**
-(`charts/features/`), shared by every chart. `vizDrawPure`
-(`charts/pipeline/vizDrawPure.ts`) lays out the margin-claiming ones (title,
+(`charts/features/`), shared by every chart. `vizDraw`
+(`charts/pipeline/vizDraw.ts`) lays out the margin-claiming ones (title,
 subtitle, total, timeline, legend, colorScale) in order, and `runVizPipeline`
 runs the post-draw overlays (zoom, minimap, top-left controls, attribution,
 table view); `runLayout` runs each feature's `layout()`, which claims margin
@@ -114,15 +114,18 @@ def needs nothing to support it.
 The draw flow exists as free functions so it can run without the class
 lifecycle:
 
-- `vizPreDraw` / `vizPreDrawPure` — data prep (draw depth, filtered/legend data,
-  threshold).
-- `vizDraw` / `vizDrawPure` — feature layout + margin/panel assembly.
+- `vizPreDraw` — data prep (draw depth, id/label closures, filtered/legend
+  data, threshold); the filter + rollup steps live in `preDrawData.ts`, which
+  small multiples reuse per panel.
+- `vizDraw` — feature layout + margin/panel assembly; returns the margin it
+  claimed and the panels.
 - `runVizPipeline(viz)` — the full orchestrator (`_preDraw → _draw → features →
   paint`).
 - `resolveSpec(viz)` — frozen config/context snapshot (the config↔context
   boundary).
 
-These operate on returned values rather than mutating `this` at the outer layer.
+These write their results onto the viz they are given, so subclass overrides
+reach them through `super._preDraw()` / `super._draw()`.
 
 ### Rendering backends (`@d3plus/render`)
 

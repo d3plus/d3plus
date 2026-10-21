@@ -1,28 +1,135 @@
-
 /**
-    `vizPreDraw(viz)` — the imperative shim wrapping `vizPreDrawPure`.
+    `vizPreDraw(viz)` — the shared data prep every draw runs first. It writes
+    onto the viz:
+      1. `_drawDepth` and the `_id` / `_ids` / `_drawLabel` closures;
+      2. `_filteredData` (time filter, `filter`, rollup, hide/solo, then the
+         chart's `_thresholdFunction`) and `_legendData`;
+      3. the hover/duration override past `dataCutoff`;
+    and mounts the no-data message when nothing is left to draw.
 
-    The pure function (`vizPreDrawPure(viz, prevCtx) → Partial<VizContext>`)
-    computes the data-prep results without mutating viz. This shim:
-      1. calls the pure function;
-      2. writes the returned ctx fields back to viz (so subclass methods
-         that read `this._drawDepth` / `this._filteredData` see them);
-      3. invokes `viz._thresholdFunction(filteredData, tree)` — this is
-         an instance method that needs `this`-bound state populated by
-         step 2;
-      4. recomputes hover-cutoff overrides + no-data flag against the
-         threshold-applied data (via `vizPostThresholdCtx`);
-      5. applies the deferred DOM side effects (no-data message mount,
-         opacity fade).
-
-    `Viz._preDraw()` calls this shim so subclass overrides + the existing
-    test surface remain unchanged. Direct consumers of the architectural
-    seam should use `vizPreDrawPure` (exported from the package index).
+    `Viz._preDraw()` calls it, so subclass overrides run it through
+    `super._preDraw()`.
 */
 
-import {vizPostThresholdCtx, vizPreDrawPure} from "./vizPreDrawPure.js";
+import {group, min} from "d3-array";
+
+import type {DataPoint} from "@d3plus/data";
+import {formatAbbreviate} from "@d3plus/format";
+
+import {computeFilteredData, computeTimeFilter} from "./preDrawData.js";
+import type {VizPreDrawResult} from "./preDrawData.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
+
+function listify(n: DataPoint[keyof DataPoint][]): string {
+  return n.reduce<string>(
+    (str: string, item: DataPoint[keyof DataPoint], i: number) => {
+      if (!i) str += item;
+      else if (i === n.length - 1 && i === 1) str += ` and ${item}`;
+      else if (i === n.length - 1) str += `, and ${item}`;
+      else str += `, ${item}`;
+      return str;
+    },
+    "",
+  );
+}
+
+function accessorFetch(
+  acc: (d: DataPoint, i: number) => DataPoint[keyof DataPoint],
+  d: DataPoint,
+  i: number,
+): DataPoint[keyof DataPoint] {
+  while (d.__d3plus__ && d.data) {
+    d = d.data as DataPoint;
+    i = d.i as number;
+  }
+  return acc(d, i);
+}
+
+/** The id / ids / drawLabel closures produced for a given preDraw. */
+interface LabelClosures {
+  id: (d: DataPoint, i: number) => string | number;
+  ids: (d: DataPoint, i: number) => string[];
+  drawLabel: (d: DataPoint, i: number, depth?: number) => string;
+}
+
+/**
+    Builds the id / ids / drawLabel snapshot closures from the viz instance.
+*/
+function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
+  // SNAPSHOT CLOSURES (v4 hardening): each closure captures `groupBy`,
+  // `label`, `thresholdName`, and `locale` AT CONSTRUCTION instead of
+  // reading viz.* at invocation. This makes `ctx.id(d, i)` referentially
+  // transparent for those fields — a caller holding the closure across
+  // renders gets the input's id-as-of-this-preDraw, not whatever the
+  // viz has been mutated to since.
+  //
+  // EXCEPTION — `_drawDepth`: `drawLabel`'s effective depth is read LIVE
+  // from `viz._drawDepth` at call time, falling back to the snapshotted
+  // `drawDepth`. So features / stages / subclass overrides that mutate
+  // `viz._drawDepth` after preDraw are reflected in label/aria output.
+  // Treemap's normal `.depth(n).render()` flow still works (render reruns
+  // preDraw); the live read covers the intra-render mutation path.
+  const snapGroupBy = viz.schema.groupBy as ((
+    d: DataPoint,
+    i: number,
+  ) => DataPoint[keyof DataPoint])[];
+  const snapLabel = viz.schema.label;
+  const snapThresholdName = viz.schema.thresholdName;
+  const snapLocale = viz.schema.locale;
+
+  // groupBy values are string|number for id/keying purposes (numbers are
+  // stringified so numeric and string ids never collide), including each id
+  // in a merged datum's array.
+  const keyId = (v: unknown): unknown => (typeof v === "number" ? `${v}` : v);
+  const id = (d: DataPoint, i: number): string | number => {
+    const groupByDrawDepth = accessorFetch(snapGroupBy[drawDepth], d, i);
+    return (
+      Array.isArray(groupByDrawDepth)
+        ? groupByDrawDepth.map(keyId)
+        : keyId(groupByDrawDepth)
+    ) as string | number;
+  };
+
+  const ids = (d: DataPoint, i: number) =>
+    snapGroupBy
+      .map(g => `${accessorFetch(g, d, i)}`)
+      .filter(Boolean);
+
+  const drawLabel = (d: DataPoint, i: number, depth?: number) => {
+    // Resolve the effective depth at call time. Prefer the live
+    // `viz._drawDepth` over the snapshot so intra-render mutations
+    // (e.g. a feature/stage that adjusts depth post-preDraw, or a
+    // subclass override) are reflected in label/aria output.
+    // `viz._drawDepth ?? drawDepth` mirrors the pre-snapshot behavior.
+    const liveLeaf = (viz._drawDepth as number | undefined) ?? drawDepth;
+    const effDepth = depth ?? liveLeaf;
+    if (!d) return "";
+    while (d.__d3plus__ && d.data) {
+      d = d.data as DataPoint;
+      i = d.i as number;
+    }
+    // ColorScale range buckets carry their label in `id` and have no groupBy
+    // fields, so the groupBy resolution below would yield "undefined".
+    if (d._isColorScaleBucket) return `${d.id}`;
+    if (d._isAggregation) {
+      return `${snapThresholdName(d, i)} < ${formatAbbreviate(
+        (d._threshold as number) * 100,
+        snapLocale,
+      )}%`;
+    }
+    if (snapLabel && effDepth === liveLeaf) return `${snapLabel(d, i)}`;
+    const l = ids(d, i).slice(0, effDepth + 1);
+    const n =
+      l.reverse().find((ll: string) => !((ll as unknown) instanceof Array)) ||
+      l[l.length - 1];
+    return (n as unknown) instanceof Array
+      ? listify(n as unknown as DataPoint[keyof DataPoint][])
+      : `${n}`;
+  };
+
+  return {id, ids, drawLabel};
+}
 
 /** Whether the shapeConfig enables a persistent trail (a positive count or `true`). */
 function hasPersistentTrail(sc: Record<string, unknown> | undefined): boolean {
@@ -31,17 +138,67 @@ function hasPersistentTrail(sc: Record<string, unknown> | undefined): boolean {
   return !!sc && (on(sc.trailPersist) || on(shape("Circle")) || on(shape("Rect")));
 }
 
+/**
+    The hover/duration override past `dataCutoff` and the no-data flag, from
+    a draw's final (post-threshold) `filteredData`.
+*/
+export function vizPostThresholdCtx(
+  viz: Viz,
+  filteredData: DataPoint[],
+  id: (d: DataPoint, i: number) => string | number,
+): {
+  hoverOverride?: {
+    hoverOpacity: number;
+    duration: number;
+    stashOriginals?: boolean;
+    restoreOriginals?: boolean;
+  };
+  noDataMessage: boolean;
+} {
+  const result: ReturnType<typeof vizPostThresholdCtx> = {noDataMessage: false};
+  const uniqueIds = group(filteredData, id).size;
+  if (uniqueIds > viz.schema.dataCutoff) {
+    result.hoverOverride = {
+      hoverOpacity: 1,
+      duration: 0,
+      stashOriginals: true,
+    };
+  } else if (viz._userHover !== undefined) {
+    result.hoverOverride = {
+      hoverOpacity: viz._userHover,
+      duration: viz._userDuration!,
+      restoreOriginals: true,
+    };
+  }
+  result.noDataMessage = !!(viz.schema.noDataMessage && !filteredData.length);
+  return result;
+}
+
 export function vizPreDraw(viz: Viz): void {
-  const ctx = vizPreDrawPure(viz);
+  // Reads the live viz rather than a `resolveSpec(viz)` snapshot:
+  // `BaseClass.config()` reflects over every accessor and memoizes the
+  // defaults on first call, which would freeze them to whatever
+  // partially-configured state the chart is in at its first draw.
+  const drawDepth =
+    viz.schema.depth !== void 0
+      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1]) as number)
+      : viz.schema.groupBy.length - 1;
+  const {id, ids, drawLabel} = buildLabelClosures(viz, drawDepth);
 
-  // 1. Write computed ctx back to viz.
-  if (ctx.drawDepth !== undefined) viz._drawDepth = ctx.drawDepth;
-  if (ctx.id) viz._id = ctx.id;
-  if (ctx.ids) viz._ids = ctx.ids;
-  if (ctx.drawLabel) viz._drawLabel = ctx.drawLabel;
-  if (ctx.legendData !== undefined) viz._legendData = ctx.legendData;
+  // The synthesized time filter feeds this draw's rows but is never written
+  // onto `viz.schema.timeFilter`: it captures the latest time at synthesis,
+  // so pinning it would make a later render with newer data skip
+  // re-synthesis and filter the newer rows out.
+  const out: VizPreDrawResult = {};
+  computeFilteredData(viz, out, drawDepth, id, computeTimeFilter(viz));
 
-  // 1b. A persistent trail only stays coherent with fixed axes (so committed
+  viz._drawDepth = drawDepth;
+  viz._id = id;
+  viz._ids = ids;
+  viz._drawLabel = drawLabel;
+  if (out.legendData !== undefined) viz._legendData = out.legendData;
+
+  // A persistent trail only stays coherent with fixed axes (so committed
   // segments don't drift as the domain shifts) and a single-period timeline (so
   // the forward/backward step logic has one current time). Turn both on
   // automatically when `trailPersist` is set, so callers don't have to know.
@@ -50,28 +207,19 @@ export function vizPreDraw(viz: Viz): void {
     viz.schema.timelineConfig = {...(viz.schema.timelineConfig || {}), brushing: false};
   }
 
-  // 2. computedTimeFilter — surfaced on the ctx for downstream consumers
-  // (rollupAndFilter etc.) but NOT back-assigned to `viz.schema.timeFilter`.
-  // Back-assigning would pin the synthesized filter (which captures
-  // `latestTime` at synthesis time) to the viz, so a subsequent render
-  // with newer data would skip re-synthesis and silently filter
-  // post-latestTime rows out. The pure function consumes its own
-  // computedTimeFilter for filteredData; `viz.schema.timeFilter`
-  // reflects the user's value (truthy) or undefined.
-
-  // 3. filteredData — pre-threshold from pure, then run threshold (which
-  // reads this.schema.aggs/_drawDepth/_groupBy via the instance method).
-  let filteredData = ctx.filteredData || [];
-  if (viz._data.length && ctx._thresholdTree) {
-    filteredData = viz._thresholdFunction!(filteredData, ctx._thresholdTree);
+  // The threshold reads `this.schema.aggs`/`_drawDepth`/`_groupBy` through
+  // the chart's instance method, so it runs after the writes above.
+  let filteredData = out.filteredData || [];
+  if (viz._data.length && out._thresholdTree) {
+    filteredData = viz._thresholdFunction!(filteredData, out._thresholdTree);
   }
   viz._filteredData = filteredData;
 
-  // 3b. Ordinal color mode: build the single-hue ramp scale from the distinct
+  // Ordinal color mode: build the single-hue ramp scale from the distinct
   // values of the drawn data (a no-op when colorOrdinal is off).
   configureOrdinalColor(viz);
 
-  // 4. hover/duration override + noDataMessage flag — computed against
+  // hover/duration override + noDataMessage flag — computed against
   // the post-threshold filteredData.
   const post = vizPostThresholdCtx(viz, filteredData, viz._id);
   if (post.hoverOverride?.stashOriginals) {
@@ -86,7 +234,7 @@ export function vizPreDraw(viz: Viz): void {
     viz.schema.shapeConfig.duration = post.hoverOverride.duration;
   }
 
-  // 5. No-data-message DOM mount + opacity fade.
+  // No-data-message DOM mount + opacity fade.
   if (post.noDataMessage) {
     viz._messageClass!.render({
       container: viz._select!.node().parentNode,

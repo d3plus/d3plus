@@ -279,9 +279,7 @@ export {runStages} from "./src/charts/pipeline/stages.js";
 export {runPostDrawFeatures, runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
 export {resolveSpec} from "./src/charts/pipeline/resolveSpec.js";
 export {vizDraw} from "./src/charts/pipeline/vizDraw.js";
-export {vizDrawPure} from "./src/charts/pipeline/vizDrawPure.js";
-export {vizPreDraw} from "./src/charts/pipeline/vizPreDraw.js";
-export {vizPreDrawPure, vizPostThresholdCtx} from "./src/charts/pipeline/vizPreDrawPure.js";
+export {vizPostThresholdCtx, vizPreDraw} from "./src/charts/pipeline/vizPreDraw.js";
 
 // ── Plot paint phase + axis rendering ────────────────────────────────────────
 export {plotEmit, plotPaint} from "./src/charts/features/plotPaint.js";
@@ -518,12 +516,13 @@ export {
 } from "./src/charts/Plot/plotFacet.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
-export {computeFilteredData, computeTimeFilter} from "./src/charts/pipeline/vizPreDrawPure.js";
+export {computeFilteredData, computeTimeFilter} from "./src/charts/pipeline/preDrawData.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
-export type {VizContext} from "./src/charts/pipeline/vizContext.js";
-export type {VizPreDrawResult} from "./src/charts/pipeline/vizPreDrawPure.js";
+export type {VizContext} from "./src/charts/pipeline/stages.js";
+export type {VizDrawResult} from "./src/charts/pipeline/vizDraw.js";
+export type {VizPreDrawResult} from "./src/charts/pipeline/preDrawData.js";
 export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
 export type {EndLabel, EndLabelBox, EndLabelMeasure, XLabelMode} from "./src/charts/features/axisEndLabels.js";
 export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";

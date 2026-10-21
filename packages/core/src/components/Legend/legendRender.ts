@@ -7,7 +7,7 @@ import {textWrap} from "@d3plus/text";
 import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import {configPrep} from "../../utils/index.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Legend from "./Legend.js";
 
@@ -349,7 +349,7 @@ function lineSwatchConfig(legend: Legend, shapeName: string): Record<string, unk
 /** Builds the per-shape data and renders the Circle/Rect swatch groups (Line entries draw in both). */
 export function renderLegendShapes(legend: Legend): void {
   legend._shapes = [];
-  const baseConfig = configPrep.bind(legend as unknown as VizContext)(legend.schema.shapeConfig, "legend"),
+  const baseConfig = configPrep.bind(legend as unknown as ConfigPrepHost)(legend.schema.shapeConfig, "legend"),
     config = {
       id: (d: Record<string, unknown>) => d.id,
       label: (d: Record<string, unknown>) => d.label,

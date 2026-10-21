@@ -6,7 +6,7 @@
     its own to `BOTTOM_RIGHT_CONTRIBUTORS`.
 
     Two steps, split around the chart's layout:
-      1. `reserveBottomRight` (called from `vizDrawPure`, before the legend
+      1. `reserveBottomRight` (called from `vizDraw`, before the legend
          and colorScale lay out) measures every contribution from a
          pre-layout estimate and stores the box on `viz._bottomRightBox`, so
          bottom-band content insets around it and the chart body stays

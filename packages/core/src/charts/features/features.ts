@@ -7,7 +7,7 @@
     writes, and the engine accumulates margins across features in order.
 
     Every Plot-family + chart-shell feature here is wired into
-    `vizDrawPure` via `runLayout(ctx, [...features])`.
+    `vizDraw` via `runLayout(ctx, [...features])`.
 */
 import {extent, sum} from "d3-array";
 
@@ -137,7 +137,7 @@ export function autoPosition(viz: VizInstance): "right" | "bottom" {
     resolves `"auto"` to a side for `viz` (see `autoPosition`), and falls
     back to `"bottom"` when the user-supplied accessor returns
     something outside the allowed set. Single source of truth — used by
-    `vizDrawPure` (for sanitized ctx publication) and by `legendFeature`
+    `vizDraw` (for sanitized ctx publication) and by `legendFeature`
     + `colorScaleFeature` (for their internal positioning math).
 */
 export function sanitizePosition(raw: unknown, viz: VizInstance): PanelPosition {

@@ -1,6 +1,6 @@
 /**
     `Viz` — the typed contract for the runtime Viz surface that v4's free
-    functions (plotPaint, vizPreDrawPure, vizDrawPure, runVizPipeline,
+    functions (plotPaint, vizPreDraw, vizDraw, runVizPipeline,
     apply*Layout stages, FeatureModules) read and write.
 
     This replaces `viz: any` across the free-function surface. The
@@ -396,7 +396,7 @@ export interface VizInstance {
   _sizeLegendFinal?: SizeLegendScale | null;
   /** Size-legend component, rendered in the bottom-right corner panel. */
   _sizeLegendClass?: SizeLegend;
-  /** The bottom-right corner panel reserved in `vizDrawPure` for this draw (see `bottomRightControlsMarkup.ts`). */
+  /** The bottom-right corner panel reserved in `vizDraw` for this draw (see `bottomRightControlsMarkup.ts`). */
   _bottomRightBox?: BottomRightBox | null;
   /** Chrome being laid out for the chart's interior this pass, which claims no margin (see `pipeline/insetPlacement.ts`). */
   _insetPending?: Set<InsetKey> | null;

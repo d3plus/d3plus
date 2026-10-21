@@ -4,7 +4,7 @@
     are scene nodes rather than HTML, so the panel exports with the chart.
 
     The panel is measured before the chart lays out (`reserveBottomRight`,
-    called from `vizDrawPure`), and the result is stored on
+    called from `vizDraw`), and the result is stored on
     `viz._bottomRightBox` so content sharing the bottom band (a bottom
     legend or colorScale) can inset around it via `bottomRightControlsInset`,
     and content in the right column can stop short of it via

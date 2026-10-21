@@ -27,7 +27,5 @@
       "Delta",
       "Epsilon"
     ]
-  },
-  "hasThresholdTree": true,
-  "computedTimeFilter": "undefined"
+  }
 }

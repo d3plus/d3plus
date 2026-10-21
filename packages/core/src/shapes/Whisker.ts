@@ -8,7 +8,7 @@ import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep} from "../utils/index.js";
 import type {D3plusConfig} from "../utils/index.js";
-import type {VizContext} from "../utils/configPrep.js";
+import type {ConfigPrepHost} from "../utils/configPrep.js";
 import {markSharedConfig} from "../utils/configWarnings.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
@@ -127,7 +127,7 @@ export default class Whisker extends BaseClass {
       .data(lineData)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Whisker") as never)
-      .config(configPrep.bind(this as unknown as VizContext)(this.schema.lineConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.lineConfig, "shape")!)
       .render();
 
     const whiskerData = this._data.map((d: DataPoint, i: number) => {
@@ -171,7 +171,7 @@ export default class Whisker extends BaseClass {
               width: (d: DataPoint) =>
                 d.orient === "top" || d.orient === "bottom" ? 20 : 5,
             }))
-            .config(configPrep.bind(this as unknown as VizContext)(this.schema.endpointConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.endpointConfig, "shape", shapeName as string)!)
             .render(),
         );
       },

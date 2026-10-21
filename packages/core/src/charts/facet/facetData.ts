@@ -8,8 +8,8 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatDate} from "@d3plus/format";
 
-import {computeFilteredData, computeTimeFilter, dataFilter} from "../pipeline/vizPreDrawPure.js";
-import type {VizPreDrawResult} from "../pipeline/vizPreDrawPure.js";
+import {computeFilteredData, computeTimeFilter, dataFilter} from "../pipeline/preDrawData.js";
+import type {VizPreDrawResult} from "../pipeline/preDrawData.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FacetAccessor, FacetSort, FacetValue} from "./facetConfig.js";
 

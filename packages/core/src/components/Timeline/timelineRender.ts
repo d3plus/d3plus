@@ -12,7 +12,7 @@ import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
 import {parseTimeValues} from "../Axis/timeValues.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
 
@@ -294,7 +294,7 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     .renderMode("compute")
     .data(playData)
     .select(playButtonGroup.node())
-    .config(configPrep.bind(tl as unknown as VizContext)(tl.schema.playButtonConfig));
+    .config(configPrep.bind(tl as unknown as ConfigPrepHost)(tl.schema.playButtonConfig));
   if (disabled) tl._playButtonClass.config({fontColor: tl.schema.colorDefaults.missing});
   tl._playButtonClass.render();
 

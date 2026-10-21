@@ -31,7 +31,7 @@ interface ChartDefinitionBase {
   fields?: import("../../fluent.js").ConfigField[];
   /**
       Chart-specific layout stage run in `_draw` after the shared chart-shell
-      prep (`vizPreDrawPure`). If absent, `makeChart` doesn't invoke
+      prep (`vizPreDraw`). If absent, `makeChart` doesn't invoke
       `runChartDraw` — the chart relies on its parent's `_draw` only.
   */
   layoutStage?: TransformStage;

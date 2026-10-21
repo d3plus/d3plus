@@ -13,7 +13,7 @@ import type {FacetAccessor, FacetConfig} from "../facet/facetConfig.js";
 import {facetKey, toFacetValue} from "../facet/facetData.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {computeTimeFilter} from "../pipeline/vizPreDrawPure.js";
+import {computeTimeFilter} from "../pipeline/preDrawData.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import binData, {type BinNormalize, type BinRow} from "./binData.js";

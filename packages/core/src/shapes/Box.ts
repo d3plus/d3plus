@@ -9,7 +9,7 @@ import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, configPrep, constant} from "../utils/index.js";
 import type {D3plusConfig} from "../utils/index.js";
-import type {VizContext} from "../utils/configPrep.js";
+import type {ConfigPrepHost} from "../utils/configPrep.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
@@ -392,7 +392,7 @@ export default class Box extends BaseClass {
       .config(
         boxRectConfig(
           this.schema,
-          configPrep.bind(this as unknown as VizContext)(this.schema.rectConfig, "shape")!,
+          configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.rectConfig, "shape")!,
         ),
       )
       .render();
@@ -407,7 +407,7 @@ export default class Box extends BaseClass {
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
-      .config(configPrep.bind(this as unknown as VizContext)(this.schema.medianConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.medianConfig, "shape")!)
       .render();
 
     // Draw 2 lines using Whisker class.
@@ -419,7 +419,7 @@ export default class Box extends BaseClass {
       .data(whiskerData)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
-      .config(configPrep.bind(this as unknown as VizContext)(this.schema.whiskerConfig, "shape")!)
+      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.whiskerConfig, "shape")!)
       .render();
 
     // Draw outliers.
@@ -431,7 +431,7 @@ export default class Box extends BaseClass {
             .data(values)
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
-            .config(configPrep.bind(this as unknown as VizContext)(this.schema.outlierConfig, "shape", shapeName as string)!)
+            .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.outlierConfig, "shape", shapeName as string)!)
             .render(),
         );
       },

@@ -21,7 +21,7 @@
 */
 
 import configPrep from "../../utils/configPrep.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {isDefault} from "../../utils/configDefault.js";
 
 import type {DataPoint} from "@d3plus/data";
@@ -167,9 +167,9 @@ export function shapeConfigFor(
   config?: Record<string, unknown>,
   kind: string = "shape",
 ): Record<string, unknown> {
-  // configPrep binds its `this` to a VizContext-shaped object; VizLike
+  // configPrep binds its `this` to a ConfigPrepHost-shaped object; VizLike
   // satisfies that contract at runtime.
-  return configPrep.bind(viz as unknown as VizContext)(
+  return configPrep.bind(viz as unknown as ConfigPrepHost)(
     (config ?? viz.schema.shapeConfig) as Parameters<typeof configPrep>[0],
     kind,
     shapeKey,

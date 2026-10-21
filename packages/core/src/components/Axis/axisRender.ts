@@ -13,7 +13,7 @@ import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {addDomainEnds, crowdsEndLabel, isNegative} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes, brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
@@ -335,7 +335,7 @@ export function configureTickShape(axis: Axis, tickData: Record<string, unknown>
   // No `g.ticks` DOM wrapper needed in the detached compute.
   axis._tickShape!
     .config(
-      configPrep.bind(axis as unknown as VizContext)(
+      configPrep.bind(axis as unknown as ConfigPrepHost)(
         axis.schema.shapeConfig,
       ) as Partial<BaseShapeConfig>,
     )
@@ -396,7 +396,7 @@ export function renderAxisTitle(
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
     )
-    .config(configPrep.bind(axis as unknown as VizContext)(axis.schema.titleConfig))
+    .config(configPrep.bind(axis as unknown as ConfigPrepHost)(axis.schema.titleConfig))
     .render();
 }
 

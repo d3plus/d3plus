@@ -19,7 +19,7 @@ import type {SceneNode} from "@d3plus/render";
 
 import {AxisLeft} from "../../components/index.js";
 import configPrep from "../../utils/configPrep.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
 import type {PlotDatum} from "../features/plotPaint.js";
 import {withAxisInk} from "../Plot/axisInk.js";
@@ -263,7 +263,7 @@ export function emitVolume(
     .renderMode("compute")
     .config(shapeConfigFor(viz, shapeKey))
     .config(style)
-    .config(configPrep.bind(viz as unknown as VizContext)(config.shapeConfig as Parameters<typeof configPrep>[0]))
+    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(config.shapeConfig as Parameters<typeof configPrep>[0]))
     .config({
       d: (d: PlotDatum) => {
         const {cx, width, top} = bars.get(d)!;

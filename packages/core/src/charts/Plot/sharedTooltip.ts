@@ -9,7 +9,7 @@ import type {SceneEvent} from "@d3plus/render";
 import {axisDateLabel, isValidDate, parseTime} from "../../components/Axis/timeValues.js";
 import {axisIsYearLike, formatYear} from "../../components/Axis/yearValues.js";
 import {configPrep} from "../../utils/index.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {confidenceRows, confidenceSuffix, rangeSuffix} from "./confidenceTooltip.js";
@@ -160,7 +160,7 @@ export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event:
   const {header, names} = markProjected(viz, hover);
   prepareTooltip(viz)
     .data([hover.rows[0].datum])
-    .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig))
+    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig))
     .title(() => axisName(viz, cont))
     .thead(header)
     .tbody(hover.rows.map((r, i) => [
@@ -186,7 +186,7 @@ export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event:
     .data([row.datum])
     .title(() => viz._drawLabel(row.datum, row.index))
     .footer(deeper && viz.schema.on["click.shape"] ? viz.schema.translate("Click to Expand") : false)
-    .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig));
+    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig));
   // A `tbody` accessor resolves against the hovered datum, like any other cell.
   const tbody = tip.tbody();
   const extra = typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
