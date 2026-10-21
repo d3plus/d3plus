@@ -11,13 +11,14 @@
       "default": "./es/index.js"
     }
   },
-  "browser": "./umd/d3plus-export.full.js",
+  "jsdelivr": "./umd/d3plus-export.full.min.js",
+  "unpkg": "./umd/d3plus-export.full.min.js",
   "engines": {
     "node": ">=22"
   },
   "sideEffects": false,
   "files": [
-    "umd",
+    "umd/*.js",
     "es",
     "types"
   ],
@@ -44,7 +45,6 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "file-saver": "1.3.3",
     "html-to-image": "^1.11.11"
   }
 }

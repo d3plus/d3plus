@@ -14,7 +14,7 @@ import Logger from "../utils/log.js";
 const log = Logger("documentation");
 const prune = process.argv.includes("--prune");
 
-import readmeHeader from "./stubs/README.js";
+import readmeHeader, {apiHeader} from "./stubs/README.js";
 import argsStub from "./stubs/args.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
 import {chartDefMap, injectChartConfig, publicChartDefs} from "./stubs/chartDefs.js";
@@ -420,8 +420,8 @@ async function generateMarkdown() {
     // Build a table of contents from the project's exports
     const toc = buildTableOfContents(project);
 
-    // Inject the package header and TOC before the API reference
-    const header = readmeHeader(packageJSON);
+    // Inject the heading and TOC before the API reference
+    const header = apiHeader(packageJSON);
     app.renderer.markdownHooks.on("index.page.begin", () => header + toc);
 
     await app.generateOutputs(project);
@@ -444,8 +444,10 @@ async function generateMarkdown() {
     );
     readme = injectChartConfig(readme, chartDefs);
 
-    // Copy the generated README back to the package folder
-    fs.writeFileSync(`${folder}/README.md`, readme);
+    // The reference goes to API.md, which stays out of the published files;
+    // the README (always published to npm) only links to it.
+    fs.writeFileSync(`${folder}/API.md`, readme);
+    fs.writeFileSync(`${folder}/README.md`, readmeHeader(packageJSON));
     fs.rmSync(tempDir, {recursive: true, force: true});
 
     // Generate Storybook args and stories from the same TypeDoc project
