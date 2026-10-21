@@ -1,6 +1,6 @@
 import assert from "assert";
 import {linePoints, parallelPath} from "../../es/src/charts/ParallelCoordinates/paths.js";
-import {applyLineStates, grayscale, INACTIVE_SHARE} from "../../es/src/charts/ParallelCoordinates/lineStates.js";
+import {applyLineStates, INACTIVE_SHARE} from "../../es/src/charts/ParallelCoordinates/lineStates.js";
 import {lineAriaLabel, resolveLineOpacity} from "../../es/src/charts/ParallelCoordinates/emit.js";
 import {dimensionTooltipRows, formatDimensionValue} from "../../es/src/charts/ParallelCoordinates/format.js";
 import {axisDomain, dimensionAxisConfig, dimensionTitleStyle} from "../../es/src/charts/ParallelCoordinates/axes.js";
@@ -46,12 +46,6 @@ it("ParallelCoordinates paths: parallelPath draws straight or bump segments and 
 });
 
 const line = (key, datum, extra = {}) => ({type: "path", key, d: "M0,0L1,1", datum, paint: {stroke: "#ff0000", strokeOpacity: 0.5}, ...extra});
-
-it("ParallelCoordinates lineStates: grayscale strips chroma but keeps lightness", () => {
-  assert.strictEqual(grayscale("#ff0000"), "rgb(128, 128, 128)");
-  assert.strictEqual(grayscale("none"), "none");
-  assert.strictEqual(grayscale(undefined), undefined);
-});
 
 it("ParallelCoordinates lineStates: applyLineStates fades and grays the lines outside the brushes", () => {
   const root = {type: "group", key: "root", children: [

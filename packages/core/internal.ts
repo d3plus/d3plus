@@ -360,7 +360,7 @@ export {clearStrip, stripLength, stripSelection, syncBrushDom} from "./src/chart
 export type {BrushTarget} from "./src/charts/ParallelCoordinates/brushDom.js";
 export {lineAriaLabel, parallelEmit, resolveLineOpacity} from "./src/charts/ParallelCoordinates/emit.js";
 export type {ParallelLine} from "./src/charts/ParallelCoordinates/emit.js";
-export {applyLineStates, grayscale} from "./src/charts/ParallelCoordinates/lineStates.js";
+export {applyLineStates} from "./src/charts/ParallelCoordinates/lineStates.js";
 export {dimensionTooltipRows, formatDimensionValue} from "./src/charts/ParallelCoordinates/format.js";
 export {titleHeight, titleNodes, titleWidths} from "./src/charts/ParallelCoordinates/titles.js";
 export {
