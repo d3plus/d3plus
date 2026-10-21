@@ -26120,7 +26120,7 @@ Extends [`BarChart`](#barchart) — accepts all of its configuration. Adds or ov
 | `groupPadding` | `1` |
 
 
-Defined in: [charts/Pyramid/index.ts:444](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pyramid/index.ts#L444)
+Defined in: [charts/Pyramid/index.ts:440](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pyramid/index.ts#L440)
 
 Creates a population pyramid: horizontal bars for two groups (the first
 `groupBy` level, e.g. Male / Female) extending in opposite directions

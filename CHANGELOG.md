@@ -2,6 +2,126 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.8.0
+
+4.8 is the biggest release of v4. It adds twenty chart types, bringing the total to 41, and small multiples: `facet` splits any chart into a grid of panels. Plot charts get axis breaks, error bars, forecast annotations, nested confidence bands, fills between series, and zoomable time axes. Axis labels rotate or thin evenly instead of disappearing, and date labels keep their year. Nested config objects now deep-merge, and charts read better on dark pages. Many of these change what existing charts look like; see the breaking changes.
+
+### Added
+
+- **Twenty new chart types**, each available in every framework wrapper:
+  - **Hierarchy and part-to-whole:** Sunburst (#904; closes #288), Icicle (#934), Waffle (#930), Funnel (#928), and Marimekko (#939; closes #437). [Sunburst ↗](https://d3plus.org/?path=/docs/core-charts-sunburst--d3plus) · [Icicle ↗](https://d3plus.org/?path=/docs/core-charts-icicle--d3plus) · [Waffle ↗](https://d3plus.org/?path=/docs/core-charts-waffle--d3plus) · [Funnel ↗](https://d3plus.org/?path=/docs/core-charts-funnel--d3plus) · [Marimekko ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus)
+  - **Distributions:** Beeswarm (#903; closes #787), Violin and Ridgeline (#936; closes #203). [Beeswarm ↗](https://d3plus.org/?path=/docs/core-charts-beeswarm--d3plus) · [Violin ↗](https://d3plus.org/?path=/docs/core-charts-violin--d3plus) · [Ridgeline ↗](https://d3plus.org/?path=/docs/core-charts-ridgeline--d3plus)
+  - **Comparison:** Lollipop and Dumbbell (#935), Waterfall (#929), Pyramid (#897, #927; closes #216), and ParallelCoordinates with axis brushing (#937). [Lollipop ↗](https://d3plus.org/?path=/docs/core-charts-lollipop--d3plus) · [Dumbbell ↗](https://d3plus.org/?path=/docs/core-charts-dumbbell--d3plus) · [Waterfall ↗](https://d3plus.org/?path=/docs/core-charts-waterfall--d3plus) · [Pyramid ↗](https://d3plus.org/?path=/docs/core-charts-pyramid--d3plus) · [ParallelCoordinates ↗](https://d3plus.org/?path=/docs/core-charts-parallelcoordinates--d3plus)
+  - **Single values and KPIs:** Gauge (#884; closes #61) and Bullet (#933). [Gauge ↗](https://d3plus.org/?path=/docs/core-charts-gauge--d3plus) · [Bullet ↗](https://d3plus.org/?path=/docs/core-charts-bullet--d3plus)
+  - **Radial:** PolarArea (Nightingale rose) and RadialBar (#940). [PolarArea ↗](https://d3plus.org/?path=/docs/core-charts-polararea--d3plus) · [RadialBar ↗](https://d3plus.org/?path=/docs/core-charts-radialbar--d3plus)
+  - **Time:** Calendar heatmap (#931), Candlestick with an OHLC variant (#932), and FanChart (#938; closes #212). [Calendar ↗](https://d3plus.org/?path=/docs/core-charts-calendar--d3plus) · [Candlestick ↗](https://d3plus.org/?path=/docs/core-charts-candlestick--d3plus) · [FanChart ↗](https://d3plus.org/?path=/docs/core-charts-fanchart--d3plus)
+- **Small multiples.** `facet` splits any chart into a grid of panels, one per value of a key. The panels share one title, legend, colorScale, timeline, set of colors, and hover/legend state. `facetConfig` sets the grid (`columns`, `rows`, `padding`, `sort`), panel titles, and whether Plot panels share their scales (`scales: "shared"` or `"independent"`). Works with every chart type, on both renderers, and under `@d3plus/ssr`. (#907, #909, #914) [Guide ↗](https://d3plus.org/?path=/docs/guides-small-multiples--d3plus) · [BarChart ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#small-multiples) · [Independent scales ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#small-multiples-independent-scales) · [Treemap ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#small-multiples-treemap)
+- **Axis breaks.** `xBreak`/`yBreak` cut one or more ranges out of any linear axis, and the gap is cut through the shapes that cross it. BarChart, Histogram, AreaPlot, and StackedArea draw a baseline break back to 0 when their value domain (or `baseline`) stops short of it. Style breaks with `breakConfig` and `baselineBreakConfig`. (#888, #944, #945, #970; closes #645, #766, #767) [Baseline break ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#baseline-break) · [Outlier bar ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#outlier-bar-break) · [LinePlot ↗](https://d3plus.org/?path=/docs/core-charts-lineplot--d3plus#axis-break)
+- **Error bars.** `confidence` on a BarChart, or any Plot that draws bars, draws a capped error bar on each bar, including stacked and horizontal bars. Style them with `confidenceConfig`. Tooltips list the lower and upper bounds. (#905; closes #781) [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#error-bars) · [Stacked ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#error-bars-stacked)
+- **Forecast annotations.** `forecast` marks where a line or bar chart's forecast starts, with a shaded backdrop, a dashed rule, a translated "Forecast" label, and dashed lines from there on. It takes a predicate on the data, `"auto"` (where the confidence bands open up), or a start value. Trend-line projections get it automatically. Style it with `forecastConfig`. (#943) [Example ↗](https://d3plus.org/?path=/docs/core-charts-lineplot--d3plus#forecast-start)
+- **Nested confidence bands.** `confidence` also takes a list of bands, outermost first, drawn from lightest to darkest around each line (`confidenceConfig.bandOpacity`). (#947) [Example ↗](https://d3plus.org/?path=/docs/core-charts-lineplot--d3plus#nested-confidence-bands)
+- **Fill between series.** `fillBetween` shades the area between two lines in the color of whichever is higher, switching where they cross. (#946; closes #283) [Example ↗](https://d3plus.org/?path=/docs/core-charts-lineplot--d3plus#fill-between) · [Temperature range ↗](https://d3plus.org/?path=/docs/core-charts-lineplot--d3plus#temperature-range)
+- **Variable bar widths.** `barWidth` makes each bar as wide as its own measure, end to end along a cumulative axis. `barWidthShare` adds each bar's share of the total width to its label. (#939) [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#variable-width-bar-chart)
+- **Swarm layout on any Plot.** `swarm` packs circles along their value axis without overlap, in lanes per category, with `swarmConfig` for padding and overflow. It animates when switched on or off. (#903) [Example ↗](https://d3plus.org/?path=/docs/core-charts-beeswarm--d3plus#scatter-to-swarm)
+- **Zoom and pan on time axes**, with the wheel, drag, brush, and zoom buttons. (#955)
+- **Radar level labels.** The rings are labeled with round values (`levels`, `levelLabels`, `levelLabelAngle`, `levelFormat`, `levelLabelConfig`), styled like a Plot axis, and the web is sized to fit its metric labels (`outerPadding: "auto"`). (#896; closes #769) [Example ↗](https://d3plus.org/?path=/docs/core-charts-radar--d3plus#level-labels)
+- **Legends for color categories.** A chart colored by a categorical key that isn't one of its `groupBy` levels shows a legend of those categories, with hide, solo, and hover working on each. (#902) [Example ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#color-by-category)
+- **`legendPosition` and `colorScalePosition` accept `"auto"`**, the new default: inside the chart when there's room, otherwise right or bottom depending on the chart's shape. (#964) [Guide ↗](https://d3plus.org/?path=/docs/guides-legends--d3plus#placement)
+- **`shapeConfig.backgroundImage` and `texture` fill every chart's filled marks**, not just the Plot family. (#901, #948) [Treemap ↗](https://d3plus.org/?path=/docs/core-charts-treemap--d3plus#background-images) · [Pie ↗](https://d3plus.org/?path=/docs/core-charts-pie--d3plus#background-images)
+- **Stacked bars grow up their stack** on first draw, one segment after another. (#979) [Guide ↗](https://d3plus.org/?path=/docs/guides-animation--d3plus#entering-marks)
+- **Kernel density helpers in `@d3plus/math`:** `kernelDensity`, `gaussianKernel`, `epanechnikovKernel`, and `silvermanBandwidth`. (#936) [Example ↗](https://d3plus.org/?path=/docs/math-kerneldensity--d3plus)
+- **Date helpers in `@d3plus/format`:** `formatDateFull` labels a date read on its own, such as in a tooltip, and `dateFormatter`/`dateFullFormatter` label a whole array of dates in linear time. (#917, #965) [Example ↗](https://d3plus.org/?path=/docs/format-formatdatefull--d3plus)
+- **`findWeekStart`** in `@d3plus/locales` returns a locale's first day of the week. (#931) [Example ↗](https://d3plus.org/?path=/docs/locales-findweekstart--d3plus)
+- `D3plusConfig` types `orient`, and `@d3plus/core` exports the `CssColor`, `Orient`, `SideOrient`, and `FacetConfig` types along with option types for the new charts. (#907, #910, #942)
+- Translations for the new chart, tooltip, and forecast labels in `ar-SA`, `es-ES`, `pt-BR`, and `zh-CN`.
+
+### Fixed
+
+- **Axis labels.**
+  - Category labels that don't fit rotate, then thin evenly, instead of being blanked, cut short, or broken mid-word, and vertical axes no longer hide every other label that had room. (#952, #920)
+  - Date labels fit whole, keep the year on the first visible label after each year boundary, and show the hour on hourly end labels. (#957)
+  - Date values on category axes and in tooltips are formatted as dates, and drawing thousands of them takes seconds instead of minutes. (#954, #965)
+  - Plot tooltips label time values the way the axis does. (#917)
+  - Year values print in full ("1990", not "1.99k") on continuous axes and color scales. (#918)
+  - The "0" tick label shows again. (#877)
+  - A forced domain-end label that crowds its neighboring tick is dropped. (#880)
+  - A short Plot's x axis shows its two end labels, flush to the chart edges. (#883)
+  - The first and last x labels no longer hang past the chart's edges, and x labels are measured at the plot's final width. (#926, #941, #966, #983)
+- **Domains.**
+  - `xDomain`/`yDomain` work on discrete and time axes instead of drawing NaN paths or being ignored. (#950, #951)
+  - AreaPlot and StackedArea honor a value-domain minimum. (#944)
+  - Plot's marks are clipped to the plot area when the domain cuts the data off. (#949)
+- **Layout.**
+  - Default-position legends and colorScales paint in their own margin instead of overlapping the chart on first render. (#911, #913)
+  - Titles and top legends that don't fit beside the corner controls drop below them, in whole words, instead of being truncated or lost, and the chart body leaves a gap below the controls. (#959, #960, #961, #969)
+  - Generic page CSS (such as `div {padding: 25px}`) no longer resizes or shifts d3plus's own controls and overlays. (#963)
+  - A chart in a container with no height of its own reserves its height on the page. (#958)
+  - The chart's SVG takes its final size on the first draw instead of growing from 300×150. (#978)
+  - A left legend no longer offsets Plot's background and hover surface from the plot. (#878)
+- **Config.**
+  - Nested config objects set through chart fields and hand-written setters (`shapeConfig`, `tooltipConfig`, `xConfig`, `axisConfig`, …) deep-merge, and `RESET` works in direct setter calls at any depth. (#890, #892, #893)
+  - Internal config and the Back control no longer trigger unknown-property warnings. (#894, #895)
+  - Stacked Plot, Pie, and Treemap no longer overwrite a `share` field in the user's data. (#885)
+- **Interaction.**
+  - Hover no longer throws on Pack legend entries, Matrix cells without a colorScale, or when leaving parts of the chart that have no data. (#873, #874, #875)
+  - Two charts on one page no longer share tooltip ids, which could leave the second chart's tooltip hidden. (#912)
+  - A legend tooltip hides when the pointer leaves an entry that stands for several groups. (#974)
+  - Hovering a stacked bar's label shows the bar's tooltip. (#925)
+  - Tooltip and legend titles show a shape swatch on every chart, including when hovering a shape's label. (#872)
+  - `click.Box` and other composite-shape events fire for each part of the shape. (#980)
+  - A timeline click no longer starts a zoom gesture that never ends, and zoom events that don't move the view no longer cut transitions short. (#906, #908)
+- **Rendering.**
+  - Canvas draws rounded rect corners, and entering groups show at once instead of fading in. (#916, #977)
+  - Custom path textures draw, and Line and Area texture accessors read their merged row. (#898, #953)
+  - Line shapes no longer draw `backgroundImage` inside their paths. (#956)
+  - SVG transitions start from the beginning after a slow render, and inset legend placement is faster. (#889)
+  - The web-font redraw waits until the entrance animation finishes. (#981)
+  - Canvas no longer retries failed image and pattern decodes forever. (#915)
+  - Box parts have stable scene keys, so they move with their category across redraws. (#975)
+  - Pie/Donut share labels no longer change at random between page loads. `largestRect` in `@d3plus/math` is now deterministic. (#891)
+- **Dark backgrounds.** Titles, subtitles, and totals contrast with the chart's background, gridlines are quieter, and Plot axes are easier to read. (#879, #882)
+- **Components.**
+  - A TextBox with a fixed `fontSize` draws at that size instead of clamping it to `fontMin`/`fontMax`, and it draws in boxes narrower than `fontMin`. (#881, #924)
+  - A time-scale Axis parses date strings in its data. (#900)
+  - A numeric `shapeConfig.Circle.r` no longer crashes Plot. (#921)
+- **Histogram** applies `filter`, time periods, and facet panels to its raw rows before binning. (#914, #923)
+- `saveElement` in `@d3plus/export` reports render failures to its callback instead of rejecting silently. (#973)
+- `@d3plus/ssr` keeps Node's native `btoa`/`atob`, which jsdom's versions broke with a stack overflow. (#922)
+- `browserslist` is upgraded to 4.28.9 for CVE-2026-73088. (#851)
+
+### Documentation
+
+- Every new chart has its own page of stories, and there is a new [Small Multiples guide](https://d3plus.org/?path=/docs/guides-small-multiples--d3plus). (#907)
+- Storybook args are generated for every `makeChart` chart, and color settings get color-picker controls. (#919, #942)
+- "Show code" defines story data above the config and prints function accessors as code. (#886)
+- The homepage logo animation is realigned and shows off legends, confidence bands, and annotations. (#887)
+- Generated config tables show negative defaults, the Treemap guides use `sum`, and wide tables no longer widen pages on phones. (#876, #967, #871)
+
+### Developer & tooling
+
+- `ChartDefinition` gains a `decorateScene` hook for adding to a chart's scene, and `@d3plus/core/internal` adds `mergeConfigBag`, `resolvesReset`, `isFluentAccessor`, and `outsideBaselineBreak`. (#893, #892, #937, #970, #985)
+- `@d3plus/render` adds `resetInjectedBoxes`, `flattenPath`, and the `EnterWindow`/`FadeSwap` transition helpers. (#963, #977, #979)
+- Every dev page renders with no console errors or warnings and no remote data, and `pnpm run test:dev-pages` checks them on SVG and Canvas. (#899)
+- Core's test suite runs in parallel (about 12 minutes down to 4), and `@d3plus/export` has full test coverage. (#971, #972, #982)
+- Package entry points are treated as export lists: exempt from `max-lines`, and limited to imports and re-exports. (#984)
+
+### Breaking changes
+
+Most of these change defaults or fix long-standing behavior, so existing charts will look different with no config change. Visual-regression snapshots will change.
+
+- **Value domains that stop short of 0 keep their minimum** on BarChart, Histogram, AreaPlot, and StackedArea, drawing a baseline break back to 0 instead of stretching the axis down to it. The break is cut through the bars and areas that cross it. Set `baselineBreak: false` to stretch the axis, or `yConfig: {baselineBreakConfig: {mask: false}}` to leave shapes uncut. (#888, #944, #970)
+- **`baseline(n)` starts the value axis at `n`**, the same as `yDomain([n])` (or `xDomain` on horizontal charts), including the break back to 0. (#945)
+- **A two-sided `xConfig`/`yConfig` `domain` is drawn exactly as given**, without rounding outward. Add `rounding: "outside"` to round it. (#962)
+- **Axis `labelRotation` defaults to automatic** instead of `false`, so category labels rotate when they don't fit. Set `labelRotation: false` to keep them flat. (#952)
+- **Nested config objects deep-merge** in every setter, so setting one nested key keeps its siblings' defaults instead of replacing the whole object. Use `RESET` to clear a default. (#890, #892, #893)
+- **Legends appear** for charts colored by a categorical key outside `groupBy`. Set `legend: false` to hide them. (#902)
+- **`legendPosition()` and `colorScalePosition()` return `"auto"`** instead of a function. Placement is unchanged. (#964)
+- **Radar level rings are labeled** by default (`levelLabels: false` to hide them), and `axisConfig.shapeConfig.stroke` no longer styles the rings: use `axisConfig.gridConfig` and `barConfig`. (#896)
+- **`confidence` on bar charts draws error bars** instead of being ignored. (#905)
+- **Tooltip element ids include the tooltip's uuid** (`d3plus-tooltip-<uuid>-<id>`). Class names are unchanged, so target those in CSS. (#912)
+- **d3plus injects a small stylesheet** at the top of `<head>` that resets margin, padding, and border on its own controls and overlays. Page rules on bare elements no longer reach them; rules on their classes still do. (#963)
+- **Default visuals shift:** year values, the "0" tick, and short-Plot end labels are drawn differently, forced end labels may drop, titles may move below the corner controls, the chart body starts below the controls, title and gridline colors change on dark backgrounds, fixed TextBox font sizes are no longer clamped, and stacked bars grow one segment at a time. (#877, #879, #880, #881, #882, #883, #918, #959, #969, #979)
+
 ## 4.7.0
 
 4.7 lets charts work together: linked charts share hover, selection, legend state, and colors. Legends can now sit in the empty space inside a chart instead of taking a margin, and trend lines can project past the end of the data. Tooltip titles and legends show matching shape swatches. Fixes cover textures, text wrapping, crowded axis labels, and colorScale gradients. Every package now has example pages in the docs. The inset legend is on by default; see the breaking changes.
