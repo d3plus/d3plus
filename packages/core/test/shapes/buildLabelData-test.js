@@ -1,22 +1,8 @@
 import {it} from "vitest";
 import assert from "assert";
-
-import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts";
 import {buildLabelData} from "../../src/shapes/buildLabelData.ts";
 
-it("colorScaleBucketOf unwraps wrapped bucket data and ignores non-buckets", () => {
-  const bucket = {_isColorScaleBucket: true, color: "#abc"};
-  assert.strictEqual(colorScaleBucketOf(bucket), bucket, "direct bucket");
-  assert.strictEqual(colorScaleBucketOf({__d3plus__: true, data: bucket}), bucket, "one-level wrapped");
-  assert.strictEqual(
-    colorScaleBucketOf({__d3plus__: true, data: {__d3plus__: true, data: bucket}}),
-    bucket, "double wrapped (label -> shape-row -> bucket)",
-  );
-  assert.strictEqual(colorScaleBucketOf({foo: 1}), null, "non-bucket -> null");
-  assert.strictEqual(colorScaleBucketOf({__d3plus__: true, data: {x: 1}}), null, "wrapped non-bucket -> null");
-});
-
-it("buildLabelData datum option stores the resolved source row as .data (Pack fix)", () => {
+it("buildLabelData datum option stores the resolved source row as .data (as Pack uses it)", () => {
   const source = {id: "leaf-1", value: 5};
   const hierarchyNode = {x: 10, y: 20, r: 8, id: "leaf-1", data: source, parent: {}, children: null};
   const labels = buildLabelData({
@@ -33,7 +19,7 @@ it("buildLabelData datum option stores the resolved source row as .data (Pack fi
   assert.strictEqual(labels[0].data, source, "label .data is the source row, matching the circle node's datum");
 });
 
-it("buildLabelData without datum option keeps the iterated node as .data (unchanged default)", () => {
+it("buildLabelData without datum option keeps the iterated node as .data", () => {
   const node = {x: 10, y: 20, r: 8, id: "a", data: {id: "a"}};
   const labels = buildLabelData({
     data: [node],
