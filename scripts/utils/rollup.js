@@ -17,10 +17,8 @@ const fileName = name.slice(1).replace("/", "-");
 const globals = {
   "@chenglou/pretext": "pretext",
   "@floating-ui/dom": "FloatingUIDOM",
-  "file-saver": "saveAs",
   "html-to-image": "htmlToImage",
   hyphenated: "hyphenated",
-  "open-color/open-color.js": "openColor",
   textures: "textures",
   "topojson-client": "topojson",
 };
@@ -53,10 +51,28 @@ export default async function (opts = {}) {
     },
   };
 
+  // A UMD bundle is a single file, so a lazily imported package (e.g.
+  // html-to-image in @d3plus/export) is imported up front instead.
+  const staticDynamicImports = {
+    name: "static-dynamic-imports",
+    transform(code) {
+      const specifiers = [];
+      const out = code.replace(/\bimport\((["'])([^."'][^"']*)\1\)/g, (match, quote, specifier) => {
+        specifiers.push(specifier);
+        return `Promise.resolve(__dynamicImport${specifiers.length - 1})`;
+      });
+      if (!specifiers.length) return null;
+      const imports = specifiers.map((s, i) => `import * as __dynamicImport${i} from "${s}";`);
+      return {code: `${imports.join("\n")}\n${out}`, map: null};
+    },
+  };
+
   const plugins = [
     tsExtensions,
     replace({"process.env.NODE_ENV": JSON.stringify(env), preventAssignment: true}),
     swc(),
+    // After swc, so TypeScript's `import("…").Type` annotations are gone.
+    staticDynamicImports,
   ];
 
   if (opts.deps) {
