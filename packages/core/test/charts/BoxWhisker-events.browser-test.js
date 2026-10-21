@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, openPage} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {openPage} from "~test/browser/page.js";
 
 /**
     Box-scoped events on a real BoxWhisker, on both backends.
@@ -80,11 +81,8 @@ async function interact(page, [x, y]) {
   });
 }
 
-after(closeBrowser);
-
 for (const renderer of ["svg", "canvas"]) {
-  it(`BoxWhisker (${renderer}): Box-scoped handlers fire once per part, with the box's datum`, async function () {
-    this.timeout(120000);
+  it(`BoxWhisker (${renderer}): Box-scoped handlers fire once per part, with the box's datum`, {timeout: 120000}, async function () {
     const centers = await partCenters();
     const {page, errors, close} = await chart(renderer);
     try {

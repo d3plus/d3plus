@@ -31,7 +31,7 @@
     "test": "pnpm lint && pnpm -r --if-present run test",
     "test:coverage": "pnpm -r --if-present run test:coverage",
     "test:docs": "vitest run --project docs-scripts",
-    "test:dev-pages": "pnpm --filter @d3plus/core run test:dev-pages"
+    "test:dev-pages": "vitest run --config vitest.dev-pages.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

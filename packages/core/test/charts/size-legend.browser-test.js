@@ -81,7 +81,7 @@ const bubbles = `[
 ]`;
 const bubbleChart = extra => `lib => new lib.Plot().data(${bubbles}).groupBy("id").x("x").y("y").size("v")${extra || ""}`;
 // The margin-placement tests keep the panel in its corner rather than inside
-// the plot's open space (see legend-inset-test.js for that placement).
+// the plot's open space (see legend-inset.browser-test.js for that placement).
 const inMargin = extra => bubbleChart(`.legendInset(false)${extra || ""}`);
 
 it("size legend: a bubble chart draws the key from its own radius scale", async () => {

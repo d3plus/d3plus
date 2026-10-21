@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, openPage} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {openPage} from "~test/browser/page.js";
 
 /**
     A Canvas chart's first draw matches SVG frame for frame.
@@ -80,10 +81,7 @@ const canvasBars = bars => {
   });
 };
 
-after(closeBrowser);
-
-it("a Canvas BarChart's bars match SVG's opacity and size halfway through the first draw", async function () {
-  this.timeout(120000);
+it("a Canvas BarChart's bars match SVG's opacity and size halfway through the first draw", {timeout: 120000}, async function () {
   const body = '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
   const frames = {};
   for (const renderer of ["svg", "canvas"]) {

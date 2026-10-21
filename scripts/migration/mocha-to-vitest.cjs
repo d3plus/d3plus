@@ -119,8 +119,11 @@ function transform(file) {
         return;
       }
     }
-    if (name === "before") edits.push([node.callee.range[0], node.callee.range[1], "beforeAll"]);
-    if (name === "after") edits.push([node.callee.range[0], node.callee.range[1], "afterAll"]);
+    // Only hook registrations: a statement whose last argument is a function
+    // (a page function may have a local helper named `before`).
+    const isHookCall = parent && parent.type === "ExpressionStatement" && fn && /Function|Identifier/.test(fn.type);
+    if (name === "before" && isHookCall) edits.push([node.callee.range[0], node.callee.range[1], "beforeAll"]);
+    if (name === "after" && isHookCall) edits.push([node.callee.range[0], node.callee.range[1], "afterAll"]);
 
     const isTest = name === "it" || name === jsdomLocal;
     const isHook = ["before", "after", "beforeEach", "afterEach"].includes(name);
@@ -137,6 +140,8 @@ function transform(file) {
       while (start > 0 && /[ \t]/.test(src[start - 1])) start--;
       let end = stmt.range[1];
       if (src[end] === "\n") end++;
+      // A blank line that followed the block's opening line goes with it.
+      if (src[start - 1] === "\n" && src[start - 2] === "{" && src[end] === "\n") end++;
       edits.push([start, end, ""]);
       if (ms > defaultTimeout) {
         if (isTest) edits.push([fn.range[0], fn.range[0], `{timeout: ${ms}}, `]);

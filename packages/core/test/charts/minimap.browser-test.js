@@ -8,7 +8,7 @@ import {render} from "~test/browser/render.js";
     natural 1x view and shown once zoomed in. It's driven entirely by the
     live d3-zoom transform inside the panel's `onUpdate`, so a pan/zoom/drag
     tick updates it without a full re-render — these tests drive it through
-    real DOM events in a browser, the same way `zoom-controls-test.js` does.
+    real DOM events in a browser, the same way `zoom-controls.browser-test.js` does.
 */
 it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-control panel", async function () {
   const out = await render(

@@ -42,7 +42,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project core --project core-browser",
-    "test:dev-pages": "mocha test/dev-pages.js",
+    "test:dev-pages": "vitest run --config ../../vitest.dev-pages.config.ts",
     "test:coverage": "vitest run --config ../../vitest.config.ts --project core --project core-browser --coverage --coverage.exclude='packages/!(core)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/core/coverage"
   },
   "dependencies": {

@@ -48,11 +48,6 @@ export default defineConfig({
         test: {
           name: "core-browser",
           include: ["packages/core/test/**/*.browser-test.js"],
-          // Still mocha tests, until they move to page.js.
-          exclude: [
-            "**/charts/{BoxWhisker-events,Candlestick-hover,canvas-first-draw-frame,stackEnter-render}.browser-test.js",
-            "**/render-parity.browser-test.js",
-          ],
           testTimeout: 60000,
           hookTimeout: 60000,
           // After the Node projects, so they don't compete for the CPU.

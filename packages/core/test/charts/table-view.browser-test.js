@@ -5,7 +5,7 @@ import {render} from "~test/browser/render.js";
 /**
     `tableViewContribution` (drawSteps/tableViewControl.ts) is the table-view
     toggle's contribution to the shared top-left controls panel
-    (`topLeftControlsFeature` — see top-left-controls-test.js); `tableViewFeature`
+    (`topLeftControlsFeature` — see top-left-controls.browser-test.js); `tableViewFeature`
     (drawSteps/tableView.ts) is the separate chart-sized `htmlOverlay` that
     replaces the chart while table view is active, registered LAST in
     `runVizPipeline` so it paints over every other panel (including the shared
@@ -242,7 +242,7 @@ it("table view claims zero layout margin, and coexists with a simultaneously-sho
               back: document.querySelectorAll("#b .back-control").length,
               tableToggle: document.querySelectorAll("#b .d3plus-top-left-controls-item .table-view-toggle").length,
               // Relative comparison, not an assumed absolute value (e.g. 0)
-              // — matches top-left-controls-test.js's own equivalent check.
+              // — matches top-left-controls.browser-test.js's own equivalent check.
               // Some OTHER default margin claim (unrelated to this panel)
               // could legitimately make the baseline non-zero; what matters
               // here is that showing Back alongside table-view claims

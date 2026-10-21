@@ -1,6 +1,7 @@
 /* global getComputedStyle, MutationObserver, requestAnimationFrame */
-import assert from "assert";
-import {bundle, closeBrowser, openPage} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {openPage} from "~test/browser/page.js";
 
 /**
     Candlestick hover in a real browser, on both renderers, with real pointer
@@ -10,13 +11,6 @@ import {bundle, closeBrowser, openPage} from "../playwright.js";
     still highlights its whole series; and the snapped tooltip never shows
     its arrow, even while the pointer crosses onto a candle.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(closeBrowser);
 
 /** Draws a Candlestick from `config` in the page; resolves when it renders. */
 const draw = ([config, renderer]) =>
@@ -170,17 +164,14 @@ for (const renderer of ["svg", "canvas"]) {
   for (const [name, config] of Object.entries(cases)) {
     const volume = !!(config.config && config.config.volume);
     it(`Candlestick ${renderer} — the snapped hover beside a candle highlights it (${name})`, async function () {
-      this.timeout(60000);
       highlightsOne(await hover(config, renderer, {beside: true}), volume);
     });
 
     it(`Candlestick ${renderer} — hovering a candle directly highlights it (${name})`, async function () {
-      this.timeout(60000);
       highlightsOne(await hover(config, renderer), volume);
     });
 
     it(`Candlestick ${renderer} — moving onto a candle never shows the tooltip arrow (${name})`, async function () {
-      this.timeout(60000);
       // Down candles are filled, up candles hollow: cross onto one of each.
       for (const target of [4, 5, 6, 7]) {
         const {arrows} = await hover(config, renderer, {target});
@@ -190,7 +181,6 @@ for (const renderer of ["svg", "canvas"]) {
   }
 
   it(`Candlestick ${renderer} — a legend hover still highlights its whole series`, async function () {
-    this.timeout(60000);
     const {after} = await hover({symbols: ["ACME", "BOLT"], config: {legend: true, volume: "volume"}}, renderer, {legend: true});
     assert.ok(after.hovered, "a hover is set");
     const keys = Object.keys(after.marks);

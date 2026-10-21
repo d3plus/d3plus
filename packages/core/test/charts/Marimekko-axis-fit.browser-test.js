@@ -5,7 +5,7 @@ import {render} from "~test/browser/render.js";
 /**
     Marimekko's wrapped category labels, drawn beside a legend: the plot
     still ends where the x axis begins, at every width (see
-    plot-x-axis-fit-test.js for the BarChart case).
+    plot-x-axis-fit.browser-test.js for the BarChart case).
 */
 
 /**

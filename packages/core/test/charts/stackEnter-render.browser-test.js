@@ -1,5 +1,7 @@
-import assert from "assert";
-import {closeBrowser, render, withPage} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {withPage} from "~test/browser/page.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Stacked bars grow in from their stack, one segment after another: each
@@ -7,8 +9,6 @@ import {closeBrowser, render, withPage} from "../playwright.js";
     stack, and on both renderers the bottom segment has finished growing
     before the one on top of it starts.
 */
-
-after(closeBrowser);
 
 const data = [
   {id: "A", q: "Q1", v: 10},
