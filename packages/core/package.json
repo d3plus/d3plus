@@ -75,8 +75,5 @@
     "d3-transition": "catalog:",
     "d3-zoom": "^3.0.0",
     "topojson-client": "^3.1.0"
-  },
-  "devDependencies": {
-    "@bcoe/v8-coverage": "^1.0.2"
   }
 }

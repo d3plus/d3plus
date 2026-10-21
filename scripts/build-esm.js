@@ -39,9 +39,6 @@ if (!verbose) log.timer(`transpiling ${name} es/`);
 // Keep modern syntax: the published es/ is consumed by bundlers, and without
 // a target swc would lower classes and parameters to ES5.
 const target = "es2022";
-// Maps point at src/, which is not published, so only coverage runs (which
-// remap es/ back onto src/) ask for them.
-const sourceMaps = Boolean(process.env.SOURCEMAPS);
 
 files.forEach(file => {
   if (verbose) log.timer(`transpiling /es/${file}`);
@@ -52,17 +49,13 @@ files.forEach(file => {
   // .tsx → .jsx for react, .ts → .js for everything else
   const outFile = file.replace(/\.tsx$/, ".jsx").replace(/\.ts$/, ".js");
   const outPath = path.join("es", outFile);
-  const sourceFileName = path.relative(path.dirname(outPath), file);
 
-  const {code, map} = transformFileSync(file, {jsc: {parser, transform, target}, sourceMaps, sourceFileName});
+  const {code} = transformFileSync(file, {jsc: {parser, transform, target}});
 
   const outDir = path.join("es", path.dirname(outFile));
   fs.mkdirSync(outDir, {recursive: true});
 
-  if (sourceMaps) {
-    fs.writeFileSync(outPath, code + `\n//# sourceMappingURL=${path.basename(outFile)}.map`);
-    fs.writeFileSync(`${outPath}.map`, map);
-  } else fs.writeFileSync(outPath, code);
+  fs.writeFileSync(outPath, code);
   if (verbose) log.done();
 });
 

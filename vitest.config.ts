@@ -4,6 +4,11 @@ import {defineConfig} from "vitest/config";
 
 import {aliases} from "./test/aliases.js";
 import {commands} from "./test/browser/commands.ts";
+import {builtOutput} from "./test/builtOutput.js";
+
+// `D3PLUS_TEST_TARGET=es` (`pnpm test:built`) runs against the built es/
+// output instead of the source.
+const built = process.env.D3PLUS_TEST_TARGET === "es";
 
 const canvasSetup = "test/canvas-setup.js";
 
@@ -15,7 +20,8 @@ const node = (name: string, test = {}) => ({
 
 export default defineConfig({
   root: import.meta.dirname,
-  resolve: {alias: aliases},
+  plugins: built ? [builtOutput()] : [],
+  resolve: {alias: built ? aliases.filter(a => String(a.find).includes("~test")) : aliases},
   test: {
     silent: "passed-only",
     reporters: process.env.GITHUB_ACTIONS ? ["default", "github-actions"] : ["default"],

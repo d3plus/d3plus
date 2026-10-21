@@ -107,20 +107,24 @@ pnpm --filter @d3plus/<package_name> run docs
 
 ### Tests
 
-Any time you write a new feature for a module, if possible, you should also be write an accompanying test. D3plus let's you write functional tests using [Mocha](https://mochajs.org/) and [JSDOM](https://github.com/jsdom/jsdom).
+Any time you write a new feature for a module, if possible, you should also write an accompanying test. D3plus tests run with [Vitest](https://vitest.dev/): in Node (with [JSDOM](https://github.com/jsdom/jsdom) where a document is needed), or, for `@d3plus/core` tests that need a real layout engine, in Chromium through Vitest's browser mode.
 
-All tests need to be placed in the `test` directory, and the filenames should match up to the components in `src` with a suffix of `-test.js`. To run all tests, run:
+All tests need to be placed in the `test` directory, and the filenames should match up to the components in `src` with a suffix of `-test.js` (`.browser-test.js` for the Chromium ones). To run a package's tests, run:
 
 ```sh
 pnpm --filter @d3plus/<package_name> test
 ```
-> This command will also test build errors and lint all files.
+
+`pnpm test` lints the repo and runs every package's tests. Tests import each package's TypeScript source, so nothing needs to be built first.
 
 Here is an example of what a test file could look like:
 
 ```js
-import assert from "assert";
-import it from "./jsdom.js"; // optional import, "it" is avaiable globally if not imported
+import assert from "node:assert";
+import {it} from "vitest";
+import {useJsdom} from "~test/jsdom.js"; // optional: a fresh JSDOM document for each test
+
+useJsdom();
 
 it("example test title", () => {
 
