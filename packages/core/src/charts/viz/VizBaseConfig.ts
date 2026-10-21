@@ -55,29 +55,6 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
-      Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
-*/
-  attribution(_?: string | boolean): this | string | boolean {
-    return arguments.length
-      ? ((this.schema.attribution = _), this)
-      : this.schema.attribution;
-  }
-
-  /**
-      Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
-*/
-  attributionIcon(
-    _?: string | ((el: HTMLElement) => void | (() => void)),
-  ): this | string | ((el: HTMLElement) => void | (() => void)) | undefined {
-    return arguments.length
-      ? ((this.schema.attributionIcon = _), this)
-      : (this.schema.attributionIcon as
-          | string
-          | ((el: HTMLElement) => void | (() => void))
-          | undefined);
-  }
-
-  /**
       Configuration object for the attribution style.
 */
   attributionStyle(
@@ -86,26 +63,6 @@ export default class VizBaseConfig extends BaseClass {
     return arguments.length
       ? ((this.schema.attributionStyle = mergeConfigBag(this, "attributionStyle", _)), this)
       : this.schema.attributionStyle;
-  }
-
-  /**
-      An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
-*/
-  backControlClassName(_?: string): this | string {
-    return arguments.length
-      ? ((this.schema.backControlClassName = _), this)
-      : this.schema.backControlClassName;
-  }
-
-  /**
-      An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
-*/
-  backControlStyle(
-    _?: Record<string, unknown> | false,
-  ): this | Record<string, unknown> | false {
-    return arguments.length
-      ? ((this.schema.backControlStyle = _), this)
-      : this.schema.backControlStyle;
   }
 
   /**
@@ -183,15 +140,6 @@ export default class VizBaseConfig extends BaseClass {
   }
 
   /**
-      The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
-*/
-  colorScaleMaxSize(_?: number): this | number {
-    return arguments.length
-      ? ((this.schema.colorScaleMaxSize = _), this)
-      : this.schema.colorScaleMaxSize;
-  }
-
-  /**
       The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
 If your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.
@@ -226,51 +174,6 @@ Defaults to an empty array (`[]`).
       return this;
     }
     return this._data;
-  }
-
-  /**
-      If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
-*/
-  detectResize(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this.schema.detectResize = _), this)
-      : this.schema.detectResize;
-  }
-
-  /**
-      When resizing the browser window, this is the millisecond delay to trigger the resize event.
-*/
-  detectResizeDelay(_?: number): this | number {
-    return arguments.length
-      ? ((this.schema.detectResizeDelay = _), this)
-      : this.schema.detectResizeDelay;
-  }
-
-  /**
-      Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
-*/
-  detectVisible(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this.schema.detectVisible = _), this)
-      : this.schema.detectVisible;
-  }
-
-  /**
-      The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
-*/
-  detectVisibleInterval(_?: number): this | number {
-    return arguments.length
-      ? ((this.schema.detectVisibleInterval = _), this)
-      : this.schema.detectVisibleInterval;
-  }
-
-  /**
-      When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
-*/
-  detectVisibleUnload(_?: boolean): this | boolean {
-    return arguments.length
-      ? ((this.schema.detectVisibleUnload = _), this)
-      : this.schema.detectVisibleUnload;
   }
 
   /**
@@ -511,17 +414,6 @@ Defaults to an empty array (`[]`).
       ? ((this.schema.legendFilterInvert = typeof _ === "function" ? _ : constant(_)),
         this)
       : this.schema.legendFilterInvert;
-  }
-
-  /**
-      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
-*/
-  legendInset(
-    _?: boolean | ((config: Record<string, unknown>) => boolean),
-  ): this | boolean | ((config: Record<string, unknown>) => boolean) {
-    return arguments.length
-      ? ((this.schema.legendInset = _), this)
-      : this.schema.legendInset;
   }
 
   /**

@@ -52,7 +52,12 @@ Fluent accessors are **schema-driven** in v4. A chart declares its configurable
 properties as `ConfigField`s (see `packages/core/src/fluent.ts`); `installFluent`
 installs them as `viz.<key>()` getter/setters backed by `viz.schema.<key>`.
 Hand-written accessors still exist where behavior is non-trivial, but most
-identity-coerce properties come from the schema.
+identity-coerce properties come from the schema: every chart's shared ones are
+listed in `charts/viz/vizFields.ts`. A generated accessor has no method for
+TypeDoc to read, so document it on its `D3plusConfig` property (or the
+component's own config interface): the docs generator takes its description
+and type from there for the API.md "Config accessors" tables and the Storybook
+args.
 
 ### Charts are values: `ChartDefinition` + `makeChart`
 

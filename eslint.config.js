@@ -70,8 +70,9 @@ export default [
     },
   },
   {
-    // Translation/data dictionaries are data, not code — exempt from file size.
-    files: ["packages/locales/**/*.ts"],
+    // Translation/data dictionaries are data, not code — exempt from file size,
+    // as is the config type, which declares one property per config key.
+    files: ["packages/locales/**/*.ts", "packages/core/src/utils/D3plusConfig.ts"],
     rules: {
       "max-lines": "off",
     },
