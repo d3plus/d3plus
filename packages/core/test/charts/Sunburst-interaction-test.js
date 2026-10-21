@@ -1,16 +1,18 @@
 import assert from "assert";
 import {applySunburstLayout} from "../../es/src/charts/Sunburst/applyLayout.js";
 import {
-  sunburstClickable,
-  sunburstDefaultTbody,
-  sunburstDrillable,
   sunburstHandlers,
-  sunburstHoverRows,
   sunburstNodeOf,
-  sunburstParentShareRow,
   sunburstZoomIn,
-  sunburstZoomOut,
 } from "../../es/src/charts/Sunburst/interaction.js";
+import {
+  partitionClickable,
+  partitionDefaultTbody,
+  partitionDrillable,
+  partitionHoverRows,
+  partitionParentShareRow,
+  partitionZoomOut,
+} from "../../es/src/charts/partition/interaction.js";
 
 const key = k => d => d[k];
 const rows = () => [
@@ -87,53 +89,53 @@ it("Sunburst interaction: sunburstNodeOf resolves a row, or a label wrapping one
   assert.strictEqual(sunburstNodeOf({ctx: {}}, m1.datum), undefined);
 });
 
-it("Sunburst interaction: sunburstDrillable allows parents, and leaves with deeper levels past the drawn depth", () => {
+it("Sunburst interaction: partitionDrillable allows parents, and leaves with deeper levels past the drawn depth", () => {
   const viz = mockViz();
-  assert.strictEqual(sunburstDrillable(viz, nodeAt(viz, ["A"])), true);
+  assert.strictEqual(partitionDrillable(viz, nodeAt(viz, ["A"])), true);
   assert.strictEqual(
-    sunburstDrillable(viz, nodeAt(viz, ["A", "m1", "f1"])),
+    partitionDrillable(viz, nodeAt(viz, ["A", "m1", "f1"])),
     false,
   );
   const shallow = mockViz({_drawDepth: 1});
   assert.strictEqual(
-    sunburstDrillable(shallow, nodeAt(shallow, ["A", "m1"])),
+    partitionDrillable(shallow, nodeAt(shallow, ["A", "m1"])),
     true,
   );
   const bucket = {...nodeAt(viz, ["A"]), datum: {_isAggregation: true}};
-  assert.strictEqual(sunburstDrillable(viz, bucket), false);
+  assert.strictEqual(partitionDrillable(viz, bucket), false);
 });
 
-it("Sunburst interaction: sunburstClickable makes the center clickable only with history to pop", () => {
+it("Sunburst interaction: partitionClickable makes the center clickable only with history to pop", () => {
   const viz = mockViz();
   const center = {...nodeAt(viz, ["A"]), depth: 0};
-  assert.strictEqual(sunburstClickable(viz, center), false);
+  assert.strictEqual(partitionClickable(viz, center), false);
   viz._history.push({});
-  assert.strictEqual(sunburstClickable(viz, center), true);
+  assert.strictEqual(partitionClickable(viz, center), true);
   assert.strictEqual(
-    sunburstClickable(viz, nodeAt(viz, ["A", "m1", "f1"])),
+    partitionClickable(viz, nodeAt(viz, ["A", "m1", "f1"])),
     false,
   );
 });
 
-it("Sunburst interaction: sunburstHoverRows keeps the node and its ancestors only", () => {
+it("Sunburst interaction: partitionHoverRows keeps the node and its ancestors only", () => {
   const viz = mockViz();
   const f1 = nodeAt(viz, ["A", "m1", "f1"]);
-  const set = sunburstHoverRows(f1);
+  const set = partitionHoverRows(f1);
   assert.deepStrictEqual(
     [...set],
     [f1.datum, nodeAt(viz, ["A", "m1"]).datum, nodeAt(viz, ["A"]).datum],
   );
 });
 
-it("Sunburst interaction: sunburstParentShareRow appears only past the first ring", () => {
+it("Sunburst interaction: partitionParentShareRow appears only past the first ring", () => {
   const viz = mockViz();
   assert.strictEqual(
-    sunburstParentShareRow(viz, nodeAt(viz, ["A"])),
+    partitionParentShareRow(viz, nodeAt(viz, ["A"])),
     undefined,
   );
-  assert.strictEqual(sunburstParentShareRow(viz, undefined), undefined);
+  assert.strictEqual(partitionParentShareRow(viz, undefined), undefined);
   assert.deepStrictEqual(
-    sunburstParentShareRow(viz, nodeAt(viz, ["A", "m1"])),
+    partitionParentShareRow(viz, nodeAt(viz, ["A", "m1"])),
     ["Share of Parent", "66.7%"],
   );
 });
@@ -171,18 +173,18 @@ it("Sunburst interaction: sunburstZoomIn slides a user-limited depth outward", (
   assert.strictEqual(viz.log.config[0].depth, 2);
 });
 
-it("Sunburst interaction: sunburstZoomOut restores the recorded view", () => {
+it("Sunburst interaction: partitionZoomOut restores the recorded view", () => {
   const viz = mockViz();
   const original = d => d.value > 0;
   viz.schema.filter = original;
   sunburstZoomIn(viz, nodeAt(viz, ["A"]));
-  sunburstZoomOut(viz);
+  partitionZoomOut(viz);
   assert.deepStrictEqual(viz.log.config[1], {
     depth: undefined,
     filter: original,
   });
   assert.strictEqual(viz._history.length, 0);
-  sunburstZoomOut(viz);
+  partitionZoomOut(viz);
   assert.strictEqual(viz.log.config.length, 2, "nothing to pop");
 });
 
@@ -284,21 +286,21 @@ it("Sunburst interaction: sunburstHandlers: zooms in on an arc click and out on 
   assert.strictEqual(viz.log.renders, 2, "a leaf click does nothing");
 });
 
-it("Sunburst interaction: sunburstDefaultTbody recognizes the chart's own Share row by its cells", () => {
+it("Sunburst interaction: partitionDefaultTbody recognizes the chart's own Share row by its cells", () => {
   const cell = () => "";
   const shareRow = ["Share", cell];
   assert.strictEqual(
-    sunburstDefaultTbody([["Share", cell]], shareRow),
+    partitionDefaultTbody([["Share", cell]], shareRow),
     true,
     "a copied row",
   );
   assert.strictEqual(
-    sunburstDefaultTbody([["Share", () => ""]], shareRow),
+    partitionDefaultTbody([["Share", () => ""]], shareRow),
     false,
     "a user's own cell",
   );
   assert.strictEqual(
-    sunburstDefaultTbody(
+    partitionDefaultTbody(
       [
         ["Share", cell],
         ["Other", cell],
@@ -308,6 +310,6 @@ it("Sunburst interaction: sunburstDefaultTbody recognizes the chart's own Share 
     false,
     "extra rows",
   );
-  assert.strictEqual(sunburstDefaultTbody([], shareRow), false);
-  assert.strictEqual(sunburstDefaultTbody(undefined, shareRow), false);
+  assert.strictEqual(partitionDefaultTbody([], shareRow), false);
+  assert.strictEqual(partitionDefaultTbody(undefined, shareRow), false);
 });
