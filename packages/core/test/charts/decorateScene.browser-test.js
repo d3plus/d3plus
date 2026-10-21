@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `ChartDefinition.decorateScene` — the optional pass over a chart's
@@ -9,13 +10,10 @@ import {render, closeBrowser} from "../playwright.js";
     scene its base class builds.
 
     The Viz render pipeline awaits browser layout that never resolves under
-    jsdom, so these run in Chromium. Each page is fresh, so the tests set the
-    hook on the page's own `treemapDef` (the def the `Treemap` class reads).
+    jsdom, so these run in Chromium. Each probe gets a fresh page (and copy of
+    d3plus), so the tests set the hook on the page's own `treemapDef` (the def
+    the `Treemap` class reads).
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const data = [
   {id: "alpha", value: 29},
@@ -25,7 +23,7 @@ const data = [
 
 /** Renders a Treemap whose def adds a marker rect to the scene root. */
 async function probe(renderer, hook) {
-  return render(
+  return render.isolated(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async ({data, renderer, hook}) => {
       const {Treemap, treemapDef, Viz} = window.d3plus;
@@ -95,8 +93,7 @@ async function probe(renderer, hook) {
   );
 }
 
-it("decorateScene receives the finished scene and the SVG renderer paints its return value", async function () {
-  this.timeout(300000);
+it("decorateScene receives the finished scene and the SVG renderer paints its return value", {timeout: 300000}, async function () {
   const {first, calls} = await probe("svg", true);
   assert.ok(first.calls >= 1, "the hook runs on the first render");
   assert.ok(calls[0].self, "it receives the chart instance");
@@ -109,8 +106,7 @@ it("decorateScene receives the finished scene and the SVG renderer paints its re
   assert.ok(first.svgNode, "the SVG renderer draws the added node");
 });
 
-it("decorateScene's return value is what the Canvas renderer paints", async function () {
-  this.timeout(300000);
+it("decorateScene's return value is what the Canvas renderer paints", {timeout: 300000}, async function () {
   const {first} = await probe("canvas", true);
   assert.ok(first.calls >= 1, "the hook runs on the first render");
   assert.strictEqual(first.kind, "canvas");
@@ -119,8 +115,7 @@ it("decorateScene's return value is what the Canvas renderer paints", async func
   assert.ok(!first.svgNode, "and no SVG node is drawn for it");
 });
 
-it("decorateScene runs once per scene build, including hover repaints", async function () {
-  this.timeout(300000);
+it("decorateScene runs once per scene build, including hover repaints", {timeout: 300000}, async function () {
   for (const renderer of ["svg", "canvas"]) {
     const {hover} = await probe(renderer, true);
     assert.ok(hover.builds >= 1, `${renderer}: hovering repaints the scene`);
@@ -129,8 +124,7 @@ it("decorateScene runs once per scene build, including hover repaints", async fu
   }
 });
 
-it("a def without decorateScene builds the scene its base class builds", async function () {
-  this.timeout(300000);
+it("a def without decorateScene builds the scene its base class builds", {timeout: 300000}, async function () {
   const {first, calls, plain} = await probe("svg", false);
   assert.strictEqual(calls.length, 0);
   assert.ok(!first.painted, "nothing is added");

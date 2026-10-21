@@ -1,7 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A one-sided user domain (`yDomain([n])`, `yDomain([undefined, n])`, a
@@ -58,7 +57,6 @@ const horizontal = (name, extra = "") =>
   `(lib, data) => new lib.${name}().data(data).groupBy("g").y("x").x("v").discrete("y").legend(false)${extra}`;
 
 it("BarChart: yDomain([980]) keeps 980 and rounds the top as it would with no domain", async function () {
-  this.timeout(60000);
   const none = await probe(chart("BarChart"));
   assert.deepStrictEqual(none.y, [0, 1030], "no domain: rounded outside");
   const one = await probe(chart("BarChart", ".yDomain([980])"));
@@ -88,7 +86,6 @@ it("BarChart: yDomain([980]) keeps 980 and rounds the top as it would with no do
 });
 
 it("baseline(980) rounds the far end just like yDomain([980])", async function () {
-  this.timeout(60000);
   for (const name of ["BarChart", "AreaPlot", "StackedArea", "LinePlot"]) {
     const [baseline, domain] = [await probe(chart(name, ".baseline(980)")), await probe(chart(name, ".yDomain([980])"))];
     assert.deepStrictEqual(baseline.y, domain.y, name);
@@ -102,7 +99,6 @@ it("baseline(980) rounds the far end just like yDomain([980])", async function (
 });
 
 it("yDomain([undefined, n]) keeps n and rounds the bottom", async function () {
-  this.timeout(60000);
   assert.deepStrictEqual((await probe(chart("LinePlot"), "negative")).y, [-130, -90]);
   assert.deepStrictEqual((await probe(chart("LinePlot", ".yDomain([undefined, -80])"), "negative")).y, [-130, -80]);
   const bars = await probe(chart("BarChart", ".yDomain([undefined, -80])"), "negative");
@@ -113,7 +109,6 @@ it("yDomain([undefined, n]) keeps n and rounds the bottom", async function () {
 });
 
 it("horizontal charts round the open end of xDomain([n])", async function () {
-  this.timeout(60000);
   assert.deepStrictEqual((await probe(horizontal("BarChart"))).x, [0, 1030]);
   const bars = await probe(horizontal("BarChart", ".xDomain([980])"));
   assert.deepStrictEqual(bars.x, [980, 1030]);
@@ -124,7 +119,6 @@ it("horizontal charts round the open end of xDomain([n])", async function () {
 });
 
 it("a one-sided yConfig or xConfig domain works like yDomain([n])", async function () {
-  this.timeout(60000);
   const config = await probe(chart("BarChart", ".yConfig({domain: [980]})"));
   assert.deepStrictEqual(config.y, [980, 1030]);
   assert.strictEqual(config.brk, 0);
@@ -134,7 +128,6 @@ it("a one-sided yConfig or xConfig domain works like yDomain([n])", async functi
 });
 
 it("BoxWhisker, Beeswarm, Histogram, and a scatter Plot round the open end", async function () {
-  this.timeout(60000);
   const box = "(lib, data) => new lib.BoxWhisker().data(data).groupBy(['x', 'g']).x('x').y('v')";
   assert.deepStrictEqual((await probe(box)).y, [950, 1050]);
   assert.deepStrictEqual((await probe(`${box}.yDomain([980])`)).y, [980, 1050]);
@@ -149,7 +142,6 @@ it("BoxWhisker, Beeswarm, Histogram, and a scatter Plot round the open end", asy
 });
 
 it("a time axis isn't rounded, with or without a one-sided domain", async function () {
-  this.timeout(60000);
   const line = "(lib, data) => new lib.LinePlot().data(data).groupBy('g').x('year').time('year').y('v').legend(false)";
   assert.deepStrictEqual((await probe(line, "years")).xYears, [2001, 2010]);
   assert.deepStrictEqual((await probe(`${line}.xDomain(['2002'])`, "years")).xYears, [2002, 2010]);
@@ -157,7 +149,6 @@ it("a time axis isn't rounded, with or without a one-sided domain", async functi
 });
 
 it("facets: shared scales round the open end once, independent ones per panel", async function () {
-  this.timeout(60000);
   const facet = (scales, extra = "") => chart("BarChart", `.facet("g").facetConfig({scales: "${scales}"})${extra}`);
   const shared = await probe(facet("shared", ".yDomain([980])"));
   assert.deepStrictEqual(shared.panels, [[980, 1030], [980, 1030]]);

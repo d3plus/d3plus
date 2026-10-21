@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Waterfall in real Chromium: bars floating on the running total, subtotals
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     bars read top-down, side-by-side series, small multiples, tooltips, and
     the Canvas backend.
 */
-
-after(closeBrowser);
 
 const income = [
   {item: "Revenue", amount: 420, sub: true},
@@ -81,7 +80,6 @@ const near = (a, b, tol = 1.5) => Math.abs(a - b) <= tol;
 const bar = (out, item) => out.bars.find(b => b.key === `undefined_${item}`);
 
 it("Waterfall floats each change on the running total and draws subtotals from zero", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [income, {}]);
   assert.strictEqual(out.nan, 0, "no NaN attributes");
   assert.strictEqual(out.bars.length, income.length, "one bar per row");
@@ -99,7 +97,6 @@ it("Waterfall floats each change on the running total and draws subtotals from z
 });
 
 it("Waterfall colors, labels, and connects its bars, with a legend of kinds", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [income, {}]);
   const fills = Object.fromEntries(out.bars.map(b => [b.key.replace("undefined_", ""), b.fill]));
   assert.strictEqual(fills.Revenue, "#1c7ed6", "totals take colorDefaults.sequential");
@@ -120,7 +117,6 @@ it("Waterfall colors, labels, and connects its bars, with a legend of kinds", as
 });
 
 it("Waterfall's tooltip shows the change and the running total", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [income, {}, "undefined_Marketing"]);
   assert.ok(out.tooltip, "a tooltip renders");
   assert.strictEqual(out.tooltip.title, "Decrease");
@@ -128,7 +124,6 @@ it("Waterfall's tooltip shows the change and the running total", async function 
 });
 
 it("Waterfall reads horizontal bars top-down", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [income, {discrete: "y", x: "amount", y: "item"}]);
   assert.strictEqual(out.nan, 0);
   const tops = income.map(d => bar(out, d.item).top);
@@ -139,7 +134,6 @@ it("Waterfall reads horizontal bars top-down", async function () {
 });
 
 it("Waterfall keeps a running total per series, side by side", async function () {
-  this.timeout(60000);
   const regions = ["North", "South"].flatMap((region, r) => [
     {region, item: "Q1", amount: r ? 30 : 40},
     {region, item: "Q2", amount: r ? -10 : 25},
@@ -157,7 +151,6 @@ it("Waterfall keeps a running total per series, side by side", async function ()
 });
 
 it("Waterfall draws one running total per small-multiples panel", async function () {
-  this.timeout(60000);
   const years = [2024, 2025].flatMap((year, y) => [
     {year, item: "Start", amount: 100 + y * 50, sub: true},
     {year, item: "Change", amount: y ? -20 : 10},
@@ -170,7 +163,6 @@ it("Waterfall draws one running total per small-multiples panel", async function
 });
 
 it("Waterfall renders on Canvas", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [income, {renderer: "canvas"}]);
   assert.strictEqual(out.canvas, true);
   assert.strictEqual(out.sceneConnectors.length, 5, "connectors are in the scene");

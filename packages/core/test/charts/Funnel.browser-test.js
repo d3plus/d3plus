@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Funnel renders in Chromium on both backends: the emitted scene (necks
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     painting + picking.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const stages = [
   {id: "Visited", value: 12400},
   {id: "Pricing", value: 6900},
@@ -21,9 +18,8 @@ const stages = [
   {id: "Subscribed", value: 760},
 ];
 
-it("Funnel emits necks, stage paths, and labels", async function () {
+it("Funnel emits necks, stage paths, and labels", {timeout: 180000}, async function () {
   // The first browser test also builds the UMD bundle.
-  this.timeout(180000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async data => {
@@ -101,7 +97,6 @@ it("Funnel emits necks, stage paths, and labels", async function () {
 });
 
 it("Funnel places labels inside wide stages and beside narrow ones", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:600px'></div>",
     async data => {
@@ -159,7 +154,6 @@ it("Funnel places labels inside wide stages and beside narrow ones", async funct
 });
 
 it("Funnel tooltips show the value and conversion rates, translated", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async data => {
@@ -197,7 +191,6 @@ it("Funnel tooltips show the value and conversion rates, translated", async func
 });
 
 it("Funnel dims other stages and their necks on hover", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async data => {
@@ -228,7 +221,6 @@ it("Funnel dims other stages and their necks on hover", async function () {
 });
 
 it("Funnel draws horizontally, tapered, smooth, and without necks or labels", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='a' style='width:600px;height:300px'></div><div id='b' style='width:400px;height:400px'></div><div id='c' style='width:400px;height:400px'></div>",
     async data => {
@@ -276,7 +268,6 @@ it("Funnel draws horizontally, tapered, smooth, and without necks or labels", as
 });
 
 it("Funnel colors stages by the first groupBy level and shows that legend", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async () => {
@@ -311,7 +302,6 @@ it("Funnel colors stages by the first groupBy level and shows that legend", asyn
 });
 
 it("Funnel draws small multiples with one funnel per panel and no legend", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:800px;height:400px'></div>",
     async data => {
@@ -348,7 +338,6 @@ it("Funnel draws small multiples with one funnel per panel and no legend", async
 });
 
 it("Funnel shares one width scale across panels only when facetConfig asks", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:800px;height:400px'></div>",
     async data => {
@@ -399,7 +388,6 @@ it("Funnel shares one width scale across panels only when facetConfig asks", asy
 });
 
 it("Funnel sorts stages with a comparator, and its labels follow the order", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:500px'></div>",
     async data => {
@@ -425,7 +413,6 @@ it("Funnel sorts stages with a comparator, and its labels follow the order", asy
 });
 
 it("Funnel paints on Canvas and picks the stage under the pointer", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {
@@ -472,7 +459,6 @@ it("Funnel paints on Canvas and picks the stage under the pointer", async functi
 });
 
 it("Funnel's emit and label functions rebuild the scene from a layout", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async data => {
@@ -506,7 +492,6 @@ it("Funnel's emit and label functions rebuild the scene from a layout", async fu
 });
 
 it("Funnel's stages, necks, and legend swatches take texture and backgroundImage on SVG and Canvas", async function () {
-  this.timeout(60000);
   const phases = [
     {phase: "Awareness", stage: "Impressions", value: 52000},
     {phase: "Awareness", stage: "Clicks", value: 21000},

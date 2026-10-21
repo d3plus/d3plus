@@ -1,13 +1,12 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A user domain on a time axis takes effect on both backends: the axis
     spans the domain and ticks only inside it, and a BarChart draws only the
     bars the domain reaches, spaced as if the others weren't there.
 */
-
-after(closeBrowser);
 
 /** Renders the chart `src` builds (a `(lib, data) => chart` function source) and reports its time axis and bars. */
 const draw = ([src, renderer]) =>

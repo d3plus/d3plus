@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The polar charts' value rings and ring labels match Radar's: the ring
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     unless `levelLabelConfig` says otherwise), the center "0" is labeled, and
     every chrome key carries the chart's own prefix, on SVG and Canvas.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const rows = [
   {id: "a", value: 40},
@@ -91,18 +88,15 @@ const check = (out, prefix) => {
   );
 };
 
-it("PolarArea ring labels lie beneath the wedges, the center labeled, keyed polararea-", async function () {
-  this.timeout(180000);
+it("PolarArea ring labels lie beneath the wedges, the center labeled, keyed polararea-", {timeout: 180000}, async function () {
   check(await draw("PolarArea", {}), "polararea");
 });
 
-it("RadialBar circular bar ring labels lie beneath the bars, the inner ring labeled, keyed radialbar-", async function () {
-  this.timeout(180000);
+it("RadialBar circular bar ring labels lie beneath the bars, the inner ring labeled, keyed radialbar-", {timeout: 180000}, async function () {
   check(await draw("RadialBar", {discrete: "angle"}), "radialbar");
 });
 
-it("levelLabelConfig fontOpacity carries to the polar ring labels, as on Radar", async function () {
-  this.timeout(180000);
+it("levelLabelConfig fontOpacity carries to the polar ring labels, as on Radar", {timeout: 180000}, async function () {
   const out = await draw("PolarArea", {levelLabelConfig: {fontOpacity: 0.4}});
   assert.ok(out.svg.labels.every(l => l.paint.opacity === 0.4));
 });

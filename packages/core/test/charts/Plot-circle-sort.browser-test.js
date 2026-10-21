@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Circle layering on a Plot, verified in a real browser (SVG backend):
@@ -45,7 +42,6 @@ const pageFn = payload =>
   });
 
 it("Plot: size accessor alone layers circles largest-behind by default", async function () {
-  this.timeout(60000);
   const radii = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     pageFn,
@@ -60,7 +56,6 @@ it("Plot: size accessor alone layers circles largest-behind by default", async f
 });
 
 it("Plot: explicit shapeConfig.Circle.sort overrides the size default", async function () {
-  this.timeout(60000);
   const radii = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     pageFn,

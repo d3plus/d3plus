@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `tableViewContribution` (drawSteps/tableViewControl.ts) is the table-view
@@ -18,13 +19,7 @@ import {render, closeBrowser} from "../playwright.js";
     overlay) or `.d3plus-top-left-controls-item` (the shared panel's
     per-contribution overlay node) accordingly.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("the table-view toggle button renders by default, and clicking it swaps the chart for a data table", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -80,8 +75,6 @@ it("the table-view toggle button renders by default, and clicking it swaps the c
 });
 
 it("the toggle button is painted with its structural default style, active/hover state, and disables on tableViewControlClassName", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -110,8 +103,6 @@ it("the toggle button is painted with its structural default style, active/hover
 });
 
 it("tableView(false) removes the toggle button entirely", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -133,8 +124,6 @@ it("tableView(false) removes the toggle button entirely", async function () {
 });
 
 it("tableViewControlClassName and tableViewClassName apply to the button and the table", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -162,8 +151,6 @@ it("tableViewControlClassName and tableViewClassName apply to the button and the
 });
 
 it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable at the ends", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -205,8 +192,6 @@ it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable
 });
 
 it("escapes data values instead of interpreting them as HTML (#XSS)", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -233,8 +218,6 @@ it("escapes data values instead of interpreting them as HTML (#XSS)", async func
 });
 
 it("table view claims zero layout margin, and coexists with a simultaneously-showing Back button", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
@@ -277,8 +260,6 @@ it("table view claims zero layout margin, and coexists with a simultaneously-sho
 });
 
 it("clicking a column header sorts the table, toggles asc/desc, and reflects state in aria-sort", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -327,8 +308,6 @@ it("clicking a column header sorts the table, toggles asc/desc, and reflects sta
 });
 
 it("tableViewSort(false) renders plain, unsortable header cells", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -355,8 +334,6 @@ it("tableViewSort(false) renders plain, unsortable header cells", async function
 });
 
 it("formats numbers per the chart's own .locale(), not the browser default", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="us" style="width:400px;height:300px;"></div><div id="de" style="width:400px;height:300px;"></div>',
     () =>
@@ -380,8 +357,6 @@ it("formats numbers per the chart's own .locale(), not the browser default", asy
 });
 
 it("CSV export includes every row (not just the current page), sorted, with raw (not display-formatted) values, and RFC4180 quoting", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -442,8 +417,6 @@ it("CSV export includes every row (not just the current page), sorted, with raw 
 });
 
 it("tableViewDownload(false) removes the CSV download button", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -466,8 +439,6 @@ it("tableViewDownload(false) removes the CSV download button", async function ()
 });
 
 it("a large tableViewPageSize(false) table virtualizes: only a small window of rows is ever in the DOM, and scrolling swaps which rows those are", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -518,8 +489,6 @@ it("a large tableViewPageSize(false) table virtualizes: only a small window of r
 });
 
 it("a small tableViewPageSize(false) table renders every row directly — virtualization doesn't engage below the threshold", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -548,8 +517,6 @@ it("a small tableViewPageSize(false) table renders every row directly — virtua
 });
 
 it("the shared top-left panel's toggle button stays in sync after deactivating via the overlay's own embedded copy", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -589,8 +556,6 @@ it("the shared top-left panel's toggle button stays in sync after deactivating v
 });
 
 it("columns come from the union of every row's keys, not just the first row's — no silent column loss on heterogeneous data", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -620,8 +585,6 @@ it("columns come from the union of every row's keys, not just the first row's �
 });
 
 it("CSV export quotes a field containing a lone carriage return, not just '\\n'", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -662,8 +625,6 @@ it("CSV export quotes a field containing a lone carriage return, not just '\\n'"
 });
 
 it("a big-page-size table (pagination AND virtualization both active) sizes its scroll height against the current page, not the whole dataset", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -697,8 +658,6 @@ it("a big-page-size table (pagination AND virtualization both active) sizes its 
 });
 
 it("a raw/aggregate source toggle appears (next to download) when a chart aggregates its input, and switches which dataset the table + CSV show", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -775,8 +734,6 @@ it("a raw/aggregate source toggle appears (next to download) when a chart aggreg
 });
 
 it("the raw/aggregate toggle does NOT render when raw and aggregate data are the same", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -802,8 +759,6 @@ it("the raw/aggregate toggle does NOT render when raw and aggregate data are the
 });
 
 it("the default (unsorted) row order matches .data() insertion order, even when the chart's own pipeline regroups rows without merging them", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -841,8 +796,6 @@ it("the default (unsorted) row order matches .data() insertion order, even when 
 });
 
 it("the default (unsorted) row order falls back to group-first-appearance when rows are genuinely merged (not just reordered)", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

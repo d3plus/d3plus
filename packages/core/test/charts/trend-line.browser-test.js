@@ -1,6 +1,7 @@
 /* global DOMPoint, requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #278: `trendLine` fits a regression to the plotted data and paints it
@@ -91,8 +92,6 @@ const run = (kind, config, data = scatter, hover = false) =>
   render('<div id="viz" style="width:600px;height:400px"></div>', probe, [kind, config, data, hover]);
 // Scatter points are drawn one per `pt`; their series is the parent `id`.
 const points = {groupBy: ["id", "pt"], x: "x", y: "y"};
-
-after(closeBrowser);
 
 it("trendLine — off by default", async () => {
   const r = await run("Plot", {...points});

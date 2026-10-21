@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Dumbbell in a real browser: a dot per (category, series) row and a
@@ -8,13 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     or vertical, sorted by gap, on both renderers, with the shared tooltip
     listing every series of the hovered category.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(closeBrowser);
 
 const life = [
   {country: "Japan", year: "2000", v: 81},
@@ -67,7 +61,6 @@ const run = (config, rows = life) =>
 const near = (a, b, msg, tol = 0.51) => assert.ok(Math.abs(a - b) < tol, `${msg}: ${a} vs ${b}`);
 
 it("Dumbbell — a dot per row and a connector between each category's extremes", async function () {
-  this.timeout(60000);
   const r = await run({groupBy: "year", x: "v", y: "country"});
   assert.strictEqual(r.points.length, 6);
   assert.strictEqual(new Set(r.points.map(p => p.key)).size, 6, "each point keyed by its series and category");
@@ -90,7 +83,6 @@ it("Dumbbell — a dot per row and a connector between each category's extremes"
 });
 
 it("Dumbbell — gapSort orders the categories by their gap", async function () {
-  this.timeout(60000);
   const top = async order => (await run({groupBy: "year", x: "v", y: "country", gapSort: order})).categories;
   assert.deepStrictEqual(await top("descending"), ["Ethiopia", "Brazil", "Japan"], "widest gap at the top");
   assert.deepStrictEqual(await top("ascending"), ["Japan", "Brazil", "Ethiopia"], "narrowest gap at the top");
@@ -99,7 +91,6 @@ it("Dumbbell — gapSort orders the categories by their gap", async function () 
 });
 
 it("Dumbbell — vertical, with three points per category", async function () {
-  this.timeout(60000);
   const rows = ["Jan", "Feb"].flatMap((month, i) => [
     {month, stat: "Low", t: -2 + i},
     {month, stat: "Mean", t: 3 + i},
@@ -118,13 +109,11 @@ it("Dumbbell — vertical, with three points per category", async function () {
 });
 
 it("Dumbbell — connectors take shapeConfig.Line", async function () {
-  this.timeout(60000);
   const r = await run({groupBy: "year", x: "v", y: "country", shapeConfig: {Circle: {r: 8}, Line: {stroke: "#123456", strokeWidth: 6}}});
   assert.ok(r.connectors.every(c => c.stroke === "#123456" && c.strokeWidth === 6));
 });
 
 it("Dumbbell — draws as small multiples", async function () {
-  this.timeout(60000);
   const rows = ["East", "West"].flatMap(region => life.map(d => ({...d, region})));
   const r = await run({groupBy: "year", x: "v", y: "country", facet: "region", gapSort: "descending"}, rows);
   assert.strictEqual(r.points.length, 12);
@@ -161,7 +150,6 @@ const hover = ([renderer, rows]) =>
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Dumbbell ${renderer} — the shared tooltip lists the category's series`, async function () {
-    this.timeout(60000);
     const text = await render("<div id='viz' style='width:500px;height:400px'></div>", hover, [renderer, life]);
     assert.ok(text && text.includes("Ethiopia"), `titled by the category (${text})`);
     assert.ok(text.includes("2000") && text.includes("2020"), "with a row per series");

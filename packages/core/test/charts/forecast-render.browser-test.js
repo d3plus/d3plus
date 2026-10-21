@@ -1,6 +1,7 @@
 /* global setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The forecast annotation in a real browser, from each of its sources: rows
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     and a trend line projection, on line and bar charts, both backends, small
     multiples, a zoomed time axis, and numeric and time x axes.
 */
-
-after(closeBrowser);
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -63,8 +62,7 @@ const helpers = () => {
 
 const run = (fn, arg) => render("", new Function("arg", `return (${helpers})(), (${fn})(arg);`), arg);
 
-it("a forecast predicate marks predicted rows drawn as their own series, on both backends", async function () {
-  this.timeout(120000);
+it("a forecast predicate marks predicted rows drawn as their own series, on both backends", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const result = {};
     for (const renderer of ["svg", "canvas"]) {
@@ -89,8 +87,7 @@ it("a forecast predicate marks predicted rows drawn as their own series, on both
   assert.deepStrictEqual(out.svg.region, out.canvas.region, "both backends build the same backdrop");
 });
 
-it("a forecast predicate on one series' rows dashes from its last unflagged point (time axis)", async function () {
-  this.timeout(120000);
+it("a forecast predicate on one series' rows dashes from its last unflagged point (time axis)", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = Array.from({length: 24}, (_, m) => ({id: "Sales", date: new Date(2023, m, 1), value: 100 + m, predicted: m >= 18}));
     const {el, viz} = await window.__draw("LinePlot", v =>
@@ -104,8 +101,7 @@ it("a forecast predicate on one series' rows dashes from its last unflagged poin
   assert.strictEqual(out.nan, 0);
 });
 
-it("forecast \"auto\" starts where a confidence band opens; explicit starts and false", async function () {
-  this.timeout(120000);
+it("forecast \"auto\" starts where a confidence band opens; explicit starts and false", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = Array.from({length: 10}, (_, t) => {
       const w = Math.max(t - 5, 0);
@@ -141,8 +137,7 @@ it("forecast \"auto\" starts where a confidence band opens; explicit starts and 
   assert.strictEqual(out.nan, 0);
 });
 
-it("a trend line projection gets the forecast annotation on line and bar charts", async function () {
-  this.timeout(120000);
+it("a trend line projection gets the forecast annotation on line and bar charts", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const trend = v => v.data(window.__years()).groupBy("id").trendLine(true).trendLineConfig({projection: 3});
     const result = {};
@@ -178,8 +173,7 @@ it("a trend line projection gets the forecast annotation on line and bar charts"
   assert.deepStrictEqual(out.svg.bar.region, out.canvas.bar.region, "both backends build the same backdrop");
 });
 
-it("forecast small multiples: each panel marks its own forecast", async function () {
-  this.timeout(120000);
+it("forecast small multiples: each panel marks its own forecast", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = ["North", "South"].flatMap((region, r) =>
       Array.from({length: 12}, (_, t) => ({id: region, region, t: 2010 + t, v: 10 + t * (r + 1), predicted: t >= 7 + r * 2})),
@@ -207,8 +201,7 @@ it("forecast small multiples: each panel marks its own forecast", async function
   }
 });
 
-it("forecast on a zoomable plot follows the zoom", async function () {
-  this.timeout(120000);
+it("forecast on a zoomable plot follows the zoom", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     const wheel = async (viz, fx) => {
@@ -252,8 +245,7 @@ it("forecast on a zoomable plot follows the zoom", async function () {
   assert.strictEqual(time.nan, 0);
 });
 
-it("the forecast backdrop takes forecastConfig's texture and backgroundImage, not shapeConfig's, on both backends", async function () {
-  this.timeout(120000);
+it("the forecast backdrop takes forecastConfig's texture and backgroundImage, not shapeConfig's, on both backends", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
     const probe = async (renderer, configure) => {

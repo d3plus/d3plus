@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Lollipop in a real browser: each row draws a stem from the baseline to a
@@ -8,13 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     series, baseline breaks, negative values), on both renderers, with the
     stem hovering, dimming, and clicking as part of its head.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(closeBrowser);
 
 const sales = [
   {year: "2024", quarter: "Q1", v: 10},
@@ -80,7 +74,6 @@ const run = (config, rows = sales) =>
 const near = (a, b, msg, tol = 0.51) => assert.ok(Math.abs(a - b) < tol, `${msg}: ${a} vs ${b}`);
 
 it("Lollipop — a stem from the baseline to a head at each value, no bars", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "a", v: 10},
     {id: "b", v: 25},
@@ -113,7 +106,6 @@ it("Lollipop — a stem from the baseline to a head at each value, no bars", asy
 });
 
 it("Lollipop — series sharing a category dodge like grouped bars", async function () {
-  this.timeout(60000);
   const r = await run({groupBy: "year", x: "quarter", y: "v"});
   const at = (year, quarter) => r.heads.find(h => h.row.year === year && h.row.quarter === quarter);
   const q1 = [at("2024", "Q1"), at("2025", "Q1")];
@@ -129,7 +121,6 @@ it("Lollipop — series sharing a category dodge like grouped bars", async funct
 });
 
 it("Lollipop — horizontal stems with discrete: \"y\"", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "a", x: 10, y: "A"},
     {id: "b", x: 30, y: "B"},
@@ -145,7 +136,6 @@ it("Lollipop — horizontal stems with discrete: \"y\"", async function () {
 });
 
 it("Lollipop — a broken value axis starts the stems at the break", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "a", v: 1010},
     {id: "b", v: 1020},
@@ -156,7 +146,6 @@ it("Lollipop — a broken value axis starts the stems at the break", async funct
 });
 
 it("Lollipop — stems and heads take shapeConfig.Line and shapeConfig.Circle", async function () {
-  this.timeout(60000);
   const rows = [{id: "a", v: 10}];
   const r = await run({
     groupBy: "id", x: "id", y: "v",
@@ -169,7 +158,6 @@ it("Lollipop — stems and heads take shapeConfig.Line and shapeConfig.Circle", 
 });
 
 it("Lollipop — a size accessor scales the heads", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "a", v: 10, s: 1},
     {id: "b", v: 20, s: 100},
@@ -182,7 +170,6 @@ it("Lollipop — a size accessor scales the heads", async function () {
 });
 
 it("Lollipop — confidence keeps the bars' error bars", async function () {
-  this.timeout(60000);
   const rows = [{id: "a", v: 10, lo: 8, hi: 12}];
   const out = await render("<div id='viz' style='width:500px;height:400px'></div>", rows => new Promise(resolve => {
     const viz = new window.d3plus.Lollipop().data(rows).groupBy("id").x("id").y("v")
@@ -202,7 +189,6 @@ it("Lollipop — confidence keeps the bars' error bars", async function () {
 });
 
 it("Lollipop — draws as small multiples", async function () {
-  this.timeout(60000);
   const rows = ["East", "West"].flatMap(region => sales.map(d => ({...d, region})));
   const out = await render("<div id='viz' style='width:600px;height:400px'></div>", rows => new Promise(resolve => {
     const viz = new window.d3plus.Lollipop().data(rows).groupBy("year").x("quarter").y("v")
@@ -282,7 +268,6 @@ const toRgb = hex => `rgb(${[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Lollipop ${renderer} — a stem hovers, dims, and clicks as part of its head`, async function () {
-    this.timeout(60000);
     const r = await render("<div id='viz' style='width:500px;height:400px'></div>", hover, [renderer]);
     assert.ok(r.title && r.title.includes("Beta"), `tooltip titled by the row (${r.title})`);
     assert.strictEqual(r.swatch, toRgb(r.headFill), "the swatch is the head's color");
@@ -296,7 +281,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Lollipop — the shared tooltip lists every series at a category", async function () {
-  this.timeout(60000);
   const out = await render("<div id='viz' style='width:500px;height:400px'></div>", rows => new Promise(resolve => {
     const viz = new window.d3plus.Lollipop().data(rows).groupBy("year").x("quarter").y("v")
       .width(500).height(400).duration(0).select("#viz");

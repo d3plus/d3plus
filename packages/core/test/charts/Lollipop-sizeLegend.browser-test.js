@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The size legend on Lollipop and Dumbbell: a `size` accessor adds Plot's
@@ -7,13 +8,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     outer and inner circles are the largest and smallest heads), on both
     renderers, beside the color legend, and shared across small multiples.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(closeBrowser);
 
 const cities = [
   {city: "Tokyo", region: "Asia", population: 37.4, growth: 0.2},
@@ -97,7 +91,6 @@ const assertMatchesHeads = (out, min, max) => {
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Lollipop ${renderer} — a size accessor adds a size legend matching the heads`, async function () {
-    this.timeout(60000);
     const out = await run("Lollipop", lollipop({renderer, sizeMin: 4, sizeMax: 14}));
     assertMatchesHeads(out, 4, 14);
     assert.ok(out.legendText.includes("growth"), "titled by the size key");
@@ -106,7 +99,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Lollipop — no size legend without a size accessor, or with sizeLegend(false)", async function () {
-  this.timeout(60000);
   const unsized = await run("Lollipop", {groupBy: "city", x: "city", y: "population"});
   assert.strictEqual(unsized.panel, false);
   const off = await run("Lollipop", lollipop({sizeLegend: false}));
@@ -114,7 +106,6 @@ it("Lollipop — no size legend without a size accessor, or with sizeLegend(fals
 });
 
 it("Lollipop — the size legend follows sizeScale, sizeMin, and sizeMax", async function () {
-  this.timeout(60000);
   const out = await run("Lollipop", lollipop({sizeScale: "sqrt", sizeMin: 3, sizeMax: 18, discrete: "y", x: "population", y: "city"}));
   assertMatchesHeads(out, 3, 18);
   const growth = cities.map(d => d.growth);
@@ -127,7 +118,6 @@ it("Lollipop — the size legend follows sizeScale, sizeMin, and sizeMax", async
 });
 
 it("Lollipop — the size legend stays clear of the color legend and the heads", async function () {
-  this.timeout(60000);
   for (const extra of [{}, {legendInset: false}, {legendInset: false, sizeLegendPosition: "bottom"}]) {
     const out = await run("Lollipop", lollipop({sizeMin: 4, sizeMax: 14, ...extra}));
     const {sizeLegend, legend, heads} = out.boxes;
@@ -138,7 +128,6 @@ it("Lollipop — the size legend stays clear of the color legend and the heads",
 });
 
 it("Lollipop — small multiples share one size scale and one size legend", async function () {
-  this.timeout(60000);
   const rows = ["East", "West"].flatMap((region, r) => cities.map(d => ({...d, region, growth: d.growth * (r + 1)})));
   const out = await run("Lollipop", {
     groupBy: "city", facet: "region", x: "city", y: "population", size: "growth", sizeMin: 4, sizeMax: 14, legend: false,
@@ -149,7 +138,6 @@ it("Lollipop — small multiples share one size scale and one size legend", asyn
 });
 
 it("Dumbbell — a size accessor adds a size legend matching the points", async function () {
-  this.timeout(60000);
   const rows = [
     {country: "Japan", year: "2000", v: 81, pop: 127},
     {country: "Japan", year: "2020", v: 84, pop: 125},

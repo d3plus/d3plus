@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The first Marimekko stories across the widths a Storybook docs page or
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     BasicExample and BarWidthMeasure and its name alone in
     WithoutWidthShares, and BarWidthMeasure's x axis sits below its bars.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 // The stories' smartphone revenue ($B) and units sold (millions) by region.
 const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
@@ -70,7 +67,6 @@ const draw = ([config, rows]) =>
 for (const renderer of ["svg", "canvas"]) {
   for (const width of [600, 750, 900, 1100]) {
     it(`Marimekko stories at ${width} × 350: every region lies flat, with its share beneath its name unless barWidthShare(false) (${renderer})`, async function () {
-      this.timeout(60000);
       const out = await render("", draw, [{renderer, width}, sales]);
       assert.strictEqual(out.rotated, false, "no label rotates");
       assert.ok(out.labels.every(l => !l.rotate), "none painted rotated");
@@ -84,7 +80,6 @@ for (const renderer of ["svg", "canvas"]) {
     });
 
     it(`Marimekko BarWidthMeasure story at ${width} × 350: flat labels with their shares, below every bar (${renderer})`, async function () {
-      this.timeout(60000);
       const out = await render("", draw, [{renderer, width, barWidth: "Units Sold", maxAggs: "Units Sold"}, sales]);
       assert.strictEqual(out.rotated, false, "no label rotates");
       assert.ok(out.labels.length >= 4, `labels: ${JSON.stringify(out.labels)}`);

@@ -1,18 +1,13 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     fontMin/fontMax bound the fontResize search only: a fixed fontSize is
     measured, wrapped, and painted at the size given.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 it("TextBox uses a fixed fontSize as given, and bounds only a resized one", async function () {
-  this.timeout(60000);
-
   const out = await render('<svg id="s" width="400" height="400"><g id="box"></g></svg>', () =>
     new Promise(resolve => {
       const box = new window.d3plus.TextBox().select("#box");
@@ -41,8 +36,6 @@ it("TextBox uses a fixed fontSize as given, and bounds only a resized one", asyn
 });
 
 it("TextBox wraps a fixed fontSize into a box narrower than fontMin", async function () {
-  this.timeout(60000);
-
   const out = await render('<svg id="s" width="400" height="400"><g id="box"></g></svg>', () => {
     const box = new window.d3plus.TextBox().select("#box").fontMin(8).fontSize(12).lineHeight(17).height(22).x(0).y(0);
     const lines = (text, width, resize) =>

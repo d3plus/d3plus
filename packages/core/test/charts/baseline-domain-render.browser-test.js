@@ -1,9 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])` on a
@@ -100,7 +97,6 @@ async function assertSame(a, b, set, what) {
 
 for (const name of ["BarChart", "AreaPlot", "StackedArea", "LinePlot"]) {
   it(`${name}: baseline(980) paints exactly what yDomain([980]) does`, async function () {
-    this.timeout(60000);
     const out = await assertSame(chart(name, ".baseline(980)"), chart(name, ".yDomain([980])"), "base", name);
     assert.ok(out.domain[1] >= 1024, "the axis reaches the data");
     if (name === "LinePlot") {
@@ -113,13 +109,11 @@ for (const name of ["BarChart", "AreaPlot", "StackedArea", "LinePlot"]) {
   });
 
   it(`${name}: horizontal baseline(980) paints exactly what xDomain([980]) does`, async function () {
-    this.timeout(60000);
     await assertSame(horizontal(name, ".baseline(980)"), horizontal(name, ".xDomain([980])"), "base", `horizontal ${name}`);
   });
 }
 
 it("BarChart: bars grow from the 0 tick behind the break, not from the baseline", async function () {
-  this.timeout(60000);
   for (const [build, what] of [[chart, "vertical"], [horizontal, "horizontal"]]) {
     const out = await probe(build("BarChart", ".baseline(980)"));
     assert.deepStrictEqual(out.domain, [980, 1030], `${what}: the domain starts at the baseline, its far end rounded`);
@@ -130,7 +124,6 @@ it("BarChart: bars grow from the 0 tick behind the break, not from the baseline"
 });
 
 it("with baselineBreak(false), baseline(980) stretches to 0 just like yDomain([980])", async function () {
-  this.timeout(60000);
   for (const name of ["BarChart", "AreaPlot", "StackedArea"]) {
     const out = await assertSame(
       chart(name, ".baselineBreak(false).baseline(980)"),
@@ -144,13 +137,11 @@ it("with baselineBreak(false), baseline(980) stretches to 0 just like yDomain([9
 });
 
 it("values below the baseline draw just as below a yDomain minimum", async function () {
-  this.timeout(60000);
   for (const name of ["BarChart", "AreaPlot", "LinePlot"])
     await assertSame(chart(name, ".baseline(980)"), chart(name, ".yDomain([980])"), "below", `${name} below`);
 });
 
 it("a baseline above every value ends the axis, like yDomain([undefined, n])", async function () {
-  this.timeout(60000);
   for (const name of ["BarChart", "LinePlot"]) {
     const out = await assertSame(chart(name, ".baseline(-80)"), chart(name, ".yDomain([undefined, -80])"), "negative", `${name} negative`);
     assert.strictEqual(out.domain[1], -80, `${name} ends at the baseline`);
@@ -162,7 +153,6 @@ it("a baseline above every value ends the axis, like yDomain([undefined, n])", a
 });
 
 it("a yDomain bound wins over the baseline", async function () {
-  this.timeout(60000);
   await assertSame(chart("BarChart", ".yDomain([990]).baseline(980)"), chart("BarChart", ".yDomain([990])"), "base", "a minimum");
   await assertSame(chart("BarChart", ".yDomain([970]).baseline(980)"), chart("BarChart", ".yDomain([970])"), "below", "a lower minimum");
   await assertSame(
@@ -176,7 +166,6 @@ it("a yDomain bound wins over the baseline", async function () {
 });
 
 it("BarChart's built-in baseline of 0 still lets bars hang below it", async function () {
-  this.timeout(60000);
   const mixed = await probe(chart("BarChart"), "mixed");
   assert.ok(mixed.domain[0] < 0 && mixed.domain[1] > 0, "the axis spans both signs");
   const positive = await probe(chart("BarChart"));
@@ -185,7 +174,6 @@ it("BarChart's built-in baseline of 0 still lets bars hang below it", async func
 });
 
 it("BoxWhisker, Histogram, and Beeswarm: baseline(n) matches a domain minimum", async function () {
-  this.timeout(60000);
   await assertSame(
     `(lib, data) => new lib.BoxWhisker().data(data).groupBy(["x", "g"]).x("x").y("v").baseline(980)`,
     `(lib, data) => new lib.BoxWhisker().data(data).groupBy(["x", "g"]).x("x").y("v").yDomain([980])`,
@@ -207,7 +195,6 @@ it("BoxWhisker, Histogram, and Beeswarm: baseline(n) matches a domain minimum", 
 });
 
 it("a faceted BarChart: baseline(980) matches yDomain([980]) in every panel", async function () {
-  this.timeout(60000);
   for (const scales of ["shared", "independent"]) {
     const facet = extra => `(lib, data) => new lib.BarChart().data(data).groupBy("g").x("x").y("v").legend(false)
       .facet("g").facetConfig({scales: "${scales}"})${extra}`;

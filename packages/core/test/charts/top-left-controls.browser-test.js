@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `topLeftControlsFeature` merges independent contributor functions
@@ -10,13 +11,7 @@ import {render, closeBrowser} from "../playwright.js";
     `backFeature`), a click pops history, and a centered title avoids
     overlapping the panel when both it and the zoom controls are showing.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("back renders as a button in the shared top-left panel only with drill-down history", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
@@ -53,8 +48,6 @@ it("back renders as a button in the shared top-left panel only with drill-down h
 });
 
 it("clicking the back button pops history and re-renders", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -77,8 +70,6 @@ it("clicking the back button pops history and re-renders", async function () {
 });
 
 it("a centered title avoids overlapping the top-left controls panel", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

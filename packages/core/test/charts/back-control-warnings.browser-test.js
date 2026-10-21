@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Back restores the drill-down view (depth + filter) without passing its
@@ -7,13 +8,8 @@ import {closeBrowser, render} from "../playwright.js";
     and out logs no unknown-property warnings.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 for (const chartType of ["Treemap", "Pie"]) {
   it(`${chartType} — drilling down and clicking Back logs no config warnings`, async function () {
-    this.timeout(60000);
     const result = await render(
       "<div id='viz' style='width:400px;height:300px'></div>",
       async type => {

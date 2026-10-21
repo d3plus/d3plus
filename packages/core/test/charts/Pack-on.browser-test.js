@@ -1,14 +1,13 @@
 /* global MouseEvent */
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Pack seeds its own hover handlers into `on` without replacing the
     `on(typename, handler)` method every chart inherits, so user listeners
     register, read back, merge, and fire.
 */
-
-after(closeBrowser);
 
 it("Pack — on(typename, handler) registers, reads back, merges, and fires", async () => {
   const out = await render(

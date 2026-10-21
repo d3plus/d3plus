@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `minimapFeature` (issue #81) renders a small overview + draggable
@@ -9,13 +10,7 @@ import {render, closeBrowser} from "../playwright.js";
     tick updates it without a full re-render — these tests drive it through
     real DOM events in a browser, the same way `zoom-controls-test.js` does.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-control panel", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -58,8 +53,6 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
 });
 
 it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over it zooms", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -105,8 +98,6 @@ it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over 
 });
 
 it("clicking the minimap's outer box jumps there, and double-clicking resets the zoom", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -140,8 +131,6 @@ it("clicking the minimap's outer box jumps there, and double-clicking resets the
 });
 
 it("arrow keys pan the chart when the viewport box is focused", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -181,8 +170,6 @@ it("arrow keys pan the chart when the viewport box is focused", async function (
 });
 
 it("minimapClassName is applied to the outer box, viewport box, and label", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -213,8 +200,6 @@ it("minimapClassName is applied to the outer box, viewport box, and label", asyn
 });
 
 it("minimap(false) hides the panel even while zoomed, and zoom(false) implies no minimap either", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
@@ -239,8 +224,6 @@ it("minimap(false) hides the panel even while zoomed, and zoom(false) implies no
 });
 
 it("the minimap works on a Plot-family chart, whose zoom rescales axes rather than the picture", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -275,8 +258,6 @@ it("the minimap works on a Plot-family chart, whose zoom rescales axes rather th
 });
 
 it("on a Plot that zooms only one axis, the viewport box shrinks along that axis alone", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -321,8 +302,6 @@ it("on a Plot that zooms only one axis, the viewport box shrinks along that axis
 });
 
 it("on a Plot that zooms both axes, the viewport box shrinks along both", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `searchContribution` merges a toggle button + expanding input into the
@@ -11,13 +12,7 @@ import {render, closeBrowser} from "../playwright.js";
     touching data, and closing restores whatever `.highlight()` predicate
     (if any) preceded it.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("the search toggle button renders by default, and search(false) hides it", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
@@ -41,8 +36,6 @@ it("the search toggle button renders by default, and search(false) hides it", as
 });
 
 it("clicking the toggle opens and focuses the input; Escape closes it", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -77,8 +70,6 @@ it("clicking the toggle opens and focuses the input; Escape closes it", async fu
 });
 
 it("typing highlights matching-label marks and grays the rest; closing restores the prior state", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -111,8 +102,6 @@ it("typing highlights matching-label marks and grays the rest; closing restores 
 });
 
 it("shows readable match-count feedback (\"N Matches\" while typing, \"Match N/total\" after stepping) and reserves its layout space while empty", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -152,8 +141,6 @@ it("shows readable match-count feedback (\"N Matches\" while typing, \"Match N/t
 });
 
 it("match-count feedback reads \"No Matches\" (not \"0 Matches\") when the term matches nothing", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -180,8 +167,6 @@ it("match-count feedback reads \"No Matches\" (not \"0 Matches\") when the term 
 });
 
 it("uses the singular \"Match\" for exactly one result", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -208,8 +193,6 @@ it("uses the singular \"Match\" for exactly one result", async function () {
 });
 
 it("Enter/Shift+Enter cycle through matches (wrapping) and pan/zoom the current one into view", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -253,8 +236,6 @@ it("Enter/Shift+Enter cycle through matches (wrapping) and pan/zoom the current 
 });
 
 it("the clear button empties the term, restores the prior highlight, and refocuses the input", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -297,8 +278,6 @@ it("the clear button empties the term, restores the prior highlight, and refocus
 });
 
 it(".searchAccessor() overrides what the typed term matches against", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -330,8 +309,6 @@ it(".searchAccessor() overrides what the typed term matches against", async func
 });
 
 it("a typed term matches across the groupBy hierarchy: a leaf's label also matches its ancestor group's row, and vice versa", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -386,8 +363,6 @@ it("a typed term matches across the groupBy hierarchy: a leaf's label also match
 });
 
 it("the search box closes on blur when empty, but stays open on blur with a typed term", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div><button id="outside">outside</button>',
     () =>
@@ -428,8 +403,6 @@ it("the search box closes on blur when empty, but stays open on blur with a type
 });
 
 it("search term/open state and the highlight survive a drill-down re-render", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -487,8 +460,6 @@ it("search term/open state and the highlight survive a drill-down re-render", as
 });
 
 it("search does not render under SSR", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

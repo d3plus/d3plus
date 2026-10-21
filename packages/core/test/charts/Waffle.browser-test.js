@@ -1,12 +1,9 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 // The Viz render pipeline awaits browser layout that never resolves under
 // jsdom, so the chart is rendered in a headless browser instead.
-after(async () => {
-  await closeBrowser();
-});
-
 const data = [
   {source: "Gas", region: "East", value: 43},
   {source: "Nuclear", region: "East", value: 19},
@@ -63,7 +60,6 @@ const page = (fn, arg) =>
   );
 
 it("Waffle: draws 100 cells, one per percent, with a legend", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const cells = window.cells(chart);
@@ -90,7 +86,6 @@ it("Waffle: draws 100 cells, one per percent, with a legend", async function () 
 });
 
 it("Waffle: hovering a cell highlights its whole category, with value and share in the tooltip", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const target = window.cells(chart).find(c => c.datum.source === "Wind");
@@ -113,7 +108,6 @@ it("Waffle: hovering a cell highlights its whole category, with value and share 
 });
 
 it("Waffle: legend tooltips show value and share", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const row = chart._legendClass.data().find(d => d.source === "Nuclear");
@@ -128,7 +122,6 @@ it("Waffle: legend tooltips show value and share", async function () {
 });
 
 it("Waffle: one cell per unit grows the grid along the fill direction", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const byRow = await window.build({config: {unit: 4, columns: 5}});
     const rowGrid = byRow.ctx.waffleGrid;
@@ -145,7 +138,6 @@ it("Waffle: one cell per unit grows the grid along the fill direction", async fu
 });
 
 it("Waffle: draws rounded and circular cells, and icons in pictogram mode", async function () {
-  this.timeout(60000);
   const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>");
   const out = await page(async src => {
     const rounded = await window.build({config: {cellShape: "rounded"}});
@@ -170,7 +162,6 @@ it("Waffle: draws rounded and circular cells, and icons in pictogram mode", asyn
 });
 
 it("Waffle: facet draws one waffle per panel", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({facet: true, config: {facet: "region"}});
     const cells = window.cells(chart);
@@ -184,7 +175,6 @@ it("Waffle: facet draws one waffle per panel", async function () {
 });
 
 it("Waffle: renders on Canvas and hit-tests a real hover", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({renderer: "canvas"});
     const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
@@ -209,7 +199,6 @@ it("Waffle: renders on Canvas and hit-tests a real hover", async function () {
 });
 
 it("Waffle: shapeConfig texture and backgroundImage reach every cell and legend swatch, on SVG and Canvas", async function () {
-  this.timeout(60000);
   const image = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'/>");
   const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>");
   for (const renderer of ["svg", "canvas"]) {

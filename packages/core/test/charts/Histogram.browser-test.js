@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Histogram bins raw observations onto a linear x axis: one bar per bin
@@ -7,13 +8,7 @@ import {render, closeBrowser} from "../playwright.js";
     heights proportional to the bin counts and groups stacked per bin.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 it("Histogram draws contiguous, count-proportional bins", async function () {
-  this.timeout(60000);
-
   const out = await render("", () => {
     const draw = configure =>
       new Promise(resolve => {
@@ -85,8 +80,6 @@ it("Histogram draws contiguous, count-proportional bins", async function () {
 });
 
 it("Histogram bar hover highlights only that bin of that series", async function () {
-  this.timeout(60000);
-
   const out = await render("", () =>
     new Promise(resolve => {
       const el = document.createElement("div");
@@ -120,8 +113,6 @@ it("Histogram bar hover highlights only that bin of that series", async function
 });
 
 it("Histogram translates its axis title and tooltip labels", async function () {
-  this.timeout(60000);
-
   const out = await render("", () =>
     new Promise(resolve => {
       const el = document.createElement("div");

@@ -1,12 +1,9 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {scaleLinear} from "d3-scale";
 
-import circleBuffer from "../../es/src/charts/plotBuffers/Circle.js";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import circleBuffer from "../../src/charts/plotBuffers/Circle.ts";
+import {render} from "~test/browser/render.js";
 
 /** A Plot-like `this` and a fresh set of circleBuffer arguments. */
 const plot = {schema: {discrete: undefined}};
@@ -25,7 +22,6 @@ it("circleBuffer pads the value axes by a numeric Circle radius", () => {
 });
 
 it("Plot draws with a numeric shapeConfig.Circle.r", async function () {
-  this.timeout(60000);
   const radii = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     () =>

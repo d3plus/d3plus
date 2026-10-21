@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Clicking a Rings node re-centers the chart by re-running `_draw()`
@@ -9,10 +10,6 @@ import {closeBrowser, render} from "../playwright.js";
     back/table/search panel, attribution) until the next full render. The
     click handler now re-runs them via `runPostDrawFeatures`.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const panelsAfter = click =>
   render('<div id="viz" style="width:800px;height:600px"></div>', clickId =>

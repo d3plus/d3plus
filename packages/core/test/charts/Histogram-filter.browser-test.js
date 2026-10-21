@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it, beforeAll} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Histogram's `filter` selects raw observation rows before they are binned,
@@ -9,8 +10,7 @@ import {render, closeBrowser} from "../playwright.js";
 
 let out;
 
-before(async function () {
-  this.timeout(60000);
+beforeAll(async function () {
   out = await render("", () => {
     const unwrap = d => {
       while (d && d.__d3plus__ && d.data) d = d.data;
@@ -79,10 +79,6 @@ before(async function () {
           .facet("f").facetConfig({scales: "independent"}).filter(recording(seen, d => d.v > 5))),
     }))();
   });
-});
-
-after(async () => {
-  await closeBrowser();
 });
 
 it("Histogram filter selects raw rows by their value before binning", () => {

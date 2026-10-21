@@ -1,9 +1,10 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {colorDefaults} from "@d3plus/color";
-import {BaseClass, ColorScale, Pack, Rect, Treemap} from "../../es/index.js";
-import {default as RESET} from "../../es/src/utils/RESET.js";
-import {render, closeBrowser} from "../playwright.js";
-import {computeColorScale} from "../../es/src/components/ColorScale/colorScaleScale.js";
+import {BaseClass, ColorScale, Pack, Rect, Treemap} from "../../index.ts";
+import {default as RESET} from "../../src/utils/RESET.ts";
+import {render} from "~test/browser/render.js";
+import {computeColorScale} from "../../src/components/ColorScale/colorScaleScale.ts";
 
 it("colorDefaults() starts from the @d3plus/color defaults and merges overrides", () => {
   const base = new BaseClass();
@@ -92,12 +93,7 @@ it("ColorScale poles fall back to colorDefaults when unset", () => {
   assert.strictEqual(explicit[explicit.length - 1], "#0000ff", "explicit colorMax wins");
 });
 
-after(async () => {
-  await closeBrowser();
-});
-
-it("a rendered chart paints fills and label text from the viz overrides", async function () {
-  this.timeout(120000);
+it("a rendered chart paints fills and label text from the viz overrides", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:600px;height:400px;"></div>',
     async () => {

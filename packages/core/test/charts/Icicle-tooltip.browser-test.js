@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 const data = [
   {area: "App", module: "Charts", file: "Treemap", size: 120},
@@ -47,7 +44,6 @@ const page = (fn, arg) =>
   );
 
 it("Icicle: the tooltip hides after leaving a non-leaf rect, on SVG and Canvas", async function () {
-  this.timeout(60000);
   for (const renderer of ["svg", "canvas"]) {
     const out = await page(async renderer => {
       const chart = await window.build({renderer});

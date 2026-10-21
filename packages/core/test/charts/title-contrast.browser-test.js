@@ -1,17 +1,14 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The title, subtitle, and total pick a text color that reads against the
     chart's own background, like the legend and axis labels do: dark text on
     a light page, light text when the chart sits on a dark background.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const KEYS = ["viz-title", "viz-subtitle", "viz-total"];
 

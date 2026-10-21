@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Bullet renders in Chromium on both backends: the emitted scene (a group
@@ -10,18 +11,13 @@ import {render, closeBrowser} from "../playwright.js";
     domain, a dark background, and Canvas painting + picking.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const kpis = [
   {id: "Revenue", unit: "US$", value: 270, target: 250, forecast: 290},
   {id: "Profit", unit: "%", value: 22.5, target: 27},
   {id: "Orders", unit: "count", value: 1650, target: 2100},
 ];
 
-it("Bullet emits one labeled bullet per row with bands, axis, and marks", async function () {
-  this.timeout(180000);
+it("Bullet emits one labeled bullet per row with bands, axis, and marks", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:360px'></div>",
     async data => {
@@ -87,8 +83,7 @@ it("Bullet emits one labeled bullet per row with bands, axis, and marks", async 
   assert.ok(out.forecastWidth > out.measureWidth, "the forecast runs past the measure");
 });
 
-it("Bullet grows every rect in from its baseline at full thickness", async function () {
-  this.timeout(180000);
+it("Bullet grows every rect in from its baseline at full thickness", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:360px'></div>",
     async data => {
@@ -121,7 +116,6 @@ it("Bullet grows every rect in from its baseline at full thickness", async funct
 });
 
 it("Bullet shares one domain and axis, and runs vertically", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='a' style='width:600px;height:300px'></div><div id='b' style='width:500px;height:400px'></div>",
     async data => {
@@ -162,7 +156,6 @@ it("Bullet shares one domain and axis, and runs vertically", async function () {
 });
 
 it("Bullet dims other rows on hover and lists Value, Target, and Forecast", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:300px'></div>",
     async data => {
@@ -205,7 +198,6 @@ it("Bullet dims other rows on hover and lists Value, Target, and Forecast", asyn
 });
 
 it("Bullet small multiples read each row against one domain across panels", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:900px;height:360px'></div>",
     async () => {
@@ -236,7 +228,6 @@ it("Bullet small multiples read each row against one domain across panels", asyn
 });
 
 it("Bullet reads on a dark background", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:300px;background:#1f2328'></div>",
     async data => {
@@ -272,7 +263,6 @@ it("Bullet reads on a dark background", async function () {
 });
 
 it("Bullet paints on Canvas and picks the row under the pointer", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:300px'></div>",
     async data => {

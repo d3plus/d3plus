@@ -1,6 +1,7 @@
 /* global requestAnimationFrame */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A faceted Pyramid in real Chromium, on both backends: every panel draws
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     outline, against its own scales, and keeps them through a hover that
     dims the other bars.
 */
-
-after(closeBrowser);
 
 const bands = ["0-9", "10-19", "20-29", "30-39"];
 const rows = ["2010", "2020"].flatMap((year, y) => bands.flatMap((age, b) => [
@@ -142,7 +141,6 @@ const near = (a, b, tol = 1.5) => Math.abs(a - b) <= tol;
 
 for (const renderer of ["svg", "canvas"]) {
   it(`a faceted Pyramid draws each panel's own gutter labels (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render(body, probe, [rows, renderer, bands]);
     assert.strictEqual(out.canvas, renderer === "canvas", `drawn on the ${renderer} backend`);
     const {panels, stray} = out.before;
@@ -165,7 +163,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`a faceted Pyramid keeps its gutter labels through a hover (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render(body, probe, [rows, renderer, bands]);
     assert.ok(out.hovered, "hovering a bar sets the hover");
     const bars = out.bars.filter(b => b.panel === "facet-2020");

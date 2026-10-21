@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A BoxWhisker's boxes, medians, whiskers and outliers are siblings in the
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     put and morphed into their neighbors, and SVG and Canvas paired the repeats
     differently. Each part is now keyed by its category and the part it draws.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 // Runs in the page: draws ABCD, redraws as `next` over a long transition, and
 // reports each box's x before, during and after.
@@ -133,7 +130,6 @@ const transition = ([renderer, next]) =>
 
 for (const renderer of ["svg", "canvas"]) {
   it(`BoxWhisker scene keys are unique and stable per category (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", transition, [renderer, ["D", "C", "B", "A"]]);
     assert.deepStrictEqual(out.repeated, [], "no key repeats among its siblings");
     assert.deepStrictEqual(out.keys, [
@@ -151,7 +147,6 @@ for (const renderer of ["svg", "canvas"]) {
 
   for (const next of [["D", "C", "B", "A"], ["B", "C", "D", "E"]]) {
     it(`BoxWhisker boxes travel with their category, ABCD -> ${next.join("")} (${renderer})`, async function () {
-      this.timeout(60000);
       const out = await render("", transition, [renderer, next]);
       assert.deepStrictEqual(out.moved, [], "no SVG element switches category");
       for (const cat of next.filter(c => c in out.before)) {
@@ -238,7 +233,6 @@ const pointAt = renderer =>
 
 for (const renderer of ["svg", "canvas"]) {
   it(`BoxWhisker: pointing at a box part reports that part (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", pointAt, renderer);
     assert.deepStrictEqual(out, {
       box: [{shape: "Rect", category: "B"}],

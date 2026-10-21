@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Generic page CSS (`div {padding}`, `button {padding}`) stays off the
@@ -9,10 +10,6 @@ import {closeBrowser, render} from "../playwright.js";
     below them sits right under them. Class rules naming d3plus's own
     classes, and d3plus's own style config, still apply.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const PAGE_CSS = "div {padding: 25px; margin: 10px} button {padding: 20px; margin: 10px}";
 
@@ -78,7 +75,6 @@ const bottom = rects => Math.max(...rects.map(r => r.top + r.height));
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: generic page CSS doesn't move or resize the corner controls`, async function () {
-    this.timeout(60000);
     const bare = await layout("", renderer);
     const styled = await layout(PAGE_CSS, renderer);
     assert.strictEqual(styled.controlsHeight, bare.controlsHeight, "cornerControlsHeight matches the bare page");
@@ -96,7 +92,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: class rules on d3plus's own classes still apply`, async function () {
-    this.timeout(60000);
     const bare = await layout("", renderer);
     const zoomPadded = await layout(`${PAGE_CSS} .d3plus-zoom-control {padding-bottom: 10px}`, renderer);
     // The controls reach their panel's bottom plus a gap equal to the
@@ -115,7 +110,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: d3plus style config still wins over page CSS`, async function () {
-    this.timeout(60000);
     const styled = await layout(PAGE_CSS, renderer, {
       zoomControlStyle: {height: "30px", width: "30px", padding: "5px", margin: "2px"},
     });
@@ -126,14 +120,12 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("a zoomControlClassName hands the zoom buttons to the page's CSS", async function () {
-  this.timeout(60000);
   const styled = await layout(`${PAGE_CSS} .my-button {padding: 3px}`, "svg", {zoomControlClassName: "my-button"});
   assert.strictEqual(styled.zoomButton.padding, "3px", "the class's padding");
   assert.strictEqual(styled.zoomButton.margin, "10px", "the page's own button rules apply too");
 });
 
 it("generic page CSS stays off the tooltip, and tooltip config still applies", async function () {
-  this.timeout(60000);
   const out = await render(
     `<style>${PAGE_CSS}</style><div id="s"></div>`,
     () =>

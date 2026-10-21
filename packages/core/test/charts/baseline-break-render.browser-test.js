@@ -1,9 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A BarChart whose value domain stops short of zero (#645) keeps 0 as the
@@ -104,20 +101,17 @@ function assertBroken(out, {end}) {
 }
 
 it("BarChart: yDomain above zero breaks the y axis and rests bars on the 0 tick", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100])`);
   assertBroken(out, {end: hi});
   assert.deepStrictEqual(out.domain, [2100, 1100], "the axis keeps the user's domain");
 });
 
 it("BarChart: a yConfig domain above zero breaks the same way", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yConfig({domain: [1100, 2100]})`);
   assertBroken(out, {end: hi});
 });
 
 it("BarChart: horizontal bars break the x axis at its left end", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").discrete("y").y("id").x("v").xConfig({domain: [1100, 2100]})`,
   );
@@ -125,7 +119,6 @@ it("BarChart: horizontal bars break the x axis at its left end", async function 
 });
 
 it("BarChart: an all-negative domain breaks at the top, with 0 as the top tick", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data.map(d => ({...d, v: -d.v}))).groupBy("id").x("id").y("v").yDomain([-2100, -1100])`,
   );
@@ -138,7 +131,6 @@ it("BarChart: an all-negative domain breaks at the top, with 0 as the top tick",
 });
 
 it("BarChart: the Canvas renderer draws the broken axis too", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100]).renderer("canvas")`,
   );
@@ -147,7 +139,6 @@ it("BarChart: the Canvas renderer draws the broken axis too", async function () 
 });
 
 it("BarChart: baselineBreak(false) keeps a yConfig domain unbroken but clamps bars at the axis", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yConfig({domain: [1100, 2100]}).baselineBreak(false)`,
   );
@@ -161,7 +152,6 @@ it("BarChart: baselineBreak(false) keeps a yConfig domain unbroken but clamps ba
 });
 
 it("BarChart: baselineBreak(false) with yDomain stretches the domain to 0 instead", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100]).baselineBreak(false)`,
   );
@@ -170,14 +160,12 @@ it("BarChart: baselineBreak(false) with yDomain stretches the domain to 0 instea
 });
 
 it("BarChart: bars above the domain max are clamped at the top of the axis", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 1600])`);
   assert.ok(out.brk, "breaks");
   out.bars.forEach(([a]) => assert.ok(a >= lo(out.range) - 1, `bar top ${a} inside the axis`));
 });
 
 it("BarChart: a data-driven domain still starts at 0 with no break", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v")`);
   assert.strictEqual(out.brk, null);
   assert.strictEqual(Math.min(...out.domain), 0);
@@ -185,7 +173,6 @@ it("BarChart: a data-driven domain still starts at 0 with no break", async funct
 });
 
 it("LinePlot: a yDomain above zero does not break the axis", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.LinePlot().data(data.map((d, i) => ({...d, id: "s", x: i}))).groupBy("id").x("x").y("v").yDomain([1100, 2100])`,
   );
@@ -194,7 +181,6 @@ it("LinePlot: a yDomain above zero does not break the axis", async function () {
 });
 
 it("BarChart: zooming a broken axis keeps the break and its mapping", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100]).zoom(true)`,
     {zoom: true},

@@ -1,11 +1,8 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {arrowEnds, arrowPathD, arrowSizeFor, straightArrowTip} from "../../es/src/charts/features/edgeArrows.js";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {arrowEnds, arrowPathD, arrowSizeFor, straightArrowTip} from "../../src/charts/features/edgeArrows.ts";
+import {render} from "~test/browser/render.js";
 
 const box = "<div id='viz' style='width:420px;height:420px'></div>";
 
@@ -44,7 +41,6 @@ it("straightArrowTip insets the tip to the node boundary and points at the targe
 });
 
 it("Network draws arrow triangles at the selected ends, and none when off", async function () {
-  this.timeout(60000);
   const r = await render(box, async () => {
     const count = arrows => new Promise(res => {
       document.querySelector("#viz").innerHTML = "";
@@ -65,7 +61,6 @@ it("Network draws arrow triangles at the selected ends, and none when off", asyn
 });
 
 it("Sankey draws an arrow triangle per link end", async function () {
-  this.timeout(60000);
   const r = await render(box, async () => {
     const count = arrows => new Promise(res => {
       document.querySelector("#viz").innerHTML = "";

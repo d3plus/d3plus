@@ -1,13 +1,8 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
-after(async () => {
-  await closeBrowser();
-});
-
-it("shapeConfig.texture paints patterns on Plot and data-driven charts", async function () {
-  this.timeout(120000);
-
+it("shapeConfig.texture paints patterns on Plot and data-driven charts", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:500px;height:400px;"></div>',
     async charts => {
@@ -51,9 +46,7 @@ it("shapeConfig.texture paints patterns on Plot and data-driven charts", async f
   }
 });
 
-it("a per-shape texture (shapeConfig[ShapeKey].texture) paints every data-driven emit", async function () {
-  this.timeout(120000);
-
+it("a per-shape texture (shapeConfig[ShapeKey].texture) paints every data-driven emit", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:500px;height:400px;"></div>',
     async () => {
@@ -89,9 +82,7 @@ it("a per-shape texture (shapeConfig[ShapeKey].texture) paints every data-driven
     assert.ok(count > 0, `${name}: per-shape texture fills shapes with a pattern`);
 });
 
-it("a texture fills nodes but leaves links and lines unfilled", async function () {
-  this.timeout(120000);
-
+it("a texture fills nodes but leaves links and lines unfilled", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:500px;height:400px;"></div>',
     async () => {

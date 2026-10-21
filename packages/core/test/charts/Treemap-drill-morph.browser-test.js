@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     End-to-end coverage for issue #166's drill-down morph, driven through the
@@ -13,7 +10,6 @@ after(async () => {
     next draw's resolved `enterFrom`/`exitTo`.
 */
 it("a routed click on a Treemap cell arms and resolves the forward and backward drill-down morph", async function () {
-  this.timeout(60000);
   const result = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async () => {

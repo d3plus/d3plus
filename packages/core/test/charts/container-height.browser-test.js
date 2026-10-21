@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A chart with an explicit height (or width) in a container that has no size
@@ -10,8 +11,6 @@ import {closeBrowser, render} from "../playwright.js";
     renderers: the svg is absolutely positioned (an in-flow spacer holds its
     size), the canvas is in flow itself.
 */
-
-after(closeBrowser);
 
 const data = [
   {id: "alpha", x: "A", y: 30},
@@ -52,8 +51,7 @@ const surfaceSrc = `sel => {
 }`;
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`${renderer}: two charts with explicit heights in unsized containers stack`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: two charts with explicit heights in unsized containers stack`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a" style="padding: 10px"></div><div id="b" style="padding: 10px"></div>`,
       async ({makeSrc, surfaceSrc, renderer, boxSrc}) => {
@@ -93,8 +91,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`${renderer}: an explicit width widens a shrink-to-fit container`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: an explicit width widens a shrink-to-fit container`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a" style="display: inline-block"></div>`,
       async ({makeSrc, renderer, boxSrc}) => {
@@ -109,8 +106,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(Math.round(r.height) >= 180, `container is ${r.height}px tall`);
   });
 
-  it(`${renderer}: side-by-side flex items each reserve their own chart's height`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: side-by-side flex items each reserve their own chart's height`, {timeout: 120000}, async function () {
     const r = await render(
       `<div style="display: flex"><div id="a" style="flex: 1"></div><div id="b" style="flex: 1"></div></div><div id="after">after</div>`,
       async ({makeSrc, renderer, boxSrc}) => {
@@ -129,8 +125,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`${renderer}: a container sized by CSS keeps its size, and an auto-sized chart fills it`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: a container sized by CSS keeps its size, and an auto-sized chart fills it`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a" style="height: 120px"></div><div id="b" style="height: 300px"></div>`,
       async ({makeSrc, surfaceSrc, renderer, boxSrc}) => {
@@ -156,8 +151,7 @@ for (const renderer of ["svg", "canvas"]) {
     );
   });
 
-  it(`${renderer}: a new height moves the reservation, and RESET drops it`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: a new height moves the reservation, and RESET drops it`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a"></div><div id="b" style="height: 260px"></div>`,
       async ({makeSrc, renderer, boxSrc}) => {
@@ -192,8 +186,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.spacers, 0, "no spacer is left behind");
   });
 
-  it(`${renderer}: a RESET height keeps the measured width automatic`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: a RESET height keeps the measured width automatic`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a" style="width: 500px; height: 260px"></div>`,
       async ({makeSrc, renderer}) => {
@@ -222,8 +215,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.strictEqual(r.spacers, 0);
   });
 
-  it(`${renderer}: tooltips and zoom controls sit over the chart they belong to`, async function () {
-    this.timeout(120000);
+  it(`${renderer}: tooltips and zoom controls sit over the chart they belong to`, {timeout: 120000}, async function () {
     const r = await render(
       `<div id="a" style="padding: 10px"></div><div id="b" style="padding: 10px"></div>`,
       async ({makeSrc, renderer, boxSrc}) => {

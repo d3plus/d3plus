@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     PolarArea renders in Chromium on both backends: stacked wedges on a sqrt
@@ -9,18 +10,13 @@ import {render, closeBrowser} from "../playwright.js";
     hover dimming, Canvas painting + picking, and small multiples.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const months = ["Jan", "Feb", "Mar", "Apr"];
 const causes = {Disease: [100, 400, 900, 25], Wounds: [0, 50, 100, 75]};
 const rose = Object.keys(causes).flatMap(cause =>
   months.map((month, m) => ({cause, month, deaths: causes[cause][m]})),
 );
 
-it("PolarArea stacks each metric's groups outward on an area-true scale", async function () {
-  this.timeout(180000);
+it("PolarArea stacks each metric's groups outward on an area-true scale", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:500px'></div>",
     async rows => {
@@ -120,8 +116,7 @@ it("PolarArea stacks each metric's groups outward on an area-true scale", async 
   assert.strictEqual(out.transform.x, cx, "centered in the chart area");
 });
 
-it("PolarArea gives each row its own slice without a metric, with no legend", async function () {
-  this.timeout(180000);
+it("PolarArea gives each row its own slice without a metric, with no legend", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async () => {
@@ -167,8 +162,7 @@ it("PolarArea gives each row its own slice without a metric, with no legend", as
   assert.strictEqual(out.aria, "N, 10.");
 });
 
-it("PolarArea takes a linear scale, an inner radius, padding, and explicit levels", async function () {
-  this.timeout(180000);
+it("PolarArea takes a linear scale, an inner radius, padding, and explicit levels", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async () => {
@@ -230,8 +224,7 @@ it("PolarArea takes a linear scale, an inner radius, padding, and explicit level
     assert.ok(out.texts.includes(t), `ring label ${t}`);
 });
 
-it("PolarArea turns crowded category labels along their spokes", async function () {
-  this.timeout(180000);
+it("PolarArea turns crowded category labels along their spokes", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:420px;height:380px'></div>",
     async () => {
@@ -258,8 +251,7 @@ it("PolarArea turns crowded category labels along their spokes", async function 
   assert.ok(out.interactive, "category labels never take the pointer");
 });
 
-it("PolarArea dims the other groups on hover, not the chrome", async function () {
-  this.timeout(180000);
+it("PolarArea dims the other groups on hover, not the chrome", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async rows => {
@@ -295,8 +287,7 @@ it("PolarArea dims the other groups on hover, not the chrome", async function ()
   );
 });
 
-it("PolarArea paints and picks on Canvas", async function () {
-  this.timeout(180000);
+it("PolarArea paints and picks on Canvas", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async rows => {
@@ -361,8 +352,7 @@ it("PolarArea paints and picks on Canvas", async function () {
   assert.ok(out.colors >= 3, `canvas paints the wedges (${out.colors} colors)`);
 });
 
-it("PolarArea draws one panel per facet", async function () {
-  this.timeout(180000);
+it("PolarArea draws one panel per facet", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:900px;height:400px'></div>",
     async rows => {

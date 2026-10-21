@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 const boxes = `
   <div id='a' style='width:400px;height:300px'></div>
@@ -33,7 +30,6 @@ function linkedCharts(body) {
 }
 
 it("hovering a Treemap tile dims the other bars in a linked BarChart", async function () {
-  this.timeout(60000);
   const result = await linkedCharts(`
     a.hover(d => d.country === "Brazil");
     await frame();
@@ -50,7 +46,6 @@ it("hovering a Treemap tile dims the other bars in a linked BarChart", async fun
 });
 
 it("hiding a legend item in one chart hides it in the linked chart", async function () {
-  this.timeout(60000);
   const result = await linkedCharts(`
     const legendDatum = a._legendData.find(d => d.country === "Chile");
     a.schema.on["click.legend"](legendDatum, 0, undefined, {shiftKey: false});
@@ -65,7 +60,6 @@ it("hiding a legend item in one chart hides it in the linked chart", async funct
 });
 
 it("linked charts give each value the same color", async function () {
-  this.timeout(60000);
   const result = await render(boxes, async () => {
     // Europe leads the bar data but trails in the treemap (sorted by size), so
     // separately-scaled charts would swap the two regions' colors.

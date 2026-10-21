@@ -1,21 +1,18 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {scaleSqrt} from "d3-scale";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 import {
   defaultSizeLegendValues,
   zoomSizeLegendScale,
-} from "../../es/src/components/SizeLegend/sizeLegendLayout.js";
+} from "../../src/components/SizeLegend/sizeLegendLayout.ts";
 
 /**
     The nested-circle size legend's layout (#83): concentric circles that
     share a bottom tangent, radii straight from the chart's radius scale, and
     labels that never overlap. Layout measures text, so it runs in Chromium.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 it("SizeLegend: default values are the extremes plus a round middle", () => {
   assert.deepStrictEqual(defaultSizeLegendValues([10, 1000]), [10, 500, 1000]);

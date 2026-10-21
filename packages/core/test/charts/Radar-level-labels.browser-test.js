@@ -1,12 +1,11 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Radar level rings + value labels (#769), rendered end to end in Chromium
     through the SVG and Canvas backends.
 */
-
-after(closeBrowser);
 
 const body = '<div id="viz" style="width:600px;height:450px;font-family:sans-serif;"></div>';
 
@@ -66,7 +65,6 @@ const probeSvg = ([rows, configSrc]) =>
   });
 
 it("Radar draws rings on nice values and labels them along the top by default", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [data, "{}"]);
   assert.deepStrictEqual(r.nodeTexts, ["0", "50", "100", "150", "200", "250", "300", "350"]);
   assert.deepStrictEqual(r.nodeTypes, ["text"], "labels are text only, no backdrops");
@@ -86,7 +84,6 @@ it("Radar draws rings on nice values and labels them along the top by default", 
 });
 
 it("Radar spokes point at their axis labels", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [data, "{}"]);
   assert.strictEqual(r.spokes.length, 5);
   r.spokes.forEach(d => {
@@ -104,7 +101,6 @@ it("Radar spokes point at their axis labels", async function () {
 });
 
 it("levelLabels(false) hides the value labels but keeps the rings", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [data, "{levelLabels: false}"]);
   assert.deepStrictEqual(r.nodeTexts, []);
   assert.strictEqual(r.rings.length, 7);
@@ -112,7 +108,6 @@ it("levelLabels(false) hides the value labels but keeps the rings", async functi
 });
 
 it("levels accepts explicit ring values, and levelFormat formats the labels", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [
     data,
     "{levels: [0, 100, 200, 300, 400], levelFormat: d => d + ' pts'}",
@@ -123,14 +118,12 @@ it("levels accepts explicit ring values, and levelFormat formats the labels", as
 });
 
 it("levels as a count hint changes the ring spacing", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [data, "{levels: 3}"]);
   assert.strictEqual(r.rings.length, 4, "rings at 100, 200, 300, 400");
   assert.deepStrictEqual(r.nodeTexts, ["0", "100", "200", "300", "400"]);
 });
 
 it("levelLabelAngle moves the labels and levelLabelConfig styles them", async function () {
-  this.timeout(60000);
   const r = await render(body, probeSvg, [
     data,
     "{levelLabelAngle: 180, levelLabelConfig: {fontSize: 14, fontColor: 'rgb(1, 2, 3)'}}",
@@ -145,7 +138,6 @@ it("levelLabelAngle moves the labels and levelLabelConfig styles them", async fu
 });
 
 it("level labels read against a dark background", async function () {
-  this.timeout(60000);
   const dark = '<div id="viz" style="width:600px;height:450px;background:rgb(20, 20, 20);"></div>';
   const r = await render(dark, probeSvg, [data, "{}"]);
   const hex = r.fontColor.replace("#", "");
@@ -187,7 +179,6 @@ const probeCanvas = ([rows, showLabels]) =>
   });
 
 it("Canvas backend paints the level labels", async function () {
-  this.timeout(60000);
   const withLabels = await render(body, probeCanvas, [data, true]);
   const without = await render(body, probeCanvas, [data, false]);
   assert.strictEqual(without, 0, "no red pixels without labels");
@@ -195,7 +186,6 @@ it("Canvas backend paints the level labels", async function () {
 });
 
 it("level labels default to the abbreviated axis number format", async function () {
-  this.timeout(60000);
   const big = data.map(d => ({...d, number: d.number * 10000}));
   const r = await render(body, probeSvg, [big, "{}"]);
   assert.deepStrictEqual(r.nodeTexts, ["0", "500k", "1M", "1.5M", "2M", "2.5M", "3M", "3.5M"]);

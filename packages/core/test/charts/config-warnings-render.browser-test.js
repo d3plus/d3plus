@@ -1,7 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Rendering and hovering every chart type with ordinary configs must not log
@@ -231,8 +230,7 @@ const renderAndHover = async ({charts, renderer}) => {
 };
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`renders and hovers every chart type without config warnings (${renderer})`, async function () {
-    this.timeout(120000);
+  it(`renders and hovers every chart type without config warnings (${renderer})`, {timeout: 120000}, async function () {
     const warnings = await render("", renderAndHover, {charts, renderer});
     assert.deepStrictEqual(warnings, []);
   });
@@ -276,14 +274,12 @@ const zoomAndBack = async ({config, renderer}) => {
 
 for (const renderer of ["svg", "canvas"]) {
   it(`zooms a Sunburst in and back out without config warnings (${renderer})`, async function () {
-    this.timeout(60000);
     const warnings = await render("", zoomAndBack, {config: sunburst, renderer});
     assert.deepStrictEqual(warnings, []);
   });
 }
 
 it("still warns about a typo in the user's config", async function () {
-  this.timeout(60000);
   const typos = [
     ["LinePlot", {...plot, shapeConfig: {fil: "red"}}],
     ["LinePlot", {...plot, annotations: [{shape: "Line", data: [{id: "a", x: 4, y: 10}], strok: "red"}]}],

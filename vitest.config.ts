@@ -1,7 +1,9 @@
 import react from "@vitejs/plugin-react";
+import {playwright} from "@vitest/browser-playwright";
 import {defineConfig} from "vitest/config";
 
 import {aliases} from "./test/aliases.js";
+import {commands} from "./test/browser/commands.ts";
 
 const canvasSetup = "test/canvas-setup.js";
 
@@ -41,6 +43,42 @@ export default defineConfig({
         testTimeout: 60000,
         hookTimeout: 60000,
       }),
+      {
+        extends: true,
+        test: {
+          name: "core-browser",
+          include: ["packages/core/test/**/*.browser-test.js"],
+          // Still mocha tests, until they move to page.js.
+          exclude: [
+            "**/charts/{BoxWhisker-events,Candlestick-hover,canvas-first-draw-frame,stackEnter-render}.browser-test.js",
+            "**/render-parity.browser-test.js",
+          ],
+          testTimeout: 60000,
+          hookTimeout: 60000,
+          // After the Node projects, so they don't compete for the CPU.
+          sequence: {groupOrder: 1},
+          maxWorkers: "50%",
+          provide: {
+            updateSnapshots: process.argv.some(arg => arg === "-u" || arg === "--update"),
+          },
+          browser: {
+            enabled: true,
+            headless: true,
+            provider: playwright({
+              // Only the test server resolves: map tiles and other remote
+              // requests fail at once instead of reaching the network.
+              launchOptions: {
+                args: ["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1"],
+              },
+              contextOptions: {deviceScaleFactor: 1},
+            }),
+            instances: [{browser: "chromium"}],
+            viewport: {width: 1280, height: 720},
+            screenshotFailures: false,
+            commands,
+          },
+        },
+      },
       {
         extends: true,
         test: {name: "docs-scripts", include: ["scripts/docs/test/**/*-test.js"]},

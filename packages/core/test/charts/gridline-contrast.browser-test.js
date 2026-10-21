@@ -1,16 +1,13 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Default gridlines sit one faint step off the chart's background on both
     light and dark pages, rather than standing out on dark ones.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Renders a LinePlot inside a parent with `background`, and returns its visible gridline strokes. */
 const gridStrokes = (background, extra = "") =>

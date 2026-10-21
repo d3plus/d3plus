@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `zoomFeature` returns its four zoom-control buttons as an `htmlOverlay`
@@ -10,13 +11,7 @@ import {render, closeBrowser} from "../playwright.js";
     asserts the buttons reach the DOM — locking the returned-panel path
     (nothing else in the suite exercises the zoom-control overlay).
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("Network zoom controls render via the returned feature panel", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -46,8 +41,6 @@ it("Network zoom controls render via the returned feature panel", async function
 });
 
 it("any chart gets zoom controls, a wheel zoom anchored under the cursor, and control-button zoom", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div><div id="c" style="width:400px;height:300px;"></div>',
     () =>
@@ -105,8 +98,6 @@ it("any chart gets zoom controls, a wheel zoom anchored under the cursor, and co
 });
 
 it("zoom is on by default, and zoom(false) removes the controls and zoom surface", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () => {
@@ -133,8 +124,6 @@ it("zoom is on by default, and zoom(false) removes the controls and zoom surface
 });
 
 it("the default maximum zoom follows the smallest shape (#85), and an explicit zoomMax wins", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () => {
@@ -159,8 +148,6 @@ it("the default maximum zoom follows the smallest shape (#85), and an explicit z
 });
 
 it("Plot zoom rescales linear axes in place and leaves discrete axes fixed (#780)", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -210,8 +197,6 @@ it("Plot zoom rescales linear axes in place and leaves discrete axes fixed (#780
 });
 
 it("zoom controls pin to the chart's top-right corner and top content wraps short of them", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -247,8 +232,6 @@ it("zoom controls pin to the chart's top-right corner and top content wraps shor
 });
 
 it("brush mode ends once a brushed selection zooms, and the toggle reports it", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -289,8 +272,6 @@ it("brush mode ends once a brushed selection zooms, and the toggle reports it", 
 });
 
 it("a rescaled Plot axis labels only nice ticks and stays in place", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -317,8 +298,6 @@ it("a rescaled Plot axis labels only nice ticks and stays in place", async funct
 });
 
 it("zoom leaves page scrolling alone by default, on every chart", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () => {
@@ -368,8 +347,6 @@ it("zoom leaves page scrolling alone by default, on every chart", async function
 });
 
 it("a canvas Geomap mounts its ocean and tiles beneath the canvas", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -414,8 +391,6 @@ it("a canvas Geomap mounts its ocean and tiles beneath the canvas", async functi
 });
 
 it("the default basemap follows the page's theme", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

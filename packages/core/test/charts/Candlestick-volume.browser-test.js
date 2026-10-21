@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Candlestick's volume strip in a real browser: one bar per candle under the
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     bars; facets, OHLC bars, calendar gaps, zoom, textures, and the canvas
     renderer.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -94,8 +91,7 @@ const helpers = () => {
 
 const run = (fn, arg) => render("", new Function("arg", `return (${helpers})(), (${fn})(arg);`), arg);
 
-it("Candlestick draws a volume strip only with volume: a bar per candle, colored by direction, between the candles and the x axis", async function () {
-  this.timeout(120000);
+it("Candlestick draws a volume strip only with volume: a bar per candle, colored by direction, between the candles and the x axis", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(40);
     const plain = await window.__draw(v => v.data(data).groupBy("symbol"));
@@ -160,8 +156,7 @@ it("Candlestick draws a volume strip only with volume: a bar per candle, colored
   out.labels.forEach(l => assert.match(l, /^\d+(\.\d+)?[kKMB]$/, `abbreviated tick ${l}`));
 });
 
-it("Candlestick lists Volume in the tooltip and aria label, translated", async function () {
-  this.timeout(120000);
+it("Candlestick lists Volume in the tooltip and aria label, translated", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(20);
     const tip = async locale => {
@@ -183,8 +178,7 @@ it("Candlestick lists Volume in the tooltip and aria label, translated", async f
   assert.match(out.es.barAria, /^ACME, ene 1, 2024: Volumen \d+(,\d+)?mm\.$/, "in the chart's locale");
 });
 
-it("Candlestick's date work grows linearly with its periods, volume strip included", async function () {
-  this.timeout(120000);
+it("Candlestick's date work grows linearly with its periods, volume strip included", {timeout: 120000}, async function () {
   const out = await run(async () => {
     // Counts Date comparisons and conversions while drawing `n` periods.
     const count = async (n, volume) => {
@@ -215,8 +209,7 @@ it("Candlestick's date work grows linearly with its periods, volume strip includ
     assert.ok(large / small < 6, `${name}: ${small} at 250 periods, ${large} at 1000`));
 });
 
-it("Candlestick sums volumes when rows merge, and aggs overrides it", async function () {
-  this.timeout(120000);
+it("Candlestick sums volumes when rows merge, and aggs overrides it", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const rows = [];
     ["2024-01-02", "2024-01-03", "2024-01-04"].forEach((day, k) => {
@@ -249,8 +242,7 @@ it("Candlestick sums volumes when rows merge, and aggs overrides it", async func
   out.key.bars.forEach(h => assert.ok(h > 0));
 });
 
-it("Candlestick volume bars hover and hit-test with their candle on SVG and Canvas", async function () {
-  this.timeout(120000);
+it("Candlestick volume bars hover and hit-test with their candle on SVG and Canvas", {timeout: 120000}, async function () {
   for (const renderer of ["svg", "canvas"]) {
     const out = await run(async renderer => {
       const data = window.__prices(30);
@@ -272,8 +264,7 @@ it("Candlestick volume bars hover and hit-test with their candle on SVG and Canv
   }
 });
 
-it("Candlestick volume works with variant ohlc, skipGaps(false), and volumeConfig", async function () {
-  this.timeout(120000);
+it("Candlestick volume works with variant ohlc, skipGaps(false), and volumeConfig", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(15);
     const strip = viz => viz._plotArea.y + viz._plotArea.height - Math.max(...viz._yAxis._d3Scale.range());
@@ -303,8 +294,7 @@ it("Candlestick volume works with variant ohlc, skipGaps(false), and volumeConfi
   assert.strictEqual(out.paint.stroke, "black");
 });
 
-it("Candlestick draws a volume strip in each facet panel", async function () {
-  this.timeout(120000);
+it("Candlestick draws a volume strip in each facet panel", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = [...window.__prices(20, "ACME", 100, 3), ...window.__prices(20, "BOLT", 20, 5).map(d => ({...d, volume: d.volume * 40}))];
     const probe = async scales => {
@@ -336,8 +326,7 @@ it("Candlestick draws a volume strip in each facet panel", async function () {
   assert.strictEqual(labeled.length, 1, "with shared scales, only the left panel labels its strip");
 });
 
-it("Candlestick keeps candles out of the volume strip while zoomed", async function () {
-  this.timeout(120000);
+it("Candlestick keeps candles out of the volume strip while zoomed", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(30);
     const {el, viz} = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
@@ -367,8 +356,7 @@ it("Candlestick keeps candles out of the volume strip while zoomed", async funct
   assert.strictEqual(out.bars, 30, "the strip stays drawn");
 });
 
-it("Candlestick keeps the volume axis labeled while zoomed", async function () {
-  this.timeout(120000);
+it("Candlestick keeps the volume axis labeled while zoomed", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(30);
     const {el, viz} = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
@@ -386,8 +374,7 @@ it("Candlestick keeps the volume axis labeled while zoomed", async function () {
   assert.strictEqual(out.inside, false, "the volume axis sits outside the zoom's clipped content");
 });
 
-it("Candlestick's volume strip and axis stay clear of the plot's domain clip", async function () {
-  this.timeout(120000);
+it("Candlestick's volume strip and axis stay clear of the plot's domain clip", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = window.__prices(30);
     const {viz} = await window.__draw(v => v.data(data).groupBy("symbol").volume("volume"));
@@ -410,8 +397,7 @@ it("Candlestick's volume strip and axis stay clear of the plot's domain clip", a
   assert.strictEqual(out.axes, 1, "the volume axis is drawn");
 });
 
-it("Candlestick volume bars take texture and backgroundImage on SVG and Canvas", async function () {
-  this.timeout(120000);
+it("Candlestick volume bars take texture and backgroundImage on SVG and Canvas", {timeout: 120000}, async function () {
   for (const renderer of ["svg", "canvas"]) {
     const out = await run(async renderer => {
       const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";

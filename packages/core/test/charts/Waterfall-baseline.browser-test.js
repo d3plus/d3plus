@@ -1,6 +1,7 @@
-import assert from "assert";
-import {Waterfall} from "../../es/index.js";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {Waterfall} from "../../index.ts";
+import {render} from "~test/browser/render.js";
 
 /**
     Waterfall in real Chromium, zoomed in on a bridge between large totals: a
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     tick behind a break, and subtotal bars rise from that 0 through it.
     `baseline(n)` sets the value axis's minimum (#945), so it paints the same.
 */
-
-after(closeBrowser);
 
 const bridge = [
   {step: "Opening", v: 1000, sub: true},
@@ -89,7 +88,6 @@ function assertFromZero(out, panel, label) {
 }
 
 it("Waterfall's yDomain([980]) draws subtotals from the 0 tick through the break", async function () {
-  this.timeout(60000);
   assertFromZero(await render(body, probe, [bridge, {yDomain: [980]}]), undefined, "vertical");
   const flat = await render(body, probe, [bridge, {}]);
   assert.ok(Math.min(...flat.domain) <= 0, "the axis includes zero by default");
@@ -97,7 +95,6 @@ it("Waterfall's yDomain([980]) draws subtotals from the 0 tick through the break
 });
 
 it("Waterfall's domain break works for horizontal bars and small multiples", async function () {
-  this.timeout(60000);
   const horizontal = await render(body, probe, [bridge, {xDomain: [980], discrete: "y", x: "v", y: "step"}]);
   assertFromZero(horizontal, undefined, "horizontal");
   const years = [2024, 2025].flatMap(yr => bridge.map(d => ({...d, yr})));
@@ -106,7 +103,6 @@ it("Waterfall's domain break works for horizontal bars and small multiples", asy
 });
 
 it("Waterfall's baseline(980) paints exactly what yDomain([980]) does", async function () {
-  this.timeout(60000);
   // Plot's `baseline` sets the value axis's minimum (#945), leaving the
   // chart's own baseline, where bars start, at 0.
   assert.strictEqual(new Waterfall().baseline(980).schema.baseline, 0);
@@ -186,8 +182,7 @@ const orientations = [
   ["horizontal", "x", {discrete: "y", x: "v", y: "step", xDomain: [980]}],
 ];
 
-it("Waterfall masks its baseline break exactly as BarChart does: across every bar by default, off on request", async function () {
-  this.timeout(120000);
+it("Waterfall masks its baseline break exactly as BarChart does: across every bar by default, off on request", {timeout: 120000}, async function () {
   for (const [label, axis, config] of orientations) {
     const unmasked = {...config, [`${axis}Config`]: {baselineBreakConfig: {mask: false}}};
     const wf = await render(body, maskProbe, ["Waterfall", bridge, {...config, subtotal: "sub"}, "svg"]);
@@ -206,8 +201,7 @@ it("Waterfall masks its baseline break exactly as BarChart does: across every ba
   }
 });
 
-it("Waterfall's masked baseline break cuts the gap out of a total bar on Canvas", async function () {
-  this.timeout(120000);
+it("Waterfall's masked baseline break cuts the gap out of a total bar on Canvas", {timeout: 120000}, async function () {
   // The canvas leaves unpainted pixels transparent, so the page shows through.
   const empty = p => p[3] === 0 || (p[0] > 240 && p[1] > 240 && p[2] > 240);
   for (const [label, axis, config] of orientations) {

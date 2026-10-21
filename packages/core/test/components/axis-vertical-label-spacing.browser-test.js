@@ -1,6 +1,7 @@
-import assert from "assert";
-import {labelExtent} from "../../es/src/components/Axis/axisLayoutLabels.js";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {labelExtent} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {render} from "~test/browser/render.js";
 
 /**
     A vertical category axis used to hide every other label once its rows sat
@@ -47,8 +48,6 @@ const run = (n, height, renderer = "svg") =>
 /** Whether any two vertically stacked label boxes overlap. */
 const overlaps = boxes => boxes.some((a, i) => boxes.slice(i + 1).some(b =>
   a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5));
-
-after(closeBrowser);
 
 it("labelExtent — text along the axis spans its width", () => {
   const datum = {fP: 5, fS: 12, height: 22, lineHeight: 16.8, lines: ["Brazil"], rotate: false, width: 36};

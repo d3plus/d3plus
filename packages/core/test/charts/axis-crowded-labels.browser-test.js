@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A point (discrete) axis with more labels than fit side by side used to
@@ -41,8 +42,6 @@ const run = (kind, first, last, width = 600) =>
 /** Whether any two label boxes overlap. */
 const overlaps = labels => labels.some((a, i) => labels.slice(i + 1).some(b =>
   a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5));
-
-after(closeBrowser);
 
 it("crowded point axis — keeps labels instead of dropping them all", async () => {
   for (const [first, last] of [[2012, 2029], [2000, 2029], [1950, 2029]]) {

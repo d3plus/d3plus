@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot no taller than `yCutoff` hides its y axis and labels only the two
@@ -8,10 +9,6 @@ import {closeBrowser, render} from "../playwright.js";
     tick labels. The plot ends above the labels by the axis's label padding,
     so no shape ever touches them.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /**
     Renders each chart (built in the page by `src`, a `lib => chart` function
@@ -159,7 +156,6 @@ const assertNoOverlap = (r, msg) => {
 };
 
 it("a short LinePlot labels only its x domain ends, flush with the plot area's edges", async function () {
-  this.timeout(60000);
   const [r] = await renderCharts([{src: LINE}]);
   assert.deepStrictEqual(
     r.endLabels.map(l => l.text),
@@ -185,7 +181,6 @@ it("a short LinePlot labels only its x domain ends, flush with the plot area's e
 });
 
 it("a short LinePlot's line starting bottom-left never touches the end labels", async function () {
-  this.timeout(60000);
   const [r] = await renderCharts([{src: LINE}]);
   assertNoOverlap(r, "LinePlot");
   // The line's lowest point (x = 0) sits on the plot's bottom edge.
@@ -198,7 +193,6 @@ it("a short LinePlot's line starting bottom-left never touches the end labels", 
 });
 
 it("the end labels sit the axis's label padding below the plot", async function () {
-  this.timeout(60000);
   const pad = p =>
     `lib => (${LINE})(lib).xConfig({shapeConfig: {labelConfig: {padding: ${p}}}})`;
   const [base, wide] = await renderCharts([{src: LINE}, {src: pad(15)}]);
@@ -236,7 +230,6 @@ it("the end labels sit the axis's label padding below the plot", async function 
 });
 
 it("the plot claims the end labels' measured text height", async function () {
-  this.timeout(60000);
   const big = `lib => (${LINE})(lib).xConfig({shapeConfig: {labelConfig: {fontSize: 20}}})`;
   const [base, large] = await renderCharts([{src: LINE}, {src: big}]);
   // 12px and 20px labels measure ceil(1.4 × fontSize) tall: 17 and 28.
@@ -256,7 +249,6 @@ it("the plot claims the end labels' measured text height", async function () {
 });
 
 it("a short BarChart's end labels sit flush with the plot edges, not the bar centers", async function () {
-  this.timeout(60000);
   const [r] = await renderCharts([{src: BARS}]);
   assert.deepStrictEqual(
     r.endLabels.map(l => l.text),
@@ -274,7 +266,6 @@ it("a short BarChart's end labels sit flush with the plot edges, not the bar cen
 });
 
 it("end labels use the axis's own format for numbers, years, and time", async function () {
-  this.timeout(60000);
   const years = `lib => {
     const data = [];
     for (let year = 2010; year <= 2024; year++) data.push({id: "a", year, v: 5 + Math.round(4 * Math.sin(year))});
@@ -316,7 +307,6 @@ it("end labels use the axis's own format for numbers, years, and time", async fu
 });
 
 it("a single value gets one end label, centered on the plot", async function () {
-  this.timeout(60000);
   const single = `lib => new lib.BarChart().data([{id: "a", year: 2020, v: 3}]).groupBy("id").x("year").y("v")`;
   const [r] = await renderCharts([{src: single}]);
   assert.deepStrictEqual(
@@ -334,7 +324,6 @@ it("a single value gets one end label, centered on the plot", async function () 
 });
 
 it("long end labels truncate with an ellipsis instead of colliding", async function () {
-  this.timeout(60000);
   const long = `lib => new lib.BarChart().data([
     {id: "a", cat: "A very long category name that goes on and on", v: 3},
     {id: "a", cat: "Another extremely long category label here too", v: 5},
@@ -352,7 +341,6 @@ it("long end labels truncate with an ellipsis instead of colliding", async funct
 });
 
 it("end labels respect the user's xConfig tickFormat, ticks, and label font", async function () {
-  this.timeout(60000);
   const format = `lib => (${LINE})(lib).xConfig({tickFormat: d => "$" + d})`;
   const ticks = `lib => (${LINE})(lib).xConfig({ticks: [0, 15, 30]})`;
   const styled = `lib => (${LINE})(lib).xConfig({shapeConfig: {labelConfig: {fontColor: "rgb(255, 0, 0)"}}})`;
@@ -376,7 +364,6 @@ it("end labels respect the user's xConfig tickFormat, ticks, and label font", as
 });
 
 it("labels chosen with xConfig.labels are drawn by the axis instead of the end labels", async function () {
-  this.timeout(60000);
   const labels = `lib => (${LINE})(lib).xConfig({labels: [0, 30]})`;
   const [r] = await renderCharts([{src: labels}]);
   assert.deepStrictEqual(r.endLabels, []);
@@ -384,7 +371,6 @@ it("labels chosen with xConfig.labels are drawn by the axis instead of the end l
 });
 
 it("end labels work with an x2 axis and on a horizontal BarChart", async function () {
-  this.timeout(60000);
   const x2 = `lib => {
     const data = [];
     for (let x = 0; x <= 30; x += 3) data.push({id: "a", x, x2: x * 10, y: (x * 7) % 13 + 2});
@@ -409,14 +395,12 @@ it("end labels work with an x2 axis and on a horizontal BarChart", async functio
 });
 
 it("a chart too narrow for its x axis draws no end labels", async function () {
-  this.timeout(60000);
   const [r] = await renderCharts([{src: LINE, width: 140}]);
   assert.deepStrictEqual(r.endLabels, []);
   assert.deepStrictEqual(r.axisText, []);
 });
 
 it("the y cutoff boundary: 150px labels the ends, 151px draws both axes", async function () {
-  this.timeout(60000);
   const [at, above] = await renderCharts([
     {src: LINE, height: 150},
     {src: LINE, height: 151},
@@ -434,7 +418,6 @@ it("the y cutoff boundary: 150px labels the ends, 151px draws both axes", async 
 });
 
 it("very short charts drop the end labels rather than crush the plot", async function () {
-  this.timeout(60000);
   const charts = [20, 40, 60, 80].map(height => ({src: LINE, height}));
   const results = await renderCharts(charts);
   for (const r of results) {
@@ -451,7 +434,6 @@ it("very short charts drop the end labels rather than crush the plot", async fun
 });
 
 it("Canvas paints the same end labels, flush with the plot edges", async function () {
-  this.timeout(60000);
   const canvas = `lib => (${LINE})(lib).renderer("canvas")`;
   const [svg, cnv] = await renderCharts([{src: LINE}, {src: canvas}]);
   assert.ok(cnv.canvas, "rendered to a canvas");
@@ -473,7 +455,6 @@ it("Canvas paints the same end labels, flush with the plot edges", async functio
 });
 
 it("a short chart that grows past the cutoff gets its x axis labels back", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:420px;height:150px'></div>",
     ({src}) =>
@@ -519,7 +500,6 @@ it("a short chart that grows past the cutoff gets its x axis labels back", async
 });
 
 it("zooming a short chart relabels the ends with the zoomed domain", async function () {
-  this.timeout(60000);
   // A Plot's numeric x axis is linear (a LinePlot's is a point scale), so a zoom rescales it.
   const linear = `lib => {
     const data = [];
@@ -583,7 +563,6 @@ it("zooming a short chart relabels the ends with the zoomed domain", async funct
 });
 
 it("measureEndLabels formats and measures an axis's ends with its label config", async function () {
-  this.timeout(60000);
   const out = await render("", () => {
     const {AxisBottom, measureEndLabels} = window.d3plus;
     const axis = new AxisBottom()
@@ -623,7 +602,6 @@ it("measureEndLabels formats and measures an axis's ends with its label config",
 });
 
 it("placeEndLabels positions a rendered axis's ends flush with the plot edges", async function () {
-  this.timeout(60000);
   const out = await render("", () => {
     const {AxisBottom, placeEndLabels} = window.d3plus;
     const axis = new AxisBottom()
@@ -647,7 +625,6 @@ it("placeEndLabels positions a rendered axis's ends flush with the plot edges", 
 });
 
 it("alignAxisLine moves a bottom axis's line and gridlines to the given y", async function () {
-  this.timeout(60000);
   const out = await render("", () => {
     const {AxisBottom, alignAxisLine} = window.d3plus;
     const axis = new AxisBottom()
@@ -680,7 +657,6 @@ it("alignAxisLine moves a bottom axis's line and gridlines to the given y", asyn
 });
 
 it("emitEndLabels draws the boxes with the axis's label config", async function () {
-  this.timeout(60000);
   const out = await render("", () => {
     const {AxisBottom, emitEndLabels} = window.d3plus;
     const axis = new AxisBottom().shapeConfig({
@@ -756,7 +732,6 @@ it("emitEndLabels draws the boxes with the axis's label config", async function 
 });
 
 it("Axis keeps the label formatter its last layout resolved", async function () {
-  this.timeout(60000);
   const out = await render("", () => {
     const {AxisBottom} = window.d3plus;
     const axis = new AxisBottom().domain([0, 5000]).measure();

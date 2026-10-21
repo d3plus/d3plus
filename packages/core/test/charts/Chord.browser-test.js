@@ -1,14 +1,10 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 const box = "<div id='viz' style='width:420px;height:420px'></div>";
 
 it("Chord emits one arc per node, one ribbon per directed flow, and a label per node", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -33,7 +29,6 @@ it("Chord emits one arc per node, one ribbon per directed flow, and a label per 
 });
 
 it("Chord drops links naming an endpoint absent from the node set", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -60,7 +55,6 @@ it("Chord drops links naming an endpoint absent from the node set", async functi
 });
 
 it("Chord renders undirected with .directed(false)", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -84,7 +78,6 @@ it("Chord renders undirected with .directed(false)", async function () {
 });
 
 it("Chord handles empty data without error", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -102,7 +95,6 @@ it("Chord handles empty data without error", async function () {
 });
 
 it("Chord renders a self-loop (source === target) without error", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -127,7 +119,6 @@ it("Chord renders a self-loop (source === target) without error", async function
 });
 
 it("Chord .arrows(true) uses ribbonArrow (no extra triangle nodes, ribbons keep drawing)", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const build = arrows => new Promise(res => {
       document.querySelector("#viz").innerHTML = "";
@@ -150,7 +141,6 @@ it("Chord .arrows(true) uses ribbonArrow (no extra triangle nodes, ribbons keep 
 });
 
 it("Chord colors groups by a custom nodeId", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")
@@ -177,7 +167,6 @@ it("Chord colors groups by a custom nodeId", async function () {
 });
 
 it("Chord ribbons fade in with the arcs instead of appearing instantly", async function () {
-  this.timeout(60000);
   const result = await render(box, async () => {
     const viz = new window.d3plus.Chord()
       .select("#viz")

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot whose `xDomain`/`yDomain` cuts its data off clips its data marks to
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     clips to its own plot, and a chart whose domains cover its data (or a
     BarChart, whose bars clamp) draws exactly as before.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const box = "<div id='viz' style='width:640px;height:400px'></div>";
 

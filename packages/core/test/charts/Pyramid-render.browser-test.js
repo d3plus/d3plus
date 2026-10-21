@@ -1,7 +1,8 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
-import {render, closeBrowser} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Pyramid in real Chromium: two sides mirrored about one center line, a
@@ -9,8 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     side, comparison outlines, positive tooltips, timeline frames, zoom, and
     the Canvas backend.
 */
-
-after(closeBrowser);
 
 const bands = ["0-9", "10-19", "20-29", "30-39"];
 const rows = bands.flatMap((age, b) => [
@@ -77,7 +76,6 @@ const body = '<div id="viz" style="width:700px;height:420px;font-family:sans-ser
 const near = (a, b, tol = 1.5) => Math.abs(a - b) <= tol;
 
 it("Pyramid mirrors two sides about the center line", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [rows, {}]);
   const male = out.bars.filter(b => b.key.startsWith("Male"));
   const female = out.bars.filter(b => b.key.startsWith("Female"));
@@ -99,7 +97,6 @@ it("Pyramid mirrors two sides about the center line", async function () {
 });
 
 it("Pyramid's value axis reads magnitudes on both halves", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [rows, {}]);
   assert.ok(out.xTicks.length >= 5, `ticks: ${out.xTicks}`);
   assert.ok(out.xTicks.every(t => !/[-−]/.test(t)), `no minus signs: ${out.xTicks}`);
@@ -117,7 +114,6 @@ it("Pyramid's value axis reads magnitudes on both halves", async function () {
 });
 
 it("Pyramid titles each half with its side", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [rows, {}]);
   assert.deepStrictEqual(out.titles.map(t => t.text), ["Male", "Female"]);
   const [male, female] = out.titles;
@@ -136,7 +132,6 @@ it("Pyramid titles each half with its side", async function () {
 });
 
 it("Pyramid stacks sub-groups outward from the center on both sides", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [stacked, {groupBy: ["sex", "area"]}]);
   assert.strictEqual(out.bars.length, 16);
   const bar = key => out.bars.find(b => b.key === key);
@@ -152,7 +147,6 @@ it("Pyramid stacks sub-groups outward from the center on both sides", async func
 });
 
 it("Pyramid draws a comparison outline and fits the axis to it", async function () {
-  this.timeout(60000);
   const bigger = rows.map(d => ({...d, before: d.age === "0-9" ? 3000 : d.before}));
   const out = await render(body, probe, [bigger, {comparison: "before"}]);
   assert.deepStrictEqual(out.outlines.map(o => o.key), ["pyramid-comparison-0", "pyramid-comparison-1"]);
@@ -162,7 +156,6 @@ it("Pyramid draws a comparison outline and fits the axis to it", async function 
 });
 
 it("Pyramid percent mode reads percentages on the axis", async function () {
-  this.timeout(60000);
   const out = await render(body, probe, [rows, {percent: true}]);
   const numbers = out.xTicks.filter(t => /\d/.test(t));
   assert.ok(numbers.every(t => t.endsWith("%")), `percent ticks: ${out.xTicks}`);
@@ -172,7 +165,6 @@ it("Pyramid percent mode reads percentages on the axis", async function () {
 });
 
 it("Pyramid keeps its axis across timeline frames with axisPersist", async function () {
-  this.timeout(60000);
   const latest = await render(body, probe, [years, {time: "year", axisPersist: true}]);
   const first = await render(body, probe, [years, {time: "year", axisPersist: true}, 2010]);
   assert.deepStrictEqual(first.domain, latest.domain, "one axis for every year");
@@ -186,7 +178,6 @@ it("Pyramid keeps its axis across timeline frames with axisPersist", async funct
 });
 
 it("Pyramid tooltips show positive values for both sides", async function () {
-  this.timeout(60000);
   const tooltip = ([data, config, key]) =>
     new Promise(resolve => {
       const viz = new window.d3plus.Pyramid()
@@ -213,7 +204,6 @@ it("Pyramid tooltips show positive values for both sides", async function () {
 });
 
 it("Pyramid hides a side from the legend without moving the other", async function () {
-  this.timeout(60000);
   const hidden = await render(body, ([data]) => new Promise(resolve => {
     const viz = new window.d3plus.Pyramid().data(data).groupBy("sex").y("age").x("pop").duration(0).select("#viz");
     viz._hidden = ["Male"];
@@ -233,7 +223,6 @@ it("Pyramid hides a side from the legend without moving the other", async functi
 });
 
 it("Pyramid zooms its value axis", async function () {
-  this.timeout(60000);
   const out = await render(body, ([data]) => new Promise(resolve => {
     const viz = new window.d3plus.Pyramid().data(data).groupBy("sex").y("age").x("pop").duration(0).select("#viz");
     viz.render(() => {
@@ -255,7 +244,6 @@ it("Pyramid zooms its value axis", async function () {
 });
 
 it("Pyramid paints on the Canvas backend", async function () {
-  this.timeout(60000);
   const out = await render(body, ([data]) => new Promise(resolve => {
     const viz = new window.d3plus.Pyramid()
       .data(data).groupBy(["sex", "area"]).y("age").x("pop").comparison("before")
@@ -294,7 +282,6 @@ it("Pyramid paints on the Canvas backend", async function () {
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Pyramid adds its side titles, gutter labels, and outlines through decorateScene (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render(body, ([data, renderer]) => new Promise(resolve => {
       const {Pyramid, pyramidDef} = window.d3plus;
       const viz = new Pyramid()
@@ -364,7 +351,6 @@ const axisProbe = ([data, config]) =>
   });
 
 it("Pyramid never breaks its value axis away from zero", async function () {
-  this.timeout(60000);
   // Values far from zero would break a BarChart's baseline.
   const far = rows.map(d => ({...d, pop: d.pop + 5000}));
   for (const config of [{}, {percent: true}, {baselineBreak: true}, {baselineBreak: true, percent: true}, {symmetric: false, baselineBreak: true}]) {
@@ -376,7 +362,6 @@ it("Pyramid never breaks its value axis away from zero", async function () {
 });
 
 it("Pyramid's end labels read as magnitudes on both ends", async function () {
-  this.timeout(60000);
   const out = await render(body, axisProbe, [rows, {}]);
   const numbers = out.ticks.filter(t => /\d/.test(t));
   assert.strictEqual(numbers[0], numbers[numbers.length - 1], `matching ends: ${out.ticks}`);
@@ -384,7 +369,6 @@ it("Pyramid's end labels read as magnitudes on both ends", async function () {
 });
 
 it("Pyramid's side titles and axis read on a dark background", async function () {
-  this.timeout(60000);
   const lightness = c => {
     const {r, g, b} = rgb(c);
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255;
@@ -433,7 +417,6 @@ const gutterProbe = ([data, config, year, size]) =>
   });
 
 it("Pyramid centers its category labels in a gutter sized to the widest label", async function () {
-  this.timeout(60000);
   const long = rows.map(d => ({...d, age: d.age === "30-39" ? "Thirty to thirty-nine" : d.age}));
   const out = await render(body, gutterProbe, [long, {}]);
   const width = out.inner[1] - out.inner[0];
@@ -455,7 +438,6 @@ it("Pyramid centers its category labels in a gutter sized to the widest label", 
 });
 
 it("Pyramid thins gutter labels on a short chart", async function () {
-  this.timeout(60000);
   const many = Array.from({length: 21}, (_, i) => `${i * 5}-${i * 5 + 4}`).flatMap((age, b) => [
     {age, sex: "Male", pop: 1000 - b * 40},
     {age, sex: "Female", pop: 1050 - b * 40},
@@ -469,7 +451,6 @@ it("Pyramid thins gutter labels on a short chart", async function () {
 });
 
 it("Pyramid's center layout keeps percent, comparison, and timeline frames", async function () {
-  this.timeout(60000);
   const withBefore = years.map(d => ({...d, before: d.pop * 0.9}));
   const config = {time: "year", axisPersist: true, percent: true, comparison: "before"};
   const first = await render(body, gutterProbe, [withBefore, config, 2010]);
@@ -484,7 +465,6 @@ it("Pyramid's center layout keeps percent, comparison, and timeline frames", asy
 });
 
 it("Pyramid renders its stories' configs without warnings", async function () {
-  this.timeout(60000);
   const warnings = await render(body, ([data]) => new Promise(resolve => {
     const seen = [];
     const warn = console.warn;

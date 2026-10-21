@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot with more legend entries than its right-hand legend column can hold
@@ -39,7 +36,6 @@ const pageFn = ({count}) =>
   });
 
 it("Plot: a legend too long for its column claims no margin", async function () {
-  this.timeout(60000);
   const out = await render('<div id="s"></div>', pageFn, {count: 127});
   assert.strictEqual(out.legendHeight, 0, "legend hidden");
   assert.strictEqual(out.right, 0, "no right margin claimed");
@@ -48,7 +44,6 @@ it("Plot: a legend too long for its column claims no margin", async function () 
 });
 
 it("Plot: a legend that fits still claims its margin", async function () {
-  this.timeout(60000);
   const out = await render('<div id="s"></div>', pageFn, {count: 8});
   assert.ok(out.legendHeight > 0, "legend shown");
   assert.ok(out.right > 0, `right margin claimed (${out.right})`);

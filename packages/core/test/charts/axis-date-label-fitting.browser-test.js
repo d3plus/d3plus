@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Date labels lie flat on one line, whole: a crowded date axis thins its
@@ -10,12 +11,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     hourly labels always read their hour. Driven in Chromium for real text
     measurement, on both renderers, at several widths.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-after(closeBrowser);
 
 /**
     Renders a LinePlot over the Dates `xs` builds (as categories, or on a time
@@ -103,8 +98,7 @@ function assertFit(r, context, hourly) {
 for (const renderer of ["svg", "canvas"]) {
   for (const time of [false, true]) {
     const axis = time ? "time axis" : "category axis";
-    it(`LinePlot (${renderer}) — Date labels on a ${axis} fit whole and carry the year at every width`, async function () {
-      this.timeout(120000);
+    it(`LinePlot (${renderer}) — Date labels on a ${axis} fit whole and carry the year at every width`, {timeout: 120000}, async function () {
       for (const [name, xs] of Object.entries(sets)) {
         for (const width of [260, 420, 700, 950]) {
           const r = await run(xs, {time, width}, renderer);
@@ -120,7 +114,6 @@ for (const renderer of ["svg", "canvas"]) {
   }
 
   it(`LinePlot (${renderer}) — hourly end labels read the date and the hour`, async function () {
-    this.timeout(60000);
     for (const time of [false, true]) {
       const r = await run(sets.hourly, {time, width: 900}, renderer);
       const texts = r.labels.map(l => l.lines.join(" "));
@@ -130,7 +123,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`LinePlot (${renderer}) — Date labels fit and carry the year in the chart's locale`, async function () {
-    this.timeout(60000);
     const r = await run(sets.monthly, {width: 300, locale: "es-ES"}, renderer);
     assertFit(r, "es-ES monthly");
     assert.strictEqual(r.labels[0].lines[0], "ene 2023");
@@ -139,7 +131,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`BarChart (${renderer}) — yearly Date categories that fit stay flat and all painted`, async function () {
-    this.timeout(60000);
     const xs = "() => Array.from({length: 8}, (_, i) => new Date(2016 + i, 0, 1))";
     const r = await run(xs, {width: 600, kind: "BarChart"}, renderer);
     assert.deepStrictEqual(r.labels.map(l => l.lines.join(" ")), ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"]);
@@ -150,7 +141,6 @@ for (const renderer of ["svg", "canvas"]) {
   // the last: the plot leaves room for that label's overhang (with its year),
   // not the hidden last one's.
   it(`BarChart (${renderer}) — the last label shown stays inside the chart`, async function () {
-    this.timeout(60000);
     const xs = `() => {
       const days = [];
       for (const day = new Date(2025, 0, 3); days.length < 200; day.setDate(day.getDate() - 1))
@@ -166,7 +156,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Axis — date labels rotate only when even the first can't lie flat on one line", async function () {
-  this.timeout(60000);
   const r = await render('<div id="viz"></div>', () => {
     const d3plus = window.d3plus;
     return [90, 140, 400].map(width => {
@@ -193,8 +182,7 @@ it("Axis — date labels rotate only when even the first can't lie flat on one l
   assert.deepStrictEqual(flat.shown.map(s => s.text), ["Mar 3, 2026, 06 AM"], "thinned to the first label");
 });
 
-it("Date categories cost work linear in their count: labels, thinning, and every mark's label", async function () {
-  this.timeout(120000);
+it("Date categories cost work linear in their count: labels, thinning, and every mark's label", {timeout: 120000}, async function () {
   const out = await render('<div id="viz" style="width:1000px;height:400px"></div>', async () => {
     // Counts Date comparisons and conversions while drawing `n` weekdays.
     const count = async (kind, n, time) => {

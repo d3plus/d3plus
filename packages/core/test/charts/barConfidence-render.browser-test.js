@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #781: `confidence` on a BarChart draws an error bar per bar — a stroke from
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     on both renderers, and the error bar hovers, dims, and clicks as part of
     its bar.
 */
-
-after(closeBrowser);
 
 const data = [
   {id: "Alpha", q: "Q1", v: 10, lo: 8, hi: 13},
@@ -60,7 +59,6 @@ const segments = d => d.split("M").filter(Boolean).map(s => s.split(/[L,]/).map(
 const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.01, `${msg}: ${a} vs ${b}`);
 
 it("vertical grouped bars — one capped error bar per bar, centered on it", async function () {
-  this.timeout(60000);
   const r = await run({x: "q", y: "v", confidence: ["lo", "hi"]});
   assert.strictEqual(r.errorBars.length, 4, "an error bar per bar");
   assert.strictEqual(r.hits, 4, "each with a hover target");
@@ -89,7 +87,6 @@ it("vertical grouped bars — one capped error bar per bar, centered on it", asy
 });
 
 it("horizontal bars — error bars run along x", async function () {
-  this.timeout(60000);
   const r = await run({discrete: "y", x: "v", y: "q", confidence: ["lo", "hi"]});
   assert.strictEqual(r.errorBars.length, 4);
   for (const e of r.errorBars) {
@@ -107,7 +104,6 @@ it("horizontal bars — error bars run along x", async function () {
 });
 
 it("stacked bars — error bars sit around each bar's stacked end", async function () {
-  this.timeout(60000);
   const r = await run({x: "q", y: "v", stacked: true, confidence: ["lo", "hi"]});
   assert.strictEqual(r.errorBars.length, 4);
   for (const e of r.errorBars) {
@@ -122,7 +118,6 @@ it("stacked bars — error bars sit around each bar's stacked end", async functi
 });
 
 it("confidenceConfig — styles the error bars, with Bar-nested keys winning", async function () {
-  this.timeout(60000);
   const r = await run({
     x: "q", y: "v",
     confidence: ["lo", "hi"],
@@ -137,7 +132,6 @@ it("confidenceConfig — styles the error bars, with Bar-nested keys winning", a
 });
 
 it("one-sided confidence and missing bounds", async function () {
-  this.timeout(60000);
   const rows = data.map((d, i) => i === 0 ? {...d, hi: undefined} : d);
   const r = await run({x: "q", y: "v", confidence: [false, "hi"]}, rows);
   assert.strictEqual(r.errorBars.length, 3, "a bar without a bound draws none");
@@ -150,7 +144,6 @@ it("one-sided confidence and missing bounds", async function () {
 });
 
 it("no confidence — no error bars", async function () {
-  this.timeout(60000);
   const r = await run({x: "q", y: "v"});
   assert.strictEqual(r.errorBars.length, 0);
   assert.strictEqual(r.hits, 0);
@@ -217,7 +210,6 @@ const toRgb = hex => `rgb(${[1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer} — an error bar hovers, dims, and clicks as part of its bar`, async function () {
-    this.timeout(60000);
     const r = await render("<div id='viz' style='width:500px;height:400px'></div>", hover, [renderer]);
     assert.ok(r.title && r.title.includes("Beta"), `tooltip titled by the bar (${r.title})`);
     assert.strictEqual(r.swatch, toRgb(r.barFill), "the title swatch is the bar's color, not the error bar's");
@@ -252,7 +244,6 @@ const drawBroken = ([config, rows]) =>
   });
 
 it("an error bar crossing a yBreak is cut by the break mask, like its bar", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "North", v: 42, lo: 38, hi: 47},
     {id: "Online", v: 960, lo: 850, hi: 990},
@@ -268,7 +259,6 @@ it("an error bar crossing a yBreak is cut by the break mask, like its bar", asyn
 });
 
 it("a baseline break's yDomain clamps error bars to the axis, uncapping cut-off bounds", async function () {
-  this.timeout(60000);
   const rows = [
     {id: "North", v: 52, lo: 45, hi: 58},
     {id: "South", v: 57, lo: 54, hi: 66},

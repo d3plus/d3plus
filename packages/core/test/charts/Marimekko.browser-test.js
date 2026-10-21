@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Marimekko draws one bar per category, as wide as the category's measure
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     stacked to 100% of its height. BarChart gains the same variable widths
     through `barWidth`.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 // Category A totals 30 (a 10, b 20); B totals 10 (a 5, b 5).
 const data = [
@@ -144,7 +141,6 @@ function columns(bars) {
 }
 
 it("Marimekko: bars as wide as their totals, segments stacked to 100%", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {}, data, "b_A"]);
   assert.strictEqual(out.nan, 0, "no NaN attributes");
   assert.strictEqual(out.bars.length, 4, "one segment per row");
@@ -169,7 +165,6 @@ it("Marimekko: bars as wide as their totals, segments stacked to 100%", async fu
 });
 
 it("Marimekko: hovering a segment's label shows the segment's tooltip", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {}, data, "b_A_0"]);
   const rows = Object.fromEntries(out.tooltip);
   assert.strictEqual(rows.cat, "A");
@@ -177,7 +172,6 @@ it("Marimekko: hovering a segment's label shows the segment's tooltip", async fu
 });
 
 it("Marimekko: the series largest overall stacks lowest in every bar", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {}, data]);
   const bottom = key => out.bars.find(b => b.key === key).bottom;
   assert.ok(bottom("b_A") > bottom("a_A"), "b (25 overall) below a in A");
@@ -185,7 +179,6 @@ it("Marimekko: the series largest overall stacks lowest in every bar", async fun
 });
 
 it("Marimekko: barWidth measures, absolute heights, and barWidth(false)", async function () {
-  this.timeout(60000);
   const measured = await render("", draw, ["Marimekko", {barWidth: "size", maxAggs: "size"}, data, "a_B"]);
   const [a, b] = columns(measured.bars);
   near((b.right - b.left) / (a.right - a.left), 3, 0.15, "width ∝ barWidth");
@@ -203,7 +196,6 @@ it("Marimekko: barWidth measures, absolute heights, and barWidth(false)", async 
 });
 
 it("Marimekko: horizontal bars span the y axis", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {discrete: "y", x: "v", y: "cat"}, data]);
   assert.strictEqual(out.nan, 0);
   const rows = new Map();
@@ -219,7 +211,6 @@ it("Marimekko: horizontal bars span the y axis", async function () {
 });
 
 it("BarChart: barWidth makes each bar as wide as its measure", async function () {
-  this.timeout(60000);
   const rows = [
     {g: "a", cat: "A", v: 4, pop: 100},
     {g: "b", cat: "B", v: 2, pop: 300},
@@ -233,7 +224,6 @@ it("BarChart: barWidth makes each bar as wide as its measure", async function ()
 });
 
 it("Marimekko: draws on the Canvas renderer", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {renderer: "canvas"}, data]);
   assert.ok(out.canvas >= 1, "a canvas surface");
   assert.strictEqual(out.sceneRects.length, 4);
@@ -243,7 +233,6 @@ it("Marimekko: draws on the Canvas renderer", async function () {
 });
 
 it("Marimekko: facet draws one mosaic per panel", async function () {
-  this.timeout(60000);
   const rows = data.flatMap(d => [{...d, panel: "P1"}, {...d, panel: "P2", v: d.v * 2}]);
   const out = await render("", draw, ["Marimekko", {facet: "panel"}, rows]);
   assert.strictEqual(out.nan, 0);
@@ -254,7 +243,6 @@ it("Marimekko: facet draws one mosaic per panel", async function () {
 });
 
 it("Marimekko: barWidthShare(false) labels categories by name alone", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {barWidthShare: false}, data]);
   assert.deepStrictEqual(out.xLabels, ["A", "B"]);
   const horizontal = await render("", draw, ["Marimekko", {barWidthShare: false, discrete: "y", x: "v", y: "cat"}, data]);
@@ -262,7 +250,6 @@ it("Marimekko: barWidthShare(false) labels categories by name alone", async func
 });
 
 it("BarChart: barWidthShare is off by default and adds width shares when on", async function () {
-  this.timeout(60000);
   const rows = [
     {g: "a", cat: "A", v: 4, pop: 100},
     {g: "b", cat: "B", v: 2, pop: 300},
@@ -276,7 +263,6 @@ it("BarChart: barWidthShare is off by default and adds width shares when on", as
 
 for (const renderer of ["svg", "canvas"]) {
   it(`barWidth: a variable-width axis ticks only its categories, at their bars' centers (${renderer})`, async function () {
-    this.timeout(60000);
     const rows = [
       {g: "a", cat: "A", v: 4, pop: 100},
       {g: "b", cat: "B", v: 2, pop: 300},
@@ -327,8 +313,7 @@ const names = out =>
 const regionNames = Object.keys(regions).sort();
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Marimekko: at the dev page's sizes, category labels lie flat with their shares, hiding only the narrowest bar's (${renderer})`, async function () {
-    this.timeout(120000);
+  it(`Marimekko: at the dev page's sizes, category labels lie flat with their shares, hiding only the narrowest bar's (${renderer})`, {timeout: 120000}, async function () {
     // A dev-page grid cell is 618px wide.
     const config = {width: 618, height: 400, renderer};
     const out = await render("", draw, ["Marimekko", config, sales]);
@@ -357,14 +342,12 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Marimekko: a hidden label's tooltip still shows its bar's width share", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["Marimekko", {width: 618, height: 400}, sales, "Apple_Latin America"]);
   assert.ok(!out.xLabels.some(l => l.startsWith("Latin")), `hidden: ${out.xLabels}`);
   assert.strictEqual(Object.fromEntries(out.tooltip)["Bar Total"], "38 (7.28%)");
 });
 
 it("Marimekko: the labels settle the same way on every render", async function () {
-  this.timeout(60000);
   const out = await render("", ([rows]) => new Promise(resolve => {
     const el = document.createElement("div");
     document.body.appendChild(el);
@@ -387,8 +370,7 @@ it("Marimekko: the labels settle the same way on every render", async function (
   assert.deepStrictEqual(out.again, out.first);
 });
 
-it("Marimekko: in the dev page's small multiples, a share costs no panel a label", async function () {
-  this.timeout(120000);
+it("Marimekko: in the dev page's small multiples, a share costs no panel a label", {timeout: 120000}, async function () {
   for (const config of [
     {width: 1260, height: 400, facet: "year"},
     {width: 1260, height: 400, facet: "year", facetConfig: {scales: "independent"}},
@@ -402,7 +384,6 @@ it("Marimekko: in the dev page's small multiples, a share costs no panel a label
 });
 
 it("BarChart: width shares keep every category label at the dev page's size", async function () {
-  this.timeout(60000);
   const sectors = {Retail: [42, 48, 30], Technology: [55, 70, 12], Energy: [38, 33, 6], Healthcare: [30, 36, 18]};
   const rows = Object.entries(sectors).flatMap(([cat, [a, b, size]]) => [
     {cat, g: "2023", v: a, size},
@@ -422,7 +403,6 @@ const series = [
 ];
 
 it("BarChart: unstacked series split each variable-width bar side by side", async function () {
-  this.timeout(60000);
   const out = await render("", draw, ["BarChart", {barWidth: "size", maxAggs: "size", barPadding: 4}, series]);
   assert.strictEqual(out.nan, 0);
   const bar = key => out.bars.find(b => b.key === key);
@@ -466,7 +446,6 @@ const panelRows = data.flatMap(d => [{...d, panel: "P1"}, {...d, panel: "P2", v:
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Marimekko: facet panels share one width scale by default (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", draw, ["Marimekko", {facet: "panel", renderer}, panelRows]);
     const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
     near(p1.width / p2.width, 0.5, 0.05, "the smaller panel draws a narrower mosaic");
@@ -476,7 +455,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Marimekko: facetConfig({scales: "independent"}) fills each panel's width (${renderer})`, async function () {
-    this.timeout(60000);
     const config = {facet: "panel", facetConfig: {scales: "independent"}, renderer};
     const out = await render("", draw, ["Marimekko", config, panelRows]);
     const {"facet-P1": p1, "facet-P2": p2} = facetPanels(out);
@@ -487,7 +465,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Marimekko: a shared-scale facet panel's tooltip shares its width of that panel's total", async function () {
-  this.timeout(60000);
   const p1 = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P1/b_A"]);
   assert.strictEqual(Object.fromEntries(p1.tooltip)["Bar Total"], "30 (75%)");
   const p2 = await render("", draw, ["Marimekko", {facet: "panel"}, panelRows, "facet-P2/b_B"]);
@@ -495,7 +472,6 @@ it("Marimekko: a shared-scale facet panel's tooltip shares its width of that pan
 });
 
 it("Marimekko: every facet panel labels its own categories, in every grid row", async function () {
-  this.timeout(60000);
   const rows = ["P1", "P2", "P3", "P4"].flatMap((panel, i) => data.map(d => ({...d, panel, v: d.v * (i + 1)})));
   const out = await render("", draw, ["Marimekko", {facet: "panel", facetConfig: {columns: 2}}, rows]);
   const panels = facetPanels(out);

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it, beforeAll} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Histogram bins exactly the rows each panel draws: a facet panel bins only
@@ -9,8 +10,7 @@ import {render, closeBrowser} from "../playwright.js";
 
 let out;
 
-before(async function () {
-  this.timeout(60000);
+beforeAll(async function () {
   out = await render("", () => {
     const unwrap = d => {
       while (d && d.__d3plus__ && d.data) d = d.data;
@@ -83,10 +83,6 @@ before(async function () {
       ),
     }))();
   });
-});
-
-after(async () => {
-  await closeBrowser();
 });
 
 it("Histogram bins each facet panel on its own rows", () => {

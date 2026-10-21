@@ -1,8 +1,7 @@
-import assert from "assert";
-import fs from "node:fs";
-import path from "node:path";
-import {fileURLToPath} from "node:url";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
+import countries from "../../dev/charts/Geomap/countries.json";
 
 /**
     Small multiples (`facet`) rendered in a real browser: the panel grid, shared
@@ -10,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     the shared tooltip across panels, legend hide/solo, the canvas backend, and
     an unfaceted chart drawing exactly as before.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const box = "<div id='viz' style='width:900px;height:600px'></div>";
 
@@ -61,7 +56,6 @@ function page(body, arg) {
 }
 
 it("draws one titled panel per facet value, with one legend for the whole chart", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.BarChart().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -86,7 +80,6 @@ it("draws one titled panel per facet value, with one legend for the whole chart"
 });
 
 it("shares one y domain across panels and labels only the outer axes", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.BarChart().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -114,7 +107,6 @@ it("shares one y domain across panels and labels only the outer axes", async fun
 });
 
 it("lines every panel's plot area up with its row and column, labeled or not", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -134,7 +126,6 @@ it("lines every panel's plot area up with its row and column, labeled or not", a
 });
 
 it("fits each panel to its own rows with independent scales", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.BarChart().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region")
@@ -146,7 +137,6 @@ it("fits each panel to its own rows with independent scales", async function () 
 });
 
 it("hovering a line in one panel highlights that series in every panel", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").tooltipShared(false).facet("region").duration(0);
@@ -172,7 +162,6 @@ it("hovering a line in one panel highlights that series in every panel", async f
 });
 
 it("the shared tooltip and crosshair follow the panel under the pointer", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -201,7 +190,6 @@ it("the shared tooltip and crosshair follow the panel under the pointer", async 
 for (const renderer of ["svg", "canvas"]) {
   for (const scales of ["shared", "independent"]) {
     it(`the crosshair spans the hovered panel's plot area, in that panel only (${renderer}, ${scales} scales)`, async function () {
-      this.timeout(60000);
       const out = await page(`
         const regions5 = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
         const data = [];
@@ -245,7 +233,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("repaints add each panel's hover surface once, without touching the chart's own scene", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -265,7 +252,6 @@ it("repaints add each panel's hover surface once, without touching the chart's o
 });
 
 it("Pie panels color each series the same, and a slice hover shows its own tooltip", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Pie().select("#viz").data(rows.filter(d => d.year === 2022))
       .groupBy("product").value("sales").facet("region").duration(0);
@@ -290,7 +276,6 @@ it("Pie panels color each series the same, and a slice hover shows its own toolt
 });
 
 it("a legend click hides the series in every panel", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Treemap().select("#viz").data(rows.filter(d => d.year === 2022))
       .groupBy("product").sum("sales").facet("region").duration(0);
@@ -309,7 +294,6 @@ it("a legend click hides the series in every panel", async function () {
 });
 
 it("hit-tests marks inside panels on the canvas backend", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Pie().select("#viz").data(rows.filter(d => d.year === 2022))
       .groupBy("product").value("sales").facet("region").renderer("canvas").duration(0);
@@ -327,7 +311,6 @@ it("hit-tests marks inside panels on the canvas backend", async function () {
 });
 
 it("turning facet off draws the same scene as a chart that never faceted", async function () {
-  this.timeout(60000);
   const out = await page(`
     const strip = scene => JSON.stringify(scene, (k, v) => (k === "datum" || k === "id" || typeof v === "function" ? undefined : v));
     const make = () => new d3plus.LinePlot().select("#viz").data(rows.filter(d => d.region === "East"))
@@ -350,7 +333,6 @@ it("turning facet off draws the same scene as a chart that never faceted", async
 });
 
 it("draws a single chart when no row has a facet value", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.BarChart().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("missing").duration(0);
@@ -362,7 +344,6 @@ it("draws a single chart when no row has a facet value", async function () {
 });
 
 it("facetConfig sets the grid shape, panel order, padding, and titles", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Pie().select("#viz").data(rows.filter(d => d.year === 2022))
       .groupBy("product").value("sales").facet("region")
@@ -394,7 +375,6 @@ it("facetConfig sets the grid shape, panel order, padding, and titles", async fu
 });
 
 it("a colorScale reads the values the panels draw, not values rolled up across panels", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Matrix().select("#viz").data(rows)
       .groupBy(["product", "year"]).row("product").column("year").colorScale("sales")
@@ -408,7 +388,6 @@ it("a colorScale reads the values the panels draw, not values rolled up across p
 });
 
 it("keeps every panel through the timeline, showing the same period in each", async function () {
-  this.timeout(60000);
   const out = await page(`
     const data = rows.filter(d => d.region !== "South" || d.year < 2022);
     const chart = new d3plus.Treemap().select("#viz").data(data)
@@ -426,9 +405,7 @@ it("keeps every panel through the timeline, showing the same period in each", as
 });
 
 it("each Geomap panel paints its own ocean into the scene", async function () {
-  this.timeout(60000);
-  const topo = JSON.parse(fs.readFileSync(
-    path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../dev/charts/Geomap/countries.json"), "utf8"));
+  const topo = countries;
   const out = await page(`
     const chart = new d3plus.Geomap().select("#viz")
       .data([{id: "USA", g: "a", v: 1}, {id: "CAN", g: "a", v: 3}, {id: "BRA", g: "b", v: 2}])
@@ -443,7 +420,6 @@ it("each Geomap panel paints its own ocean into the scene", async function () {
 });
 
 it("drilling down redraws every panel at the new depth", async function () {
-  this.timeout(60000);
   const out = await page(`
     const kinds = {Apples: "Pome", Pears: "Pome", Plums: "Stone", Figs: "Other"};
     const data = rows.filter(d => d.year === 2022).map(d => ({...d, kind: kinds[d.product]}));
@@ -458,7 +434,6 @@ it("drilling down redraws every panel at the new depth", async function () {
 });
 
 it("panel titles measure and lay out as inert text", async function () {
-  this.timeout(60000);
   const out = await page(`
     const {facetTitleBand, facetTitleNodes, measureFacetTitles} = d3plus;
     const titles = [{text: "East", x: 10, y: 20, width: 100}, {text: "West", x: 120, y: 20, width: 100}];
@@ -484,7 +459,6 @@ it("panel titles measure and lay out as inert text", async function () {
 });
 
 it("sharePlotScales spans every panel's stacks and categories", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.BarChart().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").stacked(true).facet("region").duration(0);
@@ -500,7 +474,6 @@ it("sharePlotScales spans every panel's stacks and categories", async function (
 });
 
 it("a chart's scene hook adds its own nodes to every panel as it draws", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Treemap().select("#viz").data(rows)
       .groupBy("product").sum("sales").facet("region").duration(0);

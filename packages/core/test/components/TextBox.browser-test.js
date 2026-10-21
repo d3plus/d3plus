@@ -1,15 +1,10 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 // TextBox positions and wraps text using real layout (getBBox), so it runs in a
 // headless browser rather than jsdom.
-after(async () => {
-  await closeBrowser();
-});
-
 it("TextBox", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<svg id="s" width="300" height="300"><g id="box"></g></svg>',
     () =>
@@ -112,8 +107,6 @@ it("TextBox", async function () {
 });
 
 it("TextBox sizes its render surface to fit the laid-out content", async function () {
-  this.timeout(60000);
-
   // Mirrors the @d3plus/react wrapper, whose container svg is sized with
   // `width`/`height="100%"`. `width`/`x` are per-box accessors (not canvas
   // dimensions), so the surface must grow to the content extent rather than

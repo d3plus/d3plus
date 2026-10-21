@@ -1,12 +1,11 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #283 in a real browser: LinePlot's `fillBetween` on both backends, and
     with the pairs it accepts.
 */
-
-after(closeBrowser);
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -26,8 +25,7 @@ const helpers = () => {
 
 const run = (fn, arg) => render("", new Function("arg", `return (${helpers})(), (${fn})(arg);`), arg);
 
-it("LinePlot fillBetween fills between two lines, clipped at each crossing, on both backends", async function () {
-  this.timeout(120000);
+it("LinePlot fillBetween fills between two lines, clipped at each crossing, on both backends", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = [];
     for (let t = 0; t < 12; t++) {
@@ -65,8 +63,7 @@ it("LinePlot fillBetween fills between two lines, clipped at each crossing, on b
   assert.ok(out.svg.domClips >= 2, "SVG clips the fills");
 });
 
-it("LinePlot fillBetween: named pairs, a missing series, and off", async function () {
-  this.timeout(120000);
+it("LinePlot fillBetween: named pairs, a missing series, and off", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const data = [];
     ["a", "b", "c", "d"].forEach((id, s) => {
@@ -92,8 +89,7 @@ it("LinePlot fillBetween: named pairs, a missing series, and off", async functio
   assert.strictEqual(out.pairs.nan, 0);
 });
 
-it("LinePlot fillBetween takes the chart's texture and backgroundImage, or its own, on both backends", async function () {
-  this.timeout(120000);
+it("LinePlot fillBetween takes the chart's texture and backgroundImage, or its own, on both backends", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
     const data = [];

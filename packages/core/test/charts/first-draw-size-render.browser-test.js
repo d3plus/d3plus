@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The root <svg> takes the chart's size on the first draw instead of growing
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     0×0, so the visibility check deferred the draw. A long `duration` keeps the
     first draw's transition running while the page is measured.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const DURATION = 20000;
 

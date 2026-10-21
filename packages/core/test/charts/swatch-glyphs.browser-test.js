@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Legend and tooltip swatches share one vocabulary: a Line series is a dot
@@ -8,8 +9,6 @@ import {closeBrowser, render} from "../playwright.js";
     square. Single tooltips lead their title with the hovered mark's swatch.
     Driven in real Chromium so hover picking runs through the SVG renderer.
 */
-
-after(closeBrowser);
 
 const data = [];
 ["Alpha", "Beta", "Gamma"].forEach((id, s) =>

@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #781: a Plot's tooltips list its `confidence` bounds — "Lower Bound" and
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     value in the shared tooltip — and `confidence(false)` turns the interval
     off entirely. Driven in Chromium through real pointer events.
 */
-
-after(closeBrowser);
 
 const data = [];
 ["Alpha", "Beta"].forEach((id, s) =>
@@ -67,14 +66,12 @@ const run = (kind, config, {rows = data, target = null, fx = 0.5, prefix = null}
 const confidence = ["lo", "hi"];
 
 it("BarChart — a hovered bar's tooltip lists its bounds after its value", async function () {
-  this.timeout(60000);
   const r = await run("BarChart", {confidence}, {target: "Beta_2011"});
   assert.strictEqual(r.title, "Beta");
   assert.deepStrictEqual(r.rows, [["year", "2011"], ["value", "21"], ["Lower Bound", "19"], ["Upper Bound", "24"]]);
 });
 
 it("BarChart — a one-sided interval lists only its bound; a row without bounds lists none", async function () {
-  this.timeout(60000);
   const rows = data.map(d => (d.id === "Alpha" ? {...d, hi: undefined} : d));
   const one = await run("BarChart", {confidence: [false, "hi"]}, {rows, target: "Beta_2011"});
   assert.deepStrictEqual(one.rows.slice(2), [["Upper Bound", "24"]]);
@@ -83,20 +80,17 @@ it("BarChart — a one-sided interval lists only its bound; a row without bounds
 });
 
 it("BarChart — the bounds use the value's own formatter", async function () {
-  this.timeout(60000);
   const r = await run("BarChart", {confidence}, {target: "Beta_2011", prefix: "$"});
   assert.deepStrictEqual(r.rows, [["year", "2011"], ["value", "$21"], ["Lower Bound", "$19"], ["Upper Bound", "$24"]]);
 });
 
 it("BarChart — stacked bars list each segment's raw bounds as a range", async function () {
-  this.timeout(60000);
   const r = await run("BarChart", {confidence, stacked: true}, {target: "Beta_2011"});
   assert.deepStrictEqual(r.rows, [["Beta", "21 (19 – 24)"], ["Alpha", "11 (9 – 14)"]],
     "the user's bounds, not where the stacked error bar is drawn");
 });
 
 it("LinePlot — the shared tooltip lists each series' range; one series gets bound rows", async function () {
-  this.timeout(60000);
   const shared = await run("LinePlot", {confidence}, {fx: 0.5});
   assert.deepStrictEqual(shared.rows, [["Beta", "21 (19 – 24)"], ["Alpha", "11 (9 – 14)"]]);
   const single = await run("LinePlot", {confidence}, {rows: data.filter(d => d.id === "Alpha"), fx: 0.9});
@@ -105,7 +99,6 @@ it("LinePlot — the shared tooltip lists each series' range; one series gets bo
 });
 
 it("confidenceConfig.tooltip: false leaves the bounds out", async function () {
-  this.timeout(60000);
   const bar = await run("BarChart", {confidence, confidenceConfig: {tooltip: false}}, {target: "Beta_2011"});
   assert.deepStrictEqual(bar.rows, [["year", "2011"], ["value", "21"]]);
   assert.strictEqual(bar.errorBars, 6, "the error bars still draw");
@@ -114,7 +107,6 @@ it("confidenceConfig.tooltip: false leaves the bounds out", async function () {
 });
 
 it("confidence: false — no error bars, band, axis widening, or tooltip bounds", async function () {
-  this.timeout(60000);
   const on = await run("BarChart", {confidence}, {target: "Beta_2011"});
   const off = await run("BarChart", {confidence: false}, {target: "Beta_2011"});
   assert.strictEqual(on.errorBars, 6);

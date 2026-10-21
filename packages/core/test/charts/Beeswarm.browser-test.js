@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Beeswarm (and Plot's `swarm` mode) in a real browser: circles keep their
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     lane, on both backends, with tooltips and hover, and a Plot toggled between
     scatter and swarm tweens the same circles between the two layouts.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -90,7 +87,6 @@ function minGap(circles) {
 }
 
 it("Beeswarm packs circles along x without overlaps and hides the empty y axis", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(150);
     const {el, viz} = await window.__draw("Beeswarm", v =>
@@ -125,7 +121,6 @@ it("Beeswarm packs circles along x without overlaps and hides the empty y axis",
 });
 
 it("Beeswarm draws one swarm per category lane, horizontal or vertical", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(120);
     const lane = (viz, el, axis) => {
@@ -194,7 +189,6 @@ it("Beeswarm draws one swarm per category lane, horizontal or vertical", async f
 });
 
 it("Beeswarm sizes circles by `size` and keeps them apart", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(100);
     const {el} = await window.__draw("Beeswarm", v =>
@@ -222,7 +216,6 @@ it("Beeswarm sizes circles by `size` and keeps them apart", async function () {
 });
 
 it("Beeswarm shrinks a crowded swarm to fit its band, or clamps it", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window
       .__rows(600)
@@ -258,7 +251,6 @@ it("Beeswarm shrinks a crowded swarm to fit its band, or clamps it", async funct
 });
 
 it("Plot toggles between scatter and swarm, tweening the same circles", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(60);
     const {el, viz} = await window.__draw("Plot", v =>
@@ -349,7 +341,6 @@ it("Plot toggles between scatter and swarm, tweening the same circles", async fu
 });
 
 it("Plot without a y value swarms on its own; with one it stays a scatter", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(40);
     const noY = await window.__draw("Plot", v =>
@@ -394,7 +385,6 @@ it("Plot without a y value swarms on its own; with one it stays a scatter", asyn
 });
 
 it("Beeswarm hover shows the circle's tooltip and dims the others", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(30);
     const {el} = await window.__draw("Beeswarm", v =>
@@ -435,7 +425,6 @@ it("Beeswarm hover shows the circle's tooltip and dims the others", async functi
 });
 
 it("Beeswarm paints the same swarm on Canvas, and its circles are pickable", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(80);
     const svg = await window.__draw("Beeswarm", v =>
@@ -502,7 +491,6 @@ it("Beeswarm paints the same swarm on Canvas, and its circles are pickable", asy
 });
 
 it("Beeswarm repacks on zoom without NaN", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(120);
     const {el, viz} = await window.__draw("Beeswarm", v =>
@@ -529,7 +517,6 @@ it("Beeswarm repacks on zoom without NaN", async function () {
 });
 
 it("Beeswarm places circles through a broken value axis; a break on the lane axis is ignored", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(120).map((d, i) => ({...d, value: i % 2 ? d.value : d.value + 200}));
     const {el, viz} = await window.__draw("Beeswarm", v =>
@@ -556,7 +543,6 @@ it("Beeswarm places circles through a broken value axis; a break on the lane axi
 });
 
 it("A short single-lane swarm labels its x ends; a tall one keeps the full x axis", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__rows(60);
     const ends = ({el}) => el.querySelectorAll("[data-key='plot-x-end-labels'] text").length;

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Clearing ParallelCoordinates brushes in Chromium, on SVG and Canvas: a
@@ -8,15 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     brush, fire on("brush"), and restore the lines; on small multiples every
     panel's strip for the axis clears together.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(async () => {
-  await closeBrowser();
-});
 
 const rows = Array.from({length: 40}, (_, i) => ({
   id: `r${i}`,
@@ -115,7 +107,6 @@ const hint = "x: Double-click or Escape to Clear";
 
 for (const renderer of ["svg", "canvas"]) {
   it(`ParallelCoordinates (${renderer}) a click on a strip outside its brush clears it and restores the lines`, async function () {
-    this.timeout(60000);
     const {log, last} = await render("<div id='viz' style='width:700px;height:400px'></div>", scenario, {
       data: rows,
       renderer,
@@ -139,7 +130,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`ParallelCoordinates (${renderer}) double-clicking a brush clears it`, async function () {
-    this.timeout(60000);
     const {log, last} = await render("<div id='viz' style='width:700px;height:400px'></div>", scenario, {
       data: rows,
       renderer,
@@ -164,7 +154,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`ParallelCoordinates (${renderer}) Escape clears a focused brush`, async function () {
-    this.timeout(60000);
     const {log, last} = await render("<div id='viz' style='width:700px;height:400px'></div>", scenario, {
       data: rows,
       renderer,
@@ -187,7 +176,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`ParallelCoordinates (${renderer}) clearing a brush on one panel clears it on every panel`, async function () {
-    this.timeout(60000);
     const {log} = await render("<div id='viz' style='width:800px;height:400px'></div>", scenario, {
       data: rows,
       renderer,

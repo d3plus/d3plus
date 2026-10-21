@@ -1,9 +1,8 @@
-import assert from "assert";
-import fs from "node:fs";
-import path from "node:path";
-import {fileURLToPath} from "node:url";
+import {inject, it} from "vitest";
+import {commands} from "vitest/browser";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "./playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Visual-regression safety net. Each chart renders in real Chromium (via
@@ -21,16 +20,12 @@ import {closeBrowser, render} from "./playwright.js";
     Baselines are environment-generated (Chromium layout + the host's
     default fonts). Regenerate intended changes with:
 
-      UPDATE_SNAPSHOTS=1 npx mocha test/visual-regression-test.js
+      pnpm vitest run packages/core/test/visual-regression.browser-test.js -u
 */
 
-const here = path.dirname(fileURLToPath(import.meta.url));
-const snapDir = path.join(here, "snapshots", "visual");
-const UPDATE = ["1", "true"].includes(process.env.UPDATE_SNAPSHOTS || "");
-
-after(async () => {
-  await closeBrowser();
-});
+// Read and written through the test server, relative to the repo root.
+const snapDir = "packages/core/test/snapshots/visual";
+const UPDATE = inject("updateSnapshots");
 
 // Each entry: [name, builderSrc]. The builder returns an UN-rendered,
 // UN-selected viz; the in-page routine adds `.duration(0).select(...)` and
@@ -340,19 +335,16 @@ const body =
 // shape counts, tags, fills, and text content are matched exactly.
 const GEOM_TOL = 6;
 
-function compare(name, actual) {
-  const file = path.join(snapDir, `${name}.json`);
+async function compare(name, actual) {
+  const file = `${snapDir}/${name}.json`;
   if (UPDATE) {
-    fs.mkdirSync(snapDir, {recursive: true});
-    fs.writeFileSync(file, `${JSON.stringify(actual, null, 2)}\n`);
+    await commands.writeFile(file, `${JSON.stringify(actual, null, 2)}\n`);
     return;
   }
-  assert.ok(
-    fs.existsSync(file),
-    `no baseline for "${name}" — generate with UPDATE_SNAPSHOTS=1`,
-  );
-  const expected = JSON.parse(fs.readFileSync(file, "utf8"));
-  const hint = " If intended, regenerate with UPDATE_SNAPSHOTS=1.";
+  const saved = await commands.readFile(file).catch(() => null);
+  assert.ok(saved !== null, `no baseline for "${name}" — generate with \`vitest run -u\``);
+  const expected = JSON.parse(saved);
+  const hint = " If intended, regenerate with `vitest run -u`.";
 
   // A changed per-tag count, tspan/label, or text anchor is a structural
   // regression — match those exactly.
@@ -386,9 +378,8 @@ function compare(name, actual) {
 
 for (const [name, builderSrc] of charts) {
   it(`visual snapshot: ${name}`, async function () {
-    this.timeout(60000);
     const fp = await render(body, fingerprintFn, builderSrc);
     assert.ok(fp.shapes.length > 0, `${name} rendered at least one shape`);
-    compare(name, fp);
+    await compare(name, fp);
   });
 }

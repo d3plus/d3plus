@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Legends drawn inside a chart's negative space (#72): after layout, the
@@ -8,10 +9,6 @@ import {closeBrowser, render} from "../playwright.js";
     space around the marks is drawn there over a translucent box, claiming
     no margin; the rest keep their margins.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Renders the chart `builderSrc` returns and reports its inset placement against its marks. */
 const probe = (builderSrc, {width = 800, height = 500} = {}) =>

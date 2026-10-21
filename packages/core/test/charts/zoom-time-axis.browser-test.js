@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot zooms a time axis the way it zooms a linear one: the zoom
@@ -12,15 +13,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
 */
 
 // The first page waits on the UMD build; build it up front.
-before(async function () {
-  this.timeout(120000);
-  await bundle();
-});
-
-after(async () => {
-  await closeBrowser();
-});
-
 const box = "<div id='viz' style='width:640px;height:400px'></div>";
 
 const DAY = 864e5;

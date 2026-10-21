@@ -1,9 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Plot scale breaks (#766, #767): `xBreak`/`yBreak` remove value ranges from
@@ -97,7 +94,6 @@ const probe = (src, opts = {}) =>
   );
 
 it("BarChart: yBreak fits a tall outlier bar, labeling both edges and masking the bar", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`);
   assert.deepStrictEqual(out.y.breaks, [{start: 80, end: 900, baseline: false}]);
   assert.ok(out.y.ticks.includes(80) && out.y.ticks.includes(900), "both break edges are ticks");
@@ -121,7 +117,6 @@ it("BarChart: yBreak fits a tall outlier bar, labeling both edges and masking th
 });
 
 it("LinePlot: yBreak breaks the axis and masks the line", async function () {
-  this.timeout(60000);
   const data = [1, 2, 3, 4, 5, 6].map(x => ({id: "s", x, y: x === 4 ? 940 : 30 + x * 6}));
   const out = await probe(`(lib, data) => new lib.LinePlot().data(data).groupBy("id").x("x").y("y").yBreak([90, 900])`, {data});
   assert.deepStrictEqual(out.y.breaks, [{start: 90, end: 900, baseline: false}]);
@@ -130,7 +125,6 @@ it("LinePlot: yBreak breaks the axis and masks the line", async function () {
 });
 
 it("BarChart: horizontal bars break the x axis with xBreak", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").discrete("y").y("id").x("v").xBreak([80, 900])`);
   assert.deepStrictEqual(out.x.breaks, [{start: 80, end: 900, baseline: false}]);
   assert.deepStrictEqual(out.y.breaks, [], "the discrete axis doesn't break");
@@ -141,7 +135,6 @@ it("BarChart: horizontal bars break the x axis with xBreak", async function () {
 });
 
 it("BarChart: several breaks each get a glyph and a masked band", async function () {
-  this.timeout(60000);
   const data = bars.map(b => (b.id === "C" ? {...b, v: 450} : b));
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([[80, 400], [500, 900]])`,
@@ -154,7 +147,6 @@ it("BarChart: several breaks each get a glyph and a masked band", async function
 });
 
 it("BarChart: breakConfig.mask false keeps the glyph but leaves shapes whole", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900]).yConfig({breakConfig: {mask: false}})`,
   );
@@ -164,7 +156,6 @@ it("BarChart: breakConfig.mask false keeps the glyph but leaves shapes whole", a
 });
 
 it("BarChart: the baseline break looks the same, masked unless turned off", async function () {
-  this.timeout(60000);
   const data = bars.map(b => ({...b, v: b.v + 1100}));
   const src = `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100])`;
   const out = await probe(src, {data});
@@ -181,8 +172,7 @@ it("BarChart: the baseline break looks the same, masked unless turned off", asyn
   assert.strictEqual(unmasked.lines.length, 2, "and keeps the lines");
 });
 
-it("Every Plot chart masks its baseline break by default", async function () {
-  this.timeout(180000);
+it("Every Plot chart masks its baseline break by default", {timeout: 180000}, async function () {
   const rows = [1, 2, 3, 4].flatMap(x => ["a", "b"].map((id, j) => ({id, x, y: 1100 + x * 40 + j * 25})));
   const charts = {
     BarChart: ["y", `new lib.BarChart().data(data).groupBy("id").x("x").y("y").yDomain([1000])`],
@@ -207,7 +197,6 @@ it("Every Plot chart masks its baseline break by default", async function () {
 });
 
 it("Labels stay outside the break mask", async function () {
-  this.timeout(60000);
   const rows = ["Q1", "Q2", "Q3", "Q4"].flatMap((x, i) => [{id: "North", x, v: 1000 + i * 8}, {id: "South", x, v: 990 + i * 5}]);
   for (const src of [
     `new lib.StackedArea().data(data).groupBy("id").x("x").y("v").yDomain([980])`,
@@ -223,7 +212,6 @@ it("Labels stay outside the break mask", async function () {
 });
 
 it("An area's label sits clear of the baseline break", async function () {
-  this.timeout(60000);
   const rows = ["Q1", "Q2", "Q3", "Q4"].flatMap((x, i) => [{id: "North", x, v: 1000 + i * 8}, {id: "South", x, v: 990 + i * 5}]);
   const src = `(lib, data) => new lib.StackedArea().data(data).groupBy("id").x("x").y("v")`;
   // North's plotted part is a sliver above 980: too thin for its label, which
@@ -239,7 +227,6 @@ it("An area's label sits clear of the baseline break", async function () {
 });
 
 it("BarChart: the Canvas renderer cuts the baseline break's gap across a bar", async function () {
-  this.timeout(60000);
   const data = bars.map(b => ({...b, v: b.v + 1100}));
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yDomain([1100, 2100])`,
@@ -251,7 +238,6 @@ it("BarChart: the Canvas renderer cuts the baseline break's gap across a bar", a
 });
 
 it("Break lines follow the axis line's style, and lines: false turns them off", async function () {
-  this.timeout(60000);
   const src = `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`;
   const styled = await probe(`${src}.yConfig({barConfig: {stroke: "rgb(200, 0, 0)"}, gridConfig: {stroke: "transparent"}})`);
   assert.strictEqual(styled.lines.length, 2, "drawn even with the grid hidden");
@@ -264,7 +250,6 @@ it("Break lines follow the axis line's style, and lines: false turns them off", 
 });
 
 it("BarChart: the Canvas renderer cuts the masked gap across a bar", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`,
     {renderer: "canvas", pixel: true},
@@ -275,8 +260,7 @@ it("BarChart: the Canvas renderer cuts the masked gap across a bar", async funct
   assert.ok(!empty(out.pixels.above) && !empty(out.pixels.below), "bar paint on both sides of the gap");
 });
 
-it("Plot charts all take yBreak", async function () {
-  this.timeout(120000);
+it("Plot charts all take yBreak", {timeout: 120000}, async function () {
   const data = [1, 2, 3, 4].flatMap(x => ["a", "b"].map(id => ({id, x, y: x === 3 && id === "a" ? 900 : 10 + x * 5})));
   for (const chart of ["AreaPlot", "StackedArea", "Plot", "BoxWhisker", "BumpChart"]) {
     const src = chart === "BoxWhisker"
@@ -293,7 +277,6 @@ it("Plot charts all take yBreak", async function () {
 });
 
 it("Plot zoom keeps a break at the identity view and drops it once it leaves the visible domain", async function () {
-  this.timeout(60000);
   const out = await probe(
     `(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900]).zoom(true)`,
     {zoom: true},

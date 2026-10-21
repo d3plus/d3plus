@@ -1,14 +1,13 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Hovering a Pack legend entry highlights the circles inside it. The entry's
     datum carries internal flags (numbers, booleans) beside its merged data
     fields, which the match must skip rather than call `.includes` on.
 */
-
-after(closeBrowser);
 
 it("Pack — hovering a legend entry highlights its circles without throwing", async () => {
   const opacity = await render('<div id="viz" style="width:700px;height:500px"></div>', () =>

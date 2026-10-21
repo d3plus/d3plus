@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot's plot area (`_plotArea`, in content space under `_chartTransform`)
@@ -9,12 +10,7 @@ import {render, closeBrowser} from "../playwright.js";
     left margin.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 it("the plot area and hover surface sit over the plot with a left legend", async function () {
-  this.timeout(60000);
   const out = await render("<div id='viz' style='width:600px;height:400px'></div>", () => new Promise(resolve => {
     const data = [];
     ["a", "b"].forEach(id => [1, 2, 3].forEach(x => data.push({id, x, y: x * (id === "a" ? 2 : 3)})));

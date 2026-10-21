@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A crowded axis sizes each label's box to the label's own width. A box
@@ -8,8 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     single-digit labels while showing 11, 14, 17, ….
     Driven in real Chromium for text measurement.
 */
-
-after(closeBrowser);
 
 it("crowded point axis — single-digit labels show alongside wider ones", async () => {
   for (const renderer of ["svg", "canvas"]) {

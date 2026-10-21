@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A BoxWhisker whose discrete axis is numeric (e.g. years) with several
@@ -10,13 +11,7 @@ import {render, closeBrowser} from "../playwright.js";
     key, so numeric categories land exactly where string ones do.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 it("BoxWhisker places boxes on numeric discrete categories", async function () {
-  this.timeout(60000);
-
   const out = await render("", () => {
     const run = (key, horizontal) =>
       new Promise(resolve => {

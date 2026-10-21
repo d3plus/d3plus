@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot's x axis claims its labels' height across the chart area before
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     lines. The plot still ends where the axis begins: its domain line meets
     the bars' base, and every label sits below it.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /**
     Renders a chart and reads its painted scene back (either renderer): the x
@@ -60,7 +57,6 @@ const rows = cats.flatMap((c, i) => ["Alpha", "Beta", "Gamma", "Delta", "Epsilon
 for (const renderer of ["svg", "canvas"]) {
   for (const width of [600, 650, 700, 900]) {
     it(`BarChart at ${width} × 350: wrapped x labels drawn beside a legend keep the axis beneath the bars (${renderer})`, async function () {
-      this.timeout(60000);
       const out = await render("", drawAxisFit, ["BarChart", {renderer, width, groupBy: "g", x: "c", y: "v", stacked: true}, rows]);
       assert.ok(out.labels.length >= 4, `labels: ${JSON.stringify(out.labels)}`);
       assertBelow(out, `${width}px`);

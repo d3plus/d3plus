@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Gauge renders in Chromium on both backends: the emitted scene (a static
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     picking.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const bands = [
   {max: 60, color: "#2f9e44"},
   {max: 85, color: "#f59f00"},
@@ -20,7 +17,6 @@ const bands = [
 ];
 
 it("Gauge emits a needle gauge with bands, ticks, and labels", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async b => {
@@ -118,7 +114,6 @@ it("Gauge emits a needle gauge with bands, ticks, and labels", async function ()
 });
 
 it("Gauge progress indicator fills an arc and insets the bands", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async b => {
@@ -196,7 +191,6 @@ it("Gauge progress indicator fills an arc and insets the bands", async function 
 });
 
 it("Gauge draws one needle per row on a shared dial, clamped to the domain", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async () => {
@@ -266,7 +260,6 @@ it("Gauge draws one needle per row on a shared dial, clamped to the domain", asy
 });
 
 it("Gauge draws one concentric progress track per row", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async b => {
@@ -322,7 +315,6 @@ it("Gauge draws one concentric progress track per row", async function () {
 });
 
 it("Gauge fits a long name and exposes a tooltip value row", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async () => {
@@ -363,7 +355,6 @@ it("Gauge fits a long name and exposes a tooltip value row", async function () {
 });
 
 it("Gauge dims the other rows' needles on hover, not the dial", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:300px'></div>",
     async () => {
@@ -402,7 +393,6 @@ it("Gauge dims the other rows' needles on hover, not the dial", async function (
 });
 
 it("Gauge paints on Canvas and picks the row under the pointer", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async () => {
@@ -457,7 +447,6 @@ it("Gauge paints on Canvas and picks the row under the pointer", async function 
 });
 
 it("Gauge outlines needles in the background color, overridable and emphasized on hover", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='light' style='width:500px;height:400px'></div>" +
       "<div id='dark' style='width:500px;height:400px;background:#1a1b1e'></div>" +

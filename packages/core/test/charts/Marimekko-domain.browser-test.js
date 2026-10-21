@@ -1,13 +1,12 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Marimekko's 100% axis keeps "none" rounding (a stack top can land a
     rounding error above 1), so a one-sided `yDomain` or `baseline` (#945)
     leaves its open far end at the data, as the axis would with no domain.
 */
-
-after(closeBrowser);
 
 // Each bar's 0.1 + 0.2 + 0.7 stacks to 1.0000000000000002.
 const rows = ["A", "B", "C"].flatMap((cat, i) =>
@@ -36,7 +35,6 @@ const probe = ([data, config]) =>
   });
 
 it("Marimekko: a one-sided yDomain or baseline keeps the 100% end unrounded", async function () {
-  this.timeout(60000);
   const [top] = (await render("", probe, [rows, {}])).slice(-1);
   assert.ok(top > 1 && top < 1.000001, `the stack top lands just above 1 (${top})`);
   for (const config of [{yDomain: [0.2]}, {baseline: 0.2}]) {

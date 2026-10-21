@@ -1,14 +1,13 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Nested `confidence` bands in a real browser: shading outermost first,
     tooltips listing each band's range, both backends, small multiples, and
     the single-pair API drawing exactly as before.
 */
-
-after(closeBrowser);
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -66,8 +65,7 @@ const run = (fn, arg) => render("", new Function("arg", `return (${helpers})(), 
 
 const bands = [["p5", "p95", "90%"], ["p25", "p75", "50%"]];
 
-it("LinePlot draws nested bands outermost first, shaded light to dark", async function () {
-  this.timeout(120000);
+it("LinePlot draws nested bands outermost first, shaded light to dark", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const {el, viz} = await window.__draw("LinePlot", v =>
       v.data(window.__fan("s")).groupBy("id").x("t").y("v").confidence(bands),
@@ -92,8 +90,7 @@ it("LinePlot draws nested bands outermost first, shaded light to dark", async fu
   assert.strictEqual(out.nan, 0);
 });
 
-it("confidence with one [lower, upper] pair draws exactly as before", async function () {
-  this.timeout(120000);
+it("confidence with one [lower, upper] pair draws exactly as before", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const draw = confidence =>
       window.__draw("LinePlot", v =>
@@ -123,8 +120,7 @@ it("confidence with one [lower, upper] pair draws exactly as before", async func
   assert.deepStrictEqual(out.shared, [["b", "29 (21 – 37)"], ["a", "19 (11 – 27)"]]);
 });
 
-it("nested band tooltips list each band's range; the shared tooltip shows the outermost", async function () {
-  this.timeout(120000);
+it("nested band tooltips list each band's range; the shared tooltip shows the outermost", {timeout: 120000}, async function () {
   const hover = ([series, locale, bands]) =>
     run(
       async ([series, locale, bands]) => {
@@ -145,8 +141,7 @@ it("nested band tooltips list each band's range; the shared tooltip shows the ou
   assert.deepStrictEqual(es.slice(2), [["Banda 1", "11,0 – 27,0"], ["Banda 2", "15,0 – 23,0"]], "unlabeled bands, translated and locale-formatted");
 });
 
-it("nested bands paint the same on Canvas, with tooltips", async function () {
-  this.timeout(120000);
+it("nested bands paint the same on Canvas, with tooltips", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const configure = v => v.data(window.__fan("s")).groupBy("id").x("t").y("v").confidence(bands);
     const svg = await window.__draw("LinePlot", configure);
@@ -164,8 +159,7 @@ it("nested bands paint the same on Canvas, with tooltips", async function () {
   assert.deepStrictEqual(out.rows.slice(2), [["90%", "11 – 27"], ["50%", "15 – 23"]]);
 });
 
-it("nested bands in small multiples: each panel draws its own bands", async function () {
-  this.timeout(120000);
+it("nested bands in small multiples: each panel draws its own bands", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const data = window.__fan("North", 10, 5, {region: "North"}).concat(window.__fan("South", 30, 3, {region: "South"}));
     const result = {};

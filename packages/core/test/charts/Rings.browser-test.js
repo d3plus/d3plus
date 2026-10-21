@@ -1,12 +1,8 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 it("Rings click.shape clears the current tooltip when re-centering", async function () {
-  this.timeout(60000);
   const result = await render(
     "<div id='viz' style='width:400px;height:400px'></div>",
     async () => {

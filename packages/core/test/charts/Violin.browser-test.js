@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Violin in a real browser: one mirrored density curve per group on a
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     `densityScale`, with the `inner` overlays, dodged and split two-level
     groups, tooltips on both backends, translated labels, and small multiples.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -105,7 +102,6 @@ const helpers = () => {
 const run = fn => render("", new Function(`return (${helpers})(), (${fn})();`));
 
 it("Violin draws one mirrored violin per group on the value axis", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el, viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner(false));
     const yDomain = viz._yAxis._d3Scale.domain();
@@ -132,7 +128,6 @@ it("Violin draws one mirrored violin per group on the value axis", async functio
 });
 
 it("Violin: densityScale area keeps equal areas, width equal widths", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const widths = async scale => {
       const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner(false).densityScale(scale));
@@ -149,7 +144,6 @@ it("Violin: densityScale area keeps equal areas, width equal widths", async func
 });
 
 it("Violin draws horizontally with discrete('y')", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el, viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").discrete("y").inner(false));
     return {areas: window.__areas(el), ticks: window.__ticks(el, "y"), xTitle: viz._xConfig.title, yTitle: viz._yConfig.title, nan: window.__nan(el)};
@@ -162,7 +156,6 @@ it("Violin draws horizontally with discrete('y')", async function () {
 });
 
 it("Violin grows each violin out of its center line, vertical and horizontal", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const probe = async discrete => {
       const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").discrete(discrete).inner(["box", "quartiles"]));
@@ -199,7 +192,6 @@ it("Violin grows each violin out of its center line, vertical and horizontal", a
 });
 
 it("Violin starts entering violins on their center line and morphs updates from the old shape", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el, viz} = await window.__draw(v => v.data(window.__rows().filter(d => d.id !== "high")).groupBy("id").value("v").inner(false));
     const before = Object.fromEntries(Array.from(el.querySelectorAll("path[data-key^='density-']")).map(p => [p.getAttribute("data-key"), p.getAttribute("d")]));
@@ -219,7 +211,6 @@ it("Violin starts entering violins on their center line and morphs updates from 
 });
 
 it("Violin inner overlays: box, quartiles, and swarmed points", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const count = async inner => {
       const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner(inner));
@@ -252,7 +243,6 @@ it("Violin inner overlays: box, quartiles, and swarmed points", async function (
 });
 
 it("Violin's inner box takes innerConfig.box.texture", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const boxes = async innerConfig => {
       const {viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner("box").innerConfig(innerConfig));
@@ -274,7 +264,6 @@ it("Violin's inner box takes innerConfig.box.texture", async function () {
 });
 
 it("Violin dodges two groupBy levels, or splits them", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const draw = async split => {
       const {el} = await window.__draw(v => v.data(window.__rows()).groupBy(["id", "side"]).value("v").inner(false).split(split));
@@ -294,7 +283,6 @@ it("Violin dodges two groupBy levels, or splits them", async function () {
 });
 
 it("Violin tooltips show the distribution on SVG and Canvas, translated", async function () {
-  this.timeout(60000);
   // One chart per page: a page's charts would share their tooltip elements.
   const hover = (id, configure) =>
     run(new Function(`return (async () => {
@@ -322,7 +310,6 @@ it("Violin tooltips show the distribution on SVG and Canvas, translated", async 
 });
 
 it("Violin points show each observation's value", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").inner("points"));
     const c = el.querySelector("circle[data-key^='density-point-mid-'], [data-key^='density-point-mid-'] circle");
@@ -333,7 +320,6 @@ it("Violin points show each observation's value", async function () {
 });
 
 it("Violin orders categories by median and draws small multiples", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const sorted = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").medianSort("descending").inner(false));
     const faceted = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").facet("f").inner(false), [900, 400]);
@@ -352,7 +338,6 @@ it("Violin orders categories by median and draws small multiples", async functio
 });
 
 it("Violin redraws with new data and an empty dataset", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el, viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v"));
     await new Promise(resolve => viz.data(window.__rows().filter(d => d.id !== "low")).render(resolve));

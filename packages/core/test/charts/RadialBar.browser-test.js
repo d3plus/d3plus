@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     RadialBar renders in Chromium on both backends: concentric tracks sorted
@@ -9,10 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     hover, Canvas painting + picking, and small multiples.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const shares = [
   {id: "Safari", value: 20},
   {id: "Chrome", value: 64},
@@ -20,8 +17,7 @@ const shares = [
   {id: "Firefox", value: 15},
 ];
 
-it("RadialBar draws one track per row, outermost first, arc length encoding value", async function () {
-  this.timeout(180000);
+it("RadialBar draws one track per row, outermost first, arc length encoding value", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:500px'></div>",
     async rows => {
@@ -105,8 +101,7 @@ it("RadialBar draws one track per row, outermost first, arc length encoding valu
   assert.strictEqual(out.nan, 0);
 });
 
-it("RadialBar honors sort(null), domain, ticks, track(false), and a partial sweep", async function () {
-  this.timeout(180000);
+it("RadialBar honors sort(null), domain, ticks, track(false), and a partial sweep", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:400px'></div>",
     async rows => {
@@ -165,8 +160,7 @@ it("RadialBar honors sort(null), domain, ticks, track(false), and a partial swee
   assert.ok(out.transformY > out.mid);
 });
 
-it('RadialBar discrete("angle") draws a circular bar chart', async function () {
-  this.timeout(180000);
+it('RadialBar discrete("angle") draws a circular bar chart', {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:500px'></div>",
     async rows => {
@@ -228,8 +222,7 @@ it('RadialBar discrete("angle") draws a circular bar chart', async function () {
     assert.ok(out.texts.includes(t), `labels ${t}`);
 });
 
-it("RadialBar dims other rows on hover and picks on Canvas", async function () {
-  this.timeout(180000);
+it("RadialBar dims other rows on hover and picks on Canvas", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='svg' style='width:500px;height:400px'></div><div id='canvas' style='width:500px;height:400px'></div>",
     async rows => {
@@ -292,8 +285,7 @@ it("RadialBar dims other rows on hover and picks on Canvas", async function () {
   );
 });
 
-it("RadialBar draws one panel per facet", async function () {
-  this.timeout(180000);
+it("RadialBar draws one panel per facet", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:900px;height:400px'></div>",
     async rows => {
@@ -335,8 +327,7 @@ it("RadialBar draws one panel per facet", async function () {
   );
 });
 
-it("RadialBar names the tracks with the legend once the sweep leaves no room for track labels", async function () {
-  this.timeout(180000);
+it("RadialBar names the tracks with the legend once the sweep leaves no room for track labels", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:460px'></div>",
     async rows => {

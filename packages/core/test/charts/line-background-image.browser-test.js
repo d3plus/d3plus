@@ -1,7 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Lines are stroked, not filled, so they draw no `shapeConfig.backgroundImage`
@@ -105,8 +104,7 @@ const cases = [
 ];
 
 for (const {name, cls, config, marks, images} of cases) {
-  it(`${name}: only filled marks draw shapeConfig.backgroundImage and texture, on SVG and Canvas`, async function () {
-    this.timeout(120000);
+  it(`${name}: only filled marks draw shapeConfig.backgroundImage and texture, on SVG and Canvas`, {timeout: 120000}, async function () {
     for (const renderer of ["svg", "canvas"]) {
       const label = `${name} (${renderer})`;
       const r = await render("", probe, {cls, config, renderer, image});

@@ -1,10 +1,11 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 import {shared, withIO} from "./stubIntersectionObserver.js";
 import {
   syncUnloadObserver,
   vizReload,
-} from "../../es/src/charts/viz/vizVisibility.js";
+} from "../../src/charts/viz/vizVisibility.ts";
 
 function mockViz(over = {}) {
   const calls = [];
@@ -119,4 +120,3 @@ it("visibility unload: charts get content-visibility on the svg only while detec
   });
 });
 
-after(closeBrowser);

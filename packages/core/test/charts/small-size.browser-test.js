@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Regression coverage for d3plus/d3plus#515 — charts rendered into a very
@@ -14,10 +15,6 @@ import {render, closeBrowser} from "../playwright.js";
       became `NaN`, leaking `translate(NaN, …)` into the rendered SVG.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const charts = ["BarChart", "LinePlot", "StackedArea", "BumpChart", "Treemap", "Pie"];
 const sizes = [
   [1, 1],
@@ -28,9 +25,7 @@ const sizes = [
   [200, 15],
 ];
 
-it("charts render at very small sizes without errors or NaN attributes", async function () {
-  this.timeout(120000);
-
+it("charts render at very small sizes without errors or NaN attributes", {timeout: 120000}, async function () {
   const results = await render(
     "",
     ({charts, sizes}) => {

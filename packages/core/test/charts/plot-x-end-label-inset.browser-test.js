@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Plot measures its x axis across the full width to find the room its last
@@ -52,8 +53,6 @@ const probe = ([rows, size, facet, renderer]) =>
 
 const run = (rows, size, facet = false, renderer = "svg") =>
   render('<div id="viz"></div>', probe, [rows, size, facet, renderer]);
-
-after(closeBrowser);
 
 it("x axis — the last label fits when the y axis insets the plot", async () => {
   const europe = life.filter(d => d.continent === "Europe");

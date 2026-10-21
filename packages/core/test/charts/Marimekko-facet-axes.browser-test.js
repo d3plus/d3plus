@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Marimekko small multiples share one value axis: only the grid's left
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     every panel labels its own categories, and the panels' plot areas line
     up, so the panels without an axis give the room to their bars.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 // The SmallMultiples stories' revenue by year, region, and brand.
 const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
@@ -82,7 +79,6 @@ const width = p => p.right - p.left;
 for (const facetConfig of [{}, {scales: "independent"}]) {
   const name = facetConfig.scales || "shared";
   it(`Marimekko facet (${name} scales): only the left column labels the value axis`, async function () {
-    this.timeout(60000);
     const panels = await render("", draw, [{facetConfig}, byYear]);
     assert.deepStrictEqual(Object.keys(panels).sort(), panelKeys);
     const [first, ...rest] = panelKeys.map(k => panels[k]);
@@ -103,7 +99,6 @@ for (const facetConfig of [{}, {scales: "independent"}]) {
   });
 
   it(`Marimekko facet (${name} scales): panels without a y axis give its room to their bars`, async function () {
-    this.timeout(60000);
     const shared = await render("", draw, [{facetConfig}, byYear]);
     const all = await render("", draw, [{facetConfig: {...facetConfig, axes: "all"}}, byYear]);
     panelKeys.forEach(k => assert.ok(
@@ -118,7 +113,6 @@ for (const facetConfig of [{}, {scales: "independent"}]) {
 }
 
 it("Marimekko facet: facetConfig axes sets each axis on its own, or both at once", async function () {
-  this.timeout(60000);
   const both = await render("", draw, [{facetConfig: {axes: {y: "all"}}}, byYear]);
   panelKeys.forEach(k => assert.ok(both[k].y.includes("0%"), `${k} labels its y axis`));
   const outer = await render("", draw, [{facetConfig: {axes: "outer"}}, byYear]);
@@ -128,7 +122,6 @@ it("Marimekko facet: facetConfig axes sets each axis on its own, or both at once
 });
 
 it("Marimekko facet: horizontal bars label the value axis along the bottom row only", async function () {
-  this.timeout(60000);
   const config = {discrete: "y", x: "Revenue", y: "Region", facetConfig: {columns: 1}, height: 900};
   const panels = await render("", draw, [config, byYear]);
   const [top, middle, bottom] = panelKeys.map(k => panels[k]);
@@ -141,7 +134,6 @@ it("Marimekko facet: horizontal bars label the value axis along the bottom row o
 });
 
 it("Marimekko facet: absolute heights with independent scales label every panel's value axis", async function () {
-  this.timeout(60000);
   const config = {stackOffset: "none", facetConfig: {scales: "independent"}};
   const panels = await render("", draw, [config, byYear]);
   panelKeys.forEach(k => assert.ok(panels[k].y.length > 1, `${k} labels its own y axis: ${panels[k].y}`));

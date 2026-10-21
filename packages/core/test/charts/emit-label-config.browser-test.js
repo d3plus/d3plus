@@ -1,18 +1,13 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 // Charts that emit their labels as scene data (rather than through a Shape)
 // must still honor the user's label config: `fontFamily()`, and
 // `shapeConfig.labelConfig` including per-datum accessors.
-after(async () => {
-  await closeBrowser();
-});
-
 const CHARTS = ["Treemap", "Pie", "Donut", "Tree", "Network", "Rings", "Chord", "Priestley"];
 
-it("emitted chart labels honor fontFamily and shapeConfig.labelConfig", async function () {
-  this.timeout(120000);
-
+it("emitted chart labels honor fontFamily and shapeConfig.labelConfig", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:600px;height:400px;"></div>',
     async charts => {
@@ -111,8 +106,6 @@ it("emitted chart labels honor fontFamily and shapeConfig.labelConfig", async fu
 });
 
 it("emitted chart labels keep the chart's own label colors by default", async function () {
-  this.timeout(60000);
-
   const out = await render('<div id="s" style="width:600px;height:400px;"></div>', async () => {
     const viz = new window.d3plus.Chord()
       .select("#s")

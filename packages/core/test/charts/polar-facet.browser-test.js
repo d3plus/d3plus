@@ -1,14 +1,15 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 import {
   polarFacetHooks,
   polarFacetPanel,
   polarSharedExtent,
   sharePolarScale,
-} from "../../es/src/charts/polar/polarFacet.js";
-import {polarSlotTops} from "../../es/src/charts/polar/wedgeLayout.js";
-import {polarAreaDomainValues} from "../../es/src/charts/PolarArea/applyLayout.js";
-import {radialBarDomainValues} from "../../es/src/charts/RadialBar/applyLayout.js";
+} from "../../src/charts/polar/polarFacet.ts";
+import {polarSlotTops} from "../../src/charts/polar/wedgeLayout.ts";
+import {polarAreaDomainValues} from "../../src/charts/PolarArea/applyLayout.ts";
+import {radialBarDomainValues} from "../../src/charts/RadialBar/applyLayout.ts";
 
 /**
     Small multiples for the polar charts: each panel fits its value domain to
@@ -16,10 +17,6 @@ import {radialBarDomainValues} from "../../es/src/charts/RadialBar/applyLayout.j
     panel shares one domain (pure helpers, then PolarArea and RadialBar drawn
     both ways on SVG and Canvas).
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const valueViz = extra => ({schema: {value: d => d.v, ...extra}, ctx: {}});
 
@@ -162,18 +159,15 @@ const checkModes = (out, label) => {
   assert.deepStrictEqual(round(out.canvasShared), round(out.shared), `${label}: Canvas lays out the same (shared)`);
 };
 
-it("PolarArea panels fit their own domain by default and share one with facetConfig scales", async function () {
-  this.timeout(180000);
+it("PolarArea panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
   checkModes(await drawBoth("PolarArea", {discrete: "metric"}), "PolarArea");
 });
 
-it("RadialBar track panels fit their own domain by default and share one with facetConfig scales", async function () {
-  this.timeout(180000);
+it("RadialBar track panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
   checkModes(await drawBoth("RadialBar", {discrete: "radius"}), "RadialBar tracks");
 });
 
-it("RadialBar circular bar panels fit their own domain by default and share one with facetConfig scales", async function () {
-  this.timeout(180000);
+it("RadialBar circular bar panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
   checkModes(
     await drawBoth("RadialBar", {discrete: "angle", config: {discrete: "angle"}}),
     "RadialBar angle",

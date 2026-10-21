@@ -1,6 +1,7 @@
 /* global getComputedStyle, requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #779: hovering a Plot's plot area — even empty space between marks — snaps
@@ -108,8 +109,6 @@ const probe = ([kind, config, data, fx, target]) =>
 
 const run = (kind, config = {}, rows = data, fx = 0.34, target = null) =>
   render('<div id="viz" style="width:600px;height:400px"></div>', probe, [kind, config, rows, fx, target]);
-
-after(closeBrowser);
 
 it("shared tooltip — the crosshair stays behind lines clipped to a cutting yDomain", async () => {
   // Alpha runs 10–13, below the domain, so the lines are clipped to the plot.

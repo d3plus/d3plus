@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Pack overrides `chartBodyRect` (its body is a diameter-sized square
@@ -12,7 +9,6 @@ after(async () => {
     still resolves correctly against it, not just against the default.
 */
 it("a routed click on a Pack circle arms and resolves the forward drill-down morph", async function () {
-  this.timeout(60000);
   const result = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async () => {

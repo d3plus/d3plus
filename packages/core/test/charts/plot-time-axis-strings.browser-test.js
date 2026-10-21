@@ -1,16 +1,13 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {date} from "@d3plus/dom";
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Plot parses time values before handing them to its axes, so its x axis
     receives Dates whether the data holds date strings or Date objects, and
     both draw the same axis.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Renders a LinePlot whose time x values come from `xs` (a `lib => values` source) and reports its x axis. */
 const xAxisOf = xs =>

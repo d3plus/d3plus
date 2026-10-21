@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A Plot's tooltips label a time axis's values at the interval the axis
@@ -9,8 +10,6 @@ import {render, closeBrowser} from "../playwright.js";
     category axis's strings read as given. Driven in Chromium through real
     pointer events, on both renderers.
 */
-
-after(closeBrowser);
 
 const days = ["2026-01-01", "2026-04-01", "2026-07-01", "2026-10-01"];
 
@@ -115,7 +114,6 @@ const spans = {
 for (const renderer of ["svg", "canvas"]) {
   for (const [name, xs] of Object.entries(sources)) {
     it(`LinePlot (${renderer}) — ${name} on a time axis read like the axis ticks in the tooltip`, async function () {
-      this.timeout(60000);
       const shared = await run("LinePlot", xs, {time: "date"}, renderer, 2);
       assert.strictEqual(shared.scale, "time");
       assert.ok(shared.ticks.includes("Q3 2026"), `the axis labels Q3 2026 (got ${shared.ticks})`);
@@ -127,7 +125,6 @@ for (const renderer of ["svg", "canvas"]) {
 
   for (const [name, {xs, index, label}] of Object.entries(spans)) {
     it(`LinePlot (${renderer}) — ${name} tooltips keep the year the axis drops from its middle ticks`, async function () {
-      this.timeout(60000);
       const shared = await run("LinePlot", xs, {time: "date"}, renderer, 2, index);
       assert.ok(shared.ticks.some(t => !/\d{4}/.test(t)), `some middle ticks drop the year (got ${shared.ticks})`);
       const alpha = shared.tbody.find(row => row[0] === "Alpha");
@@ -141,14 +138,12 @@ for (const renderer of ["svg", "canvas"]) {
   }
 
   it(`LinePlot (${renderer}) — an xConfig tickFormat labels time values in the tooltip`, async function () {
-    this.timeout(60000);
     const config = {time: "date", xConfig: {tickFormat: "return `@${d}`;"}};
     const shared = await run("LinePlot", sources["date strings"], config, renderer, 2);
     assert.deepStrictEqual(shared.thead, [["date", "@2026-07-01"]]);
   });
 
   it(`BarChart (${renderer}) — date strings on a time y axis read like the axis ticks in the tooltip`, async function () {
-    this.timeout(60000);
     const config = {discrete: "y", x: "value", y: "date", time: "date"};
     const r = await run("BarChart", sources["date strings"], config, renderer, 1);
     assert.strictEqual(r.scale, "time");
@@ -157,7 +152,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`LinePlot (${renderer}) — strings on a category axis read as given`, async function () {
-    this.timeout(60000);
     const fruit = `() => ["Apples", "Bananas", "Cherries", "Durians"]`;
     const shared = await run("LinePlot", fruit, {}, renderer, 2);
     assert.strictEqual(shared.scale, "point");

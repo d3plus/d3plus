@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A user domain on a discrete axis lists the categories it shows. Rendered
@@ -7,8 +8,6 @@ import {closeBrowser, render} from "../playwright.js";
     those categories, with no NaN anywhere in the scene (a LinePlot's path
     `d` used to read `MNaN,…`, a bar `translate(NaN,…)`).
 */
-
-after(closeBrowser);
 
 /** Renders the chart `src` builds (a `(lib, data) => chart` function source) and reports its lines, bars and x axis. */
 const draw = ([src, renderer]) =>

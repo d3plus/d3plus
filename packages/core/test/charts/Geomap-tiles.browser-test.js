@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Regression guard for a same-tick `_renderTiles` race: `.config({...})`
@@ -18,13 +19,7 @@ import {render, closeBrowser} from "../playwright.js";
     the update selection) leaves freshly entered tiles' own fade-in
     transition cancelled before it starts, stuck at `opacity: 0`.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("a config change that fires two _renderTiles calls in one tick doesn't lose or hide tiles", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

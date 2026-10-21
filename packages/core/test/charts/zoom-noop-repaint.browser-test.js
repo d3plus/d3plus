@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     d3-zoom emits a zoom event for every mousemove of a drag, even one that
@@ -12,8 +9,6 @@ after(async () => {
     does pan a zoomed-in chart must still repaint.
 */
 it("dragging an unzoomed chart leaves its transition running; panning a zoomed one repaints", async function () {
-  this.timeout(60000);
-
   const out = await render('<div id="viz" style="width:600px;height:400px;"></div>', () => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     const before = [{id: "A", value: 10}, {id: "B", value: 30}, {id: "C", value: 20}];

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The polar pipeline helpers called directly against a rendered chart in
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     RadialBar's layout stages and emits.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 const rows = [
   {id: "alpha", group: "x", value: 30},
   {id: "beta", group: "x", value: 10},
@@ -19,8 +16,7 @@ const rows = [
   {id: "beta", group: "y", value: 40},
 ];
 
-it("polar pipeline: config helpers (polarAxisConfig, rowLegend, polarValueRow)", async function () {
-  this.timeout(180000);
+it("polar pipeline: config helpers (polarAxisConfig, rowLegend, polarValueRow)", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {
@@ -69,8 +65,7 @@ it("polar pipeline: config helpers (polarAxisConfig, rowLegend, polarValueRow)",
   assert.strictEqual(out.missing, "");
 });
 
-it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, polarLevelNodes)", async function () {
-  this.timeout(180000);
+it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, polarLevelNodes)", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {
@@ -138,8 +133,7 @@ it("polar pipeline: chrome helpers (polarCategoryLayout, polarCategoryNodes, pol
   assert.deepStrictEqual(out.levelKeys, ["test-radial-circles", "test-level-labels"]);
 });
 
-it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
-  this.timeout(180000);
+it("polar pipeline: polarWedgeLayout and polarWedgeNodes", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {
@@ -226,8 +220,7 @@ it("polar pipeline: polarWedgeLayout and polarWedgeNodes", async function () {
   assert.strictEqual(out.nodes[0].key, "probe-alpha-x");
 });
 
-it("polar pipeline: PolarArea stage and emit (polarAreaSlotOf, applyPolarAreaLayout, polarAreaEmit)", async function () {
-  this.timeout(180000);
+it("polar pipeline: PolarArea stage and emit (polarAreaSlotOf, applyPolarAreaLayout, polarAreaEmit)", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {
@@ -276,8 +269,7 @@ it("polar pipeline: PolarArea stage and emit (polarAreaSlotOf, applyPolarAreaLay
   assert.deepStrictEqual(out.defKeys, ["ctx", "fields"]);
 });
 
-it("polar pipeline: RadialBar stage and emit (radialBarRows, radialBarTrackLayout, applyRadialBarLayout, radialBarEmit)", async function () {
-  this.timeout(180000);
+it("polar pipeline: RadialBar stage and emit (radialBarRows, radialBarTrackLayout, applyRadialBarLayout, radialBarEmit)", {timeout: 180000}, async function () {
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
     async data => {

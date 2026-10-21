@@ -1,15 +1,12 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {hsl} from "d3-color";
 import {colorLighter} from "@d3plus/color";
-import {labelRotations} from "../../es/src/charts/Sunburst/labelFit.js";
-import {render, closeBrowser} from "../playwright.js";
+import {labelRotations} from "../../src/charts/Sunburst/labelFit.ts";
+import {render} from "~test/browser/render.js";
 
 // The Viz render pipeline awaits browser layout that never resolves under
 // jsdom, so the chart is rendered in a headless browser instead.
-after(async () => {
-  await closeBrowser();
-});
-
 const data = [
   {area: "Frontend", module: "Components", file: "Button", size: 120},
   {area: "Frontend", module: "Components", file: "Table", size: 410},
@@ -59,7 +56,6 @@ const page = (fn, arg) =>
   );
 
 it("Sunburst: draws one arc per node of a two-level hierarchy", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({groupBy: ["area", "module"]});
     return {
@@ -79,7 +75,6 @@ it("Sunburst: draws one arc per node of a two-level hierarchy", async function (
 });
 
 it("Sunburst: draws three rings, shading each top-level color a step lighter per ring", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const fill = path => window.arcFor(chart, path).paint.fill;
@@ -144,7 +139,6 @@ it("Sunburst: draws three rings, shading each top-level color a step lighter per
 });
 
 it("Sunburst: shadeConfig tunes the shading; shade(false), a user color, and a user fill draw unshaded", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const fills = async config => {
       const chart = await window.build({config});
@@ -191,7 +185,6 @@ it("Sunburst: shadeConfig tunes the shading; shade(false), a user color, and a u
 });
 
 it("Sunburst: labels break only between words and run along the ring or the radius", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const long = window.DATA.map(d => ({
       ...d,
@@ -294,7 +287,6 @@ it("Sunburst: labels break only between words and run along the ring or the radi
 });
 
 it("Sunburst: colors every arc by its summed value under a colorScale", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({config: {colorScale: "size"}});
     const fill = path => window.arcFor(chart, path).paint.fill;
@@ -323,7 +315,6 @@ it("Sunburst: colors every arc by its summed value under a colorScale", async fu
 });
 
 it("Sunburst: hover highlights the arc and its ancestors and adds a share-of-parent tooltip row", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const target = window.arcFor(chart, ["Backend", "API", "Orders"]);
@@ -348,7 +339,6 @@ it("Sunburst: hover highlights the arc and its ancestors and adds a share-of-par
 });
 
 it("Sunburst: click zooms into an arc, and the center and Back zoom out", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     const before = window.arcFor(chart, ["Backend", "API"]).arc;
@@ -425,7 +415,6 @@ it("Sunburst: click zooms into an arc, and the center and Back zoom out", async 
 });
 
 it("Sunburst: renders on Canvas and hit-tests a real click into a zoom", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({renderer: "canvas"});
     const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
@@ -458,7 +447,6 @@ it("Sunburst: renders on Canvas and hit-tests a real click into a zoom", async f
 });
 
 it("Sunburst: buckets the leaves under the threshold into one arc per parent", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({
       config: {threshold: 0.05, thresholdName: "Files"},
@@ -486,7 +474,6 @@ it("Sunburst: buckets the leaves under the threshold into one arc per parent", a
 });
 
 it("Sunburst: zooming out plays the zoom-in in reverse", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     chart.duration(600);
@@ -553,7 +540,6 @@ it("Sunburst: zooming out plays the zoom-in in reverse", async function () {
 });
 
 it("Sunburst: zooming out one of two levels returns the outer level's siblings, on Canvas too", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({renderer: "canvas"});
     chart.duration(600);
@@ -593,7 +579,6 @@ it("Sunburst: zooming out one of two levels returns the outer level's siblings, 
 });
 
 it("Sunburst: keeps a data field named share, with d3plus's Share row beside it", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     window.DATA = window.DATA.map((d, i) => ({...d, share: i + 1}));
     const chart = await window.build();
@@ -631,7 +616,6 @@ it("Sunburst: keeps a data field named share, with d3plus's Share row beside it"
 });
 
 it("Sunburst: shadeConfig deep-merges and RESET restores the chart's default", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const {RESET} = window.d3plus;
     const chart = await window.build();
@@ -673,7 +657,6 @@ it("Sunburst: shadeConfig deep-merges and RESET restores the chart's default", a
 });
 
 it("Sunburst: shapeConfig and tooltipConfig keep the chart's defaults through merges and RESET, without warnings", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const {RESET} = window.d3plus;
     const warnings = [];
@@ -919,8 +902,7 @@ function assertLabelsFade({before, after, samples}, name) {
 }
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Sunburst: labels fade out in place and back in at their new place on zoom in, out, and Back (${renderer})`, async function () {
-    this.timeout(120000);
+  it(`Sunburst: labels fade out in place and back in at their new place on zoom in, out, and Back (${renderer})`, {timeout: 120000}, async function () {
     const out = await page(
       async ({renderer, recorder}) => {
         new Function(recorder)();

@@ -1,15 +1,12 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A numeric year column on a continuous Plot axis labels its ticks as
     years ("1990"), while a value axis of thousands that reaches a zero
     baseline still abbreviates ("1.5k").
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Renders the chart built by `src` (a `(lib, data) => chart` function source) and reports its axes' tick labels. */
 const axisLabels = src =>

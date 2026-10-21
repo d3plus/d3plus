@@ -1,6 +1,7 @@
 /* global DOMPoint, requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #289: `trendLineConfig.projection` extends trend lines past the data. The
@@ -70,8 +71,6 @@ const probe = ([kind, config, data, hover, fx]) =>
 const run = (kind, config, hover = null, fx = 0.5, data = years) =>
   render('<div id="viz" style="width:800px;height:400px"></div>', probe, [kind, config, data, hover, fx]);
 const line = {x: "year", y: "value", trendLine: true};
-
-after(closeBrowser);
 
 it("projection — widens the axis and draws a dotted projection per series", async () => {
   const r = await run("LinePlot", {...line, trendLineConfig: {projection: 3}});

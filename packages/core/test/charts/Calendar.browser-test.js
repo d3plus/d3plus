@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Calendar renders in Chromium on both backends: one cell per day of every
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     and month layouts, the tooltip, small multiples, a dark background, and
     Canvas painting + picking.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const box = "<div id='viz' style='width:900px;height:360px'></div>";
 
@@ -30,7 +27,6 @@ const daily = `
 `;
 
 it("Calendar draws a cell for every day of each year the data touches", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -87,7 +83,6 @@ it("Calendar draws a cell for every day of each year the data touches", async fu
 });
 
 it("Calendar merges rows on the same day and reads custom date accessors", async function () {
-  this.timeout(60000);
   const out = await render(box, async () => {
     const viz = new window.d3plus.Calendar()
       .select("#viz")
@@ -110,7 +105,6 @@ it("Calendar merges rows on the same day and reads custom date accessors", async
 });
 
 it("Calendar follows the locale's names and first day of the week", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const run = async config => {
@@ -150,7 +144,6 @@ it("Calendar follows the locale's names and first day of the week", async functi
 });
 
 it("Calendar lays weeks down the page with orient vertical", async function () {
-  this.timeout(60000);
   const out = await render("<div id='viz' style='width:400px;height:800px'></div>", async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -175,7 +168,6 @@ it("Calendar lays weeks down the page with orient vertical", async function () {
 });
 
 it("Calendar draws month blocks as small wall calendars", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -199,7 +191,6 @@ it("Calendar draws month blocks as small wall calendars", async function () {
 });
 
 it("Calendar fills days without a value with emptyFill, keeping their tooltip", async function () {
-  this.timeout(60000);
   const out = await render(box, async () => {
     const viz = new window.d3plus.Calendar()
       .select("#viz")
@@ -231,7 +222,6 @@ it("Calendar fills days without a value with emptyFill, keeping their tooltip", 
 });
 
 it("Calendar reads its chrome colors against a dark background", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div style='background:rgb(20, 20, 20)'><div id='light' style='width:600px;height:240px;background:#fff'></div><div id='dark' style='width:600px;height:240px'></div></div>",
     async () => {
@@ -255,7 +245,6 @@ it("Calendar reads its chrome colors against a dark background", async function 
 });
 
 it("Calendar small multiples share one date range", async function () {
-  this.timeout(60000);
   const out = await render("<div id='viz' style='width:900px;height:500px'></div>", async () => {
     const viz = new window.d3plus.Calendar()
       .select("#viz")
@@ -279,7 +268,6 @@ it("Calendar small multiples share one date range", async function () {
 });
 
 it("Calendar paints and picks cells on the Canvas renderer", async function () {
-  this.timeout(60000);
   const out = await render(box, async () => {
     const viz = new window.d3plus.Calendar()
       .select("#viz")
@@ -337,7 +325,6 @@ const pointer = `
 `;
 
 it("Calendar outlines the hovered day without dimming the others, past the dataCutoff too", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -374,7 +361,6 @@ it("Calendar outlines the hovered day without dimming the others, past the dataC
 });
 
 it("Calendar keeps a user's hoverOpacity", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -399,7 +385,6 @@ it("Calendar keeps a user's hoverOpacity", async function () {
 });
 
 it("Calendar's colorScale bucket hover dims the days outside the bucket", async function () {
-  this.timeout(60000);
   const out = await render(box, async src => {
     eval(src);
     const viz = new window.d3plus.Calendar()
@@ -440,7 +425,6 @@ const overlaps = (a, b) =>
   a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 it("Calendar places its colorScale below or above the calendar when there's room", async function () {
-  this.timeout(60000);
   for (const [config, days, below] of [[{}, 365, true], [{locale: "es-ES"}, 365, true], [{period: "month"}, 181]]) {
     const out = await placement(900, 360, config, days);
     const p = out.placement;
@@ -458,7 +442,6 @@ it("Calendar places its colorScale below or above the calendar when there's room
 });
 
 it("Calendar's colorScale falls back to a side margin when there's no room inside", async function () {
-  this.timeout(60000);
   const out = await placement(900, 220, {});
   assert.strictEqual(out.placement, null);
   assert.ok(out.margin.right > 0, "a wide chart's colorScale goes right");

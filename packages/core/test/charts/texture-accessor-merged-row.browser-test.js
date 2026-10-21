@@ -1,7 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A per-row `shapeConfig.texture` accessor reaches an AreaPlot's areas and a
@@ -59,8 +58,7 @@ const cases = [
 ];
 
 for (const {name, cls, confidence} of cases) {
-  it(`${name}: a per-row texture accessor gets the merged row, on SVG and Canvas`, async function () {
-    this.timeout(120000);
+  it(`${name}: a per-row texture accessor gets the merged row, on SVG and Canvas`, {timeout: 120000}, async function () {
     for (const renderer of ["svg", "canvas"]) {
       const label = `${name} (${renderer})`;
       const r = await render("", probe, {cls, confidence, renderer});
@@ -85,8 +83,7 @@ for (const {name, cls, confidence} of cases) {
 }
 
 // backgroundImage already resolves through the merged row; keep it that way.
-it("AreaPlot: a per-row backgroundImage accessor gets the merged row, on SVG and Canvas", async function () {
-  this.timeout(120000);
+it("AreaPlot: a per-row backgroundImage accessor gets the merged row, on SVG and Canvas", {timeout: 120000}, async function () {
   for (const renderer of ["svg", "canvas"]) {
     const images = await render("", async renderer => {
       const data = ["alpha", "beta"].flatMap(id => [2019, 2020].map((year, j) => ({id, year, value: 10 + j})));

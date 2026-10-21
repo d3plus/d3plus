@@ -1,13 +1,10 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {colorLighter} from "@d3plus/color";
-import {render, closeBrowser} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 // The Viz render pipeline awaits browser layout that never resolves under
 // jsdom, so the chart is rendered in a headless browser instead.
-after(async () => {
-  await closeBrowser();
-});
-
 const data = [
   {area: "Frontend", module: "Components", file: "Button", size: 120},
   {area: "Frontend", module: "Components", file: "Table", size: 410},
@@ -58,7 +55,6 @@ const page = (fn, arg) =>
   );
 
 it("Icicle: draws one rect per node, one band per level from the left edge", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({groupBy: ["area", "module"]});
     const rects = window.rects(chart);
@@ -87,7 +83,6 @@ it("Icicle: draws one rect per node, one band per level from the left edge", asy
 });
 
 it("Icicle: orient vertical runs the levels top-down", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({config: {orient: "vertical"}});
     const rects = window.rects(chart);
@@ -105,7 +100,6 @@ it("Icicle: orient vertical runs the levels top-down", async function () {
 });
 
 it("Icicle: shades each level a step lighter; shade(false) and custom colors draw as given", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const fills = async config => {
       const chart = await window.build({config});
@@ -130,7 +124,6 @@ it("Icicle: shades each level a step lighter; shade(false) and custom colors dra
 });
 
 it("Icicle: labels sit inside their rects, upright or turned up narrow ones, in whole words", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const collect = chart =>
       chart._chartScene
@@ -169,7 +162,6 @@ it("Icicle: labels sit inside their rects, upright or turned up narrow ones, in 
 });
 
 it("Icicle: a click zooms into a node (it fills the root band) and the root band zooms back out", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({config: {duration: 0}});
     window.route(chart, "click", window.rectFor(chart, ["Backend"]));
@@ -206,7 +198,6 @@ it("Icicle: a click zooms into a node (it fills the root band) and the root band
 });
 
 it("Icicle: renders and zooms on the canvas renderer", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({renderer: "canvas"});
     const canvas = document.querySelector("#viz canvas");
@@ -221,7 +212,6 @@ it("Icicle: renders and zooms on the canvas renderer", async function () {
 });
 
 it("Icicle: draws small multiples with facet", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build({
       groupBy: ["module", "file"],
@@ -240,7 +230,6 @@ it("Icicle: draws small multiples with facet", async function () {
 });
 
 it("Icicle: shapeConfig texture and backgroundImage reach every rect and legend swatch, on SVG and Canvas", async function () {
-  this.timeout(60000);
   for (const renderer of ["svg", "canvas"]) {
     const out = await page(async r => {
       const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";

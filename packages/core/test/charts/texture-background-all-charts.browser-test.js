@@ -1,7 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Every chart's filled data marks honor `shapeConfig.texture` and
@@ -132,8 +131,7 @@ const cases = Object.entries(pageCases());
 
 for (const [name, spec] of cases) {
   for (const feature of ["texture", "backgroundImage"]) {
-    it(`${name}: shapeConfig.${feature} reaches every filled mark on SVG and Canvas`, async function () {
-      this.timeout(120000);
+    it(`${name}: shapeConfig.${feature} reaches every filled mark on SVG and Canvas`, {timeout: 120000}, async function () {
       for (const renderer of ["svg", "canvas"]) {
         const label = `${name} (${renderer})`;
         const r = await render("", probe, {name, feature, renderer, pageCasesSrc});
@@ -155,8 +153,7 @@ for (const [name, spec] of cases) {
   }
 }
 
-it("BoxWhisker: a per-box texture accessor and shapeConfig.Box.backgroundImage reach the boxes", async function () {
-  this.timeout(120000);
+it("BoxWhisker: a per-box texture accessor and shapeConfig.Box.backgroundImage reach the boxes", {timeout: 120000}, async function () {
   const out = await render("", async () => {
     const data = ["alpha", "beta"].flatMap(id => [20, 40, 74, 80, 115, 125, 150, 300].map((value, sub) => ({id, sub, value})));
     const el = document.createElement("div");

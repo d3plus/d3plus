@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Candlestick's evenly spaced trading days tick on calendar boundaries, and
@@ -10,12 +11,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     the year. Driven in Chromium for real text measurement, on both
     renderers, with and without the volume strip.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-after(closeBrowser);
 
 /**
     Renders a Candlestick over `days` seeded trading days from `start`, and
@@ -108,8 +103,7 @@ const spans = {
 for (const renderer of ["svg", "canvas"]) {
   for (const volume of [false, true]) {
     const strip = volume ? " with volume" : "";
-    it(`Candlestick (${renderer}${strip}) names both years at every width, with whole labels`, async function () {
-      this.timeout(120000);
+    it(`Candlestick (${renderer}${strip}) names both years at every width, with whole labels`, {timeout: 120000}, async function () {
       for (const [name, span] of Object.entries(spans)) {
         for (const width of [260, 320, 420, 700]) {
           const r = await run({...span, width, volume}, renderer);
@@ -119,8 +113,7 @@ for (const renderer of ["svg", "canvas"]) {
       }
     });
 
-    it(`Candlestick (${renderer}${strip}) keeps wide charts on quarters`, async function () {
-      this.timeout(120000);
+    it(`Candlestick (${renderer}${strip}) keeps wide charts on quarters`, {timeout: 120000}, async function () {
       for (const width of [420, 700]) {
         const january = await run({...spans.january, width, volume}, renderer);
         assert.deepStrictEqual(january.labels.map(l => l.lines[0]), ["Jan 2023", "Apr", "Jul", "Oct", "2024"], `january@${width}`);

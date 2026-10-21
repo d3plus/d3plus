@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The size legend (#83) in charts: a nested-circle key in the bottom-right
@@ -10,10 +11,6 @@ import {closeBrowser, render} from "../playwright.js";
     stay clear of the chart body, and bottom/side legends and colorScales
     must make room for it.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /**
     Renders the chart `builderSrc` returns, then reports the size-legend

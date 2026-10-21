@@ -1,7 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `shapeConfig.backgroundImage` draws inside every chart's shapes, on SVG and
@@ -255,8 +254,7 @@ const dimCharts = ["Treemap", "Pack", "Pie", "Network", "Radar", "BarChart"];
 const hoverCharts = ["Treemap", "Pack", "Pie", "Network", "Matrix", "Radar", "BarChart", "Bullet"];
 
 for (const name of [...pixelCharts, ...structureCharts]) {
-  it(`${name}: shapeConfig.backgroundImage draws inside its shapes on SVG and Canvas`, async function () {
-    this.timeout(120000);
+  it(`${name}: shapeConfig.backgroundImage draws inside its shapes on SVG and Canvas`, {timeout: 120000}, async function () {
     const {results, hover} = await run(name);
     assert.ok(results.some(r => r.inChart), "the chart's shapes draw background images");
     for (const r of results) {
@@ -296,8 +294,7 @@ for (const name of [...pixelCharts, ...structureCharts]) {
   });
 }
 
-it("draws no background images when backgroundImage is unset", async function () {
-  this.timeout(120000);
+it("draws no background images when backgroundImage is unset", {timeout: 120000}, async function () {
   const counts = await render("", async ({pageCasesSrc}) => {
     const {cases} = new Function(`return (${pageCasesSrc})();`)();
     const out = {};

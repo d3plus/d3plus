@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     ParallelCoordinates brushing, Canvas, and small multiples in Chromium:
@@ -8,16 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     Canvas backend paints and picks, and faceted panels share domains and
     brush together. Also drives the layout helpers on a live chart.
 */
-
-before(async function () {
-  // Building the UMD bundle can outlast one test's timeout on a busy machine.
-  this.timeout(300000);
-  await bundle();
-});
-
-after(async () => {
-  await closeBrowser();
-});
 
 const rows = Array.from({length: 40}, (_, i) => ({
   id: `r${i}`,
@@ -28,7 +19,6 @@ const rows = Array.from({length: 40}, (_, i) => ({
 }));
 
 it("ParallelCoordinates brushes from code fade the lines outside every brush", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {
@@ -72,7 +62,6 @@ it("ParallelCoordinates brushes from code fade the lines outside every brush", a
 });
 
 it("ParallelCoordinates dragging a strip sets a brush and fires on('brush')", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {
@@ -111,7 +100,6 @@ it("ParallelCoordinates dragging a strip sets a brush and fires on('brush')", as
 });
 
 it("ParallelCoordinates brushing(false) removes the strips; a translated locale labels them", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='a' style='width:500px;height:300px'></div><div id='b' style='width:500px;height:300px'></div>",
     async data => {
@@ -143,7 +131,6 @@ it("ParallelCoordinates brushing(false) removes the strips; a translated locale 
 });
 
 it("ParallelCoordinates paints on Canvas, picks the line under the pointer, and keeps the strips interactive", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {
@@ -179,7 +166,6 @@ it("ParallelCoordinates paints on Canvas, picks the line under the pointer, and 
 });
 
 it("ParallelCoordinates small multiples share domains and brush together", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:800px;height:400px'></div>",
     async data => {
@@ -220,7 +206,6 @@ it("ParallelCoordinates small multiples share domains and brush together", async
 });
 
 it("ParallelCoordinates layout helpers lay out axes and titles on a live chart", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {

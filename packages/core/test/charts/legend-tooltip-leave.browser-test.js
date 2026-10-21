@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Hovering a legend entry shows its tooltip; moving the pointer off the entry
@@ -8,8 +9,6 @@ import {closeBrowser, render} from "../playwright.js";
     grouped by color, or by a shallower groupBy level than the chart draws —
     whose ids are arrays rather than single values.
 */
-
-after(closeBrowser);
 
 const body = `
   <div id="layout" style="width: 600px; height: 400px; position: absolute; left: 0; top: 0"></div>
@@ -98,8 +97,7 @@ const hoverLegend = ({chart, renderer}) =>
 
 for (const chart of ["nested", "color"])
   for (const renderer of ["svg", "canvas"])
-    it(`legend tooltip (${chart} legend, ${renderer}): hides when the pointer leaves the entry`, async function () {
-      this.timeout(120000);
+    it(`legend tooltip (${chart} legend, ${renderer}): hides when the pointer leaves the entry`, {timeout: 120000}, async function () {
       const r = await render(body, hoverLegend, {chart, renderer});
       assert.deepStrictEqual(r.onEntry, ["A"], "hovering the entry shows its tooltip");
       assert.deepStrictEqual(r.onSwatch, ["A"], "moving to the entry's swatch keeps it");

@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Candlestick in a real browser: one candle (or OHLC bar) per period, colored
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     spaced or calendar-placed periods, snapped OHLC tooltips, events, facets,
     translations, and the canvas renderer.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -86,7 +83,6 @@ const helpers = () => {
 const run = fn => render("", new Function(`return (${helpers})(), (${fn})();`));
 
 it("Candlestick draws one candle per period, colored and filled by direction", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(60);
     const {el, viz} = await window.__draw(v => v.data(data).groupBy("symbol"));
@@ -131,7 +127,6 @@ it("Candlestick draws one candle per period, colored and filled by direction", a
 });
 
 it("Candlestick snaps an OHLC tooltip to the nearest period", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(40);
     const {el, viz} = await window.__draw(v => v.data(data).groupBy("symbol"));
@@ -150,7 +145,6 @@ it("Candlestick snaps an OHLC tooltip to the nearest period", async function () 
 });
 
 it("Candlestick variant ohlc draws unfilled bars with open and close ticks", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(20);
     const {viz} = await window.__draw(v => v.data(data).groupBy("symbol").variant("ohlc").hollow(false));
@@ -165,7 +159,6 @@ it("Candlestick variant ohlc draws unfilled bars with open and close ticks", asy
 });
 
 it("Candlestick skipGaps(false) places periods on a time axis with weekend gaps", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(10);
     const {viz} = await window.__draw(v => v.data(data).groupBy("symbol").skipGaps(false).hollow(false));
@@ -189,7 +182,6 @@ it("Candlestick skipGaps(false) places periods on a time axis with weekend gaps"
 });
 
 it("Candlestick reads custom accessors, aliases y to close, and skips rows without a close", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(15).map((d, i) => ({
       when: d.date, o: d.open, h: d.high, l: d.low, price: i === 3 ? null : d.close, symbol: d.symbol,
@@ -221,7 +213,6 @@ it("Candlestick reads custom accessors, aliases y to close, and skips rows witho
 });
 
 it("Candlestick fires .Candlestick events with the row", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(10);
     const clicked = [];
@@ -240,7 +231,6 @@ it("Candlestick fires .Candlestick events with the row", async function () {
 });
 
 it("Candlestick draws 500 periods on canvas and hit-tests them", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(500);
     const t0 = performance.now();
@@ -256,7 +246,6 @@ it("Candlestick draws 500 periods on canvas and hit-tests them", async function 
 });
 
 it("Candlestick draws each ticker as its own panel with facet", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = [...window.__prices(30, "ACME", 100, 3), ...window.__prices(30, "BOLT", 20, 5)];
     const {viz} = await window.__draw(v => v
@@ -275,7 +264,6 @@ it("Candlestick draws each ticker as its own panel with facet", async function (
 });
 
 it("Candlestick redraws through empty data and back", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const data = window.__prices(12);
     const {viz} = await window.__draw(v => v.data(data).groupBy("symbol"));
@@ -290,7 +278,6 @@ it("Candlestick redraws through empty data and back", async function () {
 });
 
 it("Candlestick: filled candles take texture and backgroundImage on SVG and Canvas; hollow ones take neither", async function () {
-  this.timeout(60000);
   for (const renderer of ["svg", "canvas"]) {
     const out = await render("", new Function("renderer", `return (${helpers})(), (async renderer => {
       const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
@@ -398,7 +385,6 @@ const assertMergedGeometry = (out, label) => {
 };
 
 it("Candlestick merges rows sharing a period as first open, highest high, lowest low, last close", async function () {
-  this.timeout(60000);
   for (const renderer of ["svg", "canvas"]) {
     const out = await runMerged(async renderer =>
       window.__probeMerged(v => v.data(window.__rows).groupBy("symbol").x("day"), renderer), renderer);
@@ -409,7 +395,6 @@ it("Candlestick merges rows sharing a period as first open, highest high, lowest
 });
 
 it("Candlestick merges function accessors' values the same way", async function () {
-  this.timeout(60000);
   for (const renderer of ["svg", "canvas"]) {
     const out = await runMerged(async renderer => {
       const nested = window.__rows.map(({symbol, day, time, ...p}) => ({symbol, day, time, p}));
@@ -428,7 +413,6 @@ it("Candlestick merges function accessors' values the same way", async function 
 });
 
 it("Candlestick lets aggs override the merge for data keys and function accessors", async function () {
-  this.timeout(60000);
   const out = await runMerged(async () => {
     const mean = (rows, value) => rows.reduce((s, d) => s + value(d), 0) / rows.length;
     const keyed = await window.__probeMerged(v => v

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     `zoomControlIcons`/`attributionIcon` (drawSteps/zoomControlsMarkup.ts,
@@ -13,13 +14,7 @@ import {render, closeBrowser} from "../playwright.js";
     an actual content change may tear it down (running its returned cleanup)
     and mount fresh.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 it("zoomControlIcons: a string renders as-is; a mount function persists across ordinary redraws and remounts only when the panel's html changes", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -71,8 +66,6 @@ it("zoomControlIcons: a string renders as-is; a mount function persists across o
 });
 
 it("attributionIcon: a string renders as-is; a mount function persists across ordinary redraws and remounts only when the credit changes", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
@@ -126,8 +119,6 @@ it("attributionIcon: a string renders as-is; a mount function persists across or
 });
 
 it("a mount-function zoom icon doesn't get invoked by the panel's off-DOM size measurement", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
@@ -153,8 +144,6 @@ it("a mount-function zoom icon doesn't get invoked by the panel's off-DOM size m
 });
 
 it("a long attribution credit with a custom icon still collapses to a badge and expands on click", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:300px;height:200px;"></div>',
     () =>

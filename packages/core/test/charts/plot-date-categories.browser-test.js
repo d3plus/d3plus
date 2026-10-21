@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Date values on a Plot's discrete axis without `time()` stay a category
@@ -9,12 +10,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     Date at that interval with the year; an axis `tickFormat` still wins.
     Driven in Chromium through real pointer events, on both renderers.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-after(closeBrowser);
 
 /**
     Renders a chart over the Dates `xs` builds (one series for "single", two
@@ -101,7 +96,6 @@ const rawDate = /GMT|\d\d:\d\d:\d\d/;
 
 for (const renderer of ["svg", "canvas"]) {
   it(`LinePlot (${renderer}) — monthly Dates without time() label as months on a point axis`, async function () {
-    this.timeout(60000);
     const r = await run("LinePlot", monthly, {}, renderer, 2, 14);
     assert.strictEqual(r.scale, "point", "Dates without time() stay a category axis");
     assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[12], r.labels[29]], ["Jan 2023", "Feb", "Jan 2024", "Jun"]);
@@ -122,7 +116,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`LinePlot (${renderer}) — daily Dates without time() label as days`, async function () {
-    this.timeout(60000);
     const r = await run("LinePlot", daily, {}, renderer, 1, 4);
     assert.deepStrictEqual([r.labels[0], r.labels[4], r.labels[13]], ["Mar 1, 2026", "Mar 5", "Mar 14"]);
     assert.ok(r.ticks.every(t => !/…|\.\.\./.test(t)), `painted labels are whole (got ${r.ticks})`);
@@ -131,7 +124,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`BarChart (${renderer}) — yearly Dates without time() label as years`, async function () {
-    this.timeout(60000);
     const r = await run("BarChart", yearly, {}, renderer, 1, 3);
     assert.deepStrictEqual(r.labels, ["2016", "2017", "2018", "2019", "2020", "2021", "2022", "2023"]);
     assert.deepStrictEqual(r.ticks, r.labels, "every year is painted");
@@ -139,7 +131,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`BarChart (${renderer}) — monthly Dates on a discrete y axis label as months`, async function () {
-    this.timeout(60000);
     const xs = "() => Array.from({length: 6}, (_, i) => new Date(2025, i, 1))";
     const r = await run("BarChart", xs, {discrete: "y", x: "value", y: "date"}, renderer, 1, 3);
     assert.deepStrictEqual(r.labels, ["Jun", "May", "Apr", "Mar", "Feb", "Jan 2025"], "top to bottom");
@@ -149,14 +140,12 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`LinePlot (${renderer}) — Dates label in the chart's locale`, async function () {
-    this.timeout(60000);
     const r = await run("LinePlot", monthly, {locale: "es-ES"}, renderer, 1, 14);
     assert.deepStrictEqual([r.labels[0], r.labels[1], r.labels[29]], ["ene 2023", "feb", "jun"]);
     assert.deepStrictEqual(r.tbody[0][1], "mar 2024");
   });
 
   it(`LinePlot (${renderer}) — an xConfig tickFormat labels Date categories and their tooltips`, async function () {
-    this.timeout(60000);
     const tickFormat = "return `@${d.getFullYear()}-${d.getMonth() + 1}`;";
     const r = await run("LinePlot", monthly, {tickFormat}, renderer, 2, 14);
     assert.deepStrictEqual([r.labels[0], r.labels[14]], ["@2023-1", "@2024-3"]);
@@ -165,7 +154,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("LinePlot — a facet's panels label Date categories as months", async function () {
-  this.timeout(60000);
   const r = await render(
     '<div id="viz" style="width:900px;height:320px"></div>',
     () => new Promise(resolve => {

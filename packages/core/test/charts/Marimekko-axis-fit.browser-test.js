@@ -1,15 +1,12 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Marimekko's wrapped category labels, drawn beside a legend: the plot
     still ends where the x axis begins, at every width (see
     plot-x-axis-fit-test.js for the BarChart case).
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /**
     Renders a chart and reads its painted scene back (either renderer): the x
@@ -70,7 +67,6 @@ const sales = Object.entries(regions).flatMap(([Region, values]) =>
 for (const renderer of ["svg", "canvas"]) {
   for (const width of [600, 750, 900, 1100]) {
     it(`Marimekko with a barWidth measure at ${width} × 350: the x axis sits below every bar (${renderer})`, async function () {
-      this.timeout(60000);
       const config = {renderer, width, groupBy: "Brand", x: "Region", y: "Revenue", barWidth: "Units Sold", maxAggs: "Units Sold"};
       const out = await render("", drawAxisFit, ["Marimekko", config, sales]);
       assert.ok(out.labels.length >= 4, `labels: ${JSON.stringify(out.labels)}`);

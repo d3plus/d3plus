@@ -1,12 +1,9 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it, beforeAll} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 // Setting one nested key of a chart's config bag (or calling fontFamily(),
 // which writes into those bags) must leave every other default as drawn.
-after(async () => {
-  await closeBrowser();
-});
-
 /**
  * Draws each case twice — as configured by `base`, then with `change` on
  * top — and returns both renders' paint attributes for every chart element.
@@ -75,10 +72,9 @@ const cases = [
 ];
 
 let drawn;
-before(async function () {
-  this.timeout(120000);
+beforeAll(async function () {
   drawn = await drawPairs(cases.map(({chart, change}) => ({chart, change})));
-});
+}, 120000);
 
 cases.forEach(({chart, change, attr, value}, i) => {
   const label = `${chart}${change}`;

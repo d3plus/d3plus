@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     StackedArea's bands are `path`-type scene nodes stamped `shapeType:
@@ -16,7 +13,6 @@ after(async () => {
     conversion, not just rect/circle.
 */
 it("a routed click on a StackedArea band arms and resolves the forward and backward drill-down morph", async function () {
-  this.timeout(60000);
   const result = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async () => {

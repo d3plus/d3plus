@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Renderer-switching cleanup test.
@@ -55,10 +56,7 @@ const probeFn = src =>
     }
   });
 
-after(closeBrowser);
-
 it("switching renderer modes leaves no stale renderer DOM", async function () {
-  this.timeout(60000);
   const body =
     '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
   const fp = await render(body, probeFn, builderSrc);

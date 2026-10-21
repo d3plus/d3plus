@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A timeline click lives inside the zoomable chart surface. d3-brush stops
@@ -13,8 +10,6 @@ after(async () => {
     its end. The mouse moving right after a click must leave it animating.
 */
 it("moving the mouse after a timeline click leaves the chart's transition running", async function () {
-  this.timeout(60000);
-
   const out = await render('<div id="viz" style="width:600px;height:400px;"></div>', () => {
     const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
     const data = ["A", "B", "C"].flatMap((id, i) =>

@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     The corner controls (table view + search top-left, zoom top-right) sit
@@ -15,10 +16,6 @@ import {closeBrowser, render} from "../playwright.js";
     little differently within a line, so the gap below may run a few rows
     past the margin, but never short of it.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const box = '<div id="viz" style="width:500px;height:400px;"></div>';
 
@@ -100,7 +97,6 @@ const measure = (renderer, title) =>
 for (const renderer of ["svg", "canvas"]) {
   for (const title of [false, "Quarterly exports"]) {
     it(`${renderer}: a BarChart ${title ? "with" : "without"} a title leaves a button-margin gap below the corner controls`, async function () {
-      this.timeout(60000);
       const out = await measure(renderer, title);
       assert.ok(out.offset > 0, `the buttons sit in from the top edge (${out.offset})`);
       // Where a label's ink starts within its line depends on the font, so

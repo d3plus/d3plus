@@ -1,9 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Plot family (BarChart here) is paint-driven — no `layoutStage`/`emit`
@@ -12,7 +9,6 @@ after(async () => {
     Locks that the same drill-down morph mechanism resolves correctly there.
 */
 it("a routed click on a BarChart bar arms and resolves the forward drill-down morph", async function () {
-  this.timeout(60000);
   const result = await render(
     "<div id='viz' style='width:400px;height:300px'></div>",
     async () => {

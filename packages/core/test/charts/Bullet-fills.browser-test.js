@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Bullet's bars take `texture` and `backgroundImage` like every other Rect:
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     (inheriting the measure's texture, but not its image), on SVG and Canvas,
     with the legend swatches matching the measures' textures.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const rows = [
   {id: "Revenue", group: "Money", value: 270, target: 250, forecast: 290},
@@ -59,8 +56,7 @@ const drawBars = async ({data, config}) => {
 const svgRun = (config, data = rows) =>
   render("<div id='viz' style='width:600px;height:300px'></div>", drawBars, {data, config});
 
-it("Bullet's measure and forecast bars take shapeConfig.texture", async function () {
-  this.timeout(120000);
+it("Bullet's measure and forecast bars take shapeConfig.texture", {timeout: 120000}, async function () {
   const out = await svgRun({shapeConfig: {texture: "lines"}});
   assert.match(out.measure, /^url\(/, "the measure fills with a pattern");
   assert.match(out.forecast, /^url\(/, "the forecast inherits the measure's texture");
@@ -68,8 +64,7 @@ it("Bullet's measure and forecast bars take shapeConfig.texture", async function
   assert.ok(out.patterns > 0, "texture patterns are defined");
 });
 
-it("Bullet's forecastConfig.texture overrides or turns off the forecast's texture", async function () {
-  this.timeout(120000);
+it("Bullet's forecastConfig.texture overrides or turns off the forecast's texture", {timeout: 120000}, async function () {
   const off = await svgRun({shapeConfig: {texture: "lines"}, forecastConfig: {texture: false}});
   assert.match(off.measure, /^url\(/, "the measure keeps its texture");
   assert.doesNotMatch(off.forecast, /^url\(/, "forecastConfig.texture(false) leaves the forecast solid");
@@ -78,8 +73,7 @@ it("Bullet's forecastConfig.texture overrides or turns off the forecast's textur
   assert.match(own.forecast, /^url\(/, "forecastConfig.texture textures the forecast alone");
 });
 
-it("Bullet's measure bar draws shapeConfig.backgroundImage, clipped and over its fill", async function () {
-  this.timeout(120000);
+it("Bullet's measure bar draws shapeConfig.backgroundImage, clipped and over its fill", {timeout: 120000}, async function () {
   const red = image("#ff0000");
   const out = await svgRun({shapeConfig: {backgroundImage: red}});
   assert.deepStrictEqual(
@@ -100,8 +94,7 @@ it("Bullet's measure bar draws shapeConfig.backgroundImage, clipped and over its
   ], "the target marker stays on top of the image");
 });
 
-it("Bullet's forecastConfig.backgroundImage draws inside the forecast bar", async function () {
-  this.timeout(120000);
+it("Bullet's forecastConfig.backgroundImage draws inside the forecast bar", {timeout: 120000}, async function () {
   const blue = image("#0000ff");
   const out = await svgRun({forecastConfig: {backgroundImage: blue, backgroundImageFit: "contain"}});
   assert.deepStrictEqual(
@@ -111,8 +104,7 @@ it("Bullet's forecastConfig.backgroundImage draws inside the forecast bar", asyn
   assert.ok(out.images.every(d => d.href === blue && d.afterShape));
 });
 
-it("Bullet's legend swatches match the measures' textures", async function () {
-  this.timeout(120000);
+it("Bullet's legend swatches match the measures' textures", {timeout: 120000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:300px'></div>",
     async data => {
@@ -139,8 +131,7 @@ it("Bullet's legend swatches match the measures' textures", async function () {
   assert.strictEqual(out.legendFills.filter(f => /^url\(/.test(f)).length, 1, "only Money's swatch is textured");
 });
 
-it("Bullet paints textures and background images on Canvas", async function () {
-  this.timeout(120000);
+it("Bullet paints textures and background images on Canvas", {timeout: 120000}, async function () {
   const out = await render(
     "<div id='viz' style='width:600px;height:300px'></div>",
     async ({data, img}) => {

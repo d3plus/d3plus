@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Ridgeline in a real browser: one density curve per group rising from its
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     by `overlap`, ordered by `medianSort`, with tooltips on both backends,
     legend hover, and small multiples.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -104,7 +101,6 @@ const helpers = () => {
 const run = fn => render("", new Function(`return (${helpers})(), (${fn})();`));
 
 it("Ridgeline stacks one ridge per group, first on top, rising from its baseline", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el, viz} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v"));
     const ys = ["low", "mid", "high"].map(id => viz._yAxis._getPosition(id));
@@ -138,7 +134,6 @@ it("Ridgeline stacks one ridge per group, first on top, rising from its baseline
 });
 
 it("Ridgeline grows each ridge up from its baseline", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v"));
     const bottoms = Object.fromEntries(Object.entries(window.__areas(el)).map(([k, a]) => [k, a.bottom]));
@@ -156,7 +151,6 @@ it("Ridgeline grows each ridge up from its baseline", async function () {
 });
 
 it("Ridgeline: overlap sets ridge height, densityScale width equalizes peaks", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const heights = async configure => {
       const {el, viz} = await window.__draw(v => configure(v.data(window.__rows()).groupBy("id").value("v")));
@@ -177,7 +171,6 @@ it("Ridgeline: overlap sets ridge height, densityScale width equalizes peaks", a
 });
 
 it("Ridgeline orders ridges by median", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const order = async sort => {
       const {el} = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").medianSort(sort));
@@ -192,7 +185,6 @@ it("Ridgeline orders ridges by median", async function () {
 });
 
 it("Ridgeline tooltips on SVG and Canvas, and legend hover dims the others", async function () {
-  this.timeout(60000);
   // One chart per page: a page's charts would share their tooltip elements.
   const probe = configure =>
     run(new Function(`return (async () => {
@@ -227,7 +219,6 @@ it("Ridgeline tooltips on SVG and Canvas, and legend hover dims the others", asy
 });
 
 it("Ridgeline overlaps two groupBy levels in one row and draws small multiples", async function () {
-  this.timeout(60000);
   const out = await run(async () => {
     const nested = await window.__draw(v => v.data(window.__rows()).groupBy(["id", "side"]).value("v"));
     const faceted = await window.__draw(v => v.data(window.__rows()).groupBy("id").value("v").facet("f"), [900, 400]);

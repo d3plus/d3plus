@@ -41,9 +41,9 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "vitest run --config ../../vitest.config.ts --project core && mocha 'test/**/*.browser-test.js'",
+    "test": "vitest run --config ../../vitest.config.ts --project core --project core-browser",
     "test:dev-pages": "mocha test/dev-pages.js",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project core --coverage --coverage.exclude='packages/!(core)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/core/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project core --project core-browser --coverage --coverage.exclude='packages/!(core)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/core/coverage"
   },
   "dependencies": {
     "@d3plus/color": "workspace:*",

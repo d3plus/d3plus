@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Small multiples alongside the other Plot features that draw per chart:
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     x-axis end labels, axis ink on a dark page, the space kept between
     columns for overhanging tick labels, and a Gauge drawing one dial per panel.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const PRELUDE = `
   const regions = ["East", "North", "South", "West"];
@@ -40,7 +37,6 @@ function page(body, {height = 600, background = "white"} = {}) {
 
 for (const scales of ["shared", "independent"]) {
   it(`axis breaks mask each panel's own content (${scales} scales)`, async function () {
-    this.timeout(60000);
     const out = await page(`
       const data = rows.map(d => d.region === "South" && d.year === 2021 ? {...d, sales: 900} : d);
       const chart = new d3plus.BarChart().select("#viz").data(data)
@@ -63,7 +59,6 @@ for (const scales of ["shared", "independent"]) {
 }
 
 it("a baseline break's baseline label follows the panel's outer-axis labels", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows.map(d => ({...d, sales: d.sales + 400})))
       .groupBy("product").x("year").y("sales").baselineBreak(true).facet("region").duration(0);
@@ -79,7 +74,6 @@ it("a baseline break's baseline label follows the panel's outer-axis labels", as
 });
 
 it("a chart too short for y axes labels each bottom panel's x ends flush with its plot", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -103,7 +97,6 @@ it("a chart too short for y axes labels each bottom panel's x ends flush with it
 });
 
 it("keeps overhanging x tick labels of neighboring panels apart", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").facetConfig({columns: 4, padding: 4}).duration(0);
@@ -119,7 +112,6 @@ it("keeps overhanging x tick labels of neighboring panels apart", async function
 });
 
 it("panel titles and axis labels take the dark page's ink", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
@@ -135,7 +127,6 @@ it("panel titles and axis labels take the dark page's ink", async function () {
 });
 
 it("a faceted Gauge draws one dial per panel", async function () {
-  this.timeout(60000);
   const out = await page(`
     const chart = new d3plus.Gauge().select("#viz")
       .data(regions.map((region, i) => ({id: "Speed", region, value: 30 + i * 17})))

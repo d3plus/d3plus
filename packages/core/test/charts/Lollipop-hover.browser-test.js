@@ -1,6 +1,7 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Lollipop and Dumbbell hover emphasis in a real browser, on both renderers:
@@ -8,13 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     mark, keeps that column's stems, heads, and connectors at full opacity
     with an emphasized stroke, and dims every other column's.
 */
-
-before(async function () {
-  this.timeout(300000);
-  await bundle();
-});
-
-after(closeBrowser);
 
 const coffee = [
   {country: "Finland", kg: 12},
@@ -129,56 +123,48 @@ const country = c => [`2000_${c}`, `2021_${c}`, `${c}::connector`];
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Lollipop ${renderer} — the snapped hover beside a lollipop highlights it`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", vertical, renderer, {keys: ["Iceland_Iceland"], dx: 14, dy: -20});
     bright(r, lollipop("Iceland"));
     dim(r, others);
   });
 
   it(`Lollipop ${renderer} — hovering a head highlights its lollipop`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", vertical, renderer, {keys: ["Iceland_Iceland"]}, "Iceland_Iceland");
     bright(r, lollipop("Iceland"));
     dim(r, others);
   });
 
   it(`Lollipop ${renderer} — hovering a stem highlights its lollipop`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", vertical, renderer, {keys: ["Iceland_Iceland"], dy: 40}, "Iceland_Iceland::stem::hit");
     bright(r, lollipop("Iceland"));
     dim(r, others);
   });
 
   it(`Lollipop ${renderer} — the snapped hover over a category of dodged series highlights them`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", grouped, renderer, {keys: ["2024_Q2", "2025_Q2"], dy: -30});
     bright(r, quarter("Q2"));
     dim(r, [...quarter("Q1"), ...quarter("Q3")]);
   });
 
   it(`Lollipop ${renderer} — hovering one of a category's dodged heads highlights the category`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", grouped, renderer, {keys: ["2024_Q2"]}, "2024_Q2");
     bright(r, quarter("Q2"));
     dim(r, [...quarter("Q1"), ...quarter("Q3")]);
   });
 
   it(`Dumbbell ${renderer} — the snapped hover along a dumbbell highlights its points and connector`, async function () {
-    this.timeout(60000);
     const r = await run("Dumbbell", dumbbell, renderer, {keys: ["2000_China", "2021_China"], dy: 8});
     bright(r, country("China"));
     dim(r, [...country("Japan"), ...country("India")]);
   });
 
   it(`Dumbbell ${renderer} — hovering a point highlights its dumbbell`, async function () {
-    this.timeout(60000);
     const r = await run("Dumbbell", dumbbell, renderer, {keys: ["2000_China"]}, "2000_China");
     bright(r, country("China"));
     dim(r, [...country("Japan"), ...country("India")]);
   });
 
   it(`Lollipop ${renderer} — a column hover keeps the hovered series' legend swatch bright`, async function () {
-    this.timeout(60000);
     const config = {data: coffee.map((d, i) => ({...d, region: i < 2 ? "North" : "South"})), groupBy: "country", color: "region", x: "country", y: "kg"};
     const r = await run("Lollipop", config, renderer, {keys: ["Iceland_Iceland"], dx: 14, dy: -20});
     bright(r, lollipop("Iceland"));
@@ -187,14 +173,12 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Lollipop ${renderer} — hoverOpacity 1 turns the column hover's dimming off`, async function () {
-    this.timeout(60000);
     const r = await run("Lollipop", {...vertical, shapeConfig: {hoverOpacity: 1}}, renderer, {keys: ["Iceland_Iceland"], dx: 14, dy: -20});
     assert.strictEqual(r.hovered, false);
     assert.ok(Object.values(r.marks).every(m => m.opacity === 1), "nothing dims");
   });
 
   it(`Dumbbell ${renderer} — a legend hover keeps every connector bright`, async function () {
-    this.timeout(60000);
     const r = await run("Dumbbell", dumbbell, renderer, {keys: ["2000_1_"]}, "2000_1_");
     assert.ok(r.hovered, "a hover is set");
     ["Japan", "China", "India"].forEach(c => {

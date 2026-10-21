@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Every stage label in a funnel shares one font size, in Chromium on SVG
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     inside and beside their stages, under a user's fixed size or limits,
     and per panel (or across panels, with shared facet scales).
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const stages = [
   {id: "Visited Site", value: 12400},
@@ -79,9 +76,8 @@ async function drawLabels(configs) {
 
 const sizes = labels => [...new Set(labels.map(l => l.size))];
 
-it("Funnel stage labels share one font size at any size, orient, and curve", async function () {
+it("Funnel stage labels share one font size at any size, orient, and curve", {timeout: 180000}, async function () {
   // The first browser test in this file also builds the UMD bundle.
-  this.timeout(180000);
   const configs = [];
   for (const orient of ["vertical", "horizontal"])
     for (const curve of ["linear", "smooth"])
@@ -105,7 +101,6 @@ it("Funnel stage labels share one font size at any size, orient, and curve", asy
 });
 
 it("Funnel labels beside narrow stages use the shared size, and wide stages keep theirs inside", async function () {
-  this.timeout(60000);
   const out = await drawLabels([
     {width: 600, height: 600, conversion: "both"},
     {width: 600, height: 600, conversion: "both", renderer: "canvas"},
@@ -136,7 +131,6 @@ it("Funnel labels beside narrow stages use the shared size, and wide stages keep
 });
 
 it("Funnel labels take a user's fixed font size, and stay within fontMin and fontMax", async function () {
-  this.timeout(60000);
   const out = await drawLabels([
     {width: 600, height: 400, conversion: "both", shapeConfig: {labelConfig: {fontSize: 9}}},
     {width: 600, height: 400, fontSizeBy: "sizeByValue"},
@@ -154,7 +148,6 @@ it("Funnel labels take a user's fixed font size, and stay within fontMin and fon
 });
 
 it("Funnel panels each share a label size, or one across panels with shared facet scales", async function () {
-  this.timeout(60000);
   // Short names fit large; long names in the same stages fit smaller.
   const names = {
     Short: ["Visit", "Price", "Trial", "Use", "Pay"],

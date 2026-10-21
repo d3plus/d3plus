@@ -1,7 +1,8 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {legendLabelsWhole} from "../../es/src/charts/features/featuresLegend.js";
-import {closeBrowser, render} from "../playwright.js";
+import {legendLabelsWhole} from "../../src/charts/features/featuresLegend.ts";
+import {render} from "~test/browser/render.js";
 
 /**
     A top legend beside the corner control panels (zoom on the right, table
@@ -11,10 +12,6 @@ import {closeBrowser, render} from "../playwright.js";
     or squeezes its label while there is room below the panels, in SVG and on
     canvas.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const regions = [
   "Northeast Manufacturing",
@@ -105,7 +102,6 @@ const cssLabel = {[padded]: " (padded)", [inflated]: " (inflated)"};
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a top legend that doesn't fit beside the corner controls drops below them`, async function () {
-    this.timeout(60000);
     const plain = await legendLayout(300, renderer);
     for (const [width, css] of [[300, ""], [300, padded], [350, inflated]]) {
       const label = `${renderer} @ ${width}px${cssLabel[css] || ""}`;
@@ -125,7 +121,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: a top legend too wide for the symmetric inset insets each side by its own corner`, async function () {
-    this.timeout(60000);
     for (const [width, css] of [[350, ""], [350, padded], [400, inflated]]) {
       const label = `${renderer} @ ${width}px${cssLabel[css] || ""}`;
       const out = await legendLayout(width, renderer, {css});
@@ -137,7 +132,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: a top legend that fits between the corner controls stays on their row`, async function () {
-    this.timeout(60000);
     const out = await legendLayout(900, renderer);
     assertClear(out, renderer);
     assert.ok(out.box.top < out.controlsHeight, "the legend stays on the controls' row");
@@ -163,7 +157,6 @@ it("legendLabelsWhole — a dropped, cut or squeezed label, or a dropped legend,
 });
 
 it("cornerPlacements — tries the symmetric inset, each corner's own inset, then a full-width drop", async function () {
-  this.timeout(60000);
   const out = await render(
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>

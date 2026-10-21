@@ -1,7 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /** Hovers the R1/C1 cell and reports which cells the row/column crosshair highlights. */
 const crosshair = colorScale =>
@@ -31,11 +30,9 @@ const crosshair = colorScale =>
     }), colorScale);
 
 it("Matrix hover highlights the hovered row and column without a colorScale", async function () {
-  this.timeout(60000);
   assert.deepStrictEqual(await crosshair(), ["R1/C1", "R1/C2", "R2/C1"]);
 });
 
 it("Matrix hover skips cells the colorScale has no value for", async function () {
-  this.timeout(60000);
   assert.deepStrictEqual(await crosshair("value"), ["R1/C1", "R1/C2", "R2/C1"]);
 });

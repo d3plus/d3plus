@@ -1,9 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     AreaPlot, StackedArea, and Histogram keep a user value-domain minimum the
@@ -81,22 +78,18 @@ const horizontal = (name, extra) =>
 
 for (const name of ["AreaPlot", "StackedArea"]) {
   it(`${name}: a yDomain minimum is kept, with a break back to the baseline`, async function () {
-    this.timeout(60000);
     assertKept(await probe(vertical(name, ".yDomain([980])")), 980);
   });
 
   it(`${name}: a yConfig domain minimum is kept the same way`, async function () {
-    this.timeout(60000);
     assertKept(await probe(vertical(name, ".yConfig({domain: [900, 2100]})")), 900);
   });
 
   it(`${name}: horizontal, an xDomain minimum is kept`, async function () {
-    this.timeout(60000);
     assertKept(await probe(horizontal(name, ".xDomain([980])")), 980);
   });
 
   it(`${name}: baselineBreak(false) still stretches a yDomain to the baseline`, async function () {
-    this.timeout(60000);
     const out = await probe(vertical(name, ".yDomain([980]).baselineBreak(false)"));
     assert.strictEqual(out.domain[0], 0);
     assert.strictEqual(out.brk, null);
@@ -104,14 +97,12 @@ for (const name of ["AreaPlot", "StackedArea"]) {
 }
 
 it("AreaPlot: a domain reaching the baseline draws no break", async function () {
-  this.timeout(60000);
   const out = await probe(vertical("AreaPlot", ""));
   assert.strictEqual(out.domain[0], 0);
   assert.strictEqual(out.brk, null);
 });
 
 it("Histogram: a yDomain minimum on the count axis is kept", async function () {
-  this.timeout(60000);
   const out = await probe(`(lib, data) => new lib.Histogram().data(data).value("v").binWidth(10).yDomain([2])`, VALUES);
   assertKept(out, 2);
 });

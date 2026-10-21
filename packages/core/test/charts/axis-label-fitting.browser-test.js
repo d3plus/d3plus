@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A category axis whose labels didn't fit side by side used to leave
@@ -74,8 +75,6 @@ const assertHonest = (r, names, context) => {
   assert.strictEqual(steps.size, 1, `${context}: thins evenly (${r.visible.join(", ")})`);
   assert.strictEqual(shown[0], 0, `${context}: starts with the first label`);
 };
-
-after(closeBrowser);
 
 it("category labels — every width paints whole labels or thins evenly", async () => {
   for (const renderer of ["svg", "canvas"]) {

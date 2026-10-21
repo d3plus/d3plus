@@ -1,10 +1,7 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-import {vizDraw} from "../../es/internal.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
+import {vizDraw} from "../../internal.ts";
 
 /**
     `vizDraw(viz)` lays out the chart-shell chrome, adds each side's claim to
@@ -13,7 +10,6 @@ after(async () => {
 */
 
 it("vizDraw returns the margin it claims, its panels, and the sanitized positions", async function () {
-  this.timeout(60000);
   const res = await render("<div id='viz' style='width:400px;height:300px'></div>", async () => {
     const viz = new window.d3plus.Treemap()
       .select("#viz")

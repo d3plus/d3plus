@@ -1,5 +1,6 @@
-import assert from "assert";
-import {bundle, render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     ParallelCoordinates renders in Chromium on both backends: one line (plus
@@ -8,16 +9,6 @@ import {bundle, render, closeBrowser} from "../playwright.js";
     brushing (from code, by dragging a strip, and on small multiples), and
     Canvas painting + picking.
 */
-
-before(async function () {
-  // Building the UMD bundle can outlast one test's timeout on a busy machine.
-  this.timeout(300000);
-  await bundle();
-});
-
-after(async () => {
-  await closeBrowser();
-});
 
 const cars = [
   {name: "Alpha", origin: "USA", cylinders: 8, hp: 190, weight: 4300, mpg: 13},
@@ -31,7 +22,6 @@ const cars = [
 ];
 
 it("ParallelCoordinates draws a line per row and an axis + title per numeric dimension", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {
@@ -88,7 +78,6 @@ it("ParallelCoordinates draws a line per row and an axis + title per numeric dim
 });
 
 it("ParallelCoordinates reads categorical axes and per-dimension domain, format, reverse, and title", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {
@@ -136,7 +125,6 @@ it("ParallelCoordinates reads categorical axes and per-dimension domain, format,
 });
 
 it("ParallelCoordinates stacks horizontal axes in the vertical orient", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:600px;height:500px'></div>",
     async data => {
@@ -164,7 +152,6 @@ it("ParallelCoordinates stacks horizontal axes in the vertical orient", async fu
 });
 
 it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered line opaque", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:700px;height:400px'></div>",
     async data => {

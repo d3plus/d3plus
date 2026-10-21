@@ -1,16 +1,13 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Axis breaks alongside the chart's background ink (axes inked for dark
     pages) and a short Plot's x-axis end labels.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /** Renders `src` into a `width`×`height` parent with `background`, and reports break glyph, axis, and end-label details. */
 const probe = (src, {background = "#ffffff", width = 600, height = 400} = {}) =>
@@ -47,7 +44,6 @@ const probe = (src, {background = "#ffffff", width = 600, height = 400} = {}) =>
 const light = c => rgb(c).r > 150 && rgb(c).g > 150 && rgb(c).b > 150;
 
 it("on a dark background, break marks and lines take the axis line's ink", async function () {
-  this.timeout(60000);
   const data = `[{id: "A", v: 42}, {id: "B", v: 58}, {id: "C", v: 960}]`;
   for (const extra of [`.yBreak([80, 900])`, `.data(${data}.map(d => ({...d, v: d.v + 1100}))).yDomain([1100, 2200])`]) {
     const out = await probe(`lib => new lib.BarChart().data(${data}).groupBy("id").x("id").y("v")${extra}`, {background: "#212529"});
@@ -61,7 +57,6 @@ it("on a dark background, break marks and lines take the axis line's ink", async
 });
 
 it("a short horizontal BarChart with a baseline break labels its x ends from 0, flush to the plot", async function () {
-  this.timeout(60000);
   const out = await probe(
     `lib => new lib.BarChart().data([{id: "A", v: 1500}, {id: "B", v: 1900}]).groupBy("id").discrete("y").y("id").x("v").xConfig({domain: [1100, 2100]}).legend(false)`,
     {width: 420, height: 140},
@@ -76,7 +71,6 @@ it("a short horizontal BarChart with a baseline break labels its x ends from 0, 
 });
 
 it("a short scatter Plot with an xBreak keeps its end labels and masks the break", async function () {
-  this.timeout(60000);
   const out = await probe(
     `lib => new lib.Plot().data([1, 2, 3, 9, 10].map(x => ({id: \`p\${x}\`, x, y: x}))).groupBy("id").x("x").y("y").xBreak([4, 8]).legend(false)`,
     {width: 420, height: 140},

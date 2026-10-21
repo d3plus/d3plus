@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Rings sizing regression (#83). Rings used to build its radius domain from
@@ -9,10 +10,6 @@ import {closeBrowser, render} from "../playwright.js";
     ignored; and `sizeMax` never applied while `sizeMin` was set. Sized
     nodes now run through one `sizeScale` scale, clamped to both bounds.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const nodes = `[{id: "a", v: 50}, {id: "b", v: 100}, {id: "c", v: 10}, {id: "d", v: 400},
   {id: "e", v: 25}, {id: "f", v: 800}, {id: "g", v: 60}]`;

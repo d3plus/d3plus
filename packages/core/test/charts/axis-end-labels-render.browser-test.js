@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A domain that ends on an uneven value (padded for circle radii, or set
@@ -106,8 +107,6 @@ function assertTickWithoutLabel(r, end, label) {
     `${label}: ${end} has no label`,
   );
 }
-
-after(closeBrowser);
 
 it("padded scatter — uneven circle-padded ends drop their labels", async () => {
   for (const axisKey of ["x", "y"]) {

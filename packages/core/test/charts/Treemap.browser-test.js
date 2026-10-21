@@ -1,15 +1,10 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 // The Viz render pipeline awaits browser layout that never resolves under
 // jsdom, so the chart is rendered in a headless browser instead.
-after(async () => {
-  await closeBrowser();
-});
-
 it("Treemap", async function () {
-  this.timeout(60000);
-
   const out = await render(
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>

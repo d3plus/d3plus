@@ -1,12 +1,11 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Radar chrome in Chromium: rings styled like Plot gridlines / axis line,
     rings that never show a tooltip, and metric labels that fit the chart.
 */
-
-after(closeBrowser);
 
 const box = (w = 600, h = 450, bg = "") =>
   `<div id="viz" style="width:${w}px;height:${h}px;font-family:sans-serif;${bg}"></div>`;
@@ -69,7 +68,6 @@ const probe = ([rows, configSrc]) =>
   });
 
 it("Radar rings look like Plot gridlines, the outer ring and spokes like its axis (light)", async function () {
-  this.timeout(60000);
   const r = await render(box(), probe, [data, "{}"]);
   const outer = r.rings[r.rings.length - 1];
   const inner = r.rings.slice(0, -1);
@@ -86,7 +84,6 @@ it("Radar rings look like Plot gridlines, the outer ring and spokes like its axi
 });
 
 it("Radar rings and spokes follow a dark background", async function () {
-  this.timeout(60000);
   const light = await render(box(), probe, [data, "{}"]);
   const dark = await render(box(600, 450, "background:rgb(20, 20, 20);"), probe, [data, "{}"]);
   assert.strictEqual(dark.rings[0].paint.stroke, "#343a40", "inner rings use the dark gridline gray");
@@ -96,7 +93,6 @@ it("Radar rings and spokes follow a dark background", async function () {
 });
 
 it("axisConfig gridConfig / barConfig / shapeConfig override the ring and spoke styles", async function () {
-  this.timeout(60000);
   const r = await render(box(), probe, [
     data,
     `{axisConfig: {
@@ -118,7 +114,6 @@ it("axisConfig gridConfig / barConfig / shapeConfig override the ring and spoke 
 });
 
 it("rings and spokes are chrome: non-interactive and datum-free", async function () {
-  this.timeout(60000);
   const r = await render(box(), probe, [data, "{}"]);
   assert.strictEqual(r.ringGroupInteractive, false);
   r.rings.forEach(c => {
@@ -175,7 +170,6 @@ const hoverProbe = rows =>
   });
 
 it("hovering a ring shows no tooltip; hovering a polygon still does", async function () {
-  this.timeout(60000);
   const r = await render(box(), hoverProbe, data);
   assert.notStrictEqual(r.ringTag.toLowerCase(), "circle", "the ring isn't hit-tested");
   assert.strictEqual(r.ringTip, null, "no tooltip over a ring");
@@ -194,8 +188,7 @@ const assertInside = (r, msg) => {
   }
 };
 
-it("auto outerPadding keeps every metric label inside the chart for 3–12 metrics", async function () {
-  this.timeout(120000);
+it("auto outerPadding keeps every metric label inside the chart for 3–12 metrics", {timeout: 120000}, async function () {
   const names = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   for (const n of [3, 5, 8, 12]) {
     const r = await render(box(), probe, [metricData(names.slice(0, n)), "{legend: false}"]);
@@ -205,7 +198,6 @@ it("auto outerPadding keeps every metric label inside the chart for 3–12 metri
 });
 
 it("auto outerPadding wraps long labels and keeps them inside the chart", async function () {
-  this.timeout(60000);
   const names = [
     "Customer Satisfaction Index", "Revenue", "Net Promoter Score (Trailing 12 Months)", "Churn",
     "Average Handling Time", "Employee Engagement", "Market Share", "Gross Margin Percentage",
@@ -220,7 +212,6 @@ it("auto outerPadding wraps long labels and keeps them inside the chart", async 
 });
 
 it("a numeric outerPadding is used as-is", async function () {
-  this.timeout(60000);
   const r = await render(box(), probe, [data, "{legend: false, outerPadding: 120}"]);
   assert.ok(Math.abs(r.radius - (r.size / 2 - 120)) < 1e-6, `radius ${r.radius}`);
 });

@@ -1,14 +1,13 @@
 /* global requestAnimationFrame, setTimeout */
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     #212 in a real browser: FanChart's nested bands, forecast backdrop, and
     part-dashed line on both backends and in small multiples, and tooltips
     listing each band's range.
 */
-
-after(closeBrowser);
 
 /** Page-side helpers, installed before each probe. */
 const helpers = () => {
@@ -69,8 +68,7 @@ const run = (fn, arg) => render("", new Function("arg", `return (${helpers})(), 
 
 const bands = [["p5", "p95", "90%"], ["p25", "p75", "50%"]];
 
-it("FanChart draws nested bands outermost first, a forecast backdrop, and a dashed forecast stretch", async function () {
-  this.timeout(120000);
+it("FanChart draws nested bands outermost first, a forecast backdrop, and a dashed forecast stretch", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const {el, viz} = await window.__draw("FanChart", v =>
       v.data(window.__fan("s")).groupBy("id").x("t").y("v").confidence(bands),
@@ -104,8 +102,7 @@ it("FanChart draws nested bands outermost first, a forecast backdrop, and a dash
   assert.strictEqual(out.nan, 0);
 });
 
-it("FanChart tooltips list each band's range; the shared tooltip shows the outermost", async function () {
-  this.timeout(120000);
+it("FanChart tooltips list each band's range; the shared tooltip shows the outermost", {timeout: 120000}, async function () {
   const hover = ([series, locale, bands]) =>
     run(
       async ([series, locale, bands]) => {
@@ -128,8 +125,7 @@ it("FanChart tooltips list each band's range; the shared tooltip shows the outer
   assert.strictEqual(out.esLabel, "Pronóstico");
 });
 
-it("FanChart paints the same fan on Canvas, with tooltips", async function () {
-  this.timeout(120000);
+it("FanChart paints the same fan on Canvas, with tooltips", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const configure = v => v.data(window.__fan("s")).groupBy("id").x("t").y("v").confidence(bands);
     const svg = await window.__draw("FanChart", configure);
@@ -148,8 +144,7 @@ it("FanChart paints the same fan on Canvas, with tooltips", async function () {
   assert.deepStrictEqual(out.rows.slice(2), [["90%", "11 – 27"], ["50%", "15 – 23"]]);
 });
 
-it("FanChart small multiples: each panel draws its own fan and forecast", async function () {
-  this.timeout(120000);
+it("FanChart small multiples: each panel draws its own fan and forecast", {timeout: 120000}, async function () {
   const out = await run(async bands => {
     const data = window.__fan("North", 10, 5, {region: "North"}).concat(window.__fan("South", 30, 3, {region: "South"}));
     const result = {};
@@ -177,8 +172,7 @@ it("FanChart small multiples: each panel draws its own fan and forecast", async 
   }
 });
 
-it("FanChart is a LinePlot with the forecast on", async function () {
-  this.timeout(120000);
+it("FanChart is a LinePlot with the forecast on", {timeout: 120000}, async function () {
   const out = await run(async () => {
     const {FanChart, LinePlot} = window.d3plus;
     const fan = new FanChart();

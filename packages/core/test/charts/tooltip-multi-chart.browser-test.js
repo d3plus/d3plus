@@ -1,5 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Two charts with the same data on one page each own their tooltip. The
@@ -8,8 +9,6 @@ import {closeBrowser, render} from "../playwright.js";
     once the first chart's clears, and no two tooltip elements on the page ever
     share an id — even in the moment both charts have one rendered.
 */
-
-after(closeBrowser);
 
 const body = `
   <div id="a" style="width: 400px; height: 300px"></div>
@@ -85,8 +84,7 @@ const hoverAcross = ({type, renderer}) =>
 
 for (const type of ["Treemap", "BarChart"])
   for (const renderer of ["svg", "canvas"])
-    it(`${type} (${renderer}): two charts on one page each show their own tooltip`, async function () {
-      this.timeout(120000);
+    it(`${type} (${renderer}): two charts on one page each show their own tooltip`, {timeout: 120000}, async function () {
       const r = await render(body, hoverAcross, {type, renderer});
       assert.strictEqual(
         new Set(r.idsWhileBoth).size,

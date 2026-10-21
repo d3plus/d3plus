@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     d3plus computes a `share` (fraction of total) for stacked Plot charts, Pie,
@@ -7,10 +8,6 @@ import {render, closeBrowser} from "../playwright.js";
     chart plots and labels the user's values, while d3plus's own Share tooltip
     row and share labels keep reading d3plus's fraction.
 */
-after(async () => {
-  await closeBrowser();
-});
-
 /** In-page helpers, passed as source since `render` serializes its page function. */
 const helpers = `
   window.renderViz = viz => new Promise(resolve => viz.render(resolve));
@@ -46,9 +43,7 @@ const helpers = `
 
 const page = '<div id="s" style="width:600px;height:400px;"></div>';
 
-it("stacked BarChart plots a data field named share as-is, with d3plus's Share row beside it", async function () {
-  this.timeout(120000);
-
+it("stacked BarChart plots a data field named share as-is, with d3plus's Share row beside it", {timeout: 120000}, async function () {
   const out = await render(page, async ({h}) => {
     new Function(h)();
     const data = [
@@ -94,9 +89,7 @@ it("stacked BarChart plots a data field named share as-is, with d3plus's Share r
   assert.ok(out.tip2.some(r => r[0] === "Share" && r[1] === "50%"), "the Share row follows the redraw");
 });
 
-it("Pie and Donut keep a data field named share while labeling d3plus's share", async function () {
-  this.timeout(120000);
-
+it("Pie and Donut keep a data field named share while labeling d3plus's share", {timeout: 120000}, async function () {
   const out = await render(page, async ({h, list: charts}) => {
     new Function(h)();
     const results = {};
@@ -127,9 +120,7 @@ it("Pie and Donut keep a data field named share while labeling d3plus's share", 
   }
 });
 
-it("Treemap keeps a data field named share while labeling d3plus's share", async function () {
-  this.timeout(120000);
-
+it("Treemap keeps a data field named share while labeling d3plus's share", {timeout: 120000}, async function () {
   const out = await render(page, async ({h}) => {
     new Function(h)();
     const data = [
@@ -160,9 +151,7 @@ it("Treemap keeps a data field named share while labeling d3plus's share", async
   assert.deepStrictEqual(out.caller, [7, 8, 9], "the caller's objects are untouched");
 });
 
-it("without a share field, custom tooltips still read x.share and legend buckets sum their members", async function () {
-  this.timeout(120000);
-
+it("without a share field, custom tooltips still read x.share and legend buckets sum their members", {timeout: 120000}, async function () {
   const out = await render(page, async ({h, list: charts}) => {
     new Function(h)();
     const results = {};
@@ -194,9 +183,7 @@ it("without a share field, custom tooltips still read x.share and legend buckets
     assert.deepStrictEqual(r.custom, [["Mine", "10"]], `${name}: x.share is d3plus's share`);
 });
 
-it("a redraw with new data updates d3plus's share", async function () {
-  this.timeout(120000);
-
+it("a redraw with new data updates d3plus's share", {timeout: 120000}, async function () {
   const out = await render(page, async ({h}) => {
     new Function(h)();
     const viz = new window.d3plus.Pie().select("#s").duration(0)
@@ -214,9 +201,7 @@ it("a redraw with new data updates d3plus's share", async function () {
   assert.strictEqual(out.share, 0.25, "the share d3plus wrote follows too");
 });
 
-it("table view shows no internal share column, raw or aggregate", async function () {
-  this.timeout(120000);
-
+it("table view shows no internal share column, raw or aggregate", {timeout: 120000}, async function () {
   const out = await render(page, async ({h, list: withShare}) => {
     new Function(h)();
     const results = {};

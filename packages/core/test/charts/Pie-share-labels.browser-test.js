@@ -1,13 +1,8 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
-after(async () => {
-  await closeBrowser();
-});
-
-it("Pie and Donut slice labels show the slice's share percentage", async function () {
-  this.timeout(120000);
-
+it("Pie and Donut slice labels show the slice's share percentage", {timeout: 120000}, async function () {
   const out = await render(
     '<div id="s" style="width:500px;height:500px;"></div>',
     async charts => {
@@ -49,9 +44,7 @@ it("Pie and Donut slice labels show the slice's share percentage", async functio
   }
 });
 
-it("Pie and Donut slice labels are the same whatever Math.random returns", async function () {
-  this.timeout(120000);
-
+it("Pie and Donut slice labels are the same whatever Math.random returns", {timeout: 120000}, async function () {
   // Each page load gets a different Math.random stream; the label boxes, and
   // so which slices fit a share line, must not depend on it.
   const draw = seed =>

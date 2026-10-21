@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Smooth-gradient ColorScale on the scene path.
@@ -76,10 +77,7 @@ const probeFn = src =>
     }
   });
 
-after(closeBrowser);
-
 it("smooth-gradient ColorScale paints a <linearGradient> a rect references", async function () {
-  this.timeout(60000);
   const body =
     '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
   const fp = await render(body, probeFn, builderSrc);
@@ -127,7 +125,6 @@ const paintedFn = src =>
   });
 
 it("smooth-gradient ColorScale paints a single gradient bar", async function () {
-  this.timeout(60000);
   const body =
     '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
   const fp = await render(body, paintedFn, builderSrc);
@@ -137,7 +134,6 @@ it("smooth-gradient ColorScale paints a single gradient bar", async function () 
 });
 
 it("smooth-gradient ColorScale drawn inside the chart paints a single gradient bar in its box", async function () {
-  this.timeout(60000);
   const src = `lib => new lib.Plot()
     .data([
       {id: "a", x: 1, y: 9, value: 10}, {id: "b", x: 2, y: 10, value: 20},

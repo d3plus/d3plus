@@ -1,6 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 
-import {closeBrowser, render} from "../playwright.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A title beside the corner control panels (zoom on the right, table view
@@ -10,10 +11,6 @@ import {closeBrowser, render} from "../playwright.js";
     doesn't fit beside the panels at all it drops below them. Either way the
     whole title is drawn, in SVG and on canvas.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 /**
     Renders a 300px-wide Plot titled `title`, with zoom, table view and
@@ -88,7 +85,6 @@ function assertClear(out, text, label) {
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a centered title too wide for the symmetric inset insets each side by its own corner`, async function () {
-    this.timeout(60000);
     const text = "Exports 1234567890";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
@@ -96,7 +92,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: a title that doesn't fit beside the corner controls drops below them`, async function () {
-    this.timeout(60000);
     const text = "123456789012345678901";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
@@ -106,7 +101,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: a title that fits the symmetric inset stays centered on its row`, async function () {
-    this.timeout(60000);
     const text = "Exports";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
@@ -117,7 +111,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("cornerControlsHeight is the taller corner panel's height, and 0 with no panels", async function () {
-  this.timeout(60000);
   const out = await render(
     '<div id="a" style="width:300px;height:300px;"></div><div id="b" style="width:300px;height:300px;"></div>',
     () =>

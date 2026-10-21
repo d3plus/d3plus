@@ -1,6 +1,7 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
-import {fitOwnSpaces, ownLabelSpaces} from "../../es/src/components/Axis/axisLayoutLabels.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
+import {fitOwnSpaces, ownLabelSpaces} from "../../src/components/Axis/axisLayoutLabels.ts";
 
 /**
     Marimekko's category labels at the Storybook canvas size (958 × 350): each
@@ -9,10 +10,6 @@ import {fitOwnSpaces, ownLabelSpaces} from "../../es/src/components/Axis/axisLay
     neighbors' unused room, hides, and the labels rotate, showing the name
     alone, only when half or more can't fit.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 // The stories' smartphone revenue ($B) and units sold (millions) by region.
 const brands = ["Apple", "Samsung", "Xiaomi", "Oppo", "Other"];
@@ -105,7 +102,6 @@ it("fitOwnSpaces: a label with no neighbor shown may span the whole range", () =
 
 for (const renderer of ["svg", "canvas"]) {
   it(`Marimekko: at the story size, every label keeps its share line beneath its name (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", draw, [{renderer}, sales]);
     assert.strictEqual(out.rotated, false, "narrow bars wrap their names instead of rotating them");
     assert.strictEqual(out.labels.length, names.length, `every region labeled: ${JSON.stringify(out.labels)}`);
@@ -119,14 +115,12 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Marimekko: at the story size, barWidthShare(false) labels names alone (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", draw, [{renderer, barWidthShare: false}, sales]);
     assert.strictEqual(out.rotated, false);
     assert.deepStrictEqual(out.labels.map(l => l.join(" ")), names);
   });
 
   it(`Marimekko: a name too long for the narrowest bar hides, leaving the rest flat with their shares (${renderer})`, async function () {
-    this.timeout(60000);
     const out = await render("", draw, [{renderer, width: 560}, sales]);
     assert.strictEqual(out.rotated, false, "one label that can't fit doesn't rotate the rest");
     assert.deepStrictEqual(out.labels.map(l => l.slice(0, -1).join(" ")), names.filter(n => n !== "Latin America"));
@@ -134,7 +128,6 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`Marimekko: labels rotate, with the name alone, only when half or more can't lie flat (${renderer})`, async function () {
-    this.timeout(60000);
     const many = ["Northern Territories", "Southern Provinces", "Eastern Seaboard", "Western Highlands", "Central Lowlands", "Coastal Islands"];
     const rows = many.map(Region => ({Region, Brand: "Apple", Revenue: 1}));
     const out = await render("", draw, [{renderer, width: 300}, rows]);
@@ -145,7 +138,6 @@ for (const renderer of ["svg", "canvas"]) {
 }
 
 it("Marimekko: the BarWidthMeasure story's shares differ visibly from its revenue totals", async function () {
-  this.timeout(60000);
   const shares = out => out.labels.map(l => parseFloat(l[l.length - 1]));
   const revenue = shares(await render("", draw, [{}, sales]));
   const measured = await render("", draw, [{barWidth: "Units Sold", maxAggs: "Units Sold"}, sales]);

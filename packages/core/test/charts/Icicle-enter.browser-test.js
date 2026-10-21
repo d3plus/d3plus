@@ -1,10 +1,7 @@
-import assert from "assert";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
 import {cubicInOut} from "@d3plus/render";
-import {render, closeBrowser} from "../playwright.js";
-
-after(async () => {
-  await closeBrowser();
-});
+import {render} from "~test/browser/render.js";
 
 const data = [
   {area: "App", module: "Charts", file: "Treemap", size: 120},
@@ -48,7 +45,6 @@ const page = (fn, arg) =>
   );
 
 it("Icicle: the first draw grows each rect out of its root edge, each level after the one before", async function () {
-  this.timeout(60000);
   for (const orient of ["horizontal", "vertical"]) {
     const out = await page(async orient => {
       const chart = await window.build({config: {orient}});
@@ -79,7 +75,6 @@ it("Icicle: the first draw grows each rect out of its root edge, each level afte
 });
 
 it("Icicle: a data update staggers only its entering rects; zooms keep their own motion", async function () {
-  this.timeout(60000);
   const out = await page(async () => {
     const chart = await window.build();
     await new Promise(resolve =>

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A colorScale at its default position is laid out twice (once as an inset
@@ -7,12 +8,7 @@ import {render, closeBrowser} from "../playwright.js";
     painted, even on an animated chart.
 */
 
-after(async () => {
-  await closeBrowser();
-});
-
 it("a default-position colorScale paints in its own margin band", async function () {
-  this.timeout(60000);
   const out = await render(
     "<div id='viz' style='width:500px;height:700px'></div>",
     async () => {

@@ -1,7 +1,6 @@
-import assert from "assert";
-import {closeBrowser, render} from "../playwright.js";
-
-after(closeBrowser);
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A full (two-sided) `domain` in a Plot's axis config is drawn exactly as
@@ -62,8 +61,7 @@ const chart = (name, extra = "") =>
 const horizontal = (name, extra = "") =>
   `(lib, data) => new lib.${name}().data(data).groupBy("g").y("x").x("v").discrete("y").legend(false)${extra}`;
 
-it("a two-sided yConfig domain is drawn exactly as given", async function () {
-  this.timeout(120000);
+it("a two-sided yConfig domain is drawn exactly as given", {timeout: 120000}, async function () {
   const bars = await probe(chart("BarChart", ".yConfig({domain: [960, 1100]})"));
   assert.deepStrictEqual(bars.y, [960, 1100]);
   assert.strictEqual(bars.brk, 0, "a BarChart still breaks back to 0");
@@ -81,8 +79,7 @@ it("a two-sided yConfig domain is drawn exactly as given", async function () {
   );
 });
 
-it("a two-sided yConfig domain rounds only as the yConfig's rounding says", async function () {
-  this.timeout(120000);
+it("a two-sided yConfig domain rounds only as the yConfig's rounding says", {timeout: 120000}, async function () {
   assert.deepStrictEqual(
     (await probe(chart("BarChart", ".yConfig({domain: [960, 1100], rounding: 'outside'})"))).y,
     [900, 1100],
@@ -97,15 +94,13 @@ it("a two-sided yConfig domain rounds only as the yConfig's rounding says", asyn
   );
 });
 
-it("a one-sided yConfig domain still rounds its open end", async function () {
-  this.timeout(120000);
+it("a one-sided yConfig domain still rounds its open end", {timeout: 120000}, async function () {
   assert.deepStrictEqual((await probe(chart("BarChart", ".yConfig({domain: [980]})"))).y, [980, 1030]);
   assert.deepStrictEqual((await probe(chart("LinePlot", ".yConfig({domain: [undefined, 1100]})"))).y, [950, 1100]);
   assert.deepStrictEqual((await probe(chart("BarChart", ".yConfig({domain: [980], rounding: 'none'})"))).y, [980, 1024]);
 });
 
-it("a two-sided xConfig domain on a horizontal BarChart is drawn exactly as given", async function () {
-  this.timeout(120000);
+it("a two-sided xConfig domain on a horizontal BarChart is drawn exactly as given", {timeout: 120000}, async function () {
   const bars = await probe(horizontal("BarChart", ".xConfig({domain: [960, 1100]})"));
   assert.deepStrictEqual(bars.x, [960, 1100]);
   assert.strictEqual(bars.brk, 0);
@@ -116,8 +111,7 @@ it("a two-sided xConfig domain on a horizontal BarChart is drawn exactly as give
   assert.deepStrictEqual((await probe(horizontal("BarChart", ".xConfig({domain: [980]})"))).x, [980, 1030], "one-sided");
 });
 
-it("a two-sided y2Config domain is drawn exactly as given", async function () {
-  this.timeout(120000);
+it("a two-sided y2Config domain is drawn exactly as given", {timeout: 120000}, async function () {
   const src = "(lib, data) => new lib.LinePlot().data(data).groupBy('g').x('x').y('v').y2(d => d.v).legend(false)";
   assert.deepStrictEqual((await probe(`${src}.y2Config({domain: [960, 1100]})`)).y2, [960, 1100]);
   assert.deepStrictEqual((await probe(`${src}.y2Config({domain: [960, 1100], rounding: 'outside'})`)).y2, [900, 1100]);
@@ -126,8 +120,7 @@ it("a two-sided y2Config domain is drawn exactly as given", async function () {
   assert.deepStrictEqual(primary.y2, [950, 1050], "a full yConfig domain leaves y2 rounded");
 });
 
-it("a time axis domain is unaffected", async function () {
-  this.timeout(120000);
+it("a time axis domain is unaffected", {timeout: 120000}, async function () {
   const src = "(lib, data) => new lib.LinePlot().data(data).groupBy('g').x('year').time('year').y('v').legend(false)";
   assert.deepStrictEqual((await probe(src, "years")).xYears, [2001, 2010]);
   assert.deepStrictEqual(
@@ -137,8 +130,7 @@ it("a time axis domain is unaffected", async function () {
   assert.deepStrictEqual((await probe(`${src}.xDomain(['2000', '2012'])`, "years")).xYears, [2000, 2012]);
 });
 
-it("Pyramid still rounds its own symmetric domain", async function () {
-  this.timeout(120000);
+it("Pyramid still rounds its own symmetric domain", {timeout: 120000}, async function () {
   const src = "(lib, data) => new lib.Pyramid().data(data).groupBy('sex').y('age').x('pop').detectVisible(false)";
   assert.deepStrictEqual((await probe(`${src}.categoryPosition('left')`, "pyramid")).x, [-1200, 1200]);
   assert.deepStrictEqual((await probe(src, "pyramid")).x, [-1200, 1200], "with the center gutter");

@@ -1,5 +1,6 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     A legend at its default position is laid out twice on an animated chart's
@@ -8,10 +9,6 @@ import {render, closeBrowser} from "../playwright.js";
     total above the chart, painting the first placement drew the legend over
     the bottom of the chart.
 */
-
-after(async () => {
-  await closeBrowser();
-});
 
 const labels = ["Very satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very dissatisfied"];
 
@@ -61,7 +58,6 @@ const cases = [
 for (const renderer of ["svg", "canvas"]) {
   for (const [chart, html, extra] of cases) {
     it(`${chart} (${renderer}, ${Object.keys(extra)[0]}): a bottom legend paints below the chart on first render`, async function () {
-      this.timeout(60000);
       const out = await render(html, pageFn, {chart, renderer, extra, labels});
       assert.ok(
         out.top >= out.bandTop - 1,

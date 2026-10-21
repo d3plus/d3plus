@@ -1,13 +1,12 @@
-import assert from "assert";
-import {render, closeBrowser} from "../playwright.js";
+import {it} from "vitest";
+import assert from "~test/browser/assert.js";
+import {render} from "~test/browser/render.js";
 
 /**
     Each waterfall bar is alone in its stack, so Waterfall opts out of Plot's
     stack shares: no share on its rows, its table view, its labels, or its
     tooltip.
 */
-
-after(closeBrowser);
 
 const bridge = [
   {step: "Opening", v: 1000, sub: true},
@@ -20,7 +19,6 @@ const bridge = [
 const body = '<div id="viz" style="width:700px;height:420px;font-family:sans-serif;"></div>';
 
 it("Waterfall rows carry no stack share; a stacked BarChart's still do", async function () {
-  this.timeout(60000);
   const out = await render(body, ([data]) =>
     new Promise(resolve => {
       const viz = new window.d3plus.Waterfall()
