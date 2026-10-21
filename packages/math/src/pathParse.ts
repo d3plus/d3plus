@@ -102,7 +102,7 @@ export interface PathCommand {
 
 /**
     Tokenizes an SVG path `d` string into its commands as written, without
-    resolving them to absolute coordinates (see `parsePath` for that). Arc
+    resolving them to absolute coordinates. Arc
     flags are read as single `0`/`1` characters, so compact arcs such as
     `a1 1 0 011 1` tokenize correctly. Stops at the first character that is
     not a path command.
