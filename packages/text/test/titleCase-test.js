@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as titleCase} from "../es/src/titleCase.js";
-import it from "./jsdom.js";
+import {default as titleCase} from "../src/titleCase.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("titleCase", () => {
   assert.strictEqual(

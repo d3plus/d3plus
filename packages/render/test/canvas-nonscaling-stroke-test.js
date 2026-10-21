@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {paint} from "../es/src/canvas/canvasNodePaint.js";
+import {paint} from "../src/canvas/canvasNodePaint.ts";
 
 /**
     Canvas parity for `vector-effect: non-scaling-stroke`. Under a zoom/scale the

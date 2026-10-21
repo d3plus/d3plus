@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as backgroundColor} from "../es/src/backgroundColor.js";
-import it from "./jsdom.js";
+import {default as backgroundColor} from "../src/backgroundColor.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("returns inline background color from the element itself", () => {
   const div = document.createElement("div");

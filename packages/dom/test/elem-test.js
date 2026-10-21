@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as elem} from "../es/src/elem.js";
-import it from "./jsdom.js";
+import {default as elem} from "../src/elem.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("elem", () => {
   let svg = elem("svg.className", {enter: {id: "enter"}});

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import jsdomit from "./jsdom.js";
+import {jsdomit} from "~test/jsdom.js";
 
 const nativeBtoa = globalThis.btoa;
 const nativeAtob = globalThis.atob;

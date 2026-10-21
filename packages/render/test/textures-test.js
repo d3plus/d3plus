@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {CanvasRenderer, SvgRenderer, patternTileSvg} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {CanvasRenderer, SvgRenderer, patternTileSvg} from "../index.ts";
+
+useJsdom({augment: false});
 
 const token = `pattern:${JSON.stringify({texture: "circles", background: "#f00"})}`;
 

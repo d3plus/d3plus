@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as attrize} from "../es/src/attrize.js";
+import {default as attrize} from "../src/attrize.ts";
 import {select} from "d3-selection";
-import it from "./jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("attrize", () => {
   const styles = {

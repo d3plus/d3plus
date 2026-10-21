@@ -2,6 +2,8 @@ import {defineConfig} from "vitest/config";
 
 import {aliases} from "./test/aliases.js";
 
+const canvasSetup = "test/canvas-setup.js";
+
 /** A Node project running `packages/<name>/test/**\/*-test.js`. */
 const node = (name: string, test = {}) => ({
   extends: true,
@@ -21,6 +23,9 @@ export default defineConfig({
     },
     projects: [
       ...["color", "data", "format", "locales", "math"].map(name => node(name)),
+      node("dom", {setupFiles: [canvasSetup], testTimeout: 10000}),
+      node("text", {setupFiles: [canvasSetup]}),
+      node("render", {setupFiles: [canvasSetup]}),
       {
         extends: true,
         test: {name: "docs-scripts", include: ["scripts/docs/test/**/*-test.js"]},

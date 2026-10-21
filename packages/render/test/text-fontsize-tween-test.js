@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {SvgRenderer, interpolateNode} from "../es/index.js";
-import {textFontTween} from "../es/src/svg/svgNodeAttrs.js";
-import {textVisualCenter} from "../es/src/scene.js";
+import {useJsdom} from "~test/jsdom.js";
+import {SvgRenderer, interpolateNode} from "../index.ts";
+import {textFontTween} from "../src/svg/svgNodeAttrs.ts";
+import {textVisualCenter} from "../src/scene.ts";
+
+useJsdom({augment: false});
 
 function scene(children) {
   return {width: 200, height: 100, root: {type: "group", key: "root", children}};

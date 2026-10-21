@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as strip} from "../es/src/strip.js";
+import {default as strip} from "../src/strip.ts";
 
 it("strip", () => {
   assert.strictEqual(strip("one two"), "one-two", "Strips Spaces");

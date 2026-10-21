@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as date} from "../es/src/date.js";
-import it from "./jsdom.js";
+import {default as date} from "../src/date.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("date", () => {
   assert.strictEqual(date(false), false, "Fails gracefully with false value");

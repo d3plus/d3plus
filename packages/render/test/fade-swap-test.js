@@ -1,12 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   fadeSwapOpacity,
   interpolateScene,
   sameTextLayout,
   SvgRenderer,
-} from "../es/index.js";
+} from "../index.ts";
+
+useJsdom({augment: false});
 
 const swap = {out: 0.2, in: 0.2};
 const label = (text, x, extra = {}) => ({

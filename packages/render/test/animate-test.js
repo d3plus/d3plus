@@ -1,9 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {collapse, collapseTo, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, isFlipEligible, parseGradient, TrailLog} from "../es/index.js";
-import {pathEnterStart, rectEnterStart} from "../es/src/animate/interpolate.js";
-import {flattenPath} from "../es/index.js";
-import {enterStart} from "../es/src/svg/svgFlip.js";
+import {collapse, collapseTo, commitTrailCatchups, commitTrailScene, cubicInOut, interpolateNode, interpolateScene, isFlipEligible, parseGradient, TrailLog} from "../index.ts";
+import {pathEnterStart, rectEnterStart} from "../src/animate/interpolate.ts";
+import {flattenPath} from "../index.ts";
+import {enterStart} from "../src/svg/svgFlip.ts";
 
 it("cubicInOut matches d3 endpoints and midpoint", () => {
   assert.strictEqual(cubicInOut(0), 0, "start");

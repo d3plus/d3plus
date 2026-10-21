@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {arc} from "d3-shape";
-import {arcPath, FULL_TURN} from "../es/index.js";
+import {arcPath, FULL_TURN} from "../index.ts";
 
 it("arcPath draws an annular sector the way d3's arc does", () => {
   const geometry = {innerRadius: 20, outerRadius: 50, startAngle: 0, endAngle: Math.PI / 2};

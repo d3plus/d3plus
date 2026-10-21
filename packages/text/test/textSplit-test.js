@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as textSplit} from "../es/src/textSplit.js";
-import it from "./jsdom.js";
+import {default as textSplit} from "../src/textSplit.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("textSplit", () => {
   assert.strictEqual(

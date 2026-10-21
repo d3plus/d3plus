@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {softHyphen, textSplit} from "../es/index.js";
-import it from "./jsdom.js";
+import {softHyphen, textSplit} from "../index.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("softHyphen", () => {
   assert.strictEqual(softHyphen, "­");

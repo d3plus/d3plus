@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {CanvasRenderer, enterWindowProgress, interpolateScene, SvgRenderer} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {CanvasRenderer, enterWindowProgress, interpolateScene, SvgRenderer} from "../index.ts";
+
+useJsdom({augment: false});
 
 const scene = children => ({
   width: 200,

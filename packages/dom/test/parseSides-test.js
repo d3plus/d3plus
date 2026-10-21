@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as parseSides} from "../es/src/parseSides.js";
+import {default as parseSides} from "../src/parseSides.ts";
 
 it("parseSides", () => {
   assert.deepEqual(

@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import textWidth, {decodeEntities} from "../es/src/textWidth.js";
-import jsdomit from "./jsdom.js";
+import textWidth, {decodeEntities} from "../src/textWidth.ts";
+import {jsdomit} from "~test/jsdom.js";
 
 // `decodeEntities` is DOM-free, so these run without a jsdom document.
 it("decodeEntities decodes named entities", () => {

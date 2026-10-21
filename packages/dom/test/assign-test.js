@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as assign} from "../es/src/assign.js";
+import {default as assign} from "../src/assign.ts";
 
 it("assign", () => {
   const a = {id: "foo", deep: {group: "A"}},
