@@ -62,7 +62,19 @@ const configSourceTransform = (code, {args, component}) => {
   return `${imports}\n${declarations}<${component.name} config={${config}} />`;
 };
 
+// A color picker can't hold an accessor function (React treats a function
+// passed to its state as an initializer and calls it), so a story that sets a
+// color arg to one shows no control for that arg.
+const accessorColorArgs = ({argTypes, initialArgs = {}}) => {
+  for (const [key, value] of Object.entries(initialArgs)) {
+    if (typeof value === "function" && argTypes[key]?.control?.type === "color")
+      argTypes[key] = {...argTypes[key], control: false};
+  }
+  return argTypes;
+};
+
 const preview = {
+  argTypesEnhancers: [accessorColorArgs],
   parameters: {
     docs: {
       source: {type: "dynamic", transform: configSourceTransform},
