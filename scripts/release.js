@@ -175,8 +175,10 @@ try {
   // ── Builds, docs & tests ───────────────────────────────────────────────
   // Every publishable output is gitignored, so it is always rebuilt: the
   // publish below must never pick up stale or missing files.
-  await run("building ESM", "pnpm -r --if-present run build:esm");
+  // Types first: @d3plus/angular's build (part of build:esm) reads the other
+  // packages' declarations.
   await run("building types", "pnpm -r --if-present run build:types");
+  await run("building ESM", "pnpm -r --if-present run build:esm");
   await run("building UMD bundles", "pnpm -r --if-present run build:umd");
   await run("generating docs", "pnpm run docs");
   // The suite runs against the source, so a few suites always run against
