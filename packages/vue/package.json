@@ -11,9 +11,6 @@
       "default": "./es/index.js"
     }
   },
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "es",

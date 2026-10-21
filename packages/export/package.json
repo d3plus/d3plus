@@ -13,9 +13,6 @@
   },
   "jsdelivr": "./umd/d3plus-export.full.min.js",
   "unpkg": "./umd/d3plus-export.full.min.js",
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "umd/*.js",

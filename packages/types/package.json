@@ -15,9 +15,6 @@
       "default": "./es/react.js"
     }
   },
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "es",
