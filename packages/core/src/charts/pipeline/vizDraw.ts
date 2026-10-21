@@ -32,7 +32,6 @@ export function vizDraw(viz: Viz): void {
   if (viz._facetStep === "panel") {
     viz._chartScene = [];
     viz._chartTransform = undefined;
-    viz._shapes = [];
     return;
   }
   const ctx = vizDrawPure(viz);

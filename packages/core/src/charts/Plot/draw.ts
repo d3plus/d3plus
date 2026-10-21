@@ -208,7 +208,7 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     // Empty data: still run super._draw so the chart shell (title /
     // legend / total / timeline / colorScale) refreshes — features
     // tear down their DOM via .data([]) in their layout body, and
-    // vizDrawPure resets _chartScene/_featurePanels/_shapes. Without
+    // vizDraw resets _chartScene/_featurePanels. Without
     // this, the previous render's chart shell (incl. aria-labels)
     // lingers in the DOM and toScene() emits stale nodes.
     superDraw(viz, callback);

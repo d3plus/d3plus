@@ -169,11 +169,9 @@ export const sankeyDef: ChartDefinition = {
     };
     v.hover = function(this: VizInstance, _: unknown) {
       this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
-      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
       if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
-      // Scene-rendered Sankey emits into `_chartScene`, not `_shapes`, so the
-      // forEach above can't dim anything. Repaint so the scene's
-      // interaction-opacity pass re-reads `_hover` and dims non-matching nodes.
+      // Repaint so the scene's interaction-opacity pass re-reads `_hover` and
+      // dims non-matching nodes.
       // Coalesced to one paint per frame (see Viz._scheduleSceneRepaint).
       if (this._sceneRenderer) this._scheduleSceneRepaint();
       broadcastLink(this, "hover", _);

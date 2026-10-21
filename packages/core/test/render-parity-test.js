@@ -818,10 +818,8 @@ it("measureAxis runs on a plain object — no Axis class instance needed", async
 });
 
 it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScene", async () => {
-  // Phase-E follow-on: Plot._draw's three `_shapes.push(...)` sites (main
-  // shape, confidence Area, line markers) all go through `absorbShapeIntoChartScene`,
-  // which calls `shape.toScene()` and stuffs the nodes into `viz._chartScene`.
-  // Verifies the rollup for the common Plot subclasses.
+  // Plot's main shape, confidence Area, and line markers all go through
+  // `absorbShapeIntoChartScene`, which stuffs their nodes into `viz._chartScene`.
   const cases = [
     {name: "BarChart", data: [{id: "A", value: 10}, {id: "B", value: 20}, {id: "C", value: 5}]},
     {name: "LinePlot", data: [
@@ -846,7 +844,6 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
       if (name === "BarChart") chart.y("value");
       await new Promise(resolve => chart.render(resolve));
       return {
-        shapesLength: chart._shapes ? chart._shapes.length : -1,
         chartSceneLength: chart._chartScene ? chart._chartScene.length : 0,
         rendered: target.querySelector("svg") !== null,
       };
@@ -855,18 +852,15 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
       throw new Error(`${name}: ${page._errors.join("; ")}`);
     await closePage(page);
 
-    assert.strictEqual(res.shapesLength, 0, `${name}: _shapes empty`);
     assert.ok(res.chartSceneLength > 0, `${name}: _chartScene populated`);
     assert.ok(res.rendered, `${name}: svg rendered`);
   }
 });
 
-it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async function () {
+it("Data-driven charts emit scene via chartDef.emit", async function () {
   this.timeout(10000);
-  // Phase-E follow-on rollup: every chart in this list was converted from
-  // `_shapes.push(new Shape()...)` to `this._chartScene = chartDef.emit(ctx)`.
-  // For each: render, verify `_shapes` is empty, verify `_chartScene` is
-  // populated, verify the chart actually rendered something to the DOM.
+  // For each: render, verify `_chartScene` is populated and the chart
+  // rendered something to the DOM.
   const charts = [
     {name: "Pie", data: [{id: "A", value: 10}, {id: "B", value: 20}]},
     {name: "Donut", data: [{id: "A", value: 10}, {id: "B", value: 20}]},
@@ -899,7 +893,6 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
         .select(target);
       await new Promise(resolve => viz.render(resolve));
       return {
-        shapesLength: viz._shapes ? viz._shapes.length : -1,
         hasChartScene: Array.isArray(viz._chartScene),
         chartSceneLength: viz._chartScene ? viz._chartScene.length : 0,
         hasContent: target.querySelector("svg") !== null,
@@ -909,11 +902,6 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
       throw new Error(`${name}: ${page._errors.join("; ")}`);
     await closePage(page);
 
-    assert.strictEqual(
-      res.shapesLength,
-      0,
-      `${name}: _shapes empty (no legacy push)`,
-    );
     assert.ok(res.hasChartScene, `${name}: _chartScene populated`);
     assert.ok(
       res.chartSceneLength > 0,
@@ -924,10 +912,8 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
 });
 
 it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
-  // Phase-E follow-on: Pack._draw used to do `_shapes.push(new Circle()...)`.
-  // Now `applyPackLayout` stage runs the d3-hierarchy pack, `packDef.emit`
-  // produces Circle SceneNodes, and Viz.toScene composes them via
-  // `_chartScene`. Verifies the same dropped-glue pattern as Treemap.
+  // `applyPackLayout` runs the d3-hierarchy pack, `packDef.emit` produces
+  // Circle SceneNodes, and Viz.toScene composes them via `_chartScene`.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -946,7 +932,6 @@ it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
     await new Promise(resolve => viz.render(resolve));
 
     return {
-      shapesLength: viz._shapes ? viz._shapes.length : -1,
       hasChartScene: Array.isArray(viz._chartScene),
       circleCount: viz._chartScene
         ? viz._chartScene.filter(n => n.type === "circle").length
@@ -957,19 +942,15 @@ it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await closePage(page);
 
-  assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Circle push)");
   assert.ok(res.hasChartScene, "_chartScene array populated");
   assert.ok(res.circleCount >= 3, `at least 3 circle cells in emit (got ${res.circleCount})`);
   assert.ok(res.hasViewBox, "viz-chart-cells group rendered to scene");
 });
 
 it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", async () => {
-  // Phase-E follow-on: Treemap._draw used to do `_shapes.push(new Rect()...)`
-  // to populate the chart cells. Now `_chartScene = treemapDef.emit(ctx)` and
-  // Viz.toScene composes it. Verifies:
-  //   1. `_shapes` is empty (no Rect was pushed).
-  //   2. `_chartScene` contains rect SceneNodes (the emit output).
-  //   3. The rendered scene still has all the cells (no regression).
+  // `_chartScene = treemapDef.emit(ctx)` and Viz.toScene composes it. Verifies:
+  //   1. `_chartScene` contains rect SceneNodes (the emit output).
+  //   2. The rendered scene still has all the cells.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -988,7 +969,6 @@ it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", asyn
     await new Promise(resolve => viz.render(resolve));
 
     return {
-      shapesLength: viz._shapes ? viz._shapes.length : -1,
       hasChartScene: Array.isArray(viz._chartScene),
       chartSceneLength: viz._chartScene ? viz._chartScene.length : 0,
       rectNodes: viz._chartScene
@@ -1001,7 +981,6 @@ it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", asyn
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await closePage(page);
 
-  assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Rect push)");
   assert.ok(res.hasChartScene, "_chartScene array exists");
   assert.ok(res.chartSceneLength >= 3, `_chartScene populated (got ${res.chartSceneLength})`);
   assert.strictEqual(res.rectNodes, 3, "3 rect cells in emit");

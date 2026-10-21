@@ -298,7 +298,6 @@ function setupNetworkFluent(v: NetworkViz) {
   v.hover = function(this: VizInstance, _: unknown) {
     this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
     if (this.schema.nodes.length < this.schema.dataCutoff) {
-      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
       if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
     }
     // Scene-emit charts dim via applyInteractionOpacity during toScene(), so a

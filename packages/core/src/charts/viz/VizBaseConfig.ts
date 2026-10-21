@@ -1,5 +1,3 @@
-import {merge as arrayMerge} from "d3-array";
-
 import {addToQueue, unique} from "@d3plus/data";
 import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
@@ -37,7 +35,6 @@ export default class VizBaseConfig extends BaseClass {
     this._active = _;
 
     if (this.schema.shapeConfig.activeOpacity !== 1) {
-      this._shapes.forEach((s: {active: (...args: unknown[]) => unknown}) => s.active(_));
       if (this.schema.legend) this._legendClass.active(_);
       // See hover(): scene-rendered charts dim via the scene's
       // interaction-opacity pass, so repaint to apply/clear active state.
@@ -406,17 +403,14 @@ Defaults to an empty array (`[]`).
 
     if (this.schema.shapeConfig.hoverOpacity !== 1 && _ !== undefined) {
       if (typeof _ === "function") {
-        let shapeData = arrayMerge(
-          this._shapes.map((s: {data: () => DataPoint[]}) => s.data()),
-        );
-        shapeData = shapeData.concat(this._legendClass.data());
-        const activeData = _ ? (shapeData as DataPoint[]).filter(_ as (d: DataPoint) => boolean) : [];
+        const shapeData: DataPoint[] = [
+          ...(this._filteredData ?? []),
+          ...(this._legendClass.data() ?? []),
+        ];
+        const activeData = shapeData.filter(_ as (d: DataPoint) => boolean);
 
-        // Build a Set<string> of activeIds for O(1) membership lookup.
-        // Previously `activeIds.filter((id, i) => activeIds.indexOf(id) === i)`
-        // was O(N²) dedup, and the hover predicate did `activeIds.includes(...)`
-        // — also O(N) per datum per repaint. With ~5k segments, hover
-        // dispatch was ~250 ms on a 2023 laptop; Set drops it to <5 ms.
+        // Every id prefix of each matching row (chart data and legend
+        // entries), in a Set for O(1) membership on every repaint.
         const activeIds = new Set<string>();
         (activeData.map(this._ids) as string[][]).forEach((ids: string[]) => {
           for (let x = 1; x <= ids.length; x++) {
@@ -429,15 +423,12 @@ Defaults to an empty array (`[]`).
             activeIds.has(JSON.stringify(this._ids(d, i)));
       }
 
-      this._shapes.forEach((s: {hover: (...args: unknown[]) => unknown}) => s.hover(hoverFunction));
       if (this.schema.legend) this._legendClass.hover(hoverFunction);
     }
 
-    // Scene-rendered charts emit into `_chartScene` (not `_shapes`), so the
-    // forEach above is a no-op for them. Repaint so the scene's
-    // interaction-opacity pass re-reads `_hover` and dims the non-matching
-    // nodes (or restores them when `_` is `false`). Also repaint for a
-    // colorScale-bucket hover even when per-shape hover is off
+    // Repaint so the scene's interaction-opacity pass re-reads `_hover` and
+    // dims the non-matching nodes (or restores them when `_` is `false`). Also
+    // repaint for a colorScale-bucket hover even when per-shape hover is off
     // (`hoverOpacity: 1`, e.g. Geomap): the bucket highlight is applied by that
     // same pass, so without a repaint the map would never re-compose. Coalesced
     // to one paint per frame so a fast pointer sweep doesn't saturate the main

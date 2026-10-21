@@ -5,12 +5,11 @@ import {date, getSize} from "@d3plus/dom";
 import {computeTrailCatchup} from "./trailCatchup.js";
 import type {DataPoint} from "@d3plus/data";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
-import type {PickResult, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
+import type {PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
 import {initInsetDefaults, insetComponentScene} from "../features/insetState.js";
@@ -82,7 +81,6 @@ export default class Viz extends VizBase {
       by the most recent render. Combines:
       - `_chartScene` (cells from `chartDef.emit`, or `Plot._paint` for the
         paint-driven Plot family) wrapped in viz-chart-cells
-      - `_shapes` (still used by some charts) — each shape's toScene
       - chart-level components (Legend/ColorScale/Timeline) via their toScene
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
@@ -134,33 +132,6 @@ export default class Viz extends VizBase {
         children: zoomNode,
       });
     }
-    // `_shapes` collection (Treemap/Pack/etc. route through `_chartScene`
-    // instead, as does Plot's `absorbShapeIntoChartScene`). Any caller
-    // pushing into `_shapes` gets its `toScene()` walked here; we read the
-    // shape's `_select` transform via d3's transform baseVal if present,
-    // otherwise emit without a transform.
-    (this._shapes || []).forEach((shape: Shape, si: number) => {
-      if (!shape || typeof shape.toScene !== "function") return;
-      const group = shape.toScene();
-      let transform: Transform | undefined;
-      const sel = shape._select;
-      if (sel && typeof sel.attr === "function") {
-        // Parse `translate(x, y)` from the selection's transform attr.
-        // Falls back to undefined for non-translate transforms — the
-        // `_shapes` path only uses translate.
-        const t = sel.attr("transform");
-        if (typeof t === "string") {
-          const m = t.match(/translate\(\s*(-?[\d.]+)[, ]\s*(-?[\d.]+)\s*\)/);
-          if (m) transform = {x: parseFloat(m[1]), y: parseFloat(m[2])};
-        }
-      }
-      children.push({
-        type: "group",
-        key: `${group.key || "shape"}-${si}`,
-        ...(transform ? {transform} : {}),
-        children: group.children,
-      });
-    });
     // Chart-level components that have their own toScene.
     const components: [string, Legend | ColorScale | Timeline | undefined][] = [
       ["legend", this._legendClass],

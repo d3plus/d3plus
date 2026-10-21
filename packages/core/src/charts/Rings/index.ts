@@ -12,7 +12,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import type Shape from "../../shapes/Shape.js";
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -132,7 +131,6 @@ function installRingsAccessors(viz: VizInstance): void {
   ) {
     const pred = _ as unknown as ((d: DataPoint, i: number) => boolean) | null;
     this._hover = _ as VizInstance["_hover"];
-    this._shapes!.forEach((s: Shape) => s.hover(pred));
     if (this.schema.legend) this._legendClass!.hover(pred);
     // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
     // hover change only takes effect once a repaint is scheduled.

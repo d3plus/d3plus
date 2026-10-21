@@ -136,10 +136,9 @@ export const chordDef: ChartDefinition = {
     };
     v.hover = function(this: VizInstance, _: unknown) {
       this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
-      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
       if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
-      // Scene-emit charts dim via the scene's interaction-opacity pass, not
-      // `_shapes`; a hover change only takes effect once a repaint is scheduled.
+      // Scene-emit charts dim via the scene's interaction-opacity pass; a hover
+      // change only takes effect once a repaint is scheduled.
       if (this._sceneRenderer) this._scheduleSceneRepaint();
       broadcastLink(this, "hover", _);
       return this;

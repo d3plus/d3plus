@@ -8,7 +8,7 @@
     in the returned-ctx sense — its observable output is the ctx. The
     inner `runLayout([features])` calls write through to viz directly:
       - reset writes (`viz._featurePanels = []`, `viz._chartScene = []`,
-        `viz._chartTransform = undefined`, `viz._shapes = []`)
+        `viz._chartTransform = undefined`)
       - margin claims (`viz._margin.X += claim.margin.X`) so the next
         runLayout sees the updated margins
       - FeatureModule layouts that mount/measure their components
@@ -82,7 +82,6 @@ export function vizDrawPure(
   viz._featurePanels = [];
   viz._chartScene = [];
   viz._chartTransform = undefined;
-  viz._shapes = [];
 
   // Sanitize positions (resolving "auto" to a side) via the shared
   // `sanitizePosition` helper (same function legendFeature /

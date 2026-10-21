@@ -341,7 +341,6 @@ function initEventDefaults(viz: Viz): void {
 */
 function initShapeDefaults(viz: Viz): void {
   viz.schema.shape = constant("Rect");
-  viz._shapes = [];
   viz.schema.shapeConfig = {
     ariaLabel: (d: DataPoint, i: number) => viz._drawLabel(d, i),
     fill: (d: DataPoint, i: number) => {

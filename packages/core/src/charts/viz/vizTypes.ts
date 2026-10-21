@@ -207,7 +207,6 @@ export interface VizInstance {
   _chartTransform?: Transform;
   _chartClip?: ClipShape;
   _featurePanels?: SceneNode[];
-  _shapes?: Shape[];
   _previousShapes?: string[];
   _previousAnnotations?: Record<string, string[]>;
   _zoomTransform?: Transform;
