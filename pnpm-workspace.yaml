@@ -18,7 +18,7 @@ catalog:
   "react": ^19.0.0
   "react-dom": ^19.0.0
   "typescript": ^6.0.3
-  "vite": ^6.4.1
+  "vite": ^8.3.5
 publicHoistPattern:
   - "*eslint*"
   - "*typescript*"
@@ -34,3 +34,5 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   sharp: true
+minimumReleaseAgeExclude:
+  - vite@8.3.5

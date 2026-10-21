@@ -79,19 +79,18 @@ export default {
     ];
 
     // "Show code" names each story's component after its function, so
-    // minification has to keep function names.
-    config.esbuild = {...config.esbuild, keepNames: true};
-
-    // The preview bundles every package and chart, so one chunk is large by
-    // design; @d3plus/react's "use client" directives are for React Server
-    // Components and don't apply to the preview.
+    // minification has to keep function names. The preview bundles every
+    // package and chart, so one chunk is large by design; @d3plus/react's
+    // "use client" directives are for React Server Components and don't
+    // apply to the preview.
     config.build = {
       ...config.build,
       chunkSizeWarningLimit: 4096,
-      rollupOptions: {
-        ...config.build?.rollupOptions,
+      rolldownOptions: {
+        ...config.build?.rolldownOptions,
+        output: {...config.build?.rolldownOptions?.output, keepNames: true},
         onwarn(warning, warn) {
-          if (warning.code === "MODULE_LEVEL_DIRECTIVE" || warning.code === "SOURCEMAP_ERROR") return;
+          if (["MODULE_LEVEL_DIRECTIVE", "PLUGIN_TIMINGS", "SOURCEMAP_ERROR"].includes(warning.code)) return;
           warn(warning);
         },
       },

@@ -41,7 +41,7 @@
     "@d3plus/dom": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.0",
+    "@vitejs/plugin-vue": "^6.0.10",
     "vite": "catalog:",
     "vue": "^3.4.0"
   },
