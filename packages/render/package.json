@@ -41,7 +41,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project render",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project render --coverage --coverage.include='packages/render/{index.ts,src/**}' --coverage.reportsDirectory=packages/render/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project render --coverage --coverage.exclude='packages/!(render)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/render/coverage"
   },
   "dependencies": {
     "@d3plus/math": "workspace:*",

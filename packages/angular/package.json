@@ -24,8 +24,8 @@
     "build:esm": "ng-packagr -p ng-package.json",
     "build": "ng-packagr -p ng-package.json",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src --exclude-after-remap --include 'src/**' -x src/d3plus-angular.ts mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project angular",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project angular --coverage --coverage.exclude='packages/!(angular)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/angular/coverage"
   },
   "dependencies": {
     "@d3plus/dom": "workspace:*",

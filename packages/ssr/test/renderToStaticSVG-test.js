@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {BarChart, Donut, LinePlot, Treemap} from "@d3plus/core";
-import {renderToStaticSVG} from "../es/index.js";
+import {renderToStaticSVG} from "../index.ts";
 
 const data = [
   {parent: "A", id: "alpha", value: 29},

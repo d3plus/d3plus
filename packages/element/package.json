@@ -34,8 +34,8 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project element",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project element --coverage --coverage.exclude='packages/!(element)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/element/coverage"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",

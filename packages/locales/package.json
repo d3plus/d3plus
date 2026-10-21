@@ -38,6 +38,6 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project locales",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project locales --coverage --coverage.include='packages/locales/{index.ts,src/**}' --coverage.reportsDirectory=packages/locales/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project locales --coverage --coverage.exclude='packages/!(locales)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/locales/coverage"
   }
 }

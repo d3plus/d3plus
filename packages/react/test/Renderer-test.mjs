@@ -1,9 +1,10 @@
+import {describe, it, beforeEach, afterEach} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
 import React, {act} from "react";
 import {createRoot} from "react-dom/client";
-import Renderer from "../es/src/Renderer.jsx";
-import D3plusContext from "../es/src/D3plusContext.jsx";
+import Renderer from "../src/Renderer.tsx";
+import D3plusContext from "../src/D3plusContext.tsx";
 
 // Set up DOM environment before any test bodies run.
 // React and react-dom don't access globals at import time, only at call time,

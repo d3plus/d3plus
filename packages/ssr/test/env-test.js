@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {installDom, withDom} from "../es/index.js";
+import {installDom, withDom} from "../index.ts";
 
 it("installDom mirrors DOM globals and restores them on teardown", async () => {
   const hadDocument = "document" in globalThis;

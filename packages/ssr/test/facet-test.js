@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {BarChart, Pie} from "@d3plus/core";
-import {renderToStaticPNG, renderToStaticSVG} from "../es/index.js";
+import {renderToStaticPNG, renderToStaticSVG} from "../index.ts";
 
 /** Small multiples (`facet`) render on the server like any other chart. */
 

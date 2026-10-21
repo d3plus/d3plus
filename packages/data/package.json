@@ -38,7 +38,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project data",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project data --coverage --coverage.include='packages/data/{index.ts,src/**}' --coverage.reportsDirectory=packages/data/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project data --coverage --coverage.exclude='packages/!(data)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/data/coverage"
   },
   "dependencies": {
     "d3-array": "catalog:",

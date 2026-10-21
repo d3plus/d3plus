@@ -38,7 +38,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project color",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project color --coverage --coverage.include='packages/color/{index.ts,src/**}' --coverage.reportsDirectory=packages/color/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project color --coverage --coverage.exclude='packages/!(color)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/color/coverage"
   },
   "dependencies": {
     "d3-color": "catalog:",

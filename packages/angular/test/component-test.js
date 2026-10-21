@@ -1,3 +1,4 @@
+import {it, beforeAll} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
 
@@ -31,7 +32,7 @@ function makeComponent(viz, inputs = {}) {
   return {component, svg};
 }
 
-before(async () => {
+beforeAll(async () => {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
   global.window = dom.window;
   global.document = dom.window.document;

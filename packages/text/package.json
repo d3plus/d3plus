@@ -38,7 +38,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project text",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project text --coverage --coverage.include='packages/text/{index.ts,src/**}' --coverage.reportsDirectory=packages/text/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project text --coverage --coverage.exclude='packages/!(text)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/text/coverage"
   },
   "dependencies": {
     "@chenglou/pretext": "catalog:",

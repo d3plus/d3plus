@@ -38,7 +38,7 @@
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
     "test": "vitest run --config ../../vitest.config.ts --project format",
-    "test:coverage": "vitest run --config ../../vitest.config.ts --project format --coverage --coverage.include='packages/format/{index.ts,src/**}' --coverage.reportsDirectory=packages/format/coverage"
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project format --coverage --coverage.exclude='packages/!(format)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/format/coverage"
   },
   "dependencies": {
     "@d3plus/locales": "workspace:*",
