@@ -203,7 +203,7 @@ it("Treemap parity (chart render vs toScene→SvgRenderer)", async () => {
         })
         .sort((p, q) => p.x - q.x || p.y - q.y || p.w - q.w || p.h - q.h);
     };
-    // v4 is scene-only — both svgA (render() → renderScene) and svgB (explicit
+    // v4 is scene-only — both svgA (render()) and svgB (explicit
     // toScene() + SvgRenderer) produce the same scene-class DOM. This test
     // asserts the two paths are idempotent and labels appear in both.
     const sceneLabels = svg =>
@@ -472,92 +472,6 @@ it("Scene rendering emits zero legacy d3plus-* classes in the user target", asyn
   );
 });
 
-it("Viz.renderScene drives a chart through the scene path (SVG)", async () => {
-  const page = await newPage();
-  const res = await page.evaluate(async () => {
-    const target = document.getElementById("B");
-    const viz = new window.d3plusCore.Treemap()
-      .data([
-        {id: "A", value: 10},
-        {id: "B", value: 20},
-        {id: "C", value: 30},
-        {id: "D", value: 40},
-      ])
-      .groupBy("id")
-      .sum("value")
-      .width(300)
-      .height(200)
-      .duration(0);
-
-    const {renderer, scene} = await viz.renderScene(target);
-
-    return {
-      kind: renderer.kind,
-      // The user's target should contain only scene-rendered DOM, never the
-      // legacy d3plus-Treemap container (which lives in the detached compute svg).
-      hasSceneSvg: !!target.querySelector("svg.d3plus-render-svg"),
-      hasLegacyTreemap: !!target.querySelector("g.d3plus-Treemap"),
-      sceneRects: target.querySelectorAll("rect.d3plus-render-rect").length,
-      sceneText: target.textContent,
-      sceneSize: scene.root.children.length,
-    };
-  });
-  if (page._errors.length) throw new Error(page._errors.join("; "));
-  await closePage(page);
-
-  assert.strictEqual(res.kind, "svg", "SvgRenderer in use");
-  assert.ok(res.hasSceneSvg, "target contains scene SVG");
-  assert.ok(!res.hasLegacyTreemap, "target does NOT contain legacy d3plus-Treemap (lives only in detached compute)");
-  assert.ok(res.sceneRects >= 4, `scene rendered all cells (${res.sceneRects})`);
-  ["A", "B", "C", "D"].forEach(id =>
-    assert.ok(res.sceneText.includes(id), `cell label "${id}" present`),
-  );
-  assert.ok(res.sceneSize > 0, "scene has children composed from shapes/components");
-});
-
-it("Viz.renderScene drives a chart through the scene path (Canvas)", async () => {
-  const page = await newPage();
-  const res = await page.evaluate(async () => {
-    const target = document.getElementById("B");
-    const viz = new window.d3plusCore.BarChart()
-      .data([
-        {id: "Alpha", x: "Alpha", y: 10},
-        {id: "Beta", x: "Beta", y: 25},
-        {id: "Gamma", x: "Gamma", y: 15},
-        {id: "Delta", x: "Delta", y: 30},
-      ])
-      .groupBy("id")
-      .x("x")
-      .y("y")
-      .width(400)
-      .height(300)
-      .duration(0);
-
-    const {renderer} = await viz.renderScene(target, {kind: "canvas"});
-
-    // Probe pick at the visual center of the target.
-    const canvas = target.querySelector("canvas.d3plus-render-canvas");
-    const pick = renderer.pick([200, 200]);
-
-    return {
-      kind: renderer.kind,
-      hasCanvas: !!canvas,
-      hasLegacyShapes: target.querySelectorAll("rect.d3plus-Bar").length,
-      pickedKey: pick ? pick.node.key : null,
-    };
-  });
-  if (page._errors.length) throw new Error(page._errors.join("; "));
-  await closePage(page);
-
-  assert.strictEqual(res.kind, "canvas", "CanvasRenderer in use");
-  assert.ok(res.hasCanvas, "target contains a <canvas>");
-  assert.strictEqual(res.hasLegacyShapes, 0, "target has zero legacy SVG bars (lives only in detached compute)");
-  assert.ok(
-    res.pickedKey && !res.pickedKey.startsWith("Axis"),
-    `chart is hit-testable on canvas (got ${res.pickedKey})`,
-  );
-});
-
 it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {
@@ -579,7 +493,8 @@ it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click"
       .on("click.Bar", () => fired.push("Bar"))
       .on("click.Circle", () => fired.push("Circle"));
 
-    const {renderer} = await viz.renderScene(target, {kind: "canvas"});
+    await new Promise(resolve => viz.select(target).renderer("canvas").render(resolve));
+    const renderer = viz._sceneRenderer;
     const canvas = target.querySelector("canvas.d3plus-render-canvas");
     const rect = canvas.getBoundingClientRect();
 

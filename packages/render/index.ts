@@ -53,8 +53,6 @@ export {patternTileSvg} from "./src/canvas/patternTile.js";
 
 export {curveFor, flattenPath, linePath, areaPath} from "./src/paths.js";
 
-export {domToScene} from "./src/dom.js";
-
 export {applyDeclarativeEvents, markOverlayHtmlSynced} from "./src/overlay.js";
 
 export {resetInjectedBoxes} from "./src/boxReset.js";

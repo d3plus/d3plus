@@ -237,11 +237,9 @@ export interface VizInstance {
 
   /* 7. Lifecycle & rendering */
   _select?: D3Selection;
-  _sceneTarget?: Element;
   _sceneRenderer?: VizRenderer;
   _duration: number;
   _renderer?: "svg" | "canvas";
-  _renderMode?: "full" | "compute";
   _focus?: string | number | undefined;
   _active?: ((d: DataPoint, i?: number) => boolean) | false;
   _hover?: ((d: DataPoint, i?: number) => boolean) | false;

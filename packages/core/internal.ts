@@ -265,7 +265,6 @@ export {waterfallDef} from "./src/charts/Waterfall/index.js";
 
 // ── Fluent-accessor generation ───────────────────────────────────────────────
 export {
-  createFluent,
   installFluent,
   isFluentAccessor,
   mergeConfig,

@@ -21,6 +21,10 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 ### Removed
 
 - **Geomap projection names outside the built-in set.** `projection` accepts the d3-geo projections plus `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson`, and `geoWinkel3` by name; pass any other projection as a function (e.g. `.projection(geoBertin1953())`). An unknown name warns and falls back to Mercator.
+- `Viz.renderScene()` and `Viz.renderMode()`. Use `select(target).renderer("svg" | "canvas").render(callback)` instead.
+- `backConfig()`, which had no effect. Style the back button with `backControlStyle` and `backControlClassName`.
+- `domToScene` from `@d3plus/render`.
+- `createFluent` and the `FluentInstance` type from `@d3plus/core/internal`. Use `installFluent`.
 
 ## 4.8.0
 
