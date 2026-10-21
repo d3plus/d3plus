@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {connectorBars, connectorNodes, connectorSegments} from "../../es/src/charts/Waterfall/connectors.js";
+import {connectorBars, connectorNodes, connectorSegments} from "../../src/charts/Waterfall/connectors.ts";
 
 /**
     Waterfall connectors: reading drawn bars out of the scene, the line

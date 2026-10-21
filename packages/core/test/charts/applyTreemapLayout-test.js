@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applyTreemapLayout} from "../../es/src/charts/Treemap/applyLayout.js";
-import {treemapDef} from "../../es/src/charts/Treemap/index.js";
+import {applyTreemapLayout} from "../../src/charts/Treemap/applyLayout.ts";
+import {treemapDef} from "../../src/charts/Treemap/index.ts";
 
 function fieldDefault(key) {
   const f = treemapDef.fields.find(x => x.key === key);

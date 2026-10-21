@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {autoTitle, keyedAccessor, valueKeyOf} from "../../es/src/charts/helpers/valueTitle.js";
+import {autoTitle, keyedAccessor, valueKeyOf} from "../../src/charts/helpers/valueTitle.ts";
 
 it("keyedAccessor reads its key and valueKeyOf remembers it", () => {
   const fn = keyedAccessor("score");

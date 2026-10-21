@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   boxInArc,
@@ -6,7 +7,7 @@ import {
   maxBoxWidth,
   sunburstLabelBox,
   wrapLineCount,
-} from "../../es/src/charts/Sunburst/labelFit.js";
+} from "../../src/charts/Sunburst/labelFit.ts";
 
 const TAU = Math.PI * 2;
 const deg = d => (d * Math.PI) / 180;

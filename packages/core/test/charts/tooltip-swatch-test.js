@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {leadTitleWithSwatch, nodeColor, pickSwatch, tooltipSwatch, visibleColor, withSwatch} from "../../es/src/charts/features/tooltipSwatch.js";
-import Tooltip from "../../es/src/components/Tooltip.js";
+import {useJsdom} from "~test/jsdom.js";
+import {leadTitleWithSwatch, nodeColor, pickSwatch, tooltipSwatch, visibleColor, withSwatch} from "../../src/charts/features/tooltipSwatch.ts";
+import Tooltip from "../../src/components/Tooltip.ts";
+
+useJsdom();
 
 /** Parses swatch HTML into its root element. */
 const parse = html => {

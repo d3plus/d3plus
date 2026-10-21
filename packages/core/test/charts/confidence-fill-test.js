@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
+
+useJsdom();
 
 // A Line's colour is its stroke; its confidence band should fill with that same
 // colour at reduced opacity. The band's fill accessor read a `shapeConfig.Line

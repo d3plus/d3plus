@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {emitRadarRings, radarRingPaint, radarRingStyle} from "../../es/src/charts/Radar/rings.js";
+import {emitRadarRings, radarRingPaint, radarRingStyle} from "../../src/charts/Radar/rings.ts";
 
 const ring = {value: 50, r: 100};
 

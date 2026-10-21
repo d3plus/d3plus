@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
-import {BarChart, StackedArea} from "../../es/index.js";
-import accessor from "../../es/src/utils/accessor.js";
-import {Bar} from "../../es/src/shapes/index.js";
-import {applyStackShareLabels, splitShareBox} from "../../es/src/charts/Plot/stackShareLabels.js";
-import {resolveStackOrder, stackOffsetDiverging} from "../../es/src/charts/Plot/stackHelpers.js";
+import {useJsdom} from "~test/jsdom.js";
+import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../src/charts/Plot/pipeline.ts";
+import {BarChart, StackedArea} from "../../index.ts";
+import accessor from "../../src/utils/accessor.ts";
+import {Bar} from "../../src/shapes/index.ts";
+import {applyStackShareLabels, splitShareBox} from "../../src/charts/Plot/stackShareLabels.ts";
+import {resolveStackOrder, stackOffsetDiverging} from "../../src/charts/Plot/stackHelpers.ts";
+
+useJsdom();
 
 // Same hand-rolled viz stub as stackOrdering-test.js: drives Plot's real
 // stacking stages without a chart instance or layout.

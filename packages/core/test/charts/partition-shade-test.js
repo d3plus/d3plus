@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {colorLighter} from "@d3plus/color";
 import {
@@ -6,7 +7,7 @@ import {
   partitionShadeAmount,
   partitionShadeDefaults,
   partitionShadeFill,
-} from "../../es/src/charts/partition/shade.js";
+} from "../../src/charts/partition/shade.ts";
 
 const color = () => "blue";
 const fill = () => "#4c6ef5";

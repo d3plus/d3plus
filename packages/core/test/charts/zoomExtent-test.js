@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {autoZoomMax} from "../../es/src/charts/features/zoomExtent.js";
+import {autoZoomMax} from "../../src/charts/features/zoomExtent.ts";
 
 /**
     #85: the default maximum zoom is the scale at which the chart's smallest

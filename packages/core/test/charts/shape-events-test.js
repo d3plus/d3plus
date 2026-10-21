@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Bar, BarChart, Circle, Line} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Bar, BarChart, Circle, Line} from "../../index.ts";
+
+useJsdom();
 
 /**
     Shape events on the scene path.

@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
 import {
   backdropDecor,
   discreteDirection,
@@ -11,7 +12,9 @@ import {
   forecastRows,
   lineRows,
   slotEdge,
-} from "../../es/src/charts/Plot/forecastScene.js";
+} from "../../src/charts/Plot/forecastScene.ts";
+
+useJsdom();
 
 // The forecast backdrop, rule, and label, and the part-dashed line.
 

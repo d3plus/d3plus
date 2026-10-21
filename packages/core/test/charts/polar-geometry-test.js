@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   polarInnerRadius,
@@ -6,8 +7,8 @@ import {
   polarRadius,
   polarSlots,
   polarStack,
-} from "../../es/src/charts/polar/geometry.js";
-import {polarSlotArc} from "../../es/src/charts/polar/wedgeLayout.js";
+} from "../../src/charts/polar/geometry.ts";
+import {polarSlotArc} from "../../src/charts/polar/wedgeLayout.ts";
 
 const TAU = Math.PI * 2;
 const close = (a, b, msg) =>

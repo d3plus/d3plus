@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {forgetTransform, recordTransform, showsTransform} from "../../es/src/charts/drawSteps/zoomShown.js";
+import {useJsdom} from "~test/jsdom.js";
+import {forgetTransform, recordTransform, showsTransform} from "../../src/charts/drawSteps/zoomShown.ts";
+
+useJsdom();
 
 it("zoomShown: a chart with nothing recorded is drawn at the identity transform", () => {
   const viz = {};

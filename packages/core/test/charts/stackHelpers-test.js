@@ -1,4 +1,5 @@
 /* global console */
+import {it} from "vitest";
 import assert from "assert";
 import {
   resolveStackOffset,
@@ -10,7 +11,7 @@ import {
   stackOrderTotalAscending,
   stackOrderTotalDescending,
   stackSum,
-} from "../../es/src/charts/Plot/stackHelpers.js";
+} from "../../src/charts/Plot/stackHelpers.ts";
 
 // A d3-stack "series" is an array of [y0, y1] points carrying a `.key`.
 const mkSeries = (key, points) => Object.assign(points.slice(), {key});

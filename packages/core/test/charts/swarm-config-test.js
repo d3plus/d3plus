@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Beeswarm, Plot, RESET} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Beeswarm, Plot, RESET} from "../../index.ts";
+
+useJsdom();
 
 it("Plot swarm defaults: auto, with padding 1 and shrink overflow", () => {
   const viz = new Plot();

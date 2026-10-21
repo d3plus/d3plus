@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {clipToPlotArea, DOMAIN_CLIP_KEY, isDomainClip, unwrapDomainClips} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {clipToPlotArea, DOMAIN_CLIP_KEY, isDomainClip, unwrapDomainClips} from "../../internal.ts";
+
+useJsdom();
 
 /**
     `clipToPlotArea`: a Plot's data marks are clipped to the plot rect only

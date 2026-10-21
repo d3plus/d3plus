@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   computePlotAxisValues,
   computePlotScales,
   formatPlotData,
-} from "../../es/src/charts/Plot/pipeline.js";
-import accessor from "../../es/src/utils/accessor.js";
+} from "../../src/charts/Plot/pipeline.ts";
+import accessor from "../../src/utils/accessor.ts";
+
+useJsdom();
 
 // Plot's chart-specific layout runs as pure TransformStages. These tests
 // exercise three of them in isolation against a hand-rolled "viz-like"

@@ -1,10 +1,13 @@
+import {it} from "vitest";
 import assert from "assert";
 import {geoEquirectangular, geoMercator} from "d3-geo";
 
-import it from "../jsdom.js";
-import {Geomap} from "../../es/index.js";
-import {applyGeomapLayout} from "../../es/src/charts/Geomap/applyLayout.js";
-import {projections} from "../../es/src/charts/Geomap/projections.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Geomap} from "../../index.ts";
+import {applyGeomapLayout} from "../../src/charts/Geomap/applyLayout.ts";
+import {projections} from "../../src/charts/Geomap/projections.ts";
+
+useJsdom();
 
 // Three off-equator points (lon/lat). Distinct sizes keep the point-size
 // scale's domain non-degenerate.

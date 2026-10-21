@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear, scalePoint, scaleTime} from "d3-scale";
 import {
@@ -11,7 +12,7 @@ import {
   periodSpacing,
   pixelCenter,
   readOhlc,
-} from "../../es/src/charts/Candlestick/ohlc.js";
+} from "../../src/charts/Candlestick/ohlc.ts";
 import {
   accessorKey,
   aggregateFunctionFields,
@@ -26,7 +27,7 @@ import {
   rememberKey,
   sumValue,
   syncDefaultAggs,
-} from "../../es/src/charts/Candlestick/aggregate.js";
+} from "../../src/charts/Candlestick/aggregate.ts";
 import {
   emitVolume,
   stripSize,
@@ -36,12 +37,12 @@ import {
   volumeEnabled,
   volumeScale,
   volumeStripRect,
-} from "../../es/src/charts/Candlestick/volume.js";
+} from "../../src/charts/Candlestick/volume.ts";
 import {
   candlestickBuffer,
   padPeriods,
   widenDomain,
-} from "../../es/src/charts/Candlestick/buffer.js";
+} from "../../src/charts/Candlestick/buffer.ts";
 import {
   bandAxisDefaults,
   formatPeriod,
@@ -53,15 +54,15 @@ import {
   periodTickSets,
   shownUnit,
   unitIndex,
-} from "../../es/src/charts/Candlestick/periods.js";
+} from "../../src/charts/Candlestick/periods.ts";
 import {
   candleAriaLabel,
   candleTooltipRows,
   formatChange,
   formatPrice,
   volumeAriaLabel,
-} from "../../es/src/charts/Candlestick/tooltip.js";
-import {CANDLESTICK_SHAPE, candleTexture, layoutCandles} from "../../es/src/charts/Candlestick/emit.js";
+} from "../../src/charts/Candlestick/tooltip.ts";
+import {CANDLESTICK_SHAPE, candleTexture, layoutCandles} from "../../src/charts/Candlestick/emit.ts";
 
 const key = k => d => d[k];
 const accessors = {open: key("open"), high: key("high"), low: key("low"), close: key("close")};

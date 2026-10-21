@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Line} from "../../es/index.js";
-import {buildLabelData} from "../../es/src/shapes/buildLabelData.js";
+import {Line} from "../../index.ts";
+import {buildLabelData} from "../../src/shapes/buildLabelData.ts";
 
 // A multi-point shape nested under the key `0` (a Line whose id is the number
 // 0, e.g. an axis tick at value 0) is still a nested shape: its label and

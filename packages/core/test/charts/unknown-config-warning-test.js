@@ -1,6 +1,7 @@
 /* global console */
+import {it} from "vitest";
 import assert from "assert";
-import {BarChart, configWarnings, Network, Pack, Pie, Treemap, Viz} from "../../es/index.js";
+import {BarChart, configWarnings, Network, Pack, Pie, Treemap, Viz} from "../../index.ts";
 
 /**
     Charts warn (once per message) about config keys they don't support,

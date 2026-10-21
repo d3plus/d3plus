@@ -1,14 +1,17 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {AxisBottom, BarChart, LinePlot} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
-import {axisScaleData} from "../../es/src/components/Axis/timeValues.js";
+import {useJsdom} from "~test/jsdom.js";
+import {AxisBottom, BarChart, LinePlot} from "../../index.ts";
+import {runStages} from "../../internal.ts";
+import {axisScaleData} from "../../src/components/Axis/timeValues.ts";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,
   computePlotScales,
   formatPlotData,
-} from "../../es/src/charts/Plot/pipeline.js";
+} from "../../src/charts/Plot/pipeline.ts";
+
+useJsdom();
 
 /**
     A user domain on a time axis (`xDomain` on a LinePlot or BarChart with

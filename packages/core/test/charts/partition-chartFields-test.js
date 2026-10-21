@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   partitionDefaultSort,
@@ -7,8 +8,8 @@ import {
   partitionSumCoerce,
   partitionSumOnSet,
   partitionThreshold,
-} from "../../es/src/charts/partition/chartFields.js";
-import {icicleInteraction} from "../../es/src/charts/Icicle/interaction.js";
+} from "../../src/charts/partition/chartFields.ts";
+import {icicleInteraction} from "../../src/charts/Icicle/interaction.ts";
 
 const key = k => d => d[k];
 

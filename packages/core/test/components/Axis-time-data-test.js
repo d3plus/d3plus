@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {date} from "@d3plus/dom";
-import {AxisBottom, AxisLeft, Timeline} from "../../es/index.js";
+import {AxisBottom, AxisLeft, Timeline} from "../../index.ts";
 import {
   axisDateLabel,
   axisScaleData,
@@ -9,8 +10,10 @@ import {
   axisTimeReference,
   parseTime,
   parseTimeValues,
-} from "../../es/src/components/Axis/timeValues.js";
-import it from "../jsdom.js";
+} from "../../src/components/Axis/timeValues.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     A time-scale Axis parses its `data` (Date objects, timestamps, or any
@@ -291,9 +294,9 @@ it("time axis: hourly labels read their hour, with the date on the first drawn e
   });
 });
 
-it("Timeline: string data with unparseable values draws without NaN", function* () {
+it("Timeline: string data with unparseable values draws without NaN", async () => {
   const valid = ["2018", "2019", "2020", "2021", "2022"];
-  const paint = function* (data) {
+  const paint = async data => {
     document.body.innerHTML = "";
     const tl = new Timeline()
       .domain(ends(valid))
@@ -301,12 +304,12 @@ it("Timeline: string data with unparseable values draws without NaN", function* 
       .width(400)
       .height(100)
       .duration(0);
-    yield cb => tl.render(cb);
+    await new Promise(cb => tl.render(cb));
     const svg = document.querySelector("svg.d3plus-render-svg");
     return {tl, html: svg.outerHTML.replace(/Axis-[0-9a-f]{8}/g, "Axis-uuid")};
   };
-  const good = yield* paint(valid.map(date));
-  const bad = yield* paint([
+  const good = await paint(valid.map(date));
+  const bad = await paint([
     "2018",
     "nope",
     "2019",

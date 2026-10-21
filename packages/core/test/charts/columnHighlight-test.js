@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {columnHighlight} from "../../es/src/charts/Plot/columnHighlight.js";
-import {applyInteractionOpacity} from "../../es/src/charts/viz/interactionOpacity.js";
+import {columnHighlight} from "../../src/charts/Plot/columnHighlight.ts";
+import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
 
 /**
     Lollipop and Dumbbell's column emphasis: the predicate Plot's snapped

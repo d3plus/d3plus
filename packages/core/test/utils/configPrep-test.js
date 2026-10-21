@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as configPrep} from "../../es/src/utils/configPrep.js";
+import {default as configPrep} from "../../src/utils/configPrep.ts";
 
 it("configPrep", () => {
   // minimal context that configPrep expects as `this`

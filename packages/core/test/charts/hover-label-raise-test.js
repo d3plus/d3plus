@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applyInteractionOpacity} from "../../es/src/charts/viz/interactionOpacity.js";
+import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
 
 /**
     A hovered mark is raised above its siblings, and its data label must come

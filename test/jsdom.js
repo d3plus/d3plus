@@ -94,7 +94,10 @@ export function useJsdom(options) {
   beforeEach(() => {
     restore = installJsdom(options);
   });
-  afterEach(() => {
+  afterEach(async () => {
+    // Work a test left queued (e.g. a tooltip's async positioning) settles
+    // against the document it started in.
+    await new Promise(resolve => setTimeout(resolve));
     restore?.();
     restore = undefined;
   });

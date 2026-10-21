@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Waterfall} from "../../es/index.js";
-import {waterfallDef} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Waterfall} from "../../index.ts";
+import {waterfallDef} from "../../internal.ts";
 import {
   categoryAxis,
   categoryRanks,
@@ -17,8 +18,10 @@ import {
   valueAxis,
   valueFormat,
   waterfallState,
-} from "../../es/src/charts/Waterfall/state.js";
-import {formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
+} from "../../src/charts/Waterfall/state.ts";
+import {formatPlotData} from "../../src/charts/Plot/pipeline.ts";
+
+useJsdom();
 
 /**
     Waterfall's per-instance state and pre-draw, driven directly without a

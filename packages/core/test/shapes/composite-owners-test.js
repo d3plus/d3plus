@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Box, Whisker} from "../../es/index.js";
-import {handlerDatum, shapeClassTargets} from "../../es/src/charts/viz/shapeClassTargets.js";
-import {stampOwners} from "../../es/src/shapes/shapeOwners.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Box, Whisker} from "../../index.ts";
+import {handlerDatum, shapeClassTargets} from "../../src/charts/viz/shapeClassTargets.ts";
+import {stampOwners} from "../../src/shapes/shapeOwners.ts";
+
+useJsdom();
 
 /**
     Composite shapes (Box, Whisker) draw through inner shapes, so each part's

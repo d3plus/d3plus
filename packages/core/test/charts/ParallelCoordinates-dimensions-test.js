@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   autoLineOpacity,
@@ -9,7 +10,7 @@ import {
   isNumeric,
   resolveDimensions,
   sharedDomains,
-} from "../../es/src/charts/ParallelCoordinates/dimensions.js";
+} from "../../src/charts/ParallelCoordinates/dimensions.ts";
 
 const rows = [
   {id: 1, name: "A", origin: "USA", mpg: 18, weight: 3500, _hidden: 1},

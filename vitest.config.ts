@@ -35,6 +35,12 @@ export default defineConfig({
         plugins: [react()],
         test: {name: "react", include: ["packages/react/test/**/*-test.mjs"]},
       },
+      node("core", {
+        exclude: ["**/*.browser-test.js"],
+        setupFiles: [canvasSetup],
+        testTimeout: 60000,
+        hookTimeout: 60000,
+      }),
       {
         extends: true,
         test: {name: "docs-scripts", include: ["scripts/docs/test/**/*-test.js"]},

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {defaultSize, outside} from "../../es/src/charts/Plot/labelPlacement.js";
+import {defaultSize, outside} from "../../src/charts/Plot/labelPlacement.ts";
 
 it("charts/labelPlacement defaultSize routes the accessor value through the size scale", () => {
   const ctx = {_sizeScaleD3: v => (v == null ? 7 : v * 2), _size: d => d.s};

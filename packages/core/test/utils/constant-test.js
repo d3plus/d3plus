@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as constant} from "../../es/src/utils/constant.js";
+import {default as constant} from "../../src/utils/constant.ts";
 
 it("constant", () => {
   assert.strictEqual(constant(42)(), 42, "Number");

@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
-import accessor from "../../es/src/utils/accessor.js";
-import {resolveStackOrder, stackOffsetDiverging} from "../../es/src/charts/Plot/stackHelpers.js";
+import {useJsdom} from "~test/jsdom.js";
+import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../src/charts/Plot/pipeline.ts";
+import accessor from "../../src/utils/accessor.ts";
+import {resolveStackOrder, stackOffsetDiverging} from "../../src/charts/Plot/stackHelpers.ts";
+
+useJsdom();
 
 // Drives Plot's real stacking pipeline (format → axis values → initial
 // domains) against a hand-rolled viz stub, so the ordering path is exercised

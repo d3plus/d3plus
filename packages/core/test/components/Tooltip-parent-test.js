@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Tooltip} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Tooltip} from "../../index.ts";
+
+useJsdom();
 
 /**
     v4 Tooltip.parent() gives each chart its own per-instance portal, mounted

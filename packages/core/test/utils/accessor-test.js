@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as accessor} from "../../es/src/utils/accessor.js";
+import {default as accessor} from "../../src/utils/accessor.ts";
 
 it("accessor", () => {
   const obj = {id: "test", null: null, zero: 0, false: false};

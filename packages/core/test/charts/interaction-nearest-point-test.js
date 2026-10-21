@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
+
+useJsdom();
 
 // #786: for a multi-point shape (Line/Area) every mouse event should report the
 // point nearest the cursor along the discrete axis — not the whole-series

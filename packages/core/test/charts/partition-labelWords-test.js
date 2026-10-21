@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   labelFitDefaults,
   labelMetrics,
@@ -7,7 +8,9 @@ import {
   measureLabel,
   partitionSplit,
   wrapLineCount,
-} from "../../es/src/charts/partition/labelWords.js";
+} from "../../src/charts/partition/labelWords.ts";
+
+useJsdom();
 
 it("partition labelWords: labelFitDefaults fills unset options", () => {
   assert.deepStrictEqual(labelFitDefaults(), {

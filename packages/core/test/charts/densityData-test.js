@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   densityAt,
@@ -5,7 +6,7 @@ import {
   densityStats,
   densityWidthScale,
   sortByMedian,
-} from "../../es/src/charts/helpers/densityData.js";
+} from "../../src/charts/helpers/densityData.ts";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) <= tol, `${msg}: ${actual} vs ${expected}`);

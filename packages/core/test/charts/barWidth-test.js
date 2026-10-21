@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   applyBarWidths,
@@ -13,8 +14,8 @@ import {
   seriesSlot,
   shareLabel,
   widthShareText,
-} from "../../es/src/charts/Plot/barWidth.js";
-import {plotAxisConfig} from "../../es/src/charts/Plot/baselineBreak.js";
+} from "../../src/charts/Plot/barWidth.ts";
+import {plotAxisConfig} from "../../src/charts/Plot/baselineBreak.ts";
 
 /** A formatted Plot row over `data`, plotted at `x`. */
 const row = (x, data) => ({x, data, id: `${data.g}_${x}`});

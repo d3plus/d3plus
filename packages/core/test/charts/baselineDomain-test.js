@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {baselineDomainAxis, hasUserDomain, userAxisDomain, userDomainBreaksBaseline} from "../../es/internal.js";
-import {AreaPlot, BarChart, Histogram, LinePlot, RESET} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {baselineDomainAxis, hasUserDomain, userAxisDomain, userDomainBreaksBaseline} from "../../internal.ts";
+import {AreaPlot, BarChart, Histogram, LinePlot, RESET} from "../../index.ts";
+
+useJsdom();
 
 /**
     A set `baseline` fills the open end of the value domain, like

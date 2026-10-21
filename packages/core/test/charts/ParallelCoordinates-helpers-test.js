@@ -1,16 +1,17 @@
+import {it} from "vitest";
 import assert from "assert";
-import {linePoints, parallelPath} from "../../es/src/charts/ParallelCoordinates/paths.js";
-import {applyLineStates, INACTIVE_SHARE} from "../../es/src/charts/ParallelCoordinates/lineStates.js";
-import {lineAriaLabel, resolveLineOpacity} from "../../es/src/charts/ParallelCoordinates/emit.js";
-import {dimensionTooltipRows, formatDimensionValue} from "../../es/src/charts/ParallelCoordinates/format.js";
-import {axisDomain, dimensionAxisConfig, dimensionTitleStyle} from "../../es/src/charts/ParallelCoordinates/axes.js";
+import {linePoints, parallelPath} from "../../src/charts/ParallelCoordinates/paths.ts";
+import {applyLineStates, INACTIVE_SHARE} from "../../src/charts/ParallelCoordinates/lineStates.ts";
+import {lineAriaLabel, resolveLineOpacity} from "../../src/charts/ParallelCoordinates/emit.ts";
+import {dimensionTooltipRows, formatDimensionValue} from "../../src/charts/ParallelCoordinates/format.ts";
+import {axisDomain, dimensionAxisConfig, dimensionTitleStyle} from "../../src/charts/ParallelCoordinates/axes.ts";
 import {
   brushTarget,
   parallelDimensionKeys,
   parallelOrient,
-} from "../../es/src/charts/ParallelCoordinates/applyLayout.js";
-import {stripLength, stripSelection} from "../../es/src/charts/ParallelCoordinates/brushDom.js";
-import {resolveBrushStyle} from "../../es/src/charts/ParallelCoordinates/index.js";
+} from "../../src/charts/ParallelCoordinates/applyLayout.ts";
+import {stripLength, stripSelection} from "../../src/charts/ParallelCoordinates/brushDom.ts";
+import {resolveBrushStyle} from "../../src/charts/ParallelCoordinates/index.ts";
 
 const axes = [
   {key: "a", offset: 0, position: v => 100 - v},

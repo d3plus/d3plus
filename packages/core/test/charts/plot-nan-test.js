@@ -1,13 +1,16 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, LinePlot, Plot} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, LinePlot, Plot} from "../../index.ts";
+import {runStages} from "../../internal.ts";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,
   computePlotScales,
   formatPlotData,
-} from "../../es/src/charts/Plot/pipeline.js";
+} from "../../src/charts/Plot/pipeline.ts";
+
+useJsdom();
 
 /**
     Regression coverage for d3plus/d3plus#776 — a `NaN` (or `null`, or the

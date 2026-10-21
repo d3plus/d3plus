@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   bandShades,
@@ -13,14 +14,14 @@ import {
   spanRect,
   ticksFit,
   trackPosition,
-} from "../../es/src/charts/Bullet/bulletGeometry.js";
+} from "../../src/charts/Bullet/bulletGeometry.ts";
 import {
   axisDepth,
   bulletStack,
   TICK_GAP,
   TICK_LENGTH,
-} from "../../es/src/charts/Bullet/bulletLayout.js";
-import {shadeBands} from "../../es/src/charts/Bullet/bulletStyle.js";
+} from "../../src/charts/Bullet/bulletLayout.ts";
+import {shadeBands} from "../../src/charts/Bullet/bulletStyle.ts";
 
 const close = (a, b, msg, eps = 1e-9) =>
   assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);

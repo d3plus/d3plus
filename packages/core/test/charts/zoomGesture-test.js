@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BRUSH_GROUPS, startsOnBrush} from "../../es/src/charts/drawSteps/zoomGesture.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BRUSH_GROUPS, startsOnBrush} from "../../src/charts/drawSteps/zoomGesture.ts";
+
+useJsdom();
 
 const SVG = "http://www.w3.org/2000/svg";
 

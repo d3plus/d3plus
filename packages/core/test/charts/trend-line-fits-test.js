@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Plot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Plot} from "../../index.ts";
 import {
   computePlotTrendFits,
   computeTrendFits,
@@ -10,7 +11,9 @@ import {
   trendLineDefaults,
   trendNumberScale,
   trendSamplePositions,
-} from "../../es/src/charts/Plot/trendLines.js";
+} from "../../src/charts/Plot/trendLines.ts";
+
+useJsdom();
 
 /** A minimal viz for the fit stage: two series, one per `id`. */
 function fakeViz(overrides = {}) {

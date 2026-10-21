@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {controlButtonStyles, escapeHtml} from "../../es/src/charts/drawSteps/controlButtonStyle.js";
+import {controlButtonStyles, escapeHtml} from "../../src/charts/drawSteps/controlButtonStyle.ts";
 
 const defaults = {base: {color: "black"}, active: {color: "blue"}, hover: {color: "gray"}};
 

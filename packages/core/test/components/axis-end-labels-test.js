@@ -1,13 +1,16 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Axis} from "../../es/index.js";
+import {Axis} from "../../index.ts";
 import {scaleLinear} from "d3-scale";
 import {
   END_LABEL_MIN_SPACING,
   END_LABEL_MIN_TICKS,
   addDomainEnds,
   crowdsEndLabel,
-} from "../../es/src/components/Axis/axisEndLabels.js";
-import it from "../jsdom.js";
+} from "../../src/components/Axis/axisEndLabels.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 const identity = d => d;
 const year = d => (d instanceof Date ? d.getFullYear() : d);

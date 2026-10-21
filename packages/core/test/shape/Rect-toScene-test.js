@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {SvgRenderer} from "@d3plus/render";
-import {Rect} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Rect} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 it("Shape/Rect toScene → SvgRenderer", () => {
   const rect = new Rect()

@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import * as core from "../../es/index.js";
-import {isFluentAccessor} from "../../es/src/fluent.js";
+import {useJsdom} from "~test/jsdom.js";
+import * as core from "../../index.ts";
+import {isFluentAccessor} from "../../src/fluent.ts";
+
+useJsdom();
 
 /**
     A chart def's field whose key matches a hand-written method on a base class

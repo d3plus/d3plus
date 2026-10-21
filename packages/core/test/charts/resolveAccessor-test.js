@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {resolveAccessor} from "../../es/src/charts/features/emitHelpers.js";
+import {resolveAccessor} from "../../src/charts/features/emitHelpers.ts";
 
 it("resolveAccessor calls a function value with the datum and index", () => {
   const seen = [];

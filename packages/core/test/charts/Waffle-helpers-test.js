@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Waffle} from "../../es/index.js";
-import {applyWaffleLayout, waffleFillOptions} from "../../es/src/charts/Waffle/applyLayout.js";
-import {waffleCellGeometryNode, waffleCellShape, waffleEmit} from "../../es/src/charts/Waffle/emit.js";
-import {formatShare, waffleShare, waffleTooltipRows} from "../../es/src/charts/Waffle/tooltip.js";
-import {waffleDef} from "../../es/src/charts/Waffle/index.js";
-import {SHARE_KEY} from "../../es/src/charts/features/shareKey.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Waffle} from "../../index.ts";
+import {applyWaffleLayout, waffleFillOptions} from "../../src/charts/Waffle/applyLayout.ts";
+import {waffleCellGeometryNode, waffleCellShape, waffleEmit} from "../../src/charts/Waffle/emit.ts";
+import {formatShare, waffleShare, waffleTooltipRows} from "../../src/charts/Waffle/tooltip.ts";
+import {waffleDef} from "../../src/charts/Waffle/index.ts";
+import {SHARE_KEY} from "../../src/charts/features/shareKey.ts";
+
+useJsdom();
 
 const rows = () => [
   {id: "alpha", value: 20},

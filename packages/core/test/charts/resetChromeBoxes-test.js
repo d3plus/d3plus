@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {CHROME_SELECTORS, resetChromeBoxes} from "../../es/src/charts/viz/resetChromeBoxes.js";
+import {useJsdom} from "~test/jsdom.js";
+import {CHROME_SELECTORS, resetChromeBoxes} from "../../src/charts/viz/resetChromeBoxes.ts";
+
+useJsdom();
 
 /**
     `resetChromeBoxes(viz)` registers the chart chrome's wrapper selectors

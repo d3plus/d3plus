@@ -1,12 +1,13 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   categoryStep,
   violinEdges,
   violinOutline,
   violinSlots,
-} from "../../es/src/charts/Violin/violinLayout.js";
-import {innerSet} from "../../es/src/charts/Violin/inner.js";
-import {ridgelinePadding, ridgeOverlap} from "../../es/src/charts/Ridgeline/emit.js";
+} from "../../src/charts/Violin/violinLayout.ts";
+import {innerSet} from "../../src/charts/Violin/inner.ts";
+import {ridgelinePadding, ridgeOverlap} from "../../src/charts/Ridgeline/emit.ts";
 
 it("categoryStep: matches a d3 point scale's step", () => {
   assert.strictEqual(categoryStep(600, 3, 0.5), 200);

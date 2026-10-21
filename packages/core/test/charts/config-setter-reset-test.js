@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import * as core from "../../es/index.js";
-import {RESOLVES_RESET} from "../../es/src/fluent.js";
+import {useJsdom} from "~test/jsdom.js";
+import * as core from "../../index.ts";
+import {RESOLVES_RESET} from "../../src/fluent.ts";
+
+useJsdom();
 
 const {
   Axis,

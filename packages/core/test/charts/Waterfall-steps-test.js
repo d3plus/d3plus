@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   compareCategories,
@@ -8,7 +9,7 @@ import {
   waterfallStackOffset,
   waterfallStep,
   waterfallSteps,
-} from "../../es/src/charts/Waterfall/steps.js";
+} from "../../src/charts/Waterfall/steps.ts";
 
 /**
     Waterfall's running-total math: steps, kinds, the subtotal value, and the

@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   icicleBands,
   icicleCollapse,
   icicleExtent,
   icicleRect,
-} from "../../es/src/charts/Icicle/geometry.js";
+} from "../../src/charts/Icicle/geometry.ts";
 
 const horizontal = {width: 400, height: 300, orient: "horizontal"};
 const vertical = {width: 400, height: 300, orient: "vertical"};

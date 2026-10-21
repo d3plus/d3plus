@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applyInteractionOpacity} from "../../es/src/charts/viz/interactionOpacity.js";
+import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
 
 // On hover, matched marks get a darker/thicker "emphasis" stroke. A Line's
 // invisible hit-area path must NOT gain a visible stroke — darkening

@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   partitionFocus,
@@ -5,7 +6,7 @@ import {
   partitionRenderBase,
   partitionReturning,
   partitionZoomOutFocus,
-} from "../../es/src/charts/partition/zoom.js";
+} from "../../src/charts/partition/zoom.ts";
 
 const key = k => d => d[k];
 

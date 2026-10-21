@@ -1,13 +1,16 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Axis, AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../es/index.js";
+import {Axis, AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
 import {
   axisBarNodes,
   baselineBreakStyle,
   breakTickValues,
   brokenBarScene,
   resolveBaselineBreak,
-} from "../../es/internal.js";
-import it from "../jsdom.js";
+} from "../../internal.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     Baseline axis breaks (#645): an axis whose domain stops short of its

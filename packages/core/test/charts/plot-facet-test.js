@@ -1,4 +1,4 @@
-/* global describe */
+import {describe, it} from "vitest";
 import assert from "assert";
 import {scaleLinear, scalePoint} from "d3-scale";
 import {
@@ -10,7 +10,7 @@ import {
   plotFacetInsets,
   plotFacetPanel,
   unionExtent,
-} from "../../es/internal.js";
+} from "../../internal.ts";
 
 /**
     Plot's small-multiple hooks: which axes share a value list vs an extent,

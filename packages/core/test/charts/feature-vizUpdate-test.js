@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart} from "../../es/index.js";
-import {runLayout} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart} from "../../index.ts";
+import {runLayout} from "../../internal.ts";
+
+useJsdom();
 
 /**
     `FeatureLayout.vizUpdate` — the v4 cross-feature write mechanism. A

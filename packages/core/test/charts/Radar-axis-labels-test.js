@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   RADAR_LABEL_PADDING,
   radarAxisLabelLayout,
   radarFitRadius,
   radarLabelRoom,
-} from "../../es/src/charts/Radar/axisLabels.js";
+} from "../../src/charts/Radar/axisLabels.ts";
 
 const close = (a, b, msg, eps = 1e-6) => assert.ok(Math.abs(a - b) < eps, `${msg}: ${a} ≉ ${b}`);
 const DEG = Math.PI / 180;

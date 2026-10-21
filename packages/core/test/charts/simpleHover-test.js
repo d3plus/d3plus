@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {simpleHover} from "../../es/src/charts/viz/simpleHover.js";
+import {simpleHover} from "../../src/charts/viz/simpleHover.ts";
 
 function fakeViz({legend = true, renderer = true} = {}) {
   const log = {legend: [], repaints: 0};

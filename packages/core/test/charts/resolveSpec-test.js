@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart} from "../../es/index.js";
-import {resolveSpec} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart} from "../../index.ts";
+import {resolveSpec} from "../../internal.ts";
+
+useJsdom();
 
 /**
     `resolveSpec(viz)` is the config/context boundary — snapshots

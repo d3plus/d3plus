@@ -1,8 +1,9 @@
 /* global console */
+import {it} from "vitest";
 import assert from "assert";
-import {BarChart, LinePlot, Plot, RESET} from "../../es/index.js";
-import {resolveConfidence, validateConfidenceConfig} from "../../es/src/charts/Plot/confidenceConfig.js";
-import validateShapeConfig from "../../es/src/shapes/validateShapeConfig.js";
+import {BarChart, LinePlot, Plot, RESET} from "../../index.ts";
+import {resolveConfidence, validateConfidenceConfig} from "../../src/charts/Plot/confidenceConfig.ts";
+import validateShapeConfig from "../../src/shapes/validateShapeConfig.ts";
 
 // #781: `confidenceConfig` warns about keys neither the band nor the error bar takes.
 

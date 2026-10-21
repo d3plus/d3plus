@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {AxisBottom} from "../../es/index.js";
-import {labelSets} from "../../es/src/components/Axis/axisLayoutScale.js";
-import it from "../jsdom.js";
+import {AxisBottom} from "../../index.ts";
+import {labelSets} from "../../src/components/Axis/axisLayoutScale.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     An axis given a list of label lists (from the most labels to the fewest)

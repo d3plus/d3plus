@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Dumbbell} from "../../es/index.js";
-import {connectorStroke, dumbbellDef} from "../../es/internal.js";
-import {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "../../es/src/charts/Dumbbell/emit.js";
-import {categoryGaps, gapComparator, syncGapSort} from "../../es/src/charts/Dumbbell/gapSort.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Dumbbell} from "../../index.ts";
+import {connectorStroke, dumbbellDef} from "../../internal.ts";
+import {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "../../src/charts/Dumbbell/emit.ts";
+import {categoryGaps, gapComparator, syncGapSort} from "../../src/charts/Dumbbell/gapSort.ts";
+
+useJsdom();
 
 const rows = [
   {c: "A", s: "2010", v: 10},

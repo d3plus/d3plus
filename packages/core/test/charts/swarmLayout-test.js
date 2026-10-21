@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   closestFreeOffset,
@@ -5,7 +6,7 @@ import {
   swarmExtent,
   swarmFitScale,
   swarmLayout,
-} from "../../es/src/charts/Plot/swarmLayout.js";
+} from "../../src/charts/Plot/swarmLayout.ts";
 
 /** Deterministic pseudo-random values with a bell-ish distribution. */
 function sample(n, seed = 11, spread = 200) {

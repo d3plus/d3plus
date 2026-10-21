@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear} from "d3-scale";
 import {colorDefaults} from "@d3plus/color";
@@ -10,8 +11,8 @@ import {
   labelBox,
   stepLabel,
   tooltipRows,
-} from "../../es/src/charts/Waterfall/labels.js";
-import {labelHeadroom, waterfallBuffer} from "../../es/src/charts/Waterfall/buffer.js";
+} from "../../src/charts/Waterfall/labels.ts";
+import {labelHeadroom, waterfallBuffer} from "../../src/charts/Waterfall/buffer.ts";
 
 /**
     Waterfall labels, colors, tooltip rows, and the value-axis room the labels

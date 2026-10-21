@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   brushFromPixels,
@@ -6,7 +7,7 @@ import {
   pixelsFromBrush,
   rowPasses,
   valuePasses,
-} from "../../es/src/charts/ParallelCoordinates/brushFilter.js";
+} from "../../src/charts/ParallelCoordinates/brushFilter.ts";
 
 // A numeric axis from 0 (y = 200) up to 100 (y = 0), like a vertical axis.
 const numeric = {

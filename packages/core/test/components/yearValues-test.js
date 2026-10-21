@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Axis, ColorScale, LinePlot, Plot} from "../../es/index.js";
-import {axisIsYearLike, formatYear, isYearLike} from "../../es/src/components/Axis/yearValues.js";
-import {axisValue} from "../../es/src/charts/Plot/sharedTooltip.js";
-import it from "../jsdom.js";
+import {Axis, ColorScale, LinePlot, Plot} from "../../index.ts";
+import {axisIsYearLike, formatYear, isYearLike} from "../../src/components/Axis/yearValues.ts";
+import {axisValue} from "../../src/charts/Plot/sharedTooltip.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /** The labels an axis draws for its visible ticks with its default formatter. */
 const tickLabels = axis => axis._visibleTicks.map(axis._labelFormat);

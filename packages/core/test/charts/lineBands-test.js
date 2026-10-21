@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
-import {emitLineBands} from "../../es/src/charts/Plot/lineBands.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
+import {emitLineBands} from "../../src/charts/Plot/lineBands.ts";
+
+useJsdom();
 
 // #212: a line's `confidence` bands, one Area per band, outermost first.
 

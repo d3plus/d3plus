@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Box} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Box} from "../../index.ts";
+
+useJsdom();
 
 /**
     Box compute-mode: when rendered with `renderMode("compute")`, the

@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {select} from "d3-selection";
-import it from "../jsdom.js";
-import {backgroundInk, chartBackground} from "../../es/src/charts/viz/backgroundInk.js";
+import {useJsdom} from "~test/jsdom.js";
+import {backgroundInk, chartBackground} from "../../src/charts/viz/backgroundInk.ts";
+
+useJsdom();
 
 it("chartBackground reads the color behind the chart's container", () => {
   const host = document.body.appendChild(document.createElement("div"));

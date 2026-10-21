@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as getProp} from "../../es/src/utils/getProp.js";
+import {default as getProp} from "../../src/utils/getProp.ts";
 
 it("getProp", () => {
   const ctx = {

@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
-import {labelMisses, rotatesLabels} from "../../es/src/components/Axis/axisLayout.js";
-import {isDiscreteScale, thinEvenly} from "../../es/src/components/Axis/axisLayoutLabels.js";
-import {buildTickFormat} from "../../es/src/components/Axis/axisLayoutScale.js";
+import {labelMisses, rotatesLabels} from "../../src/components/Axis/axisLayout.ts";
+import {isDiscreteScale, thinEvenly} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 
 /** A measured horizontal label `width` wide, centered at `position`. */
 const label = (i, position, width) =>

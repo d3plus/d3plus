@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 // The package entry loads first so the shape modules resolve in their usual order.
-import "../../es/index.js";
-import {boxRectConfig} from "../../es/src/shapes/Box.js";
-import it from "../jsdom.js";
+import "../../index.ts";
+import {boxRectConfig} from "../../src/shapes/Box.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 const box = {data: {id: "alpha", value: 300}, i: 4, key: "alpha", values: []};
 

@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {SvgRenderer} from "@d3plus/render";
-import {Area, Circle, Line, Path, Rect} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Area, Circle, Line, Path, Rect} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 function render(scene) {
   const renderer = new SvgRenderer();

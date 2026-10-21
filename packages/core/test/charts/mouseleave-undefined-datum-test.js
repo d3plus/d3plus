@@ -1,6 +1,7 @@
 /* global globalThis */
+import {it} from "vitest";
 import assert from "assert";
-import mouseleave from "../../es/src/charts/events/mouseleave.js";
+import mouseleave from "../../src/charts/events/mouseleave.ts";
 
 /**
     Leaving a scene node that carries no datum (a plot background, an inset

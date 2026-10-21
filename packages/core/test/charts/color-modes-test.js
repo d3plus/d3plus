@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {applyInteractionOpacity} from "../../es/src/charts/viz/interactionOpacity.js";
-import {configureOrdinalColor} from "../../es/src/charts/viz/ordinalColor.js";
+import {applyInteractionOpacity} from "../../src/charts/viz/interactionOpacity.ts";
+import {configureOrdinalColor} from "../../src/charts/viz/ordinalColor.ts";
 
 /** Rough perceived brightness of a #rrggbb string (0–765), for ordering. */
 const brightness = hex => {

@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {buildLegendData} from "../../es/src/charts/features/featuresLegend.js";
+import {buildLegendData} from "../../src/charts/features/featuresLegend.ts";
 
 /**
     Regression guard for #788 ("Legend gets scrambled if we run out of colors").

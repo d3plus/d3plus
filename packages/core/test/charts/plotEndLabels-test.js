@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   allotEndLabelWidths,
@@ -6,7 +7,7 @@ import {
   endLabelSpace,
   labelsXEnds,
   layoutEndLabels,
-} from "../../es/src/charts/features/plotEndLabels.js";
+} from "../../src/charts/features/plotEndLabels.ts";
 
 /**
     The pure helpers behind a short Plot's x-axis end labels. The browser-side

@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   INTERNAL_KEY_PREFIX, SHARE_KEY, isInternalKey, shareOf, stampShare, summedShare,
-} from "../../es/src/charts/features/shareKey.js";
+} from "../../src/charts/features/shareKey.ts";
+
+useJsdom();
 
 it("shareKey — SHARE_KEY is an internal key", () => {
   assert.strictEqual(SHARE_KEY, "__d3plusShare");

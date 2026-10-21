@@ -1,9 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   centerChartTransform,
   chartBounds,
   marginOriginTransform,
-} from "../../es/src/charts/features/chartGeometry.js";
+} from "../../src/charts/features/chartGeometry.ts";
 
 // A plain stand-in for a Viz: the helpers only read schema.width/height and
 // the four margins, so no real instance is needed.

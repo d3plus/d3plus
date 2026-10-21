@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Legend} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Legend} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
 
-it("Legend", function* () {
-  yield cb => {
+useJsdom();
+
+it("Legend", async () => {
+  await new Promise(cb => {
     new Legend().render(cb);
-  };
+  });
 
   assert.strictEqual(
     document.getElementsByTagName("svg").length,

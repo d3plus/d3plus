@@ -1,4 +1,4 @@
-/* global describe */
+import {describe, it} from "vitest";
 import assert from "assert";
 import {
   alignInsets,
@@ -39,7 +39,7 @@ import {
   toFacetValue,
   withFacetPanel,
   clearPanelSlots,
-} from "../../es/internal.js";
+} from "../../internal.ts";
 
 /**
     The pure helpers behind small multiples (`facet` / `facetConfig`): config

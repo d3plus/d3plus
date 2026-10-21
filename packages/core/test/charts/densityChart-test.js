@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   DENSITY,
@@ -7,9 +8,9 @@ import {
   installDensity,
   summarizeBeforePreDraw,
   unwrapRow,
-} from "../../es/src/charts/helpers/densityChart.js";
-import {violinDef} from "../../es/src/charts/Violin/index.js";
-import {ridgelineDef} from "../../es/src/charts/Ridgeline/index.js";
+} from "../../src/charts/helpers/densityChart.ts";
+import {violinDef} from "../../src/charts/Violin/index.ts";
+import {ridgelineDef} from "../../src/charts/Ridgeline/index.ts";
 
 /** The default `value` accessor from a density chart's fields. */
 const field = (def, key) => def.fields.find(f => f.key === key);

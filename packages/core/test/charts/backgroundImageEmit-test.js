@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {backgroundImageNode, backgroundImageNodes} from "../../es/src/charts/features/backgroundImageEmit.js";
-import {shapeConfigFor} from "../../es/src/charts/features/emitHelpers.js";
-import it from "../jsdom.js";
+import {backgroundImageNode, backgroundImageNodes} from "../../src/charts/features/backgroundImageEmit.ts";
+import {shapeConfigFor} from "../../src/charts/features/emitHelpers.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 const URL = "data:image/svg+xml,%3Csvg/%3E";
 const rect = {type: "rect", key: "r", x: 10, y: 20, width: 100, height: 50, datum: {id: "a"}, index: 3, paint: {fill: "red"}};

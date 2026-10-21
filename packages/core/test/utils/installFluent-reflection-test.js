@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Pie, Treemap} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Pie, Treemap} from "../../index.ts";
+
+useJsdom();
 
 // BaseClass.config() reflects over prototype methods.
 // installFluent installs methods on the INSTANCE (not the prototype). This

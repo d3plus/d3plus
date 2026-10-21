@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Donut, Matrix, Pack, Pie, Treemap} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Donut, Matrix, Pack, Pie, Treemap} from "../../index.ts";
+
+useJsdom();
 
 // Charts that declare `legend`/`shape`/`label` in their def `fields` get a
 // generated fluent accessor that shadows the hand-written VizBaseConfig setter.
