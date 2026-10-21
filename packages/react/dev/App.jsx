@@ -1,16 +1,10 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import {D3plusContext} from "../index.tsx";
-import "@mantine/core/styles.css";
-import {createTheme, MantineProvider} from "@mantine/core";
 import Treemap from "./Treemap.jsx";
 import TextBox from "./TextBox.jsx";
 import Icon from "./Icon.jsx";
 import Logo from "./Logo.jsx";
-
-export const theme = createTheme({
-  /* Put your mantine theme override here */
-});
 
 const globalConfig = {};
 
@@ -26,19 +20,17 @@ const boxStyle = {
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <D3plusContext.Provider value={globalConfig}>
-    <MantineProvider theme={theme}>
-      {/* <div style={boxStyle}>
-        <Logo />
-      </div>
-      <div style={boxStyle}>
-        <Icon />
-      </div> */}
-      <div style={boxStyle}>
-        <TextBox />
-      </div>
-      <div style={boxStyle}>
-        <Treemap />
-      </div>
-    </MantineProvider>
+    {/* <div style={boxStyle}>
+      <Logo />
+    </div>
+    <div style={boxStyle}>
+      <Icon />
+    </div> */}
+    <div style={boxStyle}>
+      <TextBox />
+    </div>
+    <div style={boxStyle}>
+      <Treemap />
+    </div>
   </D3plusContext.Provider>,
 );

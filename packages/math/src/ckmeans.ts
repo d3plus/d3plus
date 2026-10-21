@@ -1,3 +1,6 @@
+// Adapted from simple-statistics' ckmeans, (c) 2014 Tom MacWright, ISC License
+// (https://github.com/simple-statistics/simple-statistics/blob/main/LICENSE).
+
 /**
     Sort an array of numbers by their numeric value, ensuring that the array is not changed in place.
 

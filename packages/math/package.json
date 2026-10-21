@@ -11,13 +11,14 @@
       "default": "./es/index.js"
     }
   },
-  "browser": "./umd/d3plus-math.full.js",
+  "jsdelivr": "./umd/d3plus-math.full.min.js",
+  "unpkg": "./umd/d3plus-math.full.min.js",
   "engines": {
     "node": ">=22"
   },
   "sideEffects": false,
   "files": [
-    "umd",
+    "umd/*.js",
     "es",
     "types"
   ],

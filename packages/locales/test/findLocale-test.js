@@ -12,7 +12,11 @@ it("findLocale", () => {
   assert.strictEqual(findLocale("fr"), "fr-FR", "ISO lookup with matching tag");
   assert.strictEqual(findLocale("de"), "de-DE", "ISO lookup with matching tag de");
 
+  assert.strictEqual(findLocale("af"), "af-NA", "first listed region when none matches the code");
+  assert.strictEqual(findLocale("ce"), "ce-RU", "Chechen");
+
   assert.strictEqual(findLocale("xx"), "xx", "unknown code returned as-is");
+  assert.strictEqual(findLocale("constructor"), "constructor", "object keys are not codes");
 
   assert.strictEqual(typeof findLocale(42), "number", "non-string returned as-is");
 });

@@ -26,6 +26,8 @@ it("unique", () => {
   );
   assert.strictEqual(dateAccessor.length, 2, "Date accessor deduplication");
 
+  assert.deepStrictEqual(unique([NaN, 1, NaN]), [NaN, 1], "NaN is kept once");
+
   assert.strictEqual(unique([]).length, 0, "Empty array");
   assert.strictEqual(unique([42]).length, 1, "Single element");
 });

@@ -42,9 +42,15 @@ export function isSharedConfig(config: unknown): boolean {
     @private
 */
 export function warnUnknownConfig(owner: string, key: string): void {
-  if (!enabled) return;
-  const message = `${owner} received unknown property "${key}".`;
-  if (warned.has(message)) return;
+  warnConfig(`${owner} received unknown property "${key}".`);
+}
+
+/**
+    Logs a config warning once, unless `configWarnings(false)` turned them off.
+    @private
+*/
+export function warnConfig(message: string): void {
+  if (!enabled || warned.has(message)) return;
   warned.add(message);
   console.warn(message);
 }

@@ -1,7 +1,7 @@
 import assert from "assert";
 import {JSDOM} from "jsdom";
 import saveElement from "../es/src/saveElement.js";
-import {saved} from "./fakes/file-saver.js";
+import {saved} from "./fakes/saveBlob.js";
 import {calls, results} from "./fakes/html-to-image.js";
 
 const dom = new JSDOM(
@@ -16,12 +16,10 @@ const svg = document.getElementById("chart");
 
 before(() => {
   global.XMLSerializer = dom.window.XMLSerializer;
-  global.XMLHttpRequest = dom.window.XMLHttpRequest;
 });
 
 after(() => {
   delete global.XMLSerializer;
-  delete global.XMLHttpRequest;
 });
 
 function reset() {
@@ -37,15 +35,6 @@ function save(elem, options = {}, renderOptions) {
   return new Promise(resolve =>
     saveElement(elem, {...options, callback: resolve}, renderOptions),
   );
-}
-
-/** Reads a jsdom Blob (which lacks `.text()`) as a string. */
-function readBlob(blob) {
-  return new Promise(resolve => {
-    const reader = new dom.window.FileReader();
-    reader.onload = () => resolve(reader.result);
-    reader.readAsText(blob);
-  });
 }
 
 it("saveElement serializes an <svg> target directly for type svg", async () => {
@@ -73,7 +62,7 @@ it("saveElement routes an HTML container through toSvg for type svg", async () =
   assert.strictEqual(calls[0].options.backgroundColor, "white", "renderOptions are resolved");
   assert.strictEqual(saved.length, 1);
   assert.strictEqual(saved[0].name, "download.svg");
-  assert.strictEqual(await readBlob(saved[0].blob), markup, "the data URL is fetched into a Blob");
+  assert.strictEqual(await saved[0].blob.text(), markup, "the data URL is fetched into a Blob");
 });
 
 it("saveElement routes png through toBlob", async () => {
@@ -135,18 +124,14 @@ it("saveElement wraps a non-Error rejection from toSvg", async () => {
 it("saveElement passes an error to the callback when the SVG data URL can't be read", async () => {
   reset();
   results.toSvg = "data:image/svg+xml;charset=utf-8,";
-  global.XMLHttpRequest = class {
-    open() {}
-    send() {
-      setTimeout(() => this.onerror(new dom.window.ProgressEvent("error")));
-    }
-  };
+  const {fetch} = global;
+  global.fetch = () => Promise.reject(new TypeError("fetch failed"));
   try {
     const error = await save(container, {type: "svg"});
     assert.ok(error instanceof Error);
     assert.strictEqual(saved.length, 0);
   } finally {
-    global.XMLHttpRequest = dom.window.XMLHttpRequest;
+    global.fetch = fetch;
   }
 });
 

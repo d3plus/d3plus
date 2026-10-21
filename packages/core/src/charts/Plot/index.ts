@@ -1,12 +1,10 @@
 /* eslint no-cond-assign: 0*/
 
-// @ts-ignore
-import pkg from "open-color/open-color.js";
 import {zoomTransform} from "d3-zoom";
-const {theme: openColor} = pkg;
 
 import {
   colorAssign,
+  colorGray,
 } from "@d3plus/color";
 import {assign} from "@d3plus/dom";
 
@@ -137,7 +135,7 @@ export default class Plot extends Viz {
       fillOpacity: constant(0.5),
     };
     this._crosshairConfig = {
-      stroke: openColor.colors.gray[500],
+      stroke: colorGray[500],
       strokeDasharray: "4 3",
       strokeWidth: 1,
     };

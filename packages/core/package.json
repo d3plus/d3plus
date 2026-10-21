@@ -15,13 +15,14 @@
       "default": "./es/internal.js"
     }
   },
-  "browser": "./umd/d3plus-core.full.js",
+  "jsdelivr": "./umd/d3plus-core.full.min.js",
+  "unpkg": "./umd/d3plus-core.full.min.js",
   "engines": {
     "node": ">=22"
   },
   "sideEffects": false,
   "files": [
-    "umd",
+    "umd/*.js",
     "es",
     "types"
   ],
@@ -68,9 +69,7 @@
     "d3-geo-projection": "^4.0.0",
     "d3-hierarchy": "^3.1.2",
     "d3-interpolate": "^3.0.1",
-    "d3-interpolate-path": "^2.3.0",
     "d3-polygon": "^3.0.1",
-    "d3-sankey": "^0.12.3",
     "d3-scale": "^4.0.2",
     "d3-selection": "^3.0.0",
     "d3-shape": "^3.2.0",
@@ -79,8 +78,6 @@
     "d3-time-format": "^4.1.0",
     "d3-transition": "^3.0.1",
     "d3-zoom": "^3.0.0",
-    "open-color": "^1.9.1",
-    "textures": "^1.2.3",
     "topojson-client": "^3.1.0"
   },
   "devDependencies": {

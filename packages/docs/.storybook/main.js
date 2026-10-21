@@ -78,12 +78,6 @@ export default {
         // in the Node built-ins `net`/`tls`/`child_process`/`fs`).
         jsdom: false,
         "@napi-rs/canvas": false,
-        // `@d3plus/ssr`'s geomap-tile SSRF guard statically imports `undici`
-        // (unlike jsdom/canvas, not behind a lazy `import()`). Stub it the
-        // same way — it pulls in a long tail of `node:*` builtins (zlib,
-        // http2, sqlite, …) that webpack's "unhandled scheme" resolver
-        // otherwise rejects outright.
-        undici: false,
       };
 
       // Belt-and-suspenders for any Node core module reached before the aliases
@@ -95,6 +89,8 @@ export default {
         child_process: false,
         fs: false,
         dns: false,
+        http: false,
+        https: false,
       };
 
       // webpack resolves a `node:`-scheme request (e.g. the geomap-tile SSRF

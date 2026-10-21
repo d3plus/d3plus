@@ -11,13 +11,14 @@
       "default": "./es/index.js"
     }
   },
-  "browser": "./umd/d3plus-color.full.js",
+  "jsdelivr": "./umd/d3plus-color.full.min.js",
+  "unpkg": "./umd/d3plus-color.full.min.js",
   "engines": {
     "node": ">=22"
   },
   "sideEffects": false,
   "files": [
-    "umd",
+    "umd/*.js",
     "es",
     "types"
   ],
@@ -45,7 +46,6 @@
   },
   "dependencies": {
     "d3-color": "^3.1.0",
-    "d3-scale": "^4.0.2",
-    "open-color": "^1.9.1"
+    "d3-scale": "^4.0.2"
   }
 }

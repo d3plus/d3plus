@@ -22,7 +22,7 @@ declare module "d3-timer" {
 declare module "jsdom";
 
 // @d3plus/ssr avoids a dependency on @types/node; these ambient declarations
-// cover just the Node builtins its SSRF-safe tile fetch dispatcher touches.
+// cover just the Node builtins its SSRF-safe tile fetch touches.
 declare module "node:net" {
   export class BlockList {
     addSubnet(net: string, prefix: number, type?: "ipv4" | "ipv6"): void;
@@ -47,6 +47,41 @@ declare module "node:dns" {
     options: LookupOptions,
     callback: (err: Error | null, address: LookupAddress[] | string, family?: number) => void,
   ): void;
+}
+
+declare module "node:http" {
+  export interface IncomingMessage {
+    statusCode?: number;
+    headers: Record<string, string | string[] | undefined>;
+    on(event: "data", listener: (chunk: Uint8Array) => void): this;
+    on(event: "end", listener: () => void): this;
+    on(event: "error", listener: (err: Error) => void): this;
+  }
+  export interface ClientRequest {
+    on(event: "error", listener: (err: Error) => void): this;
+    end(): void;
+  }
+  export interface RequestOptions {
+    headers?: Record<string, string>;
+    signal?: AbortSignal;
+    lookup?: (
+      hostname: string,
+      options: import("node:dns").LookupOptions,
+      callback: (err: Error | null, address: import("node:dns").LookupAddress[] | string, family?: number) => void,
+    ) => void;
+  }
+  export function request(
+    url: string,
+    options: RequestOptions,
+    callback: (res: IncomingMessage) => void,
+  ): ClientRequest;
+  const http: {request: typeof request};
+  export default http;
+}
+
+declare module "node:https" {
+  const https: {request: typeof import("node:http").request};
+  export default https;
 }
 
 declare module "textures" {

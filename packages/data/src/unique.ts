@@ -1,5 +1,6 @@
 /**
-    ES5 implementation to reduce an Array of values to unique instances.
+    Reduces an Array of values to unique instances, keeping the first of each.
+    Dates compare by time.
     @param arr The Array of objects to be filtered.
     @param accessor An optional accessor function used to extract data points from an Array of Objects.
     @example <caption>this</caption>
@@ -8,10 +9,12 @@ unique(["apple", "banana", "apple"]);
 ["apple", "banana"]
 */
 export default function <T>(arr: T[], accessor: (d: T) => unknown = d => d): T[] {
-  const values = arr.map(accessor).map(d => (d instanceof Date ? +d : d));
-
-  return arr.filter((obj, i) => {
+  const seen = new Set<unknown>();
+  return arr.filter(obj => {
     const d = accessor(obj);
-    return values.indexOf(d instanceof Date ? +d : d) === i;
+    const key = d instanceof Date ? +d : d;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
   });
 }

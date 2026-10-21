@@ -1,5 +1,4 @@
 import {csv, json, text, tsv} from "d3-fetch";
-import {isObject} from "@d3plus/dom";
 
 import type {DataPoint} from "./DataPoint.js";
 import fold from "./fold.js";
@@ -107,7 +106,13 @@ function applyFormatter(
 ): LoadedData {
   if (formatter) {
     const formatterResponse = formatter(pickInitial(loaded));
-    if (key === "data" && isObject(formatterResponse)) {
+    // An object (not an array of rows) carries data plus viz config.
+    if (
+      key === "data" &&
+      formatterResponse &&
+      typeof formatterResponse === "object" &&
+      !Array.isArray(formatterResponse)
+    ) {
       result = ((formatterResponse as Record<string, unknown>).data ||
         []) as DataPoint[];
       delete (formatterResponse as Record<string, unknown>).data;

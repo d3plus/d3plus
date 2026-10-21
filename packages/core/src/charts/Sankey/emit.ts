@@ -21,7 +21,7 @@ interface SankeyLink {
   source: SankeyNode;
   target: SankeyNode;
   value: number;
-  // Added by d3-sankey: link thickness + per-end y-centers.
+  // Added by the layout: link thickness + per-end y-centers.
   width?: number;
   y0?: number;
   y1?: number;

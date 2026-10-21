@@ -30,5 +30,13 @@ Live examples can be found on [d3plus.org](https://d3plus.org/), which includes 
 
 ## API Reference
 
+The full API reference is in [API.md](https://github.com/d3plus/d3plus/blob/main/packages/${packageName}/API.md).
+`;
+}
+
+/** The heading of a package's generated API.md. */
+export function apiHeader({name}) {
+  return `# ${name} API Reference
+
 `;
 }

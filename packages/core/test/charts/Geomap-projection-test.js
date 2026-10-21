@@ -4,6 +4,7 @@ import {geoEquirectangular, geoMercator} from "d3-geo";
 import it from "../jsdom.js";
 import {Geomap} from "../../es/index.js";
 import {applyGeomapLayout} from "../../es/src/charts/Geomap/applyLayout.js";
+import {projections} from "../../es/src/charts/Geomap/projections.js";
 
 // Three off-equator points (lon/lat). Distinct sizes keep the point-size
 // scale's domain non-degenerate.
@@ -98,7 +99,26 @@ it("Geomap.projection picks the named projection (equirectangular, not mercator)
   assert.notDeepStrictEqual(proj([10, 50]), geoMercator()([10, 50]), "differs from mercator off the equator");
 });
 
-it("Geomap.projection falls back to geoMercator for an unknown name", () => {
-  const proj = new Geomap().projection("notARealProjection").projection();
+it("Geomap.projection falls back to geoMercator for an unknown name, with a warning", () => {
+  const {warn} = console;
+  const warnings = [];
+  console.warn = msg => warnings.push(msg);
+  let proj;
+  try {
+    proj = new Geomap().projection("notARealProjection").projection();
+  } finally {
+    console.warn = warn;
+  }
   assert.deepStrictEqual(proj([10, 50]), geoMercator()([10, 50]), "unknown name falls back to geoMercator");
+  assert.strictEqual(warnings.length, 1);
+  assert.match(warnings[0], /unknown projection "notARealProjection"/);
+});
+
+it("Geomap.projection builds every named projection", () => {
+  for (const name of Object.keys(projections)) {
+    const proj = new Geomap().projection(name).projection();
+    const point = proj([-90, 40]);
+    assert.ok(point && point.every(Number.isFinite), `${name} projects a point`);
+  }
+  assert.ok("geoRobinson" in projections && "geoMiller" in projections);
 });

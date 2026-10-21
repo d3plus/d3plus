@@ -1,4 +1,7 @@
-import type {DataPoint} from "@d3plus/data";
+/** A data row carried on a scene node, for event handlers and hit-testing. */
+export interface DataPoint {
+  [key: string]: string | number | boolean | DataPoint;
+}
 
 /**
     @type CurveName

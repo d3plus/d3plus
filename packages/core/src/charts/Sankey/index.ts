@@ -1,9 +1,10 @@
 /**
-    Sankey — d3-sankey flow diagram.
+    Sankey — flow diagram.
 
     Implementation files in this folder:
-      - `applyLayout.ts` — node + link resolution + d3-sankey layout.
+      - `applyLayout.ts` — node + link resolution + Sankey layout.
       - `emit.ts` — link Paths + per-shape-type node Rects.
+      - `sankeyLayout.ts` — the layout (a port of d3-sankey).
 */
 import {
   sankey,
@@ -12,7 +13,7 @@ import {
   sankeyLeft,
   sankeyLinkHorizontal,
   sankeyRight,
-} from "d3-sankey";
+} from "./sankeyLayout.js";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";

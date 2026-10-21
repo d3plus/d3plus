@@ -1,12 +1,14 @@
 /**
     `applySankeyLayout` — Sankey's chart-specific layout stage. Resolves
-    nodes + links, runs d3-sankey, groups by shape, stashes `sankeyCtx` +
+    nodes + links, runs the Sankey layout, groups by shape, stashes `sankeyCtx` +
     `nodeLookup` + `linkLookup` on `viz.ctx`.
 */
 
 import {groups} from "d3-array";
 
 import type {DataPoint} from "@d3plus/data";
+
+import type {SankeyGenerator} from "./sankeyLayout.js";
 
 import {chartBounds} from "../features/chartGeometry.js";
 import type {TransformStage} from "../pipeline/stages.js";
@@ -30,19 +32,6 @@ interface SankeyResolvedLink {
   source: number;
   target: number;
   value: number;
-}
-/** The fluent d3-sankey instance stashed on `ctx.sankey`. */
-interface SankeyGenerator {
-  nodeAlign(a: unknown): SankeyGenerator;
-  nodePadding(p: number): SankeyGenerator;
-  nodeWidth(w: number): SankeyGenerator;
-  nodes(n: unknown[]): SankeyGenerator;
-  nodeSort(s: unknown): SankeyGenerator;
-  links(l: unknown[]): SankeyGenerator;
-  linkSort(s: unknown): SankeyGenerator;
-  iterations(n: number): SankeyGenerator;
-  size(s: [number, number]): SankeyGenerator;
-  (): void;
 }
 
 export const applySankeyLayout: TransformStage = ({viz}) => {

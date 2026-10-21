@@ -1,6 +1,6 @@
 import {color} from "d3-color";
 import {select} from "d3-selection";
-import {transition} from "d3-transition";
+import type {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";

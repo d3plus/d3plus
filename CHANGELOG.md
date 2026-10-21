@@ -2,6 +2,26 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **`colorGray`** (`@d3plus/color`): the gray scale d3plus uses for neutral ink, keyed 50–900.
+
+### Changed
+
+- **Smaller installs.** Published packages no longer include source maps, and each package's README links to its full API reference (`API.md` on GitHub) instead of embedding it. `@d3plus/core` drops from ~8.3 MB to ~2.8 MB gzipped. The CDN entry (`jsdelivr`/`unpkg`) now serves the minified `.full.min.js` bundle; the `browser` field is gone.
+- **Fewer dependencies.** `open-color` and `file-saver` are no longer dependencies, and `@d3plus/data`, `@d3plus/render`, and `@d3plus/text` drop dependencies they didn't use. `@d3plus/export` loads `html-to-image` only when saving an HTML element. `@d3plus/types` re-exports types only.
+- **`findLocale`** resolves from a 122-entry table instead of the full LCID and ISO 639 lists (~8,400 lines). Chechen (`ce`) now resolves to `ce-RU`.
+- **`unique`** keeps one `NaN` instead of dropping every `NaN`.
+- **`strip`** keeps the base letter of any accented letter (`Č` → `C`, `ğ` → `g`); it used to drop letters outside Latin-1. Its output for Latin-1 is unchanged.
+- **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape.
+- **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time.
+
+### Removed
+
+- **Geomap projection names outside the built-in set.** `projection` accepts the d3-geo projections plus `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson`, and `geoWinkel3` by name; pass any other projection as a function (e.g. `.projection(geoBertin1953())`). An unknown name warns and falls back to Mercator.
+
 ## 4.8.0
 
 4.8 is the biggest release of v4. It adds twenty chart types, bringing the total to 41, and small multiples: `facet` splits any chart into a grid of panels. Plot charts get axis breaks, error bars, forecast annotations, nested confidence bands, fills between series, and zoomable time axes. Axis labels rotate or thin evenly instead of disappearing, and date labels keep their year. Nested config objects now deep-merge, and charts read better on dark pages. Many of these change what existing charts look like; see the breaking changes.

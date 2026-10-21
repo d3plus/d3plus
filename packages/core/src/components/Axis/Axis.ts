@@ -1,6 +1,6 @@
 import {extent, min} from "d3-array";
 import {select} from "d3-selection";
-import {transition} from "d3-transition";
+import type {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import {backgroundColor, elem, rtl as detectRTL} from "@d3plus/dom";

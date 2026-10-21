@@ -1,5 +1,4 @@
-import {toBlob, toSvg} from "html-to-image";
-import {saveAs} from "file-saver";
+import saveBlob from "./saveBlob.js";
 
 export interface SaveElementOptions {
   /** Filename for the downloaded file, without the extension. */
@@ -90,7 +89,7 @@ export default function (
   }
 
   function finish(blob: Blob): void {
-    saveAs(blob, `${filename}.${type}`);
+    saveBlob(blob, `${filename}.${type}`);
     done();
   }
 
@@ -105,19 +104,19 @@ export default function (
 
   if (type === "svg" && isSvgTarget(elem)) {
     finish(serializeSvg(elem as SVGElement));
-  } else if (type === "svg") {
-    toSvg(elem as HTMLElement, renderOpts).then((dataUrl: string) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open("GET", dataUrl);
-      xhr.responseType = "blob";
-      xhr.onload = () => finish(xhr.response as Blob);
-      xhr.onerror = fail;
-      xhr.send();
-    }, fail);
-  } else {
-    toBlob(elem as HTMLElement, renderOpts).then(
-      (blob: Blob | null) => (blob ? finish(blob) : fail(blob)),
-      fail,
-    );
+    return;
   }
+
+  // html-to-image is only needed to rasterize (or wrap) an HTML element, so
+  // it loads on first use.
+  import("html-to-image").then(({toBlob, toSvg}) =>
+    type === "svg"
+      ? toSvg(elem as HTMLElement, renderOpts)
+          .then(dataUrl => fetch(dataUrl))
+          .then(response => response.blob())
+          .then(finish)
+      : toBlob(elem as HTMLElement, renderOpts).then(blob =>
+          blob ? finish(blob) : fail(blob),
+        ),
+  ).catch(fail);
 }

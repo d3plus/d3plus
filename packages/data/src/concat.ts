@@ -9,13 +9,7 @@ export default function (
   arrayOfArrays: (DataPoint[] | Record<string, DataPoint[]>)[],
   data: string = "data",
 ): DataPoint[] {
-  return arrayOfArrays.reduce<DataPoint[]>((acc, item) => {
-    let dataArray: DataPoint[] = [];
-    if (Array.isArray(item)) {
-      dataArray = item;
-    } else if (item[data]) {
-      dataArray = item[data] as DataPoint[];
-    }
-    return acc.concat(dataArray);
-  }, []);
+  return arrayOfArrays.flatMap(item =>
+    Array.isArray(item) ? item : ((item[data] as DataPoint[] | undefined) ?? []),
+  );
 }

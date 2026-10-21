@@ -383,11 +383,11 @@ export const argTypes = assign(
     },
     crosshairConfig: {
       control: {},
-      defaultValue: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}",
+      defaultValue: "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}",
       description: "Paint for the shared tooltip's crosshair guide line (`stroke`,\n`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the\ncurrent config.",
       table: {
         defaultValue: {
-          summary: "{stroke: openColor.colors.gray.500, strokeDasharray: 4 3, strokeWidth: 1}"
+          summary: "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}"
         }
       },
       type: {

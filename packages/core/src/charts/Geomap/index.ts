@@ -9,16 +9,7 @@
 import {color} from "d3-color";
 import type {ZoomTransform} from "d3-zoom";
 import {tile} from "d3-tile";
-import * as d3GeoCore from "d3-geo";
-import * as d3GeoProjection from "d3-geo-projection";
-import * as d3CompositeProjections from "d3-composite-projections";
-
-const d3Geo: Record<string, (...args: unknown[]) => unknown> = Object.assign(
-  {},
-  d3GeoCore,
-  d3GeoProjection,
-  d3CompositeProjections,
-);
+import {geoMercator} from "d3-geo";
 
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
@@ -45,6 +36,7 @@ import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyGeomapLayout, geomapPointData, geomapPointSizeScale} from "./applyLayout.js";
+import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
@@ -309,22 +301,18 @@ function setupGeomapFitFluent(viz: VizInstance): void {
 function setupGeomapProjectionFluent(viz: VizInstance): void {
   const v = viz as VizInstance & GeomapFluent;
   /**
-      The map projection for the topojson and coordinate points: any projection
-      from [d3-geo](https://github.com/d3/d3-geo#projections), as its name (e.g.
-      `"geoMercator"`) or the projection itself. Map tiles only line up with
-      Mercator (the default), so any other projection turns `tiles` off.
+      The map projection for the topojson and coordinate points: a projection
+      function, or the name of one of the
+      [d3-geo projections](https://github.com/d3/d3-geo#projections) or of
+      `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson` and `geoWinkel3`
+      (e.g. `"geoAlbersUsa"`). Map tiles only line up with Mercator (the
+      default), so any other projection turns `tiles` off.
       @type {string | function}
   */
   v.projection = function(this: VizInstance, _?: unknown) {
     if (arguments.length && _ !== "geoMercator") v.tiles(false);
     return arguments.length
-      ? ((this.schema.projection =
-          typeof _ === "string"
-            ? d3Geo[_]
-              ? d3Geo[_]()
-              : d3Geo.geoMercator()
-            : _),
-        this)
+      ? ((this.schema.projection = typeof _ === "string" ? projectionByName(_) : _), this)
       : this.schema.projection;
   };
   /**
@@ -527,7 +515,7 @@ export const geomapDef: ChartDefinition = {
         that sizes coordinate points from `pointSize`, by name (e.g. `"sqrt"`).
     */
     {key: "pointSizeScale", default: "linear"},
-    {key: "projection", default: d3Geo.geoMercator()},
+    {key: "projection", default: geoMercator()},
     {key: "projectionPadding", default: parseSides(20)},
     {key: "shape", default: constant("Circle"), coerce: "const"},
     {key: "topojson", default: false},
