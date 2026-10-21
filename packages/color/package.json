@@ -45,7 +45,7 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "d3-color": "^3.1.0",
-    "d3-scale": "^4.0.2"
+    "d3-color": "catalog:",
+    "d3-scale": "catalog:"
   }
 }

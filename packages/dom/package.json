@@ -45,8 +45,8 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.5",
-    "d3-selection": "^3.0.0",
-    "d3-transition": "^3.0.1"
+    "@chenglou/pretext": "catalog:",
+    "d3-selection": "catalog:",
+    "d3-transition": "catalog:"
   }
 }

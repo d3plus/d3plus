@@ -46,7 +46,7 @@
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.0",
-    "vite": "^6.2.5",
+    "vite": "catalog:",
     "vue": "^3.4.0"
   },
   "peerDependencies": {

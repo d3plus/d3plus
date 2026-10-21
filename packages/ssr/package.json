@@ -1,7 +1,7 @@
 {
   "name": "@d3plus/ssr",
   "version": "4.8.0",
-  "description": "Server-side rendering for d3plus visualizations — render charts to SVG strings and PNG buffers in Node, with no browser.",
+  "description": "Server-side rendering for d3plus visualizations \u2014 render charts to SVG strings and PNG buffers in Node, with no browser.",
   "license": "MIT",
   "type": "module",
   "types": "./types/index.d.ts",

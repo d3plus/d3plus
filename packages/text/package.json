@@ -45,7 +45,7 @@
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.5",
+    "@chenglou/pretext": "catalog:",
     "@d3plus/dom": "workspace:*",
     "@d3plus/locales": "workspace:*",
     "hyphenated": "^1.2.0"

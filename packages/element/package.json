@@ -46,6 +46,6 @@
     "@d3plus/dom": "workspace:*"
   },
   "devDependencies": {
-    "vite": "^6.2.5"
+    "vite": "catalog:"
   }
 }
