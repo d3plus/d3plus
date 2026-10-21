@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
-import {BarChart} from "../../index.ts";
+import {BarChart, Plot} from "../../index.ts";
 import {
   vizPreDraw,
   vizPostThresholdCtx,
@@ -233,4 +233,37 @@ it("vizDraw resets _featurePanels, _chartScene, _chartTransform", () => {
       "even on throw, the reset (which happens FIRST in vizDraw) should clear stale panels",
     );
   }
+});
+
+it("vizDraw's small-multiples panel step claims nothing and keeps the chrome", () => {
+  const panels = ["title-panel"];
+  const viz = {_facetStep: "panel", _margin: {top: 1, right: 2, bottom: 3, left: 4}, _featurePanels: panels};
+  const out = vizDraw(viz);
+  assert.deepStrictEqual(out.marginDelta, {top: 0, bottom: 0, left: 0, right: 0});
+  assert.deepStrictEqual(out.featurePanels, panels);
+  assert.deepStrictEqual(viz._margin, {top: 1, right: 2, bottom: 3, left: 4});
+});
+
+it("vizPreDraw: trailPersist auto-enables axisPersist and a single-period timeline", () => {
+  const chart = new Plot()
+    .groupBy("id").time("year").x("x").y("y")
+    .shapeConfig({Circle: {trailPersist: true}})
+    .width(400).height(300);
+  chart._data = [
+    {id: "a", year: 2019, x: 1, y: 1},
+    {id: "a", year: 2020, x: 2, y: 2},
+  ];
+  chart._margin = {bottom: 0, left: 0, right: 0, top: 0};
+  chart._padding = {bottom: 0, left: 0, right: 0, top: 0};
+
+  // The override runs at the top of _preDraw; later data/DOM steps may throw in
+  // jsdom, but by then it has already set both fields.
+  try {
+    chart._preDraw();
+  } catch {
+    /* expected: later _preDraw steps need DOM the harness doesn't provide */
+  }
+
+  assert.strictEqual(chart.axisPersist(), true, "axisPersist forced on by trailPersist");
+  assert.strictEqual(chart.schema.timelineConfig.brushing, false, "brushing forced off by trailPersist");
 });
