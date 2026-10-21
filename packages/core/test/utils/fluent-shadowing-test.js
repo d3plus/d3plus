@@ -72,7 +72,7 @@ it("chart def fields on hand-written keys are reviewed and declare no onSet", as
   const unreviewed = [];
   let defs = 0;
   for (const [name, C] of charts) {
-    const module = await import(`../../es/src/charts/${name}/index.js`);
+    const module = await import(`../../src/charts/${name}/index.ts`);
     const def = module[`${name[0].toLowerCase()}${name.slice(1)}Def`];
     assert.ok(def, `${name} exports its ChartDefinition`);
     defs++;
