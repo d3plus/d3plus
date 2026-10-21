@@ -40,11 +40,12 @@ export interface NapiHandle {
 
 /**
     Dynamically imports `@napi-rs/canvas`, throwing a clear error when the
-    optional peer dependency isn't installed.
+    optional peer dependency isn't installed. `load` is overridable so tests
+    can simulate a missing install.
 */
-export async function loadNapiCanvas(): Promise<any> {
+export async function loadNapiCanvas(load: () => Promise<any> = () => import("@napi-rs/canvas")): Promise<any> {
   try {
-    return await import("@napi-rs/canvas");
+    return await load();
   } catch {
     throw new Error(
       "@d3plus/ssr: PNG/canvas rendering requires the optional peer dependency " +

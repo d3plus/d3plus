@@ -15,9 +15,12 @@
 
     If `@napi-rs/canvas` isn't installed we leave the environment untouched and
     let pretext fall back to a DOM canvas (jsdom + the `canvas` package), or throw
-    its own clear error if neither is available.
+    its own clear error if neither is available. `load` is overridable so tests
+    can simulate a missing install.
 */
-export async function installMeasureContext(): Promise<() => void> {
+export async function installMeasureContext(
+  load: () => Promise<any> = () => import("@napi-rs/canvas"),
+): Promise<() => void> {
   const g = globalThis as any;
   // A usable measure context already exists (real browser, worker, or a prior
   // shim) — nothing to do.
@@ -25,7 +28,7 @@ export async function installMeasureContext(): Promise<() => void> {
 
   let createCanvas: ((w: number, h: number) => any) | undefined;
   try {
-    ({createCanvas} = await import("@napi-rs/canvas"));
+    ({createCanvas} = await load());
   } catch {
     // No native canvas — defer to pretext's document.createElement fallback.
     return () => {};
