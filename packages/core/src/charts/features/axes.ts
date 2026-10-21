@@ -534,6 +534,9 @@ function renderYAxes(
   return y;
 }
 
+/** A range whose end never falls before its start: a chart too small for its axes plots in no space. */
+const nonNegative = ([start, end]: number[]): number[] => [start, Math.max(start, end)];
+
 /**
     Render the production axes and solve the final ranges/offsets.
 
@@ -552,7 +555,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const {insetBottom, yBottom} = final;
     const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} = final.solved;
 
-    const xRange = frozen?.xRange ?? [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
+    const xRange = frozen?.xRange ?? nonNegative([xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)]);
 
     const axisRelativeTransform = setupAxisTransforms(viz, pCtx, xOffsetLeft, yWidth);
 
@@ -565,7 +568,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
     const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
-    yRange = frozen?.yRange ?? [viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom];
+    yRange = frozen?.yRange ?? nonNegative([viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom]);
 
     const y = renderYAxes(
       viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
