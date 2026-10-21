@@ -1,7 +1,5 @@
 import {ScaleOrdinal, scaleOrdinal} from "d3-scale";
-// @ts-ignore
-import pkg from "open-color/open-color.js";
-const {theme: openColor} = pkg;
+import colorGray from "./gray.js";
 
 export interface ColorDefaults {
   dark: string;
@@ -17,7 +15,7 @@ export interface ColorDefaults {
  * A set of default color values used when assigning colors based on data.
  *
  * The categorical `scale` is CVD-checked: its first eight slots (the identity
- * tier) are open-color steps chosen to sit inside the OKLCH lightness band,
+ * tier) are [open-color](https://yeun.github.io/open-color/) steps chosen to sit inside the OKLCH lightness band,
  * clear the chroma floor, and stay distinguishable under protanopia and
  * deuteranopia — validate them with `colorValidate`. The slot order is the
  * colorblind-safety mechanism and should not be reshuffled. Slots nine and up
@@ -47,31 +45,31 @@ export interface ColorDefaults {
  * ```
  */
 const defaults: ColorDefaults = {
-  dark: openColor.colors.gray[700],
-  light: openColor.colors.gray[50],
-  missing: openColor.colors.gray[400],
-  off: openColor.colors.red[900],
-  on: openColor.colors.green[900],
-  sequential: openColor.colors.blue[700],
+  dark: colorGray[700],
+  light: colorGray[50],
+  missing: colorGray[400],
+  off: "#c92a2a", // red 900
+  on: "#2b8a3e", // green 900
+  sequential: "#1c7ed6", // blue 700
   scale: scaleOrdinal<string>().range([
     // identity tier — CVD-checked, fixed order (see colorValidate)
-    openColor.colors.indigo[600],
-    openColor.colors.yellow[900],
-    openColor.colors.red[800],
-    openColor.colors.green[800],
-    openColor.colors.orange[900],
-    openColor.colors.grape[700],
-    openColor.colors.cyan[700],
-    openColor.colors.pink[700],
+    "#4c6ef5", // indigo 600
+    "#e67700", // yellow 900
+    "#e03131", // red 800
+    "#2f9e44", // green 800
+    "#d9480f", // orange 900
+    "#ae3ec9", // grape 700
+    "#1098ad", // cyan 700
+    "#d6336c", // pink 700
     // second ring — same hues, lighter, for high-cardinality fallback
-    openColor.colors.indigo[400],
-    openColor.colors.yellow[400],
-    openColor.colors.red[400],
-    openColor.colors.green[400],
-    openColor.colors.orange[400],
-    openColor.colors.grape[400],
-    openColor.colors.cyan[400],
-    openColor.colors.pink[400],
+    "#748ffc", // indigo 400
+    "#ffd43b", // yellow 400
+    "#ff8787", // red 400
+    "#69db7c", // green 400
+    "#ffa94d", // orange 400
+    "#da77f2", // grape 400
+    "#3bc9db", // cyan 400
+    "#f783ac", // pink 400
   ]),
 };
 

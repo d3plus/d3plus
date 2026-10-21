@@ -3,11 +3,7 @@
     value axis, joined by a connector from its smallest to its largest value.
 */
 
-// @ts-ignore
-import pkg from "open-color/open-color.js";
-const {theme: openColor} = pkg;
-
-import {colorContrast} from "@d3plus/color";
+import {colorContrast, colorGray} from "@d3plus/color";
 import {backgroundColor} from "@d3plus/dom";
 
 import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
@@ -24,8 +20,8 @@ export function connectorStroke(viz: VizInstance): string {
   const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
   const bg = node ? backgroundColor(node) : "rgb(255, 255, 255)";
   return colorContrast(bg, viz.schema.colorDefaults) === viz.schema.colorDefaults.dark
-    ? openColor.colors.gray[500]
-    : openColor.colors.gray[700];
+    ? colorGray[500]
+    : colorGray[700];
 }
 
 export const dumbbellDef: ChartDefinition = {
