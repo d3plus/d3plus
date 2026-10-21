@@ -2,6 +2,8 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {near} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     #781: `confidence` on a BarChart draws an error bar per bar — a stroke from
@@ -56,8 +58,6 @@ const run = (config, rows = data) =>
 /** Parses an error bar path into its [x1, y1, x2, y2] segments. */
 const segments = d => d.split("M").filter(Boolean).map(s => s.split(/[L,]/).map(Number));
 
-const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 0.01, `${msg}: ${a} vs ${b}`);
-
 it("vertical grouped bars — one capped error bar per bar, centered on it", async function () {
   const r = await run({x: "q", y: "v", confidence: ["lo", "hi"]});
   assert.strictEqual(r.errorBars.length, 4, "an error bar per bar");
@@ -74,14 +74,14 @@ it("vertical grouped bars — one capped error bar per bar, centered on it", asy
     assert.notStrictEqual(e.paint.stroke, bar.fill, "a shade darker than the bar");
     const [stem, lowerCap, upperCap] = segments(e.d);
     const center = bar.x + bar.width / 2;
-    near(stem[0], center, "stem centered on the bar");
-    near(stem[2], center, "and vertical");
-    near(stem[1], bar.px.lo, "from the lower bound");
-    near(stem[3], bar.px.hi, "to the upper bound");
-    near(lowerCap[1], bar.px.lo, "lower cap at the lower bound");
-    near(upperCap[1], bar.px.hi, "upper cap at the upper bound");
-    near(upperCap[2] - upperCap[0], bar.width / 2, "caps span half the bar");
-    near((upperCap[0] + upperCap[2]) / 2, center, "caps centered");
+    near(stem[0], center, 0.01, "stem centered on the bar");
+    near(stem[2], center, 0.01, "and vertical");
+    near(stem[1], bar.px.lo, 0.01, "from the lower bound");
+    near(stem[3], bar.px.hi, 0.01, "to the upper bound");
+    near(lowerCap[1], bar.px.lo, 0.01, "lower cap at the lower bound");
+    near(upperCap[1], bar.px.hi, 0.01, "upper cap at the upper bound");
+    near(upperCap[2] - upperCap[0], bar.width / 2, 0.01, "caps span half the bar");
+    near((upperCap[0] + upperCap[2]) / 2, center, 0.01, "caps centered");
   }
   assert.ok(Math.max(...r.domain) >= 24, `the axis fits the highest bound (${r.domain})`);
 });
@@ -93,12 +93,12 @@ it("horizontal bars — error bars run along x", async function () {
     const bar = r.bars.find(b => `${b.key}::confidence` === e.key);
     const [stem, lowerCap] = segments(e.d);
     const center = bar.y + bar.height / 2;
-    near(stem[1], center, "stem centered on the bar");
-    near(stem[3], center, "and horizontal");
-    near(stem[0], bar.px.lo, "from the lower bound");
-    near(stem[2], bar.px.hi, "to the upper bound");
-    near(lowerCap[0], lowerCap[2], "caps run across the bar");
-    near(lowerCap[3] - lowerCap[1], bar.height / 2, "caps span half the bar");
+    near(stem[1], center, 0.01, "stem centered on the bar");
+    near(stem[3], center, 0.01, "and horizontal");
+    near(stem[0], bar.px.lo, 0.01, "from the lower bound");
+    near(stem[2], bar.px.hi, 0.01, "to the upper bound");
+    near(lowerCap[0], lowerCap[2], 0.01, "caps run across the bar");
+    near(lowerCap[3] - lowerCap[1], bar.height / 2, 0.01, "caps span half the bar");
   }
   assert.ok(Math.max(...r.domain) >= 24, `the axis fits the highest bound (${r.domain})`);
 });
@@ -111,8 +111,8 @@ it("stacked bars — error bars sit around each bar's stacked end", async functi
     const [stem] = segments(e.d);
     // The bar's top is its stacked end; a bound keeps its distance from the value.
     const end = bar.y;
-    near(stem[1] - end, bar.px.lo - bar.px.v, "lower bound offset from the stacked end");
-    near(stem[3] - end, bar.px.hi - bar.px.v, "upper bound offset from the stacked end");
+    near(stem[1] - end, bar.px.lo - bar.px.v, 0.01, "lower bound offset from the stacked end");
+    near(stem[3] - end, bar.px.hi - bar.px.v, 0.01, "upper bound offset from the stacked end");
   }
   assert.ok(Math.max(...r.domain) >= 35 + 2, `the axis fits the top stack's bound (${r.domain})`);
 });
@@ -127,7 +127,7 @@ it("confidenceConfig — styles the error bars, with Bar-nested keys winning", a
     assert.strictEqual(e.paint.stroke, "green");
     assert.strictEqual(e.paint.strokeWidth, 3);
     const [, cap] = segments(e.d);
-    near(cap[2] - cap[0], 6, "a fixed cap width in pixels");
+    near(cap[2] - cap[0], 6, 0.01, "a fixed cap width in pixels");
   }
 });
 
@@ -186,11 +186,9 @@ const hover = ([renderer]) =>
         const tip = document.querySelector(".d3plus-tooltip");
         const swatch = tip && tip.querySelector(".d3plus-tooltip-title .d3plus-tooltip-swatch");
         const opacity = {};
-        const walk = n => {
+        for (const n of sceneNodes(viz._paintedScene.root)) {
           if (n.key !== undefined) opacity[n.key] = n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1;
-          (n.children || []).forEach(walk);
-        };
-        walk(viz._paintedScene.root);
+        }
         const crosshair = flat([viz._paintedScene.root]).find(n => n.key === "crosshair");
         host.dispatchEvent(new MouseEvent("click", at));
         resolve({
@@ -218,7 +216,7 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(r.opacity["Alpha_Q1"] < 1, "other bars dim");
     assert.ok(r.opacity["Alpha_Q1::confidence"] < 1, "and their error bars with them");
     assert.deepStrictEqual(r.clicks, ["Beta"], "click.Bar fires on the error bar");
-    near(r.crosshair, r.barCenter, "the hover crosshair snaps to the bar's center");
+    near(r.crosshair, r.barCenter, 0.01, "the hover crosshair snaps to the bar's center");
   });
 }
 

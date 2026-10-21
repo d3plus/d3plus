@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 
 import {render} from "~test/browser/render.js";
+import {overlaps} from "~test/helpers.js";
 
 /**
     Legends drawn inside a chart's negative space (#72): after layout, the
@@ -40,9 +41,6 @@ const probe = (builderSrc, {width = 800, height = 500} = {}) =>
         }
       });
     }), builderSrc);
-
-const overlaps = (a, b) =>
-  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 // Three color groups in the top half and bottom-left: the bottom-right is open.
 const scatter = (extra = "") => `lib => new lib.Plot()

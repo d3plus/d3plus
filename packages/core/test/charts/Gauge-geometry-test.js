@@ -23,31 +23,26 @@ import {
   hasName,
 } from "../../src/charts/Gauge/applyLayout.ts";
 import {gaugeDef} from "../../src/charts/Gauge/index.ts";
+import {near} from "~test/helpers.js";
 
-const close = (a, b, msg, eps = 1e-9) =>
-  assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);
 const sweep240 = [toRadians(-120), toRadians(120)];
 
 it("Gauge geometry: toRadians / toDegrees round-trip", () => {
-  close(toRadians(180), Math.PI, "180°");
-  close(toDegrees(Math.PI / 2), 90, "π/2");
-  close(toDegrees(toRadians(-120)), -120, "round trip");
+  near(toRadians(180), Math.PI, 1e-9, "180°");
+  near(toDegrees(Math.PI / 2), 90, 1e-9, "π/2");
+  near(toDegrees(toRadians(-120)), -120, 1e-9, "round trip");
 });
 
 it("Gauge geometry: gaugeAngle maps the domain onto the sweep and clamps outside it", () => {
   const [s, e] = sweep240;
-  close(gaugeAngle(0, [0, 100], s, e), s, "min → start");
-  close(gaugeAngle(100, [0, 100], s, e), e, "max → end");
-  close(gaugeAngle(50, [0, 100], s, e), 0, "midpoint → 12 o'clock");
-  close(toDegrees(gaugeAngle(72, [0, 100], s, e)), 52.8, "72 → 52.8°");
-  close(gaugeAngle(150, [0, 100], s, e), e, "above max clamps to end");
-  close(gaugeAngle(-20, [0, 100], s, e), s, "below min clamps to start");
-  close(gaugeAngle(NaN, [0, 100], s, e), s, "NaN → start");
-  close(
-    gaugeAngle(25, [0, 100], e, s),
-    toRadians(60),
-    "reversed sweep runs counter-clockwise",
-  );
+  near(gaugeAngle(0, [0, 100], s, e), s, 1e-9, "min → start");
+  near(gaugeAngle(100, [0, 100], s, e), e, 1e-9, "max → end");
+  near(gaugeAngle(50, [0, 100], s, e), 0, 1e-9, "midpoint → 12 o'clock");
+  near(toDegrees(gaugeAngle(72, [0, 100], s, e)), 52.8, 1e-9, "72 → 52.8°");
+  near(gaugeAngle(150, [0, 100], s, e), e, 1e-9, "above max clamps to end");
+  near(gaugeAngle(-20, [0, 100], s, e), s, 1e-9, "below min clamps to start");
+  near(gaugeAngle(NaN, [0, 100], s, e), s, 1e-9, "NaN → start");
+  near(gaugeAngle(25, [0, 100], e, s), toRadians(60), 1e-9, "reversed sweep runs counter-clockwise");
 });
 
 it("Gauge geometry: gaugeDomain includes zero and band edges, nices auto ends, and keeps user ends", () => {
@@ -170,20 +165,20 @@ it("Gauge geometry: resolveBands chains, clamps, defaults colors, and drops empt
 
 it("Gauge geometry: arcExtent bounds the sweep and its center", () => {
   const e240 = arcExtent(...sweep240);
-  close(e240.x0, -1, "240° x0");
-  close(e240.x1, 1, "240° x1");
-  close(e240.y0, -1, "240° y0");
-  close(e240.y1, 0.5, "240° y1");
+  near(e240.x0, -1, 1e-9, "240° x0");
+  near(e240.x1, 1, 1e-9, "240° x1");
+  near(e240.y0, -1, 1e-9, "240° y0");
+  near(e240.y1, 0.5, 1e-9, "240° y1");
   const e180 = arcExtent(toRadians(-90), toRadians(90));
-  close(e180.y1, 0, "180° stops at the center line");
+  near(e180.y1, 0, 1e-9, "180° stops at the center line");
   const full = arcExtent(0, Math.PI * 2);
   assert.deepStrictEqual(
     [full.x0, full.x1, full.y0, full.y1].map(Math.round),
     [-1, 1, -1, 1],
   );
   const quarter = arcExtent(0, Math.PI / 2);
-  close(quarter.x0, 0, "quarter includes its center");
-  close(quarter.y1, 0, "quarter y1");
+  near(quarter.x0, 0, 1e-9, "quarter includes its center");
+  near(quarter.y1, 0, 1e-9, "quarter y1");
 });
 
 it("Gauge geometry: unionBox spans both boxes", () => {
@@ -196,14 +191,14 @@ it("Gauge geometry: unionBox spans both boxes", () => {
 it("Gauge geometry: fitDial centers the largest dial that fits", () => {
   const box = {x0: -1, x1: 1, y0: -1, y1: 0.5};
   const fit = fitDial(400, 300, box);
-  close(fit.radius, 200, "fills the area");
-  close(fit.cx, 200, "centered horizontally");
-  close(fit.cy - fit.radius, 0, "top of the dial at the top");
-  close(fit.cy + fit.radius * 0.5, 300, "bottom of the box at the bottom");
+  near(fit.radius, 200, 1e-9, "fills the area");
+  near(fit.cx, 200, 1e-9, "centered horizontally");
+  near(fit.cy - fit.radius, 0, 1e-9, "top of the dial at the top");
+  near(fit.cy + fit.radius * 0.5, 300, 1e-9, "bottom of the box at the bottom");
 
   const tall = fitDial(200, 600, box);
-  close(tall.radius, 100, "width-bound");
-  close(tall.cy, 300 + 25, "footprint centered vertically");
+  near(tall.radius, 100, 1e-9, "width-bound");
+  near(tall.cy, 300 + 25, 1e-9, "footprint centered vertically");
   assert.strictEqual(fitDial(0, 300, box).radius, 0, "no room, no dial");
 });
 
@@ -231,14 +226,14 @@ it("Gauge dialLayout: puts bands on the track and the value under the hub for a 
     [l.outer, l.inner, l.bandOuter, l.bandInner],
     [100, 80, 100, 80],
   );
-  close(l.tickOuter, 77, "ticks start just inside the track");
-  close(l.majorLength, 7, "major tick length");
-  close(l.minorLength, 3.5, "minor tick length");
-  close(l.tickFontSize, 8, "tick font clamps to its minimum");
-  close(l.tickLabelRadius, 60.6, "tick labels inside the ticks");
-  close(l.needleLength, 90, "needle reaches mid-track");
-  close(l.valueY, 21.5, "value below the hub");
-  close(l.nameY, 39, "name below the value");
+  near(l.tickOuter, 77, 1e-9, "ticks start just inside the track");
+  near(l.majorLength, 7, 1e-9, "major tick length");
+  near(l.minorLength, 3.5, 1e-9, "minor tick length");
+  near(l.tickFontSize, 8, 1e-9, "tick font clamps to its minimum");
+  near(l.tickLabelRadius, 60.6, 1e-9, "tick labels inside the ticks");
+  near(l.needleLength, 90, 1e-9, "needle reaches mid-track");
+  near(l.valueY, 21.5, 1e-9, "value below the hub");
+  near(l.nameY, 39, 1e-9, "name below the value");
 });
 
 it("Gauge dialLayout: puts bands in a strip inside a progress track and centers the labels", () => {
@@ -251,11 +246,11 @@ it("Gauge dialLayout: puts bands in a strip inside a progress track and centers 
     hasValue: true,
     extent,
   });
-  close(l.bandOuter, 77.5, "strip just inside the track");
-  close(l.bandInner, 74, "strip thickness");
-  close(l.tickOuter, 71, "ticks inside the strip");
-  close(l.valueFontSize, 30, "larger value for progress");
-  close(l.valueY, -6, "label block centered on the dial");
+  near(l.bandOuter, 77.5, 1e-9, "strip just inside the track");
+  near(l.bandInner, 74, 1e-9, "strip thickness");
+  near(l.tickOuter, 71, 1e-9, "ticks inside the strip");
+  near(l.valueFontSize, 30, 1e-9, "larger value for progress");
+  near(l.valueY, -6, 1e-9, "label block centered on the dial");
 
   const semi = arcExtent(toRadians(-90), toRadians(90));
   const s = dialLayout(100, {
@@ -271,7 +266,7 @@ it("Gauge dialLayout: puts bands in a strip inside a progress track and centers 
     s.nameY + s.nameFontSize / 2 < 0,
     "labels stay above the center line of a semicircle",
   );
-  close(s.tickOuter, 77, "no strip without bands");
+  near(s.tickOuter, 77, 1e-9, "no strip without bands");
 });
 
 it("Gauge dialLayout: honors a fixed tick font size and clamps the thickness", () => {
@@ -310,11 +305,7 @@ it("Gauge dialLayout: dialRings gives one track per progress row, stepping inwar
   );
   const many = dialRings(100, 0.2, 5, true);
   assert.strictEqual(many.length, 5);
-  close(
-    many[0].outer - many[4].inner,
-    50,
-    "many tracks thin out to span half the radius",
-  );
+  near(many[0].outer - many[4].inner, 50, 1e-9, "many tracks thin out to span half the radius");
   assert.ok(
     many.every((r, i) => !i || r.outer < many[i - 1].inner),
     "tracks don't overlap",
@@ -337,7 +328,7 @@ it("Gauge dialLayout: several rows drop the value and name labels", () => {
     l.rings[2].inner,
     "inner edge of the innermost track",
   );
-  close(l.bandOuter, l.inner - 2.5, "bands inside the innermost track");
+  near(l.bandOuter, l.inner - 2.5, 1e-9, "bands inside the innermost track");
   assert.strictEqual(l.valueFontSize, 0);
   assert.strictEqual(l.nameFontSize, 0, "no value, no name");
   const box = dialBox({
@@ -349,7 +340,7 @@ it("Gauge dialLayout: several rows drop the value and name labels", () => {
     hasValue: false,
     extent,
   });
-  close(box.y1, 0.5, "only the sweep and the needle tail");
+  near(box.y1, 0.5, 1e-9, "only the sweep and the needle tail");
   const semi = dialBox({
     indicator: "needle",
     thickness: 0.2,
@@ -359,7 +350,7 @@ it("Gauge dialLayout: several rows drop the value and name labels", () => {
     hasValue: false,
     extent: arcExtent(toRadians(-90), toRadians(90)),
   });
-  close(semi.y1, 0.12, "a semicircle only needs room for the tails");
+  near(semi.y1, 0.12, 1e-9, "a semicircle only needs room for the tails");
 });
 
 it("Gauge dialLayout: dialBox covers the sweep, the needle tail, and the labels", () => {
@@ -372,8 +363,8 @@ it("Gauge dialLayout: dialBox covers the sweep, the needle tail, and the labels"
     hasValue: true,
     extent,
   });
-  close(needle.y0, -1, "top of the dial");
-  close(needle.y1, 0.5, "the 240° sweep already covers the labels");
+  near(needle.y0, -1, 1e-9, "top of the dial");
+  near(needle.y1, 0.5, 1e-9, "the 240° sweep already covers the labels");
   const semi = arcExtent(toRadians(-90), toRadians(90));
   const below = dialBox({
     indicator: "needle",
@@ -384,7 +375,7 @@ it("Gauge dialLayout: dialBox covers the sweep, the needle tail, and the labels"
     hasValue: true,
     extent: semi,
   });
-  close(below.y1, 0.435, "labels hang below a semicircle");
+  near(below.y1, 0.435, 1e-9, "labels hang below a semicircle");
   const progress = dialBox({
     indicator: "progress",
     thickness: 0.2,
@@ -394,7 +385,7 @@ it("Gauge dialLayout: dialBox covers the sweep, the needle tail, and the labels"
     hasValue: true,
     extent: semi,
   });
-  close(progress.y1, 0, "a progress semicircle needs nothing below its center");
+  near(progress.y1, 0, 1e-9, "a progress semicircle needs nothing below its center");
 });
 
 const field = key => gaugeDef.fields.find(f => f.key === key);
@@ -458,9 +449,9 @@ it("applyGaugeLayout: reads every row on one shared, centered dial", () => {
     "several rows hide the value label",
   );
   assert.strictEqual(shared.dial.hasName, false);
-  close(shared.radius, 210, "one dial fills the chart area");
-  close(shared.cx, 212, "centered horizontally, inside the stroke buffer");
-  close(shared.cy, 214.5, "footprint centered vertically");
+  near(shared.radius, 210, 1e-9, "one dial fills the chart area");
+  near(shared.cx, 212, 1e-9, "centered horizontally, inside the stroke buffer");
+  near(shared.cy, 214.5, 1e-9, "footprint centered vertically");
 });
 
 it("applyGaugeLayout: a single named row shows its value and name", () => {

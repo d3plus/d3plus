@@ -1,4 +1,3 @@
-/* global console */
 import {it} from "vitest";
 import assert from "assert";
 import {
@@ -12,6 +11,7 @@ import {
   stackOrderTotalDescending,
   stackSum,
 } from "../../src/charts/Plot/stackHelpers.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 // A d3-stack "series" is an array of [y0, y1] points carrying a `.key`.
 const mkSeries = (key, points) => Object.assign(points.slice(), {key});
@@ -96,15 +96,10 @@ it("charts/stackHelpers resolveStackOrder maps every input shape", () => {
 });
 
 it("charts/stackHelpers resolveStackOrder warns and falls back on an unknown name", () => {
-  const original = console.warn;
-  let warned = "";
-  console.warn = msg => { warned = msg; };
-  try {
+  const warnings = captureWarnings(() => {
     assert.strictEqual(resolveStackOrder("acsending"), stackOrderTotalDescending);
-  } finally {
-    console.warn = original;
-  }
-  assert.ok(/Unknown stackOrder "acsending"/.test(warned), "warns with the bad value");
+  });
+  assert.ok(/Unknown stackOrder "acsending"/.test(warnings.at(-1)), "warns with the bad value");
 });
 
 it("charts/stackHelpers resolveStackOffset maps names, passes functions, warns on unknown", () => {
@@ -113,15 +108,10 @@ it("charts/stackHelpers resolveStackOffset maps names, passes functions, warns o
   assert.strictEqual(resolveStackOffset(custom), custom, "functions pass through");
   assert.strictEqual(typeof resolveStackOffset("expand"), "function", "d3 offset by name");
 
-  const original = console.warn;
-  let warned = "";
-  console.warn = msg => { warned = msg; };
-  try {
+  const warnings = captureWarnings(() => {
     assert.strictEqual(resolveStackOffset("expnd"), stackOffsetDiverging);
-  } finally {
-    console.warn = original;
-  }
-  assert.ok(/Unknown stackOffset "expnd"/.test(warned), "warns with the bad value");
+  });
+  assert.ok(/Unknown stackOffset "expnd"/.test(warnings.at(-1)), "warns with the bad value");
 });
 
 it("charts/stackHelpers stackOffsetDiverging stacks positives up and negatives down from zero", () => {

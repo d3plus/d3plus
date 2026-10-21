@@ -5,10 +5,9 @@ import {
   splitDash,
   splitLength,
 } from "../../src/charts/Plot/curveLength.ts";
+import {near} from "~test/helpers.js";
 
 // Path-length helpers behind the forecast's part-dashed lines.
-
-const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-6, `${msg}: ${a} vs ${b}`);
 
 it("curvePolyline — a linear curve passes its points through", () => {
   const points = [[0, 0], [10, 0], [10, 10]];
@@ -23,8 +22,8 @@ it("curvePolyline — Bézier curves are sampled, ending on each point", () => {
   assert.deepStrictEqual(line[0], [0, 0]);
   for (const [k, p] of points.entries())
     if (k) {
-      near(line[k * 8][0], p[0], `segment ${k} ends at x`);
-      near(line[k * 8][1], p[1], `segment ${k} ends at y`);
+      near(line[k * 8][0], p[0], 1e-6, `segment ${k} ends at x`);
+      near(line[k * 8][1], p[1], 1e-6, `segment ${k} ends at y`);
     }
   const quad = curvePolyline([[0, 0], [10, 10], [20, 0]], "natural", 4);
   assert.ok(quad.length > 3, "other curve types sample too");

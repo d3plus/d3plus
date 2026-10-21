@@ -1,5 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
+import {findNode} from "~test/browser/helpers.js";
 import {render} from "~test/browser/render.js";
 
 /**
@@ -104,19 +105,11 @@ const drill = async ({chart: name, config, mark, group}) => {
     return origDrawScene(scene, opts);
   };
 
-  const find = nodes => {
-    for (const n of nodes) {
-      const row = n.datum && n.datum.data ? n.datum.data : n.datum;
-      if (n.type === mark.type && (!mark.shapeType || n.shapeType === mark.shapeType) &&
-        row && chart.schema.groupBy[0](row, n.index ?? 0) === group) return n;
-      if (n.type === "group" && n.children) {
-        const found = find(n.children);
-        if (found) return found;
-      }
-    }
-    return undefined;
-  };
-  const node = find(chart._chartScene);
+  const node = findNode(chart._chartScene, n => {
+    const row = n.datum && n.datum.data ? n.datum.data : n.datum;
+    return n.type === mark.type && (!mark.shapeType || n.shapeType === mark.shapeType) &&
+      row && chart.schema.groupBy[0](row, n.index ?? 0) === group;
+  });
   const bodyRectBefore = chart._bodyRect;
 
   const beforeDrillDraws = capturedOpts.length;

@@ -2,6 +2,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Waterfall in real Chromium: bars floating on the running total, subtotals
@@ -49,11 +50,9 @@ const probe = ([data, config, hover]) =>
       const legend = svg ? Array.from(svg.querySelectorAll("[data-key='viz-legend'] text")).map(t => t.textContent) : [];
       const nan = svg ? Array.from(svg.querySelectorAll("*")).filter(n => Array.from(n.attributes).some(a => a.value.includes("NaN"))).length : 0;
       const sceneConnectors = [];
-      const walk = n => {
+      for (const n of sceneNodes(viz._chartScene || [])) {
         if (typeof n.key === "string" && n.key.startsWith("waterfall-connector")) sceneConnectors.push(n.key);
-        (n.children || []).forEach(walk);
-      };
-      (viz._chartScene || []).forEach(walk);
+      }
       const out = {
         canvas: !!host.querySelector("canvas.d3plus-render-canvas"),
         bars, connectors, texts, legend, nan, sceneConnectors,

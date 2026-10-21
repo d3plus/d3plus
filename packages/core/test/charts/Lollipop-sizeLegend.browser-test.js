@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {overlaps} from "~test/helpers.js";
 
 /**
     The size legend on Lollipop and Dumbbell: a `size` accessor adds Plot's
@@ -76,9 +77,6 @@ const lollipop = extra => ({
   groupBy: "city", color: "region", x: "city", y: "population", size: "growth", ...extra,
 });
 
-const overlaps = (a, b) =>
-  a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5;
-
 /** The legend's circles are the heads' radii: same scale, same extremes. */
 const assertMatchesHeads = (out, min, max) => {
   assert.ok(out.panel, "size legend drawn");
@@ -122,8 +120,8 @@ it("Lollipop — the size legend stays clear of the color legend and the heads",
     const out = await run("Lollipop", lollipop({sizeMin: 4, sizeMax: 14, ...extra}));
     const {sizeLegend, legend, heads} = out.boxes;
     assert.ok(sizeLegend && legend, `both legends drawn (${JSON.stringify(extra)})`);
-    assert.ok(!overlaps(sizeLegend, legend), `legends apart (${JSON.stringify(extra)})`);
-    heads.forEach(h => assert.ok(!overlaps(sizeLegend, h), `clear of the heads (${JSON.stringify(extra)})`));
+    assert.ok(!overlaps(sizeLegend, legend, 0.5), `legends apart (${JSON.stringify(extra)})`);
+    heads.forEach(h => assert.ok(!overlaps(sizeLegend, h, 0.5), `clear of the heads (${JSON.stringify(extra)})`));
   }
 });
 

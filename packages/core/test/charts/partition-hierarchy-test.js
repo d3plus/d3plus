@@ -8,6 +8,7 @@ import {
   partitionLineage,
   partitionSort,
 } from "../../src/charts/partition/hierarchy.ts";
+import {near} from "~test/helpers.js";
 
 const key = k => d => d[k];
 const sum = d => d.value;
@@ -16,7 +17,6 @@ const rows = [
   {group: "A", item: "a2", value: 10},
   {group: "B", item: "b1", value: 60},
 ];
-const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 
 it("partition hierarchy: nestPartition nests one branch per key path", () => {
   const {children, own} = nestPartition(rows, [key("group"), key("item")]);
@@ -83,9 +83,9 @@ it("partition hierarchy: partitionLayout spans 0–1 by default and places each 
   assert.strictEqual(nodes.length, 5, "2 groups + 3 items; the whole is not drawn");
   assert.deepStrictEqual(seen, nodes.map(n => n.id));
   const b = nodes.find(n => n.id === JSON.stringify(["B"]));
-  close(b.x0, 0.4, "data order without a sort");
-  close(b.x1, 1, "B's share");
-  close(b.mid, 0.7, "placement added");
+  near(b.x0, 0.4, 1e-9, "data order without a sort");
+  near(b.x1, 1, 1e-9, "B's share");
+  near(b.mid, 0.7, 1e-9, "placement added");
   assert.strictEqual(b.depth, 1);
   assert.strictEqual(b.level, 0);
   assert.strictEqual(b.hasChildren, true);
@@ -93,8 +93,8 @@ it("partition hierarchy: partitionLayout spans 0–1 by default and places each 
   assert.strictEqual(a1.parent.id, JSON.stringify(["A"]));
   assert.strictEqual(a1.datum, rows[0], "a single-row leaf keeps its row");
   assert.strictEqual(a1.i, 0);
-  close(a1.share, 0.3, "share of the whole");
-  close(a1.parentShare, 0.75, "share of the parent");
+  near(a1.share, 0.3, 1e-9, "share of the whole");
+  near(a1.parentShare, 0.75, 1e-9, "share of the parent");
 });
 
 it("partition hierarchy: partitionLayout honors breadth, a focus, and skips zero values", () => {

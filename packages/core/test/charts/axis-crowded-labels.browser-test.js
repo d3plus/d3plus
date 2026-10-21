@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {anyOverlap} from "~test/helpers.js";
 
 /**
     A point (discrete) axis with more labels than fit side by side used to
@@ -40,21 +41,18 @@ const run = (kind, first, last, width = 600) =>
   render('<div id="viz" style="height:400px"></div>', probe, [kind, first, last, width]);
 
 /** Whether any two label boxes overlap. */
-const overlaps = labels => labels.some((a, i) => labels.slice(i + 1).some(b =>
-  a.left < b.right - 0.5 && b.left < a.right - 0.5 && a.top < b.bottom - 0.5 && b.top < a.bottom - 0.5));
-
 it("crowded point axis — keeps labels instead of dropping them all", async () => {
   for (const [first, last] of [[2012, 2029], [2000, 2029], [1950, 2029]]) {
     const r = await run("LinePlot", first, last);
     assert.ok(r.labels.length >= 2, `${last - first + 1} years: shows labels (${r.labels.length})`);
-    assert.ok(!overlaps(r.labels), `${last - first + 1} years: labels don't overlap`);
+    assert.ok(!anyOverlap(r.labels, 0.5), `${last - first + 1} years: labels don't overlap`);
   }
 });
 
 it("crowded point axis — bar charts too", async () => {
   const r = await run("BarChart", 2000, 2029);
   assert.ok(r.labels.length >= 2, `shows labels (${r.labels.length})`);
-  assert.ok(!overlaps(r.labels), "labels don't overlap");
+  assert.ok(!anyOverlap(r.labels, 0.5), "labels don't overlap");
 });
 
 it("roomy point axis — every label still shows", async () => {
@@ -76,5 +74,5 @@ it("crowded point axis — a vertical axis thins labels instead of dropping them
       })));
     }));
   assert.ok(r.length >= 2 && r.length < 30, `shows some labels (${r.length})`);
-  assert.ok(!overlaps(r), "labels don't overlap");
+  assert.ok(!anyOverlap(r, 0.5), "labels don't overlap");
 });

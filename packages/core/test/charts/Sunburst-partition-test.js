@@ -9,10 +9,9 @@ import {
   sunburstSort,
 } from "../../src/charts/Sunburst/partition.ts";
 import {sunburstRadii} from "../../src/charts/Sunburst/geometry.ts";
+import {near} from "~test/helpers.js";
 
 const TAU = Math.PI * 2;
-const close = (a, b, msg) =>
-  assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 const key = k => d => d[k];
 const rows = [
   {group: "A", item: "a1", value: 30},
@@ -82,10 +81,10 @@ it("Sunburst partition: sunburstLayout: sizes every arc's angle by its summed va
   const nodes = layout();
   const total = 100;
   for (const n of nodes)
-    close(n.endAngle - n.startAngle, (n.value / total) * TAU, n.id);
+    near(n.endAngle - n.startAngle, (n.value / total) * TAU, 1e-9, n.id);
   const b = nodes.find(n => n.id === JSON.stringify(["B"]));
   assert.strictEqual(b.value, 60);
-  close(b.share, 0.6, "share of the whole");
+  near(b.share, 0.6, 1e-9, "share of the whole");
 });
 
 it("Sunburst partition: sunburstLayout: draws children within their parent's angles, one ring further out", () => {
@@ -114,14 +113,14 @@ it("Sunburst partition: sunburstLayout: leaves the center empty without a focus 
     nodes.filter(n => n.depth === 1).map(n => n.path[0]),
     ["B", "A"],
   );
-  close(nodes[0].startAngle, 0, "largest starts at 12 o'clock");
+  near(nodes[0].startAngle, 0, 1e-9, "largest starts at 12 o'clock");
 });
 
 it("Sunburst partition: sunburstLayout: records each arc's share of its parent", () => {
   const nodes = layout();
   const a1 = nodes.find(n => n.id === JSON.stringify(["A", "a1"]));
-  close(a1.parentShare, 0.75, "a1 of A");
-  close(a1.share, 0.3, "a1 of all");
+  near(a1.parentShare, 0.75, 1e-9, "a1 of A");
+  near(a1.share, 0.3, 1e-9, "a1 of all");
   assert.strictEqual(a1.hasChildren, false);
   assert.strictEqual(a1.parent.hasChildren, true);
 });
@@ -162,7 +161,7 @@ it("Sunburst partition: sunburstLayout: draws a focused node as the full center 
       .sort(),
     [JSON.stringify(["A", "a1"]), JSON.stringify(["A", "a2"])],
   );
-  close(nodes[1].share, 0.75, "share of the focused whole");
+  near(nodes[1].share, 0.75, 1e-9, "share of the focused whole");
 });
 
 it("Sunburst partition: sunburstLayout: skips zero-value branches and empty data", () => {

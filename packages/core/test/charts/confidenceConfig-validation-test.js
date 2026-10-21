@@ -1,23 +1,11 @@
-/* global console */
 import {it} from "vitest";
 import assert from "assert";
 import {BarChart, LinePlot, Plot, RESET} from "../../index.ts";
 import {resolveConfidence, validateConfidenceConfig} from "../../src/charts/Plot/confidenceConfig.ts";
 import validateShapeConfig from "../../src/shapes/validateShapeConfig.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 // #781: `confidenceConfig` warns about keys neither the band nor the error bar takes.
-
-function captureWarnings(fn) {
-  const warn = console.warn, warnings = [];
-  console.warn = msg => warnings.push(msg);
-  try {
-    fn();
-  }
-  finally {
-    console.warn = warn;
-  }
-  return warnings;
-}
 
 it("validateShapeConfig — a scope names the setter, its shapes, and extra keys", () => {
   const scope = {method: "fooConfig", shapes: {Bar: "Path"}, extra: {"": ["special"], Bar: ["capWidth"]}};

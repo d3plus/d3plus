@@ -8,8 +8,7 @@ import {
   partitionShadeDefaults,
   partitionShadeFill,
 } from "../../src/charts/partition/shade.ts";
-
-const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
+import {near} from "~test/helpers.js";
 
 const color = () => "blue";
 const fill = () => "#4c6ef5";
@@ -29,7 +28,7 @@ it("partition shade: the top level keeps its color", () => {
 it("partition shade: each level lightens one step more than its parent, up to the cap", () => {
   assert.deepStrictEqual(partitionShadeDefaults, {step: 0.22, max: 0.6});
   assert.strictEqual(partitionShadeAmount(1), 0.22);
-  close(partitionShadeAmount(2), 0.44, "third level");
+  near(partitionShadeAmount(2), 0.44, 1e-9, "third level");
   assert.strictEqual(partitionShadeAmount(3), 0.6);
   assert.strictEqual(partitionShadeAmount(5), 0.6);
   assert.strictEqual(partitionShadeAmount(9), 0.6);
@@ -37,7 +36,7 @@ it("partition shade: each level lightens one step more than its parent, up to th
 
 it("partition shade: honors a custom step and cap", () => {
   assert.strictEqual(partitionShadeAmount(2, {step: 0.1}), 0.2);
-  close(partitionShadeAmount(3, {max: 0.3}), 0.3, "custom cap");
+  near(partitionShadeAmount(3, {max: 0.3}), 0.3, 1e-9, "custom cap");
   assert.strictEqual(partitionShadeAmount(2, {step: 0}), 0);
 });
 

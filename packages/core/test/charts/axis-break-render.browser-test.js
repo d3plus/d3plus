@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart} from "~test/browser/helpers.js";
 
 /**
     Plot scale breaks (#766, #767): `xBreak`/`yBreak` remove value ranges from
@@ -17,81 +17,62 @@ const bars = [
 
 /** Renders `src` and reports both axes' breaks, the mask groups, and the bars. */
 const probe = (src, opts = {}) =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data, opts]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          if (opts.renderer) viz.renderer(opts.renderer);
-          viz.render(() => {
-           try {
-            const masks = [];
-            const bars = [];
-            const shapes = new Set();
-            const lines = [];
-            const texts = [];
-            let order = 0;
-            let firstShape = Infinity;
-            const walk = (n, inMask) => {
-              order++;
-              const isMask = String(n.key).startsWith("plot-break-mask");
-              if (isMask) {
-                const holes = n.clip.d.split("Z").filter(Boolean).slice(1).map(r => r.replace("M", "").split("L").map(pt => pt.split(",").map(Number)));
-                masks.push({key: n.key, rings: holes.length + 1, holes});
-              }
-              if (String(n.key).startsWith("break-line")) lines.push({key: n.key, points: n.points, order, stroke: n.paint.stroke});
-              if (n.shapeType && order < firstShape) firstShape = order;
-              if (n.shapeType) shapes.add(`${n.shapeType}:${inMask || isMask}`);
-              if (n.type === "text") texts.push({key: String(n.key), masked: inMask, y: n.transform && n.transform.y, h: n.height});
-              const row = n.datum && (n.datum.data || n.datum);
-              if (n.shapeType === "Bar" && n.type === "rect")
-                bars.push({id: row && row.id, v: row && row.v, y: n.transform.y + n.y, h: n.height});
-              (n.children || []).forEach(c => walk(c, inMask || isMask));
-            };
-            viz._chartScene.forEach(n => walk(n, false));
-            const axisInfo = axis => ({
-              breaks: axis._breaks.map(b => ({start: b.start, end: b.end, baseline: b.baseline})),
-              ticks: axis._visibleTicks.map(Number),
-              lines: axis.toScene().children.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
-              zero: axis._getPosition(0),
-              edge: axis._baselineBreak ? axis._getPosition(axis._baselineBreak.edge) : null,
-              range: axis._getRange(),
-            });
-            const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes], lines, texts, firstShape};
-            if (opts.pixel) {
-              const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
-              const ratio = canvas.width / canvas.getBoundingClientRect().width;
-              const ct = viz._chartTransform;
-              const brk = viz._yAxis._breaks[0];
-              const gapY = (brk.startPosition + brk.endPosition) / 2;
-              const bar = viz._chartScene.flatMap(function flat(n) {
-                return [n, ...(n.children || []).flatMap(flat)];
-              }).find(n => n.shapeType === "Bar" && n.type === "rect" && n.datum && (n.datum.data || n.datum).id === "D");
-              const x = bar.transform.x + ct.x;
-              const px = y => Array.from(canvas.getContext("2d").getImageData(Math.round(x * ratio), Math.round((y + ct.y) * ratio), 1, 1).data);
-              out.pixels = {gap: px(gapY), above: px(gapY - 12), below: px(gapY + 12)};
-            }
-            if (opts.zoom) {
-              viz._zoomRescale({k: 1, x: 0, y: 0});
-              out.identity = viz._yAxis._breaks.length;
-              // Zoom 8× into the top of the plot, above the break.
-              viz._zoomRescale({k: 8, x: -2800, y: 0});
-              out.zoomed = {breaks: viz._yAxis._breaks.length, domain: viz._yAxis._d3Scale.domain()};
-            }
-            resolve(out);
-           } catch (e) {
-            reject(e);
-           }
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, opts.data || bars, opts],
-  );
+  probeChart(src, viz => {
+    const masks = [];
+    const bars = [];
+    const shapes = new Set();
+    const lines = [];
+    const texts = [];
+    let order = 0;
+    let firstShape = Infinity;
+    const walk = (n, inMask) => {
+      order++;
+      const isMask = String(n.key).startsWith("plot-break-mask");
+      if (isMask) {
+        const holes = n.clip.d.split("Z").filter(Boolean).slice(1).map(r => r.replace("M", "").split("L").map(pt => pt.split(",").map(Number)));
+        masks.push({key: n.key, rings: holes.length + 1, holes});
+      }
+      if (String(n.key).startsWith("break-line")) lines.push({key: n.key, points: n.points, order, stroke: n.paint.stroke});
+      if (n.shapeType && order < firstShape) firstShape = order;
+      if (n.shapeType) shapes.add(`${n.shapeType}:${inMask || isMask}`);
+      if (n.type === "text") texts.push({key: String(n.key), masked: inMask, y: n.transform && n.transform.y, h: n.height});
+      const row = n.datum && (n.datum.data || n.datum);
+      if (n.shapeType === "Bar" && n.type === "rect")
+        bars.push({id: row && row.id, v: row && row.v, y: n.transform.y + n.y, h: n.height});
+      (n.children || []).forEach(c => walk(c, inMask || isMask));
+    };
+    viz._chartScene.forEach(n => walk(n, false));
+    const axisInfo = axis => ({
+      breaks: axis._breaks.map(b => ({start: b.start, end: b.end, baseline: b.baseline})),
+      ticks: axis._visibleTicks.map(Number),
+      lines: axis.toScene().children.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
+      zero: axis._getPosition(0),
+      edge: axis._baselineBreak ? axis._getPosition(axis._baselineBreak.edge) : null,
+      range: axis._getRange(),
+    });
+    const out = {y: axisInfo(viz._yAxis), x: axisInfo(viz._xAxis), masks, bars, shapes: [...shapes], lines, texts, firstShape};
+    if (opts.pixel) {
+      const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
+      const ratio = canvas.width / canvas.getBoundingClientRect().width;
+      const ct = viz._chartTransform;
+      const brk = viz._yAxis._breaks[0];
+      const gapY = (brk.startPosition + brk.endPosition) / 2;
+      const bar = viz._chartScene.flatMap(function flat(n) {
+        return [n, ...(n.children || []).flatMap(flat)];
+      }).find(n => n.shapeType === "Bar" && n.type === "rect" && n.datum && (n.datum.data || n.datum).id === "D");
+      const x = bar.transform.x + ct.x;
+      const px = y => Array.from(canvas.getContext("2d").getImageData(Math.round(x * ratio), Math.round((y + ct.y) * ratio), 1, 1).data);
+      out.pixels = {gap: px(gapY), above: px(gapY - 12), below: px(gapY + 12)};
+    }
+    if (opts.zoom) {
+      viz._zoomRescale({k: 1, x: 0, y: 0});
+      out.identity = viz._yAxis._breaks.length;
+      // Zoom 8× into the top of the plot, above the break.
+      viz._zoomRescale({k: 8, x: -2800, y: 0});
+      out.zoomed = {breaks: viz._yAxis._breaks.length, domain: viz._yAxis._d3Scale.domain()};
+    }
+    return out;
+  }, {data: opts.data || bars, renderer: opts.renderer});
 
 it("BarChart: yBreak fits a tall outlier bar, labeling both edges and masking the bar", async function () {
   const out = await probe(`(lib, data) => new lib.BarChart().data(data).groupBy("id").x("id").y("v").yBreak([80, 900])`);

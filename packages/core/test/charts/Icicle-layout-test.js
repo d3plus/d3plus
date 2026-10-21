@@ -10,6 +10,7 @@ import {
 import {icicleBands} from "../../src/charts/Icicle/geometry.ts";
 import {icicleLayout} from "../../src/charts/Icicle/layout.ts";
 import {icicleDef} from "../../src/charts/Icicle/index.ts";
+import {near} from "~test/helpers.js";
 
 const key = k => d => d[k];
 const sum = d => d.value;
@@ -20,7 +21,6 @@ const rows = [
   {group: "B", item: "b1", value: 60},
 ];
 const frame = {width: 400, height: 300, orient: "horizontal"};
-const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 
 function mockViz({schema = {}, ...extra} = {}) {
   return {
@@ -57,8 +57,8 @@ it("Icicle layout: icicleLayout places every node in its depth's band, breadth b
   assert.strictEqual(nodes.length, 5);
   const b = nodes.find(n => n.id === JSON.stringify(["B"]));
   assert.deepStrictEqual([b.x, b.width], [0, 200]);
-  close(b.y, 0, "largest first");
-  close(b.height, 180, "60% of the breadth");
+  near(b.y, 0, 1e-9, "largest first");
+  near(b.height, 180, 1e-9, "60% of the breadth");
   for (const n of nodes.filter(d => d.parent)) {
     assert.strictEqual(n.x, n.parent.x + n.parent.width, "one band further out");
     assert.ok(n.y >= n.parent.y - 1e-9 && n.y + n.height <= n.parent.y + n.parent.height + 1e-9);

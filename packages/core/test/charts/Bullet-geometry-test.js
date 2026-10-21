@@ -22,9 +22,7 @@ import {
   TICK_LENGTH,
 } from "../../src/charts/Bullet/bulletLayout.ts";
 import {shadeBands} from "../../src/charts/Bullet/bulletStyle.ts";
-
-const close = (a, b, msg, eps = 1e-9) =>
-  assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);
+import {near} from "~test/helpers.js";
 
 const horizontal = {
   orient: "horizontal",
@@ -66,9 +64,9 @@ it("Bullet geometry: bandShades steps from the darkest shade to the lightest", (
   assert.deepStrictEqual(bandShades(1), [0.24]);
   const three = bandShades(3);
   assert.strictEqual(three.length, 3);
-  close(three[0], 0.36, "first is darkest");
-  close(three[1], 0.24, "middle");
-  close(three[2], 0.12, "last is lightest");
+  near(three[0], 0.36, 1e-9, "first is darkest");
+  near(three[1], 0.24, 1e-9, "middle");
+  near(three[2], 0.12, 1e-9, "last is lightest");
   assert.deepStrictEqual(bandShades(2, 1, 0), [1, 0]);
 });
 
@@ -145,12 +143,12 @@ it("Bullet geometry: fitAxis honors a tick count, a tick array, and false", () =
 });
 
 it("Bullet geometry: domainFraction clamps to the domain", () => {
-  close(domainFraction(25, [0, 100]), 0.25, "inside");
+  near(domainFraction(25, [0, 100]), 0.25, 1e-9, "inside");
   assert.strictEqual(domainFraction(150, [0, 100]), 1);
   assert.strictEqual(domainFraction(-5, [0, 100]), 0);
   assert.strictEqual(domainFraction(NaN, [0, 100]), 0);
   assert.strictEqual(domainFraction(3, [3, 3]), 0, "empty domain");
-  close(domainFraction(0, [-50, 50]), 0.5, "negative domain");
+  near(domainFraction(0, [-50, 50]), 0.5, 1e-9, "negative domain");
 });
 
 it("Bullet geometry: trackPosition grows rightward or upward", () => {
@@ -240,10 +238,10 @@ it("Bullet layout: bulletStack stacks horizontal rows with labels at the start",
   assert.strictEqual(a.band.x + a.band.width, 600 - 2 - 10, "room for the last tick label");
   assert.strictEqual(a.band.height, 40, "capped at bulletSize");
   assert.ok(b.band.y > a.band.y + a.band.height + axisDepth(stack()), "rows don't overlap");
-  close(c.band.y - b.band.y, b.band.y - a.band.y, "even steps");
+  near(c.band.y - b.band.y, b.band.y - a.band.y, 1e-9, "even steps");
   const top = a.band.y;
   const bottom = c.band.y + c.band.height + axisDepth(stack());
-  close(top - 0, 300 - bottom, "the stack is centered", 1e-6);
+  near(top - 0, 300 - bottom, 1e-6, "the stack is centered");
   assert.deepStrictEqual(a.label, {x: 82, y: a.band.y + 20, anchor: "end", maxWidth: 80});
   assert.ok(slots.every(s => s.axis), "each row has its axis");
   assert.strictEqual(a.hit.x, 0, "the hit area includes the label");
@@ -273,7 +271,7 @@ it("Bullet layout: bulletStack lines up vertical columns with labels on top", ()
   assert.strictEqual(a.band.y, 2 + 26 + 12 + 5, "below the label block and half a tick label");
   assert.strictEqual(a.band.y + a.band.height, 300 - 5 - 2);
   assert.strictEqual(a.label.anchor, "middle");
-  close(a.label.x, a.band.x + a.band.width / 2, "label centered over the band");
+  near(a.label.x, a.band.x + a.band.width / 2, 1e-9, "label centered over the band");
   assert.ok(a.band.x - axisDepth(stack({orient: "vertical"})) >= 0, "axis fits to the left");
   const shared = bulletStack(stack({orient: "vertical", axis: "shared"}));
   assert.deepStrictEqual(shared.map(s => s.axis), [true, false, false], "the first column labels the axis");

@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     ParallelCoordinates brushing, Canvas, and small multiples in Chromium:
@@ -30,11 +31,9 @@ it("ParallelCoordinates brushes from code fade the lines outside every brush", a
         .brushes({x: [10, 29], y: [0, 20]});
       await new Promise(r => viz.render(r));
       const lines = [];
-      const walk = n => {
+      for (const n of sceneNodes(viz._paintedScene.root)) {
         if (typeof n.key === "string" && n.key.includes("pc-line-")) lines.push(n);
-        (n.children || []).forEach(walk);
-      };
-      walk(viz._paintedScene.root);
+      }
       const visible = lines.filter(n => !n.key.endsWith("::hit"));
       const active = visible.filter(n => n.interactive !== false).map(n => n.datum.id);
       const faded = visible.find(n => n.interactive === false);
@@ -83,11 +82,9 @@ it("ParallelCoordinates dragging a strip sets a brush and fires on('brush')", as
       await new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
       const brushes = viz.brushes();
       let off = 0;
-      const walk = n => {
+      for (const n of sceneNodes(viz._paintedScene.root)) {
         if (typeof n.key === "string" && n.key.includes("pc-line-") && !n.key.endsWith("::hit") && n.interactive === false) off++;
-        (n.children || []).forEach(walk);
-      };
-      walk(viz._paintedScene.root);
+      }
       return {brushes, fired, off};
     },
     rows,
@@ -112,11 +109,9 @@ it("ParallelCoordinates brushing(false) removes the strips; a translated locale 
         .select("#b").duration(0).data(data).groupBy(["group", "id"]).locale("es-ES");
       await new Promise(r => b.render(r));
       let off = 0;
-      const walk = n => {
+      for (const n of sceneNodes(a._paintedScene.root)) {
         if (typeof n.key === "string" && n.key.includes("pc-line-") && n.interactive === false) off++;
-        (n.children || []).forEach(walk);
-      };
-      walk(a._paintedScene.root);
+      }
       return {
         strips: document.querySelectorAll("#a g.d3plus-parallel-brush").length,
         off,

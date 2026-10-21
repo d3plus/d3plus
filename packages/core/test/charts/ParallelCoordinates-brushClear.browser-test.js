@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Clearing ParallelCoordinates brushes in Chromium, on SVG and Canvas: a
@@ -67,11 +68,9 @@ const scenario = async ({data, renderer, brushes, facet, steps}) => {
   };
   const lines = () => {
     const out = [];
-    const walk = n => {
+    for (const n of sceneNodes(viz._paintedScene.root)) {
       if (typeof n.key === "string" && n.key.includes("pc-line-") && !n.key.endsWith("::hit")) out.push(n);
-      (n.children || []).forEach(walk);
-    };
-    walk(viz._paintedScene.root);
+    }
     return {
       faded: out.filter(n => n.interactive === false).length,
       opacities: [...new Set(out.map(n => n.paint.strokeOpacity))].length,

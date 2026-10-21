@@ -2,6 +2,8 @@ import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 
 import {render} from "~test/browser/render.js";
+import {overlaps} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     A title beside the corner control panels (zoom on the right, table view
@@ -36,11 +38,9 @@ const titleLayout = (title, renderer) =>
         viz.render(() => {
           try {
             let node = null;
-            const walk = n => {
+            for (const n of sceneNodes(viz.toScene().root)) {
               if (n.key === "viz-title" && n.type === "text") node = n;
-              (n.children || []).forEach(walk);
-            };
-            walk(viz.toScene().root);
+            }
             const host = document.querySelector("#s").getBoundingClientRect();
             const rects = selector =>
               [...document.querySelectorAll(selector)].map(e => e.getBoundingClientRect().toJSON());
@@ -71,8 +71,6 @@ const titleLayout = (title, renderer) =>
       }),
     {title, renderer},
   );
-
-const overlaps = (a, b) => !(a.left >= b.right || a.right <= b.left || a.top >= b.bottom || a.bottom <= b.top);
 
 /** Asserts the title reads in full and stays clear of every corner control. */
 function assertClear(out, text, label) {

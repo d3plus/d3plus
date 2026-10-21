@@ -3,6 +3,7 @@ import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Pyramid in real Chromium: two sides mirrored about one center line, a
@@ -231,11 +232,9 @@ it("Pyramid zooms its value axis", async function () {
       const after = viz._xAxis._d3Scale.domain();
       const scene = viz.toScene();
       const keys = [];
-      const walk = n => {
+      for (const n of sceneNodes(scene.root)) {
         keys.push(n.key);
-        (n.children || []).forEach(walk);
-      };
-      walk(scene.root);
+      }
       resolve({before, after, titles: keys.includes("pyramid-side-titles")});
     });
   }), [rows]);
@@ -289,11 +288,9 @@ for (const renderer of ["svg", "canvas"]) {
         .renderer(renderer).duration(0).detectVisible(false).select("#viz");
       const keys = scene => {
         const out = [];
-        const walk = n => {
+        for (const n of sceneNodes(scene.root)) {
           if (/^pyramid-(side-titles|categories|comparison-\d)$/.test(String(n.key))) out.push(n.key);
-          (n.children || []).forEach(walk);
-        };
-        walk(scene.root);
+        }
         return out.sort();
       };
       viz.render(() => {
