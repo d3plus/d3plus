@@ -247,8 +247,8 @@ Playwright/Chromium (visual-regression snapshots, render parity).
 pnpm run docs      # Generates markdown docs + Storybook args from TypeDoc
 ```
 
-`scripts/docs/docs.js` also propagates the root `package.json` version into every
-workspace package — the release flow relies on this.
+Pass `VERBOSE=1` to any build script for per-file output; by default piped
+(`pnpm -r`) and CI runs print one line per step.
 
 ## Code Conventions
 
@@ -299,7 +299,8 @@ To specialize an existing chart, pass a `Base` to `makeChart` (e.g.
   API surface curated.
 - **Circular dependency warnings from Rollup are suppressed** in the build
   config. Don't introduce new cross-package circular dependencies.
-- **Releases require `GITHUB_TOKEN`.** Don't run `pnpm run release` without it.
+- **Releases need the GitHub CLI and an npm login.** `pnpm run release`
+  checks both (`gh auth status`, `npm whoami`) before changing anything.
 
 ## Running a Release
 
@@ -307,9 +308,12 @@ Releases are automated. Do not run this unless you are the maintainer and have
 confirmed all tests pass:
 
 ```bash
-GITHUB_TOKEN=<token> node scripts/release.js
+pnpm run release
 ```
 
-The script prompts for the new version, runs tests/builds/docs (which writes the
-version into every package), then commits, tags, publishes all packages to npm
-with `--access=public`, and creates a GitHub release.
+The script checks that `main` is clean and in sync with origin, prompts for the
+new version, writes it into every package, rebuilds everything and the docs,
+optionally runs the tests, then commits, tags, publishes all packages to npm
+(`--tag next` for a prerelease), pushes, and creates the GitHub release with
+`gh`. Each step prints one line; a failing step prints its captured output, and
+a failure or abort before the commit restores the working tree.
