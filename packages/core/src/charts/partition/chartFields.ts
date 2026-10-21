@@ -1,17 +1,13 @@
 /**
     ChartDefinition pieces shared by the partition charts (Sunburst, Icicle):
-    the "Share" tooltip row, Treemap-style threshold bucketing, the default
-    sibling order, the `sum` accessor, the legend that hides while it would
-    repeat every node, and the setup that installs the shared interaction.
+    Treemap-style threshold bucketing, the default sibling order, the `sum`
+    accessor, the legend order, and the setup that installs the shared
+    interaction.
 */
 
-import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
-import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
-import {summedShare} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
@@ -19,30 +15,6 @@ import {partitionSort} from "./hierarchy.js";
 import type {PartitionNode, PartitionSort} from "./hierarchy.js";
 import {partitionHandlers} from "./interaction.js";
 import type {PartitionInteraction} from "./interaction.js";
-
-/** The "Share" tooltip row: a node's share of the drawn whole. */
-export function partitionShareRow(viz: VizInstance): unknown[] {
-  return [
-    () => viz.schema.translate("Share"),
-    (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
-      const pct = (s: number) =>
-        `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
-      // A ColorScale range swatch carries no per-row share, so sum the share
-      // of every datum that falls in its color range.
-      if (x._isColorScaleBucket) {
-        const s = colorScaleBucketShare(
-          viz,
-          x.color,
-          viz.schema.sum as (d: DataPoint, i: number) => number,
-        );
-        return s == null ? "" : pct(s);
-      }
-      // A Legend bucket aggregates rows; sum its members' shares.
-      const share = summedShare(x);
-      return Number.isFinite(share) ? pct(share) : "";
-    },
-  ];
-}
 
 /** Buckets small branches into a "Values" node per `threshold` (Treemap's algorithm). */
 export function partitionThreshold(
@@ -83,18 +55,6 @@ export function partitionSumOnSet(viz: VizInstance, v: unknown): void {
 export function partitionLegendSort(viz: VizInstance) {
   const sumFn = viz.schema.sum as (d: DataPoint) => number;
   return (a: DataPoint, b: DataPoint) => sumFn(b) - sumFn(a);
-}
-
-/** The Viz legend, hidden while it would list every drawn row. */
-export function partitionLegend(viz: VizInstance) {
-  const base = viz.schema.legend as (
-    config: D3plusConfig,
-    arr: DataPoint[],
-  ) => unknown;
-  return (config: D3plusConfig, arr: DataPoint[]) => {
-    if (arr.length === viz._filteredData.length) return false;
-    return base.call(viz, config, arr);
-  };
 }
 
 /**

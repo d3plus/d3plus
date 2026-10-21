@@ -461,7 +461,8 @@ export {
   polarSpokeRotation,
 } from "./src/charts/polar/labels.js";
 export {polarCategoryLayout, polarCategoryNodes, polarLevelNodes} from "./src/charts/polar/chrome.js";
-export {polarAxisConfig, polarLegend, polarValueRow, polarWedgeNodes} from "./src/charts/polar/config.js";
+export {polarAxisConfig, polarValueRow, polarWedgeNodes} from "./src/charts/polar/config.js";
+export {rowLegend, shareRow} from "./src/charts/features/sharedFields.js";
 export {polarSlotArc, polarSlotTops, polarWedgeLayout} from "./src/charts/polar/wedgeLayout.js";
 export type {PolarFrame, PolarWedge, PolarWedgeOptions} from "./src/charts/polar/wedgeLayout.js";
 export {

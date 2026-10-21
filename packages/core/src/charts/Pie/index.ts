@@ -8,15 +8,12 @@
 
 import {pie as d3Pie} from "d3-shape";
 import {backgroundColor} from "@d3plus/dom";
-import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
-import {summedShare} from "../features/shareKey.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
-import type {D3plusConfig} from "../../utils/D3plusConfig.js";
+import {rowLegend, shareRow} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -143,42 +140,10 @@ export const pieDef: DataDrivenChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        tbody: [
-          [
-            () => viz.schema.translate("Share"),
-            (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
-              // A ColorScale range swatch carries no per-row share, so sum the
-              // share of every datum that falls in its color range.
-              if (x._isColorScaleBucket) {
-                const s = colorScaleBucketShare(
-                  viz,
-                  x.color,
-                  viz.schema.value as (d: DataPoint, i: number) => number,
-                );
-                return s == null
-                  ? ""
-                  : `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
-              }
-              // A Legend bucket aggregates multiple rows; sum its members' shares.
-              const share = summedShare(x);
-              if (!Number.isFinite(share)) return "";
-              return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
-            },
-          ],
-        ],
+        tbody: [shareRow(viz, "value")],
       }),
     },
-    {
-      key: "legend",
-      coerce: "const",
-      factory: (viz: VizInstance) => {
-        const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
-        return (config: D3plusConfig, arr: DataPoint[]) => {
-          if (arr.length === viz._filteredData.length) return false;
-          return base.call(viz, config, arr);
-        };
-      },
-    },
+    {key: "legend", coerce: "const", factory: rowLegend},
   ],
 };
 

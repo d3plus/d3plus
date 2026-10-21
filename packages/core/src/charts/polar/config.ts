@@ -1,7 +1,6 @@
 /**
     Config defaults shared by the polar charts (PolarArea, RadialBar): the
-    axis styles, the legend rule, the tooltip's value row, and the wedge
-    emit.
+    axis styles, the tooltip's value row, and the wedge emit.
 */
 
 import type {DataPoint} from "@d3plus/data";
@@ -9,7 +8,6 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
-import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
@@ -45,24 +43,6 @@ export function polarAxisConfig(viz: VizInstance): Record<string, unknown> {
       stroke: () => backgroundInk(viz),
       strokeWidth: constant(1),
     },
-  };
-}
-
-/**
-    Wraps the base legend so it hides when every drawn row is its own legend
-    entry and `labeled` says the chart's labels already name each one.
-*/
-export function polarLegend(
-  viz: VizInstance,
-  labeled: (viz: VizInstance) => boolean = () => true,
-): (config: D3plusConfig, arr: DataPoint[]) => unknown {
-  const base = viz.schema.legend as (
-    config: D3plusConfig,
-    arr: DataPoint[],
-  ) => unknown;
-  return (config: D3plusConfig, arr: DataPoint[]) => {
-    if (arr.length === viz._filteredData.length && labeled(viz)) return false;
-    return base.call(viz, config, arr);
   };
 }
 
