@@ -242,7 +242,6 @@ function collectInterfaceDocs(project) {
   return {byName, merged};
 }
 
-const {version} = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 // Framework wrapper packages. These ship curated READMEs and are documented in
 // the Frameworks guide, so the generator skips them: a TypeDoc API dump doesn't
@@ -352,6 +351,8 @@ const markdownOptions = {
     "*",
   ],
   skipErrorChecking: true,
+  // Info lines are one per package and output; keep warnings and errors.
+  logLevel: "Warn",
   excludePrivate: true,
   excludeInternal: true,
 };
@@ -362,28 +363,17 @@ async function generateMarkdown() {
     .filter(d => d.isDirectory())
     .map(d => path.join("packages", d.name));
 
+  const failed = [];
   for (let i = 0; i < folders.length; i++) {
     const folder = folders[i];
 
-    let packageJSON = JSON.parse(
+    const packageJSON = JSON.parse(
       fs.readFileSync(`${folder}/package.json`, "utf8"),
     );
     const {name} = packageJSON;
 
-    log.timer(`updating package.json for ${name}`);
-    packageJSON.version = version;
-    fs.writeFileSync(
-      `${folder}/package.json`,
-      JSON.stringify(packageJSON, null, 2),
-    );
-
-    // Skip this docs package and the framework wrappers (README + stories),
-    // but only after the version bump above so their versions still sync.
-    if (name === "@d3plus/docs" || FRAMEWORK_WRAPPERS.has(name)) {
-      log.done();
-      console.log("");
-      continue;
-    }
+    // Skip this docs package and the framework wrappers (README + stories).
+    if (name === "@d3plus/docs" || FRAMEWORK_WRAPPERS.has(name)) continue;
 
     // Find the entry point
     const indexFile = fs.existsSync(`${folder}/index.ts`)
@@ -392,11 +382,7 @@ async function generateMarkdown() {
         ? `${folder}/index.tsx`
         : null;
 
-    if (!indexFile) {
-      log.done();
-      console.log("");
-      continue;
-    }
+    if (!indexFile) continue;
 
     // Use TypeDoc + typedoc-plugin-markdown to generate README
     log.timer(`generating docs for ${name}`);
@@ -426,9 +412,8 @@ async function generateMarkdown() {
 
     const project = await app.convert();
     if (!project) {
-      log.fail();
-      console.error(`  TypeDoc conversion failed for ${name}`);
-      console.log("");
+      log.fail(`TypeDoc conversion failed for ${name}`);
+      failed.push(name);
       continue;
     }
 
@@ -553,9 +538,12 @@ async function generateMarkdown() {
     pruneOrphans(folder, written, await loadPackageExports(folder));
 
     log.done();
-    console.log("");
   }
   log.exit();
+  if (failed.length) throw new Error(`docs generation failed for ${failed.join(", ")}`);
 }
 
-generateMarkdown();
+generateMarkdown().catch(err => {
+  console.error(err);
+  process.exit(1);
+});

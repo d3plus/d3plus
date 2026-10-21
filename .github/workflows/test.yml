@@ -83,6 +83,9 @@ jobs:
         run: pnpm test:coverage
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
+      - name: Test docs generator
+        if: matrix.node-version == '22.x'
+        run: pnpm test:docs
       - name: Build docs site (Storybook)
         if: matrix.node-version == '22.x'
         run: pnpm --filter @d3plus/docs build
