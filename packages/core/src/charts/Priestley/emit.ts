@@ -9,21 +9,10 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig, textureFill, shapeConfigFor} from "../features/emitHelpers.js";
+import {userLabelConfig, textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
-
-function resolveAccessor<T>(
-  val: unknown,
-  d: DataPoint,
-  i: number,
-): T | undefined {
-  if (typeof val === "function") {
-    return (val as (d: DataPoint, i: number) => T)(d, i);
-  }
-  return val as T | undefined;
-}
 
 export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
   const data = (shapeData ?? []) as PriestleyDatum[];

@@ -6,7 +6,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {textureFill, shapeConfigFor} from "../features/emitHelpers.js";
+import {textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
@@ -14,11 +14,6 @@ interface RmCell extends Record<string, unknown> {
   row: unknown;
   column: unknown;
   data?: DataPoint;
-}
-
-function resolveAccessor<T>(val: unknown, d: DataPoint, i: number): T | undefined {
-  if (typeof val === "function") return (val as (d: DataPoint, i: number) => T)(d, i);
-  return val as T | undefined;
 }
 
 export const radialMatrixEmit: ChartEmit = ({viz, shapeData}) => {
