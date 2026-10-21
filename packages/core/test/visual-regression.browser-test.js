@@ -313,7 +313,7 @@ const fingerprintFn = builderSrc =>
               s: el.getAttribute("stroke") || "",
             });
           }
-          resolve({counts, shapes, texts});
+          resolve({counts, shapes, texts, chartScene: (viz._chartScene || []).length});
         } catch (err) {
           reject(err);
         }
@@ -378,7 +378,8 @@ async function compare(name, actual) {
 
 for (const [name, builderSrc] of charts) {
   it(`visual snapshot: ${name}`, async function () {
-    const fp = await render(body, fingerprintFn, builderSrc);
+    const {chartScene, ...fp} = await render(body, fingerprintFn, builderSrc);
+    assert.ok(chartScene > 0, `${name} emitted its marks into _chartScene`);
     assert.ok(fp.shapes.length > 0, `${name} rendered at least one shape`);
     await compare(name, fp);
   });
