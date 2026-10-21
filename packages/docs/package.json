@@ -14,34 +14,28 @@
   },
   "keywords": [],
   "scripts": {
-    "build": "storybook build --docs -o build",
+    "build": "storybook build --docs --quiet -o build",
     "dev": "node ../../scripts/dev.js",
-    "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000",
-    "lint": "eslint packages args helpers docs .storybook",
-    "test": "pnpm run lint"
+    "dev:local": "storybook dev --docs --ci --no-version-updates --port=4000"
   },
-  "dependencies": {
+  "devDependencies": {
     "@d3plus/color": "workspace:*",
     "@d3plus/core": "workspace:*",
     "@d3plus/dom": "workspace:*",
     "@d3plus/format": "workspace:*",
     "@d3plus/locales": "workspace:*",
     "@d3plus/react": "workspace:*",
-    "@types/react": "^19.1.0",
-    "d3-selection": "^3.0.0",
-    "d3-time-format": "^4.1.0",
-    "next": "^15.2.4",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "typescript": "^5.8.2",
-    "vite": "^6.2.5",
-    "webpack": "^5.98.0"
-  },
-  "devDependencies": {
     "@storybook/addon-docs": "10.3.4",
-    "@storybook/nextjs": "10.3.4",
+    "@storybook/react-vite": "10.3.4",
+    "@types/react": "catalog:",
+    "d3-selection": "catalog:",
+    "d3-time-format": "catalog:",
     "eslint-plugin-storybook": "10.3.4",
+    "react": "catalog:",
+    "react-dom": "catalog:",
     "remark-gfm": "^4.0.1",
-    "storybook": "10.3.4"
+    "storybook": "10.3.4",
+    "typescript": "catalog:",
+    "vite": "catalog:"
   }
 }
