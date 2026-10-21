@@ -66,10 +66,15 @@ for (const s of stories) {
       const svgShapes = root.querySelectorAll("svg rect, svg circle, svg path, svg line, svg image, svg polygon").length;
       const hasCanvas = !!root.querySelector("canvas");
       const text = (root.innerText || "").trim();
+      // HTML-only stories (color swatches, say) render sized elements, no text.
+      const sized = [...root.querySelectorAll("*")].some(el => {
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0 && getComputedStyle(el).backgroundColor !== "rgba(0, 0, 0, 0)";
+      });
       return {
         svgShapes, hasCanvas, childCount: root.childElementCount,
         textLen: text.length, shownError,
-        hasContent: svgShapes > 0 || hasCanvas || (root.childElementCount > 0 && text.length > 0),
+        hasContent: svgShapes > 0 || hasCanvas || sized || (root.childElementCount > 0 && text.length > 0),
       };
     });
   } catch (e) {
