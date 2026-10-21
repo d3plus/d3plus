@@ -67,7 +67,22 @@ export default async function (opts = {}) {
     },
   };
 
+  // The full bundle compiles the other @d3plus packages from their source
+  // rather than their es/ output, so it never picks up a stale build.
+  const packagesDir = path.resolve(import.meta.dirname, "../../packages");
+  const workspaceSources = {
+    name: "workspace-sources",
+    resolveId(source) {
+      const match = source.match(/^@d3plus\/([a-z]+)$/);
+      if (!match) return null;
+      return ["index.ts", "index.tsx"]
+        .map(file => path.join(packagesDir, match[1], file))
+        .find(file => fs.existsSync(file)) ?? null;
+    },
+  };
+
   const plugins = [
+    workspaceSources,
     tsExtensions,
     replace({"process.env.NODE_ENV": JSON.stringify(env), preventAssignment: true}),
     swc(),
