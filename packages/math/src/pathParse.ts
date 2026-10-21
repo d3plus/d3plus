@@ -87,6 +87,49 @@ class Scanner {
   }
 }
 
+/** How many numbers each SVG path command takes per segment. */
+const PATH_ARITY: Record<string, number> = {a: 7, c: 6, h: 1, l: 2, m: 2, q: 4, s: 4, t: 2, v: 1, z: 0};
+
+/**
+    One command of an SVG path as written: its letter (case kept, so relative
+    commands stay relative) and its arguments, one array per segment when the
+    command repeats implicitly.
+*/
+export interface PathCommand {
+  command: string;
+  segments: number[][];
+}
+
+/**
+    Tokenizes an SVG path `d` string into its commands as written, without
+    resolving them to absolute coordinates (see `parsePath` for that). Arc
+    flags are read as single `0`/`1` characters, so compact arcs such as
+    `a1 1 0 011 1` tokenize correctly. Stops at the first character that is
+    not a path command.
+    @param d An SVG path string (the `d` attribute of a `<path>`).
+*/
+export function pathCommands(d: string): PathCommand[] {
+  const out: PathCommand[] = [];
+  if (!d) return out;
+  const sc = new Scanner(d);
+  while (!sc.eof()) {
+    const command = sc.nextCommand();
+    if (!command) break;
+    const lower = command.toLowerCase();
+    const arity = PATH_ARITY[lower];
+    if (arity === undefined) break;
+    const segments: number[][] = [];
+    while (arity && sc.moreArgs()) {
+      const segment: number[] = [];
+      for (let j = 0; j < arity; j++)
+        segment.push(lower === "a" && (j === 3 || j === 4) ? sc.readFlag() : sc.readNumber());
+      segments.push(segment);
+    }
+    out.push({command, segments});
+  }
+  return out;
+}
+
 /**
     Parses an SVG path `d` string into a flat list of absolute {@link PathSegment}s,
     with no DOM involved. Every relative command is resolved against the running
