@@ -65,7 +65,7 @@ export default {
     // Node-only runtime deps never run in the browser preview, so they
     // resolve to an empty module.
     const empty = path.resolve(__dirname, "empty.js");
-    const nodeOnly = ["jsdom", "@napi-rs/canvas", "undici", "node:dns", "node:net"].map(name => ({
+    const nodeOnly = ["jsdom", "@napi-rs/canvas", "node:dns", "node:http", "node:https", "node:net"].map(name => ({
       find: new RegExp(`^${name}$`),
       replacement: empty,
     }));
