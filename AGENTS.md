@@ -247,10 +247,10 @@ pnpm test                          # all packages (pretest builds ESM first)
 pnpm --filter @d3plus/core test    # a single package
 ```
 
-Each package's test script runs ESLint on `index.ts`/`src/**` (core also lints
-`internal.ts`/`umd-entry.ts`), then Mocha on `test/**/*-test.js`. Tests import
-from `es/` (generated) and use JSDOM; some core tests drive a real browser via
-Playwright/Chromium (visual-regression snapshots, render parity).
+`pnpm lint` runs ESLint once over the whole repo (`eslint --cache .`); `pnpm
+test` runs it, then each package's Mocha suite on `test/**/*-test.js`. Tests
+import from `es/` (generated) and use JSDOM; some core tests drive a real
+browser via Playwright/Chromium (visual-regression snapshots, render parity).
 
 ### Documentation
 

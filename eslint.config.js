@@ -7,10 +7,14 @@ import js from "@eslint/js";
 export default [
   js.configs.recommended,
   {
-    ignores: ["packages/docs/build/**", "packages/docs/.next/**"],
+    // Build output and the manual dev pages.
+    ignores: [
+      "**/{es,umd,types,dist,build,coverage}/**",
+      "packages/*/dev/**",
+    ],
   },
   {
-    files: ["**/*.js"],
+    files: ["**/*.js", "**/*.mjs"],
     plugins: {
       js,
     },
@@ -125,9 +129,12 @@ export default [
     files: ["**/test/**/*.js", "**/test/**/*.mjs"],
     languageOptions: {
       globals: {
+        describe: "readonly",
         it: "readonly",
         before: "readonly",
         after: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
         global: "readonly",
         window: "readonly",
         document: "readonly",

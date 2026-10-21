@@ -11,8 +11,6 @@ const isReact = name === "@d3plus/react";
 fs.rmSync("es", {recursive: true, force: true, maxRetries: 3, retryDelay: 100});
 fs.mkdirSync("es", {recursive: true});
 
-const ext = isReact ? "tsx" : "ts";
-
 function collectFiles(dir, pattern) {
   const results = [];
   for (const entry of fs.readdirSync(dir, {withFileTypes: true, recursive: true})) {
