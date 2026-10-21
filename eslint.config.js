@@ -6,11 +6,6 @@ import js from "@eslint/js";
 export default [
   js.configs.recommended,
   {
-    // New in ESLint 10's recommended set; warns until the existing dead
-    // assignments are cleaned up.
-    rules: {"no-useless-assignment": "warn"},
-  },
-  {
     // Build output and the manual dev pages.
     ignores: [
       "**/{es,umd,types,dist,build,coverage}/**",

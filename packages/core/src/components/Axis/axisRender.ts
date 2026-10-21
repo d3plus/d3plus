@@ -80,7 +80,7 @@ export function calculateTicks(
   // A broken scale ticks each segment like an axis; a label pass drops a crowded break edge's label.
   if (isBrokenScale(scale))
     return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks), minorTicks ? undefined : (v, regular, s) => !crowdsEndLabel(v, regular, d => s(d)));
-  let ticks: unknown[] = [];
+  let ticks: unknown[];
 
   const scaleClone = scale.copy();
   // A time axis ticks the data it shows: the dates inside its domain, so a

@@ -8,7 +8,7 @@ import numericBuffer from "../../src/charts/plotBuffers/numericBuffer.ts";
 it("charts/numericBuffer returns the domain untouched when the value is undefined", () => {
   const ax = scaleLinear().domain([0, 50]).range([0, 100]);
   assert.deepStrictEqual(
-    numericBuffer(ax, "linear", undefined, 10, [0, 100], [0, 50], 0, false),
+    numericBuffer(ax, "linear", undefined, 10, [0, 50], 0, false),
     [0, 50],
   );
 });
@@ -16,7 +16,7 @@ it("charts/numericBuffer returns the domain untouched when the value is undefine
 it("charts/numericBuffer returns the domain untouched when an endpoint is NaN", () => {
   const ax = scaleLinear().range([0, 100]);
   assert.deepStrictEqual(
-    numericBuffer(ax, "linear", 5, 10, [0, 100], [NaN, 50], 0, false),
+    numericBuffer(ax, "linear", 5, 10, [NaN, 50], 0, false),
     [NaN, 50],
   );
 });
@@ -24,7 +24,7 @@ it("charts/numericBuffer returns the domain untouched when an endpoint is NaN", 
 it("charts/numericBuffer expands a zero-width domain so the axis is renderable", () => {
   const ax = scaleLinear().domain([5, 5]).range([0, 100]);
   assert.deepStrictEqual(
-    numericBuffer(ax, "linear", 5, 10, [0, 100], [5, 5], 0, false),
+    numericBuffer(ax, "linear", 5, 10, [5, 5], 0, false),
     [4, 6],
   );
 });
@@ -34,7 +34,7 @@ it("charts/numericBuffer extends the domain when a shape would overflow the low 
   // past the range start (0), so the lower domain bound is pushed out.
   const ax = scaleLinear().domain([0, 100]).range([0, 500]);
   assert.deepStrictEqual(
-    numericBuffer(ax, "linear", 2, 20, [0, 500], [0, 100], 0, false),
+    numericBuffer(ax, "linear", 2, 20, [0, 100], 0, false),
     [-4, 100],
   );
 });
@@ -42,7 +42,7 @@ it("charts/numericBuffer extends the domain when a shape would overflow the low 
 it("charts/numericBuffer leaves the domain alone when the shape fits inside the range", () => {
   const ax = scaleLinear().domain([0, 100]).range([0, 500]);
   assert.deepStrictEqual(
-    numericBuffer(ax, "linear", 50, 5, [0, 500], [0, 100], 0, false),
+    numericBuffer(ax, "linear", 50, 5, [0, 100], 0, false),
     [0, 100],
   );
 });

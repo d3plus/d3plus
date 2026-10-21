@@ -18,7 +18,6 @@ export default function (
   scale: string,
   value: number,
   size: number,
-  range: number[],
   domain: number[],
   index: number,
   invert: boolean,
@@ -26,10 +25,7 @@ export default function (
   if (value === undefined || isNaN(domain[0]) || isNaN(domain[1]))
     return domain;
 
-  if (invert) {
-    domain = domain.slice().reverse();
-    range = range.slice().reverse();
-  }
+  if (invert) domain = domain.slice().reverse();
 
   if (domain[0] === domain[1]) {
     domain = domain.slice();

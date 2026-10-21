@@ -44,9 +44,6 @@ export default function (
   let xD = x.domain().slice() as number[],
     yD = y.domain().slice() as number[];
 
-  const xR = x.range(),
-    yR = y.range();
-
   if (!x.invert && x.padding) discreteBuffer(x, data, this.schema.discrete);
   if (!y.invert && y.padding) discreteBuffer(y, data, this.schema.discrete);
 
@@ -56,13 +53,13 @@ export default function (
       const s = buffer ? buffer : (typeof r === "function" ? r(d.data, d.i) : Number(r) || 0) * 2;
 
       if (x.invert) {
-        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xR, xD, 0, false);
-        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xR, xD, 1, false);
+        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xD, 0, false);
+        xD = numericBuffer(x, xScale ?? "linear", d[xKey] as number, s, xD, 1, false);
       }
 
       if (y.invert) {
-        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yR, yD, 0, true);
-        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yR, yD, 1, true);
+        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yD, 0, true);
+        yD = numericBuffer(y, yScale ?? "linear", d[yKey] as number, s, yD, 1, true);
       }
     });
   }

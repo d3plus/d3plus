@@ -132,7 +132,7 @@ function drawPanel(
   if (!data.length || area.width <= 0 || area.height <= 0) return {scene: [], zoomShapes: [], state: {}};
   const undo = plan.hooks.panel ? plan.hooks.panel(viz, ctx) : undefined;
   viz._facetStep = "panel";
-  let nodes: SceneNode[] = [], scene: SceneNode[] = [];
+  let nodes: SceneNode[], scene: SceneNode[];
   try {
     viz._draw();
     nodes = viz._chartScene || [];

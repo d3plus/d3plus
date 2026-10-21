@@ -88,10 +88,9 @@ export function computeFilteredData(
 ): void {
   const filteredData: DataPoint[] = [];
   const legendData: DataPoint[] = [];
-  let flatData: DataPoint[] = [];
   if (data.length) {
     const effectiveTimeFilter = viz.schema.timeFilter || computedTimeFilter;
-    flatData = effectiveTimeFilter
+    let flatData = effectiveTimeFilter
       ? data.filter(effectiveTimeFilter)
       : data;
     const filter = dataFilter(viz);

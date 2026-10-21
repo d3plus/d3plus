@@ -544,7 +544,6 @@ function renderYAxes(
     Returns everything `plotEmit` needs to consume.
 */
 export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
-    let {x, y} = pCtx;
     const {labelWidths} = pCtx;
     const final = solveFinalAxes(viz, pCtx, frozen);
     pCtx = final.pCtx;
@@ -563,12 +562,12 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
 
     // Content space puts the plot's top at the y axis's `x2Height`.
     const plotBottom = (frozen?.yRange ?? yRange)[1] + insetBottom - x2Height;
-    x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
+    const x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
     const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
     yRange = frozen?.yRange ?? [viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom];
 
-    y = renderYAxes(
+    const y = renderYAxes(
       viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
       axisRelativeTransform, axisSceneQueue,
     );

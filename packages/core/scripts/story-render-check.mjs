@@ -53,7 +53,7 @@ for (const s of stories) {
   page.on("console", m => {
     if (m.type() === "error") errors.push("console: " + m.text().split("\n")[0].slice(0, 140));
   });
-  let status = {};
+  let status;
   try {
     await page.goto(`${base}/iframe.html?id=${s.id}&viewMode=story`, {waitUntil: "load", timeout: 25000});
     await page.waitForTimeout(2500); // let async data/render settle

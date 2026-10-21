@@ -183,12 +183,8 @@ function fillMatrices(
   const sumsOfSquares: number[] = [];
 
   // Initialize first column in matrix & backtrackMatrix
-  for (
-    let i = 0, shiftedValue: number = void 0 as unknown as number;
-    i < nValues;
-    ++i
-  ) {
-    shiftedValue = data[i] - shift;
+  for (let i = 0; i < nValues; ++i) {
+    const shiftedValue = data[i] - shift;
     if (i === 0) {
       sums.push(shiftedValue);
       sumsOfSquares.push(shiftedValue * shiftedValue);
