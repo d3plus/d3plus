@@ -45,7 +45,6 @@
     "@types/react": "catalog:",
     "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "^4.2.1",
-    "eslint-plugin-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
     "vite": "catalog:"
