@@ -23,7 +23,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyChordLayout} from "./applyLayout.js";
 import {chordEmit} from "./emit.js";
-import {broadcastLink} from "../viz/linkGroup.js";
+import {simpleHover} from "../viz/simpleHover.js";
 
 type ChordEdge = DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
 
@@ -132,15 +132,7 @@ export const chordDef: ChartDefinition = {
         : accessor(_ as string)) as (d: DataPoint, i: number) => number;
       return this;
     };
-    v.hover = function(this: VizInstance, _: unknown) {
-      this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
-      if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
-      // Scene-emit charts dim via the scene's interaction-opacity pass; a hover
-      // change only takes effect once a repaint is scheduled.
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
-      broadcastLink(this, "hover", _);
-      return this;
-    };
+    v.hover = simpleHover;
   },
 
   // Small-multiple panels as close to square as the grid allows.

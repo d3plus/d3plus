@@ -21,7 +21,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
-import {broadcastLink} from "../viz/linkGroup.js";
+import {simpleHover} from "../viz/simpleHover.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -124,19 +124,7 @@ function installRingsAccessors(viz: VizInstance): void {
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
-  v.hover = function(
-    this: VizInstance,
-    _?: boolean | ((d: DataPoint, i: number) => boolean),
-  ) {
-    const pred = _ as unknown as ((d: DataPoint, i: number) => boolean) | null;
-    this._hover = _ as VizInstance["_hover"];
-    if (this.schema.legend) this._legendClass!.hover(pred);
-    // Scene-emit charts dim via applyInteractionOpacity during toScene(); a
-    // hover change only takes effect once a repaint is scheduled.
-    if (this._sceneRenderer) this._scheduleSceneRepaint();
-    broadcastLink(this, "hover", _);
-    return this;
-  };
+  v.hover = simpleHover;
 }
 
 export const ringsDef: ChartDefinition = {
