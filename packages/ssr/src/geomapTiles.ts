@@ -1,6 +1,7 @@
 import net from "node:net";
 import dns from "node:dns";
-import {Agent, fetch as undiciFetch} from "undici";
+import http from "node:http";
+import https from "node:https";
 import type {GeomapTileOptions, RenderableViz} from "./types.js";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -8,6 +9,7 @@ import type {GeomapTileOptions, RenderableViz} from "./types.js";
 // Node's Buffer, typed minimally so the package needs no @types/node.
 const NodeBuffer = (globalThis as any).Buffer as {
   from(data: ArrayBuffer | Uint8Array): {toString(encoding: string): string};
+  concat(chunks: Uint8Array[]): Uint8Array<ArrayBuffer>;
 };
 
 /**
@@ -134,16 +136,35 @@ export function createTileLookup(resolve: typeof dns.lookup = dns.lookup) {
   };
 }
 
-let tileDispatcher: Agent | undefined;
-
-/** Lazily builds (and memoizes) the fetch dispatcher used for the built-in tile fetch path. */
-function getTileDispatcher(): Agent {
-  if (!tileDispatcher) tileDispatcher = new Agent({connect: {lookup: createTileLookup()}});
-  return tileDispatcher;
-}
-
-function defaultTileFetch(url: string, init: {signal?: AbortSignal; headers?: Record<string, string>}) {
-  return undiciFetch(url, {...init, redirect: "manual", dispatcher: getTileDispatcher()});
+/**
+    The built-in tile request: a single GET (redirects are returned, not
+    followed) whose connection resolves its host through `createTileLookup`,
+    so a disallowed address is refused at connect time.
+*/
+export function defaultTileFetch(
+  url: string,
+  init: {signal?: AbortSignal; headers?: Record<string, string>},
+): Promise<Response> {
+  const {request} = url.startsWith("https:") ? https : http;
+  return new Promise((resolve, reject) => {
+    const req = request(url, {headers: init.headers, signal: init.signal, lookup: createTileLookup()}, res => {
+      const chunks: Uint8Array[] = [];
+      res.on("data", (chunk: Uint8Array) => chunks.push(chunk));
+      res.on("error", reject);
+      res.on("end", () => {
+        const status = res.statusCode ?? 500;
+        const headers = new Headers();
+        for (const [key, value] of Object.entries(res.headers)) {
+          if (value !== undefined) headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+        }
+        // 204/304 responses can't carry a body.
+        const body = status === 204 || status === 304 ? null : NodeBuffer.concat(chunks);
+        resolve(new Response(body, {status, headers}));
+      });
+    });
+    req.on("error", reject);
+    req.end();
+  });
 }
 
 const MAX_TILE_REDIRECTS = 5;
@@ -152,7 +173,7 @@ const MAX_TILE_REDIRECTS = 5;
     Fetches `url`, following up to `MAX_TILE_REDIRECTS` redirects manually —
     re-validating every hop's target with `isSafeTileUrl` before fetching it,
     including the first. `doFetch` defaults to the real built-in fetch (with
-    `redirect: "manual"` so this loop, not `undici`, decides whether to
+    redirects returned rather than followed, so this loop decides whether to
     follow) and is overridable so tests can drive the redirect logic without
     a real server. Returns `null` if any hop is unsafe or the redirect limit
     is exceeded.
@@ -184,7 +205,7 @@ export async function fetchTileFollowingRedirects(
 /**
     Fetches one tile to a `data:` URI (cached), or `null` if it fails/times out.
     `netFetch` is the underlying network call `defaultTileFetch` makes,
-    overridable so tests can stub the actual undici request while still
+    overridable so tests can stub the actual network request while still
     exercising the real SSRF-safe redirect handling, User-Agent header, and
     cache above it.
 */

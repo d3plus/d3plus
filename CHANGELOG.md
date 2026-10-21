@@ -14,6 +14,9 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 - **Fewer dependencies.** `open-color` and `file-saver` are no longer dependencies, and `@d3plus/data`, `@d3plus/render`, and `@d3plus/text` drop dependencies they didn't use. `@d3plus/export` loads `html-to-image` only when saving an HTML element. `@d3plus/types` re-exports types only.
 - **`findLocale`** resolves from a 122-entry table instead of the full LCID and ISO 639 lists (~8,400 lines). Chechen (`ce`) now resolves to `ce-RU`.
 - **`unique`** keeps one `NaN` instead of dropping every `NaN`.
+- **`strip`** keeps the base letter of any accented letter (`Č` → `C`, `ğ` → `g`); it used to drop letters outside Latin-1. Its output for Latin-1 is unchanged.
+- **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape.
+- **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time.
 
 ### Removed
 

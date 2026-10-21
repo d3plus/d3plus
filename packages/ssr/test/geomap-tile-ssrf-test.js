@@ -1,10 +1,15 @@
 import assert from "assert";
 import http from "node:http";
-import {Agent, fetch as undiciFetch} from "undici";
 import {Geomap} from "@d3plus/core";
 import {createCanvas} from "@napi-rs/canvas";
 import {renderToStaticSVG} from "../es/index.js";
-import {createTileLookup, fetchTileFollowingRedirects, isBlockedAddress, isSafeTileUrl} from "../es/src/geomapTiles.js";
+import {
+  createTileLookup,
+  defaultTileFetch,
+  fetchTileFollowingRedirects,
+  isBlockedAddress,
+  isSafeTileUrl,
+} from "../es/src/geomapTiles.js";
 
 const cities = [
   {city: "NYC", coords: [-74, 40.7]},
@@ -177,20 +182,12 @@ it("fetchTileFollowingRedirects gives up after too many redirects, releasing eve
   assert.strictEqual(cancelCalls, 6, "every redirect response's body was released");
 });
 
-// A real public host that redirects to an internal address can't be tested
-// against a live local server: any server this test controls is itself on a
-// loopback/private address, which isSafeTileUrl/createTileLookup would (by
-// design) already refuse to connect to for the *initial* request — before a
-// redirect ever enters the picture. This isolates the specific mechanism
-// fetchOne's built-in fetch relies on for redirect safety (undici's
-// `redirect: "manual"`, with the exact same dispatcher construction) against
-// a local server that issues a 302 to an "internal" endpoint, proving that
-// mechanism actually stops the follow-through rather than assuming it does.
-it("undici fetch with redirect: \"manual\" never follows a redirect to an internal endpoint", async () => {
-  let internalRequested = false;
+/** Serves a tile at /tile.png, a 302 to /internal anywhere else, and records each request path. */
+async function tileServer(run) {
+  const requested = [];
   const server = http.createServer((req, res) => {
-    if (req.url === "/internal") {
-      internalRequested = true;
+    requested.push(req.url);
+    if (req.url === "/tile.png" || req.url === "/internal") {
       res.writeHead(200, {"content-type": "image/png"});
       res.end(mockTile());
       return;
@@ -199,20 +196,41 @@ it("undici fetch with redirect: \"manual\" never follows a redirect to an intern
     res.end();
   });
   await new Promise(resolve => server.listen(0, "127.0.0.1", resolve));
-  const port = server.address().port;
-  const dispatcher = new Agent({connect: {lookup: createTileLookup()}});
-
   try {
-    const res = await undiciFetch(`http://127.0.0.1:${port}/tile.png`, {
-      redirect: "manual",
-      dispatcher,
-    });
-    assert.strictEqual(internalRequested, false, "the redirect target was never requested");
-    assert.strictEqual(res.ok, false, "a manual redirect response is not ok");
+    await run(server.address().port, requested);
   } finally {
     await new Promise(resolve => server.close(resolve));
   }
-});
+}
+
+// A real public host that redirects to an internal address can't be tested
+// against a live local server: any server this test controls is itself on a
+// loopback address, which isSafeTileUrl refuses before any request. These call
+// the built-in request directly to check what the redirect loop relies on: it
+// returns a redirect instead of following it, and it resolves hostnames
+// through createTileLookup.
+it("defaultTileFetch returns a redirect without following it", () =>
+  tileServer(async (port, requested) => {
+    const res = await defaultTileFetch(`http://127.0.0.1:${port}/redirect`, {});
+    assert.strictEqual(res.status, 302);
+    assert.strictEqual(res.ok, false, "a redirect response is not ok");
+    assert.strictEqual(res.headers.get("location"), "/internal");
+    assert.deepStrictEqual(requested, ["/redirect"], "the redirect target was never requested");
+  }));
+
+it("defaultTileFetch refuses a hostname that resolves to a disallowed address", () =>
+  tileServer(async (port, requested) => {
+    await assert.rejects(defaultTileFetch(`http://localhost:${port}/tile.png`, {}), /refusing to fetch a tile from "localhost"/);
+    assert.deepStrictEqual(requested, [], "no connection was made");
+  }));
+
+it("defaultTileFetch reads a response's status, headers, and bytes", () =>
+  tileServer(async port => {
+    const res = await defaultTileFetch(`http://127.0.0.1:${port}/tile.png`, {headers: {"User-Agent": "test"}});
+    assert.strictEqual(res.status, 200);
+    assert.strictEqual(res.headers.get("content-type"), "image/png");
+    assert.deepStrictEqual(new Uint8Array(await res.arrayBuffer()), new Uint8Array(mockTile()));
+  }));
 
 it("Geomap built-in tile fetch refuses a private tileUrl with no fetchTile escape hatch", async () => {
   const svg = await renderToStaticSVG(
