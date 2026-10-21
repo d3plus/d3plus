@@ -177,7 +177,27 @@ PersistentMotionTrails.parameters = {
 
 export const ShapeBackgroundImages = Template.bind({});
 ShapeBackgroundImages.args = {
-  data: "https://oec.world/api/gdp/eci?Year=2019&x=OEC.ECI&y=NY.GDP.MKTP.CD",
+  // Approximate 2019 economic complexity (ECI), GDP (Measure), and trade, in US dollars.
+  data: [
+    {Country: "Japan", "Country ID": "asjpn", ECI: 2.26, Measure: 5.08e12, "Trade Value": 7e11},
+    {Country: "Switzerland", "Country ID": "euche", ECI: 2.0, Measure: 7e11, "Trade Value": 3.1e11},
+    {Country: "Germany", "Country ID": "eudeu", ECI: 1.92, Measure: 3.86e12, "Trade Value": 1.45e12},
+    {Country: "South Korea", "Country ID": "askor", ECI: 1.9, Measure: 1.65e12, "Trade Value": 5.4e11},
+    {Country: "United Kingdom", "Country ID": "eugbr", ECI: 1.5, Measure: 2.83e12, "Trade Value": 4.6e11},
+    {Country: "United States", "Country ID": "nausa", ECI: 1.4, Measure: 2.14e13, "Trade Value": 1.5e12},
+    {Country: "France", "Country ID": "eufra", ECI: 1.2, Measure: 2.72e12, "Trade Value": 5.5e11},
+    {Country: "Mexico", "Country ID": "namex", ECI: 1.1, Measure: 1.27e12, "Trade Value": 4.5e11},
+    {Country: "China", "Country ID": "aschn", ECI: 1.0, Measure: 1.43e13, "Trade Value": 2.5e12},
+    {Country: "India", "Country ID": "asind", ECI: 0.5, Measure: 2.87e12, "Trade Value": 3.2e11},
+    {Country: "Turkey", "Country ID": "astur", ECI: 0.4, Measure: 7.6e11, "Trade Value": 1.8e11},
+    {Country: "Brazil", "Country ID": "sabra", ECI: 0.2, Measure: 1.84e12, "Trade Value": 2.2e11},
+    {Country: "South Africa", "Country ID": "afzaf", ECI: 0.1, Measure: 3.5e11, "Trade Value": 9e10},
+    {Country: "Indonesia", "Country ID": "asidn", ECI: -0.1, Measure: 1.12e12, "Trade Value": 1.6e11},
+    {Country: "Saudi Arabia", "Country ID": "assau", ECI: -0.2, Measure: 7.9e11, "Trade Value": 2.5e11},
+    {Country: "Chile", "Country ID": "sachl", ECI: -0.3, Measure: 2.8e11, "Trade Value": 6.8e10},
+    {Country: "Australia", "Country ID": "ocaus", ECI: -0.5, Measure: 1.39e12, "Trade Value": 2.6e11},
+    {Country: "Nigeria", "Country ID": "afnga", ECI: -1.3, Measure: 4.5e11, "Trade Value": 5.6e10}
+  ],
   groupBy: "Country",
   shapeConfig: {
     Circle: {
