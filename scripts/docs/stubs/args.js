@@ -1,8 +1,8 @@
-import fs from "node:fs";
 import path from "node:path";
-import {parseSync, printSync} from "@swc/core";
+import {printSync} from "@swc/core";
 
 import {applyColorControl} from "./colorControl.js";
+import {constructorExpressions} from "./constructorDefaults.js";
 
 // Inherited config each chart fixes for itself, left out of its args. Each
 // entry is matched against the whole key (it may be a regex, e.g. "zoom.*").
@@ -267,20 +267,13 @@ export default function (
   }
 
   // A class's default overrides come from the `this.method(value)` calls in
-  // its constructor; a makeChart chart has no constructor (its overrides are
+  // its constructor (and in helpers it hands `this` to); a makeChart chart has no constructor (its overrides are
   // def fields, handled below).
   if (parentClass && !story.chartDef) {
     const storyPath = path.join(story.meta.path, story.meta.filename);
-    const fileContent = fs.readFileSync(storyPath, {encoding: "utf8"});
-    const {body} = parseSync(fileContent, {
-      syntax: "typescript",
-    });
-    const statements = body
-      .find(d => d.type === "ExportDefaultDeclaration")
-      .decl.body.find(d => d.type === "Constructor")
-      .body.stmts.filter(d => d.type === "ExpressionStatement")
-      .map(d => d.expression)
-      .filter(d => d.type !== "CallExpression" || d.arguments.length);
+    const statements = constructorExpressions(storyPath).filter(
+      d => d.type !== "CallExpression" || d.arguments.length,
+    );
 
     let ancestor = story,
       parentMethods = [];
@@ -884,6 +877,7 @@ const formatAst = ast => {
       const properties = ast.properties.map(formatAst);
       return `{${properties.length === 1 ? properties[0] : properties.join(", ")}}`;
     }
+    case "FunctionBody":
     case "BlockStatement":
       return `{\n  ${printAst(ast.stmts).replaceAll(/\n(?=.*\n)/g, "\n  ")}}`;
     case "KeyValueProperty":
