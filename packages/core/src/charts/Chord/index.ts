@@ -17,21 +17,19 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyChordLayout} from "./applyLayout.js";
 import {chordEmit} from "./emit.js";
-import {broadcastLink} from "../viz/linkGroup.js";
+import {simpleHover} from "../viz/simpleHover.js";
 
 type ChordEdge = DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
 
 export const chordDef: ChartDefinition = {
   name: "Chord",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyChordLayout,
   emit: chordEmit,
 
@@ -134,16 +132,7 @@ export const chordDef: ChartDefinition = {
         : accessor(_ as string)) as (d: DataPoint, i: number) => number;
       return this;
     };
-    v.hover = function(this: VizInstance, _: unknown) {
-      this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
-      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
-      if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
-      // Scene-emit charts dim via the scene's interaction-opacity pass, not
-      // `_shapes`; a hover change only takes effect once a repaint is scheduled.
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
-      broadcastLink(this, "hover", _);
-      return this;
-    };
+    v.hover = simpleHover;
   },
 
   // Small-multiple panels as close to square as the grid allows.

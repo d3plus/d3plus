@@ -6,6 +6,7 @@
 import {interpolateNumber, piecewise} from "d3-interpolate";
 
 import type {DataPoint} from "@d3plus/data";
+import {finite} from "@d3plus/math";
 
 import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
 import {resolveConfidence} from "./confidenceConfig.js";
@@ -26,9 +27,6 @@ export interface BandBounds {
 
 /** The composite opacities of the outermost and innermost band when `bandOpacity` is unset. */
 export const DEFAULT_BAND_OPACITY: [number, number] = [0.15, 0.6];
-
-const finite = (v: unknown): v is number =>
-  typeof v === "number" && Number.isFinite(v);
 
 const isPlainObject = (v: unknown): v is Record<string, unknown> =>
   !!v && typeof v === "object" && Object.getPrototypeOf(v) === Object.prototype;

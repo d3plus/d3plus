@@ -1,9 +1,9 @@
 import {titleCaseLocale} from "@d3plus/locales";
 import type {TitleCaseRules} from "@d3plus/locales";
 
+import {softHyphen} from "./softHyphen.js";
 import textSplit from "./textSplit.js";
 
-const softHyphen = "­";
 // Leading/trailing punctuation & whitespace ignored when matching the word
 // lists (so "smith," or "ceo." still match), but `&` is kept (for "R&D").
 const edge = /^[^\p{L}\p{N}&]+|[^\p{L}\p{N}&]+$/gu;

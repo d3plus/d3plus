@@ -26,7 +26,7 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type Viz from "../viz/Viz.js";
 import {isInternalKey} from "../features/shareKey.js";
 import {overlayHost} from "./zoomControlsMarkup.js";
-import {paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
+import {controlButtonStyles, escapeHtml, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
 import {
   tableViewControlStyleActiveDefault,
   tableViewControlStyleDefault,
@@ -92,13 +92,12 @@ function hasDistinctRawData(viz: Viz): boolean {
 }
 
 /** The resolved base / active / hover button styles for a chart, also the cheap non-DOM basis for `tableViewContribution`'s `styleSignature`. */
-function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
-  const className = Boolean(viz.schema.tableViewControlClassName);
-  return {
-    base: resolveControlStyle(viz.schema.tableViewControlStyle, tableViewControlStyleDefault, className),
-    active: resolveControlStyle(viz.schema.tableViewControlStyleActive, tableViewControlStyleActiveDefault, className),
-    hover: resolveControlStyle(viz.schema.tableViewControlStyleHover, tableViewControlStyleHoverDefault, className),
-  };
+function buttonStyles(viz: Viz): ControlButtonStyles {
+  return controlButtonStyles(viz.schema, "tableViewControl", {
+    base: tableViewControlStyleDefault,
+    active: tableViewControlStyleActiveDefault,
+    hover: tableViewControlStyleHoverDefault,
+  });
 }
 
 /** Paints the table-view button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
@@ -165,13 +164,6 @@ function dataSourceButtonHtml(viz: Viz): string {
   const extraClass = viz.schema.tableViewControlClassName ? ` ${viz.schema.tableViewControlClassName}` : "";
   const label = viz.schema.translate(showingRaw ? "Show Aggregate Data" : "Show Raw Data");
   return `<button type="button" class="table-view-control tableview-source-toggle${showingRaw ? " active" : ""}${extraClass}" aria-label="${label}" title="${label}" aria-pressed="${showingRaw}">${SWAP_ICON}</button>`;
-}
-
-/** Escapes a value for safe interpolation into `innerHTML`. */
-function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>"']/g, c => (
-    {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c] as string
-  ));
 }
 
 /** Renders one cell's value for on-screen display: numbers get locale grouping, dates a locale date string, everything else its plain string form. */

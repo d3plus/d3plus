@@ -15,21 +15,15 @@ import {backgroundColor} from "@d3plus/dom";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {rowLegend, shareRow} from "../features/sharedFields.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   partitionDefaultSort,
-  partitionLegend,
   partitionLegendSort,
   partitionSetup,
-  partitionShareRow,
   partitionSortDecorate,
   partitionSumCoerce,
   partitionSumOnSet,
@@ -44,7 +38,6 @@ import {sunburstInteraction} from "./interaction.js";
 export const sunburstDef: DataDrivenChartDefinition = {
   name: "Sunburst",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applySunburstLayout,
   emit: sunburstEmit,
   insetRegion: sceneInsetRegion,
@@ -154,7 +147,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
       key: "tooltipConfig",
       merge: true,
       factory: (viz: VizInstance) => ({
-        tbody: [partitionShareRow(viz)],
+        tbody: [shareRow(viz, "sum")],
       }),
     },
     {
@@ -163,7 +156,7 @@ export const sunburstDef: DataDrivenChartDefinition = {
       factory: () => ({tbody: []}),
     },
     {key: "legendSort", factory: partitionLegendSort},
-    {key: "legend", coerce: "const", factory: partitionLegend},
+    {key: "legend", coerce: "const", factory: rowLegend},
   ],
 };
 

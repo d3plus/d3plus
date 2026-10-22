@@ -16,7 +16,7 @@ import {
   applyTreeLayout,
   applyTreemapLayout,
   runStages,
-  vizPreDrawPure,
+  vizPreDraw,
 } from "../es/internal.js";
 import {
   computePlotAxisValues,
@@ -33,9 +33,8 @@ import {
 
     Three layers are covered:
 
-      1. Shared chart-shell prep — `vizPreDrawPure(viz)` (drawDepth, the
-         id/ids/drawLabel closures sampled on a datum, filtered/legend ids,
-         threshold-tree presence).
+      1. Shared chart-shell prep — `vizPreDraw(viz)` (drawDepth, the
+         id/ids/drawLabel closures sampled on a datum, filtered/legend ids).
       2. Per-chart layout stages — `applyTreemapLayout` / `applyPieLayout` /
          `applyPackLayout` run via `runStages` after `_preDraw`; we snapshot
          each laid-out node's geometry.
@@ -113,25 +112,23 @@ function compare(name, actual) {
   );
 }
 
-// ---- Layer 1: shared chart-shell prep (vizPreDrawPure) ---------------------
+// ---- Layer 1: shared chart-shell prep (vizPreDraw) -------------------------
 
-function summarizeShell(ctx) {
-  const fd = ctx.filteredData ?? [];
-  const ld = ctx.legendData ?? [];
+function summarizeShell(viz) {
+  const fd = viz._filteredData ?? [];
+  const ld = viz._legendData ?? [];
   const sample = fd[0];
   return {
-    drawDepth: ctx.drawDepth,
+    drawDepth: viz._drawDepth,
     closures: sample
       ? {
-          id: ctx.id(sample, 0),
-          ids: ctx.ids(sample, 0),
-          drawLabel: ctx.drawLabel(sample, 0),
+          id: viz._id(sample, 0),
+          ids: viz._ids(sample, 0),
+          drawLabel: viz._drawLabel(sample, 0),
         }
       : null,
-    filteredData: {length: fd.length, ids: fd.map((d, i) => ctx.id(d, i))},
-    legendData: {length: ld.length, ids: ld.map((d, i) => ctx.id(d, i))},
-    hasThresholdTree: !!ctx._thresholdTree,
-    computedTimeFilter: typeof ctx.computedTimeFilter,
+    filteredData: {length: fd.length, ids: fd.map((d, i) => viz._id(d, i))},
+    legendData: {length: ld.length, ids: ld.map((d, i) => viz._id(d, i))},
   };
 }
 
@@ -143,8 +140,9 @@ const shellCharts = [
 
 for (const [name, build] of shellCharts) {
   it(`pipeline snapshot: ${name}`, () => {
-    const ctx = vizPreDrawPure(build());
-    compare(name, summarizeShell(ctx));
+    const viz = build();
+    vizPreDraw(viz);
+    compare(name, summarizeShell(viz));
   });
 }
 

@@ -4,6 +4,8 @@
     label block at the start and room for its value axis.
 */
 
+import {clamp} from "@d3plus/math";
+
 import type {Orient} from "../../shapes/shapeConfig.js";
 import type {BulletRect} from "./bulletGeometry.js";
 
@@ -58,9 +60,6 @@ export const TICK_GAP = 3;
 const EDGE = 2;
 /** The gap between the label block and the band. */
 const LABEL_GAP = 12;
-
-const clamp = (v: number, lo: number, hi: number) =>
-  Math.max(lo, Math.min(hi, v));
 
 /** How many pixels a bullet's axis adds across the band. */
 export function axisDepth(opts: BulletStackOptions): number {

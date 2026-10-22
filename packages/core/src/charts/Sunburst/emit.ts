@@ -4,10 +4,10 @@
     label TextNode wherever the label fits.
 */
 
-import {arc as d3Arc} from "d3-shape";
 import {colorContrast} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
+import {arcPath} from "@d3plus/render";
 import type {ArcGeometry, FadeSwap, SceneNode, TextNode} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
@@ -29,15 +29,6 @@ import {partitionFillResolver} from "../partition/shade.js";
 import type {PartitionFillable} from "../partition/shade.js";
 import type {SunburstNode} from "./partition.js";
 import type {SunburstGhost} from "./applyLayout.js";
-
-// The same arc generator the render layer tweens with, so a wedge's `d` and
-// its animated frames trace identical geometry.
-const arcPath = d3Arc<ArcGeometry>()
-  .innerRadius(d => d.innerRadius)
-  .outerRadius(d => d.outerRadius)
-  .startAngle(d => d.startAngle)
-  .endAngle(d => d.endAngle)
-  .padAngle(d => d.padAngle ?? 0);
 
 /** The polar geometry of one node, padded per the `padAngle`/`padPixel` config. */
 export function sunburstArcGeometry(
@@ -126,7 +117,7 @@ function ghostNodes(
     return {
       type: "path",
       key: `sunburst-${g.id}`,
-      d: arcPath(arc) ?? "",
+      d: arcPath(arc),
       arc,
       paint: {
         fill: fillOf(g),
@@ -166,7 +157,7 @@ export const sunburstEmit: ChartEmit = ({viz, shapeData}) => {
     return {
       type: "path",
       key: `sunburst-${node.id}`,
-      d: arcPath(arc) ?? "",
+      d: arcPath(arc),
       arc,
       // A zoom-out sweeps a returning arc in from where it folded away.
       enterArc: enterArcs.has(node.id)

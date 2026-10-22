@@ -47,8 +47,8 @@ export function runVizPipeline(viz: Viz): void {
   // Goes through `viz._preDraw()` / `viz._draw()` (not the free functions
   // directly) so subclass overrides (Plot._preDraw, Treemap._draw, Plot._draw,
   // Pack/Pie/Matrix/…) still run. The free functions `vizPreDraw` / `vizDraw`
-  // hold the BASE Viz behavior; subclasses' `super._preDraw()`/`super._draw()`
-  // calls hit the shim which delegates to the free functions.
+  // hold the BASE Viz behavior, which subclasses reach through
+  // `super._preDraw()`/`super._draw()`.
   viz._preDraw();
   // `_draw()`, possibly more than once: chrome that fits inside the chart's
   // negative space is placed there after layout (see insetPlacement.ts), and

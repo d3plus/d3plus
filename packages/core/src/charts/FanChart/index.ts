@@ -4,11 +4,6 @@
     forecast begins, and the stretch after it is marked as a forecast.
 */
 
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import LinePlot from "../LinePlot/index.js";
@@ -16,7 +11,6 @@ import LinePlot from "../LinePlot/index.js";
 export const fanChartDef: ChartDefinition = {
   name: "FanChart",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 

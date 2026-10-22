@@ -20,14 +20,13 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applySankeyLayout} from "./applyLayout.js";
 import {sankeyEmit} from "./emit.js";
-import {broadcastLink} from "../viz/linkGroup.js";
+import {simpleHover} from "../viz/simpleHover.js";
 
 const sankeyAligns = {
   center: sankeyCenter,
@@ -39,7 +38,6 @@ const sankeyAligns = {
 export const sankeyDef: ChartDefinition = {
   name: "Sankey",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applySankeyLayout,
   emit: sankeyEmit,
 
@@ -167,18 +165,7 @@ export const sankeyDef: ChartDefinition = {
         : accessor(_ as string)) as (d: DataPoint, i: number) => number;
       return this;
     };
-    v.hover = function(this: VizInstance, _: unknown) {
-      this._hover = _ as ((d: DataPoint, i?: number) => boolean) | false;
-      (this._shapes ?? []).forEach((s: {hover: (h: unknown) => void}) => s.hover(_));
-      if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
-      // Scene-rendered Sankey emits into `_chartScene`, not `_shapes`, so the
-      // forEach above can't dim anything. Repaint so the scene's
-      // interaction-opacity pass re-reads `_hover` and dims non-matching nodes.
-      // Coalesced to one paint per frame (see Viz._scheduleSceneRepaint).
-      if (this._sceneRenderer) this._scheduleSceneRepaint();
-      broadcastLink(this, "hover", _);
-      return this;
-    };
+    v.hover = simpleHover;
   },
 
   ctx: {

@@ -9,7 +9,7 @@ import type {RegressionResult} from "@d3plus/math";
 import type {SceneEvent} from "@d3plus/render";
 
 import {configPrep} from "../../utils/index.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {leadTitleWithSwatch, tooltipSwatch} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {axisName, axisValue, prepareTooltip} from "./sharedTooltip.js";
@@ -142,7 +142,7 @@ export function renderTrendTooltip(
         : event.point;
   const tip = prepareTooltip(viz)
     .data([trend.row || {}])
-    .config(configPrep.bind(viz as unknown as VizContext)(viz.schema.tooltipConfig))
+    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig))
     .title(() => trend.label);
   leadTitleWithSwatch(tip, tooltipSwatch(trend.color, "Line"))
     .thead([])

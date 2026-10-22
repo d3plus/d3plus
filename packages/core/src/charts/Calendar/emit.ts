@@ -7,7 +7,7 @@
 import {interpolateRgb} from "d3-interpolate";
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {backgroundColor, textWidth} from "@d3plus/dom";
+import {textWidth} from "@d3plus/dom";
 import type {SceneNode, TextNode} from "@d3plus/render";
 
 import type {ChartEmit} from "../definition/ChartDefinition.js";
@@ -17,6 +17,7 @@ import {
   shapeConfigFor,
   textureFill,
 } from "../features/emitHelpers.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import type {CalendarCellDatum, CalendarLabelStyle} from "./applyLayout.js";
@@ -44,13 +45,6 @@ export function calendarPalette(
 ): CalendarPalette {
   const mix = interpolateRgb(background, ink);
   return {empty: mix(0.09), outline: mix(0.45), text: mix(0.75)};
-}
-
-/** The chart's background color, as detected behind its container. */
-function chartBackground(viz: VizInstance): string {
-  return viz._select
-    ? backgroundColor(viz._select.node())
-    : "rgb(255, 255, 255)";
 }
 
 /** A row's `colorScale` value, when a `colorScale` is set and gives it a finite number. */

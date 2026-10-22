@@ -1,71 +1,69 @@
 import assert from "assert";
 import it from "../jsdom.js";
-import {BarChart, Treemap} from "../../es/index.js";
+import {BarChart} from "../../es/index.js";
 import {
-  vizPreDrawPure,
+  vizPreDraw,
   vizPostThresholdCtx,
-  vizDrawPure,
+  vizDraw,
   runVizPipeline,
 } from "../../es/internal.js";
 
 /**
-    Output-correctness tests for the pure pipeline functions.
-    The prior tests only verified the export signature; these lock the
-    actual returned values for known inputs, so a future refactor that
-    changes shape detectably fails here rather than silently shifting
-    parity downstream.
+    Output-correctness tests for the pipeline functions: these lock the
+    values they write for known inputs, so a refactor that changes them
+    fails here rather than silently shifting parity downstream.
 */
 
-it("vizPreDrawPure returns drawDepth = groupBy.length - 1 when _depth unset", () => {
+it("vizPreDraw sets drawDepth = groupBy.length - 1 when _depth unset", () => {
   const chart = new BarChart()
     .data([{id: "a", x: 1, y: 10}, {id: "b", x: 2, y: 20}])
     .groupBy(["id"]);
-  const ctx = vizPreDrawPure(chart);
-  assert.strictEqual(ctx.drawDepth, 0, "single-key groupBy → drawDepth 0");
+  vizPreDraw(chart);
+  assert.strictEqual(chart._drawDepth, 0, "single-key groupBy → drawDepth 0");
 });
 
-it("vizPreDrawPure drawDepth is capped to groupBy.length - 1", () => {
+it("vizPreDraw drawDepth is capped to groupBy.length - 1", () => {
   const chart = new BarChart()
     .data([{a: "x", b: "y", id: "1", x: 1, y: 10}])
     .groupBy(["a", "b", "id"])
     .depth(99); // intentionally too large
-  const ctx = vizPreDrawPure(chart);
-  assert.strictEqual(ctx.drawDepth, 2, "depth capped to groupBy.length - 1");
+  vizPreDraw(chart);
+  assert.strictEqual(chart._drawDepth, 2, "depth capped to groupBy.length - 1");
 });
 
-it("vizPreDrawPure id closure stringifies numeric ids, including a merged datum's", () => {
+it("vizPreDraw id closure stringifies numeric ids, including a merged datum's", () => {
   const chart = new BarChart()
     .data([{id: 1, x: 1, y: 10}, {id: 2, x: 2, y: 20}])
     .groupBy("id");
-  const ctx = vizPreDrawPure(chart);
-  assert.strictEqual(ctx.id({id: 1}, 0), "1");
-  assert.deepStrictEqual(ctx.id({id: [1, 2]}, 0), ["1", "2"]);
-  assert.deepStrictEqual(ctx.id({id: ["a", "b"]}, 0), ["a", "b"]);
+  vizPreDraw(chart);
+  assert.strictEqual(chart._id({id: 1}, 0), "1");
+  assert.deepStrictEqual(chart._id({id: [1, 2]}, 0), ["1", "2"]);
+  assert.deepStrictEqual(chart._id({id: ["a", "b"]}, 0), ["a", "b"]);
 });
 
-it("vizPreDrawPure id closure resolves to the groupBy value at drawDepth", () => {
+it("vizPreDraw id closure resolves to the groupBy value at drawDepth", () => {
   const chart = new BarChart()
     .data([{group: "G1", id: "a"}, {group: "G1", id: "b"}])
     .groupBy(["group", "id"]);
-  const ctx = vizPreDrawPure(chart);
+  vizPreDraw(chart);
   // drawDepth = 1 (groupBy has 2 keys); id should resolve to .id
-  assert.strictEqual(ctx.id({group: "G1", id: "a"}, 0), "a");
-  assert.strictEqual(ctx.id({group: "G1", id: "b"}, 1), "b");
+  assert.strictEqual(chart._id({group: "G1", id: "a"}, 0), "a");
+  assert.strictEqual(chart._id({group: "G1", id: "b"}, 1), "b");
 });
 
-it("vizPreDrawPure ids closure returns ALL groupBy values for a datum", () => {
+it("vizPreDraw ids closure returns ALL groupBy values for a datum", () => {
   const chart = new BarChart()
     .data([{group: "G1", id: "a"}])
     .groupBy(["group", "id"]);
-  const ctx = vizPreDrawPure(chart);
+  vizPreDraw(chart);
   assert.deepStrictEqual(
-    ctx.ids({group: "G1", id: "a"}, 0),
+    chart._ids({group: "G1", id: "a"}, 0),
     ["G1", "a"],
     "ids returns both groupBy levels",
   );
 });
 
-it("vizPreDrawPure filteredData drops _hidden ids", () => {
+it("vizPreDraw filteredData drops _hidden ids", () => {
   const chart = new BarChart()
     .data([
       {id: "a", x: 1, y: 10},
@@ -75,12 +73,12 @@ it("vizPreDrawPure filteredData drops _hidden ids", () => {
     .groupBy(["id"]);
   // Set _hidden directly (no public accessor; v4 internal slot).
   chart._hidden = ["b"];
-  const ctx = vizPreDrawPure(chart);
-  const ids = (ctx.filteredData ?? []).map(d => d.id);
+  vizPreDraw(chart);
+  const ids = (chart._filteredData ?? []).map(d => d.id);
   assert.deepStrictEqual(ids.sort(), ["a", "c"], "b filtered out");
 });
 
-it("vizPreDrawPure legendData INCLUDES hidden ids (legend still shows them)", () => {
+it("vizPreDraw legendData INCLUDES hidden ids (legend still shows them)", () => {
   const chart = new BarChart()
     .data([
       {id: "a", x: 1, y: 10},
@@ -88,25 +86,25 @@ it("vizPreDrawPure legendData INCLUDES hidden ids (legend still shows them)", ()
     ])
     .groupBy(["id"]);
   chart._hidden = ["b"];
-  const ctx = vizPreDrawPure(chart);
-  const legendIds = (ctx.legendData ?? []).map(d => d.id);
+  vizPreDraw(chart);
+  const legendIds = (chart._legendData ?? []).map(d => d.id);
   assert.deepStrictEqual(legendIds.sort(), ["a", "b"], "legend still has b");
 });
 
-it("vizPreDrawPure closures are SNAPSHOTS — viz mutation after capture doesn't drift them", () => {
+it("vizPreDraw closures are SNAPSHOTS — viz mutation after capture doesn't drift them", () => {
   const chart = new BarChart()
     .data([{group: "G1", id: "a"}])
     .groupBy(["group", "id"]);
-  const ctx = vizPreDrawPure(chart);
+  vizPreDraw(chart);
+  const id = chart._id;
   // At capture time: drawDepth=1, so id(d) returns d.id.
-  assert.strictEqual(ctx.id({group: "G1", id: "a"}, 0), "a");
-  // Mutate viz._drawDepth AFTER the closure was built. With v4's snapshot
-  // semantics, the OLD closure still returns "a" (the snapshotted
-  // drawDepth). To use a different depth, callers re-run vizPreDrawPure
-  // to get a fresh ctx (which is what _preDraw does on every render).
+  assert.strictEqual(id({group: "G1", id: "a"}, 0), "a");
+  // Mutate viz._drawDepth AFTER the closure was built: it still returns "a"
+  // (the snapshotted drawDepth). Each render reruns vizPreDraw for a fresh
+  // closure.
   chart._drawDepth = 0;
   assert.strictEqual(
-    ctx.id({group: "G1", id: "a"}, 0),
+    id({group: "G1", id: "a"}, 0),
     "a",
     "snapshot closure unaffected by post-capture viz mutation",
   );
@@ -114,20 +112,12 @@ it("vizPreDrawPure closures are SNAPSHOTS — viz mutation after capture doesn't
   // how depth changes actually flow through the pipeline) reflects the
   // new depth.
   chart.depth(0);
-  const ctx2 = vizPreDrawPure(chart);
+  vizPreDraw(chart);
   assert.strictEqual(
-    ctx2.id({group: "G1", id: "a"}, 0),
+    chart._id({group: "G1", id: "a"}, 0),
     "G1",
     "fresh capture after .depth(0) reflects new drawDepth",
   );
-});
-
-it("vizPreDrawPure stashes _thresholdTree for the shim to consume", () => {
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}, {id: "b", x: 2, y: 20}])
-    .groupBy(["id"]);
-  const ctx = vizPreDrawPure(chart);
-  assert.ok(ctx._thresholdTree, "_thresholdTree carried");
 });
 
 it("vizPostThresholdCtx flags noDataMessage iff data is empty AND noDataMessage truthy", () => {
@@ -168,25 +158,8 @@ it("vizPostThresholdCtx returns hoverOverride past the cutoff", () => {
   assert.strictEqual(
     ctx.hoverOverride.stashOriginals,
     true,
-    "shim should stash originals",
+    "vizPreDraw should stash originals",
   );
-});
-
-it("Treemap _thresholdFunction is applied by the shim, not the pure function", () => {
-  const chart = new Treemap()
-    .data([
-      {id: "a", value: 100},
-      {id: "b", value: 90},
-      {id: "c", value: 10},
-      {id: "d", value: 5},
-    ])
-    .groupBy(["id"])
-    .sum("value");
-  // The threshold instance method is what Treemap.ts overrides.
-  // vizPreDrawPure returns the rollup tree; the shim runs _thresholdFunction.
-  const ctx = vizPreDrawPure(chart);
-  assert.ok(ctx.filteredData, "pre-threshold filteredData present");
-  assert.ok(ctx._thresholdTree, "rollup tree captured for the shim");
 });
 
 it("runVizPipeline calls _preDraw then _draw then _drawSceneToTarget in order", () => {
@@ -217,7 +190,7 @@ it("runVizPipeline calls _preDraw then _draw then _drawSceneToTarget in order", 
   );
 });
 
-it("vizDrawPure resets _featurePanels, _chartScene, _chartTransform", () => {
+it("vizDraw resets _featurePanels, _chartScene, _chartTransform", () => {
   const chart = new BarChart()
     .data([{id: "a", x: 1, y: 10}])
     .width(400)
@@ -230,7 +203,7 @@ it("vizDrawPure resets _featurePanels, _chartScene, _chartTransform", () => {
   // Need to run preDraw first.
   chart._preDraw();
   try {
-    vizDrawPure(chart);
+    vizDraw(chart);
     assert.strictEqual(
       chart._featurePanels.length === 0 ||
         chart._featurePanels.every(p => p.key !== "old"),
@@ -249,12 +222,12 @@ it("vizDrawPure resets _featurePanels, _chartScene, _chartTransform", () => {
       "_chartTransform overwritten or undefined",
     );
   } catch {
-    // vizDrawPure may fail in jsdom on later feature setup; the resets
+    // vizDraw may fail in jsdom on later feature setup; the resets
     // happen FIRST, so they should land even if later steps throw.
     assert.strictEqual(
       chart._featurePanels.find(p => p.key === "old"),
       undefined,
-      "even on throw, the reset (which happens FIRST in vizDrawPure) should clear stale panels",
+      "even on throw, the reset (which happens FIRST in vizDraw) should clear stale panels",
     );
   }
 });

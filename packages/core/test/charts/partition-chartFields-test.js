@@ -1,10 +1,8 @@
 import assert from "assert";
 import {
   partitionDefaultSort,
-  partitionLegend,
   partitionLegendSort,
   partitionSetup,
-  partitionShareRow,
   partitionSortDecorate,
   partitionSumCoerce,
   partitionSumOnSet,
@@ -37,13 +35,6 @@ function mockViz(extra = {}) {
     ...extra,
   };
 }
-
-it("partition chartFields: partitionShareRow labels the row and formats a row's share", () => {
-  const [label, value] = partitionShareRow(mockViz());
-  assert.strictEqual(label(), "t:Share");
-  assert.strictEqual(value({}, 0, {__d3plusShare: 0.25}), "25%");
-  assert.strictEqual(value({}, 0, {}), "", "no share, no value");
-});
 
 it("partition chartFields: partitionThreshold buckets small branches", () => {
   const viz = mockViz();
@@ -81,13 +72,6 @@ it("partition chartFields: partitionLegendSort orders by summed value", () => {
     [{value: 1}, {value: 3}, {value: 2}].sort(sort).map(d => d.value),
     [3, 2, 1],
   );
-});
-
-it("partition chartFields: partitionLegend hides while it would list every drawn row", () => {
-  const viz = mockViz();
-  const legend = partitionLegend(viz);
-  assert.strictEqual(legend({}, [{}, {}]), false);
-  assert.strictEqual(legend({}, [{}]), "legend");
 });
 
 it("partition chartFields: partitionSetup records the default colors and installs the handlers", () => {

@@ -5,10 +5,6 @@
     a class instance, storing each field as `this.schema.<key>`. Each accessor's
     `arguments.length` overload + coercion lives in this one factory instead
     of being copy-pasted per chart.
-
-    `createFluent` is the standalone variant — returns a plain object with
-    the same accessor surface plus `config()`. Used where a chart shape is
-    handed back as a value (not bound to a Viz instance).
 */
 
 import type {VizInstance} from "./charts/viz/vizTypes.js";
@@ -128,17 +124,6 @@ export interface ConfigField {
   decorate?: (viz: VizInstance, value: unknown) => unknown;
 }
 
-/**
-    The shape a `createFluent` factory returns. Mirrors `BaseClass.config()`'s
-    public contract.
-*/
-export interface FluentInstance<C = Record<string, unknown>> {
-  /** Get the current config object (a shallow copy). */
-  config(): C;
-  /** Apply a partial config and return for chaining. */
-  config(_: Partial<C>): this;
-}
-
 function coerceValue(field: ConfigField, value: unknown): unknown {
   if (typeof field.coerce === "function") return field.coerce(value);
   switch (field.coerce) {
@@ -153,54 +138,6 @@ function coerceValue(field: ConfigField, value: unknown): unknown {
     default:
       return value;
   }
-}
-
-/**
-    Build a fluent instance from a config schema. Every field in the schema
-    becomes a `(value?) => value | this` accessor on the returned object,
-    identical in shape to d3plus's hand-written `arguments.length`-overloaded
-    methods — but generated.
-
-    The returned instance also exposes `config()` for getting/setting in one
-    shot, matching the `BaseClass.config()` contract.
-
-    @param schema The config fields the chart supports.
-    @param defaults Seed values (applied with the schema's coercions).
-*/
-export function createFluent<C extends Record<string, unknown>>(
-  schema: ConfigField[],
-  defaults: Partial<C> = {},
-): FluentInstance<C> & Record<string, (value?: unknown) => unknown> {
-  const fields = new Map(schema.map(f => [f.key, f]));
-  const config: Record<string, unknown> = {};
-  for (const f of schema) {
-    if (f.key in defaults) {
-      config[f.key] = coerceValue(f, (defaults as Record<string, unknown>)[f.key]);
-    }
-  }
-
-  const api: Record<string, unknown> = {};
-
-  for (const f of schema) {
-    api[f.key] = function (...args: unknown[]) {
-      if (!args.length) return config[f.key];
-      config[f.key] = coerceValue(f, args[0]);
-      return api;
-    };
-  }
-
-  api.config = function (...args: unknown[]) {
-    if (!args.length) return {...config};
-    const patch = args[0] as Record<string, unknown>;
-    for (const k in patch) {
-      if (!Object.prototype.hasOwnProperty.call(patch, k)) continue;
-      const field = fields.get(k);
-      config[k] = field ? coerceValue(field, patch[k]) : patch[k];
-    }
-    return api;
-  };
-
-  return api as FluentInstance<C> & Record<string, (value?: unknown) => unknown>;
 }
 
 /**
@@ -336,7 +273,7 @@ function isHandWritten(proto: object, key: string): boolean {
     constructor installs after its parent's) replaces the parent's accessor.
 
     @param target Object to install methods on (typically a class instance).
-    @param schema Same field schema `createFluent` consumes.
+    @param schema The config fields to install.
     @param defaults Default values (applied to `this.schema.<key>` when unset).
 */
 export function installFluent(

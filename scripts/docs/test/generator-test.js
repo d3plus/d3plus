@@ -4,6 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
+import {injectConfigAccessors} from "../stubs/accessors.js";
 import {scopedDoc} from "../stubs/args.js";
 import {
   injectChartConfig,
@@ -240,5 +241,72 @@ describe("injectChartConfig", () => {
       injectChartConfig(readme, defs),
       `### Demo\n\n${table}\n\nText.\n\n## Interfaces\n\n#### Returns\n\n\`any\`\n`,
     );
+  });
+});
+
+describe("injectConfigAccessors", () => {
+  const readme = [
+    "## Classes",
+    "",
+    "### Base",
+    "",
+    "#### Methods",
+    "",
+    "##### render()",
+    "",
+    "### Shape",
+    "",
+    "#### Methods",
+    "",
+    "##### fill()",
+    "",
+    "### Rect",
+    "",
+    "#### Methods",
+    "",
+    "## Functions",
+    "",
+  ].join("\n");
+  const stories = [
+    {name: "Base", kind: "class"},
+    {name: "Shape", kind: "class", augments: ["Base"]},
+    {name: "Rect", kind: "class", augments: ["Shape"]},
+    {name: "Treemap", kind: "class", augments: ["Base"], chartDef: {}},
+  ];
+  const configDefaults = {
+    Base: {render: undefined},
+    Shape: {render: undefined, fill: "red", opacity: 1, _private: 0, stroke: {width: 1}},
+    Rect: {render: undefined, fill: "red", opacity: 1, stroke: {width: 1}, rx: 0},
+    Treemap: {render: undefined, tile: "squarify"},
+  };
+  const interfaceDocs = {
+    byName: {},
+    merged: {
+      opacity: {names: ["number"], description: "How opaque the shape is."},
+      rx: {names: ["number"], description: "Corner radius | in pixels.\n\nSecond paragraph."},
+    },
+  };
+  const out = injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs});
+  const section = name => out.slice(out.indexOf(`### ${name}\n`), out.indexOf("\n### ", out.indexOf(`### ${name}\n`) + 1));
+
+  it("tables the accessors a class adds, before its methods", () => {
+    const shape = section("Shape");
+    assert.ok(shape.indexOf("#### Config accessors") < shape.indexOf("#### Methods"));
+    assert.match(shape, /\| `opacity` \| `number` \| `1` \| How opaque the shape is\. \|/);
+    assert.match(shape, /\| `stroke` \| `record` \| `\{…\}` \| {2}\|/);
+    assert.doesNotMatch(shape, /\| `fill` \|/, "a documented method isn't repeated");
+    assert.doesNotMatch(shape, /_private/, "private keys are left out");
+  });
+
+  it("lists only a subclass's own accessors and links the nearest ancestor with a table", () => {
+    const rect = section("Rect");
+    assert.match(rect, /Also accepts the config accessors of \[`Shape`\]\(#shape\)\./);
+    assert.match(rect, /\| `rx` \| `number` \| `0` \| Corner radius \\\| in pixels\.<br><br>Second paragraph\. \|/);
+    assert.doesNotMatch(rect, /`opacity`/);
+  });
+
+  it("skips classes with nothing to add and charts", () => {
+    assert.doesNotMatch(section("Base"), /Config accessors/);
+    assert.doesNotMatch(out, /`tile`/);
   });
 });

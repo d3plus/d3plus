@@ -14,9 +14,8 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
-import type {D3plusConfig} from "../../utils/D3plusConfig.js";
+import {rowLegend} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -34,7 +33,6 @@ const asArray = (v: unknown): unknown[] => (Array.isArray(v) ? v : [v]);
 export const packDef: ChartDefinition = {
   name: "Pack",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPackLayout,
   emit: packEmit,
   insetRegion: sceneInsetRegion,
@@ -127,17 +125,7 @@ export const packDef: ChartDefinition = {
         },
       }),
     },
-    {
-      key: "legend",
-      coerce: "const",
-      factory: (viz: VizInstance) => {
-        const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
-        return (config: D3plusConfig, arr: DataPoint[]) => {
-          if (arr.length === viz._filteredData.length) return false;
-          return base.call(viz, config, arr);
-        };
-      },
-    },
+    {key: "legend", coerce: "const", factory: rowLegend},
     {
       // `on` is the event bus — Viz seeded it with the default handlers,
       // Pack layers wrap-and-extend versions for the events that need

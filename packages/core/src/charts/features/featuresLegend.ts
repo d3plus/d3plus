@@ -10,7 +10,7 @@ import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import {configPrep} from "../../utils/index.js";
-import type {VizContext as ConfigPrepContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {cornerPlacements, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
@@ -214,7 +214,7 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
     })
     .verticalAlign(frame.verticalAlign)
     .width(frame.width)
-    .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepContext)(viz.schema.shapeConfig, "legend"))
+    .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.shapeConfig, "legend"))
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),

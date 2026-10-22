@@ -7,7 +7,6 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
@@ -28,7 +27,6 @@ function barTotal(viz: VizInstance) {
 export const marimekkoDef: ChartDefinition = {
   name: "Marimekko",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
   facet: {axes: marimekkoFacetAxes, fixedAxes: marimekkoFixedAxes},
 

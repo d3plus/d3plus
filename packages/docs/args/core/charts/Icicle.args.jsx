@@ -26,7 +26,7 @@ export const argTypes = assign(
     legend: {
       table: {
         defaultValue: {
-          summary: "partitionLegend"
+          summary: "rowLegend"
         }
       }
     },
@@ -126,7 +126,7 @@ export const argTypes = assign(
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: [partitionShareRow(viz)]}"
+          summary: "{tbody: [shareRow(viz, \"sum\")]}"
         }
       }
     }

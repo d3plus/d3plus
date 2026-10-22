@@ -14,7 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import configPrep from "../../utils/configPrep.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext, ShapeEmitter} from "../features/shapeEmit.js";
@@ -167,7 +167,7 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
     .renderMode("compute")
     .config(shapeConfigFor(viz, CANDLESTICK_SHAPE))
     .config(candleStyle(viz, layoutOf))
-    .config(nested ? configPrep.bind(viz as unknown as VizContext)(nested as Parameters<typeof configPrep>[0]) : {})
+    .config(nested ? configPrep.bind(viz as unknown as ConfigPrepHost)(nested as Parameters<typeof configPrep>[0]) : {})
     .config({
       ariaLabel: (d: PlotDatum) => candleAriaLabel(viz, d.data, d.i),
       d: (d: PlotDatum) => layoutOf(d).d,

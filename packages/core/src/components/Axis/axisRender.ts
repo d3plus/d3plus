@@ -10,32 +10,15 @@ import * as shapes from "../../shapes/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
-import {addDomainEnds, crowdsEndLabel, isNegative} from "./axisEndLabels.js";
+import {addDomainEnds, crowdsEndLabel} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
-import type {VizContext} from "../../utils/configPrep.js";
+import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Axis from "./Axis.js";
 import {axisBarNodes, brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
+import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {timeDataInDomain} from "./timeValues.js";
-
-export {isNegative};
-
-const floorPow = (d: number): number =>
-  Math.pow(10, Math.floor(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const ceilPow = (d: number): number =>
-  Math.pow(10, Math.ceil(Math.log10(Math.abs(d)))) *
-  Math.pow(-1, isNegative(d) ? 1 : 0);
-const fixFloat = (d: number): number => {
-  const str = `${d}`;
-  if (str.includes("e-") || str === "0") return 0;
-  const nineMatch = str.match(/(-*[0-9]+\.[0]*)([0-8]+)9{3,}[0-9]+$/);
-  if (nineMatch) return +`${nineMatch[1]}${+nineMatch[2] + 1}`;
-  const zeroMatch = str.match(/(-*[0-9]+\.[0]*)([1-9]+)0*[0-9]*0{3,}[0-9]+$/);
-  if (zeroMatch) return +`${zeroMatch[1]}${+zeroMatch[2]}`;
-  return d;
-};
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
 
@@ -335,7 +318,7 @@ export function configureTickShape(axis: Axis, tickData: Record<string, unknown>
   // No `g.ticks` DOM wrapper needed in the detached compute.
   axis._tickShape!
     .config(
-      configPrep.bind(axis as unknown as VizContext)(
+      configPrep.bind(axis as unknown as ConfigPrepHost)(
         axis.schema.shapeConfig,
       ) as Partial<BaseShapeConfig>,
     )
@@ -396,7 +379,7 @@ export function renderAxisTitle(
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
     )
-    .config(configPrep.bind(axis as unknown as VizContext)(axis.schema.titleConfig))
+    .config(configPrep.bind(axis as unknown as ConfigPrepHost)(axis.schema.titleConfig))
     .render();
 }
 

@@ -6,17 +6,16 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
-import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import {facetActive, resolveFacetConfig} from "../facet/facetConfig.js";
 import type {FacetAccessor, FacetConfig} from "../facet/facetConfig.js";
 import {facetKey, toFacetValue} from "../facet/facetData.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {computeTimeFilter} from "../pipeline/vizPreDrawPure.js";
+import {computeTimeFilter} from "../pipeline/preDrawData.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {autoTitle, keyedAccessor, valueKeyOf} from "../helpers/valueTitle.js";
 import binData, {type BinNormalize, type BinRow} from "./binData.js";
 
 /** Per-instance binning state kept on `viz.ctx.histogram`. */
@@ -38,16 +37,6 @@ const yTitles: Record<BinNormalize, string> = {
   relative: "Relative Frequency",
 };
 
-/** Data keys behind string `value` accessors, for the x-axis title. */
-const valueKeys = new WeakMap<object, string>();
-
-/** `accessor(key)` that remembers its key. */
-function keyedAccessor(key: string) {
-  const fn = accessor(key);
-  valueKeys.set(fn, key);
-  return fn;
-}
-
 /** Walks Plot's `__d3plus__` wrappers down to the bin row. */
 function binRow(d: DataPoint): BinRow {
   while (d && d.__d3plus__ && d.data) d = d.data as DataPoint;
@@ -56,11 +45,6 @@ function binRow(d: DataPoint): BinRow {
 
 /** A series' merged datum (legend swatch): its `x` collects every bin's midpoint. */
 const isSeries = (b: BinRow) => Array.isArray(b.x);
-
-/** Sets an axis title unless the user has configured their own. */
-function autoTitle(config: Record<string, unknown>, previous: string | undefined, next: string | undefined) {
-  if (config.title === undefined || config.title === previous) config.title = next;
-}
 
 /**
     The time filter the draw applies: the configured `timeFilter` or, with a
@@ -95,7 +79,7 @@ function binBeforePreDraw(viz: VizInstance) {
   const facet = facetActive(viz) ? (viz.schema.facet as FacetAccessor) : undefined;
 
   const groupBy = viz.schema.groupBy as ((d: DataPoint, i: number) => unknown)[];
-  const valueKey = valueKeys.get(viz.schema.value);
+  const valueKey = valueKeyOf(viz.schema.value);
   const bins = binData(drawn, {
     value: viz.schema.value,
     group: (d, i) => groupBy.map(g => `${g(d, i)}`).join("_"),
@@ -130,7 +114,6 @@ function binBeforePreDraw(viz: VizInstance) {
 export const histogramDef: ChartDefinition = {
   name: "Histogram",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 1},
 
   setup: viz => {

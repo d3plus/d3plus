@@ -203,7 +203,7 @@ it("Treemap parity (chart render vs toScene→SvgRenderer)", async () => {
         })
         .sort((p, q) => p.x - q.x || p.y - q.y || p.w - q.w || p.h - q.h);
     };
-    // v4 is scene-only — both svgA (render() → renderScene) and svgB (explicit
+    // v4 is scene-only — both svgA (render()) and svgB (explicit
     // toScene() + SvgRenderer) produce the same scene-class DOM. This test
     // asserts the two paths are idempotent and labels appear in both.
     const sceneLabels = svg =>
@@ -472,92 +472,6 @@ it("Scene rendering emits zero legacy d3plus-* classes in the user target", asyn
   );
 });
 
-it("Viz.renderScene drives a chart through the scene path (SVG)", async () => {
-  const page = await newPage();
-  const res = await page.evaluate(async () => {
-    const target = document.getElementById("B");
-    const viz = new window.d3plusCore.Treemap()
-      .data([
-        {id: "A", value: 10},
-        {id: "B", value: 20},
-        {id: "C", value: 30},
-        {id: "D", value: 40},
-      ])
-      .groupBy("id")
-      .sum("value")
-      .width(300)
-      .height(200)
-      .duration(0);
-
-    const {renderer, scene} = await viz.renderScene(target);
-
-    return {
-      kind: renderer.kind,
-      // The user's target should contain only scene-rendered DOM, never the
-      // legacy d3plus-Treemap container (which lives in the detached compute svg).
-      hasSceneSvg: !!target.querySelector("svg.d3plus-render-svg"),
-      hasLegacyTreemap: !!target.querySelector("g.d3plus-Treemap"),
-      sceneRects: target.querySelectorAll("rect.d3plus-render-rect").length,
-      sceneText: target.textContent,
-      sceneSize: scene.root.children.length,
-    };
-  });
-  if (page._errors.length) throw new Error(page._errors.join("; "));
-  await closePage(page);
-
-  assert.strictEqual(res.kind, "svg", "SvgRenderer in use");
-  assert.ok(res.hasSceneSvg, "target contains scene SVG");
-  assert.ok(!res.hasLegacyTreemap, "target does NOT contain legacy d3plus-Treemap (lives only in detached compute)");
-  assert.ok(res.sceneRects >= 4, `scene rendered all cells (${res.sceneRects})`);
-  ["A", "B", "C", "D"].forEach(id =>
-    assert.ok(res.sceneText.includes(id), `cell label "${id}" present`),
-  );
-  assert.ok(res.sceneSize > 0, "scene has children composed from shapes/components");
-});
-
-it("Viz.renderScene drives a chart through the scene path (Canvas)", async () => {
-  const page = await newPage();
-  const res = await page.evaluate(async () => {
-    const target = document.getElementById("B");
-    const viz = new window.d3plusCore.BarChart()
-      .data([
-        {id: "Alpha", x: "Alpha", y: 10},
-        {id: "Beta", x: "Beta", y: 25},
-        {id: "Gamma", x: "Gamma", y: 15},
-        {id: "Delta", x: "Delta", y: 30},
-      ])
-      .groupBy("id")
-      .x("x")
-      .y("y")
-      .width(400)
-      .height(300)
-      .duration(0);
-
-    const {renderer} = await viz.renderScene(target, {kind: "canvas"});
-
-    // Probe pick at the visual center of the target.
-    const canvas = target.querySelector("canvas.d3plus-render-canvas");
-    const pick = renderer.pick([200, 200]);
-
-    return {
-      kind: renderer.kind,
-      hasCanvas: !!canvas,
-      hasLegacyShapes: target.querySelectorAll("rect.d3plus-Bar").length,
-      pickedKey: pick ? pick.node.key : null,
-    };
-  });
-  if (page._errors.length) throw new Error(page._errors.join("; "));
-  await closePage(page);
-
-  assert.strictEqual(res.kind, "canvas", "CanvasRenderer in use");
-  assert.ok(res.hasCanvas, "target contains a <canvas>");
-  assert.strictEqual(res.hasLegacyShapes, 0, "target has zero legacy SVG bars (lives only in detached compute)");
-  assert.ok(
-    res.pickedKey && !res.pickedKey.startsWith("Axis"),
-    `chart is hit-testable on canvas (got ${res.pickedKey})`,
-  );
-});
-
 it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click", async () => {
   const page = await newPage();
   const res = await page.evaluate(async () => {
@@ -579,7 +493,8 @@ it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click"
       .on("click.Bar", () => fired.push("Bar"))
       .on("click.Circle", () => fired.push("Circle"));
 
-    const {renderer} = await viz.renderScene(target, {kind: "canvas"});
+    await new Promise(resolve => viz.select(target).renderer("canvas").render(resolve));
+    const renderer = viz._sceneRenderer;
     const canvas = target.querySelector("canvas.d3plus-render-canvas");
     const rect = canvas.getBoundingClientRect();
 
@@ -903,10 +818,8 @@ it("measureAxis runs on a plain object — no Axis class instance needed", async
 });
 
 it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScene", async () => {
-  // Phase-E follow-on: Plot._draw's three `_shapes.push(...)` sites (main
-  // shape, confidence Area, line markers) all go through `absorbShapeIntoChartScene`,
-  // which calls `shape.toScene()` and stuffs the nodes into `viz._chartScene`.
-  // Verifies the rollup for the common Plot subclasses.
+  // Plot's main shape, confidence Area, and line markers all go through
+  // `absorbShapeIntoChartScene`, which stuffs their nodes into `viz._chartScene`.
   const cases = [
     {name: "BarChart", data: [{id: "A", value: 10}, {id: "B", value: 20}, {id: "C", value: 5}]},
     {name: "LinePlot", data: [
@@ -931,7 +844,6 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
       if (name === "BarChart") chart.y("value");
       await new Promise(resolve => chart.render(resolve));
       return {
-        shapesLength: chart._shapes ? chart._shapes.length : -1,
         chartSceneLength: chart._chartScene ? chart._chartScene.length : 0,
         rendered: target.querySelector("svg") !== null,
       };
@@ -940,18 +852,15 @@ it("Plot subclasses (BarChart/LinePlot/AreaPlot) route shapes through _chartScen
       throw new Error(`${name}: ${page._errors.join("; ")}`);
     await closePage(page);
 
-    assert.strictEqual(res.shapesLength, 0, `${name}: _shapes empty`);
     assert.ok(res.chartSceneLength > 0, `${name}: _chartScene populated`);
     assert.ok(res.rendered, `${name}: svg rendered`);
   }
 });
 
-it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async function () {
+it("Data-driven charts emit scene via chartDef.emit", async function () {
   this.timeout(10000);
-  // Phase-E follow-on rollup: every chart in this list was converted from
-  // `_shapes.push(new Shape()...)` to `this._chartScene = chartDef.emit(ctx)`.
-  // For each: render, verify `_shapes` is empty, verify `_chartScene` is
-  // populated, verify the chart actually rendered something to the DOM.
+  // For each: render, verify `_chartScene` is populated and the chart
+  // rendered something to the DOM.
   const charts = [
     {name: "Pie", data: [{id: "A", value: 10}, {id: "B", value: 20}]},
     {name: "Donut", data: [{id: "A", value: 10}, {id: "B", value: 20}]},
@@ -984,7 +893,6 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
         .select(target);
       await new Promise(resolve => viz.render(resolve));
       return {
-        shapesLength: viz._shapes ? viz._shapes.length : -1,
         hasChartScene: Array.isArray(viz._chartScene),
         chartSceneLength: viz._chartScene ? viz._chartScene.length : 0,
         hasContent: target.querySelector("svg") !== null,
@@ -994,11 +902,6 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
       throw new Error(`${name}: ${page._errors.join("; ")}`);
     await closePage(page);
 
-    assert.strictEqual(
-      res.shapesLength,
-      0,
-      `${name}: _shapes empty (no legacy push)`,
-    );
     assert.ok(res.hasChartScene, `${name}: _chartScene populated`);
     assert.ok(
       res.chartSceneLength > 0,
@@ -1009,10 +912,8 @@ it("All converted charts emit scene via chartDef.emit (no _shapes.push)", async 
 });
 
 it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
-  // Phase-E follow-on: Pack._draw used to do `_shapes.push(new Circle()...)`.
-  // Now `applyPackLayout` stage runs the d3-hierarchy pack, `packDef.emit`
-  // produces Circle SceneNodes, and Viz.toScene composes them via
-  // `_chartScene`. Verifies the same dropped-glue pattern as Treemap.
+  // `applyPackLayout` runs the d3-hierarchy pack, `packDef.emit` produces
+  // Circle SceneNodes, and Viz.toScene composes them via `_chartScene`.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -1031,7 +932,6 @@ it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
     await new Promise(resolve => viz.render(resolve));
 
     return {
-      shapesLength: viz._shapes ? viz._shapes.length : -1,
       hasChartScene: Array.isArray(viz._chartScene),
       circleCount: viz._chartScene
         ? viz._chartScene.filter(n => n.type === "circle").length
@@ -1042,19 +942,15 @@ it("Pack scene comes from packDef.emit — no legacy Circle.push", async () => {
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await closePage(page);
 
-  assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Circle push)");
   assert.ok(res.hasChartScene, "_chartScene array populated");
   assert.ok(res.circleCount >= 3, `at least 3 circle cells in emit (got ${res.circleCount})`);
   assert.ok(res.hasViewBox, "viz-chart-cells group rendered to scene");
 });
 
 it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", async () => {
-  // Phase-E follow-on: Treemap._draw used to do `_shapes.push(new Rect()...)`
-  // to populate the chart cells. Now `_chartScene = treemapDef.emit(ctx)` and
-  // Viz.toScene composes it. Verifies:
-  //   1. `_shapes` is empty (no Rect was pushed).
-  //   2. `_chartScene` contains rect SceneNodes (the emit output).
-  //   3. The rendered scene still has all the cells (no regression).
+  // `_chartScene = treemapDef.emit(ctx)` and Viz.toScene composes it. Verifies:
+  //   1. `_chartScene` contains rect SceneNodes (the emit output).
+  //   2. The rendered scene still has all the cells.
   const page = await newPage();
   const res = await page.evaluate(async () => {
     const target = document.getElementById("B");
@@ -1073,7 +969,6 @@ it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", asyn
     await new Promise(resolve => viz.render(resolve));
 
     return {
-      shapesLength: viz._shapes ? viz._shapes.length : -1,
       hasChartScene: Array.isArray(viz._chartScene),
       chartSceneLength: viz._chartScene ? viz._chartScene.length : 0,
       rectNodes: viz._chartScene
@@ -1086,7 +981,6 @@ it("Treemap scene cells come from treemapDef.emit — no legacy Rect.push", asyn
   if (page._errors.length) throw new Error(page._errors.join("; "));
   await closePage(page);
 
-  assert.strictEqual(res.shapesLength, 0, "_shapes is empty (no Rect push)");
   assert.ok(res.hasChartScene, "_chartScene array exists");
   assert.ok(res.chartSceneLength >= 3, `_chartScene populated (got ${res.chartSceneLength})`);
   assert.strictEqual(res.rectNodes, 3, "3 rect cells in emit");

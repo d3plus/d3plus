@@ -3,8 +3,10 @@
 | Functions | Description |
 | --- | --- |
 | [`ckmeans`](#ckmeans) | Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations. |
+| [`clamp`](#clamp) | Constrains a number to the range from `min` to `max`, inclusive. |
 | [`closest`](#closest) | Finds the closest numeric value in an array. |
 | [`epanechnikovKernel`](#epanechnikovkernel) | The Epanechnikov kernel, scaled to unit variance like the gaussian kernel so a bandwidth smooths about as much with either: `3 / (4√5) · (1 - u²/5)` for `\|u\| ≤ √5`, otherwise 0. |
+| [`finite`](#finite) | Whether a value is a finite number: not `NaN`, `±Infinity`, or a non-number such as a numeric string, `null`, or an array. |
 | [`gaussianKernel`](#gaussiankernel) | The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`. |
 | [`kernelDensity`](#kerneldensity) | Estimates the probability density of a set of observations with a kernel density estimate, evaluated on an evenly spaced grid. |
 | [`largestRect`](#largestrect) | Finds the largest rectangle that fits inside a given polygon, optimizing for area across configurable rotations and aspect ratios. |
@@ -14,6 +16,7 @@
 | [`negativeSpace`](#negativespace) | Finds the open, axis-aligned rectangles inside `bounds` that lie entirely outside the marks described by `obstacles`. |
 | [`path2polygon`](#path2polygon) | Transforms a path string into an Array of points, with no DOM involved. |
 | [`pathBounds`](#pathbounds) | Computes the exact bounding box of an SVG path string with no DOM involved, evaluating the true extrema of each Bézier and arc segment (not a sampled approximation). |
+| [`pathCommands`](#pathcommands) | Tokenizes an SVG path `d` string into its commands as written, without resolving them to absolute coordinates. |
 | [`pointDistance`](#pointdistance) | Calculates the pixel distance between two points. |
 | [`pointDistanceSquared`](#pointdistancesquared) | Returns the squared euclidean distance between two points. |
 | [`pointRotate`](#pointrotate) | Rotates a point around a given origin. |
@@ -34,6 +37,7 @@
 | [`Bounds`](#bounds) | An axis-aligned box: top-left corner plus size. |
 | [`KernelDensityOptions`](#kerneldensityoptions) |  |
 | [`NegativeSpaceOptions`](#negativespaceoptions) | Options for `negativeSpace`: padding, minimum box size, grid resolution, and extra boxes to avoid. |
+| [`PathCommand`](#pathcommand) | One command of an SVG path as written: its letter (case kept, so relative commands stay relative) and its arguments, one array per segment when the command repeats implicitly. |
 | [`RegressionOptions`](#regressionoptions) |  |
 | [`RegressionResult`](#regressionresult) |  |
 
@@ -66,6 +70,30 @@ Clusters one-dimensional numeric data into a specified number of groups using th
 #### Returns
 
 `number`[][]
+
+***
+
+<a id="clamp"></a>
+
+### clamp()
+
+> **clamp**(`value`: `number`, `min`: `number`, `max`: `number`): `number`
+
+Defined in: [clamp.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/math/src/clamp.ts#L7)
+
+Constrains a number to the range from `min` to `max`, inclusive.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `number` | The number to constrain. |
+| `min` | `number` | The lower bound. |
+| `max` | `number` | The upper bound; when it is below `min`, `min` wins. |
+
+#### Returns
+
+`number`
 
 ***
 
@@ -114,6 +142,29 @@ exactly zero √5 bandwidths past the outermost observations.
 #### Returns
 
 `number`
+
+***
+
+<a id="finite"></a>
+
+### finite()
+
+> **finite**(`value`: `unknown`): `value is number`
+
+Defined in: [finite.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/finite.ts#L6)
+
+Whether a value is a finite number: not `NaN`, `±Infinity`, or a
+non-number such as a numeric string, `null`, or an array.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `value` | `unknown` | The value to check. |
+
+#### Returns
+
+`value is number`
 
 ***
 
@@ -370,6 +421,32 @@ origin for an empty/unparseable path.
 | `width` | `number` | [pathBounds.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L65) |
 | `x` | `number` | [pathBounds.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L63) |
 | `y` | `number` | [pathBounds.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L64) |
+
+***
+
+<a id="pathcommands"></a>
+
+### pathCommands()
+
+> **pathCommands**(`d`: `string`): [`PathCommand`](#pathcommand)[]
+
+Defined in: [pathParse.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L111)
+
+Tokenizes an SVG path `d` string into its commands as written, without
+resolving them to absolute coordinates. Arc
+flags are read as single `0`/`1` characters, so compact arcs such as
+`a1 1 0 011 1` tokenize correctly. Stops at the first character that is
+not a path command.
+
+#### Parameters
+
+| Parameter | Type | Description |
+| ------ | ------ | ------ |
+| `d` | `string` | An SVG path string (the `d` attribute of a `<path>`). |
+
+#### Returns
+
+[`PathCommand`](#pathcommand)[]
 
 ***
 
@@ -767,6 +844,25 @@ Options for `negativeSpace`: padding, minimum box size, grid resolution, and ext
 | <a id="property-minheight"></a> `minHeight?` | `number` | Smallest height a returned box may have. Default 1. | [negativeSpace.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L20) |
 | <a id="property-minwidth"></a> `minWidth?` | `number` | Smallest width a returned box may have. Default 1. | [negativeSpace.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L18) |
 | <a id="property-padding"></a> `padding?` | `number` | Space kept clear around every obstacle, in pixels. Default 0. | [negativeSpace.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L16) |
+
+***
+
+<a id="pathcommand"></a>
+
+### PathCommand
+
+Defined in: [pathParse.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L98)
+
+One command of an SVG path as written: its letter (case kept, so relative
+commands stay relative) and its arguments, one array per segment when the
+command repeats implicitly.
+
+#### Properties
+
+| Property | Type | Defined in |
+| ------ | ------ | ------ |
+| <a id="property-command"></a> `command` | `string` | [pathParse.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L99) |
+| <a id="property-segments"></a> `segments` | `number`[][] | [pathParse.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L100) |
 
 ***
 

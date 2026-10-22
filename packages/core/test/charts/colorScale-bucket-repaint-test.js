@@ -19,7 +19,6 @@ function fakeViz(hoverOpacity, hoverBucket) {
     _hover: undefined,
     _hoverBucket: hoverBucket,
     _sceneRenderer: {},
-    _shapes: [],
     schema: {shapeConfig: {hoverOpacity}, legend: false},
     _scheduleSceneRepaint() {
       repaints++;

@@ -11,6 +11,7 @@
 | Variables | Description |
 | --- | --- |
 | [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
+| [`softHyphen`](#softhyphen) | The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated word with it, and `textWrap` draws it as a hyphen only where a line breaks. |
 
 ## Functions
 
@@ -42,7 +43,7 @@ Converts an Array of font-family names into a CSS font-family string.
 
 > **strip**(`value`: `string`, `spacer?`: `string`): `string`
 
-Defined in: [strip.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.ts#L33)
+Defined in: [strip.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/text/src/strip.ts#L20)
 
 Removes all non ASCII characters from a string.
 
@@ -65,7 +66,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:43](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L43)
+Defined in: [textSplit.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L44)
 
 Splits a given sentence into an array of words.
 
@@ -140,3 +141,16 @@ The default fallback font list used for all text labels as an Array of Strings.
 #### Default Value
 
 `["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]`
+
+***
+
+<a id="softhyphen"></a>
+
+### softHyphen
+
+> `const` **softHyphen**: `"­"` = "\u00AD"
+
+Defined in: [softHyphen.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/text/src/softHyphen.ts#L5)
+
+The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated
+word with it, and `textWrap` draws it as a hyphen only where a line breaks.

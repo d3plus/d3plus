@@ -17,6 +17,7 @@ import {color} from "d3-color";
 
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
+import {clamp, finite} from "@d3plus/math";
 
 import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
@@ -46,8 +47,6 @@ interface ErrorBarLayout {
   /** Whether each bound is drawn where it lies (and so gets a cap). */
   caps: {lower: boolean; upper: boolean};
 }
-
-const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /**
     Moves a confidence bound from a bar's raw value onto its stacked end. The
@@ -150,14 +149,13 @@ export function clampErrorBar(
   const caps = {lower: finite(lower), upper: finite(upper)};
   if (!extent) return {lower, upper, end, caps};
   const [lo, hi] = extent;
-  const clamp = (v: number): number => Math.min(hi, Math.max(lo, v));
   const fit = (v: number | undefined, side: "lower" | "upper"): number | undefined => {
     if (!finite(v)) return v;
-    const c = clamp(v);
+    const c = clamp(v, lo, hi);
     if (c !== v) caps[side] = false;
     return c;
   };
-  return {lower: fit(lower, "lower"), upper: fit(upper, "upper"), end: clamp(end), caps};
+  return {lower: fit(lower, "lower"), upper: fit(upper, "upper"), end: clamp(end, lo, hi), caps};
 }
 
 /**

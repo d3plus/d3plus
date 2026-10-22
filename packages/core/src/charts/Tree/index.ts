@@ -14,7 +14,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
 import {legendLabel} from "../features/legendLabel.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -27,7 +26,6 @@ import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 export const treeDef: ChartDefinition = {
   name: "Tree",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyTreeLayout,
   emit: treeEmit,
   insetRegion: sceneInsetRegion,

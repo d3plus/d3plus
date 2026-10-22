@@ -2,9 +2,10 @@ import {prepareWithSegments} from "@chenglou/pretext";
 // @ts-ignore
 import {hyphenated} from "hyphenated";
 
+import {softHyphen} from "./softHyphen.js";
+
 const cjkRange = /[\u3000-\u9FFF\uF900-\uFAFF]/;
 const emojiRange = /\p{Extended_Pictographic}/u;
-const softHyphen = "\u00AD";
 
 function isBreakable(str: string): boolean {
   return cjkRange.test(str) || emojiRange.test(str);

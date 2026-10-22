@@ -9,8 +9,7 @@
       are drawn for dense data.
 */
 
-import {hsl} from "d3-color";
-
+import {colorGrayscale} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -25,15 +24,6 @@ export interface LineStateOptions {
   brushes?: BrushSelection;
   /** Stroke opacity of the lines outside the brushes (default: `INACTIVE_SHARE` of each line's own). */
   inactiveOpacity?: number;
-}
-
-/** `c` with its chroma stripped, keeping its lightness (unparseable values pass through). */
-export function grayscale(c: unknown): unknown {
-  if (typeof c !== "string") return c;
-  const h = hsl(c);
-  if (Number.isNaN(h.l)) return c;
-  h.s = 0;
-  return `${h}`;
 }
 
 const isLine = (node: SceneNode): boolean => typeof node.key === "string" && node.key.includes(LINE_KEY);
@@ -64,7 +54,7 @@ export function applyLineStates(root: SceneNode, opts: LineStateOptions): SceneN
       if (!isHit(node)) {
         const own = typeof paint.strokeOpacity === "number" ? paint.strokeOpacity : 1;
         paint.strokeOpacity = opts.inactiveOpacity ?? own * INACTIVE_SHARE;
-        paint.stroke = grayscale(paint.stroke) as string | undefined;
+        if (typeof paint.stroke === "string") paint.stroke = colorGrayscale(paint.stroke);
       }
       const next = {...node, paint, interactive: false} as SceneNode;
       delete next.z;

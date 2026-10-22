@@ -10,7 +10,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {columnHighlight} from "../Plot/columnHighlight.js";
@@ -29,7 +28,6 @@ import {CANDLESTICK_SHAPE, emitCandlesticks} from "./emit.js";
 import {bandAxisDefaults, periodDate} from "./periods.js";
 import {candleTooltipRows} from "./tooltip.js";
 import {installVolumeStrip, noteVolumeTop, VOLUME_DEFAULTS, volumeAccessor} from "./volume.js";
-
 
 /** Per-instance state kept on `viz.ctx.candlestick`. */
 interface CandlestickState {
@@ -97,7 +95,6 @@ function syncTime(viz: VizInstance): void {
 export const candlestickDef: ChartDefinition = {
   name: "Candlestick",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   facet: {aspect: 16 / 9},
 
   setup: viz => {

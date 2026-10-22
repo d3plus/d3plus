@@ -4,7 +4,6 @@
     box plot, quartile lines, or swarm of the observations inside.
 */
 
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {densityAccessorFields, densityConfigFields, installDensity} from "../helpers/densityChart.js";
@@ -15,7 +14,6 @@ import {VIOLIN_PADDING, violinEmit} from "./emit.js";
 export const violinDef: ChartDefinition = {
   name: "Violin",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
   defaults: {groupPadding: 16},
 
   setup: viz =>

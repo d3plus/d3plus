@@ -12,8 +12,8 @@
 
     The chart-shell data prep (draw-depth, id accessors, time/user
     filtering, rollup, threshold, large-data adjustment, empty-data
-    detection) runs through the imperative `vizPreDrawPure` (see
-    `vizPreDrawPure.ts`), which is the single source of truth for it.
+    detection) runs through `vizPreDraw` (see `vizPreDraw.ts`), which is the
+    single source of truth for it.
 */
 import type {DataPoint} from "@d3plus/data";
 

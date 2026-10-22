@@ -7,6 +7,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 ### Added
 
 - **`colorGray`** (`@d3plus/color`): the gray scale d3plus uses for neutral ink, keyed 50–900.
+- `finite`, `clamp`, and `pathCommands` in `@d3plus/math`, `colorGrayscale` in `@d3plus/color`, and `softHyphen` in `@d3plus/text`. [finite ↗](https://d3plus.org/?path=/docs/math-finite--d3plus) · [clamp ↗](https://d3plus.org/?path=/docs/math-clamp--d3plus) · [pathCommands ↗](https://d3plus.org/?path=/docs/math-pathcommands--d3plus) · [colorGrayscale ↗](https://d3plus.org/?path=/docs/color-colorgrayscale--d3plus) · [softHyphen ↗](https://d3plus.org/?path=/docs/text-softhyphen--d3plus)
 
 ### Changed
 
@@ -18,9 +19,24 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 - **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape.
 - **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time.
 
+### Fixed
+
+- `flattenPath` in `@d3plus/render` reads compact arc flags (`a1 1 0 011 1`) as two flags instead of one number.
+
 ### Removed
 
 - **Geomap projection names outside the built-in set.** `projection` accepts the d3-geo projections plus `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson`, and `geoWinkel3` by name; pass any other projection as a function (e.g. `.projection(geoBertin1953())`). An unknown name warns and falls back to Mercator.
+- `Viz.renderScene()` and `Viz.renderMode()`. Use `select(target).renderer("svg" | "canvas").render(callback)` instead.
+- `backConfig()`, which had no effect. Style the back button with `backControlStyle` and `backControlClassName`.
+- `domToScene` from `@d3plus/render`.
+
+### Developer & tooling
+
+- Viz's 42 config accessors that store their value as given (`zoomControlStyle`, `detectResize`, `attribution`, …) are generated from `charts/viz/vizFields.ts` instead of hand-written, with their descriptions and types on `D3plusConfig`, which now types 22 keys it was missing.
+- API.md documents every class's generated config accessors in a "Config accessors" table with type, default and description, including the 26 Viz accessors (`duration`, `width`, `zoomFactor`, …) and the shape and component accessors it didn't list before. Storybook args show their real defaults.
+- `@d3plus/render` exports `arcPath` and `FULL_TURN`, and `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels.
+- `@d3plus/core/internal` drops `createFluent` and `FluentInstance` (use `installFluent`), `vizPreDrawPure` and `vizDrawPure` (use `vizPreDraw` and `vizDraw`), `polarLegend` (use `rowLegend`), ParallelCoordinates' `grayscale` (use `colorGrayscale`), and `sunburstShadeAmount` (use `partitionShadeAmount`). Its `VizContext` type is the pipeline stage context.
+- `ChartDefinition` drops its unread `features` field.
 
 ## 4.8.0
 

@@ -6,7 +6,6 @@ import {
   END_LABEL_MIN_TICKS,
   addDomainEnds,
   crowdsEndLabel,
-  isNegative,
 } from "../../es/src/components/Axis/axisEndLabels.js";
 import it from "../jsdom.js";
 
@@ -133,13 +132,6 @@ it("crowdsEndLabel — too few ticks or unmeasurable positions keep the label", 
     false,
     "non-finite position",
   );
-});
-
-it("isNegative — catches -0", () => {
-  assert.strictEqual(isNegative(-1), true);
-  assert.strictEqual(isNegative(-0), true);
-  assert.strictEqual(isNegative(0), false);
-  assert.strictEqual(isNegative(1), false);
 });
 
 it("addDomainEnds — tick and label passes", () => {

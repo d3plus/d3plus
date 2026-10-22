@@ -56,7 +56,6 @@ const SETTERS = [
   ["Treemap", () => new Treemap(), "legendInsetConfig", {padding: 9}, {padding: RESET}],
   ["Treemap", () => new Treemap(), "colorScaleConfig", {axisConfig: {rounding: "none"}, scale: "log"}, {axisConfig: {rounding: RESET}, scale: RESET}],
   ["Treemap", () => new Treemap(), "timelineConfig", {brushing: true, shapeConfig: {fill: "red"}}, {brushing: RESET, shapeConfig: RESET}],
-  ["Treemap", () => new Treemap(), "backConfig", {fontSize: 40}, {fontSize: RESET}],
   ["Treemap", () => new Treemap(), "attributionStyle", {color: "red"}, {color: RESET}],
   ["Treemap", () => new Treemap(), "messageStyle", {color: "red"}, {color: RESET}],
   ["Treemap", () => new Treemap(), "sizeLegendConfig", {padding: 9, labelConfig: {fontSize: 3}}, {padding: RESET, labelConfig: RESET}],

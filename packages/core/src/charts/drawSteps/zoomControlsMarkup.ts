@@ -13,7 +13,7 @@ import {
   zoomControlStyleDefault,
   zoomControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
-import {kebab, paintControlButton, resolveControlStyle, type StyleObject} from "./controlButtonStyle.js";
+import {controlButtonStyles, kebab, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
 export {kebab};
 
 /**
@@ -28,13 +28,12 @@ export function setBrushing(viz: Viz, value: boolean): void {
 }
 
 /** The resolved base / active / hover button styles for a chart. */
-function buttonStyles(viz: Viz): {base: StyleObject; active: StyleObject; hover: StyleObject} {
-  const className = Boolean(viz.schema.zoomControlClassName);
-  return {
-    base: resolveControlStyle(viz.schema.zoomControlStyle, zoomControlStyleDefault, className),
-    active: resolveControlStyle(viz.schema.zoomControlStyleActive, zoomControlStyleActiveDefault, className),
-    hover: resolveControlStyle(viz.schema.zoomControlStyleHover, zoomControlStyleHoverDefault, className),
-  };
+function buttonStyles(viz: Viz): ControlButtonStyles {
+  return controlButtonStyles(viz.schema, "zoomControl", {
+    base: zoomControlStyleDefault,
+    active: zoomControlStyleActiveDefault,
+    hover: zoomControlStyleHoverDefault,
+  });
 }
 
 /** Paints a zoom-control button's inline style for its current state (base/hover/active) — see `paintControlButton`. */

@@ -10,7 +10,7 @@ import type {DataPoint} from "@d3plus/data";
 import {fontFamilyStringify} from "@d3plus/text";
 
 import {resolveAccessor} from "../features/emitHelpers.js";
-import {chartBackground} from "../Gauge/emit.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {GaugeBand} from "../Gauge/gaugeGeometry.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {bandShades} from "./bulletGeometry.js";

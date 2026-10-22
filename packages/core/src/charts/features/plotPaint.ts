@@ -18,8 +18,8 @@ import type {ClipShape, SceneNode} from "@d3plus/render";
 import type Axis from "../../components/Axis/Axis.js";
 import * as shapes from "../../shapes/index.js";
 import {renderAxes} from "./axes.js";
-import {emitEndLabels} from "./axisEndLabels.js";
-import type {EndLabelBox, XLabelMode} from "./axisEndLabels.js";
+import {emitEndLabels} from "./plotEndLabels.js";
+import type {EndLabelBox, XLabelMode} from "./plotEndLabels.js";
 import {valueAxisExtent} from "../Plot/baselineBreak.js";
 import {breakLineNodes, maskBreaks} from "../Plot/plotBreaks.js";
 import {clipToPlotArea} from "../Plot/domainClip.js";
@@ -178,7 +178,7 @@ export interface PlotPaintContext {
   barLabels: string[];
   showLineLabels: boolean;
   stackGroup: unknown;
-  /** How the x axis is labeled (see `axisEndLabels.ts`); "axis" when omitted. */
+  /** How the x axis is labeled (see `plotEndLabels.ts`); "axis" when omitted. */
   xLabelMode?: XLabelMode;
   /** Per-axis config a zoom repaint layers over each production axis (see `Plot/plotZoom.ts`). */
   zoomAxes?: Partial<Record<"x" | "x2" | "y" | "y2", Record<string, unknown>>>;
@@ -219,7 +219,7 @@ export interface PlotMeasureResult {
   axisSceneQueue: {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean}[];
   yOffset: number;
   labelPositions: Record<string, number>;
-  /** The x axis's positioned end labels (see `axisEndLabels.ts`); empty unless its ends are labeled. */
+  /** The x axis's positioned end labels (see `plotEndLabels.ts`); empty unless its ends are labeled. */
   xEndLabels?: EndLabelBox[];
   /** Pixels reserved under the value axis's range, above the x axis (see `_plotInsetBottom`). */
   insetBottom?: number;

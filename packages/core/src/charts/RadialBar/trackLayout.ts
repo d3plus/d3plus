@@ -10,6 +10,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 import {textWidth} from "@d3plus/dom";
+import {arcPath} from "@d3plus/render";
 import type {Paint, SceneNode, TextNode} from "@d3plus/render";
 
 import {chartBounds} from "../features/chartGeometry.js";
@@ -17,7 +18,7 @@ import {
   paintFromShapeConfig,
   resolveAccessor,
 } from "../features/emitHelpers.js";
-import {arcPath, fitText} from "../Gauge/emitDial.js";
+import {fitText} from "../Gauge/emitDial.js";
 import {
   defaultTickCount,
   fitDial,

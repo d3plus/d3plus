@@ -42,7 +42,7 @@ export const argTypes = assign(
     legend: {
       table: {
         defaultValue: {
-          summary: "function"
+          summary: "rowLegend"
         }
       }
     },
@@ -109,6 +109,13 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "\"binary\" | \"dice\" | \"resquarify\" | \"slice\" | \"sliceDice\" | \"squarify\" | function"
+      }
+    },
+    tooltipConfig: {
+      table: {
+        defaultValue: {
+          summary: "{tbody: [shareRow(viz, \"sum\")]}"
+        }
       }
     }
   }

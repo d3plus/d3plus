@@ -20,9 +20,9 @@ import {
   buildTickData,
   calculateTicks,
   configureTickShape,
-  isNegative,
   renderAxisTitle,
 } from "./axisRender.js";
+import {isNegative} from "./axisRounding.js";
 import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";

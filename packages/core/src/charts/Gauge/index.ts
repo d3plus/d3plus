@@ -15,22 +15,17 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
+import {chartBackground} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 import {applyGaugeLayout} from "./applyLayout.js";
-import {chartBackground, gaugeEmit, NEEDLE_OUTLINE} from "./emit.js";
+import {gaugeEmit, NEEDLE_OUTLINE} from "./emit.js";
 
 export const gaugeDef: DataDrivenChartDefinition = {
   name: "Gauge",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyGaugeLayout,
   emit: gaugeEmit,
 

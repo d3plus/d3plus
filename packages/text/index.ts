@@ -1,4 +1,5 @@
 export {fontFamily, fontFamilyStringify} from "./src/fontFamily.js";
+export {softHyphen} from "./src/softHyphen.js";
 export {default as strip} from "./src/strip.js";
 export {default as textSplit} from "./src/textSplit.js";
 export {default as textWrap} from "./src/textWrap.js";

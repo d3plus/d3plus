@@ -14,6 +14,7 @@ import Message from "../../components/Message.js";
 import {accessor, constant} from "../../utils/index.js";
 import {markDefault} from "../../utils/configDefault.js";
 import {installFluent} from "../../fluent.js";
+import {vizFields} from "./vizFields.js";
 
 import {legendCategoryOf} from "../features/legendCategory.js";
 import {legendLabel} from "../features/legendLabel.js";
@@ -26,7 +27,7 @@ import mousemoveShape from "../events/mousemove.shape.js";
 
 import {backgroundInk} from "./backgroundInk.js";
 import {defaultPadding, initLabelDefaults} from "./labelDefaults.js";
-import {linkedColorDefaults, registerLink} from "./linkGroup.js";
+import {linkedColorDefaults} from "./linkGroup.js";
 import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -70,38 +71,6 @@ class LRU {
   }
 }
 
-// E4: Viz's identity-coerce accessor schema. installFluent installs methods on
-// Viz.prototype (once via WeakSet) so BaseClass.config() reflection picks them
-// up. Constructor assignments below seed defaults (e.g. `this.schema.duration = 600`);
-// installFluent skips slots already set, so constructor values win.
-const vizSchema = [
-  {key: "ariaHidden", coerce: "identity" as const},
-  {key: "cache", coerce: "identity" as const},
-  {key: "colorOrdinal", coerce: "identity" as const, default: false},
-  {key: "dataCutoff", coerce: "identity" as const},
-  {key: "depth", coerce: "identity" as const},
-  {key: "discrete", coerce: "identity" as const},
-  {key: "duration", coerce: "identity" as const},
-  {key: "filter", coerce: "identity" as const},
-  {key: "height", coerce: "identity" as const},
-  {key: "legendSort", coerce: "identity" as const},
-  {key: "link", coerce: "identity" as const, onSet: (viz: VizInstance) => registerLink(viz)},
-  {key: "minimap", coerce: "identity" as const},
-  {key: "search", coerce: "identity" as const},
-  {key: "svgDesc", coerce: "identity" as const},
-  {key: "svgTitle", coerce: "identity" as const},
-  {key: "tableView", coerce: "identity" as const},
-  {key: "tableViewDownload", coerce: "identity" as const},
-  {key: "tableViewSort", coerce: "identity" as const},
-  {key: "timeFilter", coerce: "identity" as const},
-  {key: "timeline", coerce: "identity" as const},
-  {key: "width", coerce: "identity" as const},
-  {key: "zoom", coerce: "identity" as const},
-  {key: "zoomFactor", coerce: "identity" as const},
-  {key: "zoomMax", coerce: "identity" as const},
-  {key: "zoomPan", coerce: "identity" as const},
-  {key: "zoomScroll", coerce: "identity" as const},
-];
 
 /**
     Renderer backend, accessibility, attribution, and back-button defaults.
@@ -111,7 +80,6 @@ function initBaseDefaults(viz: Viz): void {
   // `renderer()` selects the @d3plus/render backend. Default
   // `"svg"` (SvgRenderer); `"canvas"` for large N via CanvasRenderer.
   viz._renderer = "svg";
-  viz._renderMode = "full";
   viz.schema.ariaHidden = true;
   viz.schema.attribution = false;
   viz.schema.attributionIcon = undefined;
@@ -152,11 +120,6 @@ export const backControlStyleDefault = {
     @private
 */
 function initBackDefaults(viz: Viz): void {
-  // No longer drives the button's appearance (see `.backConfig()`'s own
-  // doc comment), but `.backConfig({...})` merges into this via
-  // `assign(this.schema.backConfig, _)` — leaving it undefined makes that
-  // throw on the very first call, on every chart.
-  viz.schema.backConfig = {};
   viz.schema.backControlClassName = undefined;
   viz.schema.backControlStyle = backControlStyleDefault;
 }
@@ -347,7 +310,6 @@ function initEventDefaults(viz: Viz): void {
 */
 function initShapeDefaults(viz: Viz): void {
   viz.schema.shape = constant("Rect");
-  viz._shapes = [];
   viz.schema.shapeConfig = {
     ariaLabel: (d: DataPoint, i: number) => viz._drawLabel(d, i),
     fill: (d: DataPoint, i: number) => {
@@ -644,7 +606,7 @@ export function initVizDefaults(viz: Viz): void {
   // `viz._x = …` assignments below seed defaults; installFluent's "skip
   // if slot already set" guard respects them. Methods are visible to
   // BaseClass.config()'s `getAllMethods` reflection.
-  installFluent(viz, vizSchema);
+  installFluent(viz, vizFields);
   initBaseDefaults(viz);
   initColorDefaults(viz);
   initDataDefaults(viz);

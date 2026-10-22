@@ -17,18 +17,14 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {mergeConfig} from "../../fluent.js";
 import {dialDefaults} from "../Gauge/emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
-import {polarAxisConfig, polarLegend, polarValueRow} from "../polar/config.js";
+import {rowLegend} from "../features/sharedFields.js";
+import {polarAxisConfig, polarValueRow} from "../polar/config.js";
 import {polarFacetHooks} from "../polar/polarFacet.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -39,7 +35,6 @@ import {radialBarTrackLabels} from "./trackLayout.js";
 export const radialBarDef: DataDrivenChartDefinition = {
   name: "RadialBar",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyRadialBarLayout,
   emit: radialBarEmit,
   insetRegion: sceneInsetRegion,
@@ -146,13 +141,13 @@ export const radialBarDef: DataDrivenChartDefinition = {
         RadialBar hides the legend when each row is its own entry and the
         chart's labels already name it: the circular bar chart's category
         labels, or the track labels unless the sweep leaves them no room.
-        @default polarLegend
+        @default rowLegend
     */
     {
       key: "legend",
       coerce: "const",
       factory: (viz: VizInstance) =>
-        polarLegend(
+        rowLegend(
           viz,
           v => v.schema.discrete === "angle" || radialBarTrackLabels(v),
         ),

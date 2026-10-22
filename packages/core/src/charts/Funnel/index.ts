@@ -17,11 +17,6 @@ import {formatAbbreviate} from "@d3plus/format";
 import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -71,7 +66,6 @@ export function funnelTooltipRows(
 export const funnelDef: DataDrivenChartDefinition = {
   name: "Funnel",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyFunnelLayout,
   emit: funnelEmit,
   insetRegion: sceneInsetRegion,

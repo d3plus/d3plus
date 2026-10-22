@@ -17,15 +17,6 @@ import type {PartitionInteraction} from "../partition/interaction.js";
 
 import type {SunburstNode} from "./partition.js";
 
-export {
-  partitionClickable as sunburstClickable,
-  partitionDefaultTbody as sunburstDefaultTbody,
-  partitionDrillable as sunburstDrillable,
-  partitionHoverRows as sunburstHoverRows,
-  partitionParentShareRow as sunburstParentShareRow,
-  partitionZoomOut as sunburstZoomOut,
-} from "../partition/interaction.js";
-
 type Handler = (d: DataPoint, i: number, x?: unknown, event?: Event) => void;
 
 /** Where the Sunburst keeps its interaction state, and the zoom origin it records. */

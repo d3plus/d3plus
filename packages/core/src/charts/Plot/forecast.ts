@@ -8,6 +8,7 @@
 */
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
+import {finite} from "@d3plus/math";
 
 import type {PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -64,9 +65,6 @@ export function forecastDefaults(): Record<string, unknown> {
     strokeWidth: 1,
   };
 }
-
-const finite = (v: unknown): v is number =>
-  typeof v === "number" && Number.isFinite(v);
 
 /**
     A discrete value's sort position: dates and numbers by value, anything

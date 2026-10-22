@@ -5,12 +5,11 @@ import {date, getSize} from "@d3plus/dom";
 import {computeTrailCatchup} from "./trailCatchup.js";
 import type {DataPoint} from "@d3plus/data";
 import {CanvasRenderer, SvgRenderer} from "@d3plus/render";
-import type {PickResult, Renderer, Scene, SceneEvent, SceneNode, Transform} from "@d3plus/render";
+import type {PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import type Shape from "../../shapes/Shape.js";
 import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
 import {initInsetDefaults, insetComponentScene} from "../features/insetState.js";
@@ -82,7 +81,6 @@ export default class Viz extends VizBase {
       by the most recent render. Combines:
       - `_chartScene` (cells from `chartDef.emit`, or `Plot._paint` for the
         paint-driven Plot family) wrapped in viz-chart-cells
-      - `_shapes` (still used by some charts) — each shape's toScene
       - chart-level components (Legend/ColorScale/Timeline) via their toScene
       - `_featurePanels` (from FeatureModule layouts) wrapped in viz-features
   */
@@ -134,33 +132,6 @@ export default class Viz extends VizBase {
         children: zoomNode,
       });
     }
-    // `_shapes` collection (Treemap/Pack/etc. route through `_chartScene`
-    // instead, as does Plot's `absorbShapeIntoChartScene`). Any caller
-    // pushing into `_shapes` gets its `toScene()` walked here; we read the
-    // shape's `_select` transform via d3's transform baseVal if present,
-    // otherwise emit without a transform.
-    (this._shapes || []).forEach((shape: Shape, si: number) => {
-      if (!shape || typeof shape.toScene !== "function") return;
-      const group = shape.toScene();
-      let transform: Transform | undefined;
-      const sel = shape._select;
-      if (sel && typeof sel.attr === "function") {
-        // Parse `translate(x, y)` from the selection's transform attr.
-        // Falls back to undefined for non-translate transforms — the
-        // `_shapes` path only uses translate.
-        const t = sel.attr("transform");
-        if (typeof t === "string") {
-          const m = t.match(/translate\(\s*(-?[\d.]+)[, ]\s*(-?[\d.]+)\s*\)/);
-          if (m) transform = {x: parseFloat(m[1]), y: parseFloat(m[2])};
-        }
-      }
-      children.push({
-        type: "group",
-        key: `${group.key || "shape"}-${si}`,
-        ...(transform ? {transform} : {}),
-        children: group.children,
-      });
-    });
     // Chart-level components that have their own toScene.
     const components: [string, Legend | ColorScale | Timeline | undefined][] = [
       ["legend", this._legendClass],
@@ -333,42 +304,6 @@ export default class Viz extends VizBase {
   }
 
   /**
-      "full" runs the DOM enter/update/exit for every shape; "compute"
-      skips DOM work and only populates the scene data (`_textData`,
-      `_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by
-      `renderScene` callers; users can also opt-in.
-  */
-  renderMode(): "full" | "compute";
-  renderMode(_: "full" | "compute"): this;
-  renderMode(_?: "full" | "compute"): "full" | "compute" | this {
-    if (!arguments.length) return this._renderMode || "full";
-    this._renderMode = _!;
-    return this;
-  }
-
-  /**
-      Public entry point that renders this chart through the @d3plus/render
-      pluggable backends. The compute pass happens via render() (in an svg
-      auto-created inside the target div); SvgRenderer/CanvasRenderer paints
-      the scene to the target. Returns `{renderer, scene}` so callers can
-      interact with the renderer (e.g. for picking) or read the scene data.
-  */
-  async renderScene(
-    target: Element,
-    opts?: {kind?: "svg" | "canvas"},
-  ): Promise<{renderer: Renderer; scene: Scene}> {
-    const kind = opts?.kind || (this._renderer === "canvas" ? "canvas" : "svg");
-    this._sceneTarget = target;
-    this._renderer = kind;
-    this.select(target as HTMLElement);
-    await new Promise<void>(resolve => this.render(() => resolve()));
-    return {
-      renderer: this._sceneRenderer as Renderer,
-      scene: this._lastSceneRendered as Scene,
-    };
-  }
-
-  /**
       Renders this chart through the @d3plus/render pluggable backends. Called
       automatically by `render()`. The compute pass draws into `this._select`
       (an auto-created svg INSIDE the user's target div) — that svg is the
@@ -383,9 +318,7 @@ export default class Viz extends VizBase {
     // Mount renderer INSIDE the user's `_select` (svg or div). Tests like
     // `svgA.querySelector('[data-key="viz-legend"]')` need the scene output
     // to live inside the user's container, not as a sibling.
-    const userTarget = this._sceneTarget || computeSvg;
-    if (!userTarget) return;
-    const mountTarget = mountTargetFor(kind, userTarget as Element);
+    const mountTarget = mountTargetFor(kind, computeSvg as Element);
     const scene = this.toScene();
     this._paintedScene = scene;
     const w = this.schema.width || 400;
@@ -537,8 +470,8 @@ export default class Viz extends VizBase {
     // the opaque buttons and only the edge handles peek out.
     if (kind === "svg") {
       const host =
-        userTarget && typeof (userTarget as Element).querySelector === "function"
-          ? (userTarget as Element)
+        typeof (computeSvg as Element).querySelector === "function"
+          ? (computeSvg as Element)
           : null;
       const tlGroup = host
         ? host.querySelector(":scope > g.d3plus-viz-timeline")

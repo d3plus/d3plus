@@ -52,7 +52,12 @@ Fluent accessors are **schema-driven** in v4. A chart declares its configurable
 properties as `ConfigField`s (see `packages/core/src/fluent.ts`); `installFluent`
 installs them as `viz.<key>()` getter/setters backed by `viz.schema.<key>`.
 Hand-written accessors still exist where behavior is non-trivial, but most
-identity-coerce properties come from the schema.
+identity-coerce properties come from the schema: every chart's shared ones are
+listed in `charts/viz/vizFields.ts`. A generated accessor has no method for
+TypeDoc to read, so document it on its `D3plusConfig` property (or the
+component's own config interface): the docs generator takes its description
+and type from there for the API.md "Config accessors" tables and the Storybook
+args.
 
 ### Charts are values: `ChartDefinition` + `makeChart`
 
@@ -68,7 +73,7 @@ packages/core/src/charts/<Chart>/
 ```
 
 `ChartDefinition` (`charts/definition/ChartDefinition.ts`) is
-`{name, features, fields?, ctx?, layoutStage?, emit?, thresholdFunction?,
+`{name, fields?, ctx?, layoutStage?, emit?, thresholdFunction?,
 chartTransform?, setup?, …}`. `makeChart(def, Base = Viz)`
 (`charts/definition/makeChart.ts`) produces the class: its constructor runs
 `applyDefinition(this, def)` (seeding `fields`/`ctx` and installing fluent
@@ -89,10 +94,13 @@ Two kinds of def:
 ### Feature modules
 
 Chart "chrome" (legend, color scale, timeline, title/subtitle/total, back
-button, attribution, zoom controls) are **opt-in `FeatureModule`s**
-(`charts/features/`). A def lists the features it composes in
-(`features: [backFeature, titleFeature, …]`); `runLayout` runs each feature's
-`layout()`, which claims margin and returns a panel to compose into the scene.
+button, attribution, zoom controls) are **`FeatureModule`s**
+(`charts/features/`), shared by every chart. `vizDraw`
+(`charts/pipeline/vizDraw.ts`) lays out the margin-claiming ones (title,
+subtitle, total, timeline, legend, colorScale) in order, and `runVizPipeline`
+runs the post-draw overlays (zoom, minimap, top-left controls, attribution,
+table view); `runLayout` runs each feature's `layout()`, which claims margin
+and returns a panel to compose into the scene.
 
 ### Small multiples (`facet`)
 
@@ -111,15 +119,18 @@ def needs nothing to support it.
 The draw flow exists as free functions so it can run without the class
 lifecycle:
 
-- `vizPreDraw` / `vizPreDrawPure` — data prep (draw depth, filtered/legend data,
-  threshold).
-- `vizDraw` / `vizDrawPure` — feature layout + margin/panel assembly.
+- `vizPreDraw` — data prep (draw depth, id/label closures, filtered/legend
+  data, threshold); the filter + rollup steps live in `preDrawData.ts`, which
+  small multiples reuse per panel.
+- `vizDraw` — feature layout + margin/panel assembly; returns the margin it
+  claimed and the panels.
 - `runVizPipeline(viz)` — the full orchestrator (`_preDraw → _draw → features →
   paint`).
 - `resolveSpec(viz)` — frozen config/context snapshot (the config↔context
   boundary).
 
-These operate on returned values rather than mutating `this` at the outer layer.
+These write their results onto the viz they are given, so subclass overrides
+reach them through `super._preDraw()` / `super._draw()`.
 
 ### Rendering backends (`@d3plus/render`)
 
@@ -275,7 +286,7 @@ Pass `VERBOSE=1` to any build script for per-file output; by default piped
      reads the viz and attaches laid-out `shapeData`.
    - `emit.ts` — export a pure `emit(ctx) → SceneNode[]` (use the helpers in
      `charts/features/emitHelpers.ts`). Skip this for a paint-driven chart.
-   - `index.ts` — declare the `ChartDefinition` (`name`, `features`, `fields`,
+   - `index.ts` — declare the `ChartDefinition` (`name`, `fields`,
      `layoutStage`, `emit`, …) and `export default makeChart(def[, Base])`.
      Put `ctx` + `fields` last in the def object.
 2. Export the class from `packages/core/src/charts/index.ts`.

@@ -8,6 +8,8 @@
 
 import {scaleLinear} from "d3-scale";
 
+import {clamp} from "@d3plus/math";
+
 /** A colored zone along the dial, e.g. `{min: 80, color: "red"}`. */
 export interface GaugeBand {
   /** Where the band starts. Defaults to the previous band's end, or the domain's minimum. */
@@ -150,13 +152,12 @@ export function resolveBands(
   fallbackColor: string,
 ): ResolvedBand[] {
   const [lo, hi] = domain;
-  const clamp = (v: number) => Math.max(lo, Math.min(hi, v));
   const out: ResolvedBand[] = [];
   let previous = lo;
   for (const b of bands ?? []) {
     if (!b) continue;
-    const min = clamp(Number.isFinite(b.min) ? (b.min as number) : previous);
-    const max = clamp(Number.isFinite(b.max) ? (b.max as number) : hi);
+    const min = clamp(Number.isFinite(b.min) ? (b.min as number) : previous, lo, hi);
+    const max = clamp(Number.isFinite(b.max) ? (b.max as number) : hi, lo, hi);
     previous = max;
     if (max > min) out.push({min, max, color: b.color ?? fallbackColor});
   }

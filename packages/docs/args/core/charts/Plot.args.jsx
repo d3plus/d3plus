@@ -62,36 +62,6 @@ export const argTypes = assign(
         summary: "unknown"
       }
     },
-    attribution: {
-      control: {
-        type: "text"
-      },
-      description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | boolean"
-      }
-    },
-    attributionIcon: {
-      control: {
-        type: "text"
-      },
-      description: "Overrides the \"ⓘ\" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
     attributionStyle: {
       control: {},
       description: "Configuration object for the attribution style.",
@@ -119,47 +89,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "boolean"
-      }
-    },
-    backConfig: {
-      control: {},
-      description: "Configuration object for the back button. Superseded by\n`.backControlStyle()`/`.backControlClassName()` for the button's\nappearance (it renders as a real `<button>`, like the zoom/search\ncontrols, not a configurable text node) — kept for backwards\ncompatibility, but no longer affects how the button looks.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    backControlClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    backControlStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
       }
     },
     backgroundConfig: {
@@ -294,21 +223,6 @@ export const argTypes = assign(
         summary: "record"
       }
     },
-    colorScaleMaxSize: {
-      control: {
-        type: "number"
-      },
-      description: "The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
     colorScalePadding: {
       control: {
         type: "boolean"
@@ -408,81 +322,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | array.&lt;datapoint&gt; | object"
-      }
-    },
-    detectResize: {
-      control: {
-        type: "boolean"
-      },
-      description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    detectResizeDelay: {
-      control: {
-        type: "number"
-      },
-      description: "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    detectVisible: {
-      control: {
-        type: "boolean"
-      },
-      description: "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
-    detectVisibleInterval: {
-      control: {
-        type: "number"
-      },
-      description: "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    detectVisibleUnload: {
-      control: {
-        type: "boolean"
-      },
-      description: "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
       }
     },
     discreteCutoff: {
@@ -780,21 +619,6 @@ export const argTypes = assign(
         summary: "boolean | function"
       }
     },
-    legendInset: {
-      control: {
-        type: "boolean"
-      },
-      description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
     legendInsetConfig: {
       control: {},
       description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
@@ -912,21 +736,6 @@ export const argTypes = assign(
         summary: "string | function"
       }
     },
-    loadingMessage: {
-      control: {
-        type: "boolean"
-      },
-      description: "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
-      }
-    },
     locale: {
       control: {
         type: "object"
@@ -942,21 +751,6 @@ export const argTypes = assign(
         summary: "string | object"
       }
     },
-    messageMask: {
-      control: {
-        type: "text"
-      },
-      description: "The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | boolean"
-      }
-    },
     messageStyle: {
       control: {},
       description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
@@ -968,73 +762,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
-      }
-    },
-    minimapClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    minimapLabelStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. \"2x\"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    minimapStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    minimapViewportStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    minimapViewportStyleActive: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
       }
     },
     noDataHTML: {
@@ -1050,21 +777,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | function"
-      }
-    },
-    noDataMessage: {
-      control: {
-        type: "boolean"
-      },
-      description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean"
       }
     },
     on: {
@@ -1108,38 +820,6 @@ export const argTypes = assign(
         summary: "function"
       }
     },
-    renderMode: {
-      control: {
-        type: "radio"
-      },
-      description: "\"full\" runs the DOM enter/update/exit for every shape; \"compute\"\nskips DOM work and only populates the scene data (`_textData`,\n`_shapes[i]._select`, etc.) for `toScene()` to read. Set automatically by\n`renderScene` callers; users can also opt-in.",
-      options: [
-        "full",
-        "compute"
-      ],
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "\"full\" | \"compute\""
-      }
-    },
-    renderScene: {
-      control: {},
-      description: "Public entry point that renders this chart through the @d3plus/render\npluggable backends. The compute pass happens via render() (in an svg\nauto-created inside the target div); SvgRenderer/CanvasRenderer paints\nthe scene to the target. Returns `{renderer, scene}` so callers can\ninteract with the renderer (e.g. for picking) or read the scene data.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: true,
-        summary: "element"
-      }
-    },
     renderer: {
       control: {
         type: "radio"
@@ -1157,88 +837,6 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "boolean | \"svg\" | \"canvas\""
-      }
-    },
-    scrollContainer: {
-      control: {
-        type: "text"
-      },
-      description: "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | htmlelement | window"
-      }
-    },
-    searchAccessor: {
-      control: {},
-      description: "Resolves the string the search box matches its typed term against, for\na given datum. Defaults to the mark's resolved on-screen label\n(`viz._drawLabel`) — the same text the user reads on the chart.\nOverride it to match against something else instead, e.g. a data\nfield that isn't shown as the label.\n\nThis is checked alongside, not instead of, every level of the datum's\nown groupBy hierarchy — searching a leaf's label also matches its\nancestor group's cell/legend entry, and vice versa, regardless of\nthis accessor's override.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
-      }
-    },
-    searchControlClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    searchControlStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    searchControlStyleActive: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    searchControlStyleHover: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
       }
     },
     select: {
@@ -1336,25 +934,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
-      }
-    },
-    sizeLegendPosition: {
-      control: {
-        type: "radio"
-      },
-      description: "Which margin the size legend claims in the chart's bottom-right corner. `\"right\"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `\"bottom\"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.",
-      options: [
-        "right",
-        "bottom"
-      ],
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "\"right\" | \"bottom\""
       }
     },
     sizeMax: {
@@ -1527,90 +1106,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "object"
-      }
-    },
-    tableViewClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    tableViewControlClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    tableViewControlStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    tableViewControlStyleActive: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    tableViewControlStyleHover: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    tableViewPageSize: {
-      control: {
-        type: "number"
-      },
-      description: "The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number | false"
       }
     },
     threshold: {
@@ -1829,19 +1324,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "record"
-      }
-    },
-    totalFormat: {
-      control: {},
-      description: "Formatter function for the value in the total bar.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "function"
       }
     },
     totalPadding: {
@@ -2188,129 +1670,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "function"
-      }
-    },
-    zoomBrushHandleSize: {
-      control: {
-        type: "number"
-      },
-      description: "The pixel stroke-width of the zoom brush area.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
-      }
-    },
-    zoomBrushHandleStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    zoomBrushSelectionStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    zoomControlClassName: {
-      control: {
-        type: "text"
-      },
-      description: "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string"
-      }
-    },
-    zoomControlIcons: {
-      control: {},
-      description: "Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "partial"
-      }
-    },
-    zoomControlStyle: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    zoomControlStyleActive: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    zoomControlStyleHover: {
-      control: {},
-      description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "false | record"
-      }
-    },
-    zoomPadding: {
-      control: {
-        type: "number"
-      },
-      description: "A pixel value to be used to pad all sides of a zoomed area.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number"
       }
     }
   }

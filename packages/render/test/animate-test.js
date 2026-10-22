@@ -354,6 +354,8 @@ it("flattenPath collapses every point onto one line, keeping the commands", () =
   assert.strictEqual(flattenPath("m1,2l3,4 5,6h2z", "x", 9), "m9,2l0,4,0,6h0z", "relative offsets go to 0");
   assert.strictEqual(flattenPath("M1e-7,2L3,4", "x", 1), "M1,2L1,4", "exponents are numbers, not commands");
   assert.strictEqual(flattenPath("M0,0A5,5,0,0,1,10,10", "y", 3), "M0,3A5,5,0,0,1,10,3", "an arc keeps its radii and flags");
+  assert.strictEqual(flattenPath("M0,0a1 1 0 011 1", "y", 3), "M0,3a1,1,0,0,1,1,0", "compact arc flags stay separate flags");
+  assert.strictEqual(flattenPath("M0,0a1 1 0 011 1", "x", 3), "M3,0a1,1,0,0,1,0,1");
 });
 
 it("interpolateScene morphs a flip-eligible entering node from an external enterFrom box", () => {

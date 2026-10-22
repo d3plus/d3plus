@@ -12,16 +12,12 @@ import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
-import {
-  subtitleFeature,
-  titleFeature,
-  totalFeature,
-} from "../features/features.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 import {backgroundColor} from "@d3plus/dom";
-import {polarAxisConfig, polarLegend, polarValueRow} from "../polar/config.js";
+import {rowLegend} from "../features/sharedFields.js";
+import {polarAxisConfig, polarValueRow} from "../polar/config.js";
 import {polarFacetHooks} from "../polar/polarFacet.js";
 import type {PolarFrame} from "../polar/wedgeLayout.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -32,7 +28,6 @@ import {polarAreaEmit} from "./emit.js";
 export const polarAreaDef: DataDrivenChartDefinition = {
   name: "PolarArea",
 
-  features: [titleFeature, subtitleFeature, totalFeature],
   layoutStage: applyPolarAreaLayout,
   emit: polarAreaEmit,
   insetRegion: sceneInsetRegion,
@@ -118,7 +113,7 @@ export const polarAreaDef: DataDrivenChartDefinition = {
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
     },
-    {key: "legend", coerce: "const", factory: polarLegend},
+    {key: "legend", coerce: "const", factory: rowLegend},
     /** Styles the ring value labels: `fontColor`, `fontFamily`, `fontOpacity`, `fontSize`, `fontWeight`. */
     {key: "levelLabelConfig", default: {}, merge: true},
     /**

@@ -9,8 +9,9 @@
     it returns the input array unchanged, so normal renders pay nothing.
 */
 
-import {color, hsl} from "d3-color";
+import {color} from "d3-color";
 
+import {colorGrayscale} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
@@ -22,21 +23,6 @@ type Predicate = (d: DataPoint, i: number) => boolean;
 
 /** z value that floats a hovered/highlighted node above its (z-less, i.e. 0) siblings. */
 const HOVER_RAISE_Z = 1e6;
-
-/**
-    De-emphasizes a paint color for `highlight` by stripping its chroma while
-    keeping its lightness and alpha — so the highlighted series is the only
-    color on the chart. Keeping lightness (rather than flattening to one gray)
-    means a mark's label keeps the same contrast it was given, and a transparent
-    fill (e.g. a legend hit-area rect) stays transparent instead of becoming a
-    solid gray box. Unparseable values (`"none"`) are left untouched.
-*/
-function deemphasize(c: string): string {
-  const h = hsl(c);
-  if (Number.isNaN(h.l)) return c;
-  h.s = 0;
-  return `${h}`;
-}
 
 /**
     Emphasizes a matched mark's stroke on hover/active — the v3 `hoverStyle` /
@@ -202,8 +188,8 @@ export function applyInteractionOpacity(
           // highlight: recolor the mark to the de-emphasis gray so the
           // highlighted series keeps the only color on the chart.
           const next2: Record<string, unknown> = {...paint};
-          if (typeof paint.fill === "string") next2.fill = deemphasize(paint.fill);
-          if (typeof paint.stroke === "string") next2.stroke = deemphasize(paint.stroke);
+          if (typeof paint.fill === "string") next2.fill = colorGrayscale(paint.fill);
+          if (typeof paint.stroke === "string") next2.stroke = colorGrayscale(paint.stroke);
           next = {...node, paint: next2} as SceneNode;
         } else {
           const base = typeof paint.opacity === "number" ? paint.opacity : 1;

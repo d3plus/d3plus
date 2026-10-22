@@ -108,14 +108,12 @@ it("vizDraw: a panel step resets the chart body and lays out no chrome", () => {
     _featurePanels: panels,
     _chartScene: [{key: "old"}],
     _chartTransform: {x: 1, y: 1},
-    _shapes: ["shape"],
   };
   vizDraw(viz);
   assert.strictEqual(viz._margin, margin, "margins are the panel's, untouched");
   assert.strictEqual(viz._featurePanels, panels, "the chrome panels are kept");
   assert.deepStrictEqual(viz._chartScene, []);
   assert.strictEqual(viz._chartTransform, undefined);
-  assert.deepStrictEqual(viz._shapes, []);
 });
 
 it("chart hooks: Plot shares scales; radial charts ask for square panels; others draw as-is", () => {

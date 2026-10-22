@@ -27,7 +27,7 @@
 
 > **installDom**(`opts?`: [`DomEnvOptions`](#domenvoptions)): `Promise`\<[`DomEnv`](#domenv)\>
 
-Defined in: [env.ts:92](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L92)
+Defined in: [env.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L96)
 
 Stands up a headless DOM and mirrors its globals onto `globalThis` so d3plus
 can render. Returns a [DomEnv](#domenv) whose `teardown()` restores the previous
@@ -162,7 +162,7 @@ const svg = await renderToStaticSVG(
 
 > **withDom**\<`T`\>(`opts`: [`DomEnvOptions`](#domenvoptions), `fn`: (`env`: [`DomEnv`](#domenv)) => `T` \| `Promise`\<`T`\>): `Promise`\<`T`\>
 
-Defined in: [env.ts:139](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L139)
+Defined in: [env.ts:143](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L143)
 
 Runs `fn` with a headless DOM installed, tearing it down afterward even if
 `fn` throws. The `DomEnv` is passed to `fn` for access to `window`/`document`.

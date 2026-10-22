@@ -3,7 +3,6 @@
 */
 
 import constant from "../../utils/constant.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import Plot from "../Plot/index.js";
@@ -11,7 +10,6 @@ import Plot from "../Plot/index.js";
 export const linePlotDef: ChartDefinition = {
   name: "LinePlot",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   ctx: {},
 

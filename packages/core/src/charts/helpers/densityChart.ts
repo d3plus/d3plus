@@ -9,12 +9,12 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 import type {KernelDensityOptions} from "@d3plus/math";
 
-import accessor from "../../utils/accessor.js";
 import constant from "../../utils/constant.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {ConfigField} from "../../fluent.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {autoTitle, keyedAccessor, valueKeyOf} from "./valueTitle.js";
 import {
   densityGroups,
   densityWidthScale,
@@ -80,21 +80,6 @@ export function densityShapeId(row: DataPoint): string {
   return `density-${row.id}`;
 }
 
-/** Data keys behind string `value` accessors, for the value-axis title. */
-const valueKeys = new WeakMap<object, string>();
-
-/** `accessor(key)` that remembers its key. */
-function keyedAccessor(key: string) {
-  const fn = accessor(key);
-  valueKeys.set(fn, key);
-  return fn;
-}
-
-/** Sets an axis title unless the user has configured their own. */
-function autoTitle(config: Record<string, unknown> | undefined, previous: string | undefined, next: string | undefined) {
-  if (config && (config.title === undefined || config.title === previous)) config.title = next;
-}
-
 type RowFn = (d: DataPoint, i: number) => unknown;
 
 /** The grouping key for a raw row: every groupBy level, plus its facet and time. */
@@ -116,7 +101,7 @@ export function summarizeBeforePreDraw(viz: VizInstance): void {
   const valueAxis = state.layout.valueAxis(viz);
   const categoryAxis = valueAxis === "x" ? "y" : "x";
   const groupBy = viz.schema.groupBy as RowFn[];
-  const valueKey = valueKeys.get(viz.schema.value);
+  const valueKey = valueKeyOf(viz.schema.value);
   const groups = densityGroups(state.raw, {
     value: viz.schema.value,
     key: groupKey(viz),
@@ -219,7 +204,7 @@ export function densityTooltipRows(viz: VizInstance, d: DataPoint, i: number): [
   const meta = densityMeta(d);
   if (!meta) {
     const v = Number(viz.schema.value(unwrapRow(d), i));
-    return Number.isFinite(v) ? [[valueKeys.get(viz.schema.value) ?? t("Value"), fmt(v)]] : [];
+    return Number.isFinite(v) ? [[valueKeyOf(viz.schema.value) ?? t("Value"), fmt(v)]] : [];
   }
   const s = meta.summary;
   return [

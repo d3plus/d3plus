@@ -19,7 +19,7 @@ const rows = [
   {id: "beta", group: "y", value: 40},
 ];
 
-it("polar pipeline: config helpers (polarAxisConfig, polarLegend, polarValueRow)", async function () {
+it("polar pipeline: config helpers (polarAxisConfig, rowLegend, polarValueRow)", async function () {
   this.timeout(180000);
   const out = await render(
     "<div id='viz' style='width:500px;height:400px'></div>",
@@ -32,7 +32,7 @@ it("polar pipeline: config helpers (polarAxisConfig, polarLegend, polarValueRow)
         .metric("group");
       await new Promise(r => viz.render(r));
       const axis = d3plus.polarAxisConfig(viz);
-      const legend = d3plus.polarLegend(viz);
+      const legend = d3plus.rowLegend(viz);
       const [label, value] = d3plus.polarValueRow(viz);
       return {
         axisKeys: Object.keys(axis).sort(),

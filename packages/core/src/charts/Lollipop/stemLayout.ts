@@ -9,6 +9,7 @@
 */
 
 import type {DataPoint} from "@d3plus/data";
+import {finite} from "@d3plus/math";
 
 import type Plot from "../Plot/index.js";
 import type {PlotDatum} from "../features/plotPaint.js";
@@ -50,8 +51,6 @@ export interface StemPoint {
   /** Whether this is the head end (else the base). */
   end: boolean;
 }
-
-const finite = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
 
 /**
     The lollipop for a bar: its head at the bar's end nearer `valuePx` (the

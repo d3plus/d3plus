@@ -19,7 +19,6 @@ export const donutDef: ChartDefinition = {
   // Inherits Pie's full pipeline (features + emit). Donut adds no
   // chart-specific layout stage of its own — `super._draw` (Pie's)
   // handles the layout.
-  features: pieDef.features,
   emit: pieDef.emit,
 
   ctx: {},

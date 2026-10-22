@@ -4,7 +4,6 @@
     category's baseline, overlapping the ridge above.
 */
 
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {densityAccessorFields, densityConfigFields, installDensity} from "../helpers/densityChart.js";
@@ -14,7 +13,6 @@ import {ridgelineEmit, ridgelinePadding, ridgeOverlap} from "./emit.js";
 export const ridgelineDef: ChartDefinition = {
   name: "Ridgeline",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   setup: viz =>
     installDensity(viz, {

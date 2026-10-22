@@ -1,7 +1,7 @@
 import {arc as d3Arc} from "d3-shape";
 import {interpolateNumber, interpolateRgb} from "d3-interpolate";
 import {interpolatePath} from "d3-interpolate-path";
-import {pathBounds} from "@d3plus/math";
+import {clamp, pathBounds} from "@d3plus/math";
 
 import {textVisualCenter} from "../scene.js";
 
@@ -30,7 +30,7 @@ import type {
     STRING between two differently-curved shapes (see `ArcGeometry`).
 */
 /** d3.pie()'s span — a wedge's own startAngle/endAngle are always within [0, FULL_TURN]. */
-const FULL_TURN = Math.PI * 2;
+export const FULL_TURN = Math.PI * 2;
 
 const arcGenerator = d3Arc<ArcGeometry>()
   .innerRadius(d => d.innerRadius)
@@ -39,6 +39,7 @@ const arcGenerator = d3Arc<ArcGeometry>()
   .endAngle(d => d.endAngle)
   .padAngle(d => d.padAngle ?? 0);
 
+/** The SVG path `d` for an annular sector (a Pie/Donut wedge, a gauge band, …). */
 export function arcPath(params: ArcGeometry): string {
   return arcGenerator(params) ?? "";
 }
@@ -380,12 +381,11 @@ export function fadeSwapOpacity(
 */
 export function enterWindowProgress(t: number, window?: EnterWindow): number {
   if (!window) return t;
-  const clamp = (v: number) => Math.min(1, Math.max(0, v));
-  const start = clamp(window.start), end = clamp(window.end);
+  const start = clamp(window.start, 0, 1), end = clamp(window.end, 0, 1);
   if (t >= 1) return 1;
   if (t < start) return 0;
   if (end <= start) return 1;
-  return clamp((t - start) / (end - start));
+  return clamp((t - start) / (end - start), 0, 1);
 }
 
 /**

@@ -7,7 +7,6 @@ import type {DataPoint} from "@d3plus/data";
 
 import constant from "../../utils/constant.js";
 import {barChartDef} from "../BarChart/index.js";
-import {subtitleFeature, titleFeature, totalFeature} from "../features/features.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {columnHighlight} from "../Plot/columnHighlight.js";
@@ -28,7 +27,6 @@ const fillOf = (viz: VizInstance) => (d: DataPoint, i: number) => {
 export const lollipopDef: ChartDefinition = {
   name: "Lollipop",
   paintDriven: true,
-  features: [titleFeature, subtitleFeature, totalFeature],
 
   setup: viz => {
     viz._buffer = {...viz._buffer, Bar: lollipopBuffer};

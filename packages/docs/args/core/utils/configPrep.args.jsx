@@ -46,7 +46,7 @@ export const argTypes = {
     },
     type: {
       required: true,
-      summary: "vizcontext"
+      summary: "configprephost"
     }
   },
   type: {

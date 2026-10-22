@@ -53,7 +53,7 @@ function getAllMethods(obj: object): string[] {
       // them as no-arg getters would run real work. `measure` runs the full
       // axis-layout pass; `destroy` tears down the scene renderer (which defeats
       // keyed reconcile and forces a full remount on the next draw).
-      !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "renderScene", "toScene"].includes(e),
+      !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "toScene"].includes(e),
   );
 }
 

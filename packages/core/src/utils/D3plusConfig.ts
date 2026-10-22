@@ -480,27 +480,23 @@ export interface D3plusConfig {
     shapeConfig?: Record<string, unknown>;
   };
   /**
-      Text (rendered as HTML — any valid HTML string works, including anchor
-      links) shown in the chart's bottom-right corner, most often a map tile
-      credit. `false` (the default) shows nothing. A credit wider than half
-      the chart area collapses to a small "ⓘ" badge that expands on hover,
-      focus, or click.
+      Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
   */
   attribution?: string | boolean;
   /**
-      Overrides the "ⓘ" badge a long attribution collapses to, which
-      otherwise renders as an inline SVG. A string is used as the badge's
-      raw HTML content; a mount function, `(el: HTMLElement) => void | (() =>
-      void)`, is called once with the badge's reserved element so a live
-      component (a React tree via `createRoot(el).render(...)`, or anything
-      else imperative) can be mounted into it — return a cleanup function if
-      there's teardown to do.
+      Overrides the "ⓘ" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.
   */
   attributionIcon?: string | ((el: HTMLElement) => void | (() => void));
   /** CSS key/value pairs used to style the attribution text. */
   attributionStyle?: Record<string, unknown>;
-  /** Additional CSS class name(s) applied to the back button, alongside the fixed `back-control` class. */
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+  */
   backControlClassName?: string;
+  /**
+      An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  backControlStyle?: Record<string, unknown> | false;
   /** Padding between bars in pixels. */
   barPadding?: number;
   /**
@@ -625,6 +621,10 @@ export interface D3plusConfig {
     colorMax?: CssColor;
     scale?: AxisScale;
   };
+  /**
+      The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
+  */
+  colorScaleMaxSize?: number;
   /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
   /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
@@ -723,6 +723,26 @@ export interface D3plusConfig {
   densityScale?: "area" | "count" | "width";
   /** Active depth level for nested groupings. */
   depth?: number;
+  /**
+      If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.
+  */
+  detectResize?: boolean;
+  /**
+      When resizing the browser window, this is the millisecond delay to trigger the resize event.
+  */
+  detectResizeDelay?: number;
+  /**
+      Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.
+  */
+  detectVisible?: boolean;
+  /**
+      The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.
+  */
+  detectVisibleInterval?: number;
+  /**
+      When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.
+  */
+  detectVisibleUnload?: boolean;
   /**
       ParallelCoordinates: per-dimension options, keyed by dimension — `domain`
       (either end of a numeric domain may be `undefined`), `reverse`, `title`,
@@ -896,9 +916,7 @@ export interface D3plusConfig {
   /** Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
   /**
-      Whether one legend may be drawn inside the empty space around the chart's
-      marks instead of in a margin (size legend first, then legend, then
-      colorScale), or an accessor receiving the resolved config. Defaults to `true`.
+      Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
   */
   legendInset?: boolean | ((config: D3plusConfig) => boolean);
   /** Style of the semi-transparent box behind a legend drawn inside the chart. */
@@ -971,7 +989,9 @@ export interface D3plusConfig {
   maxAngle?: number;
   /** Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior. */
   link?: LinkOption;
-  /** Whether to show the loading message. */
+  /**
+      Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
+  */
   loadingMessage?: boolean;
   /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
   loadingHTML?: string | ((viz: VizBase) => string);
@@ -981,12 +1001,34 @@ export interface D3plusConfig {
   measureSize?: number;
   /** Orders Violin and Ridgeline categories by median: `false` (default; data order), `"ascending"`, or `"descending"`. */
   medianSort?: false | "ascending" | "descending";
+  /**
+      The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
+  */
+  messageMask?: string | boolean;
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
   minimap?: boolean;
-  /** Additional CSS class name(s) applied to the minimap, alongside its fixed `d3plus-minimap`/etc. classes. */
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.
+  */
   minimapClassName?: string;
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. "2x"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  minimapLabelStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  minimapStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  minimapViewportStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  minimapViewportStyleActive?: Record<string, unknown> | false;
   /**
       Calendar: formats the month names along year blocks and the titles of
       month blocks — a d3-time-format specifier read in the chart's `locale`,
@@ -999,6 +1041,10 @@ export interface D3plusConfig {
   monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
   /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
   noDataHTML?: string | ((viz: VizBase) => string);
+  /**
+      Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
+  */
+  noDataMessage?: boolean;
   /**
       Ocean color for geomaps (any CSS value including 'transparent'), or a
       `{light, dark}` pair chosen by the chart's backdrop. Defaults to the
@@ -1056,14 +1102,41 @@ export interface D3plusConfig {
   radialScale?: "sqrt" | "linear";
   /** Row key for matrix-style layouts. */
   row?: string;
-  /** Scrollable container selector for tooltip positioning. */
-  scrollContainer?: string | Window;
+  /**
+      If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
+  */
+  scrollContainer?: string | HTMLElement | Window;
   /** Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart. */
   search?: boolean;
-  /** Resolves the string the search box matches its typed term against, for a given datum. Defaults to the mark's resolved on-screen label. */
+  /**
+      Resolves the string the search box matches its typed term against, for
+      a given datum. Defaults to the mark's resolved on-screen label
+      (`viz._drawLabel`) — the same text the user reads on the chart.
+      Override it to match against something else instead, e.g. a data
+      field that isn't shown as the label.
+
+      This is checked alongside, not instead of, every level of the datum's
+      own groupBy hierarchy — searching a leaf's label also matches its
+      ancestor group's cell/legend entry, and vice versa, regardless of
+      this accessor's override.
+  */
   searchAccessor?: (d: DataPoint, i: number) => string;
-  /** Additional CSS class name(s) applied to the search toggle button and input, alongside the fixed `search-control` classes. */
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+  */
   searchControlClassName?: string;
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  searchControlStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  searchControlStyleActive?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  searchControlStyleHover?: Record<string, unknown> | false;
   /** Configuration for shape rendering. */
   shapeConfig?: {
     duration?: number;
@@ -1107,9 +1180,7 @@ export interface D3plusConfig {
   /** Configuration for the size-legend component. */
   sizeLegendConfig?: SizeLegendConfig;
   /**
-      Which margin the size legend claims in the bottom-right corner:
-      `"right"` (default) keeps the chart's full height, `"bottom"` its full
-      width.
+      Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
   */
   sizeLegendPosition?: "right" | "bottom";
   /**
@@ -1185,19 +1256,31 @@ export interface D3plusConfig {
   symmetric?: boolean;
   /** Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart. */
   tableView?: boolean;
-  /** Additional CSS class name(s) applied to the `<table>` element rendered while in table view, alongside the fixed `d3plus-table-view-table` class. */
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.
+  */
   tableViewClassName?: string;
-  /** Additional CSS class name(s) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. */
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+  */
   tableViewControlClassName?: string;
-  /** CSS key/value pairs styling the table-view toggle button. `false` removes all default styling. */
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
   tableViewControlStyle?: Record<string, unknown> | false;
-  /** CSS key/value pairs styling the table-view toggle button while active (showing the data table). `false` removes all default styling. */
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
   tableViewControlStyleActive?: Record<string, unknown> | false;
-  /** CSS key/value pairs styling the table-view toggle button on hover. `false` removes all default styling. */
+  /**
+      An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
   tableViewControlStyleHover?: Record<string, unknown> | false;
   /** Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default. */
   tableViewDownload?: boolean;
-  /** Rows per page while in table view. `false` (or any non-positive number) disables pagination and shows every row on one page. */
+  /**
+      The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.
+  */
   tableViewPageSize?: number | false;
   /** Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default. */
   tableViewSort?: boolean;
@@ -1244,6 +1327,8 @@ export interface D3plusConfig {
       share that position.
   */
   tooltipShared?: boolean;
+  /** Formatter function for the value in the total bar. */
+  totalFormat?: (d: number) => string;
   /** Whether RadialBar draws a background track behind every bar. Defaults to `true`. */
   track?: boolean;
   /** Paint for RadialBar's background tracks: `fill`, `opacity`, `stroke`, `strokeWidth`. */
@@ -1373,16 +1458,22 @@ export interface D3plusConfig {
   yearFormat?: string | ((date: Date) => string) | false;
   /** Enables pan/zoom with zoom-control buttons. On by default for every chart. */
   zoom?: boolean;
-  /** Additional CSS class name(s) applied to each zoom control button, alongside the fixed `zoom-control`/`zoom-in`/etc. classes. */
+  /** The pixel stroke-width of the zoom brush area. */
+  zoomBrushHandleSize?: number;
+  /**
+      An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.
+  */
+  zoomBrushHandleStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.
+  */
+  zoomBrushSelectionStyle?: Record<string, unknown> | false;
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.
+  */
   zoomControlClassName?: string;
   /**
-      Overrides one or more of the four built-in zoom-control icons (`zoomIn`,
-      `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline
-      SVGs. Each value is either raw HTML — used as that button's content — or
-      a mount function, `(el: HTMLElement) => void | (() => void)`, called
-      once with the button's reserved icon slot so a live component (a React
-      tree via `createRoot(el).render(...)`, or anything else imperative) can
-      be mounted into it — return a cleanup function if there's teardown to do.
+      Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.
   */
   zoomControlIcons?: Partial<
     Record<
@@ -1390,10 +1481,24 @@ export interface D3plusConfig {
       string | ((el: HTMLElement) => void | (() => void))
     >
   >;
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  zoomControlStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  zoomControlStyleActive?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  zoomControlStyleHover?: Record<string, unknown> | false;
   /** Multiplier applied to programmatic zoom steps. */
   zoomFactor?: number;
   /** Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area. */
   zoomMax?: number;
+  /** A pixel value to be used to pad all sides of a zoomed area. */
+  zoomPadding?: number;
   /** Whether panning (drag) is enabled while zoomed. */
   zoomPan?: boolean;
   /**
