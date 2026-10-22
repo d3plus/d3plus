@@ -3,8 +3,8 @@ packages:
 # Versions shared by more than one package; manifests reference them as
 # "catalog:" and pnpm writes the range in at publish time.
 catalog:
-  "@chenglou/pretext": ^0.0.5
-  "@types/react": ^19.1.0
+  "@chenglou/pretext": ^1.0.0
+  "@types/react": ^19.3.0
   "@vitejs/plugin-react": ^6.1.2
   "d3-array": ^3.2.4
   "d3-color": ^3.1.0
@@ -16,9 +16,9 @@ catalog:
   "d3-time": ^3.1.0
   "d3-time-format": ^4.1.0
   "d3-transition": ^3.0.1
-  "react": ^19.0.0
-  "react-dom": ^19.0.0
-  "typescript": ^6.0.3
+  "react": ^19.3.1
+  "react-dom": ^19.3.1
+  "typescript": ^7.0.2
   "vite": ^8.3.5
 publicHoistPattern:
   - "*eslint*"

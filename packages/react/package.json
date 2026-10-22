@@ -43,7 +43,7 @@
   "devDependencies": {
     "@d3plus/color": "workspace:*",
     "@types/react": "catalog:",
-    "@types/react-dom": "^19.1.0",
+    "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "catalog:",
     "react": "catalog:",
     "react-dom": "catalog:",
