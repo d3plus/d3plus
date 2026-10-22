@@ -24,7 +24,7 @@ jobs:
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: 26.x
           cache: pnpm
       - run: pnpm install
       - name: Lint
@@ -39,10 +39,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Node 26 is still "Current" (LTS begins 2026-10-28), so run it as a
-    # forward-compat canary that reports but doesn't block merges when a
-    # bleeding-edge dependency lags. The supported LTS lines (22, 24) block.
-    continue-on-error: ${{ matrix.node-version == '26.x' }}
     env:
       FORCE_COLOR: "1"
 
@@ -51,8 +47,7 @@ jobs:
       # leg fails.
       fail-fast: false
       matrix:
-        # 22 (Jod) and 24 (Krypton) are Active LTS; 20 (Iron) went EOL
-        # 2026-04-30. 26 is the current release (canary, see continue-on-error).
+        # The supported LTS lines: 22, 24 and 26 (LTS from 2026-10-28).
         node-version: [22.x, 24.x, 26.x]
 
     steps:
