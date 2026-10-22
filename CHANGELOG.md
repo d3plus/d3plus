@@ -39,6 +39,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 - `@d3plus/render` exports `arcPath` and `FULL_TURN`, and `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels.
 - `@d3plus/core/internal` drops `createFluent` and `FluentInstance` (use `installFluent`), `vizPreDrawPure` and `vizDrawPure` (use `vizPreDraw` and `vizDraw`), `polarLegend` (use `rowLegend`), ParallelCoordinates' `grayscale` (use `colorGrayscale`), and `sunburstShadeAmount` (use `partitionShadeAmount`). Its `VizContext` type is the pipeline stage context.
 - `ChartDefinition` drops its unread `features` field.
+- **Dev server** (`pnpm --filter @d3plus/<pkg> run dev`) serves a package's `dev/` pages through Vite instead of a hand-written HTTP server, and reloads through Vite's client instead of an injected Server-Sent Events snippet. URLs, port (`DEV_PORT`), the generated index, and per-page reloads are unchanged; `chokidar` is no longer a dependency.
 
 ## 4.8.0
 
