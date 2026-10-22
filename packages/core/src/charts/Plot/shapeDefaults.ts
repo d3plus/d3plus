@@ -58,7 +58,7 @@ function ariaLabelConfig(self: VizInstance) {
   // Dates read as their axis labels them (see `axisValue`), other values as given.
   const value = (k: "x" | "y", v: unknown) => (isValidDate(v) ? axisValue(self, k, v) : v);
   return (d: DataPoint, i: number) => {
-    let ariaLabelStr = "";
+    let ariaLabelStr: string;
     if (d.nested) ariaLabelStr = `${self._drawLabel(d.data as DataPoint, d.i as number)}`;
     else {
       ariaLabelStr = `${self._drawLabel(d, i)}`;

@@ -33,6 +33,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 
 ### Developer & tooling
 
+- Viz's const-wrapped and deep-merged config accessors (`title`, `legend`, `tooltip`, `tooltipConfig`, `legendConfig`, …, 36 in all) are generated from `vizFields.ts` too, so `VizBaseConfig` folds into `VizBase`, which keeps only the setters with real logic. The generated accessors are typed from `D3plusConfig` on `VizBase` (they were `any`), which adds the keys it was missing (`color`, `shape`, `messageStyle`, `subtitleConfig`, `timelineConfig`, `totalConfig`) and types Axis and TextBox `shape`.
 - Viz's 42 config accessors that store their value as given (`zoomControlStyle`, `detectResize`, `attribution`, …) are generated from `charts/viz/vizFields.ts` instead of hand-written, with their descriptions and types on `D3plusConfig`, which now types 22 keys it was missing.
 - API.md documents every class's generated config accessors in a "Config accessors" table with type, default and description, including the 26 Viz accessors (`duration`, `width`, `zoomFactor`, …) and the shape and component accessors it didn't list before. Storybook args show their real defaults.
 - `@d3plus/render` exports `arcPath` and `FULL_TURN`, and `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels.

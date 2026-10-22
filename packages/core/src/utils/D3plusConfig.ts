@@ -180,6 +180,10 @@ export interface AxisConfig {
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
+  /** The shape drawn at each tick: `"Line"` (the default), `"Rect"`, or `"Circle"`. */
+  shape?: "Line" | "Rect" | "Circle";
+  /** Tick style of the axis. */
+  shapeConfig?: Record<string, unknown>;
   /** Tick formatter, called with the axis as `this`. Defaults to the locale's abbreviated number format ("1.5k"), with years printed in full ("1990") when the axis's values are all whole numbers from 1000 through 2999. */
   tickFormat?: (d: number | string) => string | number;
   /** Tick values of the axis. */
@@ -201,6 +205,8 @@ export interface AxisConfig {
   timeLocale?: Record<string, unknown>;
   /** Title of the axis. */
   title?: string;
+  /** Title configuration of the axis. */
+  titleConfig?: Record<string, unknown>;
 }
 
 export interface TooltipConfig {
@@ -229,6 +235,8 @@ export interface TooltipConfig {
       to drop the swatch from legend tooltips only.
   */
   titleSwatch?: boolean;
+  /** Overall CSS styles applied to the tooltip container. */
+  tooltipStyle?: Record<string, string>;
   body?: ((d: DataPoint) => string) | string;
   /**
       Header rows. A cell function receives `(d, i, x)`; in Pie, Treemap, and
@@ -311,6 +319,8 @@ export interface TextBoxConfig {
   x?: Accessor<number>;
   /** The y position (top edge) for each text box. */
   y?: Accessor<number>;
+  /** The outline text wraps within, `"square"` or `"circle"`, or a `(datum, index)` accessor. */
+  shape?: "square" | "circle" | ((d: DataPoint, i: number) => "square" | "circle");
 }
 
 export interface TimelineConfig {
@@ -605,13 +615,21 @@ export interface D3plusConfig {
       (default `"close"`). It is the chart's `y`: setting `y` sets it.
   */
   close?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.
+
+      When the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.
+  */
+  color?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
   colorOrdinal?: boolean;
-  /** Color scale key or custom color function. */
-  colorScale?: string | ((d: number) => string);
-  /** Configuration for the color scale component. */
+  /**
+      Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
+  */
+  colorScale?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+  /** A pass-through to the config method of ColorScale. */
   colorScaleConfig?: {
     axisConfig?: AxisConfig;
     centered?: boolean;
@@ -625,9 +643,13 @@ export interface D3plusConfig {
       The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.
   */
   colorScaleMaxSize?: number;
-  /** Whether the color scale uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /**
+      Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   colorScalePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the color scale (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  /**
+      Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.
+  */
   colorScalePosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Column key for matrix-style layouts. */
   column?: string;
@@ -864,9 +886,13 @@ export interface D3plusConfig {
   groupPadding?: number;
   /** Overall height of the visualization in pixels. */
   height?: number;
-  /** Color for legend shapes whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
+  /**
+      Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).
+  */
   hiddenColor?: CssColor | ((d: DataPoint, i: number) => CssColor);
-  /** Opacity for legend labels whose grouping is hidden (via legend click), or a `(datum, index)` accessor. */
+  /**
+      Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).
+  */
   hiddenOpacity?: number | ((d: DataPoint, i: number) => number);
   /** The hover callback function for highlighting shapes on mouseover. */
   hover?: ((d: DataPoint, i: number) => boolean) | false | null;
@@ -891,17 +917,17 @@ export interface D3plusConfig {
   inner?: "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[] | false;
   /** Styles for Violin's `inner` overlays: `box` (Box config), `quartiles` (Line config), and `points` (Circle config). */
   innerConfig?: {box?: Record<string, unknown>; quartiles?: Record<string, unknown>; points?: Record<string, unknown>};
-  /** Label accessor for shapes. */
+  /**
+      Accessor function, or a constant string applied to every data point's
+      label (unlike `value`/`nodeId`/etc., a string here is not treated as a
+      per-datum object key — pass a function for that).
+  */
   label?: string | string[] | false | AccessorFn;
   /**
-      Controls legend visibility. Pass `false` to hide it, `true` to always
-      show it, or a `(config, data) => boolean` accessor to decide dynamically
-      — the chart defaults use an accessor to auto-hide the legend when it
-      would be redundant, and to show it with one entry per category when
-      `color` is a category that isn't a `groupBy` level.
+      Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.
   */
   legend?: boolean | ((config: D3plusConfig, arr: DataPoint[]) => boolean);
-  /** Configuration for the legend component. */
+  /** Configuration object passed to the legend's config method. */
   legendConfig?: {
     label?: DataPointAccessor<string>;
     /**
@@ -913,13 +939,17 @@ export interface D3plusConfig {
     shape?: "Rect" | "Circle" | "Line" | DataPointAccessor<string>;
     shapeConfig?: Record<string, string | number>;
   };
-  /** Inverts legend click behavior (click hides / shift-click solos, or the reverse), or an accessor receiving the viz. */
+  /**
+      Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.
+  */
   legendFilterInvert?: boolean | ((viz: VizBase) => boolean);
   /**
       Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.
   */
   legendInset?: boolean | ((config: D3plusConfig) => boolean);
-  /** Style of the semi-transparent box behind a legend drawn inside the chart. */
+  /**
+      Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).
+  */
   legendInsetConfig?: {
     /** Box fill; defaults to the chart's background color. */
     fill?: CssColor;
@@ -933,13 +963,17 @@ export interface D3plusConfig {
     /** Space kept between the box and the chart's marks and edges. */
     padding?: number;
   };
-  /** Whether the legend uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /**
+      Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   legendPadding?: boolean | ((viz: VizBase) => boolean);
-  /** Position of the legend (`"auto"` by default), `false` to hide it, or an accessor returning either. */
+  /**
+      Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.
+  */
   legendPosition?: false | PanelPosition | (() => false | PanelPosition);
   /** Custom sort comparator for legend items. */
   legendSort?: (a: DataPoint, b: DataPoint) => number;
-  /** Tooltip configuration for legend items. */
+  /** Configuration object for the legend tooltip. */
   legendTooltip?: TooltipConfig;
   /**
       Formats the Radar's level value labels. Receives the ring's value and
@@ -993,7 +1027,9 @@ export interface D3plusConfig {
       Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.
   */
   loadingMessage?: boolean;
-  /** Custom HTML content for the loading indicator, or a function receiving the viz instance. */
+  /**
+      The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
+  */
   loadingHTML?: string | ((viz: VizBase) => string);
   /** Candlestick: accessor or data key for each period's lowest value (default `"low"`). */
   low?: string | ((d: DataPoint, i: number) => number);
@@ -1005,6 +1041,10 @@ export interface D3plusConfig {
       The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.
   */
   messageMask?: string | boolean;
+  /**
+      Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.
+  */
+  messageStyle?: Record<string, unknown>;
   /** Metric key for the visualization. */
   metric?: string;
   /** Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled. */
@@ -1039,7 +1079,9 @@ export interface D3plusConfig {
   monthOutline?: boolean;
   /** Calendar: styles the month outlines (`stroke`, `strokeWidth`, `strokeDasharray`). */
   monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
-  /** Custom HTML content shown when no data is supplied, or a function receiving the viz instance. */
+  /**
+      The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
+  */
   noDataHTML?: string | ((viz: VizBase) => string);
   /**
       Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.
@@ -1137,6 +1179,10 @@ export interface D3plusConfig {
       An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.
   */
   searchControlStyleHover?: Record<string, unknown> | false;
+  /**
+      Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.
+  */
+  shape?: string | ((d: DataPoint, i: number) => string);
   /** Configuration for shape rendering. */
   shapeConfig?: {
     duration?: number;
@@ -1158,6 +1204,12 @@ export interface D3plusConfig {
   /** Pyramid: draws the name of each side above its half of the chart. */
   sideTitles?: boolean;
   /**
+      Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.
+  */
+  sizeLegend?:
+    | boolean
+    | ((config: D3plusConfig, scale: SizeLegendScale, size: SizeLegendSize) => boolean);
+  /**
       Candlestick: places periods one slot apart in date order (default
       `true`), so days without data (weekends, holidays) leave no gap, with
       ticks on calendar boundaries; `false` places each period at its date
@@ -1167,17 +1219,8 @@ export interface D3plusConfig {
   /** Size accessor key. */
   size?: string;
   /**
-      Controls size-legend visibility — the nested-circle key drawn in the
-      bottom-right corner of charts that size their marks. Shown by default
-      whenever marks are sized by more than one value, unless it would take
-      up more than a third of the chart's width or height; pass `true` to
-      always show it, `false` to hide it, or a `(config, scale, size) =>
-      boolean` accessor.
+      Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.
   */
-  sizeLegend?:
-    | boolean
-    | ((config: D3plusConfig, scale: SizeLegendScale, size: SizeLegendSize) => boolean);
-  /** Configuration for the size-legend component. */
   sizeLegendConfig?: SizeLegendConfig;
   /**
       Which margin the size legend claims in the chart's bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.
@@ -1215,13 +1258,15 @@ export interface D3plusConfig {
     | ((d: DataPoint) => unknown);
   /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
   subLabel?: string | ((d: DataPoint, i: number) => string) | false;
+  /** Configuration object for the subtitle. */
+  subtitleConfig?: Record<string, unknown>;
   /**
       Waterfall: marks subtotal rows (a data key or accessor; truthy marks the
       row). A subtotal bar draws from zero to the running total; when the row
       has its own value, the running total resets to that value.
   */
   subtotal?: string | ((d: DataPoint, i: number) => unknown);
-  /** Subtitle text, or an accessor returning it. */
+  /** Accessor function or string for the visualization's subtitle. */
   subtitle?: string | ((data: DataPoint[]) => string);
   /**
       Packs a Plot's circles into a beeswarm: each circle keeps its value along
@@ -1244,7 +1289,9 @@ export interface D3plusConfig {
       band's edge, and `"visible"` lets swarms spill past their band.
   */
   swarmConfig?: {padding?: number; overflow?: "shrink" | "clamp" | "visible"};
-  /** Whether the subtitle uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /**
+      Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   subtitlePadding?: boolean | ((viz: VizBase) => boolean);
   /** Value accessor for treemaps and aggregation. */
   sum?: DataPointAccessor<number>;
@@ -1308,13 +1355,19 @@ export interface D3plusConfig {
   timeFilter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Whether to show the timeline component. */
   timeline?: boolean;
-  /** Whether the timeline uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /** Configuration object for the timeline. */
+  timelineConfig?: TimelineConfig;
+  /**
+      Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   timelinePadding?: boolean | ((viz: VizBase) => boolean);
-  /** Chart title or title accessor function. */
+  /** Accessor function or string for the visualization's title. */
   title?: string | ((data: DataPoint[]) => string);
   /** CSS style configuration for the title. */
   titleConfig?: Record<string, string | number>;
-  /** Whether the title uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /**
+      Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   titlePadding?: boolean | ((viz: VizBase) => boolean);
   /** Whether to show tooltips, or a `(datum, index)` accessor deciding per mark. */
   tooltip?: boolean | ((d: DataPoint, i: number) => boolean);
@@ -1327,6 +1380,8 @@ export interface D3plusConfig {
       share that position.
   */
   tooltipShared?: boolean;
+  /** Configuration object for the total bar. */
+  totalConfig?: Record<string, unknown>;
   /** Formatter function for the value in the total bar. */
   totalFormat?: (d: number) => string;
   /** Whether RadialBar draws a background track behind every bar. Defaults to `true`. */
@@ -1357,7 +1412,9 @@ export interface D3plusConfig {
   topojsonId?: (obj: Record<string, unknown>) => string;
   /** Waterfall: fill for subtotal bars. Defaults to `colorDefaults.sequential`. */
   totalColor?: string;
-  /** Whether the total uses the visualization's internal padding when positioning, or an accessor receiving the viz. */
+  /**
+      Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.
+  */
   totalPadding?: boolean | ((viz: VizBase) => boolean);
   /** Candlestick: the color of periods that closed at or above their open, or an accessor of the row. Defaults to green. */
   upColor?: string | ((d: DataPoint, i: number) => string);

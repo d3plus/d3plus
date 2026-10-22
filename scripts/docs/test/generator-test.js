@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 
 import {injectConfigAccessors} from "../stubs/accessors.js";
-import {scopedDoc} from "../stubs/args.js";
+import {configInterfaceDocs, scopedDoc} from "../stubs/args.js";
 import {
   injectChartConfig,
   parseChartDef,
@@ -308,5 +308,29 @@ describe("injectConfigAccessors", () => {
   it("skips classes with nothing to add and charts", () => {
     assert.doesNotMatch(section("Base"), /Config accessors/);
     assert.doesNotMatch(out, /`tile`/);
+  });
+});
+
+describe("configInterfaceDocs", () => {
+  const stories = [
+    {name: "BaseClass", kind: "class"},
+    {name: "Viz", kind: "class", augments: ["BaseClass"]},
+    {name: "Plot", kind: "class", augments: ["Viz"]},
+    {name: "Axis", kind: "class", augments: ["BaseClass"]},
+    {name: "Rect", kind: "class", augments: ["BaseClass"]},
+  ];
+  const interfaceDocs = {byName: {AxisConfig: {title: "axis"}, D3plusConfig: {title: "chart"}}};
+
+  it("uses a class's own config interface", () => {
+    assert.deepEqual(configInterfaceDocs("Axis", stories, interfaceDocs), {title: "axis"});
+  });
+
+  it("uses D3plusConfig for Viz and the classes built on it", () => {
+    assert.deepEqual(configInterfaceDocs("Viz", stories, interfaceDocs), {title: "chart"});
+    assert.deepEqual(configInterfaceDocs("Plot", stories, interfaceDocs), {title: "chart"});
+  });
+
+  it("has no interface for other classes", () => {
+    assert.deepEqual(configInterfaceDocs("Rect", stories, interfaceDocs), {});
   });
 });

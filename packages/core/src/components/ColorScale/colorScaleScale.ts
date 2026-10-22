@@ -57,7 +57,7 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
     allValues.length,
   ])!;
 
-  let jenks: number[][] = [];
+  let jenks: number[][];
 
   if (cs.schema.buckets instanceof Array) {
     ticks = cs.schema.buckets;
@@ -107,7 +107,6 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
         colorMid(cs),
         colorMax(cs),
       ];
-      colors = base;
       const negatives = ticks
         .slice(0, buckets)
         .filter(
@@ -178,11 +177,6 @@ function resolveDivergingLinear(
   const colors = negativeColors.concat(spanningColors).concat(positiveColors);
   if (!buckets) {
     const step = (colors.length - 1) / 2;
-    buckets = [
-      (domain as number[])[0],
-      cs.schema.midpoint,
-      (domain as number[])[1],
-    ];
     buckets = range(
       (domain as number[])[0],
       cs.schema.midpoint,

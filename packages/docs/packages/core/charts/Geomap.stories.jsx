@@ -71,10 +71,10 @@ export const ChangingProjection = Template.bind({});
 ChangingProjection.args = {
   data: [],
   projection: "geoMercator",
-  topojson: "https://oec.world/topojson/world-50m.json",
+  topojson: "/data/countries-110m.json",
   topojsonFilter: funcify(
-    d => d.id !== "ata",
-    "d => d.id !== 'ata'"
+    d => d.id !== "010",
+    "d => d.id !== '010'"
   )
 };
 ChangingProjection.parameters = {controls: {include: ["projection", "topojson", "topojsonFilter"]}, docs: {description: {story: "Any d3-geo projection name can be passed to `projection`; `\"geoMercator\"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== \"ata\"`)."}}};
@@ -256,17 +256,51 @@ HidingTheColorScale.parameters = {controls: {include: ["colorScalePosition"]}, d
 
 export const OverridingColorscaleBehavior = Template.bind({});
 OverridingColorscaleBehavior.args = {
-  data: "https://oec.world/olap-proxy/data?cube=trade_i_baci_a_92&Exporter+Country=eudeu&Year=2018,2019&drilldowns=Year,Importer+Country&locale=en&measures=Trade+Value&growth=Year,Trade+Value&parents=true&sparse=false&properties=Importer+Country+ISO+3",
-  groupBy: "ISO 3",
-  colorScale: "Trade Value Growth Value",
+  // Illustrative year-over-year growth in one country's exports to each
+  // trading partner, keyed by the ISO 3166 numeric code the map's features use.
+  data: [
+    {id: "840", name: "United States", "Export Growth": 0.047},
+    {id: "250", name: "France", "Export Growth": -0.013},
+    {id: "156", name: "China", "Export Growth": 0.028},
+    {id: "528", name: "Netherlands", "Export Growth": -0.021},
+    {id: "826", name: "United Kingdom", "Export Growth": -0.043},
+    {id: "380", name: "Italy", "Export Growth": -0.031},
+    {id: "040", name: "Austria", "Export Growth": -0.009},
+    {id: "616", name: "Poland", "Export Growth": 0.032},
+    {id: "756", name: "Switzerland", "Export Growth": 0.054},
+    {id: "056", name: "Belgium", "Export Growth": -0.028},
+    {id: "724", name: "Spain", "Export Growth": -0.017},
+    {id: "203", name: "Czechia", "Export Growth": -0.006},
+    {id: "752", name: "Sweden", "Export Growth": -0.052},
+    {id: "348", name: "Hungary", "Export Growth": 0.018},
+    {id: "643", name: "Russia", "Export Growth": 0.011},
+    {id: "392", name: "Japan", "Export Growth": 0.035},
+    {id: "792", name: "Turkey", "Export Growth": -0.087},
+    {id: "208", name: "Denmark", "Export Growth": 0.004},
+    {id: "642", name: "Romania", "Export Growth": 0.029},
+    {id: "703", name: "Slovakia", "Export Growth": 0.021},
+    {id: "484", name: "Mexico", "Export Growth": 0.066},
+    {id: "124", name: "Canada", "Export Growth": 0.038},
+    {id: "076", name: "Brazil", "Export Growth": -0.048},
+    {id: "356", name: "India", "Export Growth": -0.035},
+    {id: "410", name: "South Korea", "Export Growth": -0.072},
+    {id: "036", name: "Australia", "Export Growth": -0.059},
+    {id: "578", name: "Norway", "Export Growth": -0.024},
+    {id: "246", name: "Finland", "Export Growth": -0.033},
+    {id: "620", name: "Portugal", "Export Growth": 0.015},
+    {id: "710", name: "South Africa", "Export Growth": -0.091}
+  ],
+  groupBy: "id",
+  label: funcify(d => d.name, "d => d.name"),
+  colorScale: "Export Growth",
   colorScaleConfig: {
     scale: "linear"
   },
   projection: "geoMiller",
-  topojson: "https://oec.world/topojson/world-50m.json",
+  topojson: "/data/countries-110m.json",
   topojsonFilter: funcify(
-    d => d.id !== "ata",
-    "d => d.id !== 'ata'"
+    d => d.id !== "010",
+    "d => d.id !== '010'"
   )
 };
 OverridingColorscaleBehavior.parameters = {controls: {include: ["colorScaleConfig"]}, docs: {description: {story: "The color scale normally auto-detects its type from the data; setting `colorScaleConfig`'s `scale: \"linear\"` forces a plain linear ramp instead of the automatic choice."}}};
@@ -339,10 +373,10 @@ PointMotionTrails.args = {
   ),
   pointSize: 8,
   projection: "geoMercator",
-  topojson: "https://oec.world/topojson/world-50m.json",
+  topojson: "/data/countries-110m.json",
   topojsonFilter: funcify(
-    d => d.id !== "ata",
-    "d => d.id !== 'ata'"
+    d => d.id !== "010",
+    "d => d.id !== '010'"
   ),
   fitObject: {
     type: "Topology",
@@ -398,10 +432,10 @@ PointSizeLegend.args = {
   pointSizeScale: "sqrt",
   sizeLegendConfig: {title: "Population (millions)"},
   tiles: false,
-  topojson: "https://oec.world/topojson/world-50m.json",
+  topojson: "/data/countries-110m.json",
   topojsonFilter: funcify(
-    d => d.id !== "ata",
-    "d => d.id !== 'ata'"
+    d => d.id !== "010",
+    "d => d.id !== '010'"
   )
 };
 PointSizeLegend.parameters = {controls: {include: ["pointSize", "pointSizeMin", "pointSizeMax", "pointSizeScale", "sizeLegendConfig"]}, docs: {description: {story: "Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed."}}};

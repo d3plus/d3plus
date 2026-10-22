@@ -194,7 +194,7 @@ export function backgroundImageLayout(
   }
 
   // contain: fit inside the largest inscribed rectangle, fully visible.
-  let box: {x: number; y: number; width: number; height: number} | null = null;
+  let box: {x: number; y: number; width: number; height: number} | null;
   if (typeof g.width === "number" && typeof g.height === "number") {
     box = backgroundImageBox(g, points); // a rect contains itself
   } else if (typeof g.r === "number") {

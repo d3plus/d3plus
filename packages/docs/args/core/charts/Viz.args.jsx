@@ -21,8 +21,10 @@ export const argTypes = {
     }
   },
   aggs: {
-    control: {},
-    description: "Custom aggregation methods for each data key.",
+    control: {
+      type: "object"
+    },
+    description: "Custom aggregation functions keyed by data property.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -30,7 +32,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "object"
     }
   },
   ariaHidden: {
@@ -81,8 +83,10 @@ export const argTypes = {
     }
   },
   attributionStyle: {
-    control: {},
-    description: "Configuration object for the attribution style.",
+    control: {
+      type: "object"
+    },
+    description: "CSS key/value pairs used to style the attribution text.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -199,7 +203,9 @@ export const argTypes = {
     }
   },
   colorScaleConfig: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "A pass-through to the config method of ColorScale.",
     table: {
       defaultValue: {
@@ -208,7 +214,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "object"
     }
   },
   colorScaleMaxSize: {
@@ -243,9 +249,7 @@ export const argTypes = {
     }
   },
   colorScalePosition: {
-    control: {
-      type: "text"
-    },
+    control: {},
     description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
     table: {
       defaultValue: {
@@ -254,7 +258,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string | boolean | function"
+      summary: "false | panelposition | function"
     }
   },
   config: {
@@ -400,10 +404,12 @@ export const argTypes = {
     control: {
       type: "radio"
     },
-    description: "Discrete-axis key (\"x\" | \"y\") for charts that flip layout per axis.",
+    description: "Sets orientation of main category axis.",
     options: [
       "x",
-      "y"
+      "y",
+      "radius",
+      "angle"
     ],
     table: {
       defaultValue: {
@@ -412,7 +418,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "\"x\" | \"y\""
+      summary: "\"x\" | \"y\" | \"radius\" | \"angle\""
     }
   },
   duration: {
@@ -420,7 +426,7 @@ export const argTypes = {
       type: "number"
     },
     defaultValue: 600,
-    description: "Animation duration in ms.",
+    description: "Default duration of transitions, in milliseconds.",
     table: {
       defaultValue: {
         summary: "600"
@@ -529,7 +535,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string | function"
+      summary: "csscolor | function"
     }
   },
   hiddenOpacity: {
@@ -575,7 +581,7 @@ export const argTypes = {
   },
   label: {
     control: {
-      type: "text"
+      type: "object"
     },
     description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
     table: {
@@ -585,7 +591,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string | function"
+      summary: "string | false | array.&lt;string&gt; | accessorfn"
     }
   },
   legend: {
@@ -604,7 +610,9 @@ export const argTypes = {
     }
   },
   legendConfig: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "Configuration object passed to the legend's config method.",
     table: {
       defaultValue: {
@@ -613,7 +621,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "object"
     }
   },
   legendFilterInvert: {
@@ -648,7 +656,9 @@ export const argTypes = {
     }
   },
   legendInsetConfig: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
     table: {
       defaultValue: {
@@ -657,7 +667,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "object"
     }
   },
   legendPadding: {
@@ -676,9 +686,7 @@ export const argTypes = {
     }
   },
   legendPosition: {
-    control: {
-      type: "text"
-    },
+    control: {},
     description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
     table: {
       defaultValue: {
@@ -687,7 +695,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "string | function"
+      summary: "false | panelposition | function"
     }
   },
   legendSort: {
@@ -713,7 +721,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "tooltipconfig"
     }
   },
   link: {
@@ -792,7 +800,9 @@ export const argTypes = {
     }
   },
   messageStyle: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
     table: {
       defaultValue: {
@@ -1160,7 +1170,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "sizelegendconfig"
     }
   },
   sizeLegendPosition: {
@@ -1170,8 +1180,8 @@ export const argTypes = {
     defaultValue: "right",
     description: "Which margin the size legend claims in the chart's bottom-right corner. `\"right\"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `\"bottom\"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.",
     options: [
-      "bottom",
-      "right"
+      "right",
+      "bottom"
     ],
     table: {
       defaultValue: {
@@ -1180,7 +1190,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "\"bottom\" | \"right\""
+      summary: "\"right\" | \"bottom\""
     }
   },
   subtitle: {
@@ -1199,7 +1209,9 @@ export const argTypes = {
     }
   },
   subtitleConfig: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "Configuration object for the subtitle.",
     table: {
       defaultValue: {
@@ -1432,7 +1444,7 @@ export const argTypes = {
     control: {
       type: "text"
     },
-    description: "The label displayed for bucketed threshold items.",
+    description: "Label for the threshold group, or a `(datum, index)` accessor.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1497,7 +1509,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "timelineconfig"
     }
   },
   timelineDefault: {
@@ -1546,8 +1558,10 @@ export const argTypes = {
     }
   },
   titleConfig: {
-    control: {},
-    description: "Configuration object for the title.",
+    control: {
+      type: "object"
+    },
+    description: "CSS style configuration for the title.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1590,7 +1604,7 @@ export const argTypes = {
     control: {
       type: "boolean"
     },
-    description: "Whether to display tooltips on hover.",
+    description: "Whether to show tooltips, or a `(datum, index)` accessor deciding per mark.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1603,7 +1617,7 @@ export const argTypes = {
   },
   tooltipConfig: {
     control: {},
-    description: "Configuration object for the tooltip.",
+    description: "Configuration for the tooltip component.",
     table: {
       defaultValue: {
         summary: "undefined"
@@ -1611,7 +1625,7 @@ export const argTypes = {
     },
     type: {
       required: false,
-      summary: "record"
+      summary: "tooltipconfig"
     }
   },
   total: {
@@ -1630,7 +1644,9 @@ export const argTypes = {
     }
   },
   totalConfig: {
-    control: {},
+    control: {
+      type: "object"
+    },
     description: "Configuration object for the total bar.",
     table: {
       defaultValue: {

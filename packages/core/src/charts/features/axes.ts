@@ -534,6 +534,9 @@ function renderYAxes(
   return y;
 }
 
+/** A range whose end never falls before its start: a chart too small for its axes plots in no space. */
+const nonNegative = ([start, end]: number[]): number[] => [start, Math.max(start, end)];
+
 /**
     Render the production axes and solve the final ranges/offsets.
 
@@ -544,7 +547,6 @@ function renderYAxes(
     Returns everything `plotEmit` needs to consume.
 */
 export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
-    let {x, y} = pCtx;
     const {labelWidths} = pCtx;
     const final = solveFinalAxes(viz, pCtx, frozen);
     pCtx = final.pCtx;
@@ -553,7 +555,7 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
     const {insetBottom, yBottom} = final;
     const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} = final.solved;
 
-    const xRange = frozen?.xRange ?? [xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)];
+    const xRange = frozen?.xRange ?? nonNegative([xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)]);
 
     const axisRelativeTransform = setupAxisTransforms(viz, pCtx, xOffsetLeft, yWidth);
 
@@ -563,12 +565,12 @@ export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasur
 
     // Content space puts the plot's top at the y axis's `x2Height`.
     const plotBottom = (frozen?.yRange ?? yRange)[1] + insetBottom - x2Height;
-    x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
+    const x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
     const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
 
-    yRange = frozen?.yRange ?? [viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom];
+    yRange = frozen?.yRange ?? nonNegative([viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom]);
 
-    y = renderYAxes(
+    const y = renderYAxes(
       viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
       axisRelativeTransform, axisSceneQueue,
     );

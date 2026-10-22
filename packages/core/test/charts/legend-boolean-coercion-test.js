@@ -5,9 +5,9 @@ import {BarChart, Donut, Matrix, Pack, Pie, Treemap} from "../../index.ts";
 
 useJsdom();
 
-// Charts that declare `legend`/`shape`/`label` in their def `fields` get a
-// generated fluent accessor that shadows the hand-written VizBaseConfig setter.
-// The generated accessor honours the field's `coerce`, so without an explicit
+// Charts that declare `legend`/`shape`/`label` in their def `fields` install
+// their own generated accessor for it, which honours the field's `coerce`
+// rather than the Viz field's, so without an explicit
 // `"const"` a `.legend(false)`/`.shape("Circle")` call stored the raw primitive
 // instead of wrapping it in `constant(...)`. Readers that treat the value as a
 // function then blew up — `featuresLegend` does `viz.schema.legend.bind(viz)(…)`,
