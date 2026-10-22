@@ -132,6 +132,10 @@ export function typeToNames(type) {
 export function resolveParentNames(reflection) {
   if (reflection.kind !== ReflectionKind.Class) return [];
   const extendedTypes = reflection.extendedTypes || [];
+  // A parent the package doesn't export (an internal base class) isn't documented.
+  const exported = new Set(
+    (reflection.parent?.children || []).filter(s => s.kind === ReflectionKind.Class).map(s => s.name),
+  );
   return extendedTypes
     .map(t => {
       if (t.name && t.name !== "default") return t.name;
@@ -147,7 +151,7 @@ export function resolveParentNames(reflection) {
       }
       return t.name;
     })
-    .filter(n => n && n !== "Object" && n !== "any" && n !== "default");
+    .filter(n => n && n !== "Object" && n !== "any" && n !== "default" && exported.has(n));
 }
 
 /**

@@ -3,7 +3,7 @@
     TypeDoc can't see as class members, in each class's API.md section.
 */
 
-import {configArgType, scopedDoc} from "./args.js";
+import {configArgType, configInterfaceDocs, scopedDoc} from "./args.js";
 
 const hasParent = ({augments}) => (augments && augments.length ? augments[0] : false);
 
@@ -60,7 +60,7 @@ export function injectConfigAccessors(readme, {stories, configDefaults, interfac
       .sort((a, b) => a.localeCompare(b));
   }
 
-  const specificDocs = name => interfaceDocs.byName?.[`${name}Config`] || {};
+  const specificDocs = name => configInterfaceDocs(name, stories, interfaceDocs);
   for (const story of classes) {
     const keys = tableKeys[story.name];
     if (!keys) continue;
