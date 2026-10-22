@@ -5,6 +5,7 @@ import {execSync, spawn, spawnSync} from "node:child_process";
 import {createInterface} from "node:readline";
 
 import Logger from "./utils/log.js";
+import {changelogSection, releaseChangelog} from "./utils/changelog.js";
 
 // ── CLI helpers ──────────────────────────────────────────────────────────────
 
@@ -54,41 +55,6 @@ const git = cmd => execSync(`git ${cmd}`, {encoding: "utf8"}).trim();
 // heading matches when its first token equals the version, so `## 4.1.0` and
 // `## 4.1.0 - 2026-07-09` both resolve. Returns null when there is no file or
 // no matching section, so the caller can fall back to the commit list.
-function changelogNotes(version) {
-  let text;
-  try {
-    text = fs.readFileSync("CHANGELOG.md", "utf8");
-  } catch {
-    return null;
-  }
-  const lines = text.split("\n");
-  const isHeading = line => /^##\s+/.test(line);
-  const headingVersion = line =>
-    line
-      .replace(/^##\s+/, "")
-      .trim()
-      .split(/\s+/)[0];
-
-  const start = lines.findIndex(
-    l => isHeading(l) && headingVersion(l) === version,
-  );
-  if (start === -1) return null;
-
-  let end = lines.length;
-  for (let i = start + 1; i < lines.length; i++) {
-    if (isHeading(lines[i])) {
-      end = i;
-      break;
-    }
-  }
-  return (
-    lines
-      .slice(start + 1, end)
-      .join("\n")
-      .trim() || null
-  );
-}
-
 const SEMVER = /^\d+\.\d+\.\d+(-[0-9A-Za-z.-]+)?$/;
 
 // ── Main ─────────────────────────────────────────────────────────────────────
@@ -190,6 +156,9 @@ try {
     pkg.version = version;
     fs.writeFileSync(file, `${JSON.stringify(pkg, null, 2)}\n`);
   }
+  // The "Unreleased" CHANGELOG section becomes this version's.
+  const changelog = fs.readFileSync("CHANGELOG.md", "utf8");
+  fs.writeFileSync("CHANGELOG.md", releaseChangelog(changelog, version));
   log = Logger(`release v${version}`);
 
   // ── Builds, docs & tests ───────────────────────────────────────────────
@@ -210,7 +179,10 @@ try {
   // ── Release notes ──────────────────────────────────────────────────────
   // Prefer the CHANGELOG.md section for this version; fall back to the commit
   // list since the previous tag when there is no matching section.
-  let notes = changelogNotes(version);
+  let notes = changelogSection(
+    fs.readFileSync("CHANGELOG.md", "utf8"),
+    version,
+  );
   if (!notes) {
     log.warn(`no CHANGELOG.md section for ${version}; using the commit log`);
     notes = git(
@@ -240,11 +212,11 @@ try {
     process.exit(0);
   }
 
-  // Build output is gitignored, so this stages only the version bumps and
-  // the regenerated docs.
+  // Build output is gitignored, so this stages only the version bumps, the
+  // CHANGELOG and the regenerated docs.
   await run(
     "committing release",
-    `git add -- package.json packages && git commit -m "compiles v${version}"`,
+    `git add -- package.json packages CHANGELOG.md && git commit -m "compiles v${version}"`,
   );
   dirty = false;
   await run("tagging release", `git tag v${version}`);
