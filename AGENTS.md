@@ -352,9 +352,9 @@ The script checks that `main` is clean and in sync with origin, prompts for the
 new version, writes it into every package, rebuilds everything and the docs,
 optionally runs the tests, then commits, tags, pushes, and creates the GitHub
 release with `gh`. CHANGELOG.md's `## Unreleased` section is retitled with the
-new version in the release commit and becomes the release notes. Each step prints one line; a failing step prints its
-captured output, and a failure or abort before the commit restores the working
-tree.
+new version in the release commit and becomes the release notes. Each step
+prints one line; a failing step prints its captured output, and a failure or
+abort before the commit restores the working tree.
 
 Publishing the GitHub release starts the **Publish to npm** workflow
 (`.github/workflows/publish.yml`). It rebuilds the tagged commit and publishes
