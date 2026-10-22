@@ -1,0 +1,25 @@
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      actions:
+        patterns: ["*"]
+  # pnpm workspaces: one PR per group for the whole repo, including the
+  # catalog in pnpm-workspace.yaml.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    groups:
+      d3:
+        patterns: ["d3-*", "@types/d3-*"]
+      storybook:
+        patterns: ["storybook", "@storybook/*", "eslint-plugin-storybook"]
+      dev-tooling:
+        dependency-type: development
+      runtime:
+        dependency-type: production

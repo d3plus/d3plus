@@ -3,7 +3,6 @@ import path from "node:path";
 import fs from "node:fs";
 import {createRequire} from "node:module";
 import {fileURLToPath} from "node:url";
-import webpack from "webpack";
 
 const require = createRequire(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -33,10 +32,8 @@ export default {
   ],
 
   framework: {
-    name: getAbsolutePath("@storybook/nextjs"),
-    options: {
-      builder: {useSWC: true},
-    },
+    name: getAbsolutePath("@storybook/react-vite"),
+    options: {},
   },
 
   docs: {
@@ -46,7 +43,7 @@ export default {
   staticDirs: ["../static"],
 
   typescript: {
-    reactDocgen: "react-docgen-typescript",
+    reactDocgen: "react-docgen",
   },
 
   core: {
@@ -54,65 +51,50 @@ export default {
     disableWhatsNewNotifications: true,
   },
 
-  webpackFinal: async config => {
-    if (config.resolve) {
-      const packagesDir = path.resolve(__dirname, "../..");
-      const folders = fs
-        .readdirSync(packagesDir, {withFileTypes: true})
-        .filter(d => d.isDirectory() && d.name !== "docs");
+  viteFinal: async config => {
+    const packagesDir = path.resolve(__dirname, "../..");
+    const workspacePackages = fs
+      .readdirSync(packagesDir, {withFileTypes: true})
+      .filter(d => d.isDirectory() && d.name !== "docs")
+      .map(({name}) => ({
+        find: new RegExp(`^@d3plus/${name}$`),
+        replacement: path.resolve(packagesDir, name, name === "react" ? "index.tsx" : "index.ts"),
+      }));
 
-      const workspacePackages = folders.reduce((aliases, dirent) => {
-        const name = dirent.name;
-        const filename = name === "react" ? "index.tsx" : "index.ts";
-        aliases[`@d3plus/${name}`] = path.resolve(packagesDir, name, filename);
-        return aliases;
-      }, {});
+    // The `@d3plus/ssr` stories document the server-rendering API. Its
+    // Node-only runtime deps never run in the browser preview, so they
+    // resolve to an empty module.
+    const empty = path.resolve(__dirname, "empty.js");
+    const nodeOnly = ["jsdom", "@napi-rs/canvas", "node:dns", "node:http", "node:https", "node:net"].map(name => ({
+      find: new RegExp(`^${name}$`),
+      replacement: empty,
+    }));
 
-      config.resolve.alias = {
-        ...workspacePackages,
-        ...config.resolve.alias,
-        // The `@d3plus/ssr` stories document the server-rendering API, but its
-        // Node-only runtime deps (`jsdom`, `@napi-rs/canvas`) are loaded via
-        // lazy `import()` that never executes in the browser preview. Stub them
-        // to empty modules so webpack doesn't try to bundle jsdom (which drags
-        // in the Node built-ins `net`/`tls`/`child_process`/`fs`).
-        jsdom: false,
-        "@napi-rs/canvas": false,
-      };
+    config.resolve = config.resolve || {};
+    config.resolve.alias = [
+      {find: /^@d3plus\/types\/react$/, replacement: path.resolve(packagesDir, "types", "react.ts")},
+      ...workspacePackages,
+      ...nodeOnly,
+      ...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
+    ];
 
-      // Belt-and-suspenders for any Node core module reached before the aliases
-      // above short-circuit: resolve them to nothing in the browser bundle.
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        net: false,
-        tls: false,
-        child_process: false,
-        fs: false,
-        dns: false,
-        http: false,
-        https: false,
-      };
-
-      // webpack resolves a `node:`-scheme request (e.g. the geomap-tile SSRF
-      // guard's `import net from "node:net"`) through its scheme handler
-      // instead of the alias/fallback maps above, which only match bare
-      // specifiers — so strip the prefix first and let `net`/`dns` above
-      // catch it.
-      config.plugins = config.plugins || [];
-      config.plugins.push(
-        new webpack.NormalModuleReplacementPlugin(/^node:/, resource => {
-          resource.request = resource.request.replace(/^node:/, "");
-        }),
-      );
-
-      // TypeScript sources use .js extensions in imports (ESM convention);
-      // tell webpack to also try .ts/.tsx when it sees .js/.jsx
-      config.resolve.extensionAlias = {
-        ".js": [".ts", ".tsx", ".js"],
-        ".jsx": [".tsx", ".jsx"],
-        ...config.resolve.extensionAlias,
-      };
-    }
+    // "Show code" names each story's component after its function, so
+    // minification has to keep function names. The preview bundles every
+    // package and chart, so one chunk is large by design; @d3plus/react's
+    // "use client" directives are for React Server Components and don't
+    // apply to the preview.
+    config.build = {
+      ...config.build,
+      chunkSizeWarningLimit: 4096,
+      rolldownOptions: {
+        ...config.build?.rolldownOptions,
+        output: {...config.build?.rolldownOptions?.output, keepNames: true},
+        onwarn(warning, warn) {
+          if (["MODULE_LEVEL_DIRECTIVE", "PLUGIN_TIMINGS", "SOURCEMAP_ERROR"].includes(warning.code)) return;
+          warn(warning);
+        },
+      },
+    };
     return config;
   },
 };

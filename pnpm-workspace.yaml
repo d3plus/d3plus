@@ -1,10 +1,28 @@
 packages:
   - "packages/*"
+# Versions shared by more than one package; manifests reference them as
+# "catalog:" and pnpm writes the range in at publish time.
+catalog:
+  "@chenglou/pretext": ^0.0.5
+  "@types/react": ^19.1.0
+  "d3-array": ^3.2.4
+  "d3-color": ^3.1.0
+  "d3-interpolate": ^3.0.1
+  "d3-polygon": ^3.0.1
+  "d3-scale": ^4.0.2
+  "d3-selection": ^3.0.0
+  "d3-shape": ^3.2.0
+  "d3-time": ^3.1.0
+  "d3-time-format": ^4.1.0
+  "d3-transition": ^3.0.1
+  "react": ^19.0.0
+  "react-dom": ^19.0.0
+  "typescript": ^6.0.3
+  "vite": ^8.3.5
 publicHoistPattern:
   - "*eslint*"
   - "*typescript*"
   - "*storybook*"
-  - "*webpack*"
 overrides:
   browserslist: '>=4.28.7'
 allowBuilds:
@@ -16,3 +34,5 @@ allowBuilds:
   lmdb: true
   msgpackr-extract: true
   sharp: true
+minimumReleaseAgeExclude:
+  - vite@8.3.5

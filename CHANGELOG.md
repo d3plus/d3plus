@@ -18,6 +18,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 - **`strip`** keeps the base letter of any accented letter (`Č` → `C`, `ğ` → `g`); it used to drop letters outside Latin-1. Its output for Latin-1 is unchanged.
 - **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape.
 - **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time.
+- **No Node `engines` requirement on the browser packages.** Only `@d3plus/ssr`, which runs in Node, declares `node >= 22`.
 
 ### Fixed
 

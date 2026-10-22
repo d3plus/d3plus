@@ -11,9 +11,6 @@
       "default": "./es/index.js"
     }
   },
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "es",
@@ -36,8 +33,7 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "lint": "eslint index.ts src && eslint --global=it --global=before test",
-    "test": "pnpm run lint && mocha 'test/**/*-test.js'",
+    "test": "mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
@@ -45,8 +41,8 @@
     "@d3plus/dom": "workspace:*"
   },
   "devDependencies": {
-    "@vitejs/plugin-vue": "^5.2.0",
-    "vite": "^6.2.5",
+    "@vitejs/plugin-vue": "^6.0.10",
+    "vite": "catalog:",
     "vue": "^3.4.0"
   },
   "peerDependencies": {

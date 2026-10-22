@@ -182,6 +182,7 @@ try {
   if (await confirm("Run the test suite?")) {
     // `-r run test`, not `pnpm test`: the root `pretest` hook would rebuild
     // esm for every package right after the step above.
+    await run("linting", "pnpm lint");
     await run("running tests", "pnpm -r --if-present run test");
   }
 

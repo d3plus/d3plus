@@ -396,7 +396,7 @@ async function renderChart(browser, scriptTag, body, file) {
     return {ok: true, errors};
   } catch (e) {
     // leave a blank/partial screenshot if possible for the composite
-    try { await page.screenshot({path: file, fullPage: false}); } catch {}
+    try { await page.screenshot({path: file, fullPage: false}); } catch { /* no page to capture */ }
     return {ok: false, error: e.message, errors};
   } finally {
     await page.close();
@@ -525,7 +525,7 @@ async function main() {
   await browser.close();
 
   console.log("\nSummary:");
-  for (const {name, label, v3Res, v4Res, v4cRes} of items) {
+  for (const {label, v3Res, v4Res, v4cRes} of items) {
     const f = r => (r.ok ? "✓" : `✗ ${r.error}`);
     console.log(`  ${label.padEnd(14)} v3:${f(v3Res).padEnd(20)} v4-svg:${f(v4Res).padEnd(20)} v4-canvas:${f(v4cRes)}`);
     for (const e of [...v3Res.errors, ...v4Res.errors, ...v4cRes.errors]) console.log(`       page-error: ${e}`);

@@ -13,9 +13,6 @@
   },
   "jsdelivr": "./umd/d3plus-render.full.min.js",
   "unpkg": "./umd/d3plus-render.full.min.js",
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "umd/*.js",
@@ -43,19 +40,18 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "lint": "eslint index.ts src && eslint --global=it test",
-    "test": "pnpm run lint && mocha 'test/**/*-test.js'",
+    "test": "mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/math": "workspace:*",
-    "d3-color": "^3.1.0",
-    "d3-interpolate": "^3.0.1",
+    "d3-color": "catalog:",
+    "d3-interpolate": "catalog:",
     "d3-interpolate-path": "^2.3.0",
-    "d3-selection": "^3.0.0",
-    "d3-shape": "^3.2.0",
+    "d3-selection": "catalog:",
+    "d3-shape": "catalog:",
     "d3-timer": "^3.0.1",
-    "d3-transition": "^3.0.1",
+    "d3-transition": "catalog:",
     "textures": "^1.2.3"
   }
 }

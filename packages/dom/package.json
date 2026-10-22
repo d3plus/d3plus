@@ -13,9 +13,6 @@
   },
   "jsdelivr": "./umd/d3plus-dom.full.min.js",
   "unpkg": "./umd/d3plus-dom.full.min.js",
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "umd/*.js",
@@ -40,13 +37,12 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "lint": "eslint index.ts src && eslint --global=it test",
-    "test": "pnpm run lint && mocha 'test/**/*-test.js'",
+    "test": "mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
-    "@chenglou/pretext": "^0.0.5",
-    "d3-selection": "^3.0.0",
-    "d3-transition": "^3.0.1"
+    "@chenglou/pretext": "catalog:",
+    "d3-selection": "catalog:",
+    "d3-transition": "catalog:"
   }
 }

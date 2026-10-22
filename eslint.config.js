@@ -1,16 +1,24 @@
 import tseslint from "typescript-eslint";
 import globals from "globals";
-import react from "eslint-plugin-react";
 import storybook from "eslint-plugin-storybook";
 
 import js from "@eslint/js";
 export default [
   js.configs.recommended,
   {
-    ignores: ["packages/docs/build/**", "packages/docs/.next/**"],
+    // New in ESLint 10's recommended set; warns until the existing dead
+    // assignments are cleaned up.
+    rules: {"no-useless-assignment": "warn"},
   },
   {
-    files: ["**/*.js"],
+    // Build output and the manual dev pages.
+    ignores: [
+      "**/{es,umd,types,dist,build,coverage}/**",
+      "packages/*/dev/**",
+    ],
+  },
+  {
+    files: ["**/*.js", "**/*.mjs"],
     plugins: {
       js,
     },
@@ -82,7 +90,6 @@ export default [
     // always imports React and funcify, whether or not the stories below the
     // marker use them.
     files: ["packages/docs/**/*.jsx"],
-    plugins: {react},
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -91,10 +98,7 @@ export default [
         ecmaFeatures: {jsx: true},
       },
     },
-    settings: {react: {version: "detect"}},
     rules: {
-      "react/jsx-uses-react": "error",
-      "react/jsx-uses-vars": "error",
       "no-unused-vars": [
         "error",
         {varsIgnorePattern: "^(React|funcify)$", argsIgnorePattern: "^_"},
@@ -125,9 +129,12 @@ export default [
     files: ["**/test/**/*.js", "**/test/**/*.mjs"],
     languageOptions: {
       globals: {
+        describe: "readonly",
         it: "readonly",
         before: "readonly",
         after: "readonly",
+        beforeEach: "readonly",
+        afterEach: "readonly",
         global: "readonly",
         window: "readonly",
         document: "readonly",

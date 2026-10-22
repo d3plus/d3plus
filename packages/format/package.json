@@ -13,9 +13,6 @@
   },
   "jsdelivr": "./umd/d3plus-format.full.min.js",
   "unpkg": "./umd/d3plus-format.full.min.js",
-  "engines": {
-    "node": ">=22"
-  },
   "sideEffects": false,
   "files": [
     "umd/*.js",
@@ -40,14 +37,13 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "lint": "eslint index.ts src && eslint --global=it test",
-    "test": "pnpm run lint && mocha 'test/**/*-test.js'",
+    "test": "mocha 'test/**/*-test.js'",
     "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
   },
   "dependencies": {
     "@d3plus/locales": "workspace:*",
     "d3-format": "^3.1.0",
-    "d3-time": "^3.1.0",
-    "d3-time-format": "^4.1.0"
+    "d3-time": "catalog:",
+    "d3-time-format": "catalog:"
   }
 }
