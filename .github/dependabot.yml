@@ -14,6 +14,11 @@ updates:
     schedule:
       interval: monthly
     open-pull-requests-limit: 5
+    # typescript-eslint and TypeDoc support TypeScript up to 6.0; 7 (the
+    # native port) has no JS API for them to build on.
+    ignore:
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
     groups:
       d3:
         patterns: ["d3-*", "@types/d3-*"]

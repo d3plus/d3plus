@@ -321,15 +321,19 @@ function wrapSentence(phrase: unknown, config: WrapConfig): TextWrapResult {
     "line-height": config.lineHeight,
   };
 
-  const sizes = textWidth(words, style) as number[];
+  // A syllable ending in a soft hyphen is measured with the hyphen it renders
+  // at a break (a soft hyphen itself measures zero), which the loop removes
+  // again when syllables stay together.
+  const sizes = textWidth(
+    words.map(w => (w.endsWith(softHyphen) ? `${w.slice(0, -1)}-` : w)),
+    style,
+  ) as number[];
   // Measurement stops at a word's last glyph, so the spaces between words
   // are counted separately. A non-breaking space keeps the font's space
-  // advance where a trailing ordinary space collapses to nothing. The soft
-  // hyphen ending a syllable measures as the hyphen it renders at a break,
-  // which the loop removes again when syllables stay together.
+  // advance where a trailing ordinary space collapses to nothing.
   const gaps: GapMetrics = {
     space: textWidth("\u00a0", style) as number,
-    hyphen: (textWidth(softHyphen, style) as number) || (textWidth("-", style) as number),
+    hyphen: textWidth("-", style) as number,
   };
 
   const {lineData, lineWidths, truncated, visibleWidths} =
