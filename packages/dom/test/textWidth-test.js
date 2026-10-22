@@ -7,7 +7,9 @@ import {useJsdom} from "~test/jsdom.js";
 useJsdom({augment: false});
 
 it("textWidth", () => {
-  const font = "Verdana";
+  // Verdana is missing on Linux, where Skia falls back to a face without a
+  // bold weight; list faces that ship one.
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
 
   const base = textWidth("Test", {"font-family": font, "font-size": 14}),
     bigger = textWidth("Test", {"font-family": font, "font-size": 28}),
