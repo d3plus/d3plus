@@ -31,6 +31,7 @@ import {
 import {calendarDayKey, dateExtent} from "./calendarDates.js";
 import {calendarInsetRegion} from "./calendarInset.js";
 import {calendarEmit, colorValue} from "./emit.js";
+import {optionalAccessor} from "../viz/vizFields.js";
 
 /** Reads a row's day from its `date` field, else its `time` field. */
 export const defaultCalendarDate = (
@@ -132,6 +133,7 @@ export const calendarDef: DataDrivenChartDefinition = {
     {
       key: "colorScale",
       default: accessor("value"),
+      coerce: optionalAccessor,
     },
     {
       key: "groupBy",

@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 
-import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
+import VizBase from "../../src/charts/viz/VizBase.ts";
 
 /**
     `hover(predicate)` expands the predicate to every id prefix of the rows it
@@ -10,7 +10,7 @@ import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
     matches a child row (one with no legend entry of its own) still lights up
     its parent's legend entry.
 */
-const hover = VizBaseConfig.prototype.hover;
+const hover = VizBase.prototype.hover;
 
 function fakeViz({filteredData, legendData}) {
   const legendHovers = [];
