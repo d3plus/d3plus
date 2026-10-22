@@ -82,7 +82,7 @@ export default defineConfig({
       },
       {
         extends: true,
-        test: {name: "docs-scripts", include: ["scripts/docs/test/**/*-test.js"]},
+        test: {name: "scripts", include: ["scripts/**/test/**/*-test.js"]},
       },
     ],
   },

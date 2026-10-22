@@ -272,6 +272,10 @@ one project per package (core has two). Tests import TypeScript source
   `~test/browser/assert.js` in place of `node:assert`.
 - **Snapshots**: `vitest run -u` regenerates the pipeline and visual
   snapshots under `packages/core/test/snapshots/`.
+- **CI** tests a pull request's affected packages only:
+  `scripts/affected.js` lists the packages it changes plus their dependents,
+  or all of them when it touches anything outside `packages/` other than
+  Markdown. Pushes to `main` test everything.
 
 ### Documentation
 
