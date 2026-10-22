@@ -524,6 +524,9 @@ importers:
       d3-interpolate-path:
         specifier: ^2.3.0
         version: 2.3.0
+      d3-polygon:
+        specifier: 'catalog:'
+        version: 3.0.1
       d3-selection:
         specifier: 'catalog:'
         version: 3.0.0

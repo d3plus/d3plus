@@ -48,6 +48,7 @@
     "d3-color": "catalog:",
     "d3-interpolate": "catalog:",
     "d3-interpolate-path": "^2.3.0",
+    "d3-polygon": "catalog:",
     "d3-selection": "catalog:",
     "d3-shape": "catalog:",
     "d3-timer": "^3.0.1",
