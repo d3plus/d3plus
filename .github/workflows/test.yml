@@ -29,6 +29,8 @@ jobs:
       - run: pnpm install
       - name: Lint
         run: pnpm lint
+      - name: Check formatting
+        run: pnpm format:check
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
       - name: Build docs site (Storybook)

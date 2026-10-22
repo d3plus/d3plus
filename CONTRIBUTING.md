@@ -59,7 +59,7 @@ Within each package directory, you will notice the following folder structure:
 - :page_facing_up: `package.json`
 - :page_facing_up: `README.md`
 
-All source code is TypeScript, lives in the `src` directory, and adheres to a linting ruleset in the root of the repo (`eslint.config.js`). The easiest way to follow the style guide is by installing a linter directly in your text editor, so that errors will be highlighted as you type. If your Pull Request does not match the project's linting style, it will not be merged.
+All source code is TypeScript, lives in the `src` directory, and adheres to a linting ruleset in the root of the repo (`eslint.config.js`). The easiest way to follow the style guide is by installing a linter directly in your text editor, so that errors will be highlighted as you type. If your Pull Request does not match the project's linting style, it will not be merged. Code is formatted with [Prettier](https://prettier.io) (`.prettierrc`): run `pnpm format` before committing, or let your editor format on save.
 
 ### Running the Development Server
 

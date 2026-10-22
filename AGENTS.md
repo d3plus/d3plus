@@ -295,7 +295,9 @@ Pass `VERBOSE=1` to any build script for per-file output; by default piped
 - **Getter/setter methods:** same method name handles both — no argument returns
   the stored value, an argument stores and returns `this`.
 - **Formatting:** Prettier with `arrowParens: "avoid"` and `bracketSpacing:
-  false`.
+  false`. `pnpm format` rewrites the repo and `pnpm format:check` (run in CI)
+  verifies it; `.prettierignore` skips generated data, snapshots and MDX. The
+  docs generator formats what it writes.
 - **Linting:** ESLint flat config (`eslint.config.js`). Fix lint before
   committing; `max-lines` rules are enforced — split oversized files.
   Package entry points (`index.ts`, core's `internal.ts` and `umd-entry.ts`)

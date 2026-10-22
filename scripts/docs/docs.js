@@ -8,6 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {pathToFileURL} from "node:url";
+import * as prettier from "prettier";
 import {Application, Converter, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
@@ -493,14 +494,15 @@ async function generateMarkdown() {
 
     // The reference goes to API.md, which stays out of the published files;
     // the README (always published to npm) only links to it.
-    fs.writeFileSync(`${folder}/API.md`, readme);
-    fs.writeFileSync(`${folder}/README.md`, readmeHeader(packageJSON));
+    await writeFormatted(`${folder}/API.md`, readme);
+    await writeFormatted(`${folder}/README.md`, readmeHeader(packageJSON));
     fs.rmSync(tempDir, {recursive: true, force: true});
 
     // Generate Storybook args and stories from the same TypeDoc project
     log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
 
     const written = new Set();
+    const writes = [];
     stories.forEach(story => {
       const {meta, name} = story;
       if (name === "default") {
@@ -544,7 +546,7 @@ async function generateMarkdown() {
       );
       const argsFolder = path.dirname(argsPath);
       fs.mkdirSync(argsFolder, {recursive: true});
-      fs.writeFileSync(argsPath, argsContent);
+      writes.push(writeFormatted(argsPath, argsContent));
       written.add(path.resolve(argsPath));
 
       const storyPath = path.join(
@@ -562,15 +564,25 @@ async function generateMarkdown() {
       );
       const storyFolder = path.dirname(storyPath);
       fs.mkdirSync(storyFolder, {recursive: true});
-      fs.writeFileSync(storyPath, storyContent);
+      writes.push(writeFormatted(storyPath, storyContent));
       written.add(path.resolve(storyPath));
     });
+    await Promise.all(writes);
     pruneOrphans(folder, written, await loadPackageExports(folder));
 
     log.done();
   }
   log.exit();
   if (failed.length) throw new Error(`docs generation failed for ${failed.join(", ")}`);
+}
+
+/**
+ * Writes a generated file as Prettier formats it, so a docs run leaves
+ * `pnpm format:check` passing.
+ */
+async function writeFormatted(file, content) {
+  const options = await prettier.resolveConfig(file);
+  fs.writeFileSync(file, await prettier.format(content, {...options, filepath: file}));
 }
 
 generateMarkdown().catch(err => {
