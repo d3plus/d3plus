@@ -170,7 +170,7 @@ export const argTypes = assign(
       }
     },
     tooltipConfig: {
-      description: "Configuration object for the tooltip.\n\nTooltip rows show each stage's value, then its share of the first and of the previous stage.",
+      description: "Configuration for the tooltip component.\n\nTooltip rows show each stage's value, then its share of the first and of the previous stage.",
       table: {
         defaultValue: {
           summary: "{tbody: (d: DataPoint, i: number) => funnelTooltipRows(viz, d, i)}"

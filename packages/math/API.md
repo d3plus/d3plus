@@ -56,7 +56,7 @@
 
 > **ckmeans**(`data`: `number`[], `nClusters`: `number`): `number`[][]
 
-Defined in: [ckmeans.ts:226](https://github.com/d3plus/d3plus/blob/main/packages/math/src/ckmeans.ts#L226)
+Defined in: [ckmeans.ts:222](https://github.com/d3plus/d3plus/blob/main/packages/math/src/ckmeans.ts#L222)
 
 Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.
 
