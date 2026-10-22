@@ -367,13 +367,21 @@ write access to every package, and a new trust expires unless it publishes
 within 2 days, so set it up right before a release:
 
 ```bash
-for dir in packages/*/; do
-  node -e "const p=require('./${dir}package.json'); if (!p.private) console.log(p.name)"
-done | while read -r pkg; do
+for pkg in $(node -e 'for (const d of require("fs").readdirSync("packages")) {
+  const p = require(`./packages/${d}/package.json`);
+  if (!p.private) console.log(p.name);
+}'); do
   npm trust github "$pkg" --repo d3plus/d3plus --file publish.yml --allow-publish --yes
   sleep 2
 done
 ```
+
+npm asks for 2FA on the first package (a one-time password or a browser
+login), then skips it for about five minutes, long enough for the rest. Keep
+the loop reading from the terminal: piping the package names into it leaves
+npm no terminal to ask on, and it fails with `EOTP`. A package that already
+trusts the workflow fails the same command harmlessly; `npm trust list <pkg>`
+shows what a package trusts.
 
 A brand-new package has to be published once by hand before npm can trust a
 workflow for it.
