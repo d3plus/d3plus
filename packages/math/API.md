@@ -112,7 +112,7 @@ Finds the closest numeric value in an array.
 | Parameter | Type       | Default    | Description                                       |
 | --------- | ---------- | ---------- | ------------------------------------------------- |
 | `n`       | `number`   | _required_ | The number value to use when searching the array. |
-| `arr`     | `number`[] | `[]`       | The array of values to test against.              |
+| `arr?`    | `number`[] | `[]`       | The array of values to test against.              |
 
 #### Returns
 
@@ -196,7 +196,7 @@ The standard normal (gaussian) kernel: `e^(-u²/2) / √(2π)`.
 
 > **kernelDensity**(`values`: readonly `number`[], `options?`: [`KernelDensityOptions`](#kerneldensityoptions)): [`DensityPoint`](#densitypoint)[]
 
-Defined in: [kernelDensity.ts:101](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L101)
+Defined in: [kernelDensity.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L110)
 
 Estimates the probability density of a set of observations with a kernel
 density estimate, evaluated on an evenly spaced grid. Each observation
@@ -206,10 +206,10 @@ returns an empty array.
 
 #### Parameters
 
-| Parameter | Type                                            | Description                                 |
-| --------- | ----------------------------------------------- | ------------------------------------------- |
-| `values`  | readonly `number`[]                             | The observations.                           |
-| `options` | [`KernelDensityOptions`](#kerneldensityoptions) | The kernel, bandwidth, and evaluation grid. |
+| Parameter  | Type                                            | Description                                 |
+| ---------- | ----------------------------------------------- | ------------------------------------------- |
+| `values`   | readonly `number`[]                             | The observations.                           |
+| `options?` | [`KernelDensityOptions`](#kerneldensityoptions) | The kernel, bandwidth, and evaluation grid. |
 
 #### Returns
 
@@ -233,10 +233,10 @@ An angle of zero means that the longer side of the polygon (the width) will be a
 
 #### Parameters
 
-| Parameter | Type                 | Description                                                               |
-| --------- | -------------------- | ------------------------------------------------------------------------- |
-| `poly`    | `Point`[]            | An Array of points that represent a polygon.                              |
-| `options` | `LargestRectOptions` | An Object that allows for overriding various parameters of the algorithm. |
+| Parameter  | Type                 | Description                                                               |
+| ---------- | -------------------- | ------------------------------------------------------------------------- |
+| `poly`     | `Point`[]            | An Array of points that represent a polygon.                              |
+| `options?` | `LargestRectOptions` | An Object that allows for overriding various parameters of the algorithm. |
 
 #### Returns
 
@@ -279,7 +279,7 @@ Builds the confidence band for the mean response of a simple linear regression o
 | Parameter | Type                     | Default    | Description                                              |
 | --------- | ------------------------ | ---------- | -------------------------------------------------------- |
 | `points`  | \[`number`, `number`\][] | _required_ | An array of `[x, y]` pairs.                              |
-| `level`   | `number`                 | `0.95`     | The confidence level, between 0 and 1. Defaults to 0.95. |
+| `level?`  | `number`                 | `0.95`     | The confidence level, between 0 and 1. Defaults to 0.95. |
 
 #### Returns
 
@@ -302,7 +302,7 @@ Builds the prediction band for a new observation under a simple linear regressio
 | Parameter | Type                     | Default    | Description                                              |
 | --------- | ------------------------ | ---------- | -------------------------------------------------------- |
 | `points`  | \[`number`, `number`\][] | _required_ | An array of `[x, y]` pairs.                              |
-| `level`   | `number`                 | `0.95`     | The confidence level, between 0 and 1. Defaults to 0.95. |
+| `level?`  | `number`                 | `0.95`     | The confidence level, between 0 and 1. Defaults to 0.95. |
 
 #### Returns
 
@@ -341,7 +341,7 @@ Finds the intersection point (if there is one) of the lines p1q1 and p2q2.
 
 > **negativeSpace**(`bounds`: [`Bounds`](#bounds), `obstacles`: [`Bounds`](#bounds)[], `options?`: [`NegativeSpaceOptions`](#negativespaceoptions)): [`Bounds`](#bounds)[]
 
-Defined in: [negativeSpace.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L102)
+Defined in: [negativeSpace.ts:225](https://github.com/d3plus/d3plus/blob/main/packages/math/src/negativeSpace.ts#L225)
 
 Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
 outside the marks described by `obstacles`. The marks are treated as a single
@@ -358,7 +358,7 @@ output is deterministic for a given input.
 | ----------- | ----------------------------------------------- | ------------------------------------------------------ |
 | `bounds`    | [`Bounds`](#bounds)                             | The region to search, such as a chart's plot area.     |
 | `obstacles` | [`Bounds`](#bounds)[]                           | The bounding boxes of the marks drawn inside `bounds`. |
-| `options`   | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options.                      |
+| `options?`  | [`NegativeSpaceOptions`](#negativespaceoptions) | Padding and minimum-size options.                      |
 
 #### Returns
 
@@ -372,7 +372,7 @@ output is deterministic for a given input.
 
 > **path2polygon**(`path`: `string`, `segmentLength?`: `number`): `Point`[]
 
-Defined in: [path2polygon.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/path2polygon.ts#L24)
+Defined in: [path2polygon.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/math/src/path2polygon.ts#L30)
 
 Transforms a path string into an Array of points, with no DOM involved.
 Straight segments contribute their endpoints; curves and arcs are flattened
@@ -381,10 +381,10 @@ values lower computation time but yield more rigid curves.
 
 #### Parameters
 
-| Parameter       | Type     | Default    | Description                                                        |
-| --------------- | -------- | ---------- | ------------------------------------------------------------------ |
-| `path`          | `string` | _required_ | An SVG string path, commonly the "d" property of a <path> element. |
-| `segmentLength` | `number` | `50`       | The maximum length of line segments when flattening curves.        |
+| Parameter        | Type     | Default    | Description                                                        |
+| ---------------- | -------- | ---------- | ------------------------------------------------------------------ |
+| `path`           | `string` | _required_ | An SVG string path, commonly the "d" property of a <path> element. |
+| `segmentLength?` | `number` | `50`       | The maximum length of line segments when flattening curves.        |
 
 #### Returns
 
@@ -398,7 +398,7 @@ values lower computation time but yield more rigid curves.
 
 > **pathBounds**(`d`: `string`): `object`
 
-Defined in: [pathBounds.ts:62](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L62)
+Defined in: [pathBounds.ts:75](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L75)
 
 Computes the exact bounding box of an SVG path string with no DOM involved,
 evaluating the true extrema of each Bézier and arc segment (not a sampled
@@ -417,10 +417,10 @@ origin for an empty/unparseable path.
 
 | Name     | Type     | Defined in                                                                                         |
 | -------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `height` | `number` | [pathBounds.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L66) |
-| `width`  | `number` | [pathBounds.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L65) |
-| `x`      | `number` | [pathBounds.ts:63](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L63) |
-| `y`      | `number` | [pathBounds.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L64) |
+| `height` | `number` | [pathBounds.ts:79](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L79) |
+| `width`  | `number` | [pathBounds.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L78) |
+| `x`      | `number` | [pathBounds.ts:76](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L76) |
+| `y`      | `number` | [pathBounds.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathBounds.ts#L77) |
 
 ---
 
@@ -430,7 +430,7 @@ origin for an empty/unparseable path.
 
 > **pathCommands**(`d`: `string`): [`PathCommand`](#pathcommand)[]
 
-Defined in: [pathParse.ts:111](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L111)
+Defined in: [pathParse.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L132)
 
 Tokenizes an SVG path `d` string into its commands as written, without
 resolving them to absolute coordinates. Arc
@@ -512,7 +512,7 @@ Rotates a point around a given origin.
 | --------- | -------- | ------------------------------------------------------------------------------------- |
 | `p`       | `Point`  | The point to be rotated, which should always be an `[x, y]` formatted Array.          |
 | `alpha`   | `number` | The angle in radians to rotate.                                                       |
-| `origin`  | `Point`  | The origin point of the rotation, which should always be an `[x, y]` formatted Array. |
+| `origin?` | `Point`  | The origin point of the rotation, which should always be an `[x, y]` formatted Array. |
 
 #### Returns
 
@@ -559,7 +559,7 @@ Gives the two closest intersection points between a ray cast from a point inside
 | --------- | --------- | ---------- | ------------------------------------------------------------------------------------ |
 | `poly`    | `Point`[] | _required_ | The polygon to test against, which should be an `[x, y]` formatted Array.            |
 | `origin`  | `Point`   | _required_ | The origin point of the ray to be cast, which should be an `[x, y]` formatted Array. |
-| `alpha`   | `number`  | `0`        | The angle in radians of the ray.                                                     |
+| `alpha?`  | `number`  | `0`        | The angle in radians of the ray.                                                     |
 
 #### Returns
 
@@ -585,7 +585,7 @@ Rotates a polygon around a given origin.
 | --------- | --------- | ------------------------------------------------------------------------------ |
 | `poly`    | `Point`[] | The polygon to be rotated, which should be an Array of `[x, y]` values.        |
 | `alpha`   | `number`  | The angle in radians to rotate.                                                |
-| `origin`  | `Point`   | The origin point of the rotation, which should be an `[x, y]` formatted Array. |
+| `origin?` | `Point`   | The origin point of the rotation, which should be an `[x, y]` formatted Array. |
 
 #### Returns
 
@@ -599,17 +599,17 @@ Rotates a polygon around a given origin.
 
 > **regression**(`points`: \[`number`, `number`\][], `type?`: [`RegressionType`](#regressiontype), `options?`: [`RegressionOptions`](#regressionoptions)): [`RegressionResult`](#regressionresult) \| `null`
 
-Defined in: [regression.ts:127](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L127)
+Defined in: [regression.ts:123](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L123)
 
 Fits a regression model to a set of `[x, y]` points. Points with non-finite values, or that fall outside a model's domain (y ≤ 0 for exponential, x ≤ 0 for logarithmic, either for power), are ignored. Returns `null` when there are too few usable points or the x values do not vary.
 
 #### Parameters
 
-| Parameter | Type                                      | Default    | Description                                                                             |
-| --------- | ----------------------------------------- | ---------- | --------------------------------------------------------------------------------------- |
-| `points`  | \[`number`, `number`\][]                  | _required_ | An array of `[x, y]` pairs.                                                             |
-| `type`    | [`RegressionType`](#regressiontype)       | `"linear"` | The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial". |
-| `options` | [`RegressionOptions`](#regressionoptions) | `{}`       | Additional options, such as the polynomial `order`.                                     |
+| Parameter  | Type                                      | Default    | Description                                                                             |
+| ---------- | ----------------------------------------- | ---------- | --------------------------------------------------------------------------------------- |
+| `points`   | \[`number`, `number`\][]                  | _required_ | An array of `[x, y]` pairs.                                                             |
+| `type?`    | [`RegressionType`](#regressiontype)       | `"linear"` | The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial". |
+| `options?` | [`RegressionOptions`](#regressionoptions) | `{}`       | Additional options, such as the polynomial `order`.                                     |
 
 #### Returns
 
@@ -682,7 +682,7 @@ Calculates the x/y position of a point at the edge of a shape, from the center o
 | ---------- | -------- | ---------- | --------------------------------------------------- |
 | `angle`    | `number` | _required_ | The angle, in radians, of the offset point.         |
 | `distance` | `number` | _required_ | The pixel distance away from the origin.            |
-| `shape`    | `string` | `"circle"` | The shape type ("circle", "square", or "triangle"). |
+| `shape?`   | `string` | `"circle"` | The shape type ("circle", "square", or "triangle"). |
 
 #### Returns
 
@@ -696,7 +696,7 @@ Calculates the x/y position of a point at the edge of a shape, from the center o
 
 > **silvermanBandwidth**(`values`: readonly `number`[]): `number`
 
-Defined in: [kernelDensity.ts:73](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L73)
+Defined in: [kernelDensity.ts:77](https://github.com/d3plus/d3plus/blob/main/packages/math/src/kernelDensity.ts#L77)
 
 Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate:
 `0.9 · min(σ, IQR / 1.34) · n^(-1/5)`. When one of the two spreads is zero
@@ -728,11 +728,11 @@ Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorith
 
 #### Parameters
 
-| Parameter        | Type      | Default    | Description                                                                                                            |
-| ---------------- | --------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `poly`           | `Point`[] | _required_ | An Array of points that represent a polygon.                                                                           |
-| `tolerance`      | `number`  | `1`        | Affects the amount of simplification (in the same metric as the point coordinates).                                    |
-| `highestQuality` | `boolean` | `false`    | Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower. |
+| Parameter         | Type      | Default    | Description                                                                                                            |
+| ----------------- | --------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `poly`            | `Point`[] | _required_ | An Array of points that represent a polygon.                                                                           |
+| `tolerance?`      | `number`  | `1`        | Affects the amount of simplification (in the same metric as the point coordinates).                                    |
+| `highestQuality?` | `boolean` | `false`    | Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower. |
 
 #### Returns
 
@@ -750,7 +750,7 @@ Vladimir Agafonkin
 
 > **studentTCdf**(`t`: `number`, `df`: `number`): `number`
 
-Defined in: [studentTQuantile.ts:64](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L64)
+Defined in: [studentTQuantile.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L68)
 
 The cumulative distribution function of Student's t-distribution.
 
@@ -773,7 +773,7 @@ The cumulative distribution function of Student's t-distribution.
 
 > **studentTQuantile**(`p`: `number`, `df`: `number`): `number`
 
-Defined in: [studentTQuantile.ts:74](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L74)
+Defined in: [studentTQuantile.ts:78](https://github.com/d3plus/d3plus/blob/main/packages/math/src/studentTQuantile.ts#L78)
 
 The inverse cumulative distribution function (quantile) of Student's t-distribution: the t value below which a proportion `p` of the distribution lies.
 
@@ -851,7 +851,7 @@ Options for `negativeSpace`: padding, minimum box size, grid resolution, and ext
 
 ### PathCommand
 
-Defined in: [pathParse.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L98)
+Defined in: [pathParse.ts:119](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L119)
 
 One command of an SVG path as written: its letter (case kept, so relative
 commands stay relative) and its arguments, one array per segment when the
@@ -861,8 +861,8 @@ command repeats implicitly.
 
 | Property                                  | Type         | Defined in                                                                                         |
 | ----------------------------------------- | ------------ | -------------------------------------------------------------------------------------------------- |
-| <a id="property-command"></a> `command`   | `string`     | [pathParse.ts:99](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L99)   |
-| <a id="property-segments"></a> `segments` | `number`[][] | [pathParse.ts:100](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L100) |
+| <a id="property-command"></a> `command`   | `string`     | [pathParse.ts:120](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L120) |
+| <a id="property-segments"></a> `segments` | `number`[][] | [pathParse.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/math/src/pathParse.ts#L121) |
 
 ---
 
@@ -870,13 +870,13 @@ command repeats implicitly.
 
 ### RegressionOptions
 
-Defined in: [regression.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L29)
+Defined in: [regression.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L25)
 
 #### Properties
 
 | Property                             | Type     | Description                                                                     | Defined in                                                                                         |
 | ------------------------------------ | -------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | [regression.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L31) |
+| <a id="property-order"></a> `order?` | `number` | The polynomial order (degree), used when `type` is "polynomial". Defaults to 2. | [regression.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L27) |
 
 ---
 
@@ -884,18 +884,18 @@ Defined in: [regression.ts:29](https://github.com/d3plus/d3plus/blob/main/packag
 
 ### RegressionResult
 
-Defined in: [regression.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L8)
+Defined in: [regression.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L4)
 
 #### Properties
 
 | Property                                          | Type                                | Description                                                                                                                                                                                                                                | Defined in                                                                                         |
 | ------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------- |
-| <a id="property-coefficients"></a> `coefficients` | `number`[]                          | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
-| <a id="property-extent-1"></a> `extent`           | \[`number`, `number`\]              | The smallest and largest x values used in the fit.                                                                                                                                                                                         | [regression.ts:26](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L26) |
-| <a id="property-n"></a> `n`                       | `number`                            | The number of points used in the fit.                                                                                                                                                                                                      | [regression.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L24) |
-| <a id="property-predict"></a> `predict`           | (`x`: `number`) => `number`         | Predicts y for a given x.                                                                                                                                                                                                                  | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
-| <a id="property-r2"></a> `r2`                     | `number`                            | The coefficient of determination, measured in original y units.                                                                                                                                                                            | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
-| <a id="property-type"></a> `type`                 | [`RegressionType`](#regressiontype) | The type of regression that was fit.                                                                                                                                                                                                       | [regression.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L10) |
+| <a id="property-coefficients"></a> `coefficients` | `number`[]                          | The fitted coefficients, in original units: - linear / polynomial: `[c0, c1, …]` for `y = c0 + c1·x + c2·x² …` - exponential: `[a, b]` for `y = a·e^(b·x)` - logarithmic: `[a, b]` for `y = a + b·ln(x)` - power: `[a, b]` for `y = a·x^b` | [regression.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L14) |
+| <a id="property-extent-1"></a> `extent`           | \[`number`, `number`\]              | The smallest and largest x values used in the fit.                                                                                                                                                                                         | [regression.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L22) |
+| <a id="property-n"></a> `n`                       | `number`                            | The number of points used in the fit.                                                                                                                                                                                                      | [regression.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L20) |
+| <a id="property-predict"></a> `predict`           | (`x`: `number`) => `number`         | Predicts y for a given x.                                                                                                                                                                                                                  | [regression.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L16) |
+| <a id="property-r2"></a> `r2`                     | `number`                            | The coefficient of determination, measured in original y units.                                                                                                                                                                            | [regression.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L18) |
+| <a id="property-type"></a> `type`                 | [`RegressionType`](#regressiontype) | The type of regression that was fit.                                                                                                                                                                                                       | [regression.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/math/src/regression.ts#L6)   |
 
 ## Type Aliases
 

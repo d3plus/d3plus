@@ -79,9 +79,13 @@ A deeply recursive version of `Object.assign`.
 
 #### Examples
 
+**this**
+
 ```ts
 assign({id: "foo", deep: {group: "A"}}, {id: "bar", deep: {value: 20}}));
 ```
+
+**returns this**
 
 ```ts
 {id: "bar", deep: {group: "A", value: 20}}
@@ -104,7 +108,7 @@ Applies each key/value in an object as an attr.
 | Parameter | Type                                                              | Description                              |
 | --------- | ----------------------------------------------------------------- | ---------------------------------------- |
 | `e`       | `Attrable`                                                        | The d3 selection to apply attributes to. |
-| `a`       | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value attr pairs.       |
+| `a?`      | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value attr pairs.       |
 
 #### Returns
 
@@ -209,7 +213,7 @@ Given either a single font-family or a list of fonts, returns the name of the fi
 
 > **getSize**(`elem`: `HTMLElement`): \[`number` \| `undefined`, `number` \| `undefined`\]
 
-Defined in: [getSize.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/getSize.ts#L58)
+Defined in: [getSize.ts:57](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/getSize.ts#L57)
 
 Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. Falls back to the inner dimensions of the browser window if none is found.
 
@@ -266,7 +270,7 @@ Determines whether a given DOM element is visible within the current viewport, w
 | Parameter | Type      | Default    | Description                                      |
 | --------- | --------- | ---------- | ------------------------------------------------ |
 | `elem`    | `Element` | _required_ | The DOM element to check.                        |
-| `buffer`  | `number`  | `0`        | Extra pixel margin around the viewport boundary. |
+| `buffer?` | `number`  | `0`        | Extra pixel margin around the viewport boundary. |
 
 #### Returns
 
@@ -302,7 +306,7 @@ Detects if a variable is a javascript Object.
 
 > **onFontsLoaded**(`callback`: () => `void`): () => `void`
 
-Defined in: [fontLoading.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontLoading.ts#L44)
+Defined in: [fontLoading.ts:47](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/fontLoading.ts#L47)
 
 Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.
 
@@ -371,7 +375,7 @@ Applies each key/value in an object as a style.
 | Parameter | Type                                                              | Description                          |
 | --------- | ----------------------------------------------------------------- | ------------------------------------ |
 | `e`       | `Stylable`                                                        | The d3 selection to apply styles to. |
-| `s`       | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value style pairs.  |
+| `s?`      | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value style pairs.  |
 
 #### Returns
 
@@ -387,7 +391,7 @@ Applies each key/value in an object as a style.
 
 > **textWidth**(`text`: `string`, `style?`: `Record`\<`string`, `string` \| `number`\>): `number`
 
-Defined in: [textWidth.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L98)
+Defined in: [textWidth.ts:121](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L121)
 
 Given a text string, returns the predicted pixel width of the string when placed into DOM.
 
@@ -406,7 +410,7 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 > **textWidth**(`text`: `string`[], `style?`: `Record`\<`string`, `string` \| `number`\>): `number`[]
 
-Defined in: [textWidth.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L102)
+Defined in: [textWidth.ts:125](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/textWidth.ts#L125)
 
 ##### Parameters
 

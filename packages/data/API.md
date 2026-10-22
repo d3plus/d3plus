@@ -59,7 +59,7 @@ Reduce and concat all the elements included in arrayOfArrays if they are arrays.
 | Parameter       | Type                                                                                 | Default    | Description                                                         |
 | --------------- | ------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------- |
 | `arrayOfArrays` | ([`DataPoint`](#datapoint)[] \| `Record`\<`string`, [`DataPoint`](#datapoint)[]\>)[] | _required_ | Array of elements                                                   |
-| `data`          | `string`                                                                             | `"data"`   | The key in each element that contains the sub-array to concatenate. |
+| `data?`         | `string`                                                                             | `"data"`   | The key in each element that contains the sub-array to concatenate. |
 
 #### Returns
 
@@ -79,11 +79,11 @@ Given a JSON object where the data values and headers have been split into separ
 
 #### Parameters
 
-| Parameter | Type           | Default     | Description                                                        |
-| --------- | -------------- | ----------- | ------------------------------------------------------------------ |
-| `json`    | `FoldableJSON` | _required_  | A JSON data Object with `data` and `headers` keys.                 |
-| `data`    | `string`       | `"data"`    | The key in the JSON object that contains the data array.           |
-| `headers` | `string`       | `"headers"` | The key used for the flat headers array inside of the JSON object. |
+| Parameter  | Type           | Default     | Description                                                        |
+| ---------- | -------------- | ----------- | ------------------------------------------------------------------ |
+| `json`     | `FoldableJSON` | _required_  | A JSON data Object with `data` and `headers` keys.                 |
+| `data?`    | `string`       | `"data"`    | The key in the JSON object that contains the data array.           |
+| `headers?` | `string`       | `"headers"` | The key used for the flat headers array inside of the JSON object. |
 
 #### Returns
 
@@ -154,7 +154,7 @@ Combines an Array of Objects together and returns a new Object.
 | Parameter | Type                                        | Description                                                                                                                                                            |
 | --------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `objects` | [`DataPoint`](#datapoint)[]                 | The Array of objects to be merged together.                                                                                                                            |
-| `aggs`    | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. |
+| `aggs?`   | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. |
 
 #### Returns
 
@@ -162,12 +162,16 @@ Combines an Array of Objects together and returns a new Object.
 
 #### Examples
 
+**this**
+
 ```ts
 merge([
   {id: "foo", group: "A", value: 10, links: [1, 2]},
   {id: "bar", group: "A", value: 20, links: [1, 3]},
 ]);
 ```
+
+**returns this**
 
 ```ts
 {id: ["bar", "foo"], group: "A", value: 30, links: [1, 2, 3]}
@@ -234,16 +238,16 @@ Dates compare by time.
 
 #### Type Parameters
 
-| Type Parameter |
-| -------------- |
-| `T`            |
+| Type Parameter                    |
+| --------------------------------- |
+| <a id="type-parameter-t"></a> `T` |
 
 #### Parameters
 
-| Parameter  | Type                    | Description                                                                         |
-| ---------- | ----------------------- | ----------------------------------------------------------------------------------- |
-| `arr`      | `T`[]                   | The Array of objects to be filtered.                                                |
-| `accessor` | (`d`: `T`) => `unknown` | An optional accessor function used to extract data points from an Array of Objects. |
+| Parameter   | Type                    | Description                                                                         |
+| ----------- | ----------------------- | ----------------------------------------------------------------------------------- |
+| `arr`       | `T`[]                   | The Array of objects to be filtered.                                                |
+| `accessor?` | (`d`: `T`) => `unknown` | An optional accessor function used to extract data points from an Array of Objects. |
 
 #### Returns
 
@@ -251,9 +255,13 @@ Dates compare by time.
 
 #### Examples
 
+**this**
+
 ```ts
 unique(["apple", "banana", "apple"]);
 ```
+
+**returns this**
 
 ```ts
 ["apple", "banana"];

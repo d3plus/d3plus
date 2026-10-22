@@ -39,7 +39,7 @@ Prefer [withDom](#withdom) unless you need to manage the lifecycle yourself.
 
 | Parameter | Type                              |
 | --------- | --------------------------------- |
-| `opts`    | [`DomEnvOptions`](#domenvoptions) |
+| `opts?`   | [`DomEnvOptions`](#domenvoptions) |
 
 #### Returns
 
@@ -53,7 +53,7 @@ Prefer [withDom](#withdom) unless you need to manage the lifecycle yourself.
 
 > **renderToCanvas**(`viz`: [`RenderableViz`](#renderableviz), `opts?`: [`RasterRenderOptions`](#rasterrenderoptions)): `Promise`\<[`ServerCanvas`](#servercanvas)\>
 
-Defined in: [renderToStaticPNG.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L34)
+Defined in: [renderToStaticPNG.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L33)
 
 Renders a d3plus chart to a native canvas in Node using `@napi-rs/canvas`,
 with no browser. Returns the canvas so callers can encode to any supported
@@ -66,7 +66,7 @@ Prefer [renderToStaticPNG](#rendertostaticpng) when you just want PNG bytes.
 | Parameter | Type                                          | Description                                                 |
 | --------- | --------------------------------------------- | ----------------------------------------------------------- |
 | `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set). |
-| `opts`    | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
+| `opts?`   | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
 
 #### Returns
 
@@ -80,7 +80,7 @@ Prefer [renderToStaticPNG](#rendertostaticpng) when you just want PNG bytes.
 
 > **renderToStaticPNG**(`viz`: [`RenderableViz`](#renderableviz), `opts?`: [`RasterRenderOptions`](#rasterrenderoptions)): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [renderToStaticPNG.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L103)
+Defined in: [renderToStaticPNG.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L102)
 
 Renders a d3plus chart to a PNG `Buffer` in Node, with no browser.
 
@@ -89,7 +89,7 @@ Renders a d3plus chart to a PNG `Buffer` in Node, with no browser.
 | Parameter | Type                                          | Description                                                 |
 | --------- | --------------------------------------------- | ----------------------------------------------------------- |
 | `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set). |
-| `opts`    | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
+| `opts?`   | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
 
 #### Returns
 
@@ -136,7 +136,7 @@ before this resolves — no globals are left mutated.
 | Parameter | Type                                          | Description                                                  |
 | --------- | --------------------------------------------- | ------------------------------------------------------------ |
 | `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set).  |
-| `opts`    | [`StaticRenderOptions`](#staticrenderoptions) | Output size (required here or on the chart) and DOM options. |
+| `opts?`   | [`StaticRenderOptions`](#staticrenderoptions) | Output size (required here or on the chart) and DOM options. |
 
 #### Returns
 
@@ -163,16 +163,16 @@ const svg = await renderToStaticSVG(new Treemap().data(data).groupBy("id"), {
 
 > **withDom**\<`T`\>(`opts`: [`DomEnvOptions`](#domenvoptions), `fn`: (`env`: [`DomEnv`](#domenv)) => `T` \| `Promise`\<`T`\>): `Promise`\<`T`\>
 
-Defined in: [env.ts:143](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L143)
+Defined in: [env.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L144)
 
 Runs `fn` with a headless DOM installed, tearing it down afterward even if
 `fn` throws. The `DomEnv` is passed to `fn` for access to `window`/`document`.
 
 #### Type Parameters
 
-| Type Parameter |
-| -------------- |
-| `T`            |
+| Type Parameter                    |
+| --------------------------------- |
+| <a id="type-parameter-t"></a> `T` |
 
 #### Parameters
 
@@ -266,7 +266,7 @@ with tiles enabled. Ignored for other charts.
 
 ### NapiBackendOptions
 
-Defined in: [napiBackend.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L22)
+Defined in: [napiBackend.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L25)
 
 Raster-specific options for the native canvas backend.
 
@@ -278,8 +278,8 @@ Raster-specific options for the native canvas backend.
 
 | Property                                           | Type       | Description                                                                                                                                                                                                           | Defined in                                                                                          |
 | -------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| <a id="property-fonts"></a> `fonts?`               | `string`[] | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge. | [napiBackend.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L30) |
-| <a id="property-imagetimeout"></a> `imageTimeout?` | `number`   | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                     | [napiBackend.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L24) |
+| <a id="property-fonts"></a> `fonts?`               | `string`[] | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge. | [napiBackend.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L33) |
+| <a id="property-imagetimeout"></a> `imageTimeout?` | `number`   | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                     | [napiBackend.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L27) |
 
 ---
 
@@ -293,18 +293,19 @@ Options for the raster (canvas/PNG) helpers.
 
 #### Extends
 
-- [`StaticRenderOptions`](#staticrenderoptions).[`NapiBackendOptions`](#napibackendoptions)
+- [`StaticRenderOptions`](#staticrenderoptions)
+- [`NapiBackendOptions`](#napibackendoptions)
 
 #### Properties
 
 | Property                                                   | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                  | Inherited from                                                                                 | Defined in                                                                                                      |
 | ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | <a id="property-fetchtile-1"></a> `fetchTile?`             | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [`StaticRenderOptions`](#staticrenderoptions).[`fetchTile`](#property-fetchtile-2)             | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45)                         |
-| <a id="property-fonts-1"></a> `fonts?`                     | `string`[]                                                                                     | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge.                                                                                                                                                        | [`NapiBackendOptions`](#napibackendoptions).[`fonts`](#property-fonts)                         | [napiBackend.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L30)             |
+| <a id="property-fonts-1"></a> `fonts?`                     | `string`[]                                                                                     | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge.                                                                                                                                                        | [`NapiBackendOptions`](#napibackendoptions).[`fonts`](#property-fonts)                         | [napiBackend.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L33)             |
 | <a id="property-height"></a> `height?`                     | `number`                                                                                       | Output height in pixels. Falls back to the chart's configured `height()`.                                                                                                                                                                                                                                                                                                    | [`StaticRenderOptions`](#staticrenderoptions).[`height`](#property-height-2)                   | [types.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L60)                         |
 | <a id="property-html-1"></a> `html?`                       | `string`                                                                                       | HTML used to seed a freshly-created jsdom document.                                                                                                                                                                                                                                                                                                                          | [`StaticRenderOptions`](#staticrenderoptions).[`html`](#property-html-2)                       | [types.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L67)                         |
-| <a id="property-imagetimeout-1"></a> `imageTimeout?`       | `number`                                                                                       | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                                                                                                                                                                            | [`NapiBackendOptions`](#napibackendoptions).[`imageTimeout`](#property-imagetimeout)           | [napiBackend.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L24)             |
-| <a id="property-pixelratio"></a> `pixelRatio?`             | `number`                                                                                       | Device-pixel ratio (backing-store scale) for the output. Higher values yield sharper, larger rasters. Defaults to 2.                                                                                                                                                                                                                                                         | -                                                                                              | [renderToStaticPNG.ts:21](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L21) |
+| <a id="property-imagetimeout-1"></a> `imageTimeout?`       | `number`                                                                                       | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                                                                                                                                                                            | [`NapiBackendOptions`](#napibackendoptions).[`imageTimeout`](#property-imagetimeout)           | [napiBackend.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L27)             |
+| <a id="property-pixelratio"></a> `pixelRatio?`             | `number`                                                                                       | Device-pixel ratio (backing-store scale) for the output. Higher values yield sharper, larger rasters. Defaults to 2.                                                                                                                                                                                                                                                         | -                                                                                              | [renderToStaticPNG.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L20) |
 | <a id="property-tileconcurrency-1"></a> `tileConcurrency?` | `number`                                                                                       | Max tiles to fetch concurrently. Default 8.                                                                                                                                                                                                                                                                                                                                  | [`StaticRenderOptions`](#staticrenderoptions).[`tileConcurrency`](#property-tileconcurrency-2) | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29)                         |
 | <a id="property-tiletimeout-1"></a> `tileTimeout?`         | `number`                                                                                       | Per-tile fetch timeout in milliseconds. Default 15000.                                                                                                                                                                                                                                                                                                                       | [`StaticRenderOptions`](#staticrenderoptions).[`tileTimeout`](#property-tiletimeout-2)         | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31)                         |
 | <a id="property-tileuseragent-1"></a> `tileUserAgent?`     | `string`                                                                                       | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set.                                                                                                                                                                 | [`StaticRenderOptions`](#staticrenderoptions).[`tileUserAgent`](#property-tileuseragent-2)     | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37)                         |
@@ -544,7 +545,7 @@ Encode the surface to an image buffer (async). Resolves to a Node `Buffer`.
 
 > **toBuffer**(`mime`: `"image/png"` \| `"image/jpeg"`, ...`args`: `any`[]): `Uint8Array`
 
-Defined in: [napiBackend.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L16)
+Defined in: [napiBackend.ts:19](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L19)
 
 Encode the surface to an image buffer (sync). Returns a Node `Buffer`.
 

@@ -52,7 +52,7 @@ Removes all non ASCII characters from a string.
 | Parameter | Type     | Default    | Description                               |
 | --------- | -------- | ---------- | ----------------------------------------- |
 | `value`   | `string` | _required_ | The HTML string to strip.                 |
-| `spacer`  | `string` | `"-"`      | The character to replace whitespace with. |
+| `spacer?` | `string` | `"-"`      | The character to replace whitespace with. |
 
 #### Returns
 
@@ -66,7 +66,7 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L44)
+Defined in: [textSplit.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L54)
 
 Splits a given sentence into an array of words.
 
@@ -88,7 +88,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L362)
+Defined in: [textWrap.ts:370](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L370)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -120,7 +120,7 @@ control, including `{style: "sentence"}` to capitalize only the first word.
 | Parameter | Type                         | Default     | Description                                                                             |
 | --------- | ---------------------------- | ----------- | --------------------------------------------------------------------------------------- |
 | `str`     | `string` \| _required_       | `undefined` | The string to capitalize.                                                               |
-| `locale`  | `string` \| `TitleCaseRules` | `"en-US"`   | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
+| `locale?` | `string` \| `TitleCaseRules` | `"en-US"`   | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
 
 #### Returns
 
@@ -148,7 +148,7 @@ The default fallback font list used for all text labels as an Array of Strings.
 
 ### softHyphen
 
-> `const` **softHyphen**: `"­"` = "\u00AD"
+> `const` **softHyphen**: `"­"` = "\\u00AD"
 
 Defined in: [softHyphen.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/text/src/softHyphen.ts#L5)
 

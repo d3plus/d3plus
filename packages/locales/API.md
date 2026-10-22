@@ -95,7 +95,7 @@ d3-time-format locale definitions (date and time patterns, period, day, and mont
 
 > `const` **titleCaseLocale**: `Record`\<`string`, [`TitleCaseRules`](#titlecaserules)\>
 
-Defined in: [dictionaries/titleCaseLocale.ts:38](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L38)
+Defined in: [dictionaries/titleCaseLocale.ts:55](https://github.com/d3plus/d3plus/blob/main/packages/locales/src/dictionaries/titleCaseLocale.ts#L55)
 
 Per-language rules used by `titleCase`, keyed by two-letter language code plus a `default` fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.
 

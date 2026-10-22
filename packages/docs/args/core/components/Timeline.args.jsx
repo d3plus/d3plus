@@ -311,10 +311,11 @@ export const argTypes = assign(
       control: {
         type: "text",
       },
+      defaultValue: "bottom",
       description: "The orientation of the shape.",
       table: {
         defaultValue: {
-          summary: "undefined",
+          summary: "bottom",
         },
       },
       type: {
