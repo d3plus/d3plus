@@ -1,7 +1,8 @@
 /* global getComputedStyle, MutationObserver, requestAnimationFrame */
 import {it} from "vitest";
+import {commands} from "vitest/browser";
 import assert from "~test/browser/assert.js";
-import {openPage} from "~test/browser/page.js";
+import {loadD3plus, pageErrors, resetPage} from "~test/browser/render.js";
 
 /**
     Candlestick hover in a real browser, on both renderers, with real pointer
@@ -12,7 +13,7 @@ import {openPage} from "~test/browser/page.js";
     its arrow, even while the pointer crosses onto a candle.
 */
 
-/** Draws a Candlestick from `config` in the page; resolves when it renders. */
+/** Draws a Candlestick from `config`; resolves when it renders. */
 const draw = ([config, renderer]) =>
   new Promise(resolve => {
     const rows = [];
@@ -91,50 +92,57 @@ const marks = () => {
     instead.
 */
 async function hover(config, renderer, {target = 6, beside = false, legend = false} = {}) {
-  const {page, errors, close} = await openPage("<div id='viz' style='width:600px;height:400px'></div>");
+  await loadD3plus();
+  resetPage("<div id='viz' style='width:600px;height:400px'></div>");
+  await draw(JSON.parse(JSON.stringify([config, renderer])));
+  const before = marks();
+  const keys = Object.keys(before.marks).filter(k => !k.endsWith("_volume"));
+  const key = keys[target];
+  const m = before.marks[key];
+  // Beside: a third of the way to the next period, still nearest this one.
+  const dx = beside ? (before.marks[keys[target + 1]].x - m.x) / 3 : 0;
+  let arrows = 0, watching = true;
+  const check = () => document.querySelectorAll(".d3plus-tooltip").forEach(tip => {
+    const arrow = tip.querySelector(".d3plus-tooltip-arrow");
+    const style = getComputedStyle(tip);
+    if (arrow && getComputedStyle(arrow).display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0)
+      arrows++;
+  });
+  const frame = () => {
+    if (!watching) return;
+    check();
+    requestAnimationFrame(frame);
+  };
+  frame();
+  const observer = new MutationObserver(check);
+  observer.observe(document.body, {subtree: true, attributes: true, childList: true});
   try {
-    await page.evaluate(draw, [config, renderer]);
-    const before = await page.evaluate(marks);
-    const keys = Object.keys(before.marks).filter(k => !k.endsWith("_volume"));
-    const key = keys[target];
-    const m = before.marks[key];
-    // Beside: a third of the way to the next period, still nearest this one.
-    const dx = beside ? (before.marks[keys[target + 1]].x - m.x) / 3 : 0;
-    await page.evaluate(() => {
-      window.__arrows = 0;
-      const check = () => document.querySelectorAll(".d3plus-tooltip").forEach(tip => {
-        const arrow = tip.querySelector(".d3plus-tooltip-arrow");
-        const style = getComputedStyle(tip);
-        if (arrow && getComputedStyle(arrow).display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0)
-          window.__arrows++;
-      });
-      const frame = () => {
-        check();
-        requestAnimationFrame(frame);
-      };
-      frame();
-      window.__observer = new MutationObserver(check);
-      window.__observer.observe(document.body, {subtree: true, attributes: true, childList: true});
-    });
-    if (legend) await page.mouse.move(before.legend[0].x, before.legend[0].y, {steps: 4});
+    if (legend) await commands.mouseMove(before.legend[0].x, before.legend[0].y, {steps: 4});
     else {
       // Start above the candle, clear of it, then move in steps.
-      await page.mouse.move(m.x + dx, m.top - 30);
-      await page.mouse.move(m.x + dx, beside ? m.top - 20 : m.middle, {steps: 12});
+      await commands.mouseMove(m.x + dx, m.top - 30);
+      await commands.mouseMove(m.x + dx, beside ? m.top - 20 : m.middle, {steps: 12});
     }
-    await page.waitForTimeout(100);
-    const arrows = await page.evaluate(() => {
-      window.__observer.disconnect();
-      return window.__arrows;
-    });
-    const after = await page.evaluate(marks);
-    if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
-    return {before, after, key, arrows};
+    await new Promise(resolve => setTimeout(resolve, 100));
   }
   finally {
-    await close();
+    watching = false;
+    observer.disconnect();
   }
+  const after = marks();
+  const errors = pageErrors();
+  if (errors.length) throw new Error(`page error: ${errors.join("; ")}`);
+  return {before, after, key, arrows};
 }
+
+// The direct hover onto candle 6 is also the arrow check's crossing onto it,
+// so the two tests read one run.
+const runs = new Map();
+const hoverOnce = (config, renderer, {target = 6, beside = false} = {}) => {
+  const key = JSON.stringify([config, renderer, target, beside]);
+  if (!runs.has(key)) runs.set(key, hover(config, renderer, {target, beside}));
+  return runs.get(key);
+};
 
 /** Asserts the hovered candle (and its volume bar) stay bright with an emphasized stroke, and every other period dims. */
 function highlightsOne({before, after, key}, volume) {
@@ -168,13 +176,13 @@ for (const renderer of ["svg", "canvas"]) {
     });
 
     it(`Candlestick ${renderer} — hovering a candle directly highlights it (${name})`, async function () {
-      highlightsOne(await hover(config, renderer), volume);
+      highlightsOne(await hoverOnce(config, renderer), volume);
     });
 
     it(`Candlestick ${renderer} — moving onto a candle never shows the tooltip arrow (${name})`, async function () {
       // Down candles are filled, up candles hollow: cross onto one of each.
       for (const target of [4, 5, 6, 7]) {
-        const {arrows} = await hover(config, renderer, {target});
+        const {arrows} = await hoverOnce(config, renderer, {target});
         assert.strictEqual(arrows, 0, `no arrow over candle ${target} (${arrows} samples showed one)`);
       }
     });

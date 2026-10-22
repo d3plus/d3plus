@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Funnel renders in Chromium on both backends: the emitted scene (necks
@@ -315,11 +316,9 @@ it("Funnel draws small multiples with one funnel per panel and no legend", async
         .facet("channel");
       await new Promise(r => viz.render(r));
       const flat = [];
-      const walk = n => {
+      for (const n of sceneNodes(viz._chartScene)) {
         flat.push(n);
-        (n.children || []).forEach(walk);
-      };
-      viz._chartScene.forEach(walk);
+      }
       return {
         stagePaths: flat.filter(
           n => n.type === "path" && /funnel-Visited$/.test(n.key || ""),
@@ -347,11 +346,9 @@ it("Funnel shares one width scale across panels only when facetConfig asks", asy
       // The width of each panel's first stage, read from its path's x extent.
       const firstWidths = viz => {
         const flat = [];
-        const walk = n => {
+        for (const n of sceneNodes(viz._chartScene)) {
           flat.push(n);
-          (n.children || []).forEach(walk);
-        };
-        viz._chartScene.forEach(walk);
+        }
         return flat
           .filter(n => n.type === "path" && /funnel-Visited$/.test(n.key || ""))
           .map(n => {

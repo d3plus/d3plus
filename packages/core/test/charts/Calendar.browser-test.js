@@ -1,6 +1,8 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {overlaps} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Calendar renders in Chromium on both backends: one cell per day of every
@@ -256,11 +258,9 @@ it("Calendar small multiples share one date range", async function () {
       ]);
     await new Promise(r => viz.render(r));
     const rects = [];
-    const walk = n => {
+    for (const n of sceneNodes(viz._chartScene)) {
       if (n.type === "rect" && /calendar-\d/.test(n.key)) rects.push(n);
-      (n.children || []).forEach(walk);
-    };
-    viz._chartScene.forEach(walk);
+    }
     return {rects: rects.length, data: rects.filter(n => n.datum).map(n => n.datum.repo).sort()};
   });
   assert.strictEqual(out.rects, 2 * (366 + 365), "both panels draw 2024 and 2025");
@@ -420,9 +420,6 @@ const placement = (width, height, config, days = 365) =>
     const bottom = Math.max(...nodes.map(b => b.y + b.height));
     return {placement: viz._insetPlacement, margin: viz._margin, nodes, top, bottom, kinds: new Set(viz._chartScene.map(n => n.type)).size};
   }, [daily, config, days]);
-
-const overlaps = (a, b) =>
-  a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
 
 it("Calendar places its colorScale below or above the calendar when there's room", async function () {
   for (const [config, days, below] of [[{}, 365, true], [{locale: "es-ES"}, 365, true], [{period: "month"}, 181]]) {

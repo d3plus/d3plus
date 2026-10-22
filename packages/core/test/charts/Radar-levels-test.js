@@ -6,8 +6,7 @@ import {
   radarLevels,
   radarRadius,
 } from "../../src/charts/Radar/levels.ts";
-
-const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} ≉ ${b}`);
+import {near} from "~test/helpers.js";
 
 const labelOpts = over => ({
   ticks: [0, 50, 100],
@@ -80,8 +79,8 @@ it("radarLevelLabels sits each label right of the vertical spoke, just inside it
   assert.deepStrictEqual(labels.map(l => l.r), [0, 100, 200]);
   labels.forEach(l => {
     assert.strictEqual(l.anchor, "start", "text grows rightward, away from the spoke");
-    close(l.x - l.width / 2, 3, `${l.value}: left edge 3px right of the spoke`);
-    close(l.y - l.height / 2, -l.r + 2, `${l.value}: top edge 2px inside the ring`);
+    near(l.x - l.width / 2, 3, 1e-9, `${l.value}: left edge 3px right of the spoke`);
+    near(l.y - l.height / 2, -l.r + 2, 1e-9, `${l.value}: top edge 2px inside the ring`);
   });
 });
 
@@ -89,14 +88,14 @@ it("radarLevelLabels offsets to the clockwise side for any levelLabelAngle", () 
   // 90° (3 o'clock): below the spoke, centered, just inside the ring.
   const [, right] = radarLevelLabels(labelOpts({angle: 90, ticks: [0, 50]}));
   assert.strictEqual(right.anchor, "middle");
-  close(right.x + right.width / 2, 100 - 2, "90°: right edge 2px inside the ring");
-  close(right.y - right.height / 2, 3, "90°: top edge 3px below the spoke");
+  near(right.x + right.width / 2, 100 - 2, 1e-9, "90°: right edge 2px inside the ring");
+  near(right.y - right.height / 2, 3, 1e-9, "90°: top edge 3px below the spoke");
 
   // 180° (6 o'clock): left of the spoke, text grows leftward.
   const [down] = radarLevelLabels(labelOpts({angle: 180, ticks: [50]}));
   assert.strictEqual(down.anchor, "end");
-  close(down.x + down.width / 2, -3, "180°: right edge 3px left of the spoke");
-  close(down.y + down.height / 2, 100 - 2, "180°: bottom edge 2px inside the ring");
+  near(down.x + down.width / 2, -3, 1e-9, "180°: right edge 3px left of the spoke");
+  near(down.y + down.height / 2, 100 - 2, 1e-9, "180°: bottom edge 2px inside the ring");
 
   // Any angle: the box clears the spoke line by ≥ 3px on the clockwise side
   // and stays ≥ 2px inside its ring along the label direction.
@@ -143,7 +142,7 @@ it("radarLevelLabels keeps the outermost label inside the outer ring", () => {
   const labels = radarLevelLabels(labelOpts({angle: 90, measure: () => 30}));
   assert.deepStrictEqual(labels.map(l => l.value), [0, 50, 100]);
   const outer = labels[2];
-  close(outer.x + outer.width / 2, 200 - 2, "right edge 2px inside the outer ring");
+  near(outer.x + outer.width / 2, 200 - 2, 1e-9, "right edge 2px inside the outer ring");
 });
 
 it("radarLevelLabels skips ticks outside the domain", () => {

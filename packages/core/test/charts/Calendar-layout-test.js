@@ -22,9 +22,8 @@ import {
   narrowName,
 } from "../../src/charts/Calendar/calendarFormat.ts";
 import {calendarDayKey} from "../../src/charts/Calendar/calendarDates.ts";
+import {near} from "~test/helpers.js";
 
-const close = (a, b, msg, eps = 1e-6) =>
-  assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);
 const day = (y, m, d) => new Date(y, m - 1, d);
 
 const en = calendarTimeLocale("en-US");
@@ -54,11 +53,11 @@ it("Calendar grid: fitCalendar sizes cells to the tighter dimension", () => {
     height: 300,
     columns: 1,
   });
-  close(fit.cell, 960 / 53, "width-bound cell");
+  near(fit.cell, 960 / 53, 1e-6, "width-bound cell");
   assert.deepStrictEqual([fit.columns, fit.rows], [1, 2]);
-  close(fit.width, 1000, "fills the width");
-  close(fit.height, 2 * (15 + 7 * fit.cell) + 11, "stacked blocks plus a gap");
-  close(fit.blockWidth, 40 + 53 * fit.cell, "block width includes its inset");
+  near(fit.width, 1000, 1e-6, "fills the width");
+  near(fit.height, 2 * (15 + 7 * fit.cell) + 11, 1e-6, "stacked blocks plus a gap");
+  near(fit.blockWidth, 40 + 53 * fit.cell, 1e-6, "block width includes its inset");
 });
 
 it("Calendar grid: fitCalendar picks the column count with the largest cells", () => {
@@ -73,7 +72,7 @@ it("Calendar grid: fitCalendar picks the column count with the largest cells", (
     height: 400,
   });
   assert.deepStrictEqual([fit.columns, fit.rows], [3, 2]);
-  close(fit.cell, 27, "the 3×2 grid's cell");
+  near(fit.cell, 27, 1e-6, "the 3×2 grid's cell");
   const forced = fitCalendar({count: 6, gridColumns: 7, gridRows: 6, insetTop: 30, insetLeft: 0, gap: 16, width: 600, height: 400, columns: 9});
   assert.strictEqual(forced.columns, 6, "a fixed column count is capped at the block count");
   const cramped = fitCalendar({count: 1, gridColumns: 53, gridRows: 7, insetTop: 50, insetLeft: 50, gap: 0, width: 20, height: 20});
@@ -189,8 +188,8 @@ it("Calendar layout: stacked years place every day inside the area", () => {
   assert.ok(layout.cells.every(c => c.x >= 0 && c.y >= 0 && c.x + cell <= 900 + 1e-6 && c.y + cell <= 300 + 1e-6));
   const jan1 = layout.cells.find(c => c.key === "2024-01-01");
   const jan7 = layout.cells.find(c => c.key === "2024-01-07");
-  close(jan7.x - jan1.x, cell, "Sunday starts the next column");
-  close(jan1.y - layout.cells[0].y, 0, "first cell is Jan 1");
+  near(jan7.x - jan1.x, cell, 1e-6, "Sunday starts the next column");
+  near(jan1.y - layout.cells[0].y, 0, 1e-6, "first cell is Jan 1");
   const jan1b = layout.cells.find(c => c.key === "2025-01-01");
   assert.ok(jan1b.y > jan1.y + 6 * cell, "the second year sits below the first");
   assert.strictEqual(layout.outlines.length, 24, "a month outline per month");
@@ -234,8 +233,8 @@ it("Calendar layout: vertical years run weeks down and blocks across", () => {
   });
   const cell = layout.fit.cell;
   const at = k => layout.cells.find(c => c.key === k);
-  close(at("2024-01-02").x - at("2024-01-01").x, cell, "weekdays run across");
-  close(at("2024-01-08").y - at("2024-01-01").y, cell, "weeks run down");
+  near(at("2024-01-02").x - at("2024-01-01").x, cell, 1e-6, "weekdays run across");
+  near(at("2024-01-08").y - at("2024-01-01").y, cell, 1e-6, "weeks run down");
   assert.ok(at("2024-01-01").x > at("2023-12-31").x + cell, "years sit side by side");
   assert.strictEqual(layout.fit.columns, 2);
   const weekday = layout.labels.filter(l => l.kind === "weekday" && l.key.startsWith("2024"));
@@ -283,7 +282,7 @@ it("Calendar layout: month blocks form a grid of small calendars", () => {
   assert.strictEqual(blockTitles[0].text, "January 2025");
   const at = k => layout.cells.find(c => c.key === k);
   assert.strictEqual(at("2025-01-01").y, at("2025-01-04").y, "Wednesday–Saturday share the first row");
-  close(at("2025-01-05").y - at("2025-01-01").y, layout.fit.cell, "Sunday starts the next row");
+  near(at("2025-01-05").y - at("2025-01-01").y, layout.fit.cell, 1e-6, "Sunday starts the next row");
   assert.ok(at("2025-02-01").x > at("2025-01-31").x, "February sits beside January");
 
   const narrow = calendarLayout({

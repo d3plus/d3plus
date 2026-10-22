@@ -32,9 +32,14 @@ it("back renders as a button in the shared top-left panel only with drill-down h
         withHistory._history = [{depth: 0}];
         noHistory.render(() =>
           withHistory.render(() => {
+            const btn = document.querySelector("#b .d3plus-top-left-controls-item .back-control");
             resolve({
               noHistoryPanel: document.querySelectorAll("#a .d3plus-top-left-controls-item .back-control").length,
+              noHistoryBack: document.querySelectorAll("#a .back-control").length,
               withHistoryPanel: document.querySelectorAll("#b .d3plus-top-left-controls-item .back-control").length,
+              isButton: btn ? btn.tagName.toLowerCase() === "button" : false,
+              hasIcon: btn ? !!btn.querySelector("svg") : false,
+              withHistoryText: document.querySelector("#b").textContent,
               marginTopEqual: noHistory._margin.top === withHistory._margin.top,
             });
           }),
@@ -43,7 +48,11 @@ it("back renders as a button in the shared top-left panel only with drill-down h
   );
 
   assert.strictEqual(out.noHistoryPanel, 0, "no back button without history");
+  assert.strictEqual(out.noHistoryBack, 0, "no back control anywhere without history");
   assert.strictEqual(out.withHistoryPanel, 1, "back button present with history");
+  assert.ok(out.isButton, "back control is a real <button>, not a scene text node");
+  assert.ok(out.hasIcon, "back arrow SVG icon present");
+  assert.ok(out.withHistoryText.toLowerCase().includes("back"), "back label rendered");
   assert.ok(out.marginTopEqual, "back claims zero margin — history doesn't change margin.top");
 });
 

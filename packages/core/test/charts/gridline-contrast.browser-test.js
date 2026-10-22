@@ -3,6 +3,7 @@ import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Default gridlines sit one faint step off the chart's background on both
@@ -17,12 +18,10 @@ const gridStrokes = (background, extra = "") =>
       viz.render(() => {
         try {
           const strokes = [];
-          const walk = n => {
+          for (const n of sceneNodes(viz.toScene().root)) {
             if (n.type === "line" && /^grid-/.test(n.key) && n.paint && n.paint.stroke !== "transparent")
               strokes.push(n.paint.stroke);
-            (n.children || []).forEach(walk);
-          };
-          walk(viz.toScene().root);
+          }
           resolve(strokes);
         } catch (e) {
           reject(e);

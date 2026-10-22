@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Generic page CSS (`div {padding}`, `button {padding}`) stays off the
@@ -45,11 +46,9 @@ const layout = (css, renderer, config = {}) =>
             };
             const boxes = selector => [...document.querySelectorAll(selector)].map(box);
             let title = null;
-            const walk = n => {
+            for (const n of sceneNodes(viz.toScene().root)) {
               if (n.key === "viz-title" && n.type === "text") title = n;
-              (n.children || []).forEach(walk);
-            };
-            walk(viz.toScene().root);
+            }
             const zoomButton = document.querySelector("#s .zoom-control");
             resolve({
               controlsHeight: window.d3plus.cornerControlsHeight(viz),

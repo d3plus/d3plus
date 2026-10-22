@@ -7,9 +7,7 @@ import {
   densityWidthScale,
   sortByMedian,
 } from "../../src/charts/helpers/densityData.ts";
-
-const close = (actual, expected, tol, msg) =>
-  assert.ok(Math.abs(actual - expected) <= tol, `${msg}: ${actual} vs ${expected}`);
+import {near} from "~test/helpers.js";
 
 it("densityStats: quartiles, extent, mean, and curve", () => {
   const s = densityStats([9, 1, 5, 3, 7], {points: 21});
@@ -49,7 +47,7 @@ it("densityStats: a single value has equal quartiles and one bump", () => {
   assert.strictEqual(s.q1, 4);
   assert.strictEqual(s.median, 4);
   assert.strictEqual(s.q3, 4);
-  close(s.curve[5][0], 4, 1e-9, "bump centered on the value");
+  near(s.curve[5][0], 4, 1e-9, "bump centered on the value");
   assert.ok(s.peak > 0);
 });
 
@@ -101,8 +99,8 @@ it("densityWidthScale: count weights each curve by its observations", () => {
   const all = [summary(0.5, 10), summary(0.25, 40)];
   const scale = densityWidthScale(all, "count");
   // Weighted peaks: 5 and 10; the second fills the width.
-  close(scale(all[1]) * 0.25, 1, 1e-12, "largest weighted peak spans the width");
-  close(scale(all[0]) * 0.5, 0.5, 1e-12, "half the observations, half the width");
+  near(scale(all[1]) * 0.25, 1, 1e-12, "largest weighted peak spans the width");
+  near(scale(all[0]) * 0.5, 0.5, 1e-12, "half the observations, half the width");
 });
 
 it("densityWidthScale: zero peaks scale to 0", () => {

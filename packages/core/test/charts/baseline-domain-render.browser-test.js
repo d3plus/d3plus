@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart} from "~test/browser/helpers.js";
 
 /**
     `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])` on a
@@ -25,59 +25,45 @@ const DATA = {
     the bars' value-axis spans, and the painted scene as geometry only.
 */
 const probe = (src, set = "base") =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          viz.render(() => {
-            const vertical = viz._swarm ? viz._swarm.axis === "y" : viz.schema.discrete !== "y";
-            const axis = vertical ? viz._yAxis : viz._xAxis;
-            const along = vertical ? "y" : "x";
-            const size = vertical ? "height" : "width";
-            const round = v => Math.round(v * 100) / 100;
-            const GEOMETRY = ["type", "x", "y", "x1", "y1", "x2", "y2", "width", "height", "r", "d", "points", "text", "transform", "clip"];
-            const bars = [];
-            const geometry = n => {
-              const out = {};
-              for (const k of GEOMETRY) {
-                if (n[k] === undefined) continue;
-                out[k] = JSON.parse(JSON.stringify(n[k], (_, v) => (typeof v === "number" ? round(v) : v)));
-              }
-              if (n.children) out.children = n.children.map(geometry);
-              return out;
-            };
-            const walk = (n, t0 = 0) => {
-              const t = t0 + ((n.transform && n.transform[along]) || 0);
-              if (n.shapeType === "Bar" && n.type === "rect") bars.push([round(t + n[along]), round(t + n[along] + n[size])]);
-              (n.children || []).forEach(c => walk(c, t));
-            };
-            const scene = viz._sceneRenderer._scene.root.children;
-            scene.forEach(n => walk(n));
-            const domain = axis._d3Scale.domain().map(Number);
-            const zero = axis._getPosition(0);
-            resolve({
-              domain: [Math.min(...domain), Math.max(...domain)],
-              brk: axis._baselineBreak ? axis._baselineBreak.value : null,
-              ticks: (axis._availableTicks || []).map(Number),
-              zero: Number.isFinite(zero) ? round(zero) : null,
-              // The pixel length of a bar from 0 to the smallest value, 990.
-              span990: Number.isFinite(zero) ? round(Math.abs(zero - axis._getPosition(990))) : null,
-              span980: Number.isFinite(zero) ? round(Math.abs(zero - axis._getPosition(980))) : null,
-              bars,
-              panels: (viz._facetPanels || []).map(p => p.state._plotAxisDomains[vertical ? "y" : "x"].map(Number)),
-              scene: scene.map(geometry),
-            });
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, DATA[set]],
-  );
+  probeChart(src, viz => {
+    const vertical = viz._swarm ? viz._swarm.axis === "y" : viz.schema.discrete !== "y";
+    const axis = vertical ? viz._yAxis : viz._xAxis;
+    const along = vertical ? "y" : "x";
+    const size = vertical ? "height" : "width";
+    const round = v => Math.round(v * 100) / 100;
+    const GEOMETRY = ["type", "x", "y", "x1", "y1", "x2", "y2", "width", "height", "r", "d", "points", "text", "transform", "clip"];
+    const bars = [];
+    const geometry = n => {
+      const out = {};
+      for (const k of GEOMETRY) {
+        if (n[k] === undefined) continue;
+        out[k] = JSON.parse(JSON.stringify(n[k], (_, v) => (typeof v === "number" ? round(v) : v)));
+      }
+      if (n.children) out.children = n.children.map(geometry);
+      return out;
+    };
+    const walk = (n, t0 = 0) => {
+      const t = t0 + ((n.transform && n.transform[along]) || 0);
+      if (n.shapeType === "Bar" && n.type === "rect") bars.push([round(t + n[along]), round(t + n[along] + n[size])]);
+      (n.children || []).forEach(c => walk(c, t));
+    };
+    const scene = viz._sceneRenderer._scene.root.children;
+    scene.forEach(n => walk(n));
+    const domain = axis._d3Scale.domain().map(Number);
+    const zero = axis._getPosition(0);
+    return {
+      domain: [Math.min(...domain), Math.max(...domain)],
+      brk: axis._baselineBreak ? axis._baselineBreak.value : null,
+      ticks: (axis._availableTicks || []).map(Number),
+      zero: Number.isFinite(zero) ? round(zero) : null,
+      // The pixel length of a bar from 0 to the smallest value, 990.
+      span990: Number.isFinite(zero) ? round(Math.abs(zero - axis._getPosition(990))) : null,
+      span980: Number.isFinite(zero) ? round(Math.abs(zero - axis._getPosition(980))) : null,
+      bars,
+      panels: (viz._facetPanels || []).map(p => p.state._plotAxisDomains[vertical ? "y" : "x"].map(Number)),
+      scene: scene.map(geometry),
+    };
+  }, {data: DATA[set]});
 
 const chart = (name, extra = "") =>
   `(lib, data) => new lib.${name}().data(data).groupBy("g").x("x").y("v").legend(false)${extra}`;

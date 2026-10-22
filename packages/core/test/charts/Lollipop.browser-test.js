@@ -2,6 +2,8 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {near} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Lollipop in a real browser: each row draws a stem from the baseline to a
@@ -71,8 +73,6 @@ const draw = ([config, rows]) =>
 const run = (config, rows = sales) =>
   render("<div id='viz' style='width:500px;height:400px'></div>", draw, [config, rows]);
 
-const near = (a, b, msg, tol = 0.51) => assert.ok(Math.abs(a - b) < tol, `${msg}: ${a} vs ${b}`);
-
 it("Lollipop — a stem from the baseline to a head at each value, no bars", async function () {
   const rows = [
     {id: "a", v: 10},
@@ -90,16 +90,16 @@ it("Lollipop — a stem from the baseline to a head at each value, no bars", asy
     assert.strictEqual(stem.row, h.row, "the stem shares its head's row");
     assert.strictEqual(stem.shapeType, "Circle", "and its shape type");
     assert.strictEqual(stem.stroke, h.fill, "and its color");
-    near(stem.to[0], h.x, "stem ends under the head (x)");
-    near(stem.to[1], h.y, "stem ends at the head (y)");
-    near(stem.from[0], h.x, "stems are vertical");
-    near(stem.from[1], r.zero, "stems start at the baseline");
+    near(stem.to[0], h.x, 0.51, "stem ends under the head (x)");
+    near(stem.to[1], h.y, 0.51, "stem ends at the head (y)");
+    near(stem.from[0], h.x, 0.51, "stems are vertical");
+    near(stem.from[1], r.zero, 0.51, "stems start at the baseline");
     assert.strictEqual(h.r, 5, "heads default to sizeMin");
   });
   rows.forEach((d, i) => {
     const head = r.heads.find(h => h.row.id === d.id);
-    near(head.y, r.px[i].value, `${d.id} head sits at its value`);
-    near(head.x, r.px[i].category, `${d.id} head sits on its category`);
+    near(head.y, r.px[i].value, 0.51, `${d.id} head sits at its value`);
+    near(head.x, r.px[i].category, 0.51, `${d.id} head sits on its category`);
   });
   assert.deepStrictEqual(r.legend, [], "no legend when entries repeat the category axis");
   assert.ok(r.domain[0] > 25, "the value axis makes room for the top head");
@@ -112,12 +112,12 @@ it("Lollipop — series sharing a category dodge like grouped bars", async funct
   assert.ok(q1[0].x < q1[1].x, "the first series sits left of the second");
   const center = (q1[0].x + q1[1].x) / 2;
   const band = r.px[0].category;
-  near(center, band, "the pair centers on its category");
+  near(center, band, 0.51, "the pair centers on its category");
   assert.deepStrictEqual(r.legend, ["circle", "circle"], "a legend of dots, one per series");
   const negative = at("2025", "Q2");
   assert.ok(negative.y > r.zero, "a negative value hangs below the baseline");
   const stem = r.stems.find(s => s.row === negative.row);
-  near(stem.from[1], r.zero, "its stem still starts at the baseline");
+  near(stem.from[1], r.zero, 0.51, "its stem still starts at the baseline");
 });
 
 it("Lollipop — horizontal stems with discrete: \"y\"", async function () {
@@ -127,12 +127,12 @@ it("Lollipop — horizontal stems with discrete: \"y\"", async function () {
   ];
   const r = await run({groupBy: "id", discrete: "y", x: "x", y: "y"}, rows);
   r.stems.forEach(s => {
-    near(s.from[1], s.to[1], "stems are horizontal");
-    near(s.from[0], r.zero, "from the baseline");
+    near(s.from[1], s.to[1], 0.51, "stems are horizontal");
+    near(s.from[0], r.zero, 0.51, "from the baseline");
   });
   const b = r.heads.find(h => h.row.id === "b");
-  near(b.x, r.px[1].value, "the head sits at its value");
-  near(b.y, r.px[1].category, "centered on its category");
+  near(b.x, r.px[1].value, 0.51, "the head sits at its value");
+  near(b.y, r.px[1].category, 0.51, "centered on its category");
 });
 
 it("Lollipop — a broken value axis starts the stems at the break", async function () {
@@ -246,11 +246,9 @@ const hover = ([renderer]) =>
         const tip = document.querySelector(".d3plus-tooltip");
         const swatch = tip && tip.querySelector(".d3plus-tooltip-title .d3plus-tooltip-swatch");
         const opacity = {};
-        const walk = n => {
+        for (const n of sceneNodes(viz._paintedScene.root)) {
           if (n.key !== undefined) opacity[n.key] = n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1;
-          (n.children || []).forEach(walk);
-        };
-        walk(viz._paintedScene.root);
+        }
         host.dispatchEvent(new MouseEvent("click", at));
         resolve({
           title: tip ? tip.querySelector(".d3plus-tooltip-title").textContent : null,

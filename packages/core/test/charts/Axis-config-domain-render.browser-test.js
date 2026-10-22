@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart} from "~test/browser/helpers.js";
 
 /**
     A full (two-sided) `domain` in a Plot's axis config is drawn exactly as
@@ -23,38 +23,20 @@ const DATA = {
 
 /** Renders `src` (a `lib => viz` builder) over `DATA[set]` and reports its axes' domains and break. */
 const probe = (src, set = "base") =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          viz.render(() => {
-            try {
-              const read = axis => {
-                const d = axis._d3Scale.domain().map(Number);
-                return [Math.min(...d), Math.max(...d)];
-              };
-              const year = d => new Date(d).getFullYear();
-              resolve({
-                x: viz._xAxis._d3Scale.domain().length === 2 ? read(viz._xAxis) : null,
-                y: viz._yAxis._d3Scale.domain().length === 2 ? read(viz._yAxis) : null,
-                y2: viz._y2Axis?._d3Scale?.domain().length === 2 ? read(viz._y2Axis) : null,
-                xYears: viz._xAxis.schema.scale === "time" ? viz._xAxis._d3Scale.domain().map(year) : null,
-                brk: (viz.schema.discrete === "y" ? viz._xAxis : viz._yAxis)._baselineBreak?.value ?? null,
-              });
-            } catch (e) {
-              reject(e);
-            }
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, DATA[set]],
-  );
+  probeChart(src, viz => {
+    const read = axis => {
+      const d = axis._d3Scale.domain().map(Number);
+      return [Math.min(...d), Math.max(...d)];
+    };
+    const year = d => new Date(d).getFullYear();
+    return {
+      x: viz._xAxis._d3Scale.domain().length === 2 ? read(viz._xAxis) : null,
+      y: viz._yAxis._d3Scale.domain().length === 2 ? read(viz._yAxis) : null,
+      y2: viz._y2Axis?._d3Scale?.domain().length === 2 ? read(viz._y2Axis) : null,
+      xYears: viz._xAxis.schema.scale === "time" ? viz._xAxis._d3Scale.domain().map(year) : null,
+      brk: (viz.schema.discrete === "y" ? viz._xAxis : viz._yAxis)._baselineBreak?.value ?? null,
+    };
+  }, {data: DATA[set]});
 
 const chart = (name, extra = "") =>
   `(lib, data) => new lib.${name}().data(data).groupBy("g").x("x").y("v").legend(false)${extra}`;

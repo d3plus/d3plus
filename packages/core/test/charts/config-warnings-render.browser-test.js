@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {captureWarnings} from "~test/helpers.js";
 
 /**
     Rendering and hovering every chart type with ordinary configs must not log
@@ -193,10 +194,7 @@ const charts = [
     plot's hover surface), and returns every warning logged along the way.
 */
 const renderAndHover = async ({charts, renderer}) => {
-  const warnings = [];
-  const warn = console.warn;
-  console.warn = msg => warnings.push(String(msg));
-  try {
+  const warnings = await captureWarnings(async () => {
     for (const [name, config, opts = {}] of charts) {
       const el = document.createElement("div");
       el.style.cssText = `width:500px;height:400px;${opts.style ?? ""}`;
@@ -222,11 +220,8 @@ const renderAndHover = async ({charts, renderer}) => {
         }
       el.remove();
     }
-  }
-  finally {
-    console.warn = warn;
-  }
-  return warnings;
+  });
+  return warnings.map(String);
 };
 
 for (const renderer of ["svg", "canvas"]) {
@@ -241,11 +236,8 @@ for (const renderer of ["svg", "canvas"]) {
     and through the Back control — and returns every warning logged.
 */
 const zoomAndBack = async ({config, renderer}) => {
-  const warnings = [];
-  const warn = console.warn;
-  console.warn = msg => warnings.push(String(msg));
   const wait = ms => new Promise(r => setTimeout(r, ms));
-  try {
+  const warnings = await captureWarnings(async () => {
     const el = document.createElement("div");
     el.style.cssText = "width:500px;height:400px";
     document.body.appendChild(el);
@@ -265,11 +257,8 @@ const zoomAndBack = async ({config, renderer}) => {
     el.querySelector(".back-control").click();
     await wait(100);
     el.remove();
-  }
-  finally {
-    console.warn = warn;
-  }
-  return warnings;
+  });
+  return warnings.map(String);
 };
 
 for (const renderer of ["svg", "canvas"]) {

@@ -9,50 +9,45 @@ import {
   polarStack,
 } from "../../src/charts/polar/geometry.ts";
 import {polarSlotArc} from "../../src/charts/polar/wedgeLayout.ts";
+import {near} from "~test/helpers.js";
 
 const TAU = Math.PI * 2;
-const close = (a, b, msg) =>
-  assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 
 it("polar geometry: polarRadius: sqrt spaces values by area", () => {
   const r = v => polarRadius(v, [0, 100], 0, 200);
-  close(r(0), 0, "domain min at the center");
-  close(r(100), 200, "domain max at the outer radius");
-  close(r(25), 100, "a quarter of the value is half the radius");
+  near(r(0), 0, 1e-9, "domain min at the center");
+  near(r(100), 200, 1e-9, "domain max at the outer radius");
+  near(r(25), 100, 1e-9, "a quarter of the value is half the radius");
   // Area of the disc up to each value is proportional to the value.
-  close(r(50) ** 2 / r(100) ** 2, 0.5, "half the value, half the area");
+  near(r(50) ** 2 / r(100) ** 2, 0.5, 1e-9, "half the value, half the area");
 });
 
 it("polar geometry: polarRadius: sqrt with an inner radius keeps ring area proportional", () => {
   const r = v => polarRadius(v, [0, 100], 50, 150);
-  close(r(0), 50, "domain min at the inner radius");
-  close(r(100), 150, "domain max at the outer radius");
+  near(r(0), 50, 1e-9, "domain min at the inner radius");
+  near(r(100), 150, 1e-9, "domain max at the outer radius");
   const ring = v => r(v) ** 2 - 50 ** 2;
-  close(ring(40) / ring(100), 0.4, "ring area share");
+  near(ring(40) / ring(100), 0.4, 1e-9, "ring area share");
 });
 
 it("polar geometry: polarRadius: linear spaces values evenly and clamps", () => {
   const r = v => polarRadius(v, [0, 100], 20, 120, "linear");
-  close(r(50), 70, "midpoint");
-  close(r(-10), 20, "below the domain clamps to the inner radius");
-  close(r(500), 120, "above the domain clamps to the outer radius");
-  close(r(NaN), 20, "non-finite maps to the inner radius");
-  close(
-    polarRadius(5, [5, 5], 10, 90, "linear"),
-    10,
-    "an empty domain maps to the inner radius",
-  );
+  near(r(50), 70, 1e-9, "midpoint");
+  near(r(-10), 20, 1e-9, "below the domain clamps to the inner radius");
+  near(r(500), 120, 1e-9, "above the domain clamps to the outer radius");
+  near(r(NaN), 20, 1e-9, "non-finite maps to the inner radius");
+  near(polarRadius(5, [5, 5], 10, 90, "linear"), 10, 1e-9, "an empty domain maps to the inner radius");
 });
 
 it("polar geometry: polarSlots: splits the sweep into equal slots", () => {
   const slots = polarSlots(4);
   assert.strictEqual(slots.length, 4);
-  close(slots[0].startAngle, 0, "first start");
-  close(slots[0].angle, TAU / 8, "first center");
-  close(slots[3].endAngle, TAU, "last end");
+  near(slots[0].startAngle, 0, 1e-9, "first start");
+  near(slots[0].angle, TAU / 8, 1e-9, "first center");
+  near(slots[3].endAngle, TAU, 1e-9, "last end");
   const offset = polarSlots(2, Math.PI / 2, Math.PI);
-  close(offset[0].startAngle, Math.PI / 2, "custom start");
-  close(offset[1].endAngle, Math.PI * 1.5, "custom sweep");
+  near(offset[0].startAngle, Math.PI / 2, 1e-9, "custom start");
+  near(offset[1].endAngle, Math.PI * 1.5, 1e-9, "custom sweep");
   assert.deepStrictEqual(polarSlots(0), [], "no slots");
 });
 
@@ -74,10 +69,10 @@ it("polar geometry: polarStack: stacks within each slot in order", () => {
 });
 
 it("polar geometry: polarPadAngle: padAngle wins, else padPixel at the radius", () => {
-  close(polarPadAngle(0.1, 5, 100), 0.1, "explicit angle");
-  close(polarPadAngle(0, 5, 100), 0.05, "pixels at the radius");
-  close(polarPadAngle(0, 5, 0), 0, "no radius");
-  close(polarPadAngle(0, 0, 100), 0, "no padding");
+  near(polarPadAngle(0.1, 5, 100), 0.1, 1e-9, "explicit angle");
+  near(polarPadAngle(0, 5, 100), 0.05, 1e-9, "pixels at the radius");
+  near(polarPadAngle(0, 5, 0), 0, 1e-9, "no radius");
+  near(polarPadAngle(0, 0, 100), 0, 1e-9, "no padding");
 });
 
 it("polar geometry: polarLevels: nice domain and ticks from the data", () => {
@@ -128,26 +123,22 @@ it("polar geometry: polarSlotArc: insets the slot and pads by pixels at the sect
     padAngle: 0,
     padPixel: 5,
   });
-  close(arc.startAngle, 0.1, "start inset");
-  close(arc.endAngle, 0.9, "end inset");
+  near(arc.startAngle, 0.1, 1e-9, "start inset");
+  near(arc.endAngle, 0.9, 1e-9, "end inset");
   assert.strictEqual(arc.innerRadius, 30);
   assert.strictEqual(arc.outerRadius, 40);
-  close(arc.padAngle, 5 / 50, "padPixel at hypot(30, 40)");
+  near(arc.padAngle, 5 / 50, 1e-9, "padPixel at hypot(30, 40)");
   const full = polarSlotArc(slot, 0, 10, {
     inset: 0,
     padAngle: 0.02,
     padPixel: 0,
   });
-  close(full.startAngle, 0, "no inset");
-  close(full.padAngle, 0.02, "explicit pad angle");
+  near(full.startAngle, 0, 1e-9, "no inset");
+  near(full.padAngle, 0.02, 1e-9, "explicit pad angle");
   const capped = polarSlotArc(slot, 0, 10, {
     inset: 2,
     padAngle: 0,
     padPixel: 0,
   });
-  close(
-    capped.endAngle - capped.startAngle,
-    0.05,
-    "the inset never swallows the slot",
-  );
+  near(capped.endAngle - capped.startAngle, 0.05, 1e-9, "the inset never swallows the slot");
 });

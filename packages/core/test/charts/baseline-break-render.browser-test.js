@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart, sceneNodes} from "~test/browser/helpers.js";
 
 /**
     A BarChart whose value domain stops short of zero (#645) keeps 0 as the
@@ -17,63 +17,47 @@ const data = [
 
 /** Renders `src` (a `lib => viz` builder) and reports the value axis + bars. */
 const probe = (src, opts = {}) =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data, opts]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          viz.render(() => {
-            const vertical = viz.schema.discrete !== "y";
-            const axis = vertical ? viz._yAxis : viz._xAxis;
-            const along = vertical ? "y" : "x";
-            const size = vertical ? "height" : "width";
-            const bars = [];
-            const walk = n => {
-              if (n.shapeType === "Bar" && n.type === "rect") {
-                const t = n.transform || {x: 0, y: 0};
-                bars.push([t[along] + n[along], t[along] + n[along] + n[size]]);
-              }
-              (n.children || []).forEach(walk);
-            };
-            viz._chartScene.forEach(walk);
-            const scene = axis.toScene().children;
-            // Break-mark cross-axis coordinates, against the axis line.
-            const marks = scene
-              .filter(n => String(n.key).startsWith("baseline-break"))
-              .map(n => n.points.map(p => p[vertical ? 0 : 1]));
-            const barLine = scene.find(n => n.key === "bar");
-            const axisLine = barLine ? barLine.points[0][vertical ? 0 : 1] : undefined;
-            const grid = scene
-              .filter(n => typeof n.key === "string" && n.key.startsWith("grid-"))
-              .map(n => n.points[0][vertical ? 1 : 0]);
-            if (opts.zoom) viz._zoomRescale({k: 1, x: 0, y: 0});
-            resolve({
-              brk: axis._baselineBreak,
-              vertical,
-              range: axis._getRange(),
-              domain: axis._d3Scale.domain(),
-              ticks: axis._visibleTicks.map(Number),
-              zero: axis._getPosition(0),
-              lines: scene.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
-              grid,
-              marks,
-              axisLine,
-              bars,
-              canvas: !!document.querySelector("#viz canvas.d3plus-render-canvas"),
-              zoomed: opts.zoom
-                ? {brk: axis._baselineBreak, domain: axis._d3Scale.domain(), zero: axis._getPosition(0)}
-                : undefined,
-            });
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, data, opts],
-  );
+  probeChart(src, viz => {
+    const vertical = viz.schema.discrete !== "y";
+    const axis = vertical ? viz._yAxis : viz._xAxis;
+    const along = vertical ? "y" : "x";
+    const size = vertical ? "height" : "width";
+    const bars = [];
+    for (const n of sceneNodes(viz._chartScene)) {
+      if (n.shapeType === "Bar" && n.type === "rect") {
+        const t = n.transform || {x: 0, y: 0};
+        bars.push([t[along] + n[along], t[along] + n[along] + n[size]]);
+      }
+    }
+    const scene = axis.toScene().children;
+    // Break-mark cross-axis coordinates, against the axis line.
+    const marks = scene
+      .filter(n => String(n.key).startsWith("baseline-break"))
+      .map(n => n.points.map(p => p[vertical ? 0 : 1]));
+    const barLine = scene.find(n => n.key === "bar");
+    const axisLine = barLine ? barLine.points[0][vertical ? 0 : 1] : undefined;
+    const grid = scene
+      .filter(n => typeof n.key === "string" && n.key.startsWith("grid-"))
+      .map(n => n.points[0][vertical ? 1 : 0]);
+    if (opts.zoom) viz._zoomRescale({k: 1, x: 0, y: 0});
+    return {
+      brk: axis._baselineBreak,
+      vertical,
+      range: axis._getRange(),
+      domain: axis._d3Scale.domain(),
+      ticks: axis._visibleTicks.map(Number),
+      zero: axis._getPosition(0),
+      lines: scene.filter(n => n.type === "line" && !String(n.key).startsWith("grid")).map(n => n.key),
+      grid,
+      marks,
+      axisLine,
+      bars,
+      canvas: !!document.querySelector("#viz canvas.d3plus-render-canvas"),
+      zoomed: opts.zoom
+        ? {brk: axis._baselineBreak, domain: axis._d3Scale.domain(), zero: axis._getPosition(0)}
+        : undefined,
+    };
+  }, {data});
 
 const lo = r => Math.min(...r);
 const hi = r => Math.max(...r);

@@ -3,6 +3,8 @@ import assert from "~test/browser/assert.js";
 
 import {legendLabelsWhole} from "../../src/charts/features/featuresLegend.ts";
 import {render} from "~test/browser/render.js";
+import {overlaps} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     A top legend beside the corner control panels (zoom on the right, table
@@ -47,11 +49,9 @@ const legendLayout = (width, renderer, {labels = regions, css = ""} = {}) =>
         viz.render(() => {
           try {
             let group = null;
-            const walk = n => {
+            for (const n of sceneNodes(viz.toScene().root)) {
               if (/^Legend-/.test(n.key || "") && n.type === "group") group = n;
-              (n.children || []).forEach(walk);
-            };
-            walk(viz.toScene().root);
+            }
             const surfaces = [...document.querySelectorAll("#s svg, #s canvas")]
               .map(e => e.getBoundingClientRect())
               .sort((a, b) => b.width * b.height - a.width * a.height);
@@ -81,8 +81,6 @@ const legendLayout = (width, renderer, {labels = regions, css = ""} = {}) =>
       }),
     {labels, renderer},
   );
-
-const overlaps = (a, b) => !(a.left >= b.right || a.right <= b.left || a.top >= b.bottom || a.bottom <= b.top);
 
 /** Asserts every entry keeps its whole label and the legend clears every corner control. */
 function assertClear(out, label, entries = regions.length) {

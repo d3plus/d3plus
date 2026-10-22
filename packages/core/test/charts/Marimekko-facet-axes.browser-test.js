@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {near} from "~test/helpers.js";
 
 /**
     Marimekko small multiples share one value axis: only the grid's left
@@ -72,8 +73,6 @@ const draw = ([config, rows]) =>
     });
   });
 
-const near = (a, b, tolerance, message) =>
-  assert.ok(Math.abs(a - b) <= tolerance, `${message} (${a} vs ${b})`);
 const width = p => p.right - p.left;
 
 for (const facetConfig of [{}, {scales: "independent"}]) {

@@ -9,7 +9,7 @@ useJsdom({augment: false});
 // Picking coverage that the jsdom canvas shim supports faithfully: rect,
 // circle, line and image hit-testing are pure geometry (no Path2D), and the
 // pick index is built in z-order. (Path/area picking relies on the browser's
-// real isPointInPath and is exercised in core's Playwright render-parity suite.)
+// real isPointInPath and is exercised in core's canvas-render browser test.)
 
 function scene(children) {
   return {width: 200, height: 120, root: {type: "group", key: "root", children}};

@@ -1,6 +1,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     ParallelCoordinates renders in Chromium on both backends: one line (plus
@@ -157,11 +158,9 @@ it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered li
     async data => {
       const linesOf = root => {
         const found = [];
-        const walk = n => {
+        for (const n of sceneNodes(root)) {
           if (typeof n.key === "string" && n.key.includes("pc-line-") && !n.key.endsWith("::hit")) found.push(n);
-          (n.children || []).forEach(walk);
-        };
-        walk(root);
+        }
         return found;
       };
       const viz = new window.d3plus.ParallelCoordinates()

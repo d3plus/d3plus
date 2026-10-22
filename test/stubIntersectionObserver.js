@@ -1,6 +1,6 @@
 // Shared IntersectionObserver stub. The visibility module keeps one observer
 // per scroll root for the whole process, so every test file must use this same
-// class for `instances[0]` to be that observer.
+// class for `instances[0]` to be the viewport's observer.
 export class StubIO {
   static instances = [];
   constructor(cb, opts) {
@@ -33,4 +33,5 @@ export function withIO(fn) {
   };
 }
 
-export const shared = () => StubIO.instances[0];
+// The observer created most recently, for a scroll root a test has to itself.
+export const latest = () => StubIO.instances.at(-1);

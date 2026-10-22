@@ -90,3 +90,55 @@ it("Canvas backend routes a click on a shape to the chart's on('click') handler"
     `the datum carries the source x (got ${JSON.stringify(fp.clicked.x)})`,
   );
 });
+
+it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click", async () => {
+  const res = await render('<div id="B"></div>', async () => {
+    const target = document.getElementById("B");
+    const fired = [];
+    const viz = new window.d3plus.BarChart()
+      .data([
+        {id: "Alpha", x: "Alpha", y: 10},
+        {id: "Beta", x: "Beta", y: 25},
+        {id: "Gamma", x: "Gamma", y: 15},
+        {id: "Delta", x: "Delta", y: 30},
+      ])
+      .groupBy("id")
+      .x("x").y("y")
+      .width(400).height(300)
+      .duration(0)
+      .on("click", () => fired.push("global"))
+      .on("click.shape", () => fired.push("shape"))
+      .on("click.Bar", () => fired.push("Bar"))
+      .on("click.Circle", () => fired.push("Circle"));
+
+    await new Promise(resolve => viz.select(target).renderer("canvas").render(resolve));
+    const renderer = viz._sceneRenderer;
+    const canvas = target.querySelector("canvas.d3plus-render-canvas");
+    const rect = canvas.getBoundingClientRect();
+
+    // Scan a grid for a point that hit-tests to a Bar leaf, then fire a click
+    // there: the CanvasRenderer's listener picks and the Viz bridge routes it
+    // to viz.schema.on.
+    let hit = null;
+    for (let py = 290; py >= 10 && !hit; py -= 5) {
+      for (let px = 10; px <= 390 && !hit; px += 5) {
+        const p = renderer.pick([px, py]);
+        if (p && p.node && p.node.shapeType === "Bar") hit = [px, py];
+      }
+    }
+    if (hit) {
+      canvas.dispatchEvent(new window.MouseEvent("click", {
+        bubbles: true,
+        clientX: rect.left + hit[0],
+        clientY: rect.top + hit[1],
+      }));
+    }
+    return {hit, fired};
+  });
+
+  assert.ok(res.hit, "found a pickable Bar on the canvas");
+  assert.ok(res.fired.includes("Bar"), "shape-class handler click.Bar fired on canvas");
+  assert.ok(res.fired.includes("shape"), "click.shape fired on canvas");
+  assert.ok(res.fired.includes("global"), "global click fired on canvas");
+  assert.ok(!res.fired.includes("Circle"), "click.Circle did NOT fire for a Bar");
+});

@@ -8,10 +8,9 @@ import {
   sunburstRadii,
   tangentialRotation,
 } from "../../src/charts/Sunburst/geometry.ts";
+import {near} from "~test/helpers.js";
 
 const TAU = Math.PI * 2;
-const close = (a, b, msg) =>
-  assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 
 it("Sunburst geometry: sunburstRadii: gives the center slot and every ring the same thickness by default", () => {
   const radii = sunburstRadii(300, 2);
@@ -25,8 +24,8 @@ it("Sunburst geometry: sunburstRadii: gives the center slot and every ring the s
 it('Sunburst geometry: sunburstRadii: gives every slot the same area in "area" mode', () => {
   const radii = sunburstRadii(300, 3, "area");
   const areas = radii.map(([r0, r1]) => r1 * r1 - r0 * r0);
-  areas.forEach(a => close(a, areas[0], "equal ring area"));
-  close(radii[3][1], 300, "outermost edge");
+  areas.forEach(a => near(a, areas[0], 1e-9, "equal ring area"));
+  near(radii[3][1], 300, 1e-9, "outermost edge");
 });
 
 it("Sunburst geometry: sunburstRadii: honors an explicit center radius in both modes", () => {
@@ -37,7 +36,7 @@ it("Sunburst geometry: sunburstRadii: honors an explicit center radius in both m
   ]);
   const area = sunburstRadii(200, 2, "area", 0);
   assert.deepStrictEqual(area[0], [0, 0]);
-  close(area[1][1] ** 2, 200 ** 2 / 2, "half the disc area");
+  near(area[1][1] ** 2, 200 ** 2 / 2, 1e-9, "half the disc area");
 });
 
 it("Sunburst geometry: sunburstRadii: clamps the center radius and handles no rings", () => {
@@ -55,7 +54,7 @@ it("Sunburst geometry: sunburstRadii: clamps the center radius and handles no ri
 
 it("Sunburst geometry: sunburstPadAngle: converts a pixel gap through d3's default pad radius", () => {
   const arc = {innerRadius: 30, outerRadius: 40};
-  close(sunburstPadAngle(arc, 0, 2) * 50, 2, "linear gap");
+  near(sunburstPadAngle(arc, 0, 2) * 50, 2, 1e-9, "linear gap");
 });
 
 it("Sunburst geometry: sunburstPadAngle: prefers an explicit pad angle and defaults to none", () => {
@@ -148,8 +147,8 @@ it("Sunburst geometry: sunburstCollapse: maps an angle inside the focus proporti
     focus,
     radii,
   );
-  close(mid.startAngle, TAU / 4, "quarter");
-  close(mid.endAngle, TAU / 2, "half");
+  near(mid.startAngle, TAU / 4, 1e-9, "quarter");
+  near(mid.endAngle, TAU / 2, 1e-9, "half");
 });
 
 it("Sunburst geometry: degrees normalizes radians into [0, 360)", () => {

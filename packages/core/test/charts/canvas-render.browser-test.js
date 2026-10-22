@@ -1,4 +1,5 @@
 import {it} from "vitest";
+import {CanvasRenderer} from "@d3plus/render";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
 
@@ -87,4 +88,25 @@ it("Canvas backend paints a non-blank, multi-color chart into the user's contain
     fp.distinctColors >= 3,
     `the canvas carries multi-color chart paint (got ${fp.distinctColors} distinct colors)`,
   );
+});
+
+it("CanvasRenderer picks a Path2D path", async () => {
+  const res = await render('<div id="B"></div>', () => {
+    const r = new CanvasRenderer();
+    r.mount({container: document.getElementById("B"), width: 100, height: 100, pixelRatio: 1});
+    r.drawScene({
+      width: 100,
+      height: 100,
+      root: {
+        type: "group",
+        key: "root",
+        children: [{type: "path", key: "p", d: "M10,10 L90,10 L90,90 L10,90 Z", paint: {fill: "#09c"}}],
+      },
+    });
+    const inside = r.pick([50, 50]);
+    const outside = r.pick([5, 5]);
+    return {inside: inside && inside.node.key, outside};
+  });
+  assert.strictEqual(res.inside, "p", "point inside the square path hits (Path2D isPointInPath)");
+  assert.strictEqual(res.outside, null, "point outside the path misses");
 });

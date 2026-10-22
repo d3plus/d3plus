@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart, sceneNodes} from "~test/browser/helpers.js";
 
 /**
     AreaPlot, StackedArea, and Histogram keep a user value-domain minimum the
@@ -16,46 +16,30 @@ const VALUES = [5, 12, 18, 21, 22, 25, 29, 31, 35, 40].map(v => ({v}));
 
 /** Renders `src` (a `lib => viz` builder) and reports the value axis and the area/bar spans along it. */
 const probe = (src, data = DATA) =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          viz.render(() => {
-            const vertical = viz.schema.discrete !== "y";
-            const axis = vertical ? viz._yAxis : viz._xAxis;
-            const along = vertical ? "y" : "x";
-            const size = vertical ? "height" : "width";
-            const spans = [];
-            const walk = n => {
-              const t = n.transform || {x: 0, y: 0};
-              if (n.shapeType === "Area" && n.type === "path") {
-                const numbers = (String(n.d).match(/-?\d+(\.\d+)?(e-?\d+)?/g) || []).map(Number);
-                const values = numbers.filter((_, i) => i % 2 === (vertical ? 1 : 0)).map(v => v + t[along]);
-                spans.push([Math.min(...values), Math.max(...values)]);
-              }
-              if (n.shapeType === "Bar" && n.type === "rect")
-                spans.push([t[along] + n[along], t[along] + n[along] + n[size]]);
-              (n.children || []).forEach(walk);
-            };
-            viz._chartScene.forEach(walk);
-            const domain = axis._d3Scale.domain().map(Number);
-            resolve({
-              domain: [Math.min(...domain), Math.max(...domain)],
-              brk: axis._baselineBreak ? {value: axis._baselineBreak.value, position: axis._baselineBreak.position} : null,
-              range: axis._getRange().map(Number),
-              spans,
-            });
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, data],
-  );
+  probeChart(src, viz => {
+    const vertical = viz.schema.discrete !== "y";
+    const axis = vertical ? viz._yAxis : viz._xAxis;
+    const along = vertical ? "y" : "x";
+    const size = vertical ? "height" : "width";
+    const spans = [];
+    for (const n of sceneNodes(viz._chartScene)) {
+      const t = n.transform || {x: 0, y: 0};
+      if (n.shapeType === "Area" && n.type === "path") {
+        const numbers = (String(n.d).match(/-?\d+(\.\d+)?(e-?\d+)?/g) || []).map(Number);
+        const values = numbers.filter((_, i) => i % 2 === (vertical ? 1 : 0)).map(v => v + t[along]);
+        spans.push([Math.min(...values), Math.max(...values)]);
+      }
+      if (n.shapeType === "Bar" && n.type === "rect")
+        spans.push([t[along] + n[along], t[along] + n[along] + n[size]]);
+    }
+    const domain = axis._d3Scale.domain().map(Number);
+    return {
+      domain: [Math.min(...domain), Math.max(...domain)],
+      brk: axis._baselineBreak ? {value: axis._baselineBreak.value, position: axis._baselineBreak.position} : null,
+      range: axis._getRange().map(Number),
+      spans,
+    };
+  }, {data});
 
 /** The value axis keeps the user's minimum, breaks back to 0, and every shape reaches the 0 tick. */
 function assertKept(out, min) {

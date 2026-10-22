@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {Radar, RESET} from "../../index.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 useJsdom();
 
@@ -81,10 +82,7 @@ it("Radar levelLabelConfig deep-merges and RESET restores it", () => {
 });
 
 it("Radar config with ring, level, and padding keys raises no config warnings", () => {
-  const warn = console.warn;
-  const warnings = [];
-  console.warn = msg => warnings.push(msg);
-  try {
+  const warnings = captureWarnings(() => {
     new Radar().config({
       axisConfig: {barConfig: {stroke: "#495057"}, gridConfig: {"stroke-width": 2}, shapeConfig: {stroke: "#adb5bd"}},
       levelFormat: d => `${d}%`,
@@ -95,9 +93,6 @@ it("Radar config with ring, level, and padding keys raises no config warnings", 
       outerPadding: "auto",
       shapeConfig: {Path: {opacity: 0.7}},
     });
-  }
-  finally {
-    console.warn = warn;
-  }
+  });
   assert.deepStrictEqual(warnings, []);
 });

@@ -11,20 +11,19 @@ import {
   polarSpokeRotation,
 } from "../../src/charts/polar/labels.ts";
 import {radarLevelLabels} from "../../src/charts/Radar/levels.ts";
+import {near} from "~test/helpers.js";
 
-const close = (a, b, msg) =>
-  assert.ok(Math.abs(a - b) < 1e-6, `${msg}: ${a} vs ${b}`);
 const PAD = POLAR_LABEL_PADDING;
 
 it("polar labels: polarLabelPlacement: pushes each box away from the circle", () => {
   const top = polarLabelPlacement(0, 100, 40, 10);
-  close(top.x, -20, "centered over 12 o'clock");
-  close(top.y + top.height, -(100 + PAD), "bottom edge meets the label point");
+  near(top.x, -20, 1e-6, "centered over 12 o'clock");
+  near(top.y + top.height, -(100 + PAD), 1e-6, "bottom edge meets the label point");
   const right = polarLabelPlacement(Math.PI / 2, 100, 40, 10);
-  close(right.x, 100 + PAD, "left edge meets the label point");
-  close(right.y, -5, "vertically centered at 3 o'clock");
+  near(right.x, 100 + PAD, 1e-6, "left edge meets the label point");
+  near(right.y, -5, 1e-6, "vertically centered at 3 o'clock");
   const left = polarLabelPlacement(-Math.PI / 2, 100, 40, 10);
-  close(left.x + left.width, -(100 + PAD), "right edge meets the label point");
+  near(left.x + left.width, -(100 + PAD), 1e-6, "right edge meets the label point");
 });
 
 it("polar labels: polarLabelFitRadius: the largest radius whose labels stay inside", () => {
@@ -34,7 +33,7 @@ it("polar labels: polarLabelFitRadius: the largest radius whose labels stay insi
     {angle: 0, width: 20, height: 10},
   ];
   const r = polarLabelFitRadius(boxes, 400, 400);
-  close(r, 200 - 50 - PAD, "the widest side label sets the radius");
+  near(r, 200 - 50 - PAD, 1e-6, "the widest side label sets the radius");
   for (const b of boxes) {
     const p = polarLabelPlacement(b.angle, r, b.width, b.height);
     assert.ok(
@@ -59,7 +58,7 @@ it("polar labels: polarLabelFitRadius: the largest radius whose labels stay insi
 });
 
 it("polar labels: polarLabelRoom: width left beside the circle", () => {
-  close(polarLabelRoom(Math.PI / 2, 100, 400), 200 - 100 - PAD, "at 3 o'clock");
+  near(polarLabelRoom(Math.PI / 2, 100, 400), 200 - 100 - PAD, 1e-6, "at 3 o'clock");
   assert.strictEqual(
     polarLabelRoom(0, 100, 400),
     400,
@@ -72,7 +71,7 @@ it("polar labels: polarLabelRoom: width left beside the circle", () => {
   );
   const diag = polarLabelRoom(Math.PI / 4, 100, 400);
   const p = polarLabelPlacement(Math.PI / 4, 100, diag, 10);
-  close(p.x + p.width, 200, "a label of exactly that width reaches the edge");
+  near(p.x + p.width, 200, 1e-6, "a label of exactly that width reaches the edge");
 });
 
 it("polar labels: polarLabelsCollide: neighbors that overlap", () => {
@@ -103,7 +102,7 @@ it("polar labels: polarHorizontalLayout: one line when the circle keeps its mini
     width: 400,
     height: 400,
   });
-  close(out.radius, 200 - 40 - PAD, "radius fit to the widest side label");
+  near(out.radius, 200 - 40 - PAD, 1e-6, "radius fit to the widest side label");
   assert.ok(
     out.labels.every(l => l.lines === 1),
     "single lines",
@@ -118,9 +117,9 @@ it("polar labels: polarHorizontalLayout: wraps long labels at the minimum radius
     width: 400,
     height: 400,
   });
-  close(out.radius, 100, "half the largest radius");
+  near(out.radius, 100, 1e-6, "half the largest radius");
   assert.strictEqual(out.labels[0].lines, 2, "the long label wraps");
-  close(out.labels[0].width, 200 - 100 - PAD, "to its room");
+  near(out.labels[0].width, 200 - 100 - PAD, 1e-6, "to its room");
   assert.strictEqual(out.labels[0].height, 24);
   assert.deepStrictEqual(
     out.labels[1],
@@ -142,10 +141,10 @@ it("polar labels: polarSpokeRotation: never upside down", () => {
   );
   const left = polarSpokeRotation(-Math.PI / 2);
   assert.strictEqual(left.anchor, "end", "9 o'clock runs toward the center");
-  close(left.rotate, 0, "and reads left to right");
+  near(left.rotate, 0, 1e-6, "and reads left to right");
   const lowerLeft = polarSpokeRotation((5 * Math.PI) / 4);
   assert.strictEqual(lowerLeft.anchor, "end");
-  close(lowerLeft.rotate, -45, "flipped half a turn");
+  near(lowerLeft.rotate, -45, 1e-6, "flipped half a turn");
 });
 
 it("polar labels: radarLevelLabels: toRadius places labels on a custom scale", () => {

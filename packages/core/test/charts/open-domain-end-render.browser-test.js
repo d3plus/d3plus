@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {render} from "~test/browser/render.js";
+import {probeChart} from "~test/browser/helpers.js";
 
 /**
     A one-sided user domain (`yDomain([n])`, `yDomain([undefined, n])`, a
@@ -22,34 +22,20 @@ const DATA = {
 
 /** Renders `src` (a `lib => viz` builder) over `DATA[set]` and reports its axes' domains, breaks, and facet panels. */
 const probe = (src, set = "base") =>
-  render(
-    '<div id="viz" style="width:700px;height:450px"></div>',
-    ([src, data]) =>
-      new Promise((resolve, reject) => {
-        try {
-          const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-            .duration(0)
-            .select("#viz");
-          viz.render(() => {
-            const read = axis => {
-              const d = axis._d3Scale.domain().map(Number);
-              return [Math.min(...d), Math.max(...d)];
-            };
-            const year = d => new Date(d).getFullYear();
-            resolve({
-              x: viz._xAxis._d3Scale.domain().length === 2 ? read(viz._xAxis) : null,
-              y: viz._yAxis._d3Scale.domain().length === 2 ? read(viz._yAxis) : null,
-              xYears: viz._xAxis.schema.scale === "time" ? viz._xAxis._d3Scale.domain().map(year) : null,
-              brk: (viz.schema.discrete === "y" ? viz._xAxis : viz._yAxis)._baselineBreak?.value ?? null,
-              panels: (viz._facetPanels || []).map(p => p.state._plotAxisDomains.y.map(Number).sort((a, b) => a - b)),
-            });
-          });
-        } catch (e) {
-          reject(e);
-        }
-      }),
-    [src, DATA[set]],
-  );
+  probeChart(src, viz => {
+    const read = axis => {
+      const d = axis._d3Scale.domain().map(Number);
+      return [Math.min(...d), Math.max(...d)];
+    };
+    const year = d => new Date(d).getFullYear();
+    return {
+      x: viz._xAxis._d3Scale.domain().length === 2 ? read(viz._xAxis) : null,
+      y: viz._yAxis._d3Scale.domain().length === 2 ? read(viz._yAxis) : null,
+      xYears: viz._xAxis.schema.scale === "time" ? viz._xAxis._d3Scale.domain().map(year) : null,
+      brk: (viz.schema.discrete === "y" ? viz._xAxis : viz._yAxis)._baselineBreak?.value ?? null,
+      panels: (viz._facetPanels || []).map(p => p.state._plotAxisDomains.y.map(Number).sort((a, b) => a - b)),
+    };
+  }, {data: DATA[set]});
 
 const chart = (name, extra = "") =>
   `(lib, data) => new lib.${name}().data(data).groupBy("g").x("x").y("v").legend(false)${extra}`;

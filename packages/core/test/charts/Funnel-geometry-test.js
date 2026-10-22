@@ -12,9 +12,7 @@ import {
   stageSpans,
   stageWidths,
 } from "../../src/charts/Funnel/funnelGeometry.ts";
-
-const close = (a, b, msg, eps = 1e-9) =>
-  assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);
+import {near} from "~test/helpers.js";
 
 it("Funnel geometry: stageSpans splits the length into stages and gaps", () => {
   const spans = stageSpans(3, 280, 0.2);
@@ -35,7 +33,7 @@ it("Funnel geometry: stageSpans fills the length with one stage, and clamps padd
   ]);
   const wide = stageSpans(2, 100, 5);
   assert.ok(wide[0].end > wide[0].start, "padding is capped below 1");
-  close(wide[1].end, 100, "last stage ends at the length");
+  near(wide[1].end, 100, 1e-9, "last stage ends at the length");
 });
 
 it("Funnel geometry: stageSpans returns nothing without stages or room", () => {

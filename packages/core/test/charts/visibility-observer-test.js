@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 import {setTimeout as wait} from "node:timers/promises";
-import {StubIO, withIO} from "./stubIntersectionObserver.js";
+import {StubIO, withIO} from "~test/stubIntersectionObserver.js";
 import {
   canObserveVisibility,
   observeVisibility,

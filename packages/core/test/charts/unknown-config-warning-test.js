@@ -1,25 +1,12 @@
-/* global console */
 import {it} from "vitest";
 import assert from "assert";
 import {BarChart, configWarnings, Network, Pack, Pie, Treemap, Viz} from "../../index.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 /**
     Charts warn (once per message) about config keys they don't support,
     including keys inside the shared `shapeConfig` bag.
 */
-function captureWarnings(fn) {
-  const warn = console.warn,
-    warnings = [];
-  console.warn = msg => warnings.push(msg);
-  try {
-    fn();
-  }
-  finally {
-    console.warn = warn;
-  }
-  return warnings;
-}
-
 it("config() warns about unknown chart and shapeConfig keys", () => {
   const warnings = captureWarnings(() => {
     new BarChart().config({

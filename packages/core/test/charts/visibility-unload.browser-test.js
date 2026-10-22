@@ -1,18 +1,20 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
-import {shared, withIO} from "./stubIntersectionObserver.js";
+import {latest, withIO} from "~test/stubIntersectionObserver.js";
 import {
   syncUnloadObserver,
   vizReload,
 } from "../../src/charts/viz/vizVisibility.ts";
 
+// Each viz scrolls in its own container, so it gets a stubbed observer of its
+// own even when a chart drawn earlier on the page created the viewport's.
 function mockViz(over = {}) {
   const calls = [];
   const el = {};
   const viz = {
     calls,
-    schema: {detectVisible: true, detectVisibleUnload: true, scrollContainer: null},
+    schema: {detectVisible: true, detectVisibleUnload: true, scrollContainer: document.createElement("div")},
     _select: {
       node: () => el,
       selectAll: () => ({remove: () => calls.push("table")}),
@@ -30,7 +32,7 @@ it(
   withIO(() => {
     const {el, viz} = mockViz();
     syncUnloadObserver(viz);
-    const io = shared();
+    const io = latest();
     io.fire(el, false);
     assert.strictEqual(viz._unloaded, true);
     assert.strictEqual(viz._sceneRenderer, undefined);
@@ -49,7 +51,7 @@ it(
   withIO(() => {
     const {el, viz} = mockViz();
     syncUnloadObserver(viz);
-    const io = shared();
+    const io = latest();
     io.fire(el, true);
     assert.ok(!viz.calls.includes("render"));
     io.fire(el, false);

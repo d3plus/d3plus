@@ -3,6 +3,7 @@ import assert from "~test/browser/assert.js";
 import {rgb} from "d3-color";
 
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     The title, subtitle, and total pick a text color that reads against the
@@ -20,11 +21,9 @@ const blockFills = (background, extra = "") =>
       viz.render(() => {
         try {
           const fills = {};
-          const walk = n => {
+          for (const n of sceneNodes(viz.toScene().root)) {
             if (keys.includes(n.key) && n.type === "text") fills[n.key] = n.paint && n.paint.fill;
-            (n.children || []).forEach(walk);
-          };
-          walk(viz.toScene().root);
+          }
           resolve(fills);
         } catch (e) {
           reject(e);

@@ -2,6 +2,8 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {near} from "~test/helpers.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Marimekko draws one bar per category, as wide as the category's measure
@@ -55,12 +57,10 @@ const draw = ([kind, config, rows, hoverKey]) =>
         axes[a.getAttribute("data-key")] = [...a.querySelectorAll("text")].map(lines).filter(Boolean);
       });
       const sceneRects = [];
-      const walk = node => {
-        if (!node) return;
+      for (const node of sceneNodes(viz._chartScene || [])) {
+        if (!node) continue;
         if (node.type === "rect" && node.shapeType === "Bar") sceneRects.push({key: node.key, width: node.width, height: node.height});
-        (node.children || []).forEach(walk);
-      };
-      (viz._chartScene || []).forEach(walk);
+      }
       // Each axis as painted (either renderer): its labels, tick marks, and rotation.
       const scene = {};
       const paintedAxis = (node, axis) => {
@@ -122,9 +122,6 @@ const draw = ([kind, config, rows, hoverKey]) =>
       }, 50));
     });
   });
-
-const near = (a, b, tolerance, message) =>
-  assert.ok(Math.abs(a - b) <= tolerance, `${message} (${a} vs ${b})`);
 
 /** Each column's [left, right, top, bottom] extent, keyed by its left edge. */
 function columns(bars) {

@@ -3,6 +3,7 @@ import assert from "assert";
 
 import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
 import {shapeHoverEnabled} from "../../src/charts/viz/shapeHover.ts";
+import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts";
 
 /**
     Regression guard for the colorScale-bucket hover fix. Geomap disables
@@ -67,4 +68,16 @@ it("shapeHoverEnabled: off at hoverOpacity:1 unless the chart outlines the hover
   assert.strictEqual(shapeHoverEnabled(viz(undefined)), true);
   assert.strictEqual(shapeHoverEnabled(viz(1)), false);
   assert.strictEqual(shapeHoverEnabled(viz(1, true)), true);
+});
+
+it("colorScaleBucketOf unwraps wrapped bucket data and ignores non-buckets", () => {
+  const bucket = {_isColorScaleBucket: true, color: "#abc"};
+  assert.strictEqual(colorScaleBucketOf(bucket), bucket, "direct bucket");
+  assert.strictEqual(colorScaleBucketOf({__d3plus__: true, data: bucket}), bucket, "one-level wrapped");
+  assert.strictEqual(
+    colorScaleBucketOf({__d3plus__: true, data: {__d3plus__: true, data: bucket}}),
+    bucket, "double wrapped (label -> shape-row -> bucket)",
+  );
+  assert.strictEqual(colorScaleBucketOf({foo: 1}), null, "non-bucket -> null");
+  assert.strictEqual(colorScaleBucketOf({__d3plus__: true, data: {x: 1}}), null, "wrapped non-bucket -> null");
 });

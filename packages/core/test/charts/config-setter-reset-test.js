@@ -3,6 +3,7 @@ import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import * as core from "../../index.ts";
 import {RESOLVES_RESET} from "../../src/fluent.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 useJsdom();
 
@@ -142,10 +143,7 @@ it("every hand-written setter that merges a config bag is tagged to resolve RESE
 });
 
 it("a direct shapeConfig RESET restores a Viz default without warning", () => {
-  const warn = console.warn,
-    warnings = [];
-  console.warn = msg => warnings.push(msg);
-  try {
+  const warnings = captureWarnings(() => {
     const viz = new Treemap();
     const fill = viz.shapeConfig().fill;
     viz.config({shapeConfig: {fill: "red"}});
@@ -157,9 +155,7 @@ it("a direct shapeConfig RESET restores a Viz default without warning", () => {
     viz.shapeConfig({Rect: RESET});
     viz.shapeConfig(RESET);
     assert.strictEqual(viz.shapeConfig().fill, fill);
-  } finally {
-    console.warn = warn;
-  }
+  });
   assert.deepStrictEqual(warnings, []);
 });
 

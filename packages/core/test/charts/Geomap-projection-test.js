@@ -6,6 +6,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {Geomap} from "../../index.ts";
 import {applyGeomapLayout} from "../../src/charts/Geomap/applyLayout.ts";
 import {projections} from "../../src/charts/Geomap/projections.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 useJsdom();
 
@@ -103,15 +104,10 @@ it("Geomap.projection picks the named projection (equirectangular, not mercator)
 });
 
 it("Geomap.projection falls back to geoMercator for an unknown name, with a warning", () => {
-  const {warn} = console;
-  const warnings = [];
-  console.warn = msg => warnings.push(msg);
   let proj;
-  try {
+  const warnings = captureWarnings(() => {
     proj = new Geomap().projection("notARealProjection").projection();
-  } finally {
-    console.warn = warn;
-  }
+  });
   assert.deepStrictEqual(proj([10, 50]), geoMercator()([10, 50]), "unknown name falls back to geoMercator");
   assert.strictEqual(warnings.length, 1);
   assert.match(warnings[0], /unknown projection "notARealProjection"/);

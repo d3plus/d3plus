@@ -40,7 +40,7 @@ it("CanvasRenderer paints a texture's solid fallback until the tile rasterizes",
   // Rasterization is async (Image decode); the first synchronous paint uses the
   // texture's background color and must not throw, and the node stays pickable.
   // The real CanvasPattern arrives on Image load (covered end-to-end in a real
-  // browser by core's render-parity suite — jsdom does not decode images).
+  // browser by core's texture browser test — jsdom does not decode images).
   assert.strictEqual(r.pick([20, 20]).node.key, "a", "rect still rendered/pickable with fallback fill");
 
   r.destroy();

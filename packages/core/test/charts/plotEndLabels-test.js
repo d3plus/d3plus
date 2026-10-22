@@ -12,7 +12,7 @@ import {
 /**
     The pure helpers behind a short Plot's x-axis end labels. The browser-side
     pieces (measuring, emitting, and aligning against a real Axis) are covered
-    in `plot-short-x-axis.browser-test.js`.
+    in `Plot-short-x-axis.browser-test.js`.
 */
 
 const measure = (labels, padding = 5, height = 17) => ({

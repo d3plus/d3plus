@@ -1,9 +1,9 @@
-/* global console */
 import {it} from "vitest";
 import assert from "assert";
 import {default as BaseClass} from "../../src/utils/BaseClass.ts";
 import {default as RESET} from "../../src/utils/RESET.ts";
 import {markSharedConfig} from "../../src/utils/configWarnings.ts";
+import {captureWarnings} from "~test/helpers.js";
 
 it("BaseClass", () => {
   const one = new BaseClass(),
@@ -60,15 +60,10 @@ it("BaseClass", () => {
   assert.strictEqual(r.locale(), "en-US", "locale reset to default");
 
   // config with unknown key warns instead of throwing
-  const warn = console.warn,
-    warnings = [];
-  console.warn = msg => warnings.push(msg);
-  try {
+  const warnings = captureWarnings(() => {
     r.config({nonExistentProp: "value", locale: "en-US"});
     r.config(markSharedConfig({sharedOnlyProp: "value"}));
-  } finally {
-    console.warn = warn;
-  }
+  });
   assert.deepStrictEqual(
     warnings,
     ['BaseClass.config() received unknown property "nonExistentProp".'],

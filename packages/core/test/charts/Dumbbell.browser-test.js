@@ -2,6 +2,7 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
+import {near} from "~test/helpers.js";
 
 /**
     Dumbbell in a real browser: a dot per (category, series) row and a
@@ -58,8 +59,6 @@ const draw = ([config, rows]) =>
 const run = (config, rows = life) =>
   render("<div id='viz' style='width:500px;height:400px'></div>", draw, [config, rows]);
 
-const near = (a, b, msg, tol = 0.51) => assert.ok(Math.abs(a - b) < tol, `${msg}: ${a} vs ${b}`);
-
 it("Dumbbell — a dot per row and a connector between each category's extremes", async function () {
   const r = await run({groupBy: "year", x: "v", y: "country"});
   assert.strictEqual(r.points.length, 6);
@@ -73,10 +72,10 @@ it("Dumbbell — a dot per row and a connector between each category's extremes"
     assert.strictEqual(c.strokeWidth, 3);
     const country = c.key.replace("::connector", "");
     const [lo, hi] = r.points.filter(p => p.row.country === country).sort((a, b) => a.x - b.x);
-    near(Math.min(c.from[0], c.to[0]), lo.x, `${country} connector starts at its low dot`);
-    near(Math.max(c.from[0], c.to[0]), hi.x, `${country} connector ends at its high dot`);
-    near(c.from[1], lo.y, "on the category's line");
-    near(c.to[1], lo.y, "horizontal");
+    near(Math.min(c.from[0], c.to[0]), lo.x, 0.51, `${country} connector starts at its low dot`);
+    near(Math.max(c.from[0], c.to[0]), hi.x, 0.51, `${country} connector ends at its high dot`);
+    near(c.from[1], lo.y, 0.51, "on the category's line");
+    near(c.to[1], lo.y, 0.51, "horizontal");
   });
   const years = r.points.filter(p => p.row.country === "Japan").map(p => p.fill);
   assert.notStrictEqual(years[0], years[1], "series are colored apart");
@@ -102,9 +101,9 @@ it("Dumbbell — vertical, with three points per category", async function () {
   r.connectors.forEach(c => {
     const month = c.key.replace("::connector", "");
     const ys = r.points.filter(p => p.row.month === month).map(p => p.y);
-    near(c.from[0], c.to[0], "vertical");
-    near(Math.min(c.from[1], c.to[1]), Math.min(...ys), "reaches the top dot");
-    near(Math.max(c.from[1], c.to[1]), Math.max(...ys), "and the bottom dot");
+    near(c.from[0], c.to[0], 0.51, "vertical");
+    near(Math.min(c.from[1], c.to[1]), Math.min(...ys), 0.51, "reaches the top dot");
+    near(Math.max(c.from[1], c.to[1]), Math.max(...ys), 0.51, "and the bottom dot");
   });
 });
 

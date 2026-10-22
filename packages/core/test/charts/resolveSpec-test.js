@@ -17,10 +17,6 @@ useJsdom();
     breaking consumers.
 */
 
-it("resolveSpec is exported and is a function", () => {
-  assert.strictEqual(typeof resolveSpec, "function");
-});
-
 it("resolveSpec returns a frozen object mirroring viz.config()", () => {
   const chart = new BarChart()
     .baseline(7)

@@ -2,6 +2,7 @@ import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 
 import {render} from "~test/browser/render.js";
+import {sceneNodes} from "~test/browser/helpers.js";
 
 /**
     Rings sizing regression (#83). Rings used to build its radius domain from
@@ -24,14 +25,12 @@ const radii = extra =>
       viz.render(() => {
         try {
           const out = {};
-          const walk = n => {
+          for (const n of sceneNodes(viz.toScene().root)) {
             if (n.type === "circle" && n.datum) {
               const d = n.datum.data || n.datum;
               if (d.id !== undefined && !(d.id in out)) out[d.id] = n.r;
             }
-            (n.children || []).forEach(walk);
-          };
-          walk(viz.toScene().root);
+          }
           resolve(out);
         } catch (e) {
           reject(e);
@@ -83,11 +82,9 @@ const centerProbe = (center, click) =>
             const id = viz.schema.center;
             const node = viz.ctx.nodeLookup[id];
             const texts = [];
-            const walk = n => {
+            for (const n of sceneNodes(viz.toScene().root)) {
               if (n.type === "text" && (n.lines || []).some(l => l.text.startsWith(id))) texts.push(n);
-              (n.children || []).forEach(walk);
-            };
-            walk(viz.toScene().root);
+            }
             resolve({
               r: node.r,
               inside: node.labelInside,
