@@ -3,36 +3,34 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   buffer: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "0",
     description: "Extra pixel margin around the viewport boundary.",
     table: {
       defaultValue: {
-        summary: "0"
-      }
+        summary: "0",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   elem: {
     control: {},
     description: "The DOM element to check.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "element"
-    }
-  }
+      summary: "element",
+    },
+  },
 };

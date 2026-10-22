@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   objects: {
     control: {},
     description: "The source objects to merge into the target.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;record&gt;"
-    }
-  }
+      summary: "array.&lt;record&gt;",
+    },
+  },
 };

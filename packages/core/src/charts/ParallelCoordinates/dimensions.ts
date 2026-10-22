@@ -37,7 +37,12 @@ export function isNumeric(v: unknown): v is number {
 
 /** Whether `v` is missing (no axis position). */
 export function isMissing(v: unknown): boolean {
-  return v === undefined || v === null || v === "" || (typeof v === "number" && !Number.isFinite(v));
+  return (
+    v === undefined ||
+    v === null ||
+    v === "" ||
+    (typeof v === "number" && !Number.isFinite(v))
+  );
 }
 
 /**
@@ -45,7 +50,10 @@ export function isMissing(v: unknown): boolean {
     they first appear. Keys in `exclude` and keys starting with an underscore
     (d3plus internals) are skipped.
 */
-export function detectDimensions(rows: DataPoint[], exclude: string[] = []): string[] {
+export function detectDimensions(
+  rows: DataPoint[],
+  exclude: string[] = [],
+): string[] {
   const skip = new Set(exclude);
   const order: string[] = [];
   const numeric = new Map<string, boolean>();
@@ -60,7 +68,9 @@ export function detectDimensions(rows: DataPoint[], exclude: string[] = []): str
       if (!isMissing(v) && !isNumeric(v)) numeric.set(key, false);
     }
   }
-  return order.filter(key => numeric.get(key) && rows.some(row => isNumeric(row[key])));
+  return order.filter(
+    key => numeric.get(key) && rows.some(row => isNumeric(row[key])),
+  );
 }
 
 /** A dimension is numeric when each value present is a number; otherwise categorical. */
@@ -83,12 +93,17 @@ export function dimensionDomain(
   const user = Array.isArray(config.domain) ? config.domain : undefined;
   if (type === "numeric") {
     const [lo, hi] = extent(values.filter(isNumeric));
-    const min = user && isNumeric(user[0]) ? user[0] : lo ?? 0;
-    const max = user && isNumeric(user[user.length - 1]) ? (user[user.length - 1] as number) : hi ?? 0;
+    const min = user && isNumeric(user[0]) ? user[0] : (lo ?? 0);
+    const max =
+      user && isNumeric(user[user.length - 1])
+        ? (user[user.length - 1] as number)
+        : (hi ?? 0);
     return [min, max];
   }
   if (user) return user.map(String);
-  const unique = Array.from(new Set(values.filter(v => !isMissing(v)).map(String)));
+  const unique = Array.from(
+    new Set(values.filter(v => !isMissing(v)).map(String)),
+  );
   return unique.sort((a, b) => a.localeCompare(b, undefined, {numeric: true}));
 }
 
@@ -106,9 +121,10 @@ export function resolveDimensions(
   return keys.map(key => {
     const opts = config[key] ?? {};
     const values = rows.map(row => row[key]);
-    const type = opts.scale === "point" || opts.scale === "band"
-      ? "categorical"
-      : dimensionType(values);
+    const type =
+      opts.scale === "point" || opts.scale === "band"
+        ? "categorical"
+        : dimensionType(values);
     const domain = shared?.[key] ?? dimensionDomain(values, type, opts);
     return {
       key,
@@ -130,7 +146,8 @@ export function sharedDomains(
   config: Record<string, DimensionOptions | undefined> = {},
 ): Record<string, (number | string)[]> {
   const out: Record<string, (number | string)[]> = {};
-  for (const dim of resolveDimensions(keys, rows, config)) out[dim.key] = dim.domain;
+  for (const dim of resolveDimensions(keys, rows, config))
+    out[dim.key] = dim.domain;
   return out;
 }
 
@@ -145,7 +162,11 @@ export function autoLineOpacity(count: number): number {
 }
 
 /** `count` evenly spaced positions from `start` to `end` (one sits at the middle). */
-export function axisPositions(count: number, start: number, end: number): number[] {
+export function axisPositions(
+  count: number,
+  start: number,
+  end: number,
+): number[] {
   if (count <= 0) return [];
   if (count === 1) return [(start + end) / 2];
   const step = (end - start) / (count - 1);

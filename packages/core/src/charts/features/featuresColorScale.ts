@@ -58,7 +58,11 @@ function colorScaleData(viz: VizInstance): MergedDataPoint[] {
     always runs in compute mode: Viz.toScene composes its scene, so the
     colorScale never paints a DOM copy of its own.
 */
-function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean): void {
+function paintColorScale(
+  viz: VizInstance,
+  frame: ColorScaleFrame,
+  show: boolean,
+): void {
   const transform = {
     opacity: frame.orient ? 1 : 0,
     transform: `translate(${frame.x}, ${frame.y})`,
@@ -76,8 +80,8 @@ function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean
 
   if (!viz.schema.colorScale) return;
 
-  viz._colorScaleClass!
-    .renderMode("compute")
+  viz
+    ._colorScaleClass!.renderMode("compute")
     .align(frame.align)
     .duration(viz.schema.duration)
     .data(colorScaleData(viz))
@@ -92,8 +96,13 @@ function paintColorScale(viz: VizInstance, frame: ColorScaleFrame, show: boolean
 }
 
 /** The colorScale's sanitized position side (false when hidden). */
-function colorScalePosition(viz: VizInstance): ReturnType<typeof sanitizePosition> {
-  return sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)), viz);
+function colorScalePosition(
+  viz: VizInstance,
+): ReturnType<typeof sanitizePosition> {
+  return sanitizePosition(
+    viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)),
+    viz,
+  );
 }
 
 /**
@@ -107,18 +116,25 @@ export function paintColorScaleInset(
   orient: InsetOrient,
   area: {width: number; height: number},
 ): {width: number; height: number} | null {
-  const show = Boolean(viz.schema.colorScale) && colorScalePosition(viz) !== false &&
+  const show =
+    Boolean(viz.schema.colorScale) &&
+    colorScalePosition(viz) !== false &&
     !viz.schema.colorScaleConfig.select;
   const frame = insetFrame(orient, area);
   const maxSize = viz.schema.colorScaleMaxSize;
-  paintColorScale(viz, {
-    x: 0,
-    y: 0,
-    width: orient === "row" ? min([maxSize, frame.width])! : frame.width,
-    height: orient === "column" ? min([maxSize, frame.height])! : frame.height,
-    orient: orient === "column" ? "right" : "bottom",
-    align: "start",
-  }, show);
+  paintColorScale(
+    viz,
+    {
+      x: 0,
+      y: 0,
+      width: orient === "row" ? min([maxSize, frame.width])! : frame.width,
+      height:
+        orient === "column" ? min([maxSize, frame.height])! : frame.height,
+      orient: orient === "column" ? "right" : "bottom",
+      align: "start",
+    },
+    show,
+  );
   if (!show) return null;
   const {width, height} = viz._colorScaleClass!.outerBounds();
   return width && height ? {width, height} : null;
@@ -159,7 +175,10 @@ export const colorScaleFeature: FeatureModule = {
     // Share the bottom band with the bottom-right corner panel (size legend):
     // a bottom colorScale fits beside it, a side one ends above it.
     const corner = bottomRightClearance(
-      viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
+      viz,
+      position,
+      layoutMargin.bottom + padding.bottom,
+      layoutMargin.right + padding.right,
     );
 
     const availableWidth =
@@ -178,21 +197,30 @@ export const colorScaleFeature: FeatureModule = {
       ? min([viz.schema.colorScaleMaxSize, availableHeight])!
       : viz.schema.height - (layoutMargin.bottom + layoutMargin.top);
 
-    paintColorScale(viz, {
-      x: wide
-        ? layoutMargin.left + padding.left + (availableWidth - width) / 2
-        : layoutMargin.left,
-      y: wide
-        ? layoutMargin.top
-        : layoutMargin.top + padding.top + (availableHeight - height) / 2,
-      width,
-      height,
-      orient: position,
-      align:
-        ({bottom: "end", left: "start", right: "end", top: "start"} as Record<string, string>)[
-          position as string
-        ] || "bottom",
-    }, Boolean(showColorScale));
+    paintColorScale(
+      viz,
+      {
+        x: wide
+          ? layoutMargin.left + padding.left + (availableWidth - width) / 2
+          : layoutMargin.left,
+        y: wide
+          ? layoutMargin.top
+          : layoutMargin.top + padding.top + (availableHeight - height) / 2,
+        width,
+        height,
+        orient: position,
+        align:
+          (
+            {
+              bottom: "end",
+              left: "start",
+              right: "end",
+              top: "start",
+            } as Record<string, string>
+          )[position as string] || "bottom",
+      },
+      Boolean(showColorScale),
+    );
 
     const margin: Record<string, number> = {};
     if (showColorScale) {
@@ -206,7 +234,8 @@ export const colorScaleFeature: FeatureModule = {
           typeof viz._colorScaleClass.padding === "function"
             ? viz._colorScaleClass.padding()
             : viz._legendClass.padding();
-        if (wide) margin[position as string] = scaleBounds.height + csPadding * 2;
+        if (wide)
+          margin[position as string] = scaleBounds.height + csPadding * 2;
         else margin[position as string] = scaleBounds.width + csPadding * 2;
       }
     }

@@ -72,10 +72,20 @@ function applyChordLabelGeometry(
       // Left half: flip the text upright and extend it inward (−x) in the box's
       // local frame so it still reads outward from the arc.
       deg += 180;
-      node.labelBounds = {x: -(labelWidth + pad), y: -lineHeight / 2, width: labelWidth, height: lineHeight};
+      node.labelBounds = {
+        x: -(labelWidth + pad),
+        y: -lineHeight / 2,
+        width: labelWidth,
+        height: lineHeight,
+      };
       node.labelAnchor = "end";
     } else {
-      node.labelBounds = {x: pad, y: -lineHeight / 2, width: labelWidth, height: lineHeight};
+      node.labelBounds = {
+        x: pad,
+        y: -lineHeight / 2,
+        width: labelWidth,
+        height: lineHeight,
+      };
       node.labelAnchor = "start";
     }
     node.labelRotate = deg;
@@ -134,7 +144,9 @@ export const applyChordLayout: TransformStage = ({viz}) => {
 
   // Build the n×n flow matrix. Fresh inner arrays (not `Array(n).fill(shared)`).
   const n = nodes.length;
-  const matrix: number[][] = Array.from({length: n}, () => new Array(n).fill(0));
+  const matrix: number[][] = Array.from({length: n}, () =>
+    new Array(n).fill(0),
+  );
   const adjacency: Record<string, (string | number)[]> = {};
   const addAdj = (a: string | number, b: string | number) => {
     (adjacency[String(a)] ??= []).push(b);
@@ -189,7 +201,9 @@ export const applyChordLayout: TransformStage = ({viz}) => {
   const useArrows =
     typeof arrows === "function" ? true : !!arrows && arrows !== "source";
   const arrowSize =
-    typeof v.schema.arrowSize === "number" ? (v.schema.arrowSize as number) : undefined;
+    typeof v.schema.arrowSize === "number"
+      ? (v.schema.arrowSize as number)
+      : undefined;
   let ribbonFn: (d: Chord) => string;
   if (useArrows) {
     const gen = ribbonArrow<Chord, ChordSubgroup>()

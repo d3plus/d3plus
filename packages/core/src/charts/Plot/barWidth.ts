@@ -55,7 +55,8 @@ const accessorLabels = new WeakMap<object, {key?: string; text?: string}>();
 const ownExtents = new WeakSet<object>();
 
 /** A discrete value's identity: dates by time, everything else by its string. */
-export const barKey = (v: unknown): string => (v instanceof Date ? String(v.getTime()) : String(v));
+export const barKey = (v: unknown): string =>
+  v instanceof Date ? String(v.getTime()) : String(v);
 
 /**
     Coerces a `barWidth` setter argument: a data key becomes an accessor that
@@ -73,7 +74,10 @@ export function barWidthAccessor(value: unknown): BarWidthAccessor | undefined {
 }
 
 /** Names a `barWidth` accessor in tooltips with a translatable `text`. */
-export function labelBarWidth(fn: BarWidthAccessor, text: string): BarWidthAccessor {
+export function labelBarWidth(
+  fn: BarWidthAccessor,
+  text: string,
+): BarWidthAccessor {
   accessorLabels.set(fn, {text});
   return fn;
 }
@@ -98,7 +102,8 @@ export function measureBars(
     else bars.set(key, {value: row[axis], data: [row.data as DataPoint]});
   }
   return Array.from(bars.values(), ({value, data}) => {
-    const merged = data.length === 1 ? data[0] : (merge(data, aggs) as DataPoint);
+    const merged =
+      data.length === 1 ? data[0] : (merge(data, aggs) as DataPoint);
     return {value, size: Number(measure(merged, 0)), data: merged};
   });
 }
@@ -107,7 +112,9 @@ export function measureBars(
     Lays bars end to end from zero, in order. Bars without a positive, finite
     width are dropped.
 */
-export function layoutBarSpans(bars: {value: unknown; size: number}[]): BarSpan[] {
+export function layoutBarSpans(
+  bars: {value: unknown; size: number}[],
+): BarSpan[] {
   let start = 0;
   return bars
     .filter(b => Number.isFinite(b.size) && b.size > 0)
@@ -122,7 +129,8 @@ export function layoutBarSpans(bars: {value: unknown; size: number}[]): BarSpan[
 /** Clears a previous draw's variable-width layout. */
 function clearBarSpans(viz: VizInstance): void {
   viz._barSpans = undefined;
-  if (viz._discreteExtent && ownExtents.has(viz._discreteExtent)) viz._discreteExtent = undefined;
+  if (viz._discreteExtent && ownExtents.has(viz._discreteExtent))
+    viz._discreteExtent = undefined;
 }
 
 /**
@@ -132,17 +140,27 @@ function clearBarSpans(viz: VizInstance): void {
     Records the layout on `viz._barSpans` and spans the discrete axis with it.
     Returns the placed `[formattedData, axisData]`.
 */
-export function applyBarWidths(viz: VizInstance, formattedData: Row[], axisData: Row[]): [Row[], Row[]] {
+export function applyBarWidths(
+  viz: VizInstance,
+  formattedData: Row[],
+  axisData: Row[],
+): [Row[], Row[]] {
   const measure = viz.schema.barWidth as BarWidthAccessor | undefined;
   const axis = viz.schema.discrete;
-  const foreignExtent = viz._discreteExtent && !ownExtents.has(viz._discreteExtent);
-  if (typeof measure !== "function" || (axis !== "x" && axis !== "y") || foreignExtent) {
+  const foreignExtent =
+    viz._discreteExtent && !ownExtents.has(viz._discreteExtent);
+  if (
+    typeof measure !== "function" ||
+    (axis !== "x" && axis !== "y") ||
+    foreignExtent
+  ) {
     clearBarSpans(viz);
     return [formattedData, axisData];
   }
 
   const bars = measureBars(axisData, axis, measure, viz.schema.aggs);
-  const sort = viz.schema[`${axis}Sort`] as ((a: DataPoint, b: DataPoint) => number) | undefined;
+  const sort = viz.schema[`${axis}Sort`] as
+    ((a: DataPoint, b: DataPoint) => number) | undefined;
   if (sort) bars.sort((a, b) => sort(a.data, b.data));
   const spans = layoutBarSpans(bars);
   const byKey = new Map(spans.map(s => [barKey(s.value), s]));
@@ -182,8 +200,14 @@ function categoryLabel(value: unknown): string {
     A bar's width as a locale-formatted share of `layout.total`, the total of
     its own panel when faceted; empty without a total.
 */
-export function widthShareText(layout: BarSpanLayout, span: BarSpan, locale?: string): string {
-  return layout.total ? `${formatAbbreviate((span.size / layout.total) * 100, locale)}%` : "";
+export function widthShareText(
+  layout: BarSpanLayout,
+  span: BarSpan,
+  locale?: string,
+): string {
+  return layout.total
+    ? `${formatAbbreviate((span.size / layout.total) * 100, locale)}%`
+    : "";
 }
 
 /**
@@ -192,7 +216,11 @@ export function widthShareText(layout: BarSpanLayout, span: BarSpan, locale?: st
     a vertical one. Either way the share adds nothing to the label's extent
     along the axis, so it never crowds a neighboring label out.
 */
-export function shareLabel(name: string, share: string, axis: "x" | "y"): string {
+export function shareLabel(
+  name: string,
+  share: string,
+  axis: "x" | "y",
+): string {
   if (!share) return name;
   return axis === "x" ? `${name}\n${share}` : `${name} (${share})`;
 }
@@ -203,18 +231,28 @@ export function shareLabel(name: string, share: string, axis: "x" | "y"): string
     `barWidthShare` is on. Labels the axis rotates show the name alone. Empty
     for any other axis.
 */
-export function barSpanAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
+export function barSpanAxisConfig(
+  viz: VizInstance,
+  axis: "x" | "y",
+): Record<string, unknown> {
   const layout = viz._barSpans;
   if (!layout || layout.axis !== axis) return {};
   const locale = viz.schema.locale;
   const mids = layout.spans.map(s => s.mid);
   const names = new Map(layout.spans.map(s => [s.mid, categoryLabel(s.value)]));
   const name = (v: number) => names.get(v) ?? "";
-  if (!viz.schema.barWidthShare) return {labels: mids, ticks: mids, tickFormat: name};
-  const shared = new Map(layout.spans.map(s => [
-    s.mid,
-    shareLabel(categoryLabel(s.value), widthShareText(layout, s, locale), axis),
-  ]));
+  if (!viz.schema.barWidthShare)
+    return {labels: mids, ticks: mids, tickFormat: name};
+  const shared = new Map(
+    layout.spans.map(s => [
+      s.mid,
+      shareLabel(
+        categoryLabel(s.value),
+        widthShareText(layout, s, locale),
+        axis,
+      ),
+    ]),
+  );
   return {
     labels: mids,
     ticks: mids,
@@ -236,13 +274,22 @@ export function barWidthLabel(viz: VizInstance): string {
     that width's share of every bar's combined width (in its own panel, when
     faceted). Empty when `d` isn't a plotted bar datum.
 */
-export function barWidthTooltipRows(viz: VizInstance, d: DataPoint): [string, string][] {
+export function barWidthTooltipRows(
+  viz: VizInstance,
+  d: DataPoint,
+): [string, string][] {
   const layout = viz._barSpans;
-  const span = layout && d && typeof d === "object" ? layout.byDatum.get(d) : undefined;
+  const span =
+    layout && d && typeof d === "object" ? layout.byDatum.get(d) : undefined;
   if (!layout || !span) return [];
   const locale = viz.schema.locale;
   const share = widthShareText(layout, span, locale);
-  return [[barWidthLabel(viz), `${formatAbbreviate(span.size, locale)}${share ? ` (${share})` : ""}`]];
+  return [
+    [
+      barWidthLabel(viz),
+      `${formatAbbreviate(span.size, locale)}${share ? ` (${share})` : ""}`,
+    ],
+  ];
 }
 
 /**

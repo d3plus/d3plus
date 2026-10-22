@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Converts a 2-letter language code into a full language-region locale string (e.g., \"en\" to \"en-US\").",
+        component:
+          'Converts a 2-letter language code into a full language-region locale string (e.g., "en" to "en-US").',
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -35,7 +36,8 @@ BasicExample.parameters = {
   docs: {
     ...sourceSnippet("locales", "findLocale", calls).docs,
     description: {
-      story: "Expands a two-letter language code to the full language-region tag the dictionaries are keyed by, preferring a well-known default (`en` → `en-US`, `pt` → `pt-BR`) and otherwise the region that matches the language (`de` → `de-DE`). A full five-character tag or an unknown code is returned unchanged.",
+      story:
+        "Expands a two-letter language code to the full language-region tag the dictionaries are keyed by, preferring a well-known default (`en` → `en-US`, `pt` → `pt-BR`) and otherwise the region that matches the language (`de` → `de-DE`). A full five-character tag or an unknown code is returned unchanged.",
     },
   },
 };

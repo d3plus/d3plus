@@ -3,34 +3,33 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   options: {
     control: {},
     defaultValue: "{}",
-    description: "An Object that allows for overriding various parameters of the algorithm.",
+    description:
+      "An Object that allows for overriding various parameters of the algorithm.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "largestrectoptions"
-    }
+      summary: "largestrectoptions",
+    },
   },
   poly: {
     control: {},
     description: "An Array of points that represent a polygon.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
-  }
+      summary: "array.&lt;point&gt;",
+    },
+  },
 };

@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Transforms a path string into an Array of points, with no DOM involved.\nStraight segments contribute their endpoints; curves and arcs are flattened\ninto line segments no longer than segmentLength. Higher segmentLength\nvalues lower computation time but yield more rigid curves.",
+        component:
+          "Transforms a path string into an Array of points, with no DOM involved.\nStraight segments contribute their endpoints; curves and arcs are flattened\ninto line segments no longer than segmentLength. Higher segmentLength\nvalues lower computation time but yield more rigid curves.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -47,7 +48,9 @@ const params = (segmentLength, story) => ({
     ...sourceSnippet("math", "path2polygon", [
       {
         call: `path2polygon(${JSON.stringify(d)}${segmentLength === undefined ? "" : `, ${segmentLength}`})`,
-        result: JSON.stringify(path2polygon(d, segmentLength).map(p => p.map(r))),
+        result: JSON.stringify(
+          path2polygon(d, segmentLength).map(p => p.map(r)),
+        ),
       },
     ]).docs,
     description: {story},

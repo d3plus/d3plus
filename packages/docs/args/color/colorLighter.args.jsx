@@ -3,38 +3,36 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   c: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "A valid CSS color string.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   i: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "0.5",
     description: "Strength of the lightening effect, from 0 to 1.",
     table: {
       defaultValue: {
-        summary: "0.5"
-      }
+        summary: "0.5",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

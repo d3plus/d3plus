@@ -15,9 +15,9 @@ export default {
         component: "Subtracts one color from another.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -52,20 +52,31 @@ const params = (rows, story) => ({
     ...sourceSnippet(
       "color",
       "colorSubtract",
-      mixes(rows).map(({call, result}) => ({call, result: JSON.stringify(result)})),
+      mixes(rows).map(({call, result}) => ({
+        call,
+        result: JSON.stringify(result),
+      })),
     ).docs,
     description: {story},
   },
 });
 
-const basicRows = [["#ff00ff", "#0000ff"], ["orange", "yellow"], ["#1c7ed6", "#2f9e44"]];
+const basicRows = [
+  ["#ff00ff", "#0000ff"],
+  ["orange", "yellow"],
+  ["#1c7ed6", "#2f9e44"],
+];
 export const BasicExample = () => <Mixes rows={basicRows} />;
 BasicExample.parameters = params(
   basicRows,
   "The inverse of `colorAdd`: removes the second color's contribution from the first in HSL, pushing the hue away from it and un-averaging saturation and lightness. Taking blue out of magenta leaves red; taking yellow out of orange leaves a redder orange.",
 );
 
-const opacityRows = [["#ff00ff", "#0000ff", 1, 0.25], ["#ff00ff", "#0000ff", 1, 0.5], ["#ff00ff", "#0000ff", 1, 1]];
+const opacityRows = [
+  ["#ff00ff", "#0000ff", 1, 0.25],
+  ["#ff00ff", "#0000ff", 1, 0.5],
+  ["#ff00ff", "#0000ff", 1, 1],
+];
 export const WithOpacity = () => <Mixes rows={opacityRows} />;
 WithOpacity.parameters = params(
   opacityRows,

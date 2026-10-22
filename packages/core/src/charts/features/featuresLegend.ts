@@ -13,7 +13,12 @@ import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
-import {cornerPlacements, sanitizePosition, topLeftControlsInset, zoomControlsInset} from "./features.js";
+import {
+  cornerPlacements,
+  sanitizePosition,
+  topLeftControlsInset,
+  zoomControlsInset,
+} from "./features.js";
 import type Legend from "../../components/Legend/Legend.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 import {zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
@@ -73,7 +78,8 @@ export function buildLegendData(viz: VizInstance): LegendData {
       "_",
     );
   };
-  const legendKey = (d: DataPoint, i: number): string => keyOf(d, i, colorOf(d, i));
+  const legendKey = (d: DataPoint, i: number): string =>
+    keyOf(d, i, colorOf(d, i));
 
   const rollupData = viz.schema.colorScale
     ? data.filter(
@@ -88,10 +94,13 @@ export function buildLegendData(viz: VizInstance): LegendData {
     if (group) group.leaves.push(d);
     else groups.set(key, {leaves: [d], color: c});
   });
-  const entries: LegendEntry[] = Array.from(groups.values(), ({leaves, color}) => ({
-    datum: merge(leaves, viz.schema.aggs) as unknown as DataPoint,
-    color,
-  }));
+  const entries: LegendEntry[] = Array.from(
+    groups.values(),
+    ({leaves, color}) => ({
+      datum: merge(leaves, viz.schema.aggs) as unknown as DataPoint,
+      color,
+    }),
+  );
   const legendData: DataPoint[] = entries.map(e => e.datum);
 
   // viz._legendDepth: the lowest groupBy level whose values are unique.
@@ -137,19 +146,31 @@ function legendCornerClearance(
   padding: {top: number; right: number; bottom: number; left: number},
 ): {drop: number; insetRight: number; shorten: number} {
   const dropRight =
-    position === "right" && zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
+    position === "right" &&
+    zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
       ? zoomControlsReach(viz as never) - layoutMargin.top
       : 0;
   const dropLeft =
-    position === "left" && topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
-      ? topLeftControlsReach(viz as never, getTopLeftContributions(viz as never)) - layoutMargin.top
+    position === "left" &&
+    topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
+      ? topLeftControlsReach(
+          viz as never,
+          getTopLeftContributions(viz as never),
+        ) - layoutMargin.top
       : 0;
   // The bottom-right corner panel (size legend): a bottom legend pulls its
   // right edge in beside it, a left/right legend stops short above it.
   const corner = bottomRightClearance(
-    viz, position, layoutMargin.bottom + padding.bottom, layoutMargin.right + padding.right,
+    viz,
+    position,
+    layoutMargin.bottom + padding.bottom,
+    layoutMargin.right + padding.right,
   );
-  return {drop: dropRight || dropLeft, insetRight: corner.inset, shorten: corner.drop};
+  return {
+    drop: dropRight || dropLeft,
+    insetRight: corner.inset,
+    shorten: corner.drop,
+  };
 }
 
 /** Where and how the legend lays itself out for one render. */
@@ -169,7 +190,11 @@ interface LegendFrame {
     compute mode (Legend contributes to the scene via its `toScene()`,
     collected on Viz.toScene) into `frame`.
 */
-function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): void {
+function paintLegend(
+  viz: VizInstance,
+  built: LegendData,
+  frame: LegendFrame,
+): void {
   const {legendData, legendKey, getAttr} = built;
 
   const hidden = (d: DataPoint, i: number): boolean => {
@@ -197,8 +222,8 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
     update: transform,
   }).node();
 
-  viz._legendClass!
-    .renderMode("compute")
+  viz
+    ._legendClass!.renderMode("compute")
     .id(legendKey)
     .align(frame.align)
     .direction(frame.direction)
@@ -214,7 +239,12 @@ function paintLegend(viz: VizInstance, built: LegendData, frame: LegendFrame): v
     })
     .verticalAlign(frame.verticalAlign)
     .width(frame.width)
-    .shapeConfig(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.shapeConfig, "legend"))
+    .shapeConfig(
+      configPrep.bind(viz as unknown as ConfigPrepHost)(
+        viz.schema.shapeConfig,
+        "legend",
+      ),
+    )
     .shapeConfig({
       fill: (d: DataPoint, i: number) =>
         hidden(d, i) ? viz.schema.hiddenColor(d, i) : getAttr(d, i, "fill"),
@@ -261,9 +291,10 @@ function paintTopLegend(
   top: number,
   right: number,
 ): number {
-  const placements = frame.visible && !viz.schema.legendConfig.select
-    ? cornerPlacements(viz, top, frame.x, right, true)
-    : [{left: 0, right: 0, drop: 0}];
+  const placements =
+    frame.visible && !viz.schema.legendConfig.select
+      ? cornerPlacements(viz, top, frame.x, right, true)
+      : [{left: 0, right: 0, drop: 0}];
   for (const [i, {left: l, right: r, drop}] of placements.entries()) {
     paintLegend(viz, built, {
       ...frame,
@@ -272,7 +303,8 @@ function paintTopLegend(
       width: frame.width - l - r,
       height: frame.height - drop,
     });
-    if (i === placements.length - 1 || legendLabelsWhole(viz._legendClass!)) return drop;
+    if (i === placements.length - 1 || legendLabelsWhole(viz._legendClass!))
+      return drop;
   }
   return 0;
 }
@@ -284,8 +316,13 @@ function paintTopLegend(
 */
 function legendVisible(viz: VizInstance, built: LegendData): boolean {
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
-  return position === false ? false : Boolean(viz.schema.legend.bind(viz)(config, built.legendData));
+  const position = sanitizePosition(
+    viz.schema.legendPosition.bind(viz)(config),
+    viz,
+  );
+  return position === false
+    ? false
+    : Boolean(viz.schema.legend.bind(viz)(config, built.legendData));
 }
 
 /**
@@ -314,7 +351,9 @@ export function paintLegendInset(
   });
   if (!visible) return null;
   const legend = viz._legendClass!;
-  const labelsFit = (legend._lineData || []).every((d: Record<string, unknown>) => (d.width as number) > 0);
+  const labelsFit = (legend._lineData || []).every(
+    (d: Record<string, unknown>) => (d.width as number) > 0,
+  );
   const {width, height} = legend.outerBounds();
   return labelsFit && width && height ? {width, height} : null;
 }
@@ -330,20 +369,33 @@ function renderLegendFeature(
   layoutMargin: Required<MarginClaim>,
 ): FeatureLayout {
   if (isInsetPending(viz, "legend")) {
-    paintLegendInset(viz, insetOrient(viz, "legend"), {
-      width: viz.schema.width - layoutMargin.left - layoutMargin.right,
-      height: viz.schema.height - layoutMargin.top - layoutMargin.bottom,
-    }, built);
+    paintLegendInset(
+      viz,
+      insetOrient(viz, "legend"),
+      {
+        width: viz.schema.width - layoutMargin.left - layoutMargin.right,
+        height: viz.schema.height - layoutMargin.top - layoutMargin.bottom,
+      },
+      built,
+    );
     return {panel: null, margin: {}};
   }
 
   const config = resolveSpec(viz);
-  const position = sanitizePosition(viz.schema.legendPosition.bind(viz)(config), viz);
+  const position = sanitizePosition(
+    viz.schema.legendPosition.bind(viz)(config),
+    viz,
+  );
   const wide = ["top", "bottom"].includes(position as string);
   const padding = viz.schema.legendPadding(viz)
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
-  const {drop, insetRight, shorten} = legendCornerClearance(viz, position, layoutMargin, padding);
+  const {drop, insetRight, shorten} = legendCornerClearance(
+    viz,
+    position,
+    layoutMargin,
+    padding,
+  );
 
   const frame: LegendFrame = {
     x: wide ? layoutMargin.left + padding.left : layoutMargin.left,
@@ -351,20 +403,36 @@ function renderLegendFeature(
     width:
       (wide
         ? viz.schema.width -
-            (layoutMargin.left + layoutMargin.right + padding.left + padding.right)
-        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) - insetRight,
+          (layoutMargin.left +
+            layoutMargin.right +
+            padding.left +
+            padding.right)
+        : viz.schema.width - (layoutMargin.left + layoutMargin.right)) -
+      insetRight,
     height:
       (wide
         ? viz.schema.height - (layoutMargin.bottom + layoutMargin.top)
         : viz.schema.height -
-            (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top)) - drop - shorten,
+          (layoutMargin.bottom +
+            layoutMargin.top +
+            padding.bottom +
+            padding.top)) -
+      drop -
+      shorten,
     align: wide ? "center" : (position as string),
     direction: wide ? "row" : "column",
     verticalAlign: !wide ? "middle" : (position as string),
     visible: legendVisible(viz, built),
   };
   let topDrop = 0;
-  if (position === "top") topDrop = paintTopLegend(viz, built, frame, layoutMargin.top, layoutMargin.right + padding.right);
+  if (position === "top")
+    topDrop = paintTopLegend(
+      viz,
+      built,
+      frame,
+      layoutMargin.top,
+      layoutMargin.right + padding.right,
+    );
   else paintLegend(viz, built, frame);
 
   const legendBounds = viz._legendClass!.outerBounds();
@@ -392,8 +460,17 @@ function renderLegendFeature(
 */
 export const legendFeature: FeatureModule = {
   name: "legend",
-  configFields: ["legend", "legendConfig", "legendPadding", "legendPosition", "legendSort"],
-  layout: ({viz, layoutMargin}: VizContext & {layoutMargin: Required<MarginClaim>}) => {
+  configFields: [
+    "legend",
+    "legendConfig",
+    "legendPadding",
+    "legendPosition",
+    "legendSort",
+  ],
+  layout: ({
+    viz,
+    layoutMargin,
+  }: VizContext & {layoutMargin: Required<MarginClaim>}) => {
     const built = buildLegendData(viz);
     return renderLegendFeature(viz, built, layoutMargin);
   },

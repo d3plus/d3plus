@@ -18,7 +18,12 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 export type AxisBounds = {width: number; height: number; x: number; y: number};
 
 /** The y/y2 bounds + claimed widths a y-axis measure pass produces. */
-export type YAxisMeasure = {yBounds: AxisBounds; yWidth: number | undefined; y2Bounds: AxisBounds; y2Width: number | undefined};
+export type YAxisMeasure = {
+  yBounds: AxisBounds;
+  yWidth: number | undefined;
+  y2Bounds: AxisBounds;
+  y2Width: number | undefined;
+};
 
 /** The final y-axis solve: its bounds and widths, and the x range's offsets. */
 type FinalYAxes = YAxisMeasure & {xOffsetLeft: number; xOffsetRight: number};
@@ -82,7 +87,13 @@ function solveFinalYAxes(
 
   const yBounds = yTest.outerBounds() as AxisBounds;
   const yWidth = yBounds.width ? yBounds.width + yTest.padding() : undefined;
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
+  const xOffsetLeft = max([
+    0,
+    yWidth,
+    xTestRange[0],
+    x2TestRange[0],
+    viz._plotMinLeft?.(),
+  ] as number[])!;
 
   if (y2Exists) {
     y2Test
@@ -113,7 +124,10 @@ function solveFinalYAxes(
     reckons it, or `undefined` when the axis draws no labels of its own (it's
     hidden, or labels the plot's ends instead).
 */
-function finalXHeight(pCtx: PlotPaintContext, xRange: number[]): number | undefined {
+function finalXHeight(
+  pCtx: PlotPaintContext,
+  xRange: number[],
+): number | undefined {
   const {xTest, showX, xLabelMode} = pCtx;
   if (!showX || (xLabelMode && xLabelMode !== "axis")) return undefined;
   xTest.range(xRange).measure();
@@ -137,19 +151,30 @@ export function solveFinalAxes(
   viz: Viz,
   pCtx: PlotPaintContext,
   frozen?: PlotMeasureResult,
-): {pCtx: PlotPaintContext; yRange: number[]; yBottom: number; insetBottom: number; solved: FinalYAxes} {
+): {
+  pCtx: PlotPaintContext;
+  yRange: number[];
+  yBottom: number;
+  insetBottom: number;
+  solved: FinalYAxes;
+} {
   const {x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
   // The plot's bottom edge for an x axis `xHeight` tall, less the room a
   // chart reserves between the value axis and the x axis.
   const bottom = (xHeight: number) => {
     const yBottom = height - (xHeight + topOffset + verticalMargin);
-    const insetBottom = frozen?.insetBottom ?? Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
+    const insetBottom =
+      frozen?.insetBottom ??
+      Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
     return {yBottom, insetBottom, yRange: [x2Height, yBottom - insetBottom]};
   };
   let fit = bottom(pCtx.xHeight);
   let solved = frozen || solveFinalYAxes(viz, pCtx, fit.yRange);
   for (let pass = 0; !frozen && pass < 3; pass++) {
-    const xHeight = finalXHeight(pCtx, [solved.xOffsetLeft, pCtx.width - (solved.xOffsetRight + horizontalMargin)]);
+    const xHeight = finalXHeight(pCtx, [
+      solved.xOffsetLeft,
+      pCtx.width - (solved.xOffsetRight + horizontalMargin),
+    ]);
     if (xHeight === undefined || xHeight === pCtx.xHeight) break;
     viz._padding.bottom += xHeight - pCtx.xHeight;
     pCtx = {...pCtx, xHeight};

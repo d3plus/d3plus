@@ -68,7 +68,9 @@ function findFrozenSearchNode(viz: Viz): {html: string} | null {
   }>;
   for (const panel of panels) {
     if (panel?.key !== "viz-top-left-controls" || !panel.children) continue;
-    const child = panel.children.find(c => c.key === "viz-top-left-controls-search");
+    const child = panel.children.find(
+      c => c.key === "viz-top-left-controls-search",
+    );
     if (child) return child as {html: string};
   }
   return null;
@@ -125,7 +127,10 @@ function refreshCount(viz: Viz, host: HTMLElement): void {
   // runs on EVERY draw, so it's also the path that catches the matches
   // silently changing underneath an unrelated re-render. Drop it rather
   // than show an impossible position like "Match 6/2".
-  if (typeof viz._searchMatchIndex === "number" && viz._searchMatchIndex >= total) {
+  if (
+    typeof viz._searchMatchIndex === "number" &&
+    viz._searchMatchIndex >= total
+  ) {
     viz._searchMatchIndex = undefined;
   }
   applySearchCount(viz, countEl, hasTerm, viz._searchMatchIndex, total);
@@ -219,7 +224,8 @@ function onClearClick(viz: Viz, e: Event): void {
 */
 function findMarkElement(container: Element, key: unknown): HTMLElement | null {
   const candidates = container.querySelectorAll<HTMLElement>("[data-key]");
-  for (const el of candidates) if (el.getAttribute("data-key") === String(key)) return el;
+  for (const el of candidates)
+    if (el.getAttribute("data-key") === String(key)) return el;
   return null;
 }
 
@@ -232,7 +238,8 @@ function findMarkElement(container: Element, key: unknown): HTMLElement | null {
     SVG-only: Canvas paints no per-mark DOM to measure (see the module doc).
 */
 function panToMatch(viz: Viz, host: HTMLElement, key: unknown): void {
-  if (viz._renderer === "canvas" || typeof viz._zoomToBounds !== "function") return;
+  if (viz._renderer === "canvas" || typeof viz._zoomToBounds !== "function")
+    return;
   // `host` is one overlay panel inside the shared `.d3plus-render-overlays`
   // host div (@d3plus/render's `createOverlayHost`), which is itself a
   // SIBLING of the rendered `<svg>` — not its parent. The chart's actual
@@ -263,7 +270,11 @@ function jumpToMatch(viz: Viz, host: HTMLElement, direction: 1 | -1): void {
   if (!matches.length) return;
   const count = matches.length;
   const prev = viz._searchMatchIndex;
-  const next = ((typeof prev === "number" ? prev : direction === 1 ? -1 : 0) + direction + count) % count;
+  const next =
+    ((typeof prev === "number" ? prev : direction === 1 ? -1 : 0) +
+      direction +
+      count) %
+    count;
   viz._searchMatchIndex = next;
   refreshCount(viz, host);
   panToMatch(viz, host, matches[next].node.key);
@@ -324,7 +335,9 @@ export function searchContribution(viz: Viz): Contribution | null {
       if (btn && !btn.dataset.searchBound) {
         btn.dataset.searchBound = "1";
         paintSearchButton(viz, btn);
-        btn.addEventListener("mouseenter", () => paintSearchButton(viz, btn, true));
+        btn.addEventListener("mouseenter", () =>
+          paintSearchButton(viz, btn, true),
+        );
         btn.addEventListener("mouseleave", () => paintSearchButton(viz, btn));
       }
       // `blur` doesn't bubble, so it can't ride the declarative `events`
@@ -333,7 +346,9 @@ export function searchContribution(viz: Viz): Contribution | null {
       const input = host.querySelector<HTMLInputElement>(".search-input");
       if (input && !input.dataset.searchBlurBound) {
         input.dataset.searchBlurBound = "1";
-        input.addEventListener("blur", e => onSearchBlur(viz, host, e as FocusEvent));
+        input.addEventListener("blur", e =>
+          onSearchBlur(viz, host, e as FocusEvent),
+        );
       }
     },
   };

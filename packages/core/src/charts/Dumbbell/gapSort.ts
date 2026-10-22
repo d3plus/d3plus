@@ -32,7 +32,11 @@ export interface GapSortState {
     @param category Reads a row's category.
     @param value Reads a row's value.
 */
-export function categoryGaps(rows: DataPoint[], category: RowAccessor, value: RowAccessor): Map<string, number> {
+export function categoryGaps(
+  rows: DataPoint[],
+  category: RowAccessor,
+  value: RowAccessor,
+): Map<string, number> {
   const extents = new Map<string, [number, number]>();
   rows.forEach((d, i) => {
     const key = `${category(d, i)}`;
@@ -64,7 +68,8 @@ export function gapComparator(
   category: (d: DataPoint) => unknown,
 ): CategoryComparator {
   const gapOf = (d: DataPoint): number => gaps().get(`${category(d)}`) ?? 0;
-  return (a, b) => (order === "ascending" ? gapOf(a) - gapOf(b) : gapOf(b) - gapOf(a));
+  return (a, b) =>
+    order === "ascending" ? gapOf(a) - gapOf(b) : gapOf(b) - gapOf(a);
 }
 
 /**
@@ -78,7 +83,11 @@ export function gapComparator(
     @param state What this function installed last time.
 */
 export function syncGapSort(viz: VizInstance, state: GapSortState): void {
-  if (state.axis && state.sort && viz.schema[`${state.axis}Sort`] === state.sort)
+  if (
+    state.axis &&
+    state.sort &&
+    viz.schema[`${state.axis}Sort`] === state.sort
+  )
     viz.schema[`${state.axis}Sort`] = undefined;
   state.axis = state.sort = undefined;
   const order = viz.schema.gapSort as GapSort;
@@ -95,7 +104,10 @@ export function syncGapSort(viz: VizInstance, state: GapSortState): void {
     return out;
   };
   // A vertical category axis lists its first category at the bottom.
-  const flipped = axis === "y" ? (order === "ascending" ? "descending" : "ascending") : order;
+  const flipped =
+    axis === "y" ? (order === "ascending" ? "descending" : "ascending") : order;
   state.axis = axis;
-  state.sort = viz.schema[`${axis}Sort`] = gapComparator(gaps, flipped, d => category(d, 0));
+  state.sort = viz.schema[`${axis}Sort`] = gapComparator(gaps, flipped, d =>
+    category(d, 0),
+  );
 }

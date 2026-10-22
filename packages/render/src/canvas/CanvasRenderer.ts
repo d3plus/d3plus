@@ -1,7 +1,17 @@
 import {cubicInOut} from "../animate/interpolate.js";
 import {interpolateScene} from "../animate/diff.js";
-import {commitTrailCatchups, commitTrailScene, TrailLog} from "../animate/trailLog.js";
-import type {ClipShape, LineNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {
+  commitTrailCatchups,
+  commitTrailScene,
+  TrailLog,
+} from "../animate/trailLog.js";
+import type {
+  ClipShape,
+  LineNode,
+  Scene,
+  SceneNode,
+  TextNode,
+} from "../scene.js";
 import {
   applyOverlayToElement,
   alignOverlayHost,
@@ -112,7 +122,9 @@ export default class CanvasRenderer implements Renderer {
 
   mount(target: RenderTarget): void {
     this._target = target;
-    this._ratio = target.pixelRatio ?? (typeof devicePixelRatio !== "undefined" ? devicePixelRatio : 1);
+    this._ratio =
+      target.pixelRatio ??
+      (typeof devicePixelRatio !== "undefined" ? devicePixelRatio : 1);
     const backend = getCanvasBackend();
     this._dom = backend.dom !== false;
     const canvas = backend.createCanvas(target.width, target.height);
@@ -154,7 +166,8 @@ export default class CanvasRenderer implements Renderer {
   }
 
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
-    if (!this._ctx) throw new Error("CanvasRenderer.drawScene called before mount()");
+    if (!this._ctx)
+      throw new Error("CanvasRenderer.drawScene called before mount()");
     // Cancel any in-flight animation with the "soft" path — don't
     // snap-paint the previous target. The new animation that's about
     // to start will pick up from the visible canvas pixels and
@@ -168,14 +181,19 @@ export default class CanvasRenderer implements Renderer {
     // not per frame), so committed segments accumulate and stale keys are pruned.
     // The log is threaded into the interp only when a persistent trail exists, so
     // the common (no-persist) path keeps its fast direct paint / trail-free diff.
-    if (opts?.trailCatchup) commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
-    const trailLog = commitTrailScene(this._trailLog, scene, opts?.sequence) ? this._trailLog : undefined;
+    if (opts?.trailCatchup)
+      commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
+    const trailLog = commitTrailScene(this._trailLog, scene, opts?.sequence)
+      ? this._trailLog
+      : undefined;
 
     if (!duration) {
       // With persistent trails, paint the resting frame (t=1) through the interp
       // so they stay drawn on non-animated repaints (e.g. hover); otherwise paint
       // the raw scene directly. Either way store the raw scene as `prev`.
-      this._paint(trailLog ? interpolateScene(prev, scene, trailLog)(1) : scene);
+      this._paint(
+        trailLog ? interpolateScene(prev, scene, trailLog)(1) : scene,
+      );
       this._scene = scene;
       this._reconcileOverlays(scene);
       opts?.onEnd?.();
@@ -187,8 +205,10 @@ export default class CanvasRenderer implements Renderer {
 
     const ease = opts?.ease ?? cubicInOut;
     const interp = interpolateScene(prev, scene, trailLog, {
-      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
-      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      enterFrom: opts?.enterFrom,
+      enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo,
+      exitToBody: opts?.exitToBody,
       instantExitKey: opts?.instantExitKey,
       reunionEnterKey: opts?.reunionEnterKey,
       reunionEnterFrom: opts?.reunionEnterFrom,
@@ -251,12 +271,24 @@ export default class CanvasRenderer implements Renderer {
       ctx.fillStyle = scene.meta.background;
       ctx.fillRect(0, 0, this._width, this._height);
     }
-    this._drawChildren(ctx, scene.root.children, 1, [this._ratio, 0, 0, this._ratio, 0, 0], []);
+    this._drawChildren(
+      ctx,
+      scene.root.children,
+      1,
+      [this._ratio, 0, 0, this._ratio, 0, 0],
+      [],
+    );
     ctx.restore();
   }
 
   /** Draws a node list in z-order, accumulating alpha and the transform matrix for picking. */
-  private _drawChildren(ctx: Ctx, children: SceneNode[], alpha: number, abs: Mat, clips: ClipEntry[]): void {
+  private _drawChildren(
+    ctx: Ctx,
+    children: SceneNode[],
+    alpha: number,
+    abs: Mat,
+    clips: ClipEntry[],
+  ): void {
     // Skip sort allocation + comparator runs when no child has z set.
     // The common case (every node lacks z; paint in source order).
     let needsSort = false;
@@ -272,12 +304,25 @@ export default class CanvasRenderer implements Renderer {
     for (const node of ordered) this._drawNode(ctx, node, alpha, abs, clips);
   }
 
-  private _drawNode(ctx: Ctx, node: SceneNode, alpha: number, parentAbs: Mat, clips: ClipEntry[]): void {
+  private _drawNode(
+    ctx: Ctx,
+    node: SceneNode,
+    alpha: number,
+    parentAbs: Mat,
+    clips: ClipEntry[],
+  ): void {
     const localAbs = multiply(parentAbs, nodeMatrix(node.transform));
     const a = alpha * (node.paint?.opacity ?? 1);
 
     ctx.save();
-    ctx.setTransform(localAbs[0], localAbs[1], localAbs[2], localAbs[3], localAbs[4], localAbs[5]);
+    ctx.setTransform(
+      localAbs[0],
+      localAbs[1],
+      localAbs[2],
+      localAbs[3],
+      localAbs[4],
+      localAbs[5],
+    );
 
     if (node.interactive !== false && node.type !== "group")
       this._pickIndex.push({node, inverse: invert(localAbs), clips});
@@ -287,8 +332,9 @@ export default class CanvasRenderer implements Renderer {
     // Passed to `paint` so `vector-effect: non-scaling-stroke` can keep a stroke
     // a constant screen width as the content zooms (SVG-backend parity).
     const cssScale =
-      (Math.sqrt(Math.abs(localAbs[0] * localAbs[3] - localAbs[1] * localAbs[2])) || this._ratio) /
-      this._ratio;
+      (Math.sqrt(
+        Math.abs(localAbs[0] * localAbs[3] - localAbs[1] * localAbs[2]),
+      ) || this._ratio) / this._ratio;
 
     switch (node.type) {
       case "rect":
@@ -299,7 +345,14 @@ export default class CanvasRenderer implements Renderer {
         paint(ctx, node, a, undefined, this._patternResolver, cssScale);
         break;
       case "path":
-        paint(ctx, node, a, new Path2D(node.d), this._patternResolver, cssScale);
+        paint(
+          ctx,
+          node,
+          a,
+          new Path2D(node.d),
+          this._patternResolver,
+          cssScale,
+        );
         break;
       case "image":
         this._drawImage(ctx, node, a);
@@ -311,13 +364,20 @@ export default class CanvasRenderer implements Renderer {
         if (node.clip) {
           if (node.clip.type === "rect") {
             ctx.beginPath();
-            ctx.rect(node.clip.x, node.clip.y, node.clip.width, node.clip.height);
+            ctx.rect(
+              node.clip.x,
+              node.clip.y,
+              node.clip.width,
+              node.clip.height,
+            );
             ctx.clip();
           } else {
             ctx.clip(new Path2D(node.clip.d));
           }
         }
-        const inner = node.clip ? [...clips, {clip: node.clip, inverse: invert(localAbs)}] : clips;
+        const inner = node.clip
+          ? [...clips, {clip: node.clip, inverse: invert(localAbs)}]
+          : clips;
         this._drawChildren(ctx, node.children, a, localAbs, inner);
         break;
       }
@@ -377,8 +437,14 @@ export default class CanvasRenderer implements Renderer {
     const size = f.size ?? 12;
     const family = f.family ?? "sans-serif";
     ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
-    ctx.textAlign = f.anchor === "middle" ? "center" : f.anchor === "end" ? "right" : "left";
-    ctx.textBaseline = f.baseline === "middle" ? "middle" : f.baseline === "hanging" ? "hanging" : "alphabetic";
+    ctx.textAlign =
+      f.anchor === "middle" ? "center" : f.anchor === "end" ? "right" : "left";
+    ctx.textBaseline =
+      f.baseline === "middle"
+        ? "middle"
+        : f.baseline === "hanging"
+          ? "hanging"
+          : "alphabetic";
     const p = node.paint || {};
     ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
     ctx.fillStyle = solidFill(p.fill) ?? "#000";
@@ -414,27 +480,45 @@ export default class CanvasRenderer implements Renderer {
     return this._res.whenSettled();
   }
 
-  private _drawImage(ctx: Ctx, node: Extract<SceneNode, {type: "image"}>, alpha: number): void {
+  private _drawImage(
+    ctx: Ctx,
+    node: Extract<SceneNode, {type: "image"}>,
+    alpha: number,
+  ): void {
     const img = this._res.imageFor(node.href);
     if (!img) return;
     ctx.globalAlpha = alpha;
     const par = node.preserveAspectRatio;
-    const iw = img.naturalWidth || img.width, ih = img.naturalHeight || img.height;
+    const iw = img.naturalWidth || img.width,
+      ih = img.naturalHeight || img.height;
     if (par && par.includes("slice")) {
       // CSS `cover`: scale the image to fill the box, cropping the overflow
       // (centered), via drawImage's source-rect crop.
       const scale = Math.max(node.width / iw, node.height / ih);
-      const sw = node.width / scale, sh = node.height / scale;
+      const sw = node.width / scale,
+        sh = node.height / scale;
       ctx.drawImage(
-        img, (iw - sw) / 2, (ih - sh) / 2, sw, sh,
-        node.x, node.y, node.width, node.height,
+        img,
+        (iw - sw) / 2,
+        (ih - sh) / 2,
+        sw,
+        sh,
+        node.x,
+        node.y,
+        node.width,
+        node.height,
       );
     } else if (par && par !== "none" && par.includes("meet")) {
       // CSS `contain`: fit the whole image inside the box (centered).
       const scale = Math.min(node.width / iw, node.height / ih);
-      const dw = iw * scale, dh = ih * scale;
+      const dw = iw * scale,
+        dh = ih * scale;
       ctx.drawImage(
-        img, node.x + (node.width - dw) / 2, node.y + (node.height - dh) / 2, dw, dh,
+        img,
+        node.x + (node.width - dw) / 2,
+        node.y + (node.height - dh) / 2,
+        dw,
+        dh,
       );
     } else {
       ctx.drawImage(img, node.x, node.y, node.width, node.height);
@@ -443,7 +527,10 @@ export default class CanvasRenderer implements Renderer {
 
   pick(point: [number, number]): PickResult | null {
     // Topmost wins: entries are in paint order, so search from the end.
-    const device: [number, number] = [point[0] * this._ratio, point[1] * this._ratio];
+    const device: [number, number] = [
+      point[0] * this._ratio,
+      point[1] * this._ratio,
+    ];
     for (let i = this._pickIndex.length - 1; i >= 0; i--) {
       const {node, inverse, clips} = this._pickIndex[i];
       if (!clips.every(c => this._inClip(c, device))) continue;
@@ -455,17 +542,32 @@ export default class CanvasRenderer implements Renderer {
   }
 
   /** Whether a device-space point falls inside a group's clip (which paints nothing outside it). */
-  private _inClip({clip, inverse}: ClipEntry, device: [number, number]): boolean {
+  private _inClip(
+    {clip, inverse}: ClipEntry,
+    device: [number, number],
+  ): boolean {
     const [lx, ly] = apply(inverse, device);
     if (clip.type === "rect")
-      return lx >= clip.x && lx <= clip.x + clip.width && ly >= clip.y && ly <= clip.y + clip.height;
-    return this._ctx ? this._ctx.isPointInPath(new Path2D(clip.d), lx, ly) : true;
+      return (
+        lx >= clip.x &&
+        lx <= clip.x + clip.width &&
+        ly >= clip.y &&
+        ly <= clip.y + clip.height
+      );
+    return this._ctx
+      ? this._ctx.isPointInPath(new Path2D(clip.d), lx, ly)
+      : true;
   }
 
   private _hitTest(node: SceneNode, lx: number, ly: number): boolean {
     switch (node.type) {
       case "rect":
-        return lx >= node.x && lx <= node.x + node.width && ly >= node.y && ly <= node.y + node.height;
+        return (
+          lx >= node.x &&
+          lx <= node.x + node.width &&
+          ly >= node.y &&
+          ly <= node.y + node.height
+        );
       case "circle":
         return (lx - node.cx) ** 2 + (ly - node.cy) ** 2 <= node.r ** 2;
       case "path":
@@ -477,7 +579,12 @@ export default class CanvasRenderer implements Renderer {
       case "line":
         return this._hitLine(node, lx, ly);
       case "image":
-        return lx >= node.x && lx <= node.x + node.width && ly >= node.y && ly <= node.y + node.height;
+        return (
+          lx >= node.x &&
+          lx <= node.x + node.width &&
+          ly >= node.y &&
+          ly <= node.y + node.height
+        );
       case "text":
         return this._hitText(node, lx, ly);
       default:
@@ -495,7 +602,9 @@ export default class CanvasRenderer implements Renderer {
       const dx = x2 - x1;
       const dy = y2 - y1;
       const len2 = dx * dx + dy * dy;
-      const t = len2 ? Math.max(0, Math.min(1, ((lx - x1) * dx + (ly - y1) * dy) / len2)) : 0;
+      const t = len2
+        ? Math.max(0, Math.min(1, ((lx - x1) * dx + (ly - y1) * dy) / len2))
+        : 0;
       const px = x1 + t * dx;
       const py = y1 + t * dy;
       if ((lx - px) ** 2 + (ly - py) ** 2 <= tol * tol) return true;
@@ -508,8 +617,19 @@ export default class CanvasRenderer implements Renderer {
     const size = node.font?.size ?? 12;
     const anchor = node.font?.anchor;
     for (const ln of node.lines) {
-      const left = anchor === "middle" ? ln.x - ln.width / 2 : anchor === "end" ? ln.x - ln.width : ln.x;
-      if (lx >= left && lx <= left + ln.width && ly >= ln.y - size && ly <= ln.y + size * 0.3) return true;
+      const left =
+        anchor === "middle"
+          ? ln.x - ln.width / 2
+          : anchor === "end"
+            ? ln.x - ln.width
+            : ln.x;
+      if (
+        lx >= left &&
+        lx <= left + ln.width &&
+        ly >= ln.y - size &&
+        ly <= ln.y + size * 0.3
+      )
+        return true;
     }
     return false;
   }
@@ -543,7 +663,9 @@ export default class CanvasRenderer implements Renderer {
     this._invalidatePointerRect = invalidateRect;
     this._removePointerRectListeners = () => {
       window.removeEventListener("resize", onResize);
-      window.removeEventListener("scroll", onScroll, {capture: true} as EventListenerOptions);
+      window.removeEventListener("scroll", onScroll, {
+        capture: true,
+      } as EventListenerOptions);
     };
     const local = (e: MouseEvent): [number, number] => {
       if (!cachedRect || (cachedRect.width === 0 && cachedRect.height === 0)) {
@@ -558,9 +680,15 @@ export default class CanvasRenderer implements Renderer {
         const key = pick?.node.key ?? null;
         if (key !== this._hoverKey) {
           if (this._hoverKey !== null)
-            this._dispatch({type: "mouseleave", point, pick: null, nativeEvent: e});
+            this._dispatch({
+              type: "mouseleave",
+              point,
+              pick: null,
+              nativeEvent: e,
+            });
           this._hoverKey = key;
-          if (key !== null) this._dispatch({type: "mouseenter", point, pick, nativeEvent: e});
+          if (key !== null)
+            this._dispatch({type: "mouseenter", point, pick, nativeEvent: e});
         }
       }
       this._dispatch({type, point, pick, nativeEvent: e});
@@ -573,11 +701,17 @@ export default class CanvasRenderer implements Renderer {
       // Always reported, even when no node was hovered, so pointer state
       // tracked over empty space (e.g. a plot crosshair) can clear.
       mouseleave: e => {
-        this._dispatch({type: "mouseleave", point: local(e as MouseEvent), pick: null, nativeEvent: e});
+        this._dispatch({
+          type: "mouseleave",
+          point: local(e as MouseEvent),
+          pick: null,
+          nativeEvent: e,
+        });
         this._hoverKey = null;
       },
     };
-    for (const [k, fn] of Object.entries(this._domListeners)) canvas.addEventListener(k, fn);
+    for (const [k, fn] of Object.entries(this._domListeners))
+      canvas.addEventListener(k, fn);
   }
 
   private _dispatch(event: SceneEvent): void {

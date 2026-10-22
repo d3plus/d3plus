@@ -42,7 +42,11 @@ const charts = [
     nodeOf: sunburstNodeOf,
     zoomIn: sunburstZoomIn,
     handlers: sunburstHandlers,
-    origin: node => ({startAngle: node.startAngle, endAngle: node.endAngle, depth: 2}),
+    origin: node => ({
+      startAngle: node.startAngle,
+      endAngle: node.endAngle,
+      depth: 2,
+    }),
   },
   {
     chart: "Icicle",
@@ -53,7 +57,8 @@ const charts = [
     layout: applyIcicleLayout,
     nodeOf: icicleNodeOf,
     zoomIn: (viz, node) => partitionZoomIn(viz, node, icicleInteraction),
-    handlers: (viz, shareRow) => partitionHandlers(viz, shareRow, icicleInteraction),
+    handlers: (viz, shareRow) =>
+      partitionHandlers(viz, shareRow, icicleInteraction),
     origin: node => ({x0: node.x0, x1: node.x1, depth: 2}),
   },
 ];
@@ -120,7 +125,8 @@ describe.each(charts)("$chart interaction", c => {
   }
 
   const laid = viz => viz.ctx[`${c.prefix}Laid`];
-  const nodeAt = (viz, path) => laid(viz).find(n => n.id === JSON.stringify(path));
+  const nodeAt = (viz, path) =>
+    laid(viz).find(n => n.id === JSON.stringify(path));
 
   it("nodeOf resolves a row, or a label wrapping one, under the chart's own prefix", () => {
     const viz = mockViz();
@@ -136,9 +142,15 @@ describe.each(charts)("$chart interaction", c => {
   it("partitionDrillable allows parents, and leaves with deeper levels past the drawn depth", () => {
     const viz = mockViz();
     assert.strictEqual(partitionDrillable(viz, nodeAt(viz, ["A"])), true);
-    assert.strictEqual(partitionDrillable(viz, nodeAt(viz, ["A", "m1", "f1"])), false);
+    assert.strictEqual(
+      partitionDrillable(viz, nodeAt(viz, ["A", "m1", "f1"])),
+      false,
+    );
     const shallow = mockViz({_drawDepth: 1});
-    assert.strictEqual(partitionDrillable(shallow, nodeAt(shallow, ["A", "m1"])), true);
+    assert.strictEqual(
+      partitionDrillable(shallow, nodeAt(shallow, ["A", "m1"])),
+      true,
+    );
     const bucket = {...nodeAt(viz, ["A"]), datum: {_isAggregation: true}};
     assert.strictEqual(partitionDrillable(viz, bucket), false);
   });
@@ -149,7 +161,10 @@ describe.each(charts)("$chart interaction", c => {
     assert.strictEqual(partitionClickable(viz, root), false);
     viz._history.push({});
     assert.strictEqual(partitionClickable(viz, root), true);
-    assert.strictEqual(partitionClickable(viz, nodeAt(viz, ["A", "m1", "f1"])), false);
+    assert.strictEqual(
+      partitionClickable(viz, nodeAt(viz, ["A", "m1", "f1"])),
+      false,
+    );
   });
 
   it("partitionHoverRows keeps the node and its ancestors only", () => {
@@ -163,9 +178,15 @@ describe.each(charts)("$chart interaction", c => {
 
   it("partitionParentShareRow appears only past the first level", () => {
     const viz = mockViz();
-    assert.strictEqual(partitionParentShareRow(viz, nodeAt(viz, ["A"])), undefined);
+    assert.strictEqual(
+      partitionParentShareRow(viz, nodeAt(viz, ["A"])),
+      undefined,
+    );
     assert.strictEqual(partitionParentShareRow(viz, undefined), undefined);
-    assert.deepStrictEqual(partitionParentShareRow(viz, nodeAt(viz, ["A", "m1"])), ["Share of Parent", "66.7%"]);
+    assert.deepStrictEqual(
+      partitionParentShareRow(viz, nodeAt(viz, ["A", "m1"])),
+      ["Share of Parent", "66.7%"],
+    );
   });
 
   it("zoomIn filters to the node's path and records the chart's own origin on the history", () => {
@@ -174,11 +195,19 @@ describe.each(charts)("$chart interaction", c => {
     c.zoomIn(viz, m1);
     assert.strictEqual(viz._history.length, 1);
     assert.deepStrictEqual(
-      {groupId: viz._history[0].groupId, groupDepth: viz._history[0].groupDepth},
+      {
+        groupId: viz._history[0].groupId,
+        groupDepth: viz._history[0].groupDepth,
+      },
       {groupId: "m1", groupDepth: 1},
     );
     const {filter} = viz.log.config[0];
-    assert.deepStrictEqual(rows().filter(filter).map(d => d.file), ["f1", "f2"]);
+    assert.deepStrictEqual(
+      rows()
+        .filter(filter)
+        .map(d => d.file),
+      ["f1", "f2"],
+    );
     assert.ok(!("depth" in viz.log.config[0]), "an unset depth stays unset");
     assert.deepStrictEqual(viz.ctx[`${c.prefix}ZoomOrigin`], c.origin(m1));
     assert.strictEqual(viz.ctx[`${c.other}ZoomOrigin`], undefined);
@@ -199,7 +228,10 @@ describe.each(charts)("$chart interaction", c => {
       viz.schema.filter = original;
       c.zoomIn(viz, nodeAt(viz, ["A"]));
       partitionZoomOut(viz);
-      assert.deepStrictEqual(viz.log.config[1], {depth: undefined, filter: original});
+      assert.deepStrictEqual(viz.log.config[1], {
+        depth: undefined,
+        filter: original,
+      });
       assert.strictEqual(viz._history.length, 0);
       partitionZoomOut(viz);
       assert.strictEqual(viz.log.config.length, 2, "nothing to pop");
@@ -226,7 +258,11 @@ describe.each(charts)("$chart interaction", c => {
     const a = nodeAt(viz, ["A"]);
     handlers.mouseenter(a.datum, 0);
     handlers["mousemove.shape"](a.datum, 0, undefined, {});
-    assert.strictEqual(viz.log.hover.length, 1, "the same node isn't hovered twice");
+    assert.strictEqual(
+      viz.log.hover.length,
+      1,
+      "the same node isn't hovered twice",
+    );
     const b = nodeAt(viz, ["B"]);
     handlers["mousemove.shape"](b.datum, 0, undefined, {});
     assert.strictEqual(viz.log.hover.length, 2);
@@ -248,14 +284,24 @@ describe.each(charts)("$chart interaction", c => {
     const tbody = [[...shareRow]];
     viz.schema.tooltipConfig.tbody = tbody;
     const handlers = c.handlers(viz, shareRow);
-    handlers["mousemove.shape"](nodeAt(viz, ["A", "m1"]).datum, 0, undefined, {});
+    handlers["mousemove.shape"](
+      nodeAt(viz, ["A", "m1"]).datum,
+      0,
+      undefined,
+      {},
+    );
     assert.deepStrictEqual(viz.log.tooltip.slice(0, 3), [
       ["title", "label@1"],
       ["footer", "Click to Expand"],
       ["tbody", [...tbody, ["Share of Parent", "66.7%"]]],
     ]);
     assert.deepStrictEqual(viz.log.cursor, ["pointer"]);
-    handlers["mousemove.shape"](nodeAt(viz, ["B", "m3", "f4"]).datum, 0, undefined, {});
+    handlers["mousemove.shape"](
+      nodeAt(viz, ["B", "m3", "f4"]).datum,
+      0,
+      undefined,
+      {},
+    );
     assert.ok(viz.log.tooltip.some(t => t[0] === "footer" && t[1] === false));
     assert.strictEqual(viz.log.cursor[1], "auto");
   });
@@ -263,7 +309,12 @@ describe.each(charts)("$chart interaction", c => {
   it("handlers leave a user-configured tooltip title and footer alone", () => {
     const viz = mockViz();
     viz.schema.tooltipConfig = {title: "mine", footer: "mine", tbody: []};
-    c.handlers(viz, [])["mousemove.shape"](nodeAt(viz, ["A"]).datum, 0, undefined, {});
+    c.handlers(viz, [])["mousemove.shape"](
+      nodeAt(viz, ["A"]).datum,
+      0,
+      undefined,
+      {},
+    );
     assert.deepStrictEqual(viz.log.tooltip, []);
   });
 
@@ -282,7 +333,12 @@ describe.each(charts)("$chart interaction", c => {
     assert.strictEqual(root.depth, 0);
     handlers["click.shape"](root.datum, 0, undefined, {});
     assert.strictEqual(viz._history.length, 0, "the root zooms out");
-    handlers["click.shape"](nodeAt(viz, ["A", "m1", "f1"]).datum, 0, undefined, {});
+    handlers["click.shape"](
+      nodeAt(viz, ["A", "m1", "f1"]).datum,
+      0,
+      undefined,
+      {},
+    );
     assert.strictEqual(viz.log.renders, 2, "a leaf click does nothing");
   });
 });
@@ -293,17 +349,47 @@ it("each chart's interaction records its own zoom origin under its prefix", () =
   assert.strictEqual(icicleInteraction.origin, icicleZoomOrigin);
   const node = {x0: 1, x1: 2, startAngle: 3, endAngle: 4, depth: 2};
   assert.deepStrictEqual(icicleZoomOrigin(node), {x0: 1, x1: 2, depth: 2});
-  assert.deepStrictEqual(sunburstInteraction.origin(node), {startAngle: 3, endAngle: 4, depth: 2});
+  assert.deepStrictEqual(sunburstInteraction.origin(node), {
+    startAngle: 3,
+    endAngle: 4,
+    depth: 2,
+  });
 });
 
 it("partitionDefaultTbody recognizes the chart's own Share row by its cells", () => {
   const cell = () => "";
   const shareRow = ["Share", cell];
-  assert.strictEqual(partitionDefaultTbody([["Share", cell]], shareRow), true, "a copied row");
-  assert.strictEqual(partitionDefaultTbody([[...shareRow]], shareRow), true, "a spread copy");
-  assert.strictEqual(partitionDefaultTbody([["Share", () => ""]], shareRow), false, "a user's own cell");
-  assert.strictEqual(partitionDefaultTbody([["Share", cell], ["Other", cell]], shareRow), false, "extra rows");
-  assert.strictEqual(partitionDefaultTbody([[...shareRow], ["x", "y"]], shareRow), false, "extra plain rows");
+  assert.strictEqual(
+    partitionDefaultTbody([["Share", cell]], shareRow),
+    true,
+    "a copied row",
+  );
+  assert.strictEqual(
+    partitionDefaultTbody([[...shareRow]], shareRow),
+    true,
+    "a spread copy",
+  );
+  assert.strictEqual(
+    partitionDefaultTbody([["Share", () => ""]], shareRow),
+    false,
+    "a user's own cell",
+  );
+  assert.strictEqual(
+    partitionDefaultTbody(
+      [
+        ["Share", cell],
+        ["Other", cell],
+      ],
+      shareRow,
+    ),
+    false,
+    "extra rows",
+  );
+  assert.strictEqual(
+    partitionDefaultTbody([[...shareRow], ["x", "y"]], shareRow),
+    false,
+    "extra plain rows",
+  );
   assert.strictEqual(partitionDefaultTbody([], shareRow), false);
   assert.strictEqual(partitionDefaultTbody(undefined, shareRow), false);
 });

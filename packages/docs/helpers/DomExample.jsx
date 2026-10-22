@@ -12,8 +12,11 @@ export function prettyHtml(html) {
     .split("\n")
     .map(line => {
       const closing = /^<\//.test(line);
-      const selfClosing = /\/>$/.test(line) || /^<(br|hr|img|input|path|circle|rect|line)\b[^>]*>$/.test(line);
-      const opening = /^<[^/!]/.test(line) && !selfClosing && !/<\/[a-z]+>$/i.test(line);
+      const selfClosing =
+        /\/>$/.test(line) ||
+        /^<(br|hr|img|input|path|circle|rect|line)\b[^>]*>$/.test(line);
+      const opening =
+        /^<[^/!]/.test(line) && !selfClosing && !/<\/[a-z]+>$/i.test(line);
       if (closing) depth = Math.max(0, depth - 1);
       const out = "  ".repeat(depth) + line;
       if (opening) depth += 1;
@@ -54,7 +57,12 @@ export default function DomExample({
       <div style={{display: "grid", gap: 12, fontSize: 13}}>
         <div
           ref={ref}
-          style={{border: "1px dashed #bbb", borderRadius: 6, padding: 12, minHeight}}
+          style={{
+            border: "1px dashed #bbb",
+            borderRadius: 6,
+            padding: 12,
+            minHeight,
+          }}
         >
           {initial}
         </div>

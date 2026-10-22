@@ -9,7 +9,11 @@ import type {DataPoint} from "@d3plus/data";
 import {fontExists, textWidth} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 import type {SceneNode} from "@d3plus/render";
-import {fontFamily as defaultFontFamily, fontFamilyStringify, textWrap} from "@d3plus/text";
+import {
+  fontFamily as defaultFontFamily,
+  fontFamilyStringify,
+  textWrap,
+} from "@d3plus/text";
 
 import TextBox from "../../components/TextBox.js";
 import {emitLabels, shapeLabelDefaults} from "../../shapes/emitLabels.js";
@@ -50,13 +54,21 @@ export interface PolarAxisDatum {
 export interface RadarAxisConfig {
   barConfig?: RadarRingStyle;
   gridConfig?: RadarRingStyle;
-  shapeConfig?: {labelConfig?: Record<string, unknown>} & Record<string, unknown>;
+  shapeConfig?: {labelConfig?: Record<string, unknown>} & Record<
+    string,
+    unknown
+  >;
 }
 
 type FontAccessor<T> = (d: DataPoint, i: number) => T;
 
 /** Resolves the font a metric label renders with, the way its TextBox will. */
-export const labelFont = (viz: Viz, text: string, datum: DataPoint, i: number) => {
+export const labelFont = (
+  viz: Viz,
+  text: string,
+  datum: DataPoint,
+  i: number,
+) => {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const tb = new TextBox().config({
     ...shapeLabelDefaults,
@@ -66,7 +78,9 @@ export const labelFont = (viz: Viz, text: string, datum: DataPoint, i: number) =
   const record = {data: datum, i, text} as unknown as DataPoint;
   const fontSize = Number(s.fontSize(record, i)) || 10;
   return {
-    fontFamily: String(fontExists(s.fontFamily(record, i) as string | string[]) || "sans-serif"),
+    fontFamily: String(
+      fontExists(s.fontFamily(record, i) as string | string[]) || "sans-serif",
+    ),
     fontSize,
     fontWeight: s.fontWeight(record, i) as number | string,
     lineHeight: Number(s.lineHeight(record, i)) || fontSize * 1.2,
@@ -90,7 +104,14 @@ export function radarPolarAxis(
   const inputs = axisData.map(([key, values], i) => {
     const data = merge(values, aggs) as DataPoint;
     const font = labelFont(viz, String(key), data, i);
-    return {key, data, font, text: String(key), angle: (TAU / total) * i, lineHeight: font.lineHeight};
+    return {
+      key,
+      data,
+      font,
+      text: String(key),
+      angle: (TAU / total) * i,
+      lineHeight: font.lineHeight,
+    };
   });
 
   let radius: number;
@@ -104,7 +125,11 @@ export function radarPolarAxis(
       width: width - RADAR_EDGE_GAP * 2,
       height: height - RADAR_EDGE_GAP * 2,
       measure: ({text, font: f}) =>
-        textWidth(text, {"font-family": f.fontFamily, "font-size": f.fontSize, "font-weight": f.fontWeight}),
+        textWidth(text, {
+          "font-family": f.fontFamily,
+          "font-size": f.fontSize,
+          "font-weight": f.fontWeight,
+        }),
       wrap: ({text, font: f}, wrapWidth, maxLines) =>
         textWrap()
           .fontFamily(f.fontFamily)
@@ -123,7 +148,8 @@ export function radarPolarAxis(
     .map(({key, data, font, angle: radians}, i): PolarAxisDatum => {
       const hh = font.lineHeight * RADAR_LABEL_MAX_LINES;
       const ww = boxes[i].wrapWidth;
-      const quadrant = (parseInt(String(360 - ((360 / total) * i) / 90), 10) % 4) + 1;
+      const quadrant =
+        (parseInt(String(360 - ((360 / total) * i) / 90), 10) % 4) + 1;
       let angle = (360 / total) * i;
       let textAnchor = "start";
       let x = RADAR_LABEL_PADDING;
@@ -151,7 +177,10 @@ export function radarPolarAxis(
 }
 
 /** Builds the metric labels and the spokes (non-interactive, datum-free). */
-export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode[] {
+export function radarAxisNodes(
+  viz: Viz,
+  polarAxis: PolarAxisDatum[],
+): SceneNode[] {
   const axisConfig = viz.schema.axisConfig as RadarAxisConfig;
   const out: SceneNode[] = [];
   const labels = emitLabels({
@@ -165,7 +194,8 @@ export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode
     labelBounds: d => (d as unknown as PolarAxisDatum).labelBounds,
     labelConfig: axisConfig.shapeConfig?.labelConfig ?? {},
   });
-  if (labels.length) out.push({type: "group", key: "radar-axis-labels", children: labels});
+  if (labels.length)
+    out.push({type: "group", key: "radar-axis-labels", children: labels});
 
   const spokeConfig = shapeConfigFor(viz, "Path", axisConfig.shapeConfig ?? {});
   const spokes: SceneNode[] = polarAxis.map((p, i) => ({
@@ -176,7 +206,12 @@ export function radarAxisNodes(viz: Viz, polarAxis: PolarAxisDatum[]): SceneNode
     paint: paintFromShapeConfig(spokeConfig, p as unknown as DataPoint, i),
   }));
   if (spokes.length)
-    out.push({type: "group", key: "radar-axis-spokes", interactive: false, children: spokes});
+    out.push({
+      type: "group",
+      key: "radar-axis-spokes",
+      interactive: false,
+      children: spokes,
+    });
   return out;
 }
 
@@ -217,14 +252,23 @@ export function radarLevelLabelNodes(
   prefix = "radar",
 ): SceneNode[] {
   if (!viz.schema.levelLabels) return [];
-  const cfg = (viz.schema.levelLabelConfig ?? {}) as NonNullable<D3plusConfig["levelLabelConfig"]>;
+  const cfg = (viz.schema.levelLabelConfig ?? {}) as NonNullable<
+    D3plusConfig["levelLabelConfig"]
+  >;
   const fontSize = cfg.fontSize ?? 10;
   const fontWeight = cfg.fontWeight ?? 400;
   const fontFamily = fontFamilyStringify(
-    cfg.fontFamily ?? (viz.schema.fontFamily as string | string[] | undefined) ?? defaultFontFamily,
+    cfg.fontFamily ??
+      (viz.schema.fontFamily as string | string[] | undefined) ??
+      defaultFontFamily,
   );
-  const style = {"font-family": fontFamily, "font-size": fontSize, "font-weight": fontWeight};
-  const userFormat = viz.schema.levelFormat as ((d: number) => string | number) | undefined;
+  const style = {
+    "font-family": fontFamily,
+    "font-size": fontSize,
+    "font-weight": fontWeight,
+  };
+  const userFormat = viz.schema.levelFormat as
+    ((d: number) => string | number) | undefined;
   const format = (d: number): string =>
     typeof userFormat === "function"
       ? String(userFormat(d))

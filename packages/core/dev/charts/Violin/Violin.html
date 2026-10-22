@@ -1,133 +1,181 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Violin</title>
+    <meta
+      name="description"
+      content="Violin variants: inner box plots, horizontal violins with quartile lines, swarmed observations, side-by-side and split two-level groups, count-scaled epanechnikov curves, and small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      .wide {
+        grid-column: 1 / span 2;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (inner box plot)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Horizontal with quartile lines</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Swarmed points, densityScale: "width"</h3>
+        <div class="viz" id="points"></div>
+      </div>
+      <div>
+        <h3>Two groupBy levels side by side</h3>
+        <div class="viz" id="dodged"></div>
+      </div>
+      <div>
+        <h3>Split violins</h3>
+        <div class="viz" id="split"></div>
+      </div>
+      <div>
+        <h3>densityScale: "count", epanechnikov kernel, medianSort</h3>
+        <div class="viz" id="count"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>Violin</title>
-  <meta name="description" content="Violin variants: inner box plots, horizontal violins with quartile lines, swarmed observations, side-by-side and split two-level groups, count-scaled epanechnikov curves, and small multiples.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Inter, sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .viz { height: 360px; }
-    .wide { grid-column: 1 / span 2; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-  </style>
+  <script>
+    // Seeded rows so the page renders identically every load.
+    let seed = 11;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const round = v => Math.round(v * 100) / 100;
 
-</head>
+    const species = [
+      {name: "setosa", mean: 1.5, sd: 0.2, n: 50},
+      {name: "versicolor", mean: 4.3, sd: 0.5, n: 50},
+      {name: "virginica", mean: 5.6, sd: 0.55, n: 50},
+    ];
+    const flowers = species.flatMap(s =>
+      Array.from({length: s.n}, (_, i) => ({
+        id: `${s.name} ${i + 1}`,
+        species: s.name,
+        "Petal Length": round(s.mean + s.sd * normal()),
+      })),
+    );
 
-<body>
-  <div class="grid">
-    <div><h3>Default (inner box plot)</h3><div class="viz" id="basic"></div></div>
-    <div><h3>Horizontal with quartile lines</h3><div class="viz" id="horizontal"></div></div>
-    <div><h3>Swarmed points, densityScale: "width"</h3><div class="viz" id="points"></div></div>
-    <div><h3>Two groupBy levels side by side</h3><div class="viz" id="dodged"></div></div>
-    <div><h3>Split violins</h3><div class="viz" id="split"></div></div>
-    <div><h3>densityScale: "count", epanechnikov kernel, medianSort</h3><div class="viz" id="count"></div></div>
-    <div class="wide"><h3>Small multiples (facet: "region")</h3><div class="viz" id="facet"></div></div>
-  </div>
-</body>
+    const days = ["Thursday", "Friday", "Saturday", "Sunday"];
+    const tips = days.flatMap((day, d) =>
+      ["Female", "Male"].flatMap((sex, s) =>
+        Array.from({length: 40 + 10 * d}, () => {
+          // Saturday and Sunday bills split into a lunch and a dinner crowd.
+          const dinner = d > 1 && random() < 0.45;
+          const bill =
+            14 + 2 * d + 3 * s + (dinner ? 12 : 0) + (4 + s) * normal();
+          return {day, sex, "Total Bill": round(Math.max(3, bill))};
+        }),
+      ),
+    );
 
-<script>
+    const regions = ["Africa", "Americas", "Asia", "Europe"];
+    const incomes = regions.flatMap((region, r) =>
+      ["Rural", "Urban"].flatMap((area, a) =>
+        Array.from({length: 60}, () => ({
+          region,
+          area,
+          "Income (k$)": round(
+            Math.exp(2.4 + 0.25 * r + 0.35 * a + 0.45 * normal()),
+          ),
+        })),
+      ),
+    );
 
-  // Seeded rows so the page renders identically every load.
-  let seed = 11;
-  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const normal = () => Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
-  const round = v => Math.round(v * 100) / 100;
+    new d3plus.Violin()
+      .select("#basic")
+      .data(flowers)
+      .groupBy("species")
+      .value("Petal Length")
+      .render();
 
-  const species = [
-    {name: "setosa", mean: 1.5, sd: 0.2, n: 50},
-    {name: "versicolor", mean: 4.3, sd: 0.5, n: 50},
-    {name: "virginica", mean: 5.6, sd: 0.55, n: 50},
-  ];
-  const flowers = species.flatMap(s =>
-    Array.from({length: s.n}, (_, i) => ({id: `${s.name} ${i + 1}`, species: s.name, "Petal Length": round(s.mean + s.sd * normal())})),
-  );
+    new d3plus.Violin()
+      .select("#horizontal")
+      .data(flowers)
+      .groupBy("species")
+      .value("Petal Length")
+      .discrete("y")
+      .inner("quartiles")
+      .render();
 
-  const days = ["Thursday", "Friday", "Saturday", "Sunday"];
-  const tips = days.flatMap((day, d) =>
-    ["Female", "Male"].flatMap((sex, s) =>
-      Array.from({length: 40 + 10 * d}, () => {
-        // Saturday and Sunday bills split into a lunch and a dinner crowd.
-        const dinner = d > 1 && random() < 0.45;
-        const bill = 14 + 2 * d + 3 * s + (dinner ? 12 : 0) + (4 + s) * normal();
-        return {day, sex, "Total Bill": round(Math.max(3, bill))};
-      }),
-    ),
-  );
+    new d3plus.Violin()
+      .select("#points")
+      .data(flowers)
+      .groupBy("species")
+      .value("Petal Length")
+      .inner("points")
+      .densityScale("width")
+      .render();
 
-  const regions = ["Africa", "Americas", "Asia", "Europe"];
-  const incomes = regions.flatMap((region, r) =>
-    ["Rural", "Urban"].flatMap((area, a) =>
-      Array.from({length: 60}, () => ({region, area, "Income (k$)": round(Math.exp(2.4 + 0.25 * r + 0.35 * a + 0.45 * normal()))})),
-    ),
-  );
+    new d3plus.Violin()
+      .select("#dodged")
+      .data(tips)
+      .groupBy(["day", "sex"])
+      .color("sex")
+      .value("Total Bill")
+      .render();
 
-  new d3plus.Violin()
-    .select("#basic")
-    .data(flowers)
-    .groupBy("species")
-    .value("Petal Length")
-    .render();
+    new d3plus.Violin()
+      .select("#split")
+      .data(tips)
+      .groupBy(["day", "sex"])
+      .color("sex")
+      .value("Total Bill")
+      .split(true)
+      .inner("quartiles")
+      .render();
 
-  new d3plus.Violin()
-    .select("#horizontal")
-    .data(flowers)
-    .groupBy("species")
-    .value("Petal Length")
-    .discrete("y")
-    .inner("quartiles")
-    .render();
+    new d3plus.Violin()
+      .select("#count")
+      .data(incomes)
+      .groupBy("region")
+      .value("Income (k$)")
+      .densityScale("count")
+      .densityConfig({kernel: "epanechnikov"})
+      .medianSort("descending")
+      .render();
 
-  new d3plus.Violin()
-    .select("#points")
-    .data(flowers)
-    .groupBy("species")
-    .value("Petal Length")
-    .inner("points")
-    .densityScale("width")
-    .render();
-
-  new d3plus.Violin()
-    .select("#dodged")
-    .data(tips)
-    .groupBy(["day", "sex"])
-    .color("sex")
-    .value("Total Bill")
-    .render();
-
-  new d3plus.Violin()
-    .select("#split")
-    .data(tips)
-    .groupBy(["day", "sex"])
-    .color("sex")
-    .value("Total Bill")
-    .split(true)
-    .inner("quartiles")
-    .render();
-
-  new d3plus.Violin()
-    .select("#count")
-    .data(incomes)
-    .groupBy("region")
-    .value("Income (k$)")
-    .densityScale("count")
-    .densityConfig({kernel: "epanechnikov"})
-    .medianSort("descending")
-    .render();
-
-  new d3plus.Violin()
-    .select("#facet")
-    .data(incomes)
-    .groupBy("area")
-    .value("Income (k$)")
-    .facet("region")
-    .render();
-
-</script>
-
+    new d3plus.Violin()
+      .select("#facet")
+      .data(incomes)
+      .groupBy("area")
+      .value("Income (k$)")
+      .facet("region")
+      .render();
+  </script>
 </html>

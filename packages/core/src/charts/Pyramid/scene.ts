@@ -22,12 +22,17 @@ export interface OutlineRow {
     row's value across that row's band (`step` tall), then back to the
     center line, top to bottom.
 */
-export function comparisonOutline(rows: OutlineRow[], center: number, step: number): [number, number][] {
+export function comparisonOutline(
+  rows: OutlineRow[],
+  center: number,
+  step: number,
+): [number, number][] {
   const sorted = rows.slice().sort((a, b) => a.y - b.y);
   if (!sorted.length) return [];
   const half = step / 2;
   const points: [number, number][] = [[center, sorted[0].y - half]];
-  for (const row of sorted) points.push([row.x, row.y - half], [row.x, row.y + half]);
+  for (const row of sorted)
+    points.push([row.x, row.y - half], [row.x, row.y + half]);
   points.push([center, sorted[sorted.length - 1].y + half]);
   return points;
 }
@@ -36,14 +41,19 @@ export function comparisonOutline(rows: OutlineRow[], center: number, step: numb
 export function bandStep(positions: number[], fallback: number): number {
   const sorted = Array.from(new Set(positions)).sort((a, b) => a - b);
   let step = Infinity;
-  for (let i = 1; i < sorted.length; i++) step = Math.min(step, sorted[i] - sorted[i - 1]);
+  for (let i = 1; i < sorted.length; i++)
+    step = Math.min(step, sorted[i] - sorted[i - 1]);
   return Number.isFinite(step) ? step : fallback;
 }
 
 /** Normalizes a `strokeDasharray` given as a string ("4 2") or number array. */
 export function dashArray(v: unknown): number[] | undefined {
   if (Array.isArray(v)) return v.map(Number);
-  if (typeof v === "string" && v.trim()) return v.trim().split(/[\s,]+/).map(Number);
+  if (typeof v === "string" && v.trim())
+    return v
+      .trim()
+      .split(/[\s,]+/)
+      .map(Number);
   if (typeof v === "number") return [v];
   return undefined;
 }
@@ -72,9 +82,24 @@ interface OutlineInput {
 
 /** The comparison outline for each side with any comparison value. */
 export function comparisonNodes(input: OutlineInput): LineNode[] {
-  const {sides, categories, data, category, side, comparison, divisor, x, y, fallbackStep, config} = input;
+  const {
+    sides,
+    categories,
+    data,
+    category,
+    side,
+    comparison,
+    divisor,
+    x,
+    y,
+    fallbackStep,
+    config,
+  } = input;
   const inset = input.inset ?? 0;
-  const step = bandStep(categories.map(c => y(c)), fallbackStep);
+  const step = bandStep(
+    categories.map(c => y(c)),
+    fallbackStep,
+  );
   return sides.flatMap((s, index) => {
     const sums = new Map<string, number>();
     data.forEach((d, i) => {
@@ -87,7 +112,10 @@ export function comparisonNodes(input: OutlineInput): LineNode[] {
     if (!sums.size) return [];
     const sign = sideSign(sides, s);
     const center = x(sign * inset);
-    const rows = categories.map(c => ({y: y(c), x: x(sign * ((sums.get(`${c}`) ?? 0) + inset))}));
+    const rows = categories.map(c => ({
+      y: y(c),
+      x: x(sign * ((sums.get(`${c}`) ?? 0) + inset)),
+    }));
     const paint: Paint = {
       fill: "none",
       stroke: resolve<string>(config.stroke, s, index),
@@ -96,15 +124,17 @@ export function comparisonNodes(input: OutlineInput): LineNode[] {
     };
     const dash = dashArray(resolve(config.strokeDasharray, s, index));
     if (dash) paint.strokeDasharray = dash;
-    return [{
-      type: "line",
-      key: `pyramid-comparison-${index}`,
-      points: comparisonOutline(rows, center, step),
-      curve: "linear",
-      paint,
-      interactive: false,
-      interactionGroup: "axis",
-    } as LineNode];
+    return [
+      {
+        type: "line",
+        key: `pyramid-comparison-${index}`,
+        points: comparisonOutline(rows, center, step),
+        curve: "linear",
+        paint,
+        interactive: false,
+        interactionGroup: "axis",
+      } as LineNode,
+    ];
   });
 }
 
@@ -124,10 +154,19 @@ export interface SideTitle {
 */
 export function sideTitleBoxes(
   labels: string[],
-  bounds: {left: number; right: number; inner: [number, number]; top: number; height: number},
+  bounds: {
+    left: number;
+    right: number;
+    inner: [number, number];
+    top: number;
+    height: number;
+  },
 ): SideTitle[] {
   const {left, right, top, height} = bounds;
-  const halves = [[left, clamp(bounds.inner[0], left, right)], [clamp(bounds.inner[1], left, right), right]];
+  const halves = [
+    [left, clamp(bounds.inner[0], left, right)],
+    [clamp(bounds.inner[1], left, right), right],
+  ];
   return labels.slice(0, 2).map((text, i) => ({
     text,
     x: halves[i][0],
@@ -138,7 +177,11 @@ export function sideTitleBoxes(
 }
 
 /** Lays out the side titles as scene text nodes. */
-export function sideTitleNodes(box: TextBox, titles: SideTitle[], config: Record<string, unknown>): SceneNode[] {
+export function sideTitleNodes(
+  box: TextBox,
+  titles: SideTitle[],
+  config: Record<string, unknown>,
+): SceneNode[] {
   box
     .renderMode("compute")
     .select(undefined as unknown as HTMLElement)
@@ -146,7 +189,14 @@ export function sideTitleNodes(box: TextBox, titles: SideTitle[], config: Record
     .config(config)
     .render();
   const group = box.toScene();
-  return [{type: "group", key: "pyramid-side-titles", interactionGroup: "axis", children: group.children ?? []} as SceneNode];
+  return [
+    {
+      type: "group",
+      key: "pyramid-side-titles",
+      interactionGroup: "axis",
+      children: group.children ?? [],
+    } as SceneNode,
+  ];
 }
 
 /**
@@ -154,23 +204,38 @@ export function sideTitleNodes(box: TextBox, titles: SideTitle[], config: Record
     the bars (inside the zoom content group, when there is one) and `titles`
     on top.
 */
-export function withPyramidChildren(children: SceneNode[], outlines: SceneNode[], titles: SceneNode[]): SceneNode[] {
+export function withPyramidChildren(
+  children: SceneNode[],
+  outlines: SceneNode[],
+  titles: SceneNode[],
+): SceneNode[] {
   const next = children.slice();
   const content = next.findIndex(n => n.key === PLOT_ZOOM_CONTENT_KEY);
   if (content >= 0 && outlines.length) {
     const group = next[content];
-    if (group.type === "group") next[content] = {...group, children: [...group.children, ...outlines]};
+    if (group.type === "group")
+      next[content] = {...group, children: [...group.children, ...outlines]};
   } else next.push(...outlines);
   next.push(...titles);
   return next;
 }
 
 /** Returns `scene` with `outlines` added above the bars and `titles` on top of its chart body. */
-export function withPyramidNodes(scene: Scene, outlines: SceneNode[], titles: SceneNode[]): Scene {
+export function withPyramidNodes(
+  scene: Scene,
+  outlines: SceneNode[],
+  titles: SceneNode[],
+): Scene {
   if (!outlines.length && !titles.length) return scene;
   const cells = scene.root.children.find(n => n.key === "viz-chart-cells");
-  const zoom = cells && "children" in cells ? cells.children.find(n => n.key === "viz-zoom") : undefined;
-  const body = zoom && "children" in zoom ? zoom.children.find(n => n.key === "viz-chart-body") : undefined;
+  const zoom =
+    cells && "children" in cells
+      ? cells.children.find(n => n.key === "viz-zoom")
+      : undefined;
+  const body =
+    zoom && "children" in zoom
+      ? zoom.children.find(n => n.key === "viz-chart-body")
+      : undefined;
   if (!body || body.type !== "group") return scene;
   body.children = withPyramidChildren(body.children, outlines, titles);
   return scene;
@@ -202,11 +267,15 @@ export interface PyramidNodes {
     small-multiples panel) just drawn, in its chart body's coordinates; empty
     before the plot has scales or rows.
 */
-export function pyramidNodes(viz: VizInstance, input: PyramidSceneInput): PyramidNodes {
+export function pyramidNodes(
+  viz: VizInstance,
+  input: PyramidSceneInput,
+): PyramidNodes {
   const x = viz._xFunc as ((v: number) => number) | undefined;
   const y = viz._yFunc as ((v: unknown) => number) | undefined;
   const area = viz._plotArea;
-  if (!x || !y || !area || !viz._filteredData?.length) return {outlines: [], overlays: []};
+  if (!x || !y || !area || !viz._filteredData?.length)
+    return {outlines: [], overlays: []};
 
   const outlines = input.comparison
     ? comparisonNodes({
@@ -239,7 +308,12 @@ export function pyramidNodes(viz: VizInstance, input: PyramidSceneInput): Pyrami
             height: inset,
           }),
           // Titles follow the chart's `fontFamily` unless they set their own.
-          {...(viz.schema.fontFamily ? {fontFamily: viz.schema.fontFamily} : {}), ...viz.schema.sideTitleConfig},
+          {
+            ...(viz.schema.fontFamily
+              ? {fontFamily: viz.schema.fontFamily}
+              : {}),
+            ...viz.schema.sideTitleConfig,
+          },
         )
       : [];
 
@@ -248,7 +322,11 @@ export function pyramidNodes(viz: VizInstance, input: PyramidSceneInput): Pyrami
 }
 
 /** Adds the side titles, gutter labels, and comparison outline to the painted Plot scene. */
-export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidSceneInput): Scene {
+export function pyramidScene(
+  viz: VizInstance,
+  scene: Scene,
+  input: PyramidSceneInput,
+): Scene {
   const {outlines, overlays} = pyramidNodes(viz, input);
   return withPyramidNodes(scene, outlines, overlays);
 }
@@ -258,7 +336,13 @@ export function pyramidScene(viz: VizInstance, scene: Scene, input: PyramidScene
     small-multiples panel's chart nodes, drawn against that panel's scales
     (see `FacetHooks.scene`).
 */
-export function pyramidPanelScene(viz: VizInstance, nodes: SceneNode[], input: PyramidSceneInput): SceneNode[] {
+export function pyramidPanelScene(
+  viz: VizInstance,
+  nodes: SceneNode[],
+  input: PyramidSceneInput,
+): SceneNode[] {
   const {outlines, overlays} = pyramidNodes(viz, input);
-  return outlines.length || overlays.length ? withPyramidChildren(nodes, outlines, overlays) : nodes;
+  return outlines.length || overlays.length
+    ? withPyramidChildren(nodes, outlines, overlays)
+    : nodes;
 }

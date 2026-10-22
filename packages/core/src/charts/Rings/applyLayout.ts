@@ -17,7 +17,11 @@ import type {TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 
-import {ringsCenterLabel, ringsGeometry, sizeRingsNodes} from "./ringsSizing.js";
+import {
+  ringsCenterLabel,
+  ringsGeometry,
+  sizeRingsNodes,
+} from "./ringsSizing.js";
 import type {RingGeometry} from "./ringsSizing.js";
 
 /**
@@ -77,7 +81,10 @@ interface RScale {
   rangeRound: (r: [number, number]) => RScale;
 }
 
-type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
+type RawLink = {
+  source: string | number | DataPoint;
+  target: string | number | DataPoint;
+};
 
 /** Shared empty `ringsCtx` value for the early-return branches. */
 const emptyRingsCtx = () => ({
@@ -113,22 +120,28 @@ function buildRingsGraph(
       ),
     );
     rawNodes = nodeIds.map(node =>
-      typeof node === "object" ? (node as DataPoint) : ({id: node} as unknown as DataPoint),
+      typeof node === "object"
+        ? (node as DataPoint)
+        : ({id: node} as unknown as DataPoint),
     );
   }
 
   const nodesById: Record<string, DataPoint> = rawNodes.reduce(
     (obj: Record<string, DataPoint>, d, i) => {
-      const key = (v.schema.nodeGroupBy
-        ? v.schema.nodeGroupBy[v._drawDepth](d, i)
-        : v._id(d, i)) as string;
+      const key = (
+        v.schema.nodeGroupBy
+          ? v.schema.nodeGroupBy[v._drawDepth](d, i)
+          : v._id(d, i)
+      ) as string;
       obj[key] = d;
       return obj;
     },
     {},
   );
 
-  const nodes: RingsNode[] = Array.from(new Set(Object.keys(data).concat(Object.keys(nodesById))))
+  const nodes: RingsNode[] = Array.from(
+    new Set(Object.keys(data).concat(Object.keys(nodesById))),
+  )
     .map((id, i) => {
       const d = data[id];
       const n = nodesById[id];
@@ -155,37 +168,42 @@ function buildRingsGraph(
   );
   v.ctx.nodeLookup = nodeLookup;
 
-  const links: RingsEdge[] = (v.schema.links as RawLink[]).map(link => {
-    const resolve = (refIdx: 0 | 1): RingsNode => {
-      const ref = refIdx === 0 ? link.source : link.target;
-      if (typeof ref === "object") return nodeLookup[(ref as DataPoint).id as string];
-      // Match the ref against node ids first. Data loading coerces leading-zero
-      // ids like "010101" into numbers — but only on nodes' own flat id field; a
-      // link endpoint can keep its string form, so try both the raw and coerced
-      // key. Only when no node carries that id do we treat a number as an index
-      // into the nodes array.
-      const byId = nodeLookup[ref as unknown as string];
-      if (byId) return byId;
-      if (!isNaN(ref as unknown as number)) {
-        const coerced = nodeLookup[parseFloat(ref as unknown as string)];
-        if (coerced) return coerced;
-      }
-      if (typeof ref === "number") {
-        const original = v.schema.nodes && (v.schema.nodes as DataPoint[])[ref];
-        if (original == null) return undefined as unknown as RingsNode;
-        return (typeof original === "object"
-          ? nodeLookup[(original as DataPoint).id as string] ||
-            nodeLookup[original as unknown as string]
-          : nodeLookup[original as unknown as string]) as RingsNode;
-      }
-      return undefined as unknown as RingsNode;
-    };
-    return {
-      source: resolve(0),
-      target: resolve(1),
-      size: v.schema.linkSize(link) as number,
-    };
-  })
+  const links: RingsEdge[] = (v.schema.links as RawLink[])
+    .map(link => {
+      const resolve = (refIdx: 0 | 1): RingsNode => {
+        const ref = refIdx === 0 ? link.source : link.target;
+        if (typeof ref === "object")
+          return nodeLookup[(ref as DataPoint).id as string];
+        // Match the ref against node ids first. Data loading coerces leading-zero
+        // ids like "010101" into numbers — but only on nodes' own flat id field; a
+        // link endpoint can keep its string form, so try both the raw and coerced
+        // key. Only when no node carries that id do we treat a number as an index
+        // into the nodes array.
+        const byId = nodeLookup[ref as unknown as string];
+        if (byId) return byId;
+        if (!isNaN(ref as unknown as number)) {
+          const coerced = nodeLookup[parseFloat(ref as unknown as string)];
+          if (coerced) return coerced;
+        }
+        if (typeof ref === "number") {
+          const original =
+            v.schema.nodes && (v.schema.nodes as DataPoint[])[ref];
+          if (original == null) return undefined as unknown as RingsNode;
+          return (
+            typeof original === "object"
+              ? nodeLookup[(original as DataPoint).id as string] ||
+                nodeLookup[original as unknown as string]
+              : nodeLookup[original as unknown as string]
+          ) as RingsNode;
+        }
+        return undefined as unknown as RingsNode;
+      };
+      return {
+        source: resolve(0),
+        target: resolve(1),
+        size: v.schema.linkSize(link) as number,
+      };
+    })
     // A link can name a node id that isn't in the nodes set; that endpoint
     // resolves to undefined and can't be placed, so drop the whole link.
     .filter(link => link.source && link.target);
@@ -203,7 +221,6 @@ function buildRingsGraph(
 
   return {nodes, nodeLookup, links, linkMap};
 }
-
 
 /**
     Claim the center node + two rings, compute each node's angle/position, build
@@ -238,22 +255,27 @@ function placeRingsNodes(
   centerLinks.forEach(edge => {
     const node = edge.source.id === v.schema.center ? edge.target : edge.source;
     node.edges = linkMap[node.id].filter(
-      link => link.source.id !== v.schema.center || link.target.id !== v.schema.center,
+      link =>
+        link.source.id !== v.schema.center ||
+        link.target.id !== v.schema.center,
     );
     node.edge = edge;
     claimed.push(node);
     primaries.push(node);
   });
 
-  primaries.sort((a, b) => (a.edges as RingsEdge[]).length - (b.edges as RingsEdge[]).length);
+  primaries.sort(
+    (a, b) => (a.edges as RingsEdge[]).length - (b.edges as RingsEdge[]).length,
+  );
   const secondaries: RingsNode[] = [];
   let totalEndNodes = 0;
 
   primaries.forEach(p => {
     const primaryId = p.id;
-    p.edges = (p.edges as RingsEdge[]).filter(edge =>
-      (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
-      (!claimed.includes(edge.target) && edge.source.id === primaryId),
+    p.edges = (p.edges as RingsEdge[]).filter(
+      edge =>
+        (!claimed.includes(edge.source) && edge.target.id === primaryId) ||
+        (!claimed.includes(edge.target) && edge.source.id === primaryId),
     );
     totalEndNodes += (p.edges as RingsEdge[]).length || 1;
     (p.edges as RingsEdge[]).forEach(edge => {
@@ -288,7 +310,14 @@ function placeRingsNodes(
     });
   });
 
-  const radius = sizeRingsNodes(v, center, geom, totalEndNodes, primaries, secondaries);
+  const radius = sizeRingsNodes(
+    v,
+    center,
+    geom,
+    totalEndNodes,
+    primaries,
+    secondaries,
+  );
 
   const nodes = [center].concat(primaries).concat(secondaries);
 
@@ -343,19 +372,33 @@ function buildRingsEdges(
         const rotated = endRing === 2 ? endRadians + Math.PI : endRadians;
         edge[`${endKey}X` as const] = endRX + Math.cos(rotated) * endRR;
         edge[`${endKey}Y` as const] = endRY + Math.sin(rotated) * endRR;
-        edge[`${endKey}BisectX` as const] = centerX + middleRing * Math.cos(endRadians);
-        edge[`${endKey}BisectY` as const] = centerY + middleRing * Math.sin(endRadians);
+        edge[`${endKey}BisectX` as const] =
+          centerX + middleRing * Math.cos(endRadians);
+        edge[`${endKey}BisectY` as const] =
+          centerY + middleRing * Math.sin(endRadians);
         edge[endKey] = nodes.find(n => n.id === endNode.id) as RingsNode;
         const ringNode = edge[endKey];
         if (ringNode.edges === undefined) {
-          ringNode.edges = {} as Record<string, {angle: number; radius: number}>;
+          ringNode.edges = {} as Record<
+            string,
+            {angle: number; radius: number}
+          >;
         }
         const oppId = (i === 0 ? edge.target.id : edge.source.id) as string;
-        const edgeMap = ringNode.edges as Record<string, {angle: number; radius: number}>;
+        const edgeMap = ringNode.edges as Record<
+          string,
+          {angle: number; radius: number}
+        >;
         if (ringNode.id === p.id) {
-          edgeMap[oppId] = {angle: (p.radians as number) + Math.PI, radius: ringWidth / 2};
+          edgeMap[oppId] = {
+            angle: (p.radians as number) + Math.PI,
+            radius: ringWidth / 2,
+          };
         } else {
-          edgeMap[oppId] = {angle: target!.radians as number, radius: ringWidth / 2};
+          edgeMap[oppId] = {
+            angle: target!.radians as number,
+            radius: ringWidth / 2,
+          };
         }
       });
       edges.push(edge);
@@ -364,20 +407,27 @@ function buildRingsEdges(
 }
 
 /** Compute each node's label bounds, rotation, and text anchor (mutated in place). */
-function applyRingsLabelBounds(v: VizInstance, nodes: RingsNode[], geom: RingGeometry): void {
+function applyRingsLabelBounds(
+  v: VizInstance,
+  nodes: RingsNode[],
+  geom: RingGeometry,
+): void {
   const {ringWidth} = geom;
   nodes.forEach(node => {
     if (node.id === v.schema.center) {
       const {bounds, inside} = ringsCenterLabel(
-        v, node, geom, v._drawLabel(node.data || node.node, node.i), v.schema.fontFamily,
+        v,
+        node,
+        geom,
+        v._drawLabel(node.data || node.node, node.i),
+        v.schema.fontFamily,
       );
       node.labelBounds = bounds;
       node.labelInside = inside;
       return;
     }
-    const labelConfigRef = (v.schema.shapeConfig as Record<string, unknown>).labelConfig as
-      | {fontSize?: (d: RingsNode) => number}
-      | undefined;
+    const labelConfigRef = (v.schema.shapeConfig as Record<string, unknown>)
+      .labelConfig as {fontSize?: (d: RingsNode) => number} | undefined;
     const fontSize =
       (labelConfigRef?.fontSize && labelConfigRef.fontSize(node)) || 11;
     const lineHeight = fontSize * 1.4;
@@ -411,23 +461,21 @@ function publishRingsCtx(
   links: RingsEdge[],
   edges: RingsEdge[],
 ): void {
-  v.ctx.linkLookup = links.reduce(
-    (obj: Record<string, RingsNode[]>, d) => {
-      if (!obj[d.source.id]) obj[d.source.id] = [];
-      obj[d.source.id].push(d.target);
-      if (!obj[d.target.id]) obj[d.target.id] = [];
-      obj[d.target.id].push(d.source);
-      return obj;
-    },
-    {},
-  );
+  v.ctx.linkLookup = links.reduce((obj: Record<string, RingsNode[]>, d) => {
+    if (!obj[d.source.id]) obj[d.source.id] = [];
+    obj[d.source.id].push(d.target);
+    if (!obj[d.target.id]) obj[d.target.id] = [];
+    obj[d.target.id].push(d.source);
+    return obj;
+  }, {});
 
   const strokeExtent = extent(links, d => d.size);
   if (strokeExtent[0] !== strokeExtent[1]) {
     const rNodeMin = min(nodes, d => d.r as number);
-    const strokeScale = (scales as unknown as Record<string, () => RScale>)[
-      `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
-    ]()
+    const strokeScale = (scales as unknown as Record<string, () => RScale>)
+      [
+        `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
+      ]()
       .domain(strokeExtent as [number, number])
       .range([v.schema.linkSizeMin as number, rNodeMin as number]);
     links.forEach(link => {
@@ -458,26 +506,40 @@ function publishRingsCtx(
     labelConfig: {
       fontColor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
         const node = (d.data ?? d) as RingsNode & {key?: string};
-        if (node.id === v.schema.center && nodeLookup[node.id]?.labelInside !== false) {
+        if (
+          node.id === v.schema.center &&
+          nodeLookup[node.id]?.labelInside !== false
+        ) {
           const fill = resolveAccessor<string>(
-            (shapeConfigFor(v, node.key ?? node.shape) as {fill?: unknown}).fill,
+            (shapeConfigFor(v, node.key ?? node.shape) as {fill?: unknown})
+              .fill,
             (node.data ?? node) as DataPoint,
             node.i,
           );
-          return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", v.schema.colorDefaults);
+          return colorContrast(
+            typeof fill === "string" ? fill : "rgb(255, 255, 255)",
+            v.schema.colorDefaults,
+          );
         }
         return colorContrast(
           v._select ? backgroundColor(v._select.node()) : "rgb(255, 255, 255)",
           v.schema.colorDefaults,
         );
       },
-      fontResize: (d: RingsNode & {data?: RingsNode}) => centerInside((d.data ?? d) as RingsNode),
+      fontResize: (d: RingsNode & {data?: RingsNode}) =>
+        centerInside((d.data ?? d) as RingsNode),
       padding: 0,
       textAnchor: (d: RingsNode & {key?: string; data?: RingsNode}) => {
         const node = (d.data ?? d) as RingsNode & {key?: string};
         if (node.id === v.schema.center && !centerInside(node)) return "middle";
-        return nodeLookup[node.id]?.textAnchor ||
-          (shapeConfigFor(v, (node.key ?? node.shape)) as {labelConfig: {textAnchor: string}}).labelConfig.textAnchor;
+        return (
+          nodeLookup[node.id]?.textAnchor ||
+          (
+            shapeConfigFor(v, node.key ?? node.shape) as {
+              labelConfig: {textAnchor: string};
+            }
+          ).labelConfig.textAnchor
+        );
       },
       verticalAlign: (d: RingsNode & {data?: RingsNode}) =>
         centerInside((d.data ?? d) as RingsNode) ? "middle" : "top",
@@ -486,9 +548,14 @@ function publishRingsCtx(
   };
 
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
-  v.ctx.ringsCtx = {edges, nodeGroups, linkConfig, linkD, nodeShapeConfig: shapeConfig};
+  v.ctx.ringsCtx = {
+    edges,
+    nodeGroups,
+    linkConfig,
+    linkD,
+    nodeShapeConfig: shapeConfig,
+  };
 }
-
 
 /**
     Filtered data keyed by id, the node graph, and the center node — or null
@@ -503,15 +570,19 @@ function prepareRings(v: VizInstance): {
   if (!Array.isArray(v._filteredData)) v._filteredData = [];
   if (!Array.isArray(v.schema.nodes)) v.schema.nodes = [];
   if (!Array.isArray(v.schema.links)) v.schema.links = [];
-  if (!v._filteredData.length && !v.schema.nodes.length && !v.schema.links.length) return null;
+  if (
+    !v._filteredData.length &&
+    !v.schema.nodes.length &&
+    !v.schema.links.length
+  )
+    return null;
 
-  const data: Record<string, DataPoint> = (v._filteredData as DataPoint[]).reduce(
-    (obj: Record<string, DataPoint>, d, i) => {
-      obj[v._id(d, i) as string] = d;
-      return obj;
-    },
-    {},
-  );
+  const data: Record<string, DataPoint> = (
+    v._filteredData as DataPoint[]
+  ).reduce((obj: Record<string, DataPoint>, d, i) => {
+    obj[v._id(d, i) as string] = d;
+    return obj;
+  }, {});
 
   const graph = buildRingsGraph(v, data);
 
@@ -519,7 +590,11 @@ function prepareRings(v: VizInstance): {
   // string `center` config may not key the (coerced) node lookup directly. Try
   // the raw value, then its coerced form.
   let center = graph.nodeLookup[v.schema.center];
-  if (!center && v.schema.center != null && !isNaN(v.schema.center as unknown as number))
+  if (
+    !center &&
+    v.schema.center != null &&
+    !isNaN(v.schema.center as unknown as number)
+  )
     center = graph.nodeLookup[parseFloat(v.schema.center as unknown as string)];
   // Normalize so downstream comparisons against node ids use the matched id.
   if (center) v.schema.center = center.id;
@@ -532,14 +607,24 @@ function prepareRings(v: VizInstance): {
     radius scale it sized with. The ring geometry only shrinks as the area
     does, so the layout's final radii never exceed this estimate's.
 */
-export function ringsSizeLegendScale(v: VizInstance, width: number, height: number): SizeLegendScale | null {
+export function ringsSizeLegendScale(
+  v: VizInstance,
+  width: number,
+  height: number,
+): SizeLegendScale | null {
   if (!v._size) return null;
   const {nodeLookup} = v.ctx;
   const prepared = prepareRings(v);
   v.ctx.nodeLookup = nodeLookup;
   if (!prepared || !prepared.center) return null;
   const {graph, center} = prepared;
-  return placeRingsNodes(v, graph.nodeLookup, graph.linkMap, center, ringsGeometry(width, height)).radius;
+  return placeRingsNodes(
+    v,
+    graph.nodeLookup,
+    graph.linkMap,
+    center,
+    ringsGeometry(width, height),
+  ).radius;
 }
 
 export const applyRingsLayout: TransformStage = ({viz}) => {
@@ -553,7 +638,10 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
     v.ctx.ringsCtx = emptyRingsCtx();
     return {viz};
   }
-  const {graph: {nodeLookup, links, linkMap}, center} = prepared;
+  const {
+    graph: {nodeLookup, links, linkMap},
+    center,
+  } = prepared;
   if (!center) {
     v.ctx.ringsCtx = emptyRingsCtx();
     return {viz};
@@ -572,7 +660,16 @@ export const applyRingsLayout: TransformStage = ({viz}) => {
   );
   v._sizeLegendFinal = radius;
 
-  buildRingsEdges(v, nodes, primaries, secondaries, linkMap, center, geom, edges);
+  buildRingsEdges(
+    v,
+    nodes,
+    primaries,
+    secondaries,
+    linkMap,
+    center,
+    geom,
+    edges,
+  );
 
   applyRingsLabelBounds(v, nodes, geom);
 

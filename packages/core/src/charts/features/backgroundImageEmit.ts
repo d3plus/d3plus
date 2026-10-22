@@ -8,7 +8,10 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
-import {backgroundImageLayout, emitBackgroundImages} from "../../shapes/sceneSort.js";
+import {
+  backgroundImageLayout,
+  emitBackgroundImages,
+} from "../../shapes/sceneSort.js";
 import {resolveAccessor} from "./emitHelpers.js";
 
 /**
@@ -42,7 +45,8 @@ export function backgroundImageNode(
     [],
     fit === "contain" ? "contain" : "cover",
   );
-  if (!layout || !(layout.box.width > 0) || !(layout.box.height > 0)) return null;
+  if (!layout || !(layout.box.width > 0) || !(layout.box.height > 0))
+    return null;
   const opacity = node.paint?.opacity;
   const [group] = emitBackgroundImages(
     [

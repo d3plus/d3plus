@@ -164,13 +164,14 @@ const OVERLAY_SELECTORS = [".d3plus-render-overlays", ".d3plus-render-overlay"];
 export function alignOverlayHost(host: HTMLElement): void {
   const mount = host.parentElement;
   const computed =
-    mount && typeof getComputedStyle === "function" ? getComputedStyle(mount) : null;
+    mount && typeof getComputedStyle === "function"
+      ? getComputedStyle(mount)
+      : null;
   host.style.top = computed?.paddingTop || "0px";
   host.style.right = computed?.paddingRight || "0px";
   host.style.bottom = computed?.paddingBottom || "0px";
   host.style.left = computed?.paddingLeft || "0px";
 }
-
 
 /**
     Declarative event delegation for `HtmlOverlayNode.events`. Attaches

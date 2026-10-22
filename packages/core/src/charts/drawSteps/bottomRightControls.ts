@@ -25,7 +25,11 @@ import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {zoomSizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import {buildBottomRightPanel, bottomRightControlsBox, measureBottomRight} from "./bottomRightControlsMarkup.js";
+import {
+  buildBottomRightPanel,
+  bottomRightControlsBox,
+  measureBottomRight,
+} from "./bottomRightControlsMarkup.js";
 import type {BottomRightContribution} from "./bottomRightControlsMarkup.js";
 
 /** The chart area a contribution may size itself against, before layout. */
@@ -35,7 +39,10 @@ export interface BottomRightAvailable {
 }
 
 /** Configures the size legend for a scale and lays it out, returning its size. */
-function layoutSizeLegend(viz: VizInstance, scale: SizeLegendScale): {width: number; height: number} {
+function layoutSizeLegend(
+  viz: VizInstance,
+  scale: SizeLegendScale,
+): {width: number; height: number} {
   const ink = backgroundInk(viz);
   const legend = viz._sizeLegendClass!;
   legend
@@ -60,14 +67,21 @@ export function sizeLegendContribution(
   viz: VizInstance,
   available: BottomRightAvailable,
 ): BottomRightContribution | null {
-  if (!viz._sizeLegendClass || typeof viz._sizeLegendScale !== "function") return null;
+  if (!viz._sizeLegendClass || typeof viz._sizeLegendScale !== "function")
+    return null;
   const scale = viz._sizeLegendScale(available);
   if (!scale) return null;
   viz._sizeLegendClass._maxRadius = undefined;
   const {width, height} = layoutSizeLegend(viz, scale);
   if (!width || !height) return null;
-  const size = {width, height, availableWidth: available.width, availableHeight: available.height};
-  if (!viz.schema.sizeLegend.bind(viz)(resolveSpec(viz), scale, size)) return null;
+  const size = {
+    width,
+    height,
+    availableWidth: available.width,
+    availableHeight: available.height,
+  };
+  if (!viz.schema.sizeLegend.bind(viz)(resolveSpec(viz), scale, size))
+    return null;
   return {
     key: "sizeLegend",
     width,
@@ -75,7 +89,8 @@ export function sizeLegendContribution(
     paint: zoom => {
       const final = viz._sizeLegendFinal;
       if (!final) return null;
-      viz._sizeLegendClass!._maxRadius = zoom === 1 ? undefined : final(final.domain()[1]);
+      viz._sizeLegendClass!._maxRadius =
+        zoom === 1 ? undefined : final(final.domain()[1]);
       const size = layoutSizeLegend(viz, zoomSizeLegendScale(final, zoom));
       if (!size.width || !size.height) return null;
       return {node: viz._sizeLegendClass!.toScene(), ...size};
@@ -87,7 +102,10 @@ export function sizeLegendContribution(
     Ordered contributors to the bottom-right panel, right to left.
 */
 export const BOTTOM_RIGHT_CONTRIBUTORS: Array<
-  (viz: VizInstance, available: BottomRightAvailable) => BottomRightContribution | null
+  (
+    viz: VizInstance,
+    available: BottomRightAvailable,
+  ) => BottomRightContribution | null
 > = [sizeLegendContribution];
 
 /**
@@ -109,7 +127,9 @@ export function reserveBottomRight(
   }
   const side = viz.schema.sizeLegendPosition === "bottom" ? "bottom" : "right";
   const inset = isInsetPending(viz, "sizeLegend");
-  viz._bottomRightBox = items.length ? {...measureBottomRight(items), bottom, side, inset, items} : null;
+  viz._bottomRightBox = items.length
+    ? {...measureBottomRight(items), bottom, side, inset, items}
+    : null;
 }
 
 export const bottomRightControlsFeature: FeatureModule = {

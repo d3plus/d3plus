@@ -36,6 +36,9 @@ export const radarEmit: ChartEmit = ({viz}) => {
       aria: {label: `${viz._drawLabel(datum, i)}.`},
     } as SceneNode);
   }
-  const images = backgroundImageNodes(pathConfig, out, k => [(groupData[k].data ?? groupData[k]) as DataPoint, k]);
+  const images = backgroundImageNodes(pathConfig, out, k => [
+    (groupData[k].data ?? groupData[k]) as DataPoint,
+    k,
+  ]);
   return [...out, ...images];
 };

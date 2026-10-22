@@ -13,7 +13,10 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {stampShare} from "../features/shareKey.js";
 
 /** A laid-out treemap leaf node (carries `share` + `rank` populated below). */
-export type TreemapShapeNode = Omit<HierarchyRectangularNode<DataPoint>, "id"> & {
+export type TreemapShapeNode = Omit<
+  HierarchyRectangularNode<DataPoint>,
+  "id"
+> & {
   __d3plus__: true;
   id: string | number;
   i: number | undefined;
@@ -28,7 +31,10 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
 
   const {width, height} = chartBounds(viz);
 
-  type Branch = {values?: DataPoint[]; key?: string | number} & Record<string, unknown>;
+  type Branch = {values?: DataPoint[]; key?: string | number} & Record<
+    string,
+    unknown
+  >;
 
   const nestedData = nestGroups(
     data,
@@ -37,10 +43,15 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
 
   const root = hierarchy<Branch>(
     {values: nestedData} as Branch,
-    d => (d.values as Branch[] | undefined),
+    d => d.values as Branch[] | undefined,
   )
     .sum(viz.schema.sum as (d: Branch) => number)
-    .sort(viz.schema.sort as (a: HierarchyNode<Branch>, b: HierarchyNode<Branch>) => number);
+    .sort(
+      viz.schema.sort as (
+        a: HierarchyNode<Branch>,
+        b: HierarchyNode<Branch>,
+      ) => number,
+    );
 
   // d3-hierarchy treemap is a fluent builder; configure then invoke on root.
   interface TreemapGenerator {
@@ -60,13 +71,14 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   function extractLayout(children: HierarchyRectangularNode<Branch>[]): void {
     for (const node of children) {
       if (node.depth <= viz._drawDepth) {
-        extractLayout((node.children ?? []) as HierarchyRectangularNode<Branch>[]);
+        extractLayout(
+          (node.children ?? []) as HierarchyRectangularNode<Branch>[],
+        );
         continue;
       }
       const branchData = node.data as Branch;
       const values = (branchData.values ?? []) as DataPoint[];
-      const index =
-        values.length === 1 ? data!.indexOf(values[0]) : undefined;
+      const index = values.length === 1 ? data!.indexOf(values[0]) : undefined;
       const enriched = node as unknown as TreemapShapeNode;
       enriched.__d3plus__ = true;
       enriched.id = branchData.key as string | number;

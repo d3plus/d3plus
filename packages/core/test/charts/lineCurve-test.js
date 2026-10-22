@@ -23,12 +23,28 @@ it("curveFactory — a curve name's d3 factory, linear when unknown", () => {
 });
 
 it("lineCurve — the curve the lines draw with", () => {
-  assert.strictEqual(lineCurve(new LinePlot(), rows[0]), "monotoneX", "a LinePlot's default");
+  assert.strictEqual(
+    lineCurve(new LinePlot(), rows[0]),
+    "monotoneX",
+    "a LinePlot's default",
+  );
   const plain = new LinePlot();
   plain.schema.discrete = undefined;
   assert.strictEqual(lineCurve(plain, rows[0]), "linear", "no discrete axis");
-  assert.strictEqual(lineCurve(new LinePlot().shapeConfig({Line: {curve: "monotoneX"}}), rows[0]), "monotoneX");
-  const byRow = new LinePlot().shapeConfig({Line: {curve: d => (d.id === "a" ? "natural" : "linear")}});
-  assert.strictEqual(lineCurve(byRow, rows[0]), "natural", "an accessor reads the row");
+  assert.strictEqual(
+    lineCurve(
+      new LinePlot().shapeConfig({Line: {curve: "monotoneX"}}),
+      rows[0],
+    ),
+    "monotoneX",
+  );
+  const byRow = new LinePlot().shapeConfig({
+    Line: {curve: d => (d.id === "a" ? "natural" : "linear")},
+  });
+  assert.strictEqual(
+    lineCurve(byRow, rows[0]),
+    "natural",
+    "an accessor reads the row",
+  );
   assert.strictEqual(lineCurve(byRow, undefined), "linear");
 });

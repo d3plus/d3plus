@@ -36,11 +36,7 @@ const vertical = {
 };
 
 it("Bullet geometry: normalizeBands turns thresholds into bands and keeps band objects", () => {
-  assert.deepStrictEqual(normalizeBands([60, 85]), [
-    {max: 60},
-    {max: 85},
-    {},
-  ]);
+  assert.deepStrictEqual(normalizeBands([60, 85]), [{max: 60}, {max: 85}, {}]);
   assert.deepStrictEqual(
     normalizeBands([{max: 50, color: "red"}, {color: "green"}]),
     [{max: 50, color: "red"}, {color: "green"}],
@@ -74,7 +70,11 @@ it("Bullet geometry: shadeBands fills in colors only where a band has none", () 
   const mix = t => `mix(${t.toFixed(2)})`;
   assert.deepStrictEqual(
     shadeBands([{max: 1}, {max: 2, color: "red"}, {}], mix),
-    [{max: 1, color: "mix(0.36)"}, {max: 2, color: "red"}, {color: "mix(0.12)"}],
+    [
+      {max: 1, color: "mix(0.36)"},
+      {max: 2, color: "red"},
+      {color: "mix(0.12)"},
+    ],
   );
   assert.deepStrictEqual(shadeBands([], mix), []);
 });
@@ -97,14 +97,29 @@ it("Bullet geometry: mergeExtents widens the extent and keeps the first input", 
     extent: [-3, 20],
     input: [0, undefined],
   });
-  assert.deepStrictEqual(mergeExtents(bulletExtent([], [], undefined), a).extent, [5, 20]);
+  assert.deepStrictEqual(
+    mergeExtents(bulletExtent([], [], undefined), a).extent,
+    [5, 20],
+  );
 });
 
 it("Bullet geometry: bulletDomain nices to the tick count, includes zero, and keeps user ends", () => {
-  assert.deepStrictEqual(bulletDomain(bulletExtent([73], [], undefined)), [0, 80]);
-  assert.deepStrictEqual(bulletDomain(bulletExtent([324], [], undefined), 2), [0, 400]);
-  assert.deepStrictEqual(bulletDomain(bulletExtent([-4.2, 3], [], undefined)), [-6, 4]);
-  assert.deepStrictEqual(bulletDomain(bulletExtent([150], [], [0, 97])), [0, 97]);
+  assert.deepStrictEqual(
+    bulletDomain(bulletExtent([73], [], undefined)),
+    [0, 80],
+  );
+  assert.deepStrictEqual(
+    bulletDomain(bulletExtent([324], [], undefined), 2),
+    [0, 400],
+  );
+  assert.deepStrictEqual(
+    bulletDomain(bulletExtent([-4.2, 3], [], undefined)),
+    [-6, 4],
+  );
+  assert.deepStrictEqual(
+    bulletDomain(bulletExtent([150], [], [0, 97])),
+    [0, 97],
+  );
   assert.deepStrictEqual(bulletDomain({extent: [], input: undefined}), [0, 1]);
 });
 
@@ -112,32 +127,57 @@ it("Bullet geometry: ticksFit checks the gap between neighboring labels", () => 
   const ten = () => 10;
   assert.strictEqual(ticksFit([0, 50, 100], [0, 100], 100, ten, 8), true);
   assert.strictEqual(ticksFit([0, 50, 100], [0, 100], 30, ten, 8), false);
-  assert.strictEqual(ticksFit([0], [0, 100], 1, ten, 8), true, "a single tick always fits");
+  assert.strictEqual(
+    ticksFit([0], [0, 100], 1, ten, 8),
+    true,
+    "a single tick always fits",
+  );
 });
 
 it("Bullet geometry: fitAxis picks the densest ticks that fit and nices the domain to them", () => {
   const e = bulletExtent([324], [], undefined);
   const narrow = fitAxis(e, undefined, 150, () => 18);
   assert.deepStrictEqual(narrow.domain, [0, 400]);
-  assert.deepStrictEqual(narrow.ticks, [0, 200, 400], "ends line up with the step");
+  assert.deepStrictEqual(
+    narrow.ticks,
+    [0, 200, 400],
+    "ends line up with the step",
+  );
   const wide = fitAxis(e, undefined, 700, () => 18);
   assert.deepStrictEqual(wide.domain, [0, 350]);
   assert.deepStrictEqual(wide.ticks, [0, 50, 100, 150, 200, 250, 300, 350]);
   const crowded = fitAxis(e, undefined, 700, () => 200);
-  assert.ok(crowded.ticks.length < wide.ticks.length, "wide labels thin the ticks");
-  const fixed = fitAxis(bulletExtent([10], [], [0, 100]), undefined, 400, () => 18);
+  assert.ok(
+    crowded.ticks.length < wide.ticks.length,
+    "wide labels thin the ticks",
+  );
+  const fixed = fitAxis(
+    bulletExtent([10], [], [0, 100]),
+    undefined,
+    400,
+    () => 18,
+  );
   assert.deepStrictEqual(fixed.domain, [0, 100], "user ends are kept");
   assert.deepStrictEqual(fixed.ticks, [0, 20, 40, 60, 80, 100]);
 });
 
 it("Bullet geometry: fitAxis honors a tick count, a tick array, and false", () => {
   const e = bulletExtent([73], [], undefined);
-  assert.deepStrictEqual(fitAxis(e, 2, 500, () => 10), {domain: [0, 100], ticks: [0, 50, 100]});
-  assert.deepStrictEqual(fitAxis(e, [0, 25, 300, 75], 500, () => 10), {
-    domain: [0, 80],
-    ticks: [0, 25, 75],
-  });
-  assert.deepStrictEqual(fitAxis(e, false, 500, () => 10), {domain: [0, 80], ticks: []});
+  assert.deepStrictEqual(
+    fitAxis(e, 2, 500, () => 10),
+    {domain: [0, 100], ticks: [0, 50, 100]},
+  );
+  assert.deepStrictEqual(
+    fitAxis(e, [0, 25, 300, 75], 500, () => 10),
+    {
+      domain: [0, 80],
+      ticks: [0, 25, 75],
+    },
+  );
+  assert.deepStrictEqual(
+    fitAxis(e, false, 500, () => 10),
+    {domain: [0, 80], ticks: []},
+  );
   const tiny = fitAxis(e, undefined, 0, () => 10);
   assert.deepStrictEqual(tiny.ticks, tiny.domain, "no room: just the ends");
 });
@@ -184,7 +224,11 @@ it("Bullet geometry: spanRect covers a value span, centered across the band", ()
     width: 15,
     height: 150,
   });
-  assert.strictEqual(spanRect(horizontal, 0, 50, 3).height, 40, "size clamps to the band");
+  assert.strictEqual(
+    spanRect(horizontal, 0, 50, 3).height,
+    40,
+    "size clamps to the band",
+  );
 });
 
 it("Bullet geometry: markerPoints crosses the band at the value", () => {
@@ -226,7 +270,10 @@ const stack = (opts = {}) => ({
 
 it("Bullet layout: axisDepth is the tick mark, gap, and label", () => {
   assert.strictEqual(axisDepth(stack()), TICK_LENGTH + TICK_GAP + 10);
-  assert.strictEqual(axisDepth(stack({orient: "vertical"})), TICK_LENGTH + TICK_GAP + 20);
+  assert.strictEqual(
+    axisDepth(stack({orient: "vertical"})),
+    TICK_LENGTH + TICK_GAP + 20,
+  );
   assert.strictEqual(axisDepth(stack({axis: false})), 0);
 });
 
@@ -234,18 +281,39 @@ it("Bullet layout: bulletStack stacks horizontal rows with labels at the start",
   const slots = bulletStack(stack());
   assert.strictEqual(slots.length, 3);
   const [a, b, c] = slots;
-  assert.strictEqual(a.band.x, 2 + 80 + 12, "band starts after the label column");
-  assert.strictEqual(a.band.x + a.band.width, 600 - 2 - 10, "room for the last tick label");
+  assert.strictEqual(
+    a.band.x,
+    2 + 80 + 12,
+    "band starts after the label column",
+  );
+  assert.strictEqual(
+    a.band.x + a.band.width,
+    600 - 2 - 10,
+    "room for the last tick label",
+  );
   assert.strictEqual(a.band.height, 40, "capped at bulletSize");
-  assert.ok(b.band.y > a.band.y + a.band.height + axisDepth(stack()), "rows don't overlap");
+  assert.ok(
+    b.band.y > a.band.y + a.band.height + axisDepth(stack()),
+    "rows don't overlap",
+  );
   near(c.band.y - b.band.y, b.band.y - a.band.y, 1e-9, "even steps");
   const top = a.band.y;
   const bottom = c.band.y + c.band.height + axisDepth(stack());
   near(top - 0, 300 - bottom, 1e-6, "the stack is centered");
-  assert.deepStrictEqual(a.label, {x: 82, y: a.band.y + 20, anchor: "end", maxWidth: 80});
-  assert.ok(slots.every(s => s.axis), "each row has its axis");
+  assert.deepStrictEqual(a.label, {
+    x: 82,
+    y: a.band.y + 20,
+    anchor: "end",
+    maxWidth: 80,
+  });
+  assert.ok(
+    slots.every(s => s.axis),
+    "each row has its axis",
+  );
   assert.strictEqual(a.hit.x, 0, "the hit area includes the label");
-  assert.ok(a.hit.y + a.hit.height >= a.band.y + a.band.height + axisDepth(stack()));
+  assert.ok(
+    a.hit.y + a.hit.height >= a.band.y + a.band.height + axisDepth(stack()),
+  );
 });
 
 it("Bullet layout: bulletStack shrinks bands to fit and shares one axis", () => {
@@ -253,28 +321,58 @@ it("Bullet layout: bulletStack shrinks bands to fit and shares one axis", () => 
   assert.ok(tight[0].band.height < 40, "bands thin out");
   assert.ok(tight[0].band.height >= 4);
   const shared = bulletStack(stack({axis: "shared"}));
-  assert.deepStrictEqual(shared.map(s => s.axis), [false, false, true], "the last row labels the axis");
+  assert.deepStrictEqual(
+    shared.map(s => s.axis),
+    [false, false, true],
+    "the last row labels the axis",
+  );
   const none = bulletStack(stack({axis: false, labelWidth: 0, labelHeight: 0}));
   assert.ok(none.every(s => !s.axis));
-  assert.strictEqual(none[0].band.x, 2, "no labels: the band starts at the edge");
+  assert.strictEqual(
+    none[0].band.x,
+    2,
+    "no labels: the band starts at the edge",
+  );
   assert.strictEqual(none[0].band.width, 596);
   const wideLabels = bulletStack(stack({labelWidth: 500}));
-  assert.strictEqual(wideLabels[0].label.maxWidth, 210, "labels take at most 35% of the width");
+  assert.strictEqual(
+    wideLabels[0].label.maxWidth,
+    210,
+    "labels take at most 35% of the width",
+  );
 });
 
 it("Bullet layout: bulletStack lines up vertical columns with labels on top", () => {
-  const slots = bulletStack(stack({orient: "vertical", width: 400, height: 300, count: 4}));
+  const slots = bulletStack(
+    stack({orient: "vertical", width: 400, height: 300, count: 4}),
+  );
   assert.strictEqual(slots.length, 4);
   const [a, b] = slots;
   assert.strictEqual(a.band.width, b.band.width);
   assert.ok(b.band.x > a.band.x + a.band.width, "columns don't overlap");
-  assert.strictEqual(a.band.y, 2 + 26 + 12 + 5, "below the label block and half a tick label");
+  assert.strictEqual(
+    a.band.y,
+    2 + 26 + 12 + 5,
+    "below the label block and half a tick label",
+  );
   assert.strictEqual(a.band.y + a.band.height, 300 - 5 - 2);
   assert.strictEqual(a.label.anchor, "middle");
-  near(a.label.x, a.band.x + a.band.width / 2, 1e-9, "label centered over the band");
-  assert.ok(a.band.x - axisDepth(stack({orient: "vertical"})) >= 0, "axis fits to the left");
+  near(
+    a.label.x,
+    a.band.x + a.band.width / 2,
+    1e-9,
+    "label centered over the band",
+  );
+  assert.ok(
+    a.band.x - axisDepth(stack({orient: "vertical"})) >= 0,
+    "axis fits to the left",
+  );
   const shared = bulletStack(stack({orient: "vertical", axis: "shared"}));
-  assert.deepStrictEqual(shared.map(s => s.axis), [true, false, false], "the first column labels the axis");
+  assert.deepStrictEqual(
+    shared.map(s => s.axis),
+    [true, false, false],
+    "the first column labels the axis",
+  );
 });
 
 it("Bullet layout: bulletStack places nothing without room or rows", () => {

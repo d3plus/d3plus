@@ -57,12 +57,17 @@ export default async function (opts = {}) {
     name: "static-dynamic-imports",
     transform(code) {
       const specifiers = [];
-      const out = code.replace(/\bimport\((["'])([^."'][^"']*)\1\)/g, (match, quote, specifier) => {
-        specifiers.push(specifier);
-        return `Promise.resolve(__dynamicImport${specifiers.length - 1})`;
-      });
+      const out = code.replace(
+        /\bimport\((["'])([^."'][^"']*)\1\)/g,
+        (match, quote, specifier) => {
+          specifiers.push(specifier);
+          return `Promise.resolve(__dynamicImport${specifiers.length - 1})`;
+        },
+      );
       if (!specifiers.length) return null;
-      const imports = specifiers.map((s, i) => `import * as __dynamicImport${i} from "${s}";`);
+      const imports = specifiers.map(
+        (s, i) => `import * as __dynamicImport${i} from "${s}";`,
+      );
       return {code: `${imports.join("\n")}\n${out}`, map: null};
     },
   };
@@ -75,16 +80,21 @@ export default async function (opts = {}) {
     resolveId(source) {
       const match = source.match(/^@d3plus\/([a-z]+)$/);
       if (!match) return null;
-      return ["index.ts", "index.tsx"]
-        .map(file => path.join(packagesDir, match[1], file))
-        .find(file => fs.existsSync(file)) ?? null;
+      return (
+        ["index.ts", "index.tsx"]
+          .map(file => path.join(packagesDir, match[1], file))
+          .find(file => fs.existsSync(file)) ?? null
+      );
     },
   };
 
   const plugins = [
     workspaceSources,
     tsExtensions,
-    replace({"process.env.NODE_ENV": JSON.stringify(env), preventAssignment: true}),
+    replace({
+      "process.env.NODE_ENV": JSON.stringify(env),
+      preventAssignment: true,
+    }),
     swc(),
     // After swc, so TypeScript's `import("…").Type` annotations are gone.
     staticDynamicImports,
@@ -104,7 +114,9 @@ export default async function (opts = {}) {
     input: entry,
     plugins,
     // The standalone bundle leaves every package import to the page.
-    external: opts.deps ? undefined : id => !id.startsWith(".") && !path.isAbsolute(id),
+    external: opts.deps
+      ? undefined
+      : id => !id.startsWith(".") && !path.isAbsolute(id),
     onwarn(warning, warn) {
       if (warning.code !== "CIRCULAR_DEPENDENCY") warn(warning);
     },
@@ -159,6 +171,9 @@ export default async function (opts = {}) {
   log.timer(`bundling ${output.file}`);
   fs.mkdirSync(folder, {recursive: true});
   if (opts.watch)
-    return watch(Object.assign(input, {output: [output]})).on("event", onWatchEvent);
+    return watch(Object.assign(input, {output: [output]})).on(
+      "event",
+      onWatchEvent,
+    );
   else return rollup(input).then(bundle => bundle.write(output));
 }

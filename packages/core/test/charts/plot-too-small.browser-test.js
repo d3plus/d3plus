@@ -11,7 +11,14 @@ import {render} from "~test/browser/render.js";
 const probe = ({kind, width, height}) =>
   new Promise(resolve => {
     const years = [2020, 2021, 2022];
-    const data = years.flatMap(year => ["A", "B", "C"].map((id, i) => ({id, year, x: i, y: 10 + i * year % 7})));
+    const data = years.flatMap(year =>
+      ["A", "B", "C"].map((id, i) => ({
+        id,
+        year,
+        x: i,
+        y: 10 + ((i * year) % 7),
+      })),
+    );
     const viz = new window.d3plus[kind]()
       .data(data)
       .groupBy("id")
@@ -27,7 +34,11 @@ const probe = ({kind, width, height}) =>
       const negative = [];
       const walk = node => {
         if (node.type === "rect" && (node.width < 0 || node.height < 0))
-          negative.push({key: node.key, width: node.width, height: node.height});
+          negative.push({
+            key: node.key,
+            width: node.width,
+            height: node.height,
+          });
         (node.children || []).forEach(walk);
       };
       walk(viz._paintedScene.root);
@@ -37,7 +48,11 @@ const probe = ({kind, width, height}) =>
 
 for (const kind of ["BarChart", "LinePlot"])
   it(`${kind} too short for its chrome paints no negative rect sizes`, async () => {
-    const {negative, rects} = await render('<div id="viz"></div>', probe, {kind, width: 300, height: 120});
+    const {negative, rects} = await render('<div id="viz"></div>', probe, {
+      kind,
+      width: 300,
+      height: 120,
+    });
     assert.ok(rects > 0, "the chart still draws");
     assert.deepStrictEqual(negative, []);
   });

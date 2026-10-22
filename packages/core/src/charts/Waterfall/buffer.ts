@@ -20,7 +20,8 @@ export function labelHeadroom(
   let [lo, hi] = domain;
   const f = Math.min(Math.max(fraction, 0), 0.45);
   if (!f || !steps.length) return [lo, hi];
-  let top = -Infinity, bottom = Infinity;
+  let top = -Infinity,
+    bottom = Infinity;
   for (const step of steps) {
     if (endsForward(step)) top = Math.max(top, step.end);
     else bottom = Math.min(bottom, step.end);
@@ -55,15 +56,23 @@ export function waterfallBuffer(
     if (x2 || !options.labels()) return [x, y];
     const vertical = options.vertical();
     const scale = vertical ? y : x;
-    const steps = data.map(d => (d.data ? stepOf(d.data) : undefined)).filter((s): s is WaterfallStep => !!s);
+    const steps = data
+      .map(d => (d.data ? stepOf(d.data) : undefined))
+      .filter((s): s is WaterfallStep => !!s);
     const range = scale.range() as number[];
     const length = Math.abs(range[range.length - 1] - range[0]);
     if (!steps.length || !length) return [x, y];
     const domain = (scale.domain() as number[]).slice();
     // A vertical value axis runs top-down, so its domain is stored high first.
     if (vertical) domain.reverse();
-    const px = vertical ? LABEL_SPAN.height + LABEL_SPAN.gap : LABEL_SPAN.width + LABEL_SPAN.gap;
-    const next: number[] = labelHeadroom([domain[0], domain[1]], steps, px / length);
+    const px = vertical
+      ? LABEL_SPAN.height + LABEL_SPAN.gap
+      : LABEL_SPAN.width + LABEL_SPAN.gap;
+    const next: number[] = labelHeadroom(
+      [domain[0], domain[1]],
+      steps,
+      px / length,
+    );
     if (vertical) next.reverse();
     scale.domain(next);
     return [x, y];

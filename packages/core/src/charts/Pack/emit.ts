@@ -8,7 +8,12 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig, textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
+import {
+  userLabelConfig,
+  textureFill,
+  shapeConfigFor,
+  resolveAccessor,
+} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PackLeaf} from "./applyLayout.js";
@@ -19,8 +24,12 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
 
   const sc = shapeConfigFor(viz, "Circle");
   // Pack's label accessor is nested under `Circle`.
-  const circleConfig = (viz.schema.shapeConfig.Circle ?? {}) as Record<string, unknown>;
-  const labelFn = circleConfig.label as ((d: DataPoint, i: number) => unknown) | undefined;
+  const circleConfig = (viz.schema.shapeConfig.Circle ?? {}) as Record<
+    string,
+    unknown
+  >;
+  const labelFn = circleConfig.label as
+    ((d: DataPoint, i: number) => unknown) | undefined;
 
   const circleNodes: SceneNode[] = nodes.map((d, i) => {
     const datum = d.data as DataPoint & {__d3plusOpacity__?: number};
@@ -58,7 +67,7 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
       const node = d as unknown as PackLeaf;
       if (node.children) return false;
       if (labelFn) return labelFn(node.data as DataPoint, i);
-      return node.parent ? (node.data as DataPoint).id ?? false : false;
+      return node.parent ? ((node.data as DataPoint).id ?? false) : false;
     },
     x: d => (d as unknown as PackLeaf).x,
     y: d => (d as unknown as PackLeaf).y,
@@ -80,7 +89,10 @@ export const packEmit: ChartEmit = ({viz, shapeData}) => {
     labelConfig: {fontResize: true, ...userLabelConfig(viz, "Circle")},
   });
 
-  const imageNodes = backgroundImageNodes(sc, circleNodes, k => [nodes[k].data as DataPoint, k]);
+  const imageNodes = backgroundImageNodes(sc, circleNodes, k => [
+    nodes[k].data as DataPoint,
+    k,
+  ]);
 
   return [...circleNodes, ...imageNodes, ...labelNodes];
 };

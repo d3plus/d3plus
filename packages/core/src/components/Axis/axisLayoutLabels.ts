@@ -13,7 +13,10 @@ import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 import type Axis from "./Axis.js";
 
 /** Resolves a tick's pixel size from the shape config (or a constant). */
-export type TickGet = (d?: {tick?: boolean; id?: unknown}, i?: number) => number;
+export type TickGet = (
+  d?: {tick?: boolean; id?: unknown},
+  i?: number,
+) => number;
 
 /**
     One measured axis label. Built incrementally: the base fields come from the
@@ -61,7 +64,12 @@ interface LabelLayoutCtx {
 /** Applies the axis title's wrapped height to the orient-side margin. */
 export function applyTitleMargin(
   axis: Axis,
-  ctx: {range: number[]; p: number; height: string; margin: Record<string, number>},
+  ctx: {
+    range: number[];
+    p: number;
+    height: string;
+    margin: Record<string, number>;
+  },
 ): void {
   if (!axis.schema.title) return;
   const {range, p, height, margin} = ctx;
@@ -104,7 +112,13 @@ export function computeBuffers(
 }
 
 /** A label's wrapped lines and measured size (see `calculateLabelSize`). */
-type LabelSize = {lines: string[]; widths: number[]; width: number; height: number; fits: boolean};
+type LabelSize = {
+  lines: string[];
+  widths: number[];
+  width: number;
+  height: number;
+  fits: boolean;
+};
 
 /**
     Wraps + measures a single label, returning its sized text result. Given a
@@ -126,17 +140,20 @@ function calculateLabelSize(
     ? axis.schema.shapeConfig.lineHeight(d, i)
     : undefined;
   const text = tickFormat(d);
-  const key = cache && JSON.stringify([text, fF, fP, fS, lineHeight, rotate, space]);
+  const key =
+    cache && JSON.stringify([text, fF, fP, fS, lineHeight, rotate, space]);
   const cached = key ? cache!.get(key) : undefined;
-  if (cached) return {...cached, lines: cached.lines.slice(), widths: cached.widths.slice()};
+  if (cached)
+    return {
+      ...cached,
+      lines: cached.lines.slice(),
+      widths: cached.widths.slice(),
+    };
 
   const wSize = min([axis.schema.maxSize, axis.schema.width]);
   const hSize = min([axis.schema.maxSize, axis.schema.height]);
 
-  const wrap = textWrap()
-    .fontFamily(fF)
-    .fontSize(fS)
-    .lineHeight(lineHeight);
+  const wrap = textWrap().fontFamily(fF).fontSize(fS).lineHeight(lineHeight);
 
   wrap[w](
     horizontal
@@ -149,7 +166,11 @@ function calculateLabelSize(
       : space,
   );
 
-  type Sized = ReturnType<typeof wrap> & {width: number; height: number; fits: boolean};
+  type Sized = ReturnType<typeof wrap> & {
+    width: number;
+    height: number;
+    fits: boolean;
+  };
   let res: Sized, fits: boolean;
   if (ctx.wholeLine) {
     // Measured across the whole axis (`maxSize` caps its depth, not its
@@ -157,15 +178,23 @@ function calculateLabelSize(
     // whole on one.
     wrap.width((axis.schema.width as number) - p * 2);
     res = wrap(text) as Sized;
-    fits = !res.truncated && res.lines.filter((l: string) => l !== "").length <= 1;
-  }
-  else {
+    fits =
+      !res.truncated && res.lines.filter((l: string) => l !== "").length <= 1;
+  } else {
     res = wrap(text) as Sized;
     // A label that only fits by breaking a word mid-word doesn't fit.
-    fits = wholeWordFit(res, () => wrap.split(wholeWordSplit)(text) as Sized).fits;
+    fits = wholeWordFit(
+      res,
+      () => wrap.split(wholeWordSplit)(text) as Sized,
+    ).fits;
     // A label wider than its share of the axis wraps to nothing; measure it
     // across the whole axis instead, so the overlap pass thins the labels out.
-    if (horizontal && !rotate && `${text}`.trim() && !res.lines.some((l: string) => l !== "")) {
+    if (
+      horizontal &&
+      !rotate &&
+      `${text}`.trim() &&
+      !res.lines.some((l: string) => l !== "")
+    ) {
       wrap.width(wSize! - p * 2);
       res = wrap(text) as Sized;
     }
@@ -176,7 +205,14 @@ function calculateLabelSize(
   res.height = res.lines.length
     ? Math.ceil(res.lines.length * (wrap.lineHeight() as number)) + fP
     : 0;
-  if (key) cache!.set(key, {lines: res.lines.slice(), widths: res.widths.slice(), width: res.width, height: res.height, fits});
+  if (key)
+    cache!.set(key, {
+      lines: res.lines.slice(),
+      widths: res.widths.slice(),
+      width: res.width,
+      height: res.height,
+      fits,
+    });
   return res;
 }
 
@@ -191,7 +227,10 @@ function calculateLabelSize(
     along a horizontal axis.
 */
 export function labelExtent(
-  datum: Pick<AxisTextDatum, "fP" | "fS" | "height" | "lineHeight" | "lines" | "rotate" | "width">,
+  datum: Pick<
+    AxisTextDatum,
+    "fP" | "fS" | "height" | "lineHeight" | "lines" | "rotate" | "width"
+  >,
   horizontal: boolean,
 ): number {
   if (Boolean(datum.rotate) !== horizontal) return datum.width;
@@ -215,10 +254,7 @@ function calculateOffset(arr: AxisTextDatum[] = [], horizontal: boolean): void {
 
     if (!prev) {
       offset = 1;
-    } else if (
-      prev.position + prev[w] / 2 >
-      datum.position - datum[w] / 2
-    ) {
+    } else if (prev.position + prev[w] / 2 > datum.position - datum[w] / 2) {
       if (offset) {
         datum.offset = prev[h];
         offset = 0;
@@ -233,13 +269,33 @@ function calculateOffset(arr: AxisTextDatum[] = [], horizontal: boolean): void {
 */
 export function createTextData(
   axis: Axis,
-  ctx: LabelLayoutCtx & {labels: unknown[]; rangeOuter: number[]; offset?: number},
+  ctx: LabelLayoutCtx & {
+    labels: unknown[];
+    rangeOuter: number[];
+    offset?: number;
+  },
 ): AxisTextDatum[] {
-  const {labels, rangeOuter, horizontal, hBuff, p, tickFormat, offset = 1, ownSpace} = ctx;
-  const wholeLine = horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
+  const {
+    labels,
+    rangeOuter,
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    offset = 1,
+    ownSpace,
+  } = ctx;
+  const wholeLine =
+    horizontal && !axis._labelRotation && wholeLineLabels(axis, labels);
   // Every label is shown until the overlap pass below thins them.
   axis._shownLabels = labels;
-  const labelCtx: LabelLayoutCtx = {horizontal, hBuff, p, tickFormat, wholeLine};
+  const labelCtx: LabelLayoutCtx = {
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    wholeLine,
+  };
   const {fontSize} = axis.schema.shapeConfig.labelConfig;
   const fontFamilyConfig =
     axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
@@ -247,9 +303,10 @@ export function createTextData(
 
   let textData = labels.map((d: unknown, i: number) => {
     const fF =
-        typeof fontFamilyConfig === "function" ? fontFamilyConfig(d, i) : fontFamilyConfig,
-      fP =
-        typeof fontPadding === "function" ? fontPadding(d, i) : fontPadding,
+        typeof fontFamilyConfig === "function"
+          ? fontFamilyConfig(d, i)
+          : fontFamilyConfig,
+      fP = typeof fontPadding === "function" ? fontPadding(d, i) : fontPadding,
       fS = typeof fontSize === "function" ? fontSize(d, i) : fontSize,
       position = axis._getPosition(d);
 
@@ -292,17 +349,31 @@ export function createTextData(
           return max([max([prevSpace, nextSpace])! * mod, s])!;
         }, 0);
 
-  const spaces = ownSpace ? ownLabelSpaces(textData.map((d: AxisTextDatum) => d.position), rangeOuter) : undefined;
+  const spaces = ownSpace
+    ? ownLabelSpaces(
+        textData.map((d: AxisTextDatum) => d.position),
+        rangeOuter,
+      )
+    : undefined;
 
   // Thinning measures the labels again as they read the ones shown (see
   // `show`), mostly to the same text, so each text is measured once.
   const measured = new Map<string, LabelSize>();
-  const size = (datum: AxisTextDatum, space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2): AxisTextDatum => {
+  const size = (
+    datum: AxisTextDatum,
+    space = (spaces ? spaces[datum.i] : maxSpace) - datum.fP * 2,
+  ): AxisTextDatum => {
     datum.space = space;
-    const {lines, widths, width, height, fits} = calculateLabelSize(axis, datum, labelCtx, measured);
+    const {lines, widths, width, height, fits} = calculateLabelSize(
+      axis,
+      datum,
+      labelCtx,
+      measured,
+    );
     // A label measured wider than its share (see `calculateLabelSize`) is
     // painted at that width; the overlap pass below thins its neighbors.
-    if (horizontal && !datum.rotate) datum.space = Math.max(datum.space, Math.ceil(width));
+    if (horizontal && !datum.rotate)
+      datum.space = Math.max(datum.space, Math.ceil(width));
     // Likewise a vertical axis label taller than its share is painted at its
     // own height, leaving the overlap pass to thin out its neighbors.
     else if (!horizontal && !datum.rotate && height - datum.fP > datum.space)
@@ -318,11 +389,20 @@ export function createTextData(
     resize.forEach((datum: AxisTextDatum) => size(datum));
   };
   if (isDiscreteScale(axis.schema.scale))
-    thinEvenly(textData, horizontal, wholeLine ? (step: number, all: boolean) => {
-      const shown = textData.filter((_t: AxisTextDatum, i: number) => i % step === 0);
-      show(shown, all ? textData : shown);
-    } : undefined);
-  else if (spaces && horizontal && !axis._labelRotation) fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size);
+    thinEvenly(
+      textData,
+      horizontal,
+      wholeLine
+        ? (step: number, all: boolean) => {
+            const shown = textData.filter(
+              (_t: AxisTextDatum, i: number) => i % step === 0,
+            );
+            show(shown, all ? textData : shown);
+          }
+        : undefined,
+    );
+  else if (spaces && horizontal && !axis._labelRotation)
+    fitOwnSpaces(textData, spaces, axis._d3Scale!.range(), size);
   else if (wholeLine) thinGreedilyShown(textData, horizontal, show);
   else thinGreedily(textData, horizontal);
 
@@ -337,8 +417,14 @@ export function createTextData(
     shares never meet, while one between far-off neighbors keeps the room
     they leave it. A lone label spans the whole range.
 */
-export function ownLabelSpaces(positions: number[], rangeOuter: number[]): number[] {
-  if (positions.length < 2) return positions.map(() => Math.abs(rangeOuter[rangeOuter.length - 1] - rangeOuter[0]));
+export function ownLabelSpaces(
+  positions: number[],
+  rangeOuter: number[],
+): number[] {
+  if (positions.length < 2)
+    return positions.map(() =>
+      Math.abs(rangeOuter[rangeOuter.length - 1] - rangeOuter[0]),
+    );
   return positions.map((position: number, i: number) => {
     const gaps = [positions[i - 1], positions[i + 1]]
       .filter((n: number | undefined): n is number => n !== undefined)
@@ -367,20 +453,30 @@ export function fitOwnSpaces(
   const share = (t: AxisTextDatum) => spaces[t.i] - t.fP * 2;
   const pending = new Set(textData.filter((t: AxisTextDatum) => !t.fits));
   // A label still waiting to widen keeps to its own share for now.
-  const extent = (t: AxisTextDatum) => (pending.has(t) ? Math.min(t.width, share(t)) : t.width);
+  const extent = (t: AxisTextDatum) =>
+    pending.has(t) ? Math.min(t.width, share(t)) : t.width;
   // The nearest label shown on either side, past any still waiting to widen when `skip`.
   const shown = (from: number, step: number, skip: boolean) => {
     for (let i = from + step; i >= 0 && i < textData.length; i += step)
-      if (!textData[i].truncated && !(skip && pending.has(textData[i]))) return textData[i];
+      if (!textData[i].truncated && !(skip && pending.has(textData[i])))
+        return textData[i];
     return undefined;
   };
   // Widens a label into its neighbors' unused room, if that's more than its share.
   const widen = (datum: AxisTextDatum, skip: boolean) => {
     const widths = [shown(datum.i, -1, skip), shown(datum.i, 1, skip)]
       .filter((t?: AxisTextDatum): t is AxisTextDatum => t !== undefined)
-      .map((t: AxisTextDatum) => 2 * (Math.abs(t.position - datum.position) - extent(t) / 2 - datum.fP));
+      .map(
+        (t: AxisTextDatum) =>
+          2 *
+          (Math.abs(t.position - datum.position) - extent(t) / 2 - datum.fP),
+      );
     // With no label shown beside it, a label may span the whole range.
-    const space = Math.floor(widths.length ? Math.min(...widths) : Math.max(...range) - Math.min(...range));
+    const space = Math.floor(
+      widths.length
+        ? Math.min(...widths)
+        : Math.max(...range) - Math.min(...range),
+    );
     if (space > share(datum)) resize(datum, space);
     return datum.fits;
   };
@@ -392,13 +488,15 @@ export function fitOwnSpaces(
     edge += slot;
     return slot;
   });
-  [...pending].sort((a: AxisTextDatum, b: AxisTextDatum) => slots[b.i] - slots[a.i]).forEach((datum: AxisTextDatum) => {
-    pending.delete(datum);
-    // A label that can't fit beside its neighbors' shares takes the room of
-    // any narrower bars' labels still waiting, which then fit around it or hide.
-    if (!widen(datum, false)) widen(datum, true);
-    datum.truncated = !datum.fits;
-  });
+  [...pending]
+    .sort((a: AxisTextDatum, b: AxisTextDatum) => slots[b.i] - slots[a.i])
+    .forEach((datum: AxisTextDatum) => {
+      pending.delete(datum);
+      // A label that can't fit beside its neighbors' shares takes the room of
+      // any narrower bars' labels still waiting, which then fit around it or hide.
+      if (!widen(datum, false)) widen(datum, true);
+      datum.truncated = !datum.fits;
+    });
 }
 
 /**
@@ -410,8 +508,11 @@ export function fitOwnSpaces(
 export function wholeLineLabels(axis: Axis, labels: unknown[]): boolean {
   const {scale} = axis.schema;
   if (scale === "time") return true;
-  return isDiscreteScale(scale) && labels.length > 0 &&
-    labels.every((d: unknown) => d instanceof Date || !isNaN(d as number));
+  return (
+    isDiscreteScale(scale) &&
+    labels.length > 0 &&
+    labels.every((d: unknown) => d instanceof Date || !isNaN(d as number))
+  );
 }
 
 /** Whether a scale places one tick per category (every value labeled in turn). */
@@ -423,8 +524,13 @@ export function isDiscreteScale(scale: string): boolean {
     Whether label `b` sits too close to label `a` before it, leaving less
     than `b`'s padding between their text.
 */
-function crowds(a: AxisTextDatum, b: AxisTextDatum, horizontal: boolean): boolean {
-  const gap = Math.abs(b.position - a.position) -
+function crowds(
+  a: AxisTextDatum,
+  b: AxisTextDatum,
+  horizontal: boolean,
+): boolean {
+  const gap =
+    Math.abs(b.position - a.position) -
     (labelExtent(a, horizontal) + labelExtent(b, horizontal)) / 2;
   return gap < b.fP;
 }
@@ -440,15 +546,20 @@ export function thinEvenly(
   show?: (step: number, all: boolean) => void,
 ): void {
   let step = 1;
-  const crowded = (n: number) => textData.some((datum: AxisTextDatum, i: number) =>
-    i >= n && i % n === 0 && crowds(textData[i - n], datum, horizontal));
+  const crowded = (n: number) =>
+    textData.some(
+      (datum: AxisTextDatum, i: number) =>
+        i >= n && i % n === 0 && crowds(textData[i - n], datum, horizontal),
+    );
   while (step < textData.length && crowded(step)) {
     step++;
     show?.(step, false);
   }
   // Measures the hidden labels too, as the shown ones read them.
   if (step > 1) show?.(step, true);
-  textData.forEach((datum: AxisTextDatum, i: number) => (datum.truncated = i % step !== 0));
+  textData.forEach(
+    (datum: AxisTextDatum, i: number) => (datum.truncated = i % step !== 0),
+  );
 }
 
 /**
@@ -466,7 +577,11 @@ function thinGreedilyShown(
   for (let round = 0; round < 4; round++) {
     thinGreedily(textData, horizontal);
     const next = textData.filter((t: AxisTextDatum) => !t.truncated);
-    if (next.length === shown.length && next.every((t: AxisTextDatum, i: number) => t === shown[i])) return;
+    if (
+      next.length === shown.length &&
+      next.every((t: AxisTextDatum, i: number) => t === shown[i])
+    )
+      return;
     shown = next;
     show(shown, textData);
   }
@@ -488,16 +603,16 @@ function thinGreedily(textData: AxisTextDatum[], horizontal: boolean): void {
     if (i === textData.length - 1) {
       while (
         prev &&
-        position - extent(datum) / 2 - fP <
-          prev.position + extent(prev) / 2
+        position - extent(datum) / 2 - fP < prev.position + extent(prev) / 2
       ) {
         prev.truncated = true;
-        prev = reverseTextData.find((t: AxisTextDatum) => t.i < i && !t.truncated);
+        prev = reverseTextData.find(
+          (t: AxisTextDatum) => t.i < i && !t.truncated,
+        );
       }
     }
     datum.truncated = prev
-      ? position - extent(datum) / 2 - fP <
-        prev.position + extent(prev) / 2
+      ? position - extent(datum) / 2 - fP < prev.position + extent(prev) / 2
       : false;
   });
 }
@@ -519,12 +634,26 @@ export function computeAxisBounds(
     margin: Record<string, number>;
   },
 ): Record<string, number> {
-  const {textData, rangeOuter, hBuff, horizontal, p, width, height, x, y, opposite, margin} = ctx;
+  const {
+    textData,
+    rangeOuter,
+    hBuff,
+    horizontal,
+    p,
+    width,
+    height,
+    x,
+    y,
+    opposite,
+    margin,
+  } = ctx;
   const tBuff = axis.schema.shape === "Line" ? 0 : hBuff;
   const bounds: Record<string, number> = (axis._outerBounds = {
     [height]:
       (max(textData, (t: AxisTextDatum) =>
-        Math.ceil(t[t.rotate || !horizontal ? "width" : "height"] + (t.offset ?? 0)),
+        Math.ceil(
+          t[t.rotate || !horizontal ? "width" : "height"] + (t.offset ?? 0),
+        ),
       ) || 0) + (textData.length ? p : 0),
     [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
     [x]: rangeOuter[0],
@@ -540,7 +669,10 @@ export function computeAxisBounds(
   margin[opposite] =
     axis.schema.gridSize !== undefined
       ? max([axis.schema.gridSize, tBuff])!
-      : (axis.schema[height] as number) - margin[axis.schema.orient] - bounds[height] - p;
+      : (axis.schema[height] as number) -
+        margin[axis.schema.orient] -
+        bounds[height] -
+        p;
   bounds[height] += margin[opposite] + margin[axis.schema.orient];
   bounds[y] =
     axis.schema.align === "start"

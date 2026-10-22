@@ -18,7 +18,12 @@ import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 import {forEachSceneRow} from "../viz/sceneRows.js";
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
-import {controlButtonStyles, escapeHtml, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
+import {
+  controlButtonStyles,
+  escapeHtml,
+  paintControlButton,
+  type ControlButtonStyles,
+} from "./controlButtonStyle.js";
 import {
   searchControlStyleActiveDefault,
   searchControlStyleDefault,
@@ -40,8 +45,17 @@ export function searchButtonStyles(viz: Viz): ControlButtonStyles {
 }
 
 /** Paints the search toggle button's inline style for its current state. Mirrors `paintZoomButton`. */
-export function paintSearchButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  paintControlButton(btn, searchButtonStyles(viz), hovered, btn.classList.contains("active"));
+export function paintSearchButton(
+  viz: Viz,
+  btn: HTMLElement,
+  hovered = false,
+): void {
+  paintControlButton(
+    btn,
+    searchButtonStyles(viz),
+    hovered,
+    btn.classList.contains("active"),
+  );
 }
 
 // A magnifying glass: a circle + a short diagonal handle. Nudged 1 unit
@@ -142,7 +156,11 @@ const SEARCH_CLEAR_STYLE_SHOWN: Record<string, string> = {
   background: "none",
   cursor: "pointer",
 };
-const SEARCH_CLEAR_STYLE_HIDDEN: Record<string, string> = {...SEARCH_CLEAR_STYLE_SHOWN, visibility: "hidden", cursor: "default"};
+const SEARCH_CLEAR_STYLE_HIDDEN: Record<string, string> = {
+  ...SEARCH_CLEAR_STYLE_SHOWN,
+  visibility: "hidden",
+  cursor: "default",
+};
 
 /**
     The match-count feedback sits directly below the input, at its same
@@ -171,7 +189,10 @@ const SEARCH_COUNT_STYLE_SHOWN: Record<string, string> = {
   "text-overflow": "ellipsis",
   "pointer-events": "none",
 };
-const SEARCH_COUNT_STYLE_HIDDEN: Record<string, string> = {...SEARCH_COUNT_STYLE_SHOWN, visibility: "hidden"};
+const SEARCH_COUNT_STYLE_HIDDEN: Record<string, string> = {
+  ...SEARCH_COUNT_STYLE_SHOWN,
+  visibility: "hidden",
+};
 
 function styleAttr(style: Record<string, string>): string {
   return Object.entries(style)
@@ -180,20 +201,32 @@ function styleAttr(style: Record<string, string>): string {
 }
 
 /** Applies the open/closed inline style directly to the input DOM node — no panel rebuild, so focus/cursor survive. */
-export function applySearchInputOpenState(input: HTMLInputElement, open: boolean): void {
+export function applySearchInputOpenState(
+  input: HTMLInputElement,
+  open: boolean,
+): void {
   const style = open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED;
   for (const key in style) input.style.setProperty(kebab(key), style[key]);
 }
 
 /** Shows/hides the clear button, directly on the DOM node — same no-rebuild pattern as the input's open state. */
-export function applySearchClearVisible(btn: HTMLElement, visible: boolean): void {
+export function applySearchClearVisible(
+  btn: HTMLElement,
+  visible: boolean,
+): void {
   const style = visible ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN;
   for (const key in style) btn.style.setProperty(kebab(key), style[key]);
   btn.tabIndex = visible ? 0 : -1;
 }
 
 /** Writes the match-count feedback's text/visibility directly onto the DOM node — visible whenever there's a term, regardless of whether it matched anything ("No Matches" is itself useful feedback). */
-export function applySearchCount(viz: Viz, el: HTMLElement, hasTerm: boolean, index: number | undefined, total: number): void {
+export function applySearchCount(
+  viz: Viz,
+  el: HTMLElement,
+  hasTerm: boolean,
+  index: number | undefined,
+  total: number,
+): void {
   const style = hasTerm ? SEARCH_COUNT_STYLE_SHOWN : SEARCH_COUNT_STYLE_HIDDEN;
   for (const key in style) el.style.setProperty(kebab(key), style[key]);
   const {text, label} = formatMatchCount(viz, index, total);
@@ -221,21 +254,28 @@ export function applySearchCount(viz: Viz, el: HTMLElement, hasTerm: boolean, in
     e.g. drilling down while the box is open and focused.
 */
 export function searchControlsHtml(viz: Viz): string {
-  const extraClass = viz.schema.searchControlClassName ? ` ${viz.schema.searchControlClassName}` : "";
+  const extraClass = viz.schema.searchControlClassName
+    ? ` ${viz.schema.searchControlClassName}`
+    : "";
   const label = viz.schema.translate("Search");
   const open = isSearchOpen(viz);
   const term = viz._searchTerm || "";
   const hasTerm = term.trim().length > 0;
-  const inputStyle = styleAttr({...SEARCH_INPUT_BASE_STYLE, ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED)});
-  const clearStyle = styleAttr(hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN);
+  const inputStyle = styleAttr({
+    ...SEARCH_INPUT_BASE_STYLE,
+    ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED),
+  });
+  const clearStyle = styleAttr(
+    hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN,
+  );
   const wrapStyle = styleAttr(SEARCH_INPUT_WRAP_STYLE);
   const rootStyle = styleAttr(SEARCH_ROOT_STYLE);
   return (
     `<span class="search-root" style="${rootStyle}">` +
     `<button type="button" class="search-control search-toggle${open ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${open}">${SEARCH_ICON}</button>` +
     `<span class="search-input-wrap" style="${wrapStyle}">` +
-    `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : " tabindex=\"-1\""}/>` +
-    `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : " tabindex=\"-1\""}>${CLEAR_ICON}</button>` +
+    `<input type="text" class="search-control search-input" placeholder="${label}" aria-label="${label}" value="${escapeHtml(term)}" style="${inputStyle}"${open ? "" : ' tabindex="-1"'}/>` +
+    `<button type="button" class="search-control search-clear" aria-label="${viz.schema.translate("Clear")}" style="${clearStyle}"${hasTerm ? "" : ' tabindex="-1"'}>${CLEAR_ICON}</button>` +
     `<span class="search-count" aria-live="polite"></span>` +
     `</span>` +
     `</span>`
@@ -267,11 +307,19 @@ export function searchControlsHtml(viz: Viz): string {
     rows differ in shape from a chart mark's row) — guard rather than let a
     non-string (commonly `undefined`) throw on `.toLowerCase()`.
 */
-function matchesSearchNeedle(viz: Viz, d: DataPoint, i: number, needle: string): boolean {
+function matchesSearchNeedle(
+  viz: Viz,
+  d: DataPoint,
+  i: number,
+  needle: string,
+): boolean {
   const value = viz.schema.searchAccessor(d, i);
-  if (typeof value === "string" && value.toLowerCase().includes(needle)) return true;
+  if (typeof value === "string" && value.toLowerCase().includes(needle))
+    return true;
   const ids = viz._ids(d, i) as string[];
-  return ids.some(id => typeof id === "string" && id.toLowerCase().includes(needle));
+  return ids.some(
+    id => typeof id === "string" && id.toLowerCase().includes(needle),
+  );
 }
 
 /**
@@ -312,7 +360,8 @@ export function searchMatches(viz: Viz, term: string): SearchMatch[] {
   if (!needle) return [];
   const results: SearchMatch[] = [];
   forEachSceneRow(viz._chartScene || [], (row, i, node) => {
-    if (matchesSearchNeedle(viz, row, i, needle)) results.push({node, row, index: i});
+    if (matchesSearchNeedle(viz, row, i, needle))
+      results.push({node, row, index: i});
   });
   return results;
 }
@@ -328,10 +377,15 @@ export function searchMatches(viz: Viz, term: string): SearchMatch[] {
     (`viz._searchMatchIndex`); `total` is `searchMatches(...).length`. Text
     and label are the same string — both visible and accessible.
 */
-export function formatMatchCount(viz: Viz, index: number | undefined, total: number): {text: string; label: string} {
+export function formatMatchCount(
+  viz: Viz,
+  index: number | undefined,
+  total: number,
+): {text: string; label: string} {
   let text: string;
   if (total === 0) text = viz.schema.translate("No Matches");
-  else if (typeof index !== "number") text = `${total} ${viz.schema.translate(total === 1 ? "Match" : "Matches")}`;
+  else if (typeof index !== "number")
+    text = `${total} ${viz.schema.translate(total === 1 ? "Match" : "Matches")}`;
   else text = `${viz.schema.translate("Match")} ${index + 1}/${total}`;
   return {text, label: text};
 }

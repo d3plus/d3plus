@@ -60,8 +60,15 @@ it("Icicle layout: icicleLayout places every node in its depth's band, breadth b
   near(b.y, 0, 1e-9, "largest first");
   near(b.height, 180, 1e-9, "60% of the breadth");
   for (const n of nodes.filter(d => d.parent)) {
-    assert.strictEqual(n.x, n.parent.x + n.parent.width, "one band further out");
-    assert.ok(n.y >= n.parent.y - 1e-9 && n.y + n.height <= n.parent.y + n.parent.height + 1e-9);
+    assert.strictEqual(
+      n.x,
+      n.parent.x + n.parent.width,
+      "one band further out",
+    );
+    assert.ok(
+      n.y >= n.parent.y - 1e-9 &&
+        n.y + n.height <= n.parent.y + n.parent.height + 1e-9,
+    );
   }
 });
 
@@ -83,10 +90,13 @@ it("Icicle layout: applyIcicleLayout fills the chart area and indexes nodes by r
     [0, 200],
     [200, 400],
   ]);
-  for (const n of shapeData) assert.strictEqual(viz.ctx.icicleNodes.get(n.datum), n);
+  for (const n of shapeData)
+    assert.strictEqual(viz.ctx.icicleNodes.get(n.datum), n);
   assert.strictEqual(viz._filteredData[2].__d3plusShare, 0.6);
   const vertical = mockViz({schema: {orient: "vertical"}});
-  const top = applyIcicleLayout({viz: vertical}).shapeData.find(n => n.depth === 1);
+  const top = applyIcicleLayout({viz: vertical}).shapeData.find(
+    n => n.depth === 1,
+  );
   assert.deepStrictEqual([top.y, top.height], [0, 150], "levels run down");
 });
 
@@ -116,10 +126,17 @@ it("Icicle layout: applyIcicleLayout draws the focus in the root band and collap
     JSON.stringify(["B", "b1"]),
     JSON.stringify(["B"]),
   ]);
-  assert.ok(ghosts.every(g => g.rect.height === 0), "folded to zero breadth");
+  assert.ok(
+    ghosts.every(g => g.rect.height === 0),
+    "folded to zero breadth",
+  );
   assert.strictEqual(viz.ctx.icicleZoomOrigin, undefined);
   applyIcicleLayout({viz});
-  assert.strictEqual(viz.ctx.icicleGhosts.length, 2, "a second pass of the same render keeps them");
+  assert.strictEqual(
+    viz.ctx.icicleGhosts.length,
+    2,
+    "a second pass of the same render keeps them",
+  );
   viz._filteredData = viz._filteredData.slice();
   applyIcicleLayout({viz});
   assert.deepStrictEqual(viz.ctx.icicleGhosts, []);
@@ -130,8 +147,17 @@ it("Icicle layout: icicleGhosts keeps only the dropped nodes, collapsed through 
     {id: "x", depth: 1, level: 0, x0: 0, x1: 0.5, datum: {}, i: 0},
     {id: "y", depth: 1, level: 0, x0: 0.5, x1: 1, datum: {}, i: 1},
   ];
-  const ghosts = icicleGhosts(prev, [{id: "y"}], {x0: 0.5, x1: 1, depth: 1}, icicleBands(400, 1, true), frame);
-  assert.deepStrictEqual(ghosts.map(g => g.id), ["x"]);
+  const ghosts = icicleGhosts(
+    prev,
+    [{id: "y"}],
+    {x0: 0.5, x1: 1, depth: 1},
+    icicleBands(400, 1, true),
+    frame,
+  );
+  assert.deepStrictEqual(
+    ghosts.map(g => g.id),
+    ["x"],
+  );
   assert.strictEqual(ghosts[0].level, 0, "keeps its level for shading");
   assert.deepStrictEqual(ghosts[0].rect, {x: 0, y: 0, width: 200, height: 0});
 });
@@ -148,7 +174,10 @@ it("Icicle layout: icicleReturning grows a zoom-out's returning nodes from the p
   assert.ok(enter.has(JSON.stringify(["B"])));
   assert.ok(!enter.has(JSON.stringify(["A", "a1"])), "already drawn");
   const b = enter.get(JSON.stringify(["B"]));
-  assert.ok(b.height === 0 && (b.y === 0 || b.y === 300), "B grows in from an edge");
+  assert.ok(
+    b.height === 0 && (b.y === 0 || b.y === 300),
+    "B grows in from an edge",
+  );
   assert.strictEqual(icicleReturning([], all, prevBands, frame).size, 0);
 });
 

@@ -39,14 +39,16 @@ describe("typeToString tuples", () => {
         {type: "rest", elementType: {type: "array", elementType: str}},
       ],
     };
-    assert.equal(typeToString(tuple), "[number, number?, string?, ...Array.&lt;string&gt;]");
+    assert.equal(
+      typeToString(tuple),
+      "[number, number?, string?, ...Array.&lt;string&gt;]",
+    );
   });
   it("keeps the top-level union split for typeToNames", () => {
-    const fillBetween = union(
-      {type: "intrinsic", name: "boolean"},
-      pair,
-      {type: "array", elementType: pair},
-    );
+    const fillBetween = union({type: "intrinsic", name: "boolean"}, pair, {
+      type: "array",
+      elementType: pair,
+    });
     assert.deepEqual(typeToNames(fillBetween), [
       "boolean",
       "[string|number, string|number]",
@@ -58,11 +60,15 @@ describe("typeToString tuples", () => {
 describe("tocSummary", () => {
   it("takes the first sentence and joins wrapped lines", () => {
     assert.equal(
-      tocSummary("Creates a bar chart based on an array of data. When stacked, each bar's\nfraction is shown."),
+      tocSummary(
+        "Creates a bar chart based on an array of data. When stacked, each bar's\nfraction is shown.",
+      ),
       "Creates a bar chart based on an array of data.",
     );
     assert.equal(
-      tocSummary("Draws a hierarchy as concentric rings, one per level, where each\nnode's arc is its value. More."),
+      tocSummary(
+        "Draws a hierarchy as concentric rings, one per level, where each\nnode's arc is its value. More.",
+      ),
       "Draws a hierarchy as concentric rings, one per level, where each node's arc is its value.",
     );
   });
@@ -73,18 +79,24 @@ describe("tocSummary", () => {
     );
   });
   it("keeps a period-less first paragraph whole and escapes pipes", () => {
-    assert.equal(tocSummary("A `a | b` union\nof things\n\nSecond."), "A `a \\| b` union of things");
+    assert.equal(
+      tocSummary("A `a | b` union\nof things\n\nSecond."),
+      "A `a \\| b` union of things",
+    );
     assert.equal(tocSummary(undefined), "");
   });
 });
 
 describe("splitDoc", () => {
   it("pulls out @default and @type tags", () => {
-    assert.deepEqual(splitDoc("Hides the legend. @default polarLegend @type {boolean}"), {
-      description: "Hides the legend.",
-      type: "boolean",
-      defaultTag: "polarLegend",
-    });
+    assert.deepEqual(
+      splitDoc("Hides the legend. @default polarLegend @type {boolean}"),
+      {
+        description: "Hides the legend.",
+        type: "boolean",
+        defaultTag: "polarLegend",
+      },
+    );
     assert.deepEqual(splitDoc("Each bar's width. @default the bar's total"), {
       description: "Each bar's width.",
       type: null,
@@ -108,22 +120,48 @@ describe("scopedDoc", () => {
   ];
   const forecast = {
     names: ["string"],
-    description: "Marks a forecast.\nMore on lines.\n\nBullet: each row's forecast bar.",
+    description:
+      "Marks a forecast.\nMore on lines.\n\nBullet: each row's forecast bar.",
   };
   it("keeps the general paragraphs for a chart no paragraph names", () => {
-    assert.equal(scopedDoc(forecast, "FanChart", stories).description, "Marks a forecast.\nMore on lines.");
-    assert.equal(scopedDoc(forecast, "Plot", stories).description, "Marks a forecast.\nMore on lines.");
+    assert.equal(
+      scopedDoc(forecast, "FanChart", stories).description,
+      "Marks a forecast.\nMore on lines.",
+    );
+    assert.equal(
+      scopedDoc(forecast, "Plot", stories).description,
+      "Marks a forecast.\nMore on lines.",
+    );
   });
   it("keeps only the paragraphs scoped to the chart when there are some", () => {
-    assert.equal(scopedDoc(forecast, "Bullet", stories).description, "Bullet: each row's forecast bar.");
+    assert.equal(
+      scopedDoc(forecast, "Bullet", stories).description,
+      "Bullet: each row's forecast bar.",
+    );
   });
   it("matches scopes naming several charts or an ancestor", () => {
-    const doc = {description: "BarChart/Marimekko with `barWidth`: shows shares."};
-    assert.equal(scopedDoc(doc, "Marimekko", stories).description, doc.description);
-    assert.equal(scopedDoc({description: "BarChart and Bullet: x."}, "Marimekko", stories).description, "BarChart and Bullet: x.");
+    const doc = {
+      description: "BarChart/Marimekko with `barWidth`: shows shares.",
+    };
+    assert.equal(
+      scopedDoc(doc, "Marimekko", stories).description,
+      doc.description,
+    );
+    assert.equal(
+      scopedDoc({description: "BarChart and Bullet: x."}, "Marimekko", stories)
+        .description,
+      "BarChart and Bullet: x.",
+    );
   });
   it("drops a doc scoped only to other classes", () => {
-    assert.equal(scopedDoc({description: "ParallelCoordinates: brushes."}, "Timeline", stories), undefined);
+    assert.equal(
+      scopedDoc(
+        {description: "ParallelCoordinates: brushes."},
+        "Timeline",
+        stories,
+      ),
+      undefined,
+    );
   });
   it("treats a colon after unknown words as general text", () => {
     const doc = {description: "Styles: fill and stroke."};
@@ -204,8 +242,14 @@ describe("publicChartDefs", () => {
   };
   it("keeps declared fields and the defaults that name an accessor", () => {
     const out = publicChartDefs(defs, {Demo});
-    assert.deepEqual(out.Demo.fields.map(f => f.key), ["own", "groupPadding"]);
-    assert.deepEqual(out.Missing.fields.map(f => f.key), ["own"]);
+    assert.deepEqual(
+      out.Demo.fields.map(f => f.key),
+      ["own", "groupPadding"],
+    );
+    assert.deepEqual(
+      out.Missing.fields.map(f => f.key),
+      ["own"],
+    );
   });
 });
 
@@ -225,7 +269,10 @@ describe("injectChartConfig", () => {
     "| Method | Default |\n| --- | --- |\n| `a` | `1` |\n| `legend` | `polarLegend` |\n| `b` | — |\n";
   it("replaces a source-read chart's VizCtor line", () => {
     const readme = "### Demo\n\n> **Demo**: `VizCtor`\n\nDefined in: x\n";
-    assert.equal(injectChartConfig(readme, defs), `### Demo\n\n${table}\n\nDefined in: x\n`);
+    assert.equal(
+      injectChartConfig(readme, defs),
+      `### Demo\n\n${table}\n\nDefined in: x\n`,
+    );
   });
   it("replaces a declaration-read chart's constructor line and its Returns block", () => {
     const readme =
@@ -236,7 +283,8 @@ describe("injectChartConfig", () => {
     );
   });
   it("leaves another section's Returns block alone", () => {
-    const readme = "### Demo\n\n> `const` **Demo**: () => `any`\n\nText.\n\n## Interfaces\n\n#### Returns\n\n`any`\n";
+    const readme =
+      "### Demo\n\n> `const` **Demo**: () => `any`\n\nText.\n\n## Interfaces\n\n#### Returns\n\n`any`\n";
     assert.equal(
       injectChartConfig(readme, defs),
       `### Demo\n\n${table}\n\nText.\n\n## Interfaces\n\n#### Returns\n\n\`any\`\n`,
@@ -275,33 +323,71 @@ describe("injectConfigAccessors", () => {
   ];
   const configDefaults = {
     Base: {render: undefined},
-    Shape: {render: undefined, fill: "red", opacity: 1, _private: 0, stroke: {width: 1}},
-    Rect: {render: undefined, fill: "red", opacity: 1, stroke: {width: 1}, rx: 0},
+    Shape: {
+      render: undefined,
+      fill: "red",
+      opacity: 1,
+      _private: 0,
+      stroke: {width: 1},
+    },
+    Rect: {
+      render: undefined,
+      fill: "red",
+      opacity: 1,
+      stroke: {width: 1},
+      rx: 0,
+    },
     Treemap: {render: undefined, tile: "squarify"},
   };
   const interfaceDocs = {
     byName: {},
     merged: {
       opacity: {names: ["number"], description: "How opaque the shape is."},
-      rx: {names: ["number"], description: "Corner radius | in pixels.\n\nSecond paragraph."},
+      rx: {
+        names: ["number"],
+        description: "Corner radius | in pixels.\n\nSecond paragraph.",
+      },
     },
   };
-  const out = injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs});
-  const section = name => out.slice(out.indexOf(`### ${name}\n`), out.indexOf("\n### ", out.indexOf(`### ${name}\n`) + 1));
+  const out = injectConfigAccessors(readme, {
+    stories,
+    configDefaults,
+    interfaceDocs,
+  });
+  const section = name =>
+    out.slice(
+      out.indexOf(`### ${name}\n`),
+      out.indexOf("\n### ", out.indexOf(`### ${name}\n`) + 1),
+    );
 
   it("tables the accessors a class adds, before its methods", () => {
     const shape = section("Shape");
-    assert.ok(shape.indexOf("#### Config accessors") < shape.indexOf("#### Methods"));
-    assert.match(shape, /\| `opacity` \| `number` \| `1` \| How opaque the shape is\. \|/);
+    assert.ok(
+      shape.indexOf("#### Config accessors") < shape.indexOf("#### Methods"),
+    );
+    assert.match(
+      shape,
+      /\| `opacity` \| `number` \| `1` \| How opaque the shape is\. \|/,
+    );
     assert.match(shape, /\| `stroke` \| `record` \| `\{…\}` \| {2}\|/);
-    assert.doesNotMatch(shape, /\| `fill` \|/, "a documented method isn't repeated");
+    assert.doesNotMatch(
+      shape,
+      /\| `fill` \|/,
+      "a documented method isn't repeated",
+    );
     assert.doesNotMatch(shape, /_private/, "private keys are left out");
   });
 
   it("lists only a subclass's own accessors and links the nearest ancestor with a table", () => {
     const rect = section("Rect");
-    assert.match(rect, /Also accepts the config accessors of \[`Shape`\]\(#shape\)\./);
-    assert.match(rect, /\| `rx` \| `number` \| `0` \| Corner radius \\\| in pixels\.<br><br>Second paragraph\. \|/);
+    assert.match(
+      rect,
+      /Also accepts the config accessors of \[`Shape`\]\(#shape\)\./,
+    );
+    assert.match(
+      rect,
+      /\| `rx` \| `number` \| `0` \| Corner radius \\\| in pixels\.<br><br>Second paragraph\. \|/,
+    );
     assert.doesNotMatch(rect, /`opacity`/);
   });
 
@@ -319,15 +405,23 @@ describe("configInterfaceDocs", () => {
     {name: "Axis", kind: "class", augments: ["BaseClass"]},
     {name: "Rect", kind: "class", augments: ["BaseClass"]},
   ];
-  const interfaceDocs = {byName: {AxisConfig: {title: "axis"}, D3plusConfig: {title: "chart"}}};
+  const interfaceDocs = {
+    byName: {AxisConfig: {title: "axis"}, D3plusConfig: {title: "chart"}},
+  };
 
   it("uses a class's own config interface", () => {
-    assert.deepEqual(configInterfaceDocs("Axis", stories, interfaceDocs), {title: "axis"});
+    assert.deepEqual(configInterfaceDocs("Axis", stories, interfaceDocs), {
+      title: "axis",
+    });
   });
 
   it("uses D3plusConfig for Viz and the classes built on it", () => {
-    assert.deepEqual(configInterfaceDocs("Viz", stories, interfaceDocs), {title: "chart"});
-    assert.deepEqual(configInterfaceDocs("Plot", stories, interfaceDocs), {title: "chart"});
+    assert.deepEqual(configInterfaceDocs("Viz", stories, interfaceDocs), {
+      title: "chart",
+    });
+    assert.deepEqual(configInterfaceDocs("Plot", stories, interfaceDocs), {
+      title: "chart",
+    });
   });
 
   it("has no interface for other classes", () => {

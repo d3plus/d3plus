@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Levels · Radar</title>
-    <meta name="description" content="Radar level labels: defaults, explicit levels and format, label angle and config, hidden labels, and a dark background, with an SVG/Canvas toggle.">
+    <meta
+      name="description"
+      content="Radar level labels: defaults, explicit levels and format, label angle and config, hidden labels, and a dark background, with an SVG/Canvas toggle."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -35,15 +36,17 @@
         background: #212529;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="controls">
       Renderer:
-      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
-      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <label
+        ><input type="radio" name="renderer" value="svg" checked /> SVG</label
+      >
+      <label
+        ><input type="radio" name="renderer" value="canvas" /> Canvas</label
+      >
     </div>
     <div class="grid">
       <section>
@@ -69,10 +72,23 @@
     </div>
 
     <script>
-
-      const metrics = ["Speed", "Power", "Range", "Comfort", "Safety", "Price", "Design", "Support"];
+      const metrics = [
+        "Speed",
+        "Power",
+        "Range",
+        "Comfort",
+        "Safety",
+        "Price",
+        "Design",
+        "Support",
+      ];
       const scores = ["2024", "2025"].flatMap((group, g) =>
-        metrics.map((metric, m) => ({group, metric, value: 30 + ((m * 23 + g * 37) % 65)})));
+        metrics.map((metric, m) => ({
+          group,
+          metric,
+          value: 30 + ((m * 23 + g * 37) % 65),
+        })),
+      );
 
       const skills = [
         {group: "Ana", metric: "Frontend", value: 140},
@@ -89,13 +105,14 @@
         {group: "Ben", metric: "Writing", value: 65},
       ];
 
-      const radar = (id, data) => new d3plus.Radar()
-        .select(`#${id}`)
-        .data(data)
-        .groupBy("group")
-        .metric("metric")
-        .value("value")
-        .shapeConfig({Path: {opacity: 0.7}});
+      const radar = (id, data) =>
+        new d3plus.Radar()
+          .select(`#${id}`)
+          .data(data)
+          .groupBy("group")
+          .metric("metric")
+          .value("value")
+          .shapeConfig({Path: {opacity: 0.7}});
 
       const charts = [
         radar("default", skills),
@@ -106,21 +123,21 @@
           .levels(4)
           .levelLabelAngle(22.5)
           .levelLabelConfig({fontSize: 11, fontWeight: 600}),
-        radar("hidden", skills)
-          .levelLabels(false),
+        radar("hidden", skills).levelLabels(false),
         radar("dark", scores)
           .levels([0, 25, 50, 75, 100])
           .levelFormat(d => `${d}%`),
       ];
 
-      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      const draw = renderer =>
+        charts.forEach(c => c.renderer(renderer).render());
       draw("svg");
 
-      document.querySelectorAll("input[name=renderer]").forEach(input =>
-        input.addEventListener("change", () => draw(input.value)));
-
+      document
+        .querySelectorAll("input[name=renderer]")
+        .forEach(input =>
+          input.addEventListener("change", () => draw(input.value)),
+        );
     </script>
-
   </body>
-
 </html>

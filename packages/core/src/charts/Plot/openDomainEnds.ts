@@ -51,7 +51,9 @@ export function roundOpenEnd(
   scale: string,
 ): number[] | undefined {
   const end = open.pinned[0] ? 1 : 0;
-  const reference = end ? [+open.auto[0], domain[1]] : [domain[0], +open.auto[1]];
+  const reference = end
+    ? [+open.auto[0], domain[1]]
+    : [domain[0], +open.auto[1]];
   const rounded = roundedDomain(reference, rounding, scale);
   if (!rounded) return undefined;
   const value = rounded[end];
@@ -67,7 +69,7 @@ export function roundOpenEnd(
     Marimekko's "none" on its 100% axis), else "outside".
 */
 const axisRounding = (viz: VizInstance, axis: "x" | "y"): string =>
-  ((viz[`_${axis}Config`] as {rounding?: string} | undefined)?.rounding) ??
+  (viz[`_${axis}Config`] as {rounding?: string} | undefined)?.rounding ??
   (viz._plotAxisDefaults?.[axis]?.rounding as string | undefined) ??
   "outside";
 
@@ -77,14 +79,20 @@ const axisRounding = (viz: VizInstance, axis: "x" | "y"): string =>
     `plotOpenEnds`), so the axis is handed the domain as final (Plot sets the
     axis's `rounding` to "none" for a user domain).
 */
-export const roundPlotOpenEnds: TransformStage = ({viz, plotScales, plotConfigScales, plotOpenEnds}) => {
+export const roundPlotOpenEnds: TransformStage = ({
+  viz,
+  plotScales,
+  plotConfigScales,
+  plotOpenEnds,
+}) => {
   if (!plotScales || !plotConfigScales || !plotOpenEnds) return {};
   const scales = {...plotScales};
   for (const axis of ["x", "y"] as const) {
     const open = plotOpenEnds[axis];
     const scale = plotConfigScales[`${axis}ConfigScale`];
     const rounding = axisRounding(viz, axis);
-    if (!open || !["linear", "log"].includes(scale) || rounding === "none") continue;
+    if (!open || !["linear", "log"].includes(scale) || rounding === "none")
+      continue;
     const current = scales[axis];
     // The y scale runs high to low.
     const flip = (d: number[]) => (axis === "y" ? d.slice().reverse() : d);

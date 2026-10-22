@@ -30,15 +30,24 @@ it("Shape.toScene stamps each leaf with the emitting shape's type", () => {
   assert.strictEqual(bar.children[0].shapeType, "Bar", "Bar leaf stamped");
 
   const circle = new Circle()
-    .data([{id: "c"}]).r(8).x(20).y(30)
+    .data([{id: "c"}])
+    .r(8)
+    .x(20)
+    .y(30)
     .toScene();
-  assert.strictEqual(circle.children[0].shapeType, "Circle", "Circle leaf stamped");
+  assert.strictEqual(
+    circle.children[0].shapeType,
+    "Circle",
+    "Circle leaf stamped",
+  );
 });
 
 it("Line.toScene stamps shapeType = 'Line'", () => {
   const line = new Line()
     .data([
-      {id: "S1", x: 0, y: 0}, {id: "S1", x: 10, y: 5}, {id: "S1", x: 20, y: 2},
+      {id: "S1", x: 0, y: 0},
+      {id: "S1", x: 10, y: 5},
+      {id: "S1", x: 20, y: 2},
     ])
     .x(d => d.x)
     .y(d => d.y)
@@ -76,7 +85,10 @@ function newChart() {
   return new BarChart()
     .data([{group: "A", x: "Q1", y: 10}])
     .groupBy("group")
-    .x("x").y("y").width(400).height(300)
+    .x("x")
+    .y("y")
+    .width(400)
+    .height(300)
     .select(document.body.appendChild(document.createElement("div")));
 }
 
@@ -111,10 +123,19 @@ it("bridge does NOT fire shape-class handlers for legend nodes", () => {
   // bridge can't classify them by key. Viz.toScene stamps `interactionGroup`
   // on the legend subtree; the bridge reads that so the swatch routes to legend
   // handlers (on Canvas too) instead of masquerading as a chart-shape handler.
-  const legendNode = {key: "#c92a2a_1_", shapeType: "Rect", interactionGroup: "legend", datum: {id: "A"}, index: 0};
+  const legendNode = {
+    key: "#c92a2a_1_",
+    shapeType: "Rect",
+    interactionGroup: "legend",
+    datum: {id: "A"},
+    index: 0,
+  };
   handler(syntheticEvent("click", legendNode));
 
   assert.ok(fired.includes("legend"), "legend handler fires");
   assert.ok(fired.includes("global"), "global handler fires");
-  assert.ok(!fired.includes("Rect"), "shape-class handler suppressed for legend nodes");
+  assert.ok(
+    !fired.includes("Rect"),
+    "shape-class handler suppressed for legend nodes",
+  );
 });

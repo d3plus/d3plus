@@ -92,7 +92,10 @@ export function discreteRank(values: unknown[]): (value: unknown) => number {
 
 /** Of a list, the entry with the lowest `at`, or undefined. */
 function earliest<T extends {at: number}>(list: T[]): T | undefined {
-  return list.reduce<T | undefined>((a, b) => (!a || b.at < a.at ? b : a), undefined);
+  return list.reduce<T | undefined>(
+    (a, b) => (!a || b.at < a.at ? b : a),
+    undefined,
+  );
 }
 
 /**
@@ -108,7 +111,10 @@ export function seriesForecastStarts(
   fromFirst = false,
 ): Map<string, {value: unknown; next: unknown; at: number}> {
   const rank = discreteRank(rows.map(r => r.value));
-  const bySeries = new Map<string, {value: unknown; at: number; forecast: boolean}[]>();
+  const bySeries = new Map<
+    string,
+    {value: unknown; at: number; forecast: boolean}[]
+  >();
   rows.forEach(row => {
     const list = bySeries.get(row.series) ?? [];
     list.push({value: row.value, at: rank(row.value), forecast: row.forecast});
@@ -116,14 +122,15 @@ export function seriesForecastStarts(
   });
   const starts = new Map<string, {value: unknown; next: unknown; at: number}>();
   for (const [id, list] of bySeries) {
-    const first = earliest(list.filter(r => r.forecast && Number.isFinite(r.at)));
+    const first = earliest(
+      list.filter(r => r.forecast && Number.isFinite(r.at)),
+    );
     if (!first) continue;
     const before = list.filter(r => r.at < first.at);
     if (before.length) {
       const origin = before.reduce((a, b) => (b.at > a.at ? b : a));
       starts.set(id, {value: origin.value, next: first.value, at: origin.at});
-    }
-    else if (fromFirst)
+    } else if (fromFirst)
       starts.set(id, {value: first.value, next: first.value, at: first.at});
   }
   return starts;

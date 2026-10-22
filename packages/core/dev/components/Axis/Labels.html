@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Labels · Axis</title>
-    <meta name="description" content="Time, ordinal and linear axes outlined by their outer bounds.">
+    <meta
+      name="description"
+      content="Time, ordinal and linear axes outlined by their outer bounds."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <!-- <script src="https://d3plus.org/js/d3plus-axis.v0.3.full.min.js"></script> -->
 
     <style>
-
       body {
         /* background-color: black; */
         margin: 0;
@@ -36,25 +36,20 @@
         pointer-events: none;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
     <div class="column" id="horizontal"></div>
     <div class="column" id="vertical"></div>
 
     <script>
-
       var index = {horizontal: 0, vertical: 0};
       var height = 150;
       var width = 400;
       var border = 1;
 
       function makeAxis(config, vertical) {
-
         var orient = vertical ? "vertical" : "horizontal";
         var i = index[orient];
         var w = orient === "horizontal" ? width : height;
@@ -64,10 +59,16 @@
         svg.id = "axis" + orient + i;
         svg.setAttribute("width", w + "px");
         svg.setAttribute("height", h + "px");
-        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttributeNS(
+          "http://www.w3.org/2000/xmlns/",
+          "xmlns:xlink",
+          "http://www.w3.org/1999/xlink",
+        );
         document.getElementById(orient).appendChild(svg);
 
-        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+        var axis = new d3plus[
+          orient === "horizontal" ? "AxisBottom" : "AxisLeft"
+        ]()
           .select("#axis" + orient + i)
           .width(w)
           .height(h)
@@ -86,18 +87,18 @@
         square.id = "bounds" + i;
         square.style.width = bounds.width + "px";
         square.style.height = bounds.height + "px";
-        square.style.left = bounds.x + (orient === "vertical" ? width : 0) + "px";
-        square.style.top = bounds.y + (i * h) + (i * border * 2) + "px";
+        square.style.left =
+          bounds.x + (orient === "vertical" ? width : 0) + "px";
+        square.style.top = bounds.y + i * h + i * border * 2 + "px";
         document.body.appendChild(square);
         index[orient]++;
-
       }
 
       var labels = [
         "Here is the first long label.",
         "This one is the second",
         "Third?",
-        "And then there's a super-duper really long one!"
+        "And then there's a super-duper really long one!",
       ];
 
       const buffedLabels = ["d3plus-buffer-start"];
@@ -170,7 +171,7 @@
       makeAxis({
         domain: [2001, 2010],
         // labelRotation: labelRotation,
-        scale: "time"
+        scale: "time",
       });
 
       makeAxis({
@@ -183,34 +184,46 @@
       makeAxis({
         domain: ["01/01/2013", "09/01/2013"],
         // labelRotation: labelRotation,
-        scale: "time"
+        scale: "time",
       });
 
       makeAxis({
         domain: ["01/01/2013", "09/12/2013"],
-        labels: ["01/01/2013", "07/01/2013", "08/20/2013", "09/08/2013", "09/12/2013"],
+        labels: [
+          "01/01/2013",
+          "07/01/2013",
+          "08/20/2013",
+          "09/08/2013",
+          "09/12/2013",
+        ],
         labelRotation: labelRotation,
-        scale: "time"
+        scale: "time",
       });
 
-      makeAxis({
-        domain: labels,
-        labelRotation: labelRotation,
-        scale: "ordinal"
-      }, true);
+      makeAxis(
+        {
+          domain: labels,
+          labelRotation: labelRotation,
+          scale: "ordinal",
+        },
+        true,
+      );
 
-      makeAxis({
-        domain: [0, 100],
-        labelRotation: labelRotation
-      }, true);
+      makeAxis(
+        {
+          domain: [0, 100],
+          labelRotation: labelRotation,
+        },
+        true,
+      );
 
-      makeAxis({
-        domain: [0, 0.426],
-        labelRotation: labelRotation
-      }, true);
-
+      makeAxis(
+        {
+          domain: [0, 0.426],
+          labelRotation: labelRotation,
+        },
+        true,
+      );
     </script>
-
   </body>
-
 </html>

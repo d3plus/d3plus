@@ -50,10 +50,15 @@ for (const scales of ["shared", "independent"]) {
       const clips = Array.from(document.querySelectorAll("#viz clipPath")).map(c => c.id);
       return {masks, unique: new Set(clips).size === clips.length};
     `);
-    const expected = scales === "shared"
-      ? ["facet-East", "facet-North", "facet-South", "facet-West"]
-      : ["facet-South"];
-    assert.deepStrictEqual(out.masks, expected, "a break mask in each panel whose y domain crosses the break");
+    const expected =
+      scales === "shared"
+        ? ["facet-East", "facet-North", "facet-South", "facet-West"]
+        : ["facet-South"];
+    assert.deepStrictEqual(
+      out.masks,
+      expected,
+      "a break mask in each panel whose y domain crosses the break",
+    );
     assert.ok(out.unique, "every panel's mask gets its own clip path");
   });
 }
@@ -69,12 +74,20 @@ it("a baseline break's baseline label follows the panel's outer-axis labels", as
     });
     return texts;
   `);
-  assert.ok(out["facet-East"].includes("0"), "the left column labels the baseline");
-  assert.deepStrictEqual(out["facet-North"], [], "an inner panel labels nothing, baseline included");
+  assert.ok(
+    out["facet-East"].includes("0"),
+    "the left column labels the baseline",
+  );
+  assert.deepStrictEqual(
+    out["facet-North"],
+    [],
+    "an inner panel labels nothing, baseline included",
+  );
 });
 
 it("a chart too short for y axes labels each bottom panel's x ends flush with its plot", async function () {
-  const out = await page(`
+  const out = await page(
+    `
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
     await done(chart);
@@ -86,13 +99,25 @@ it("a chart too short for y axes labels each bottom panel's x ends flush with it
       });
       return {key: p.key, bottom: p.cell.edges.bottom, left: a.x, right: a.x + a.width, labels};
     });
-  `, {height: 140});
+  `,
+    {height: 140},
+  );
   for (const panel of out) {
     assert.ok(panel.bottom, `${panel.key} is on the bottom edge`);
-    assert.deepStrictEqual(panel.labels.map(l => l.text), ["2019", "2023"], `${panel.key} labels its ends`);
+    assert.deepStrictEqual(
+      panel.labels.map(l => l.text),
+      ["2019", "2023"],
+      `${panel.key} labels its ends`,
+    );
     const [start, end] = panel.labels;
-    assert.ok(Math.abs(start.x - panel.left) < 1, `${panel.key}: the start label sits at the plot's left edge`);
-    assert.ok(Math.abs(end.x + end.width - panel.right) < 1, `${panel.key}: the end label ends at the plot's right edge`);
+    assert.ok(
+      Math.abs(start.x - panel.left) < 1,
+      `${panel.key}: the start label sits at the plot's left edge`,
+    );
+    assert.ok(
+      Math.abs(end.x + end.width - panel.right) < 1,
+      `${panel.key}: the end label ends at the plot's right edge`,
+    );
   }
 });
 
@@ -108,11 +133,15 @@ it("keeps overhanging x tick labels of neighboring panels apart", async function
   `);
   assert.strictEqual(out.length, 4);
   for (let i = 1; i < out.length; i++)
-    assert.ok(out[i][0] >= out[i - 1][1], `panel ${i}'s labels start after panel ${i - 1}'s end (${out[i][0]} vs ${out[i - 1][1]})`);
+    assert.ok(
+      out[i][0] >= out[i - 1][1],
+      `panel ${i}'s labels start after panel ${i - 1}'s end (${out[i][0]} vs ${out[i - 1][1]})`,
+    );
 });
 
 it("panel titles and axis labels take the dark page's ink", async function () {
-  const out = await page(`
+  const out = await page(
+    `
     const chart = new d3plus.LinePlot().select("#viz").data(rows)
       .groupBy("product").x("year").y("sales").facet("region").duration(0);
     await done(chart);
@@ -121,9 +150,19 @@ it("panel titles and axis labels take the dark page's ink", async function () {
     const ticks = Array.from(document.querySelectorAll('#viz [data-key="facet-South/plot-x-axis"] text'))
       .filter(t => t.textContent).map(t => t.getAttribute("fill"));
     return {titles: Array.from(new Set(titles)), ticks: Array.from(new Set(ticks)), light: chart.schema.colorDefaults.light};
-  `, {background: "rgb(20, 20, 20)"});
-  assert.deepStrictEqual(out.titles, [out.light], "panel titles in the light ink");
-  assert.deepStrictEqual(out.ticks, [out.light], "tick labels in the light ink");
+  `,
+    {background: "rgb(20, 20, 20)"},
+  );
+  assert.deepStrictEqual(
+    out.titles,
+    [out.light],
+    "panel titles in the light ink",
+  );
+  assert.deepStrictEqual(
+    out.ticks,
+    [out.light],
+    "tick labels in the light ink",
+  );
 });
 
 it("a faceted Gauge draws one dial per panel", async function () {
@@ -138,7 +177,18 @@ it("a faceted Gauge draws one dial per panel", async function () {
       return {key: p.key, values: Array.from(new Set(values)), transform: p.chartTransform};
     });
   `);
-  assert.deepStrictEqual(out.map(p => p.key), ["facet-East", "facet-North", "facet-South", "facet-West"]);
-  assert.deepStrictEqual(out.map(p => p.values), [[30], [47], [64], [81]], "each dial shows its own panel's value");
-  assert.strictEqual(new Set(out.map(p => JSON.stringify(p.transform))).size, 4, "each dial is placed in its own panel");
+  assert.deepStrictEqual(
+    out.map(p => p.key),
+    ["facet-East", "facet-North", "facet-South", "facet-West"],
+  );
+  assert.deepStrictEqual(
+    out.map(p => p.values),
+    [[30], [47], [64], [81]],
+    "each dial shows its own panel's value",
+  );
+  assert.strictEqual(
+    new Set(out.map(p => JSON.stringify(p.transform))).size,
+    4,
+    "each dial is placed in its own panel",
+  );
 });

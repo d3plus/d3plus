@@ -39,7 +39,10 @@ const setup = `
 const page = (fn, arg) =>
   render(
     "<div id='viz' style='width:500px;height:400px'></div>",
-    new Function("arg", `window.DATA = arg.data; ${setup}; return (${fn})(arg.arg);`),
+    new Function(
+      "arg",
+      `window.DATA = arg.data; ${setup}; return (${fn})(arg.arg);`,
+    ),
     {data, arg},
   );
 
@@ -55,7 +58,10 @@ it("Icicle: the tooltip hides after leaving a non-leaf rect, on SVG and Canvas",
         await window.wait(30);
         return [shown, window.tooltipShown(chart)];
       };
-      const result = {root: await leave(["App"]), mid: await leave(["App", "Charts"])};
+      const result = {
+        root: await leave(["App"]),
+        mid: await leave(["App", "Charts"]),
+      };
       window.route(chart, "click", window.rectFor(chart, ["App"]));
       await window.wait(150);
       result.focus = await leave(["App"]);

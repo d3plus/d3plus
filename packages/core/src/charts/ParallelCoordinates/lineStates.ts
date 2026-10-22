@@ -26,11 +26,17 @@ export interface LineStateOptions {
   inactiveOpacity?: number;
 }
 
-const isLine = (node: SceneNode): boolean => typeof node.key === "string" && node.key.includes(LINE_KEY);
-const isHit = (node: SceneNode): boolean => typeof node.key === "string" && node.key.endsWith(HIT_SUFFIX);
-const isRaised = (node: SceneNode): boolean => typeof node.z === "number" && node.z > 0;
+const isLine = (node: SceneNode): boolean =>
+  typeof node.key === "string" && node.key.includes(LINE_KEY);
+const isHit = (node: SceneNode): boolean =>
+  typeof node.key === "string" && node.key.endsWith(HIT_SUFFIX);
+const isRaised = (node: SceneNode): boolean =>
+  typeof node.z === "number" && node.z > 0;
 
-function mapLines(node: SceneNode, fn: (line: SceneNode) => SceneNode): SceneNode {
+function mapLines(
+  node: SceneNode,
+  fn: (line: SceneNode) => SceneNode,
+): SceneNode {
   if (isLine(node)) return fn(node);
   const kids = (node as {children?: SceneNode[]}).children;
   if (!kids || !kids.length) return node;
@@ -44,7 +50,10 @@ function countRaised(node: SceneNode): number {
 }
 
 /** Applies the brush and hover line states to a scene tree (see the module comment). */
-export function applyLineStates(root: SceneNode, opts: LineStateOptions): SceneNode {
+export function applyLineStates(
+  root: SceneNode,
+  opts: LineStateOptions,
+): SceneNode {
   const brushed = hasBrushes(opts.brushes);
   const single = countRaised(root) === 1;
   if (!brushed && !single) return root;
@@ -52,9 +61,11 @@ export function applyLineStates(root: SceneNode, opts: LineStateOptions): SceneN
     const paint = {...(node.paint ?? {})};
     if (brushed && !rowPasses(node.datum as DataPoint, opts.brushes)) {
       if (!isHit(node)) {
-        const own = typeof paint.strokeOpacity === "number" ? paint.strokeOpacity : 1;
+        const own =
+          typeof paint.strokeOpacity === "number" ? paint.strokeOpacity : 1;
         paint.strokeOpacity = opts.inactiveOpacity ?? own * INACTIVE_SHARE;
-        if (typeof paint.stroke === "string") paint.stroke = colorGrayscale(paint.stroke);
+        if (typeof paint.stroke === "string")
+          paint.stroke = colorGrayscale(paint.stroke);
       }
       const next = {...node, paint, interactive: false} as SceneNode;
       delete next.z;

@@ -6,117 +6,121 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Treemap as D3plusTreemap} from "@d3plus/react";
-export const Treemap = ({ config }) => <D3plusTreemap config={config} />;
+export const Treemap = ({config}) => <D3plusTreemap config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Treemap
    */
   Object.keys(vizArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
 
   /**
    * Treemap-specific methods
    */
-  
+
   {
     layoutPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 1,
-      description: "The padding, in pixels, inside each parent rectangle and between sibling rectangles.",
+      description:
+        "The padding, in pixels, inside each parent rectangle and between sibling rectangles.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     legend: {
       table: {
         defaultValue: {
-          summary: "rowLegend"
-        }
-      }
+          summary: "rowLegend",
+        },
+      },
     },
     legendSort: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     legendTooltip: {
       table: {
         defaultValue: {
-          summary: "{tbody: []}"
-        }
-      }
+          summary: "{tbody: []}",
+        },
+      },
     },
     sort: {
       control: {},
-      description: "Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
+      description:
+        "Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "function | null"
-      }
+        summary: "function | null",
+      },
     },
     sum: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the value each rectangle's area is proportional to. Parent rectangles sum their children.",
+      description:
+        "Accessor function or string key for the value each rectangle's area is proportional to. Parent rectangles sum their children.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     tile: {
       control: {
-        type: "select"
+        type: "select",
       },
-      description: "The [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling) that sizes and places the rectangles: the name of a d3-hierarchy method (`\"squarify\"` by default) or a custom function with the same signature.",
+      description:
+        'The [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling) that sizes and places the rectangles: the name of a d3-hierarchy method (`"squarify"` by default) or a custom function with the same signature.',
       options: [
         "binary",
         "dice",
         "resquarify",
         "slice",
         "sliceDice",
-        "squarify"
+        "squarify",
       ],
       table: {
         defaultValue: {
-          summary: "treemapSquarify"
-        }
+          summary: "treemapSquarify",
+        },
       },
       type: {
         required: false,
-        summary: "\"binary\" | \"dice\" | \"resquarify\" | \"slice\" | \"sliceDice\" | \"squarify\" | function"
-      }
+        summary:
+          '"binary" | "dice" | "resquarify" | "slice" | "sliceDice" | "squarify" | function',
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: [shareRow(viz, \"sum\")]}"
-        }
-      }
-    }
-  }
+          summary: '{tbody: [shareRow(viz, "sum")]}',
+        },
+      },
+    },
+  },
 );

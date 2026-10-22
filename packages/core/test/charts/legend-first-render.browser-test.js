@@ -10,7 +10,13 @@ import {render} from "~test/browser/render.js";
     the bottom of the chart.
 */
 
-const labels = ["Very satisfied", "Satisfied", "Neutral", "Dissatisfied", "Very dissatisfied"];
+const labels = [
+  "Very satisfied",
+  "Satisfied",
+  "Neutral",
+  "Dissatisfied",
+  "Very dissatisfied",
+];
 
 /** Renders the chart and returns where its painted legend sits. */
 const pageFn = async ({chart, renderer, extra, labels}) => {
@@ -40,7 +46,8 @@ const pageFn = async ({chart, renderer, extra, labels}) => {
   const sceneY = find(viz._sceneRenderer._scene.root, 0);
   const svgGroup = document.querySelector("#viz svg g[data-key^='Legend-']");
   const svgTop = svgGroup
-    ? svgGroup.getBoundingClientRect().top - document.querySelector("#viz svg").getBoundingClientRect().top
+    ? svgGroup.getBoundingClientRect().top -
+      document.querySelector("#viz svg").getBoundingClientRect().top
     : null;
   return {
     bandTop: viz.schema.height - viz._margin.bottom,
@@ -50,9 +57,21 @@ const pageFn = async ({chart, renderer, extra, labels}) => {
 };
 
 const cases = [
-  ["Treemap", "<div id='viz' style='width:500px;height:450px'></div>", {title: "Satisfaction"}],
-  ["Treemap", "<div id='viz' style='width:500px;height:450px'></div>", {total: "value"}],
-  ["Pie", "<div id='viz' style='width:300px;height:380px'></div>", {title: "Satisfaction"}],
+  [
+    "Treemap",
+    "<div id='viz' style='width:500px;height:450px'></div>",
+    {title: "Satisfaction"},
+  ],
+  [
+    "Treemap",
+    "<div id='viz' style='width:500px;height:450px'></div>",
+    {total: "value"},
+  ],
+  [
+    "Pie",
+    "<div id='viz' style='width:300px;height:380px'></div>",
+    {title: "Satisfaction"},
+  ],
 ];
 
 for (const renderer of ["svg", "canvas"]) {

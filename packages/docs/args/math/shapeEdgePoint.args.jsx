@@ -3,53 +3,51 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   angle: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The angle, in radians, of the offset point.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   distance: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The pixel distance away from the origin.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   shape: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "circle",
-    description: "The shape type (\"circle\", \"square\", or \"triangle\").",
+    description: 'The shape type ("circle", "square", or "triangle").',
     table: {
       defaultValue: {
-        summary: "circle"
-      }
+        summary: "circle",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

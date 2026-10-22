@@ -7,7 +7,15 @@ import type {Point} from "./lineIntersection.js";
 */
 export type PathSegment =
   | {type: "M" | "L"; x: number; y: number}
-  | {type: "C"; x1: number; y1: number; x2: number; y2: number; x: number; y: number}
+  | {
+      type: "C";
+      x1: number;
+      y1: number;
+      x2: number;
+      y2: number;
+      x: number;
+      y: number;
+    }
   | {type: "Q"; x1: number; y1: number; x: number; y: number}
   | {
       type: "A";
@@ -51,12 +59,14 @@ class Scanner {
     while (this.i < s.length && s[this.i] >= "0" && s[this.i] <= "9") this.i++;
     if (s[this.i] === ".") {
       this.i++;
-      while (this.i < s.length && s[this.i] >= "0" && s[this.i] <= "9") this.i++;
+      while (this.i < s.length && s[this.i] >= "0" && s[this.i] <= "9")
+        this.i++;
     }
     if (s[this.i] === "e" || s[this.i] === "E") {
       this.i++;
       if (s[this.i] === "+" || s[this.i] === "-") this.i++;
-      while (this.i < s.length && s[this.i] >= "0" && s[this.i] <= "9") this.i++;
+      while (this.i < s.length && s[this.i] >= "0" && s[this.i] <= "9")
+        this.i++;
     }
     return parseFloat(s.slice(start, this.i));
   }
@@ -88,7 +98,18 @@ class Scanner {
 }
 
 /** How many numbers each SVG path command takes per segment. */
-const PATH_ARITY: Record<string, number> = {a: 7, c: 6, h: 1, l: 2, m: 2, q: 4, s: 4, t: 2, v: 1, z: 0};
+const PATH_ARITY: Record<string, number> = {
+  a: 7,
+  c: 6,
+  h: 1,
+  l: 2,
+  m: 2,
+  q: 4,
+  s: 4,
+  t: 2,
+  v: 1,
+  z: 0,
+};
 
 /**
     One command of an SVG path as written: its letter (case kept, so relative
@@ -122,7 +143,11 @@ export function pathCommands(d: string): PathCommand[] {
     while (arity && sc.moreArgs()) {
       const segment: number[] = [];
       for (let j = 0; j < arity; j++)
-        segment.push(lower === "a" && (j === 3 || j === 4) ? sc.readFlag() : sc.readNumber());
+        segment.push(
+          lower === "a" && (j === 3 || j === 4)
+            ? sc.readFlag()
+            : sc.readNumber(),
+        );
       segments.push(segment);
     }
     out.push({command, segments});
@@ -142,10 +167,13 @@ export default function parsePath(d: string): PathSegment[] {
   if (!d) return out;
   const sc = new Scanner(d);
   let cmd: string | null = null;
-  let cx = 0, cy = 0; // current point
-  let sx = 0, sy = 0; // subpath start (for Z)
+  let cx = 0,
+    cy = 0; // current point
+  let sx = 0,
+    sy = 0; // subpath start (for Z)
   // Reflected control point of the previous C/S (cubic) or Q/T (quadratic).
-  let px = 0, py = 0;
+  let px = 0,
+    py = 0;
   let prevType = "";
 
   while (!sc.eof()) {
@@ -177,8 +205,10 @@ export default function parsePath(d: string): PathSegment[] {
       cy = sc.readNumber() + by;
       out.push({type: "L", x: cx, y: cy});
     } else if (C === "C") {
-      const x1 = sc.readNumber() + bx, y1 = sc.readNumber() + by;
-      const x2 = sc.readNumber() + bx, y2 = sc.readNumber() + by;
+      const x1 = sc.readNumber() + bx,
+        y1 = sc.readNumber() + by;
+      const x2 = sc.readNumber() + bx,
+        y2 = sc.readNumber() + by;
       cx = sc.readNumber() + bx;
       cy = sc.readNumber() + by;
       out.push({type: "C", x1, y1, x2, y2, x: cx, y: cy});
@@ -186,15 +216,18 @@ export default function parsePath(d: string): PathSegment[] {
       py = y2;
     } else if (C === "S") {
       const ref = prevType === "C" || prevType === "S";
-      const x1 = ref ? 2 * cx - px : cx, y1 = ref ? 2 * cy - py : cy;
-      const x2 = sc.readNumber() + bx, y2 = sc.readNumber() + by;
+      const x1 = ref ? 2 * cx - px : cx,
+        y1 = ref ? 2 * cy - py : cy;
+      const x2 = sc.readNumber() + bx,
+        y2 = sc.readNumber() + by;
       cx = sc.readNumber() + bx;
       cy = sc.readNumber() + by;
       out.push({type: "C", x1, y1, x2, y2, x: cx, y: cy});
       px = x2;
       py = y2;
     } else if (C === "Q") {
-      const x1 = sc.readNumber() + bx, y1 = sc.readNumber() + by;
+      const x1 = sc.readNumber() + bx,
+        y1 = sc.readNumber() + by;
       cx = sc.readNumber() + bx;
       cy = sc.readNumber() + by;
       out.push({type: "Q", x1, y1, x: cx, y: cy});
@@ -202,15 +235,19 @@ export default function parsePath(d: string): PathSegment[] {
       py = y1;
     } else if (C === "T") {
       const ref = prevType === "Q" || prevType === "T";
-      const x1 = ref ? 2 * cx - px : cx, y1 = ref ? 2 * cy - py : cy;
+      const x1 = ref ? 2 * cx - px : cx,
+        y1 = ref ? 2 * cy - py : cy;
       cx = sc.readNumber() + bx;
       cy = sc.readNumber() + by;
       out.push({type: "Q", x1, y1, x: cx, y: cy});
       px = x1;
       py = y1;
     } else if (C === "A") {
-      const rx = sc.readNumber(), ry = sc.readNumber(), rot = sc.readNumber();
-      const large = sc.readFlag(), sweep = sc.readFlag();
+      const rx = sc.readNumber(),
+        ry = sc.readNumber(),
+        rot = sc.readNumber();
+      const large = sc.readFlag(),
+        sweep = sc.readFlag();
       cx = sc.readNumber() + bx;
       cy = sc.readNumber() + by;
       out.push({type: "A", rx, ry, rot, large, sweep, x: cx, y: cy});
@@ -261,8 +298,10 @@ export function arcToCenter(
   ry = Math.abs(ry);
   if (rx === 0 || ry === 0) return null;
   const phi = (rotDeg * Math.PI) / 180;
-  const cosP = Math.cos(phi), sinP = Math.sin(phi);
-  const dx = (x1 - x2) / 2, dy = (y1 - y2) / 2;
+  const cosP = Math.cos(phi),
+    sinP = Math.sin(phi);
+  const dx = (x1 - x2) / 2,
+    dy = (y1 - y2) / 2;
   const x1p = cosP * dx + sinP * dy;
   const y1p = -sinP * dx + cosP * dy;
   // Scale radii up if they are too small to span the endpoints.
@@ -304,8 +343,10 @@ export function arcPoint(
   arc: {cx: number; cy: number; rx: number; ry: number; phi: number},
   theta: number,
 ): Point {
-  const cosP = Math.cos(arc.phi), sinP = Math.sin(arc.phi);
-  const ct = Math.cos(theta), st = Math.sin(theta);
+  const cosP = Math.cos(arc.phi),
+    sinP = Math.sin(arc.phi);
+  const ct = Math.cos(theta),
+    st = Math.sin(theta);
   return [
     arc.cx + arc.rx * ct * cosP - arc.ry * st * sinP,
     arc.cy + arc.rx * ct * sinP + arc.ry * st * cosP,

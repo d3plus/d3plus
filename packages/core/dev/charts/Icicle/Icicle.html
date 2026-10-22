@@ -1,130 +1,168 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Icicle</title>
+    <meta
+      name="description"
+      content="Icicle variants over a codebase by area, module and file: horizontal and vertical orient, a depth-limited zoom with a threshold bucket, a colorScale without shading, small multiples by area, an orient toggle, and a texture plus a backgroundImage. Click a rectangle to zoom in, the root band to zoom out."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 400px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      button {
+        font: inherit;
+        margin-left: 8px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (horizontal, root on the left)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>orient: "vertical"</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>depth(1) + threshold(0.03)</h3>
+        <div class="viz" id="depth"></div>
+      </div>
+      <div>
+        <h3>colorScale("size"), no shading</h3>
+        <div class="viz" id="scale"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "area")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>orient toggle <button id="toggle">Toggle orient</button></h3>
+        <div class="viz" id="toggled"></div>
+      </div>
+      <div>
+        <h3>shapeConfig texture (Backend) + backgroundImage (Frontend)</h3>
+        <div class="viz" id="textured"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>Icicle</title>
-  <meta name="description" content="Icicle variants over a codebase by area, module and file: horizontal and vertical orient, a depth-limited zoom with a threshold bucket, a colorScale without shading, small multiples by area, an orient toggle, and a texture plus a backgroundImage. Click a rectangle to zoom in, the root band to zoom out.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Inter, sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .viz { height: 400px; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-    button { font: inherit; margin-left: 8px; }
-  </style>
+  <script>
+    const data = [
+      {area: "Frontend", module: "Components", file: "Button", size: 120},
+      {area: "Frontend", module: "Components", file: "Modal", size: 240},
+      {area: "Frontend", module: "Components", file: "Table", size: 410},
+      {area: "Frontend", module: "Components", file: "Tooltip", size: 90},
+      {area: "Frontend", module: "Pages", file: "Dashboard", size: 520},
+      {area: "Frontend", module: "Pages", file: "Settings", size: 180},
+      {area: "Frontend", module: "Pages", file: "Profile", size: 140},
+      {area: "Frontend", module: "Styles", file: "Theme", size: 60},
+      {area: "Frontend", module: "Styles", file: "Layout", size: 45},
+      {area: "Backend", module: "API", file: "Users", size: 330},
+      {area: "Backend", module: "API", file: "Orders", size: 460},
+      {area: "Backend", module: "API", file: "Search", size: 210},
+      {area: "Backend", module: "Database", file: "Migrations", size: 380},
+      {area: "Backend", module: "Database", file: "Models", size: 290},
+      {area: "Backend", module: "Jobs", file: "Email", size: 70},
+      {area: "Backend", module: "Jobs", file: "Reports", size: 150},
+      {area: "Infrastructure", module: "CI", file: "Pipelines", size: 95},
+      {area: "Infrastructure", module: "CI", file: "Caching", size: 30},
+      {area: "Infrastructure", module: "Deploy", file: "Containers", size: 160},
+      {area: "Infrastructure", module: "Deploy", file: "Terraform", size: 210},
+      {area: "Docs", module: "Guides", file: "Getting Started", size: 85},
+      {area: "Docs", module: "Guides", file: "Theming", size: 40},
+      {area: "Docs", module: "Reference", file: "API Reference", size: 260},
+    ];
 
-</head>
+    new d3plus.Icicle()
+      .select("#basic")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .render();
 
-<body>
-  <div class="grid">
-    <div><h3>Default (horizontal, root on the left)</h3><div class="viz" id="basic"></div></div>
-    <div><h3>orient: "vertical"</h3><div class="viz" id="vertical"></div></div>
-    <div><h3>depth(1) + threshold(0.03)</h3><div class="viz" id="depth"></div></div>
-    <div><h3>colorScale("size"), no shading</h3><div class="viz" id="scale"></div></div>
-    <div><h3>Small multiples (facet: "area")</h3><div class="viz" id="facet"></div></div>
-    <div><h3>orient toggle <button id="toggle">Toggle orient</button></h3><div class="viz" id="toggled"></div></div>
-    <div><h3>shapeConfig texture (Backend) + backgroundImage (Frontend)</h3><div class="viz" id="textured"></div></div>
-  </div>
-</body>
+    new d3plus.Icicle()
+      .select("#vertical")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .orient("vertical")
+      .render();
 
-<script>
+    new d3plus.Icicle()
+      .select("#depth")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .depth(1)
+      .threshold(0.03)
+      .thresholdName("Modules")
+      .render();
 
-  const data = [
-    {area: "Frontend", module: "Components", file: "Button", size: 120},
-    {area: "Frontend", module: "Components", file: "Modal", size: 240},
-    {area: "Frontend", module: "Components", file: "Table", size: 410},
-    {area: "Frontend", module: "Components", file: "Tooltip", size: 90},
-    {area: "Frontend", module: "Pages", file: "Dashboard", size: 520},
-    {area: "Frontend", module: "Pages", file: "Settings", size: 180},
-    {area: "Frontend", module: "Pages", file: "Profile", size: 140},
-    {area: "Frontend", module: "Styles", file: "Theme", size: 60},
-    {area: "Frontend", module: "Styles", file: "Layout", size: 45},
-    {area: "Backend", module: "API", file: "Users", size: 330},
-    {area: "Backend", module: "API", file: "Orders", size: 460},
-    {area: "Backend", module: "API", file: "Search", size: 210},
-    {area: "Backend", module: "Database", file: "Migrations", size: 380},
-    {area: "Backend", module: "Database", file: "Models", size: 290},
-    {area: "Backend", module: "Jobs", file: "Email", size: 70},
-    {area: "Backend", module: "Jobs", file: "Reports", size: 150},
-    {area: "Infrastructure", module: "CI", file: "Pipelines", size: 95},
-    {area: "Infrastructure", module: "CI", file: "Caching", size: 30},
-    {area: "Infrastructure", module: "Deploy", file: "Containers", size: 160},
-    {area: "Infrastructure", module: "Deploy", file: "Terraform", size: 210},
-    {area: "Docs", module: "Guides", file: "Getting Started", size: 85},
-    {area: "Docs", module: "Guides", file: "Theming", size: 40},
-    {area: "Docs", module: "Reference", file: "API Reference", size: 260},
-  ];
+    new d3plus.Icicle()
+      .select("#scale")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .colorScale("size")
+      .render();
 
-  new d3plus.Icicle()
-    .select("#basic")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .render();
+    new d3plus.Icicle()
+      .select("#facet")
+      .data(data)
+      .groupBy(["module", "file"])
+      .sum("size")
+      .facet("area")
+      .render();
 
-  new d3plus.Icicle()
-    .select("#vertical")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .orient("vertical")
-    .render();
+    new d3plus.Icicle()
+      .select("#textured")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .shapeConfig({
+        texture: d => (d.area === "Backend" ? "lines" : false),
+        backgroundImage: d =>
+          d.area === "Frontend" ? "./Landscape.svg" : false,
+      })
+      .render();
 
-  new d3plus.Icicle()
-    .select("#depth")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .depth(1)
-    .threshold(0.03)
-    .thresholdName("Modules")
-    .render();
-
-  new d3plus.Icicle()
-    .select("#scale")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .colorScale("size")
-    .render();
-
-  new d3plus.Icicle()
-    .select("#facet")
-    .data(data)
-    .groupBy(["module", "file"])
-    .sum("size")
-    .facet("area")
-    .render();
-
-  new d3plus.Icicle()
-    .select("#textured")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .shapeConfig({
-      texture: d => d.area === "Backend" ? "lines" : false,
-      backgroundImage: d => d.area === "Frontend" ? "./Landscape.svg" : false
-    })
-    .render();
-
-  let vertical = false;
-  const toggled = new d3plus.Icicle()
-    .select("#toggled")
-    .data(data)
-    .groupBy(["area", "module", "file"])
-    .sum("size")
-    .title("Codebase by area, module, and file")
-    .total("size")
-    .render();
-  document.getElementById("toggle").addEventListener("click", () => {
-    vertical = !vertical;
-    toggled.orient(vertical ? "vertical" : "horizontal").render();
-  });
-
-</script>
-
+    let vertical = false;
+    const toggled = new d3plus.Icicle()
+      .select("#toggled")
+      .data(data)
+      .groupBy(["area", "module", "file"])
+      .sum("size")
+      .title("Codebase by area, module, and file")
+      .total("size")
+      .render();
+    document.getElementById("toggle").addEventListener("click", () => {
+      vertical = !vertical;
+      toggled.orient(vertical ? "vertical" : "horizontal").render();
+    });
+  </script>
 </html>

@@ -19,7 +19,10 @@ useJsdom();
 
 it("vizPreDraw sets drawDepth = groupBy.length - 1 when _depth unset", () => {
   const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}, {id: "b", x: 2, y: 20}])
+    .data([
+      {id: "a", x: 1, y: 10},
+      {id: "b", x: 2, y: 20},
+    ])
     .groupBy(["id"]);
   vizPreDraw(chart);
   assert.strictEqual(chart._drawDepth, 0, "single-key groupBy → drawDepth 0");
@@ -36,7 +39,10 @@ it("vizPreDraw drawDepth is capped to groupBy.length - 1", () => {
 
 it("vizPreDraw id closure stringifies numeric ids, including a merged datum's", () => {
   const chart = new BarChart()
-    .data([{id: 1, x: 1, y: 10}, {id: 2, x: 2, y: 20}])
+    .data([
+      {id: 1, x: 1, y: 10},
+      {id: 2, x: 2, y: 20},
+    ])
     .groupBy("id");
   vizPreDraw(chart);
   assert.strictEqual(chart._id({id: 1}, 0), "1");
@@ -46,7 +52,10 @@ it("vizPreDraw id closure stringifies numeric ids, including a merged datum's", 
 
 it("vizPreDraw id closure resolves to the groupBy value at drawDepth", () => {
   const chart = new BarChart()
-    .data([{group: "G1", id: "a"}, {group: "G1", id: "b"}])
+    .data([
+      {group: "G1", id: "a"},
+      {group: "G1", id: "b"},
+    ])
     .groupBy(["group", "id"]);
   vizPreDraw(chart);
   // drawDepth = 1 (groupBy has 2 keys); id should resolve to .id
@@ -156,7 +165,11 @@ it("vizPostThresholdCtx returns hoverOverride past the cutoff", () => {
   const data = [{id: "a"}, {id: "b"}, {id: "c"}, {id: "d"}];
   const ctx = vizPostThresholdCtx(chart, data, idFn);
   assert.ok(ctx.hoverOverride, "override returned past cutoff");
-  assert.strictEqual(ctx.hoverOverride.hoverOpacity, 1, "cutoff overrides to 1");
+  assert.strictEqual(
+    ctx.hoverOverride.hoverOpacity,
+    1,
+    "cutoff overrides to 1",
+  );
   assert.strictEqual(ctx.hoverOverride.duration, 0, "cutoff overrides to 0");
   assert.strictEqual(
     ctx.hoverOverride.stashOriginals,
@@ -201,7 +214,9 @@ it("vizDraw resets _featurePanels, _chartScene, _chartTransform", () => {
   chart._margin = {top: 0, bottom: 0, left: 0, right: 0};
   chart._padding = {top: 0, bottom: 0, left: 0, right: 0};
   chart._featurePanels = [{type: "group", key: "old", children: []}];
-  chart._chartScene = [{type: "rect", key: "stale", x: 0, y: 0, width: 1, height: 1}];
+  chart._chartScene = [
+    {type: "rect", key: "stale", x: 0, y: 0, width: 1, height: 1},
+  ];
   chart._chartTransform = {x: 999, y: 999};
   // Need to run preDraw first.
   chart._preDraw();
@@ -237,18 +252,31 @@ it("vizDraw resets _featurePanels, _chartScene, _chartTransform", () => {
 
 it("vizDraw's small-multiples panel step claims nothing and keeps the chrome", () => {
   const panels = ["title-panel"];
-  const viz = {_facetStep: "panel", _margin: {top: 1, right: 2, bottom: 3, left: 4}, _featurePanels: panels};
+  const viz = {
+    _facetStep: "panel",
+    _margin: {top: 1, right: 2, bottom: 3, left: 4},
+    _featurePanels: panels,
+  };
   const out = vizDraw(viz);
-  assert.deepStrictEqual(out.marginDelta, {top: 0, bottom: 0, left: 0, right: 0});
+  assert.deepStrictEqual(out.marginDelta, {
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+  });
   assert.deepStrictEqual(out.featurePanels, panels);
   assert.deepStrictEqual(viz._margin, {top: 1, right: 2, bottom: 3, left: 4});
 });
 
 it("vizPreDraw: trailPersist auto-enables axisPersist and a single-period timeline", () => {
   const chart = new Plot()
-    .groupBy("id").time("year").x("x").y("y")
+    .groupBy("id")
+    .time("year")
+    .x("x")
+    .y("y")
     .shapeConfig({Circle: {trailPersist: true}})
-    .width(400).height(300);
+    .width(400)
+    .height(300);
   chart._data = [
     {id: "a", year: 2019, x: 1, y: 1},
     {id: "a", year: 2020, x: 2, y: 2},
@@ -264,6 +292,14 @@ it("vizPreDraw: trailPersist auto-enables axisPersist and a single-period timeli
     /* expected: later _preDraw steps need DOM the harness doesn't provide */
   }
 
-  assert.strictEqual(chart.axisPersist(), true, "axisPersist forced on by trailPersist");
-  assert.strictEqual(chart.schema.timelineConfig.brushing, false, "brushing forced off by trailPersist");
+  assert.strictEqual(
+    chart.axisPersist(),
+    true,
+    "axisPersist forced on by trailPersist",
+  );
+  assert.strictEqual(
+    chart.schema.timelineConfig.brushing,
+    false,
+    "brushing forced off by trailPersist",
+  );
 });

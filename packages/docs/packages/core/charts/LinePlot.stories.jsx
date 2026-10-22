@@ -17,69 +17,85 @@ export default {
         component: "Creates a line plot based on an array of data.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <LinePlot config={configify(args, argTypes)} />;
-  
+const Template = args => <LinePlot config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
-    { id: "alpha", x: 4, y: 7 },
-    { id: "alpha", x: 5, y: 25 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 13 }
+    {id: "alpha", x: 4, y: 7},
+    {id: "alpha", x: 5, y: 25},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   x: "x",
-  y: "y"
+  y: "y",
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position."}}};
+BasicExample.parameters = {
+  controls: {include: ["x", "y"]},
+  docs: {
+    description: {
+      story:
+        "A minimal line plot: `groupBy` splits the data into one line per `id`, with `x` and `y` mapping each point's position.",
+    },
+  },
+};
 
 export const LineLabels = Template.bind({});
 LineLabels.args = {
   data: [
-    { id: "alpha", x: 4, y: 9 },
-    { id: "alpha", x: 5, y: 17 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 16 },
-    { id: "gamma", x: 4, y: 14 },
-    { id: "gamma", x: 5, y: 9 },
-    { id: "gamma", x: 6, y: 11 }
+    {id: "alpha", x: 4, y: 9},
+    {id: "alpha", x: 5, y: 17},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 16},
+    {id: "gamma", x: 4, y: 14},
+    {id: "gamma", x: 5, y: 9},
+    {id: "gamma", x: 6, y: 11},
   ],
   groupBy: "id",
   lineLabels: true,
   x: "x",
-  y: "y"
+  y: "y",
 };
-LineLabels.parameters = {controls: {include: ["lineLabels"]}, docs: {description: {story: "Set `lineLabels: true` to print each series name at the **end of its line**, letting you trace a color straight to its label without consulting a legend."}}};
+LineLabels.parameters = {
+  controls: {include: ["lineLabels"]},
+  docs: {
+    description: {
+      story:
+        "Set `lineLabels: true` to print each series name at the **end of its line**, letting you trace a color straight to its label without consulting a legend.",
+    },
+  },
+};
 
 export const CustomLineLabels = Template.bind({});
 CustomLineLabels.args = {
   data: [
-    { id: "alpha", x: 4, y: 9 },
-    { id: "alpha", x: 5, y: 17 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 16 },
-    { id: "gamma", x: 4, y: 14 },
-    { id: "gamma", x: 5, y: 9 },
-    { id: "gamma", x: 6, y: 11 }
+    {id: "alpha", x: 4, y: 9},
+    {id: "alpha", x: 5, y: 17},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 16},
+    {id: "gamma", x: 4, y: 14},
+    {id: "gamma", x: 5, y: 9},
+    {id: "gamma", x: 6, y: 11},
   ],
   groupBy: "id",
   lineLabels: true,
   shapeConfig: {
     Line: {
       label: funcify(
-        function(d) {
+        function (d) {
           const dataArray = this._filteredData.filter(f => f.id === d.id);
           const maxX = Math.max(...dataArray.map(f => f.x));
           const maxData = dataArray.find(f => f.x === maxX);
@@ -91,81 +107,89 @@ CustomLineLabels.args = {
         const maxX = Math.max(...dataArray.map(f => f.x));
         const maxData = dataArray.find(f => f.x === maxX); 
         return \`\${maxData.y}\`;
-      }`
-      )
-    }
+      }`,
+      ),
+    },
   },
   x: "x",
-  y: "y"
+  y: "y",
 };
-CustomLineLabels.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Override the default series-name label via `shapeConfig.Line.label` — here a function returns each line's final `y` value, so the tip of every line reports its latest number."}}};
+CustomLineLabels.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Override the default series-name label via `shapeConfig.Line.label` — here a function returns each line's final `y` value, so the tip of every line reports its latest number.",
+    },
+  },
+};
 
 export const SecondaryYAxis = Template.bind({});
 SecondaryYAxis.args = {
   data: [
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2011,
+      Country: "United States",
+      Year: 2011,
       "Trade Value": 1403273708182,
-      "Trade Value Growth": 0.17509765715100706
+      "Trade Value Growth": 0.17509765715100706,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2012,
+      Country: "United States",
+      Year: 2012,
       "Trade Value": 1453520657725,
-      "Trade Value Growth": 0.03580694860170724
+      "Trade Value Growth": 0.03580694860170724,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2013,
+      Country: "United States",
+      Year: 2013,
       "Trade Value": 1478035757057,
-      "Trade Value Growth": 0.016866013703836988
+      "Trade Value Growth": 0.016866013703836988,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2014,
+      Country: "United States",
+      Year: 2014,
       "Trade Value": 1521969928619,
-      "Trade Value Growth": 0.029724701416885744
+      "Trade Value Growth": 0.029724701416885744,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2015,
+      Country: "United States",
+      Year: 2015,
       "Trade Value": 1409516953687,
-      "Trade Value Growth": -0.07388646307488954
+      "Trade Value Growth": -0.07388646307488954,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2016,
+      Country: "United States",
+      Year: 2016,
       "Trade Value": 1353648792022,
-      "Trade Value Growth": -0.0396363885647921
+      "Trade Value Growth": -0.0396363885647921,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2017,
+      Country: "United States",
+      Year: 2017,
       "Trade Value": 1456201053251,
-      "Trade Value Growth": 0.07575987348669187
+      "Trade Value Growth": 0.07575987348669187,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2018,
+      Country: "United States",
+      Year: 2018,
       "Trade Value": 1548849519602,
-      "Trade Value Growth": 0.06362340292513889
+      "Trade Value Growth": 0.06362340292513889,
     },
     {
       "Country ID": "nausa",
-      "Country": "United States",
-      "Year": 2019,
+      Country: "United States",
+      Year: 2019,
       "Trade Value": 1511931053052,
-      "Trade Value Growth": -0.023836057720756986
-    }
+      "Trade Value Growth": -0.023836057720756986,
+    },
   ],
   groupBy: "Country",
   time: "Year",
@@ -175,133 +199,175 @@ SecondaryYAxis.args = {
   y2Config: {
     tickFormat: funcify(
       d => `${parseInt(d * 100)}%`,
-      "d => `${parseInt(d * 100)}%`"
-    )
-  }
+      "d => `${parseInt(d * 100)}%`",
+    ),
+  },
 };
-SecondaryYAxis.parameters = {controls: {include: ["y2", "y2Config"]}, docs: {description: {story: "Plot a second metric against a right-hand axis with `y2`; because growth lives on a different scale than trade value, `y2Config.tickFormat` renders it as a percentage independent of the left axis."}}};
+SecondaryYAxis.parameters = {
+  controls: {include: ["y2", "y2Config"]},
+  docs: {
+    description: {
+      story:
+        "Plot a second metric against a right-hand axis with `y2`; because growth lives on a different scale than trade value, `y2Config.tickFormat` renders it as a percentage independent of the left axis.",
+    },
+  },
+};
 
 export const LineVertexMarkers = Template.bind({});
 LineVertexMarkers.args = {
   data: [
-    { id: "alpha", x: 4, y: 9 },
-    { id: "alpha", x: 5, y: 17 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 16 },
-    { id: "gamma", x: 4, y: 14 },
-    { id: "gamma", x: 5, y: 9 },
-    { id: "gamma", x: 6, y: 11 }
+    {id: "alpha", x: 4, y: 9},
+    {id: "alpha", x: 5, y: 17},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 16},
+    {id: "gamma", x: 4, y: 14},
+    {id: "gamma", x: 5, y: 9},
+    {id: "gamma", x: 6, y: 11},
   ],
   groupBy: "id",
   lineMarkers: true,
   lineMarkerConfig: {
-    r: 6
+    r: 6,
   },
   x: "x",
-  y: "y"
+  y: "y",
 };
-LineVertexMarkers.parameters = {controls: {include: ["lineMarkers", "lineMarkersConfig"]}, docs: {description: {story: "Enable `lineMarkers: true` to draw a circle at every data point, sized here to radius 6 via `lineMarkerConfig.r` so individual observations stand out."}}};
+LineVertexMarkers.parameters = {
+  controls: {include: ["lineMarkers", "lineMarkersConfig"]},
+  docs: {
+    description: {
+      story:
+        "Enable `lineMarkers: true` to draw a circle at every data point, sized here to radius 6 via `lineMarkerConfig.r` so individual observations stand out.",
+    },
+  },
+};
 
 export const ChangingVertexMarkerStyle = Template.bind({});
 ChangingVertexMarkerStyle.args = {
   data: [
-    { id: "alpha", x: 4, y: 9 },
-    { id: "alpha", x: 5, y: 17 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 16 },
-    { id: "gamma", x: 4, y: 14 },
-    { id: "gamma", x: 5, y: 9 },
-    { id: "gamma", x: 6, y: 11 }
+    {id: "alpha", x: 4, y: 9},
+    {id: "alpha", x: 5, y: 17},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 16},
+    {id: "gamma", x: 4, y: 14},
+    {id: "gamma", x: 5, y: 9},
+    {id: "gamma", x: 6, y: 11},
   ],
   groupBy: "id",
   lineMarkers: true,
   lineMarkerConfig: {
-    opacity: funcify(d => d.x === 6 ? 1 : 0.25, "d => d.x === 6 ? 1 : 0.25"),
-    r: funcify(d => d.x === 6 ? 6 : 4, "d => d.x === 6 ? 6 : 3")
+    opacity: funcify(d => (d.x === 6 ? 1 : 0.25), "d => d.x === 6 ? 1 : 0.25"),
+    r: funcify(d => (d.x === 6 ? 6 : 4), "d => d.x === 6 ? 6 : 3"),
   },
   x: "x",
-  y: "y"
+  y: "y",
 };
-ChangingVertexMarkerStyle.parameters = {controls: {include: ["lineMarkerConfig"]}, docs: {description: {story: "Pass functions to `lineMarkerConfig` (`r` and `opacity`) to style markers per datum — here only each line's final point (`x === 6`) is drawn large and fully opaque to spotlight the endpoints."}}};
+ChangingVertexMarkerStyle.parameters = {
+  controls: {include: ["lineMarkerConfig"]},
+  docs: {
+    description: {
+      story:
+        "Pass functions to `lineMarkerConfig` (`r` and `opacity`) to style markers per datum — here only each line's final point (`x === 6`) is drawn large and fully opaque to spotlight the endpoints.",
+    },
+  },
+};
 
 export const ChangingSplining = Template.bind({});
 ChangingSplining.args = {
   data: [
-    { fruit: "apple", price: 5, year: 2014 },
-    { fruit: "banana", price: 4, year: 2014 },
-    { fruit: "apple", price: 7, year: 2015 },
-    { fruit: "banana", price: 6, year: 2015 },
-    { fruit: "apple", price: 10, year: 2016 },
-    { fruit: "banana", price: 8, year: 2016 },
-    { fruit: "apple", price: 6, year: 2017 },
-    { fruit: "banana", price: 10, year: 2017 },
-    { fruit: "apple", price: 8, year: 2018 },
-    { fruit: "banana", price: 15, year: 2018 }
+    {fruit: "apple", price: 5, year: 2014},
+    {fruit: "banana", price: 4, year: 2014},
+    {fruit: "apple", price: 7, year: 2015},
+    {fruit: "banana", price: 6, year: 2015},
+    {fruit: "apple", price: 10, year: 2016},
+    {fruit: "banana", price: 8, year: 2016},
+    {fruit: "apple", price: 6, year: 2017},
+    {fruit: "banana", price: 10, year: 2017},
+    {fruit: "apple", price: 8, year: 2018},
+    {fruit: "banana", price: 15, year: 2018},
   ],
   groupBy: "fruit",
   shapeConfig: {
     Line: {
-      curve: "catmullRom"
-    }
+      curve: "catmullRom",
+    },
   },
   x: "year",
-  y: "price"
+  y: "price",
 };
-ChangingSplining.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Set `shapeConfig.Line.curve` to `\"catmullRom\"` to interpolate a smooth spline through the points instead of connecting them with straight segments."}}};
+ChangingSplining.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        'Set `shapeConfig.Line.curve` to `"catmullRom"` to interpolate a smooth spline through the points instead of connecting them with straight segments.',
+    },
+  },
+};
 
 export const ChangingStrokeWidth = Template.bind({});
 ChangingStrokeWidth.args = {
   data: [
-    { id: "alpha", x: 4, y: 7 },
-    { id: "alpha", x: 5, y: 25 },
-    { id: "alpha", x: 6, y: 13 },
-    { id: "beta", x: 4, y: 17 },
-    { id: "beta", x: 5, y: 8 },
-    { id: "beta", x: 6, y: 13 }
+    {id: "alpha", x: 4, y: 7},
+    {id: "alpha", x: 5, y: 25},
+    {id: "alpha", x: 6, y: 13},
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   shapeConfig: {
     Line: {
-      strokeWidth: 5
-    }
+      strokeWidth: 5,
+    },
   },
   x: "x",
-  y: "y"
+  y: "y",
 };
-ChangingStrokeWidth.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Thicken every line with `shapeConfig.Line.strokeWidth` when you want the trend to read boldly at a glance."}}};
+ChangingStrokeWidth.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Thicken every line with `shapeConfig.Line.strokeWidth` when you want the trend to read boldly at a glance.",
+    },
+  },
+};
 
 export const ConfidenceIntervals = Template.bind({});
 ConfidenceIntervals.args = {
   data: [
-    { fruit: "apple", year: 1, amount: 50, moe: 2 },
-    { fruit: "apple", year: 2, amount: 56, moe: 1 },
-    { fruit: "apple", year: 3, amount: 58, moe: 1 },
-    { fruit: "banana", year: 1, amount: 88, moe: 3 },
-    { fruit: "banana", year: 2, amount: 90, moe: 4 },
-    { fruit: "banana", year: 3, amount: 76, moe: 3 }
+    {fruit: "apple", year: 1, amount: 50, moe: 2},
+    {fruit: "apple", year: 2, amount: 56, moe: 1},
+    {fruit: "apple", year: 3, amount: 58, moe: 1},
+    {fruit: "banana", year: 1, amount: 88, moe: 3},
+    {fruit: "banana", year: 2, amount: 90, moe: 4},
+    {fruit: "banana", year: 3, amount: 76, moe: 3},
   ],
   groupBy: "fruit",
   confidence: [
-    funcify(
-      d => d.amount - d.moe,
-      "d => d.amount - d.moe"
-    ),
-    funcify(
-      d => d.amount + d.moe,
-      "d => d.amount + d.moe"
-    )
+    funcify(d => d.amount - d.moe, "d => d.amount - d.moe"),
+    funcify(d => d.amount + d.moe, "d => d.amount + d.moe"),
   ],
   confidenceConfig: {
-    fillOpacity: 0.3
+    fillOpacity: 0.3,
   },
   x: "year",
-  y: "amount"
+  y: "amount",
 };
-ConfidenceIntervals.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent. Hovering lists each line's bounds after its value."}}};
+ConfidenceIntervals.parameters = {
+  controls: {include: ["confidence", "confidenceConfig"]},
+  docs: {
+    description: {
+      story:
+        "Supply `confidence` as a `[lower, upper]` pair of accessors to draw a shaded margin-of-error band around each line; `confidenceConfig.fillOpacity` keeps that region translucent. Hovering lists each line's bounds after its value.",
+    },
+  },
+};
 
 export const NestedConfidenceBands = Template.bind({});
 NestedConfidenceBands.args = {
@@ -315,14 +381,25 @@ NestedConfidenceBands.args = {
     {id: "beta", year: 2021, value: 25, p10: 19, p90: 31, p25: 22, p75: 28},
     {id: "beta", year: 2022, value: 30, p10: 23, p90: 37, p25: 27, p75: 33},
     {id: "beta", year: 2023, value: 28, p10: 20, p90: 36, p25: 24, p75: 32},
-    {id: "beta", year: 2024, value: 33, p10: 24, p90: 43, p25: 29, p75: 38}
+    {id: "beta", year: 2024, value: 33, p10: 24, p90: 43, p25: 29, p75: 38},
   ],
   groupBy: "id",
-  confidence: [["p10", "p90", "80%"], ["p25", "p75", "50%"]],
+  confidence: [
+    ["p10", "p90", "80%"],
+    ["p25", "p75", "50%"],
+  ],
   x: "year",
-  y: "value"
+  y: "value",
 };
-NestedConfidenceBands.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Give `confidence` a list of bands, outermost first, to nest several intervals around each line. Each band is a `[lower, upper]` pair, optionally with a label third; the widest draws lightest and the narrowest darkest (see `confidenceConfig.bandOpacity`). Hovering a single point lists each band's range under its label. For forecasts, see FanChart."}}};
+NestedConfidenceBands.parameters = {
+  controls: {include: ["confidence", "confidenceConfig"]},
+  docs: {
+    description: {
+      story:
+        "Give `confidence` a list of bands, outermost first, to nest several intervals around each line. Each band is a `[lower, upper]` pair, optionally with a label third; the widest draws lightest and the narrowest darkest (see `confidenceConfig.bandOpacity`). Hovering a single point lists each band's range under its label. For forecasts, see FanChart.",
+    },
+  },
+};
 
 export const TrendLine = Template.bind({});
 TrendLine.args = {
@@ -334,22 +411,30 @@ TrendLine.args = {
     {id: "alpha", date: "2022-01-01", value: 49},
     {id: "alpha", date: "2023-01-01", value: 47},
     {id: "alpha", date: "2024-01-01", value: 56},
-    {id: "beta",  date: "2018-01-01", value: 52},
-    {id: "beta",  date: "2019-01-01", value: 49},
-    {id: "beta",  date: "2020-01-01", value: 55},
-    {id: "beta",  date: "2021-01-01", value: 51},
-    {id: "beta",  date: "2022-01-01", value: 54},
-    {id: "beta",  date: "2023-01-01", value: 58},
-    {id: "beta",  date: "2024-01-01", value: 57}
+    {id: "beta", date: "2018-01-01", value: 52},
+    {id: "beta", date: "2019-01-01", value: 49},
+    {id: "beta", date: "2020-01-01", value: 55},
+    {id: "beta", date: "2021-01-01", value: 51},
+    {id: "beta", date: "2022-01-01", value: 54},
+    {id: "beta", date: "2023-01-01", value: 58},
+    {id: "beta", date: "2024-01-01", value: 57},
   ],
   groupBy: "id",
   time: "date",
   x: "date",
   y: "value",
   trendLine: true,
-  trendLineConfig: {confidence: true}
+  trendLineConfig: {confidence: true},
 };
-TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation."}}};
+TrendLine.parameters = {
+  controls: {include: ["trendLine", "trendLineConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each line gets its own trend line and, with `trendLineConfig.confidence`, a shaded confidence band in its color. On a time axis the fit runs over the dates, so the tooltip shows R² and the number of observations but no equation.",
+    },
+  },
+};
 
 export const TrendLineProjection = Template.bind({});
 TrendLineProjection.args = {
@@ -361,10 +446,18 @@ TrendLineProjection.args = {
   trendLine: true,
   trendLineConfig: {
     confidence: true,
-    projection: {to: 2030}
-  }
+    projection: {to: 2030},
+  },
 };
-TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLineConfig.projection` extends each trend line past the end of its data, widening the axis to fit. Give it `{to}` an end value (here the year 2030) or a number of steps. The projected stretch draws dotted, and a linear fit's confidence band opens into a wider prediction interval: the range a future value is likely to fall in, which grows the further out it reaches. Hover the plot over a projected year to compare every series' projected value and range. The projected stretch is marked as a forecast (a shaded backdrop, a rule, and a \"Forecast\" label); set `forecast: false` to leave it unmarked."}}};
+TrendLineProjection.parameters = {
+  controls: {include: ["trendLine", "trendLineConfig"]},
+  docs: {
+    description: {
+      story:
+        "`trendLineConfig.projection` extends each trend line past the end of its data, widening the axis to fit. Give it `{to}` an end value (here the year 2030) or a number of steps. The projected stretch draws dotted, and a linear fit's confidence band opens into a wider prediction interval: the range a future value is likely to fall in, which grows the further out it reaches. Hover the plot over a projected year to compare every series' projected value and range. The projected stretch is marked as a forecast (a shaded backdrop, a rule, and a \"Forecast\" label); set `forecast: false` to leave it unmarked.",
+    },
+  },
+};
 
 export const TrendLineProjectionSteps = Template.bind({});
 TrendLineProjectionSteps.args = {
@@ -382,7 +475,7 @@ TrendLineProjectionSteps.args = {
     {id: "Wind", year: 2020, value: 37},
     {id: "Wind", year: 2021, value: 38},
     {id: "Wind", year: 2022, value: 41},
-    {id: "Wind", year: 2023, value: 42}
+    {id: "Wind", year: 2023, value: 42},
   ],
   groupBy: "id",
   x: "year",
@@ -390,29 +483,37 @@ TrendLineProjectionSteps.args = {
   trendLine: "exponential",
   trendLineConfig: {
     projection: 5,
-    projectionConfig: {strokeDasharray: "1 4", strokeWidth: 3}
-  }
+    projectionConfig: {strokeDasharray: "1 4", strokeWidth: 3},
+  },
 };
-TrendLineProjectionSteps.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "A number projects that many steps past the last value, at the data's own spacing: here 5 more years. Dates step by their calendar interval (years, quarters, months, days…). Any fit type projects, and `projectionConfig` styles the projected stretch over the line's own styles. Hover a projected line for its value at the nearest projected year."}}};
+TrendLineProjectionSteps.parameters = {
+  controls: {include: ["trendLine", "trendLineConfig"]},
+  docs: {
+    description: {
+      story:
+        "A number projects that many steps past the last value, at the data's own spacing: here 5 more years. Dates step by their calendar interval (years, quarters, months, days…). Any fit type projects, and `projectionConfig` styles the projected stretch over the line's own styles. Hover a projected line for its value at the nearest projected year.",
+    },
+  },
+};
 
 export const DashedLines = Template.bind({});
 DashedLines.args = {
   data: [
-    { fruit: "apple", price: 5, year: 2014 },
-    { fruit: "banana", price: 4, year: 2014 },
-    { fruit: "cherry", price: 7, year: 2014 },
-    { fruit: "apple", price: 7, year: 2015 },
-    { fruit: "banana", price: 6, year: 2015 },
-    { fruit: "cherry", price: 9, year: 2015 },
-    { fruit: "apple", price: 10, year: 2016 },
-    { fruit: "banana", price: 8, year: 2016 },
-    { fruit: "cherry", price: 5, year: 2016 },
-    { fruit: "apple", price: 6, year: 2017 },
-    { fruit: "banana", price: 10, year: 2017 },
-    { fruit: "cherry", price: 10, year: 2017 },
-    { fruit: "apple", price: 8, year: 2018 },
-    { fruit: "banana", price: 15, year: 2018 },
-    { fruit: "cherry", price: 12, year: 2018 }
+    {fruit: "apple", price: 5, year: 2014},
+    {fruit: "banana", price: 4, year: 2014},
+    {fruit: "cherry", price: 7, year: 2014},
+    {fruit: "apple", price: 7, year: 2015},
+    {fruit: "banana", price: 6, year: 2015},
+    {fruit: "cherry", price: 9, year: 2015},
+    {fruit: "apple", price: 10, year: 2016},
+    {fruit: "banana", price: 8, year: 2016},
+    {fruit: "cherry", price: 5, year: 2016},
+    {fruit: "apple", price: 6, year: 2017},
+    {fruit: "banana", price: 10, year: 2017},
+    {fruit: "cherry", price: 10, year: 2017},
+    {fruit: "apple", price: 8, year: 2018},
+    {fruit: "banana", price: 15, year: 2018},
+    {fruit: "cherry", price: 12, year: 2018},
   ],
   groupBy: "fruit",
   shapeConfig: {
@@ -429,32 +530,41 @@ DashedLines.args = {
         if (d.fruit === "banana") return "10 7 3";
         if (d.fruit === "cherry") return "10 7 5 2";
         return "0";
-      }`)
-    }
+      }`,
+      ),
+    },
   },
   x: "year",
-  y: "price"
+  y: "price",
 };
-DashedLines.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a different dash pattern per series from `shapeConfig.Line.strokeDasharray` to distinguish lines by stroke style rather than color alone."}}};
+DashedLines.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Return a different dash pattern per series from `shapeConfig.Line.strokeDasharray` to distinguish lines by stroke style rather than color alone.",
+    },
+  },
+};
 
 export const CustomLineColors = Template.bind({});
 CustomLineColors.args = {
   data: [
-    { fruit: "apple", price: 5, year: 2014 },
-    { fruit: "banana", price: 4, year: 2014 },
-    { fruit: "cherry", price: 7, year: 2014 },
-    { fruit: "apple", price: 7, year: 2015 },
-    { fruit: "banana", price: 6, year: 2015 },
-    { fruit: "cherry", price: 9, year: 2015 },
-    { fruit: "apple", price: 10, year: 2016 },
-    { fruit: "banana", price: 8, year: 2016 },
-    { fruit: "cherry", price: 5, year: 2016 },
-    { fruit: "apple", price: 6, year: 2017 },
-    { fruit: "banana", price: 10, year: 2017 },
-    { fruit: "cherry", price: 10, year: 2017 },
-    { fruit: "apple", price: 8, year: 2018 },
-    { fruit: "banana", price: 15, year: 2018 },
-    { fruit: "cherry", price: 12, year: 2018 }
+    {fruit: "apple", price: 5, year: 2014},
+    {fruit: "banana", price: 4, year: 2014},
+    {fruit: "cherry", price: 7, year: 2014},
+    {fruit: "apple", price: 7, year: 2015},
+    {fruit: "banana", price: 6, year: 2015},
+    {fruit: "cherry", price: 9, year: 2015},
+    {fruit: "apple", price: 10, year: 2016},
+    {fruit: "banana", price: 8, year: 2016},
+    {fruit: "cherry", price: 5, year: 2016},
+    {fruit: "apple", price: 6, year: 2017},
+    {fruit: "banana", price: 10, year: 2017},
+    {fruit: "cherry", price: 10, year: 2017},
+    {fruit: "apple", price: 8, year: 2018},
+    {fruit: "banana", price: 15, year: 2018},
+    {fruit: "cherry", price: 12, year: 2018},
   ],
   groupBy: "fruit",
   shapeConfig: {
@@ -471,218 +581,274 @@ CustomLineColors.args = {
         if (d.fruit === "banana") return "goldenrod";
         if (d.fruit === "cherry") return "red";
         return "grey";
-      }`
-      )
-    }
+      }`,
+      ),
+    },
   },
   x: "year",
-  y: "price"
+  y: "price",
 };
-CustomLineColors.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Return a color per series from `shapeConfig.Line.stroke` to override the automatic palette with your own meaningful hues."}}};
+CustomLineColors.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Return a color per series from `shapeConfig.Line.stroke` to override the automatic palette with your own meaningful hues.",
+    },
+  },
+};
 
 export const FillBetween = Template.bind({});
 FillBetween.args = {
   data: [
-    {id: "Exports", year: 2016, value: 120}, {id: "Imports", year: 2016, value: 132},
-    {id: "Exports", year: 2017, value: 131}, {id: "Imports", year: 2017, value: 136},
-    {id: "Exports", year: 2018, value: 145}, {id: "Imports", year: 2018, value: 139},
-    {id: "Exports", year: 2019, value: 152}, {id: "Imports", year: 2019, value: 141},
-    {id: "Exports", year: 2020, value: 138}, {id: "Imports", year: 2020, value: 129},
-    {id: "Exports", year: 2021, value: 141}, {id: "Imports", year: 2021, value: 150},
-    {id: "Exports", year: 2022, value: 149}, {id: "Imports", year: 2022, value: 166},
-    {id: "Exports", year: 2023, value: 163}, {id: "Imports", year: 2023, value: 170},
-    {id: "Exports", year: 2024, value: 181}, {id: "Imports", year: 2024, value: 172}
+    {id: "Exports", year: 2016, value: 120},
+    {id: "Imports", year: 2016, value: 132},
+    {id: "Exports", year: 2017, value: 131},
+    {id: "Imports", year: 2017, value: 136},
+    {id: "Exports", year: 2018, value: 145},
+    {id: "Imports", year: 2018, value: 139},
+    {id: "Exports", year: 2019, value: 152},
+    {id: "Imports", year: 2019, value: 141},
+    {id: "Exports", year: 2020, value: 138},
+    {id: "Imports", year: 2020, value: 129},
+    {id: "Exports", year: 2021, value: 141},
+    {id: "Imports", year: 2021, value: 150},
+    {id: "Exports", year: 2022, value: 149},
+    {id: "Imports", year: 2022, value: 166},
+    {id: "Exports", year: 2023, value: 163},
+    {id: "Imports", year: 2023, value: 170},
+    {id: "Exports", year: 2024, value: 181},
+    {id: "Imports", year: 2024, value: 172},
   ],
   groupBy: "id",
   fillBetween: ["Exports", "Imports"],
   x: "year",
-  y: "value"
+  y: "value",
 };
-FillBetween.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "`fillBetween` shades the area between two lines in the color of whichever is higher, switching exactly where they cross, so a trade surplus and deficit read at a glance. Name the pair by series id, pass `true` for the first two series, or give a list of pairs."}}};
+FillBetween.parameters = {
+  controls: {include: ["fillBetween", "fillBetweenConfig"]},
+  docs: {
+    description: {
+      story:
+        "`fillBetween` shades the area between two lines in the color of whichever is higher, switching exactly where they cross, so a trade surplus and deficit read at a glance. Name the pair by series id, pass `true` for the first two series, or give a list of pairs.",
+    },
+  },
+};
 
 export const TemperatureRange = Template.bind({});
 TemperatureRange.args = {
   data: [
-    ["Jan", -3, -12], ["Feb", -1, -11], ["Mar", 5, -5], ["Apr", 13, 2], ["May", 20, 8], ["Jun", 25, 14],
-    ["Jul", 28, 17], ["Aug", 27, 16], ["Sep", 22, 11], ["Oct", 14, 5], ["Nov", 6, -1], ["Dec", -1, -8]
+    ["Jan", -3, -12],
+    ["Feb", -1, -11],
+    ["Mar", 5, -5],
+    ["Apr", 13, 2],
+    ["May", 20, 8],
+    ["Jun", 25, 14],
+    ["Jul", 28, 17],
+    ["Aug", 27, 16],
+    ["Sep", 22, 11],
+    ["Oct", 14, 5],
+    ["Nov", 6, -1],
+    ["Dec", -1, -8],
   ].flatMap(([month, high, low]) => [
     {id: "High", month, temperature: high},
-    {id: "Low", month, temperature: low}
+    {id: "Low", month, temperature: low},
   ]),
   groupBy: "id",
   color: funcify(
     d => (d.id === "High" ? "#e8590c" : "#1c7ed6"),
-    "d => (d.id === \"High\" ? \"#e8590c\" : \"#1c7ed6\")"
+    'd => (d.id === "High" ? "#e8590c" : "#1c7ed6")',
   ),
   fillBetween: true,
   fillBetweenConfig: {
     fill: funcify(
       d => (d.above === "High" ? "#868e96" : "#e03131"),
-      "d => (d.above === \"High\" ? \"#868e96\" : \"#e03131\")"
+      'd => (d.above === "High" ? "#868e96" : "#e03131")',
     ),
-    fillOpacity: 0.2
+    fillOpacity: 0.2,
   },
   x: "month",
-  y: "temperature"
+  y: "temperature",
 };
-TemperatureRange.parameters = {controls: {include: ["fillBetween", "fillBetweenConfig"]}, docs: {description: {story: "A min/max range: `fillBetween: true` fills between the first two series. `fillBetweenConfig` styles the fill, and its accessors receive the higher series' row with `above` and `below` keys naming the pair, so the A > B and B > A regions can be colored apart (here gray, or red if the low ever rose above the high)."}}};
+TemperatureRange.parameters = {
+  controls: {include: ["fillBetween", "fillBetweenConfig"]},
+  docs: {
+    description: {
+      story:
+        "A min/max range: `fillBetween: true` fills between the first two series. `fillBetweenConfig` styles the fill, and its accessors receive the higher series' row with `above` and `below` keys naming the pair, so the A > B and B > A regions can be colored apart (here gray, or red if the low ever rose above the high).",
+    },
+  },
+};
 
 export const SortingLines = Template.bind({});
 SortingLines.args = {
   data: [
-    { fruit: "apple", price: 5, year: 2014 },
-    { fruit: "banana", price: 4, year: 2014 },
-    { fruit: "apple", price: 7, year: 2015 },
-    { fruit: "banana", price: 6, year: 2015 },
-    { fruit: "apple", price: 10, year: 2016 },
-    { fruit: "banana", price: 8, year: 2016 },
-    { fruit: "apple", price: 6, year: 2017 },
-    { fruit: "banana", price: 10, year: 2017 },
-    { fruit: "apple", price: 8, year: 2018 },
-    { fruit: "banana", price: 15, year: 2018 }
+    {fruit: "apple", price: 5, year: 2014},
+    {fruit: "banana", price: 4, year: 2014},
+    {fruit: "apple", price: 7, year: 2015},
+    {fruit: "banana", price: 6, year: 2015},
+    {fruit: "apple", price: 10, year: 2016},
+    {fruit: "banana", price: 8, year: 2016},
+    {fruit: "apple", price: 6, year: 2017},
+    {fruit: "banana", price: 10, year: 2017},
+    {fruit: "apple", price: 8, year: 2018},
+    {fruit: "banana", price: 15, year: 2018},
   ],
   groupBy: "fruit",
   shapeConfig: {
     Line: {
       strokeLinecap: "round",
-      strokeWidth: 10
+      strokeWidth: 10,
     },
     sort: funcify(
-      (a, b) => a.fruit === "apple" ? 1 : -1,
-      `(a, b) => a.fruit === "apple" ? 1 : -1`
-    )
+      (a, b) => (a.fruit === "apple" ? 1 : -1),
+      `(a, b) => a.fruit === "apple" ? 1 : -1`,
+    ),
   },
   x: "year",
-  y: "price"
+  y: "price",
 };
-SortingLines.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "With thick, round-capped strokes the lines overlap, so `shapeConfig.sort` sets the draw order — here forcing *apple* to render on top of the others."}}};
+SortingLines.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "With thick, round-capped strokes the lines overlap, so `shapeConfig.sort` sets the draw order — here forcing *apple* to render on top of the others.",
+    },
+  },
+};
 
 export const DottedLinePredictions = Template.bind({});
 DottedLinePredictions.args = {
   data: [
     {
-      "Year": 2016,
+      Year: 2016,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 363829206796,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2016,
+      Year: 2016,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 364493560621,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2017,
+      Year: 2017,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 376297646785,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2017,
+      Year: 2017,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 401741532115,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2018,
+      Year: 2018,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 414829536859,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2018,
+      Year: 2018,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 441736801029,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2019,
+      Year: 2019,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 425699639802,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2019,
+      Year: 2019,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 432693158563,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2020,
+      Year: 2020,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 366314124058,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2020,
+      Year: 2020,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 406070750072,
-      "Type": "Observed"
+      Type: "Observed",
     },
     {
-      "Year": 2020,
+      Year: 2020,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 366314124058,
-      "Type": "Predicted"
+      Type: "Predicted",
     },
     {
-      "Year": 2020,
+      Year: 2020,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 406070750072,
-      "Type": "Predicted"
+      Type: "Predicted",
     },
     {
-      "Year": 2021,
+      Year: 2021,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 346314124058,
-      "Type": "Predicted"
+      Type: "Predicted",
     },
     {
-      "Year": 2021,
+      Year: 2021,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 386070750072,
-      "Type": "Predicted"
+      Type: "Predicted",
     },
     {
-      "Year": 2022,
+      Year: 2022,
       "Flow ID": 1,
-      "Flow": "Imports",
+      Flow: "Imports",
       "Trade Value": 336314124058,
-      "Type": "Predicted"
+      Type: "Predicted",
     },
     {
-      "Year": 2022,
+      Year: 2022,
       "Flow ID": 2,
-      "Flow": "Exports",
+      Flow: "Exports",
       "Trade Value": 396070750072,
-      "Type": "Predicted"
-    }
+      Type: "Predicted",
+    },
   ],
-  forecast: funcify(
-    d => d.Type === "Predicted",
-    `d => d.Type === "Predicted"`
-  ),
+  forecast: funcify(d => d.Type === "Predicted", `d => d.Type === "Predicted"`),
   groupBy: ["Type", "Flow"],
   time: "Year",
   x: "Year",
-  y: "Trade Value"
+  y: "Trade Value",
 };
-DottedLinePredictions.parameters = {controls: {include: ["forecast", "forecastConfig"]}, docs: {description: {story: "Give `forecast` a function that flags the predicted rows. Here each flow's prediction is its own series (grouped by `[\"Type\", \"Flow\"]`) that starts at the last observed year: its line is dashed, the observed history stays solid, and the forecast stretch gets a shaded backdrop, a rule at its start, and a translated \"Forecast\" label. Rows flagged within one series work too: the line dashes from its last unflagged point. Style or hide each piece with `forecastConfig`."}}};
+DottedLinePredictions.parameters = {
+  controls: {include: ["forecast", "forecastConfig"]},
+  docs: {
+    description: {
+      story:
+        'Give `forecast` a function that flags the predicted rows. Here each flow\'s prediction is its own series (grouped by `["Type", "Flow"]`) that starts at the last observed year: its line is dashed, the observed history stays solid, and the forecast stretch gets a shaded backdrop, a rule at its start, and a translated "Forecast" label. Rows flagged within one series work too: the line dashes from its last unflagged point. Style or hide each piece with `forecastConfig`.',
+    },
+  },
+};
 
 export const ForecastStart = Template.bind({});
 ForecastStart.args = {
@@ -692,9 +858,17 @@ ForecastStart.args = {
   groupBy: "Flow",
   time: "Year",
   x: "Year",
-  y: "Trade Value"
+  y: "Trade Value",
 };
-ForecastStart.parameters = {controls: {include: ["forecast", "forecastConfig"]}, docs: {description: {story: "A discrete-axis value (a year, or a date on a time axis) starts the forecast at that point for every line. `forecastConfig` relabels the backdrop and sets the dash of each line's forecast stretch."}}};
+ForecastStart.parameters = {
+  controls: {include: ["forecast", "forecastConfig"]},
+  docs: {
+    description: {
+      story:
+        "A discrete-axis value (a year, or a date on a time axis) starts the forecast at that point for every line. `forecastConfig` relabels the backdrop and sets the dash of each line's forecast stretch.",
+    },
+  },
+};
 
 export const QuarterlyData = Template.bind({});
 QuarterlyData.args = {
@@ -705,10 +879,18 @@ QuarterlyData.args = {
   x: "Quarter",
   y: "GDP",
   yConfig: {
-    title: "Billions of SAR"
-  }
+    title: "Billions of SAR",
+  },
 };
-QuarterlyData.parameters = {controls: {include: ["time"]}, docs: {description: {story: "Point `data` at a remote URL to load records directly, and set `time` (and `x`) to the `Quarter` field so d3plus parses the quarterly periods into an ordered time axis."}}};
+QuarterlyData.parameters = {
+  controls: {include: ["time"]},
+  docs: {
+    description: {
+      story:
+        "Point `data` at a remote URL to load records directly, and set `time` (and `x`) to the `Quarter` field so d3plus parses the quarterly periods into an ordered time axis.",
+    },
+  },
+};
 
 export const AxisBreak = Template.bind({});
 AxisBreak.args = {
@@ -719,11 +901,19 @@ AxisBreak.args = {
     {id: "Requests", day: 4, ms: 940},
     {id: "Requests", day: 5, ms: 51},
     {id: "Requests", day: 6, ms: 47},
-    {id: "Requests", day: 7, ms: 55}
+    {id: "Requests", day: 7, ms: 55},
   ],
   groupBy: "id",
   x: "day",
   y: "ms",
-  yBreak: [70, 900]
+  yBreak: [70, 900],
 };
-AxisBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "A single spike can squash the rest of a line. `yBreak` removes 70–900 from the y axis, so the everyday values keep their detail; the axis marks the break, two lines run across the plot from it, and the line is cut straight between them. Tooltips still report the real values."}}};
+AxisBreak.parameters = {
+  controls: {include: ["yBreak"]},
+  docs: {
+    description: {
+      story:
+        "A single spike can squash the rest of a line. `yBreak` removes 70–900 from the y axis, so the everyday values keep their detail; the axis marks the break, two lines run across the plot from it, and the line is cut straight between them. Tooltips still report the real values.",
+    },
+  },
+};

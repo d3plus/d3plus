@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>AxisBreaks · BarChart</title>
-    <meta name="description" content="Axis breaks on bar and line charts (baseline and outlier breaks, masked by default or with mask: false, horizontal bars) with an SVG/Canvas toggle.">
+    <meta
+      name="description"
+      content="Axis breaks on bar and line charts (baseline and outlier breaks, masked by default or with mask: false, horizontal bars) with an SVG/Canvas toggle."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -32,15 +33,17 @@
         height: 360px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="controls">
       Renderer:
-      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
-      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <label
+        ><input type="radio" name="renderer" value="svg" checked /> SVG</label
+      >
+      <label
+        ><input type="radio" name="renderer" value="canvas" /> Canvas</label
+      >
     </div>
     <div class="grid">
       <section>
@@ -74,7 +77,6 @@
     </div>
 
     <script>
-
       const starts = [
         {year: 2019, starts: 1290},
         {year: 2020, starts: 1380},
@@ -170,17 +172,21 @@
           .groupBy("service")
           .x("day")
           .y("ms")
-          .yBreak([[70, 400], [460, 900]]),
+          .yBreak([
+            [70, 400],
+            [460, 900],
+          ]),
       ];
 
-      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      const draw = renderer =>
+        charts.forEach(c => c.renderer(renderer).render());
       draw("svg");
 
-      document.querySelectorAll("input[name=renderer]").forEach(input =>
-        input.addEventListener("change", () => draw(input.value)));
-
+      document
+        .querySelectorAll("input[name=renderer]")
+        .forEach(input =>
+          input.addEventListener("change", () => draw(input.value)),
+        );
     </script>
-
   </body>
-
 </html>

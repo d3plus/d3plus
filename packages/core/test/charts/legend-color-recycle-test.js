@@ -109,9 +109,17 @@ it("collapses groups that intentionally share a color key into one entry", () =>
 
   const {legendData: out} = buildLegendData(viz);
 
-  assert.strictEqual(out.length, 3, "one entry per shared color key (continent)");
+  assert.strictEqual(
+    out.length,
+    3,
+    "one entry per shared color key (continent)",
+  );
   const continents = out.map(d => d.continent).sort();
-  assert.deepStrictEqual(continents, ["EU", "NA", "SA"], "grouped by continent");
+  assert.deepStrictEqual(
+    continents,
+    ["EU", "NA", "SA"],
+    "grouped by continent",
+  );
 });
 
 it("still splits entries that differ only by opacity", () => {

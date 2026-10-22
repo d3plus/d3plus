@@ -92,9 +92,7 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
   };
 
   const ids = (d: DataPoint, i: number) =>
-    snapGroupBy
-      .map(g => `${accessorFetch(g, d, i)}`)
-      .filter(Boolean);
+    snapGroupBy.map(g => `${accessorFetch(g, d, i)}`).filter(Boolean);
 
   const drawLabel = (d: DataPoint, i: number, depth?: number) => {
     // Resolve the effective depth at call time. Prefer the live
@@ -133,9 +131,13 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
 
 /** Whether the shapeConfig enables a persistent trail (a positive count or `true`). */
 function hasPersistentTrail(sc: Record<string, unknown> | undefined): boolean {
-  const on = (v: unknown): boolean => v === true || (typeof v === "number" && v > 0);
-  const shape = (k: string): unknown => (sc?.[k] as {trailPersist?: unknown} | undefined)?.trailPersist;
-  return !!sc && (on(sc.trailPersist) || on(shape("Circle")) || on(shape("Rect")));
+  const on = (v: unknown): boolean =>
+    v === true || (typeof v === "number" && v > 0);
+  const shape = (k: string): unknown =>
+    (sc?.[k] as {trailPersist?: unknown} | undefined)?.trailPersist;
+  return (
+    !!sc && (on(sc.trailPersist) || on(shape("Circle")) || on(shape("Rect")))
+  );
 }
 
 /**
@@ -181,7 +183,10 @@ export function vizPreDraw(viz: Viz): void {
   // partially-configured state the chart is in at its first draw.
   const drawDepth =
     viz.schema.depth !== void 0
-      ? (min([viz.schema.depth >= 0 ? viz.schema.depth : 0, viz.schema.groupBy.length - 1]) as number)
+      ? (min([
+          viz.schema.depth >= 0 ? viz.schema.depth : 0,
+          viz.schema.groupBy.length - 1,
+        ]) as number)
       : viz.schema.groupBy.length - 1;
   const {id, ids, drawLabel} = buildLabelClosures(viz, drawDepth);
 
@@ -204,7 +209,10 @@ export function vizPreDraw(viz: Viz): void {
   // automatically when `trailPersist` is set, so callers don't have to know.
   if (hasPersistentTrail(viz.schema.shapeConfig as Record<string, unknown>)) {
     (viz as {_axisPersist?: boolean})._axisPersist = true;
-    viz.schema.timelineConfig = {...(viz.schema.timelineConfig || {}), brushing: false};
+    viz.schema.timelineConfig = {
+      ...(viz.schema.timelineConfig || {}),
+      brushing: false,
+    };
   }
 
   // The threshold reads `this.schema.aggs`/`_drawDepth`/`_groupBy` through

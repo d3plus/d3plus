@@ -3,35 +3,34 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   p: {
     control: {},
-    description: "Configuration object with enter, exit, update, and parent options.",
+    description:
+      "Configuration object with enter, exit, update, and parent options.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "elemparams"
-    }
+      summary: "elemparams",
+    },
   },
   selector: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "A CSS selector string for the element tag and classes.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

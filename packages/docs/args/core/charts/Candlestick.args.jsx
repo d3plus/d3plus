@@ -6,234 +6,249 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Candlestick as D3plusCandlestick} from "@d3plus/react";
-export const Candlestick = ({ config }) => <D3plusCandlestick config={config} />;
+export const Candlestick = ({config}) => <D3plusCandlestick config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in Candlestick
    */
   Object.keys(plotArgTypes)
-    .filter(k => !k.match(/^(shape|discrete|discreteCutoff|barPadding|baseline|baselineBreak|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|labelPosition|confidence|confidenceConfig|swarm|swarmConfig|size|sizeLegend|sizeLegendConfig|sizeLegendPosition|sizeMax|sizeMin|sizeScale|trendLine|trendLineConfig)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .filter(
+      k =>
+        !k.match(
+          /^(shape|discrete|discreteCutoff|barPadding|baseline|baselineBreak|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|labelPosition|confidence|confidenceConfig|swarm|swarmConfig|size|sizeLegend|sizeLegendConfig|sizeLegendPosition|sizeMax|sizeMin|sizeScale|trendLine|trendLineConfig)$/,
+        ),
+    )
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * Candlestick-specific methods
    */
-  
+
   {
     bodyWidth: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0.7,
-      description: "The share of each period's room the candle body (or OHLC ticks) spans, from 0 to 1. Defaults to 0.7.",
+      description:
+        "The share of each period's room the candle body (or OHLC ticks) spans, from 0 to 1. Defaults to 0.7.",
       table: {
         defaultValue: {
-          summary: "0.7"
-        }
+          summary: "0.7",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     close: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it. Merged rows take the last row's close; `aggs` overrides it as it does for `open`.",
+      description:
+        "Accessor (or data key) for each period's closing value. Defaults to `\"close\"`. The close is the chart's `y`: setting `y` sets it, rows without one are skipped, and hover snaps to it. Merged rows take the last row's close; `aggs` overrides it as it does for `open`.",
       table: {
         defaultValue: {
-          summary: "\"close\""
-        }
+          summary: '"close"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     downColor: {
       control: {
-        type: "color"
+        type: "color",
       },
       defaultValue: "#e03131",
-      description: "The color of periods that closed below their open: a color string, or an accessor of the row. Defaults to red.",
+      description:
+        "The color of periods that closed below their open: a color string, or an accessor of the row. Defaults to red.",
       table: {
         defaultValue: {
-          summary: "#e03131"
-        }
+          summary: "#e03131",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     high: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor (or data key) for each period's highest value. Defaults to `\"high\"`; the high always reaches the open and close. Merged rows take the highest high; `aggs` overrides it as it does for `open`.",
+      description:
+        'Accessor (or data key) for each period\'s highest value. Defaults to `"high"`; the high always reaches the open and close. Merged rows take the highest high; `aggs` overrides it as it does for `open`.',
       table: {
         defaultValue: {
-          summary: "\"high\""
-        }
+          summary: '"high"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     hollow: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Draws rising candles as outlines and falling candles filled (default `true`), so direction reads without relying on color; `false` fills both. OHLC bars are never filled. An unfilled candle or bar takes no `shapeConfig.texture` or `shapeConfig.backgroundImage`; filled ones take both, with a texture's lines a shade darker than the body unless the texture sets its own `stroke`.",
+      description:
+        "Draws rising candles as outlines and falling candles filled (default `true`), so direction reads without relying on color; `false` fills both. OHLC bars are never filled. An unfilled candle or bar takes no `shapeConfig.texture` or `shapeConfig.backgroundImage`; filled ones take both, with a texture's lines a shade darker than the body unless the texture sets its own `stroke`.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     legend: {
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     low: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor (or data key) for each period's lowest value. Defaults to `\"low\"`; the low always reaches the open and close. Merged rows take the lowest low; `aggs` overrides it as it does for `open`.",
+      description:
+        'Accessor (or data key) for each period\'s lowest value. Defaults to `"low"`; the low always reaches the open and close. Merged rows take the lowest low; `aggs` overrides it as it does for `open`.',
       table: {
         defaultValue: {
-          summary: "\"low\""
-        }
+          summary: '"low"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     open: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor (or data key) for each period's opening value. Defaults to `\"open\"`; a row without one opens at its close. Rows that share a series and a period merge into one candle, taking the first row's open (in data order, so sort rows oldest first). Override with an `aggs` entry on the data key, or, for a function accessor, on `\"open\"`.",
+      description:
+        'Accessor (or data key) for each period\'s opening value. Defaults to `"open"`; a row without one opens at its close. Rows that share a series and a period merge into one candle, taking the first row\'s open (in data order, so sort rows oldest first). Override with an `aggs` entry on the data key, or, for a function accessor, on `"open"`.',
       table: {
         defaultValue: {
-          summary: "\"open\""
-        }
+          summary: '"open"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     skipGaps: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Places periods one slot apart in date order (default `true`), so days without data (weekends, holidays) leave no gap; `false` places each period at its date on a continuous time axis.",
+      description:
+        "Places periods one slot apart in date order (default `true`), so days without data (weekends, holidays) leave no gap; `false` places each period at its date on a continuous time axis.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     timeline: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: (d: DataPoint, i: number) => candleTooltipRows(viz, d, i)}"
-        }
-      }
+          summary:
+            "{tbody: (d: DataPoint, i: number) => candleTooltipRows(viz, d, i)}",
+        },
+      },
     },
     upColor: {
       control: {
-        type: "color"
+        type: "color",
       },
       defaultValue: "#2f9e44",
-      description: "The color of periods that closed at or above their open: a color string, or an accessor of the row. Defaults to green.",
+      description:
+        "The color of periods that closed at or above their open: a color string, or an accessor of the row. Defaults to green.",
       table: {
         defaultValue: {
-          summary: "#2f9e44"
-        }
+          summary: "#2f9e44",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     variant: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "candlestick",
-      description: "How each period draws: `\"candlestick\"` (default), a wick from the high to the low around a body from the open to the close; or `\"ohlc\"`, a line from the high to the low with the open ticked to the left and the close ticked to the right.",
-      options: [
-        "candlestick",
-        "ohlc"
-      ],
+      description:
+        'How each period draws: `"candlestick"` (default), a wick from the high to the low around a body from the open to the close; or `"ohlc"`, a line from the high to the low with the open ticked to the left and the close ticked to the right.',
+      options: ["candlestick", "ohlc"],
       table: {
         defaultValue: {
-          summary: "candlestick"
-        }
+          summary: "candlestick",
+        },
       },
       type: {
         required: false,
-        summary: "\"candlestick\" | \"ohlc\""
-      }
+        summary: '"candlestick" | "ohlc"',
+      },
     },
     volume: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor (or data key) for each period's traded volume. Off by default; when set, a strip under the candles draws one bar per candle, as tall as its volume on the strip's own axis (ticks abbreviated, e.g. \"1.2M\"), in its candle's up or down color, and the tooltip adds a Volume row. Bars are always filled, hollow candles included, and take `shapeConfig.texture` and `shapeConfig.backgroundImage` like filled candles; they hover with their candle. The price axis shrinks to make room, and the x axis sits under the strip. Merged rows add their volumes; an `aggs` entry overrides it as it does for `open`. Set `false` to turn it off.",
+      description:
+        "Accessor (or data key) for each period's traded volume. Off by default; when set, a strip under the candles draws one bar per candle, as tall as its volume on the strip's own axis (ticks abbreviated, e.g. \"1.2M\"), in its candle's up or down color, and the tooltip adds a Volume row. Bars are always filled, hollow candles included, and take `shapeConfig.texture` and `shapeConfig.backgroundImage` like filled candles; they hover with their candle. The price axis shrinks to make room, and the x axis sits under the strip. Merged rows add their volumes; an `aggs` entry overrides it as it does for `open`. Set `false` to turn it off.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | false | function"
-      }
+        summary: "string | false | function",
+      },
     },
     volumeConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The volume strip's layout and styling: `height`, its height as a share of the plot's (default `0.2`; pixels when above 1; at most half the plot); `gap`, the pixels between the candles and the strip (default `16`); `axisConfig`, Axis config for the strip's value axis; and `shapeConfig`, Path config for the bars (default `{fillOpacity: 0.5}`).",
+      description:
+        "The volume strip's layout and styling: `height`, its height as a share of the plot's (default `0.2`; pixels when above 1; at most half the plot); `gap`, the pixels between the candles and the strip (default `16`); `axisConfig`, Axis config for the strip's value axis; and `shapeConfig`, Path config for the bars (default `{fillOpacity: 0.5}`).",
       table: {
         defaultValue: {
-          summary: "{height: 0.2, gap: 16, axisConfig: {}, shapeConfig: {fillOpacity: 0.5}}"
-        }
+          summary:
+            "{height: 0.2, gap: 16, axisConfig: {}, shapeConfig: {fillOpacity: 0.5}}",
+        },
       },
       type: {
         required: false,
-        summary: "object"
-      }
-    }
-  }
+        summary: "object",
+      },
+    },
+  },
 );

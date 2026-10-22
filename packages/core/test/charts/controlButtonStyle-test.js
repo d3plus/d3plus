@@ -1,8 +1,15 @@
 import {it} from "vitest";
 import assert from "assert";
-import {controlButtonStyles, escapeHtml} from "../../src/charts/drawSteps/controlButtonStyle.ts";
+import {
+  controlButtonStyles,
+  escapeHtml,
+} from "../../src/charts/drawSteps/controlButtonStyle.ts";
 
-const defaults = {base: {color: "black"}, active: {color: "blue"}, hover: {color: "gray"}};
+const defaults = {
+  base: {color: "black"},
+  active: {color: "blue"},
+  hover: {color: "gray"},
+};
 
 it("controlButtonStyles resolves a control's base, active, and hover styles", () => {
   const custom = {color: "red"};
@@ -34,7 +41,10 @@ it("controlButtonStyles drops the untouched defaults once a class name is set", 
 });
 
 it("escapeHtml escapes markup characters and stringifies the value", () => {
-  assert.strictEqual(escapeHtml(`<a href="x">Tom & Jerry's</a>`), "&lt;a href=&quot;x&quot;&gt;Tom &amp; Jerry&#39;s&lt;/a&gt;");
+  assert.strictEqual(
+    escapeHtml(`<a href="x">Tom & Jerry's</a>`),
+    "&lt;a href=&quot;x&quot;&gt;Tom &amp; Jerry&#39;s&lt;/a&gt;",
+  );
   assert.strictEqual(escapeHtml(42), "42");
   assert.strictEqual(escapeHtml(null), "");
   assert.strictEqual(escapeHtml(undefined), "");

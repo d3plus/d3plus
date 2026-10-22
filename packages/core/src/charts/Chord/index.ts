@@ -25,7 +25,10 @@ import {applyChordLayout} from "./applyLayout.js";
 import {chordEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
 
-type ChordEdge = DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
+type ChordEdge = DataPoint & {
+  source?: {id: string | number};
+  target?: {id: string | number};
+};
 
 export const chordDef: ChartDefinition = {
   name: "Chord",
@@ -56,7 +59,9 @@ export const chordDef: ChartDefinition = {
       nodes: (data?: DataPoint[], formatter?: unknown) => unknown;
       nodeId: (id?: unknown) => unknown;
       value: (value?: unknown) => unknown;
-      hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
+      hover: (
+        predicate?: boolean | ((d: DataPoint, i: number) => boolean),
+      ) => unknown;
     };
     const v = viz as VizInstance & ChordFluent;
 
@@ -71,7 +76,12 @@ export const chordDef: ChartDefinition = {
       v.hover(false);
     };
     const defaultMouseMove = viz.schema.on["mousemove.shape"];
-    viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+    viz.schema.on["mousemove.shape"] = (
+      d: DataPoint,
+      i: number,
+      x: unknown,
+      event: MouseEvent,
+    ) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
         v.hover(false);
@@ -96,40 +106,56 @@ export const chordDef: ChartDefinition = {
       // An arc datum is a node — highlight it, its neighbor arcs, and every
       // incident ribbon.
       const id = viz.schema.nodeId(d, i) as string | number;
-      const neighbors = (viz.ctx.adjacency as Record<string, (string | number)[]>)[String(id)] ?? [];
+      const neighbors =
+        (viz.ctx.adjacency as Record<string, (string | number)[]>)[
+          String(id)
+        ] ?? [];
       const filterIds = [id, ...neighbors];
       v.hover((h: ChordEdge, hi: number) => {
-        if (h.source && h.target) return h.source.id === id || h.target.id === id;
+        if (h.source && h.target)
+          return h.source.id === id || h.target.id === id;
         return filterIds.includes(viz.schema.nodeId(h, hi) as string | number);
       });
     };
 
-    v.links = function(this: VizInstance, _: unknown, f?: unknown) {
+    v.links = function (this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+          _,
+          f,
+          "links",
+        );
         return this;
       }
       return this.schema.links;
     };
-    v.nodes = function(this: VizInstance, _: unknown, f?: unknown) {
+    v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+          _,
+          f,
+          "nodes",
+        );
         return this;
       }
       return this.schema.nodes;
     };
-    v.nodeId = function(this: VizInstance, _: unknown) {
+    v.nodeId = function (this: VizInstance, _: unknown) {
       return arguments.length
-        ? ((this.schema.nodeId = typeof _ === "function"
-            ? (_ as (...a: unknown[]) => unknown)
-            : accessor(_ as string)), this)
+        ? ((this.schema.nodeId =
+            typeof _ === "function"
+              ? (_ as (...a: unknown[]) => unknown)
+              : accessor(_ as string)),
+          this)
         : this.schema.nodeId;
     };
-    v.value = function(this: VizInstance, _: unknown) {
+    v.value = function (this: VizInstance, _: unknown) {
       if (!arguments.length) return this.schema.value;
-      this.schema.value = (typeof _ === "function"
-        ? (_ as (...a: unknown[]) => unknown)
-        : accessor(_ as string)) as (d: DataPoint, i: number) => number;
+      this.schema.value = (
+        typeof _ === "function"
+          ? (_ as (...a: unknown[]) => unknown)
+          : accessor(_ as string)
+      ) as (d: DataPoint, i: number) => number;
       return this;
     };
     v.hover = simpleHover;

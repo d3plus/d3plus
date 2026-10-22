@@ -42,7 +42,10 @@ export function axisScaleData(axis: Axis): unknown[] {
     The dates of a time axis's `data` inside its scale's domain: what the axis ticks, so a domain narrower than the data (a zoomed view) ticks the window it shows.
     @private
 */
-export function timeDataInDomain(data: Date[], scale: {domain(): unknown[]}): Date[] {
+export function timeDataInDomain(
+  data: Date[],
+  scale: {domain(): unknown[]},
+): Date[] {
   const [lo, hi] = (extent(scale.domain() as Date[]) as Date[]).map(Number);
   return data.filter(d => +d >= lo && +d <= hi);
 }
@@ -64,7 +67,9 @@ export function axisTimeDomain(axis: Axis): Date[] {
     @private
 */
 export function axisTimeLocale(axis: Axis): TimeLocaleDefinition {
-  return axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"];
+  return (
+    axis.schema.timeLocale || locale[axis.schema.locale] || locale["en-US"]
+  );
 }
 
 /**
@@ -72,9 +77,14 @@ export function axisTimeLocale(axis: Axis): TimeLocaleDefinition {
     @private
 */
 export function axisTimeReference(axis: Axis): Date[] {
-  const {_scaleData: data, schema: {domain}} = axis;
+  const {
+    _scaleData: data,
+    schema: {domain},
+  } = axis;
   return axisMemo(axis, "timeReference", [data, domain], () =>
-    parseTimeValues(data.length ? data : domain).sort((a: Date, b: Date) => +a - +b),
+    parseTimeValues(data.length ? data : domain).sort(
+      (a: Date, b: Date) => +a - +b,
+    ),
   );
 }
 
@@ -88,22 +98,33 @@ export function axisDateLabel(axis: Axis, d: Date): string {
   // Every mark reads its date this way, so the interval is read once per set of dates.
   const label = dates.length
     ? axisMemo(axis, "dateLabel", [dates, timeLocale], () =>
-      dateFullFormatter(dates, localeFormat(timeLocale)))(d)
+        dateFullFormatter(dates, localeFormat(timeLocale)),
+      )(d)
     : formatDateFull(d, [d], localeFormat(timeLocale));
   return label.replace(/^Q/, timeLocale.quarter);
 }
 
 /** The `format` of a time locale, built once per locale definition. */
-function localeFormat(timeLocale: TimeLocaleDefinition): (specifier: string) => (date: Date) => string {
+function localeFormat(
+  timeLocale: TimeLocaleDefinition,
+): (specifier: string) => (date: Date) => string {
   let format = localeFormats.get(timeLocale);
-  if (!format) localeFormats.set(timeLocale, (format = timeFormatLocale(timeLocale).format));
+  if (!format)
+    localeFormats.set(
+      timeLocale,
+      (format = timeFormatLocale(timeLocale).format),
+    );
   return format;
 }
 
-const localeFormats = new WeakMap<TimeLocaleDefinition, (specifier: string) => (date: Date) => string>();
+const localeFormats = new WeakMap<
+  TimeLocaleDefinition,
+  (specifier: string) => (date: Date) => string
+>();
 
 /** Whether a value is a Date that holds a valid time. */
-export const isValidDate = (d: unknown): d is Date => d instanceof Date && !isNaN(+d);
+export const isValidDate = (d: unknown): d is Date =>
+  d instanceof Date && !isNaN(+d);
 
 /** Whether an axis places discrete categories (band, ordinal, or point scale) rather than a continuous range. */
 export const isCategoryAxis = (axis: Axis): boolean =>
@@ -114,7 +135,10 @@ export const isCategoryAxis = (axis: Axis): boolean =>
     @private
 */
 export function axisDateCategories(axis: Axis): Date[] {
-  const {_scaleData: data, schema: {domain: values}} = axis;
+  const {
+    _scaleData: data,
+    schema: {domain: values},
+  } = axis;
   return axisMemo(axis, "dateCategories", [values, data], () => {
     const pick = (values: unknown): Date[] =>
       Array.isArray(values) ? values.filter(isValidDate) : [];
@@ -132,7 +156,9 @@ export function axisDateCategories(axis: Axis): Date[] {
     @private
 */
 function axisDateReference(axis: Axis): Date[] {
-  return axis.schema.scale === "time" ? axisTimeReference(axis) : axisDateCategories(axis);
+  return axis.schema.scale === "time"
+    ? axisTimeReference(axis)
+    : axisDateCategories(axis);
 }
 
 /**
@@ -155,13 +181,24 @@ const shownDatesCache = new WeakMap<Axis, [unknown[], Date[]]>();
     Reads `compute` once for an axis until any of `sources` changes (a new value, or an array of a new length) or `resetAxisDates` clears the axis, so a value read from all of an axis's dates (e.g. once per label or per mark) is read once per set of dates.
     @private
 */
-function axisMemo<T>(axis: Axis, key: string, sources: unknown[], compute: () => T): T {
-  const fingerprint = sources.flatMap(s => (Array.isArray(s) ? [s, s.length] : [s]));
+function axisMemo<T>(
+  axis: Axis,
+  key: string,
+  sources: unknown[],
+  compute: () => T,
+): T {
+  const fingerprint = sources.flatMap(s =>
+    Array.isArray(s) ? [s, s.length] : [s],
+  );
   let memos = axisMemos.get(axis);
   if (!memos) axisMemos.set(axis, (memos = new Map()));
   const memo = memos.get(key) as AxisMemo<T> | undefined;
-  if (memo && memo.fingerprint.length === fingerprint.length &&
-    memo.fingerprint.every((s, i) => s === fingerprint[i])) return memo.value;
+  if (
+    memo &&
+    memo.fingerprint.length === fingerprint.length &&
+    memo.fingerprint.every((s, i) => s === fingerprint[i])
+  )
+    return memo.value;
   const value = compute();
   memos.set(key, {fingerprint, value});
   return value;

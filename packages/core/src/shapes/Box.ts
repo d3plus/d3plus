@@ -54,7 +54,12 @@ const boxSchema: ConfigField[] = [
 ];
 
 /** The Box's own fill styling that its box Rect takes unless `rectConfig` sets it. */
-const boxRectKeys = ["backgroundImage", "backgroundImageFit", "texture", "textureDefault"];
+const boxRectKeys = [
+  "backgroundImage",
+  "backgroundImageFit",
+  "texture",
+  "textureDefault",
+];
 
 /**
     The box Rect's config: `rectConfig`, plus the Box's own `texture`,
@@ -73,7 +78,10 @@ export function boxRectConfig(
     config[key] =
       typeof value === "function"
         ? (d: DataPoint) =>
-            (value as (d: DataPoint, i: number) => unknown)(d.data as DataPoint, d.i as number)
+            (value as (d: DataPoint, i: number) => unknown)(
+              d.data as DataPoint,
+              d.i as number,
+            )
         : value;
   }
   return {...config, ...rectConfig};
@@ -90,8 +98,7 @@ function applyWhiskerLimits(
 ): void {
   if (mode[0] === "tukey") {
     (d as Record<string, unknown>).lowerLimit =
-      (d.first as number) -
-      ((d.third as number) - (d.first as number)) * 1.5;
+      (d.first as number) - ((d.third as number) - (d.first as number)) * 1.5;
     if ((d.lowerLimit as number) < min(values)!)
       (d as Record<string, unknown>).lowerLimit = min(values);
   } else if (mode[0] === "extent")
@@ -101,8 +108,7 @@ function applyWhiskerLimits(
 
   if (mode[1] === "tukey") {
     (d as Record<string, unknown>).upperLimit =
-      (d.third as number) +
-      ((d.third as number) - (d.first as number)) * 1.5;
+      (d.third as number) + ((d.third as number) - (d.first as number)) * 1.5;
     if ((d.upperLimit as number) > max(values)!)
       (d as Record<string, unknown>).upperLimit = max(values);
   } else if (mode[1] === "extent")
@@ -354,7 +360,9 @@ export default class Box extends BaseClass {
     // Shape.render() honors it as long as renderMode is "compute".
     const mountInner = (parent: string): D3Selection["node"] | null => {
       if (compute) return null as unknown as D3Selection["node"];
-      return elem(parent, {parent: this._select}).node() as unknown as D3Selection["node"];
+      return elem(parent, {
+        parent: this._select,
+      }).node() as unknown as D3Selection["node"];
     };
 
     const outlierData: DataPoint[] = [];
@@ -368,7 +376,9 @@ export default class Box extends BaseClass {
     const ids = uniqueIds(
       boxGroups.map(([key, groupData]) => {
         const first = groupData[0];
-        const id = this.schema.id ? this.schema.id(first, this._data.indexOf(first)) : undefined;
+        const id = this.schema.id
+          ? this.schema.id(first, this._data.indexOf(first))
+          : undefined;
         return `${id ?? key}`;
       }),
     );
@@ -377,7 +387,8 @@ export default class Box extends BaseClass {
       const start = outlierData.length;
       const d = computeBoxGroup(this, group, ids[i], outlierData);
       const owned = {datum: d, index: i};
-      for (const record of [d, ...outlierData.slice(start)]) this._owned.set(record, owned);
+      for (const record of [d, ...outlierData.slice(start)])
+        this._owned.set(record, owned);
       return d;
     });
 
@@ -392,7 +403,10 @@ export default class Box extends BaseClass {
       .config(
         boxRectConfig(
           this.schema,
-          configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.rectConfig, "shape")!,
+          configPrep.bind(this as unknown as ConfigPrepHost)(
+            this.schema.rectConfig,
+            "shape",
+          )!,
         ),
       )
       .render();
@@ -407,7 +421,12 @@ export default class Box extends BaseClass {
       .width((d: DataPoint) => (d.orient === "vertical" ? d.width : 1))
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
-      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.medianConfig, "shape")!)
+      .config(
+        configPrep.bind(this as unknown as ConfigPrepHost)(
+          this.schema.medianConfig,
+          "shape",
+        )!,
+      )
       .render();
 
     // Draw 2 lines using Whisker class.
@@ -419,7 +438,12 @@ export default class Box extends BaseClass {
       .data(whiskerData)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Whisker") as never)
-      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.whiskerConfig, "shape")!)
+      .config(
+        configPrep.bind(this as unknown as ConfigPrepHost)(
+          this.schema.whiskerConfig,
+          "shape",
+        )!,
+      )
       .render();
 
     // Draw outliers.
@@ -431,7 +455,13 @@ export default class Box extends BaseClass {
             .data(values)
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
-            .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.outlierConfig, "shape", shapeName as string)!)
+            .config(
+              configPrep.bind(this as unknown as ConfigPrepHost)(
+                this.schema.outlierConfig,
+                "shape",
+                shapeName as string,
+              )!,
+            )
             .render(),
         );
       },
@@ -450,8 +480,11 @@ export default class Box extends BaseClass {
   */
   toScene(): GroupNode {
     const children: SceneNode[] = [];
-    const push = (shape: {toScene?: () => GroupNode | null | undefined} | undefined): void => {
-      const g = shape && typeof shape.toScene === "function" ? shape.toScene() : null;
+    const push = (
+      shape: {toScene?: () => GroupNode | null | undefined} | undefined,
+    ): void => {
+      const g =
+        shape && typeof shape.toScene === "function" ? shape.toScene() : null;
       if (g && Array.isArray(g.children)) children.push(...g.children);
     };
     push(this._box);
@@ -508,7 +541,8 @@ export default class Box extends BaseClass {
   medianConfig(_: Record<string, unknown>): this;
   medianConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.medianConfig = mergeConfigBag(this, "medianConfig", _)), this)
+      ? ((this.schema.medianConfig = mergeConfigBag(this, "medianConfig", _)),
+        this)
       : this.schema.medianConfig;
   }
 
@@ -519,7 +553,8 @@ export default class Box extends BaseClass {
   outlierConfig(_: Record<string, unknown>): this;
   outlierConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.outlierConfig = mergeConfigBag(this, "outlierConfig", _)), this)
+      ? ((this.schema.outlierConfig = mergeConfigBag(this, "outlierConfig", _)),
+        this)
       : this.schema.outlierConfig;
   }
 
@@ -552,7 +587,8 @@ export default class Box extends BaseClass {
   whiskerConfig(_: Record<string, unknown>): this;
   whiskerConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.whiskerConfig = mergeConfigBag(this, "whiskerConfig", _)), this)
+      ? ((this.schema.whiskerConfig = mergeConfigBag(this, "whiskerConfig", _)),
+        this)
       : this.schema.whiskerConfig;
   }
 
@@ -570,4 +606,10 @@ export default class Box extends BaseClass {
   }
 }
 
-resolvesReset(Box.prototype, "medianConfig", "outlierConfig", "rectConfig", "whiskerConfig");
+resolvesReset(
+  Box.prototype,
+  "medianConfig",
+  "outlierConfig",
+  "rectConfig",
+  "whiskerConfig",
+);

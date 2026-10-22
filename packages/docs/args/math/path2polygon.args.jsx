@@ -3,38 +3,37 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   path: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An SVG string path, commonly the \"d\" property of a <path> element.",
+    description:
+      'An SVG string path, commonly the "d" property of a <path> element.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   segmentLength: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "50",
     description: "The maximum length of line segments when flattening curves.",
     table: {
       defaultValue: {
-        summary: "50"
-      }
+        summary: "50",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

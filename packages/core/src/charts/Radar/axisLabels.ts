@@ -47,8 +47,10 @@ export function radarLabelRoom(
   const c = Math.abs(Math.cos(angle));
   const s = Math.abs(Math.sin(angle));
   let room = Infinity;
-  if (c > EPSILON) room = Math.min(room, (width / 2 - (h / 2) * s) / c - r - padding);
-  if (s > EPSILON) room = Math.min(room, (height / 2 - (h / 2) * c) / s - r - padding);
+  if (c > EPSILON)
+    room = Math.min(room, (width / 2 - (h / 2) * s) / c - r - padding);
+  if (s > EPSILON)
+    room = Math.min(room, (height / 2 - (h / 2) * c) / s - r - padding);
   return room;
 }
 
@@ -67,8 +69,13 @@ export function radarFitRadius(
   for (const b of boxes) {
     const c = Math.abs(Math.cos(b.angle));
     const s = Math.abs(Math.sin(b.angle));
-    if (c > EPSILON) r = Math.min(r, (width / 2 - (b.height / 2) * s) / c - padding - b.width);
-    if (s > EPSILON) r = Math.min(r, (height / 2 - (b.height / 2) * c) / s - padding - b.width);
+    if (c > EPSILON)
+      r = Math.min(r, (width / 2 - (b.height / 2) * s) / c - padding - b.width);
+    if (s > EPSILON)
+      r = Math.min(
+        r,
+        (height / 2 - (b.height / 2) * c) / s - padding - b.width,
+      );
   }
   return Math.max(0, r);
 }
@@ -102,7 +109,13 @@ export interface RadarAxisLabelOpts<L extends RadarAxisLabelInput> {
 export interface RadarAxisLabelLayout {
   radius: number;
   /** Per label: the wrap width to lay it out in, and its resulting box. */
-  labels: {wrapWidth: number; width: number; height: number; lines: number; truncated: boolean}[];
+  labels: {
+    wrapWidth: number;
+    width: number;
+    height: number;
+    lines: number;
+    truncated: boolean;
+  }[];
 }
 
 /**
@@ -123,7 +136,11 @@ export function radarAxisLabelLayout<L extends RadarAxisLabelInput>(
 
   const single = labels.map(l => measure(l));
   const singleRadius = radarFitRadius(
-    labels.map((l, i) => ({angle: l.angle, width: single[i], height: l.lineHeight})),
+    labels.map((l, i) => ({
+      angle: l.angle,
+      width: single[i],
+      height: l.lineHeight,
+    })),
     width,
     height,
     padding,
@@ -143,9 +160,25 @@ export function radarAxisLabelLayout<L extends RadarAxisLabelInput>(
 
   const layoutAt = (r: number): RadarAxisLabelLayout["labels"] =>
     labels.map((l, i) => {
-      if (single[i] <= radarLabelRoom(l.angle, r, l.lineHeight, width, height, padding))
-        return {wrapWidth: single[i] + 1, width: single[i], height: l.lineHeight, lines: 1, truncated: false};
-      const room = radarLabelRoom(l.angle, r, l.lineHeight * maxLines, width, height, padding);
+      if (
+        single[i] <=
+        radarLabelRoom(l.angle, r, l.lineHeight, width, height, padding)
+      )
+        return {
+          wrapWidth: single[i] + 1,
+          width: single[i],
+          height: l.lineHeight,
+          lines: 1,
+          truncated: false,
+        };
+      const room = radarLabelRoom(
+        l.angle,
+        r,
+        l.lineHeight * maxLines,
+        width,
+        height,
+        padding,
+      );
       const wrapWidth = Math.max(0, room);
       const res = wrap(l, wrapWidth, maxLines);
       return {
@@ -156,7 +189,8 @@ export function radarAxisLabelLayout<L extends RadarAxisLabelInput>(
         truncated: res.truncated,
       };
     });
-  const fits = (layout: RadarAxisLabelLayout["labels"]): boolean => layout.every(l => !l.truncated);
+  const fits = (layout: RadarAxisLabelLayout["labels"]): boolean =>
+    layout.every(l => !l.truncated);
 
   let lo = minRadius;
   let best = layoutAt(lo);

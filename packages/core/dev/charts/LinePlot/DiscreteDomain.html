@@ -1,92 +1,89 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DiscreteDomain · LinePlot</title>
+    <meta
+      name="description"
+      content="xDomain and xConfig.domain on a discrete x axis list the categories it shows, on LinePlots and a BarChart."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 0;
+      }
+      .chart {
+        display: inline-block;
+        height: 300px;
+        width: 500px;
+      }
+    </style>
+  </head>
 
-  <meta charset="utf-8">
-  <title>DiscreteDomain · LinePlot</title>
-  <meta name="description" content="xDomain and xConfig.domain on a discrete x axis list the categories it shows, on LinePlots and a BarChart.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+  <body>
+    <div class="chart" id="years"></div>
+    <div class="chart" id="strings"></div>
+    <div class="chart" id="config"></div>
+    <div class="chart" id="bars"></div>
+  </body>
 
-  <style>
-    body {
-      margin: 0;
-    }
-    .chart {
-      display: inline-block;
-      height: 300px;
-      width: 500px;
-    }
-  </style>
+  <script>
+    const data = ["Alpha", "Beta"].flatMap((id, j) =>
+      [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({
+        id,
+        year,
+        quarter: `Q${(i % 4) + 1} ${2015 + Math.floor(i / 4)}`,
+        value: (i + 1) * (j + 2) + (i % 2 ? 3 : 0),
+      })),
+    );
 
-</head>
+    const config = {
+      data,
+      groupBy: "id",
+      legend: false,
+      y: "value",
+    };
 
-<body>
-  <div class="chart" id="years"></div>
-  <div class="chart" id="strings"></div>
-  <div class="chart" id="config"></div>
-  <div class="chart" id="bars"></div>
-</body>
+    new d3plus.LinePlot()
+      .config({
+        ...config,
+        title: "xDomain: [2016, 2018, 2019]",
+        x: "year",
+        xDomain: [2016, 2018, 2019],
+      })
+      .select("#years")
+      .render();
 
-<script>
+    new d3plus.LinePlot()
+      .config({
+        ...config,
+        title: "xDomain on string categories",
+        x: "quarter",
+        xDomain: ["Q2 2015", "Q3 2015", "Q4 2015", "Q1 2016"],
+      })
+      .select("#strings")
+      .render();
 
-const data = ["Alpha", "Beta"].flatMap((id, j) =>
-  [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({
-    id,
-    year,
-    quarter: `Q${i % 4 + 1} ${2015 + Math.floor(i / 4)}`,
-    value: (i + 1) * (j + 2) + (i % 2 ? 3 : 0)
-  }))
-);
+    new d3plus.LinePlot()
+      .config({
+        ...config,
+        title: "xConfig.domain with an extra empty category",
+        x: "year",
+        xConfig: {domain: [2017, 2018, 2019, 2020, 2021]},
+      })
+      .select("#config")
+      .render();
 
-const config = {
-  data,
-  groupBy: "id",
-  legend: false,
-  y: "value"
-};
-
-new d3plus.LinePlot()
-  .config({
-    ...config,
-    title: "xDomain: [2016, 2018, 2019]",
-    x: "year",
-    xDomain: [2016, 2018, 2019]
-  })
-  .select("#years")
-  .render();
-
-new d3plus.LinePlot()
-  .config({
-    ...config,
-    title: "xDomain on string categories",
-    x: "quarter",
-    xDomain: ["Q2 2015", "Q3 2015", "Q4 2015", "Q1 2016"]
-  })
-  .select("#strings")
-  .render();
-
-new d3plus.LinePlot()
-  .config({
-    ...config,
-    title: "xConfig.domain with an extra empty category",
-    x: "year",
-    xConfig: {domain: [2017, 2018, 2019, 2020, 2021]}
-  })
-  .select("#config")
-  .render();
-
-new d3plus.BarChart()
-  .config({
-    ...config,
-    title: "BarChart xDomain: [2016, 2019]",
-    x: "year",
-    xDomain: [2016, 2019]
-  })
-  .select("#bars")
-  .render();
-
-</script>
-
+    new d3plus.BarChart()
+      .config({
+        ...config,
+        title: "BarChart xDomain: [2016, 2019]",
+        x: "year",
+        xDomain: [2016, 2019],
+      })
+      .select("#bars")
+      .render();
+  </script>
 </html>

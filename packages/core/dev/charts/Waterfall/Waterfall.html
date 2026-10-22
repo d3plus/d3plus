@@ -1,197 +1,262 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Waterfall</title>
+    <meta
+      name="description"
+      content="Waterfall subtotals, a broken axis zoomed in on a bridge (masked, and unmasked), horizontal bars, side-by-side series, small multiples, custom colors, and a dark background."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 380px;
+      }
+      .wide {
+        grid-column: span 2;
+      }
+      .dark {
+        background: #1b1d21;
+        color: #e9ecef;
+        padding: 8px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Income statement with subtotals</h3>
+        <div class="viz" id="income"></div>
+      </div>
+      <div>
+        <h3>Horizontal: discrete("y")</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Bridge from 1,000 to 1,020: yDomain([980])</h3>
+        <div class="viz" id="break"></div>
+      </div>
+      <div>
+        <h3>Horizontal bridge: xDomain([980])</h3>
+        <div class="viz" id="breakHorizontal"></div>
+      </div>
+      <div>
+        <h3>Unmasked break: yConfig({baselineBreakConfig: {mask: false}})</h3>
+        <div class="viz" id="breakUnmasked"></div>
+      </div>
+      <div>
+        <h3>
+          Unmasked horizontal break: xConfig({baselineBreakConfig: {mask:
+          false}})
+        </h3>
+        <div class="viz" id="breakUnmaskedHorizontal"></div>
+      </div>
+      <div>
+        <h3>Monthly cash flow, dashed connectors</h3>
+        <div class="viz" id="cash"></div>
+      </div>
+      <div>
+        <h3>Series side by side (groupBy)</h3>
+        <div class="viz" id="series"></div>
+      </div>
+      <div class="wide">
+        <h3>Small multiples (facet by year)</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>Custom colors, no connectors, no labels</h3>
+        <div class="viz" id="colors"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark background</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>Waterfall</title>
-  <meta name="description" content="Waterfall subtotals, a broken axis zoomed in on a bridge (masked, and unmasked), horizontal bars, side-by-side series, small multiples, custom colors, and a dark background.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <style>
-    body { font-family: sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .viz { height: 380px; }
-    .wide { grid-column: span 2; }
-    .dark { background: #1b1d21; color: #e9ecef; padding: 8px; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-  </style>
+  <script>
+    const income = [
+      {item: "Revenue", amount: 420, subtotal: true},
+      {item: "Cost of Goods", amount: -180},
+      {item: "Gross Profit", subtotal: true},
+      {item: "Marketing", amount: -45},
+      {item: "R&D", amount: -60},
+      {item: "Other Income", amount: 25},
+      {item: "Operating Income", subtotal: true},
+      {item: "Taxes", amount: -38},
+      {item: "Net Income", subtotal: true},
+    ];
 
-</head>
+    new d3plus.Waterfall()
+      .select("#income")
+      .data(income)
+      .x("item")
+      .y("amount")
+      .subtotal("subtotal")
+      .render();
 
-<body>
-  <div class="grid">
-    <div><h3>Income statement with subtotals</h3><div class="viz" id="income"></div></div>
-    <div><h3>Horizontal: discrete("y")</h3><div class="viz" id="horizontal"></div></div>
-    <div><h3>Bridge from 1,000 to 1,020: yDomain([980])</h3><div class="viz" id="break"></div></div>
-    <div><h3>Horizontal bridge: xDomain([980])</h3><div class="viz" id="breakHorizontal"></div></div>
-    <div><h3>Unmasked break: yConfig({baselineBreakConfig: {mask: false}})</h3><div class="viz" id="breakUnmasked"></div></div>
-    <div><h3>Unmasked horizontal break: xConfig({baselineBreakConfig: {mask: false}})</h3><div class="viz" id="breakUnmaskedHorizontal"></div></div>
-    <div><h3>Monthly cash flow, dashed connectors</h3><div class="viz" id="cash"></div></div>
-    <div><h3>Series side by side (groupBy)</h3><div class="viz" id="series"></div></div>
-    <div class="wide"><h3>Small multiples (facet by year)</h3><div class="viz" id="facet"></div></div>
-    <div><h3>Custom colors, no connectors, no labels</h3><div class="viz" id="colors"></div></div>
-    <div class="dark"><h3>Dark background</h3><div class="viz" id="dark"></div></div>
-  </div>
-</body>
+    new d3plus.Waterfall()
+      .select("#horizontal")
+      .data(income)
+      .discrete("y")
+      .y("item")
+      .x("amount")
+      .subtotal("subtotal")
+      .render();
 
-<script>
+    const bridge = [
+      {driver: "Opening", value: 1000, subtotal: true},
+      {driver: "Price", value: 15},
+      {driver: "Volume", value: -8},
+      {driver: "Mix", value: 13},
+      {driver: "Closing", subtotal: true},
+    ];
 
-  const income = [
-    {item: "Revenue", amount: 420, subtotal: true},
-    {item: "Cost of Goods", amount: -180},
-    {item: "Gross Profit", subtotal: true},
-    {item: "Marketing", amount: -45},
-    {item: "R&D", amount: -60},
-    {item: "Other Income", amount: 25},
-    {item: "Operating Income", subtotal: true},
-    {item: "Taxes", amount: -38},
-    {item: "Net Income", subtotal: true},
-  ];
+    // The axis starts at 980 and keeps 0 behind a break; subtotals rise from
+    // 0 through it. (baseline(980) renders the same once it sets the domain
+    // minimum, #945.)
+    new d3plus.Waterfall()
+      .select("#break")
+      .data(bridge)
+      .x("driver")
+      .y("value")
+      .subtotal("subtotal")
+      .yDomain([980])
+      .render();
 
-  new d3plus.Waterfall()
-    .select("#income")
-    .data(income)
-    .x("item")
-    .y("amount")
-    .subtotal("subtotal")
-    .render();
+    new d3plus.Waterfall()
+      .select("#breakHorizontal")
+      .data(bridge)
+      .discrete("y")
+      .y("driver")
+      .x("value")
+      .subtotal("subtotal")
+      .xDomain([980])
+      .render();
 
-  new d3plus.Waterfall()
-    .select("#horizontal")
-    .data(income)
-    .discrete("y")
-    .y("item")
-    .x("amount")
-    .subtotal("subtotal")
-    .render();
+    // As in BarChart, the baseline break cuts its gap out of every bar unless
+    // its config turns the mask off, and the bars run solid through it.
+    new d3plus.Waterfall()
+      .select("#breakUnmasked")
+      .data(bridge)
+      .x("driver")
+      .y("value")
+      .subtotal("subtotal")
+      .yDomain([980])
+      .yConfig({baselineBreakConfig: {mask: false}})
+      .render();
 
-  const bridge = [
-    {driver: "Opening", value: 1000, subtotal: true},
-    {driver: "Price", value: 15},
-    {driver: "Volume", value: -8},
-    {driver: "Mix", value: 13},
-    {driver: "Closing", subtotal: true},
-  ];
+    new d3plus.Waterfall()
+      .select("#breakUnmaskedHorizontal")
+      .data(bridge)
+      .discrete("y")
+      .y("driver")
+      .x("value")
+      .subtotal("subtotal")
+      .xDomain([980])
+      .xConfig({baselineBreakConfig: {mask: false}})
+      .render();
 
-  // The axis starts at 980 and keeps 0 behind a break; subtotals rise from
-  // 0 through it. (baseline(980) renders the same once it sets the domain
-  // minimum, #945.)
-  new d3plus.Waterfall()
-    .select("#break")
-    .data(bridge)
-    .x("driver")
-    .y("value")
-    .subtotal("subtotal")
-    .yDomain([980])
-    .render();
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+    const flows = [12, -8, 15, 9, -14, -6, 20, 4, -11, 7, 13, -5];
+    const cash = [
+      {month: "Opening", flow: 50, subtotal: true},
+      ...months.map((month, i) => ({month, flow: flows[i]})),
+      {month: "Closing", subtotal: true},
+    ];
 
-  new d3plus.Waterfall()
-    .select("#breakHorizontal")
-    .data(bridge)
-    .discrete("y")
-    .y("driver")
-    .x("value")
-    .subtotal("subtotal")
-    .xDomain([980])
-    .render();
+    new d3plus.Waterfall()
+      .select("#cash")
+      .data(cash)
+      .x("month")
+      .y("flow")
+      .subtotal("subtotal")
+      .connectorConfig({strokeDasharray: "3 2"})
+      .render();
 
-  // As in BarChart, the baseline break cuts its gap out of every bar unless
-  // its config turns the mask off, and the bars run solid through it.
-  new d3plus.Waterfall()
-    .select("#breakUnmasked")
-    .data(bridge)
-    .x("driver")
-    .y("value")
-    .subtotal("subtotal")
-    .yDomain([980])
-    .yConfig({baselineBreakConfig: {mask: false}})
-    .render();
+    const regions = ["North", "South"].flatMap((region, r) => [
+      {region, step: "Q1", change: r ? 30 : 40},
+      {region, step: "Q2", change: r ? -10 : 25},
+      {region, step: "Q3", change: r ? 22 : -15},
+      {region, step: "Q4", change: r ? 8 : 18},
+      {region, step: "Year", subtotal: true},
+    ]);
 
-  new d3plus.Waterfall()
-    .select("#breakUnmaskedHorizontal")
-    .data(bridge)
-    .discrete("y")
-    .y("driver")
-    .x("value")
-    .subtotal("subtotal")
-    .xDomain([980])
-    .xConfig({baselineBreakConfig: {mask: false}})
-    .render();
+    new d3plus.Waterfall()
+      .select("#series")
+      .data(regions)
+      .groupBy("region")
+      .x("step")
+      .y("change")
+      .subtotal("subtotal")
+      .render();
 
-  const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  const flows = [12, -8, 15, 9, -14, -6, 20, 4, -11, 7, 13, -5];
-  const cash = [
-    {month: "Opening", flow: 50, subtotal: true},
-    ...months.map((month, i) => ({month, flow: flows[i]})),
-    {month: "Closing", subtotal: true},
-  ];
+    const years = [2023, 2024, 2025].flatMap((year, y) => [
+      {year, driver: "Start", value: 100 + y * 20, subtotal: true},
+      {year, driver: "Price", value: 12 - y * 9},
+      {year, driver: "Volume", value: -6 + y * 8},
+      {year, driver: "Mix", value: 4 - y * 3},
+      {year, driver: "FX", value: -3 - y},
+      {year, driver: "End", subtotal: true},
+    ]);
 
-  new d3plus.Waterfall()
-    .select("#cash")
-    .data(cash)
-    .x("month")
-    .y("flow")
-    .subtotal("subtotal")
-    .connectorConfig({strokeDasharray: "3 2"})
-    .render();
+    new d3plus.Waterfall()
+      .select("#facet")
+      .data(years)
+      .facet("year")
+      .x("driver")
+      .y("value")
+      .subtotal("subtotal")
+      .render();
 
-  const regions = ["North", "South"].flatMap((region, r) => [
-    {region, step: "Q1", change: r ? 30 : 40},
-    {region, step: "Q2", change: r ? -10 : 25},
-    {region, step: "Q3", change: r ? 22 : -15},
-    {region, step: "Q4", change: r ? 8 : 18},
-    {region, step: "Year", subtotal: true},
-  ]);
+    new d3plus.Waterfall()
+      .select("#colors")
+      .data(cash)
+      .x("month")
+      .y("flow")
+      .subtotal("subtotal")
+      .increaseColor("#1098ad")
+      .decreaseColor("#e67700")
+      .totalColor("#495057")
+      .connectors(false)
+      .shapeConfig({Bar: {label: false}})
+      .render();
 
-  new d3plus.Waterfall()
-    .select("#series")
-    .data(regions)
-    .groupBy("region")
-    .x("step")
-    .y("change")
-    .subtotal("subtotal")
-    .render();
-
-  const years = [2023, 2024, 2025].flatMap((year, y) => [
-    {year, driver: "Start", value: 100 + y * 20, subtotal: true},
-    {year, driver: "Price", value: 12 - y * 9},
-    {year, driver: "Volume", value: -6 + y * 8},
-    {year, driver: "Mix", value: 4 - y * 3},
-    {year, driver: "FX", value: -3 - y},
-    {year, driver: "End", subtotal: true},
-  ]);
-
-  new d3plus.Waterfall()
-    .select("#facet")
-    .data(years)
-    .facet("year")
-    .x("driver")
-    .y("value")
-    .subtotal("subtotal")
-    .render();
-
-  new d3plus.Waterfall()
-    .select("#colors")
-    .data(cash)
-    .x("month")
-    .y("flow")
-    .subtotal("subtotal")
-    .increaseColor("#1098ad")
-    .decreaseColor("#e67700")
-    .totalColor("#495057")
-    .connectors(false)
-    .shapeConfig({Bar: {label: false}})
-    .render();
-
-  new d3plus.Waterfall()
-    .select("#dark")
-    .data(income)
-    .x("item")
-    .y("amount")
-    .subtotal("subtotal")
-    .render();
-
-</script>
-
+    new d3plus.Waterfall()
+      .select("#dark")
+      .data(income)
+      .x("item")
+      .y("amount")
+      .subtotal("subtotal")
+      .render();
+  </script>
 </html>

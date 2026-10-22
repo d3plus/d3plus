@@ -19,8 +19,17 @@ import readmeHeader, {apiHeader} from "./stubs/README.js";
 import {injectConfigAccessors} from "./stubs/accessors.js";
 import argsStub from "./stubs/args.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
-import {chartDefMap, injectChartConfig, publicChartDefs} from "./stubs/chartDefs.js";
-import {buildPublicDocs, getCommentText, tocSummary, typeToNames} from "./typedoc.js";
+import {
+  chartDefMap,
+  injectChartConfig,
+  publicChartDefs,
+} from "./stubs/chartDefs.js";
+import {
+  buildPublicDocs,
+  getCommentText,
+  tocSummary,
+  typeToNames,
+} from "./typedoc.js";
 
 /**
  * Documents each `makeChart(...)` chart as the class it constructs. TypeDoc
@@ -106,7 +115,9 @@ function pruneOrphans(folder, written, exportedNames) {
       if (ext === ".stories.jsx") {
         const body = fs.readFileSync(file, "utf8").split(storyMarker)[1];
         if (body && body.trim()) {
-          log.warn(`orphan story with hand-written stories, delete it manually: ${shown}`);
+          log.warn(
+            `orphan story with hand-written stories, delete it manually: ${shown}`,
+          );
           continue;
         }
       }
@@ -163,7 +174,9 @@ async function collectConfigDefaults(folder, stories) {
       }
       if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) continue;
       const schema =
-        inst.schema && typeof inst.schema === "object" && !Array.isArray(inst.schema)
+        inst.schema &&
+        typeof inst.schema === "object" &&
+        !Array.isArray(inst.schema)
           ? inst.schema
           : {};
       // Keep only genuine installFluent accessors: their getter returns
@@ -243,7 +256,6 @@ function collectInterfaceDocs(project) {
   walk(project);
   return {byName, merged};
 }
-
 
 // Framework wrapper packages. These ship curated READMEs and are documented in
 // the Frameworks guide, so the generator skips them: a TypeDoc API dump doesn't
@@ -490,7 +502,11 @@ async function generateMarkdown() {
     // Types + descriptions for those accessors, borrowed from the config interfaces.
     const interfaceDocs = collectInterfaceDocs(project);
 
-    readme = injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs});
+    readme = injectConfigAccessors(readme, {
+      stories,
+      configDefaults,
+      interfaceDocs,
+    });
 
     // The reference goes to API.md, which stays out of the published files;
     // the README (always published to npm) only links to it.
@@ -573,7 +589,8 @@ async function generateMarkdown() {
     log.done();
   }
   log.exit();
-  if (failed.length) throw new Error(`docs generation failed for ${failed.join(", ")}`);
+  if (failed.length)
+    throw new Error(`docs generation failed for ${failed.join(", ")}`);
 }
 
 /**
@@ -582,7 +599,10 @@ async function generateMarkdown() {
  */
 async function writeFormatted(file, content) {
   const options = await prettier.resolveConfig(file);
-  fs.writeFileSync(file, await prettier.format(content, {...options, filepath: file}));
+  fs.writeFileSync(
+    file,
+    await prettier.format(content, {...options, filepath: file}),
+  );
 }
 
 generateMarkdown().catch(err => {

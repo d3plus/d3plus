@@ -71,7 +71,10 @@ export function prepareTicks(tl: Timeline): {
     ? tl._userFormat
     : (d: Date) => {
         if (!memo || memo.format !== timeFormat)
-          memo = {format: timeFormat, label: dateFormatter(ticks as Date[], timeFormat)};
+          memo = {
+            format: timeFormat,
+            label: dateFormatter(ticks as Date[], timeFormat),
+          };
         return memo.label(d).replace(/^Q/g, timeLocale.quarter as string);
       }) as (d: Date) => string;
 
@@ -173,7 +176,9 @@ export function configureScale(
     ];
   } else {
     tl.schema.scale = "time";
-    tl.schema.domain = extent(ticks as Date[]) as unknown as (string | number | boolean | Date)[];
+    tl.schema.domain = extent(ticks as Date[]) as unknown as (
+      string | number | boolean | Date
+    )[];
     tl.schema.range = [
       playButtonWidth ? playButtonWidth * 1.5 : undefined,
       undefined,
@@ -235,10 +240,19 @@ export function setupBrush(
         ? tl._buttonBehaviorCurrent === "buttons"
           ? tl.schema.selection
               .map(date)
-              .map((d: unknown) => range[tl.schema.ticks!.map(Number).indexOf(+(d as number))])
+              .map(
+                (d: unknown) =>
+                  range[tl.schema.ticks!.map(Number).indexOf(+(d as number))],
+              )
           : tl.schema.selection.map(date)
         : tl._buttonBehaviorCurrent === "buttons"
-          ? [range[tl.schema.ticks!.map(Number).indexOf(+(tl.schema.selection as number))]]
+          ? [
+              range[
+                tl.schema
+                  .ticks!.map(Number)
+                  .indexOf(+(tl.schema.selection as number))
+              ],
+            ]
           : [tl.schema.selection];
 
   if (selection.length === 1) selection.push(selection[0]);
@@ -294,8 +308,13 @@ export function renderPlayButton(tl: Timeline, playButtonWidth: number): void {
     .renderMode("compute")
     .data(playData)
     .select(playButtonGroup.node())
-    .config(configPrep.bind(tl as unknown as ConfigPrepHost)(tl.schema.playButtonConfig));
-  if (disabled) tl._playButtonClass.config({fontColor: tl.schema.colorDefaults.missing});
+    .config(
+      configPrep.bind(tl as unknown as ConfigPrepHost)(
+        tl.schema.playButtonConfig,
+      ),
+    );
+  if (disabled)
+    tl._playButtonClass.config({fontColor: tl.schema.colorDefaults.missing});
   tl._playButtonClass.render();
 
   // The play button's pixels are composed into the scene (compute mode), but

@@ -27,9 +27,9 @@ export default function (
   shapeData: Record<string, unknown>[];
 } {
   const data = this._filteredData;
-  const rowValues = (this.schema.rowList || unique(data.map(this.schema.row))).sort(
-    this.schema.rowSort,
-  );
+  const rowValues = (
+    this.schema.rowList || unique(data.map(this.schema.row))
+  ).sort(this.schema.rowSort);
   const columnValues = (
     this.schema.columnList || unique(data.map(this.schema.column))
   ).sort(this.schema.columnSort);
@@ -47,7 +47,8 @@ export default function (
       };
       const dataIndex = data.findIndex(
         (d: DataPoint, i: number) =>
-          this.schema.row(d, i) === rowValue && this.schema.column(d, i) === columnValue,
+          this.schema.row(d, i) === rowValue &&
+          this.schema.column(d, i) === columnValue,
       );
       if (dataIndex >= 0) {
         dataObj.i = dataIndex;

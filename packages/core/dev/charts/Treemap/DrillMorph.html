@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>DrillMorph · Treemap</title>
-    <meta name="description" content="Click a cell to drill in; children grow out of the clicked cell (issue #166). Includes a zoom toggle.">
+    <meta
+      name="description"
+      content="Click a cell to drill in; children grow out of the clicked cell (issue #166). Includes a zoom toggle."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
-      html, body {
+      html,
+      body {
         height: 100vh;
         margin: 0;
         padding: 0;
@@ -26,10 +30,17 @@
 
   <body>
     <div id="controls">
-      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      duration:
+      <input
+        id="duration"
+        type="range"
+        min="0"
+        max="2000"
+        step="50"
+        value="600"
+      />
       <span id="durationLabel">600ms</span>
-      &nbsp;|&nbsp;
-      zoom: <input id="zoom" type="checkbox" />
+      &nbsp;|&nbsp; zoom: <input id="zoom" type="checkbox" />
     </div>
     <div id="viz"></div>
   </body>

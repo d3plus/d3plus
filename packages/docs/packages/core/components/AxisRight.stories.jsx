@@ -3,7 +3,10 @@
 
 import React from "react";
 
-import {argTypes, AxisRight} from "../../../args/core/components/AxisRight.args";
+import {
+  argTypes,
+  AxisRight,
+} from "../../../args/core/components/AxisRight.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
@@ -14,14 +17,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.",
+        component:
+          "Axis preset whose ticks are drawn to the right of the vertical domain path. Accepts everything the base Axis class does.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <AxisRight config={configify(args, argTypes)} />;
-  
+const Template = args => <AxisRight config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -30,6 +34,14 @@ BasicExample.args = {
   domain: [0, 100],
   width: 140,
   height: 400,
-  title: "Right Axis"
+  title: "Right Axis",
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "The same vertical `[0, 100]` domain over 400px, but with ticks and labels drawn to the right, positioning it as a right-edge y-axis."}}};
+BasicExample.parameters = {
+  controls: {include: ["domain", "ticks", "title"]},
+  docs: {
+    description: {
+      story:
+        "The same vertical `[0, 100]` domain over 400px, but with ticks and labels drawn to the right, positioning it as a right-edge y-axis.",
+    },
+  },
+};

@@ -6,542 +6,562 @@ import {argTypes as baseClassArgTypes} from "../utils/BaseClass.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {ColorScale as D3plusColorScale} from "@d3plus/react";
-export const ColorScale = ({ config }) => <D3plusColorScale config={config} />;
+export const ColorScale = ({config}) => <D3plusColorScale config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BaseClass primitive and
    * overrides any defaults that have been changed in ColorScale
    */
-  Object.keys(baseClassArgTypes)
-    .reduce((obj, k) => (obj[k] = baseClassArgTypes[k], obj), {}),
+  Object.keys(baseClassArgTypes).reduce(
+    (obj, k) => ((obj[k] = baseClassArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * ColorScale-specific methods
    */
-  
+
   {
     align: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "middle",
       description: "",
       table: {
         defaultValue: {
-          summary: "middle"
-        }
+          summary: "middle",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     axisConfig: {
       control: {},
-      description: "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.",
+      description:
+        "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     bucketAxis: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: false,
       description: "",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     bucketFormat: {
       control: {},
-      description: "Formats the label for each bucket in a bucket-type scale (\"jenks\",\n\"quantile\", …). Passed the bucket's start value, its index, the full\nbucket array, and every data value used to build the buckets.",
+      description:
+        'Formats the label for each bucket in a bucket-type scale ("jenks",\n"quantile", …). Passed the bucket\'s start value, its index, the full\nbucket array, and every data value used to build the buckets.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     bucketJoiner: {
       control: {},
-      description: "Given a bucket's minimum and maximum values, returns the full label.",
+      description:
+        "Given a bucket's minimum and maximum values, returns the full label.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     buckets: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
       description: "",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     centered: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
       description: "",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     color: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through.",
+      description:
+        "The scale's colors: one color, expanded into a light→dark ramp, or an array of colors to step through.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | array.&lt;string&gt;"
-      }
+        summary: "string | array.&lt;string&gt;",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     colorMax: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     colorMid: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     colorMin: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     config: {
       control: {},
-      description: "Methods that correspond to the key/value pairs and returns this class.",
+      description:
+        "Methods that correspond to the key/value pairs and returns this class.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     data: {
       control: {},
       defaultValue: "[  ]",
-      description: "The data array used to create shapes. A shape key will be drawn for each object in the array.",
+      description:
+        "The data array used to create shapes. A shape key will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "[  ]"
-        }
+          summary: "[  ]",
+        },
       },
       type: {
         required: true,
-        summary: "array.&lt;datapoint&gt;"
-      }
+        summary: "array.&lt;datapoint&gt;",
+      },
     },
     domain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
+      description:
+        "For a linear scale, the `[min, max]` values used by the color scale; values\noutside this range map to the nearest color.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "array.&lt;number&gt;"
-      }
+        summary: "array.&lt;number&gt;",
+      },
     },
     duration: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 600,
       description: "Animation duration in ms.",
       table: {
         defaultValue: {
-          summary: "600"
-        }
+          summary: "600",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     height: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 200,
       description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
-          summary: "200"
-        }
+          summary: "200",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     labelConfig: {
       control: {},
-      description: "A pass-through for the TextBox class used to style the labelMin and labelMax text.",
+      description:
+        "A pass-through for the TextBox class used to style the labelMin and labelMax text.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     labelMax: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).",
+      description:
+        "Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     labelMin: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).",
+      description:
+        "Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     legendConfig: {
       control: {},
-      description: "Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.",
+      description:
+        "Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     midpoint: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
       description: "",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     orient: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "bottom",
-      description: "Orientation: \"vertical\" or \"horizontal\".",
+      description: 'Orientation: "vertical" or "horizontal".',
       table: {
         defaultValue: {
-          summary: "bottom"
-        }
+          summary: "bottom",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     padding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
-      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
+      description:
+        "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "string | number | function"
-      }
+        summary: "string | number | function",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     rectConfig: {
       control: {},
-      description: "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.",
+      description:
+        "The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     render: {
       control: {},
       description: "Renders the current ColorScale to the page.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     scale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "linear",
       description: "Scale factor (1 = identity).",
       table: {
         defaultValue: {
-          summary: "linear"
-        }
+          summary: "linear",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The SVG container element for this visualization. 3 selector or DOM element.",
+      description:
+        "The SVG container element for this visualization. 3 selector or DOM element.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | htmlelement"
-      }
+        summary: "string | htmlelement",
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     size: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: 10,
       description: "Size accessor key.",
       table: {
         defaultValue: {
-          summary: "10"
-        }
+          summary: "10",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "Value accessor for the visualization.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     width: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 400,
       description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
-          summary: "400"
-        }
+          summary: "400",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
-    }
-  }
+        summary: "number",
+      },
+    },
+  },
 );

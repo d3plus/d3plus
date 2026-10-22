@@ -4,21 +4,44 @@ import {JSDOM} from "jsdom";
 import {d3plus} from "../index.ts";
 
 beforeAll(() => {
-  const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    url: "http://localhost",
+  });
   global.window = dom.window;
   global.document = dom.window.document;
-  ["Element", "SVGElement", "Node", "Event"].forEach(key => { global[key] = dom.window[key]; });
+  ["Element", "SVGElement", "Node", "Event"].forEach(key => {
+    global[key] = dom.window[key];
+  });
 });
 
 /** A tracking mock visualization class plus the state it records. */
 function makeViz() {
-  const state = {instances: 0, configs: [], renders: 0, destroys: 0, dataArgs: null};
+  const state = {
+    instances: 0,
+    configs: [],
+    renders: 0,
+    destroys: 0,
+    dataArgs: null,
+  };
   class MockViz {
-    constructor() { state.instances++; }
-    config(c) { state.configs.push(c); return this; }
-    render(cb) { state.renders++; if (cb) cb(); return this; }
-    destroy() { state.destroys++; }
-    data(d, f) { state.dataArgs = [d, f]; }
+    constructor() {
+      state.instances++;
+    }
+    config(c) {
+      state.configs.push(c);
+      return this;
+    }
+    render(cb) {
+      state.renders++;
+      if (cb) cb();
+      return this;
+    }
+    destroy() {
+      state.destroys++;
+    }
+    data(d, f) {
+      state.dataArgs = [d, f];
+    }
   }
   return {MockViz, state};
 }
@@ -31,7 +54,11 @@ it("creates an <svg> in the node and calls config()/render()", () => {
   assert.strictEqual(state.instances, 1, "one instance");
   assert.strictEqual(state.renders, 1, "rendered once");
   assert.strictEqual(state.configs[0].a, 1, "config forwarded");
-  assert.strictEqual(state.configs[0].select, node.querySelector("svg"), "select is the svg");
+  assert.strictEqual(
+    state.configs[0].select,
+    node.querySelector("svg"),
+    "select is the svg",
+  );
 });
 
 it("update() re-renders the same instance without destroying it", () => {
@@ -49,7 +76,11 @@ it("update() with structurally-unchanged config is a no-op", () => {
   const node = document.createElement("div");
   const action = d3plus(node, {constructor: MockViz, config: {a: 1}});
   action.update({constructor: MockViz, config: {a: 1}});
-  assert.strictEqual(state.renders, 1, "identical config content does not re-render");
+  assert.strictEqual(
+    state.renders,
+    1,
+    "identical config content does not re-render",
+  );
 });
 
 it("update() diffs function-valued config by source", () => {
@@ -65,7 +96,11 @@ it("update() diffs function-valued config by source", () => {
 it("forceUpdate re-renders even when the config is unchanged", () => {
   const {MockViz, state} = makeViz();
   const node = document.createElement("div");
-  const action = d3plus(node, {constructor: MockViz, config: {a: 1}, forceUpdate: true});
+  const action = d3plus(node, {
+    constructor: MockViz,
+    config: {a: 1},
+    forceUpdate: true,
+  });
   action.update({constructor: MockViz, config: {a: 1}, forceUpdate: true});
   assert.strictEqual(state.renders, 2, "forceUpdate bypasses config diffing");
 });
@@ -74,10 +109,20 @@ it("routes data + dataFormat to data() and strips them from config", () => {
   const {MockViz, state} = makeViz();
   const node = document.createElement("div");
   const fmt = d => d;
-  d3plus(node, {constructor: MockViz, config: {data: [1, 2], dataFormat: fmt, keep: "yes"}});
-  assert.deepStrictEqual(state.dataArgs, [[1, 2], fmt], "data() got the data + formatter");
+  d3plus(node, {
+    constructor: MockViz,
+    config: {data: [1, 2], dataFormat: fmt, keep: "yes"},
+  });
+  assert.deepStrictEqual(
+    state.dataArgs,
+    [[1, 2], fmt],
+    "data() got the data + formatter",
+  );
   const cfg = state.configs[0];
-  assert.ok(!("data" in cfg) && !("dataFormat" in cfg), "data/dataFormat stripped");
+  assert.ok(
+    !("data" in cfg) && !("dataFormat" in cfg),
+    "data/dataFormat stripped",
+  );
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
 });
 
@@ -91,7 +136,8 @@ it("destroy() disposes the instance and removes the svg", () => {
 });
 
 it("swapping the constructor rebuilds the instance", () => {
-  const a = makeViz(), b = makeViz();
+  const a = makeViz(),
+    b = makeViz();
   const node = document.createElement("div");
   const action = d3plus(node, {constructor: a.MockViz, config: {}});
   action.update({constructor: b.MockViz, config: {}});
@@ -119,21 +165,32 @@ it("does nothing until a constructor is provided", () => {
   const action = d3plus(node, {constructor: undefined, config: {a: 1}});
   assert.ok(node.querySelector("svg"), "svg still created");
   action.update({constructor: MockViz, config: {a: 1}});
-  assert.strictEqual(state.instances, 1, "instance created once a constructor arrives");
+  assert.strictEqual(
+    state.instances,
+    1,
+    "instance created once a constructor arrives",
+  );
   assert.strictEqual(state.renders, 1, "rendered once a constructor arrives");
 });
 
 it("tolerates visualizations without render() or destroy()", () => {
   const configs = [];
   class BareViz {
-    config(c) { configs.push(c); return this; }
+    config(c) {
+      configs.push(c);
+      return this;
+    }
   }
   const node = document.createElement("div");
   const action = d3plus(node, {constructor: BareViz, config: {a: 1}});
   action.update({constructor: makeViz().MockViz, config: {a: 1}});
   action.update({constructor: BareViz, config: {a: 2}});
   action.destroy();
-  assert.strictEqual(configs.length, 2, "config() applied on each BareViz build");
+  assert.strictEqual(
+    configs.length,
+    2,
+    "config() applied on each BareViz build",
+  );
   assert.strictEqual(node.querySelector("svg"), null, "svg removed");
 });
 

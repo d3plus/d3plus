@@ -3,33 +3,31 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   fn: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   opts: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "domenvoptions"
-    }
-  }
+      summary: "domenvoptions",
+    },
+  },
 };

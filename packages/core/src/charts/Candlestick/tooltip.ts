@@ -28,7 +28,9 @@ export function formatPrice(value: number, locale?: Locale): string {
   if (Math.abs(value) < 1) return formatAbbreviate(value, locale, ".3~g");
   // formatAbbreviate drops trailing zeros; put the cents back.
   const decimal = formatAbbreviate(1.5, locale, ".1f").charAt(1);
-  const [whole, cents = ""] = formatAbbreviate(value, locale, ",.2f").split(decimal);
+  const [whole, cents = ""] = formatAbbreviate(value, locale, ",.2f").split(
+    decimal,
+  );
   return `${whole}${decimal}${cents.padEnd(2, "0")}`;
 }
 
@@ -67,7 +69,11 @@ function periodText(viz: VizInstance, d: DataPoint, i: number): string {
     @param d The data row.
     @param i The row's index.
 */
-export function candleTooltipRows(viz: VizInstance, d: DataPoint, i: number): string[][] {
+export function candleTooltipRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): string[][] {
   const v = readOhlc(d, i, ohlcAccessors(viz));
   if (!v) return [];
   const t = (s: string): string => viz.schema.translate(s);
@@ -80,7 +86,8 @@ export function candleTooltipRows(viz: VizInstance, d: DataPoint, i: number): st
     [t("Close"), price(v.close)],
   ];
   const change = candleChange(v.open, v.close);
-  if (change !== undefined) rows.push([t("Change"), formatChange(change, viz.schema.locale)]);
+  if (change !== undefined)
+    rows.push([t("Change"), formatChange(change, viz.schema.locale)]);
   const volume = readVolume(viz, d, i);
   if (volume !== undefined) rows.push([t("Volume"), formatVolume(viz, volume)]);
   return rows;
@@ -93,7 +100,11 @@ export function candleTooltipRows(viz: VizInstance, d: DataPoint, i: number): st
     @param d The data row.
     @param i The row's index.
 */
-export function candleAriaLabel(viz: VizInstance, d: DataPoint, i: number): string {
+export function candleAriaLabel(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): string {
   const [period, ...values] = candleTooltipRows(viz, d, i);
   return `${ariaHead(viz, d, i, period?.[1])}: ${values.map(([k, val]) => `${k} ${val}`).join(", ")}.`;
 }
@@ -105,13 +116,24 @@ export function candleAriaLabel(viz: VizInstance, d: DataPoint, i: number): stri
     @param d The data row.
     @param i The row's index.
 */
-export function volumeAriaLabel(viz: VizInstance, d: DataPoint, i: number): string {
+export function volumeAriaLabel(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): string {
   const volume = readVolume(viz, d, i);
   const value = volume === undefined ? "" : ` ${formatVolume(viz, volume)}`;
   return `${ariaHead(viz, d, i, periodText(viz, d, i))}: ${viz.schema.translate("Volume")}${value}.`;
 }
 
 /** An aria label's lead: the row's label, then its period. */
-function ariaHead(viz: VizInstance, d: DataPoint, i: number, period: string | undefined): string {
-  return [viz._drawLabel(d, i), period].filter(s => s !== undefined && s !== "").join(", ");
+function ariaHead(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  period: string | undefined,
+): string {
+  return [viz._drawLabel(d, i), period]
+    .filter(s => s !== undefined && s !== "")
+    .join(", ");
 }

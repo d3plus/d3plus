@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does.",
+        component:
+          "Axis preset whose ticks are drawn above the horizontal domain path. Accepts everything the base Axis class does.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <AxisTop config={configify(args, argTypes)} />;
-  
+const Template = args => <AxisTop config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -30,6 +31,14 @@ BasicExample.args = {
   domain: [0, 100],
   width: 600,
   height: 120,
-  title: "Top Axis"
+  title: "Top Axis",
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "A horizontal `[0, 100]` domain across the 600px width with ticks and labels rendered above the path, as a top-edge x-axis."}}};
+BasicExample.parameters = {
+  controls: {include: ["domain", "ticks", "title"]},
+  docs: {
+    description: {
+      story:
+        "A horizontal `[0, 100]` domain across the 600px width with ticks and labels rendered above the path, as a top-edge x-axis.",
+    },
+  },
+};

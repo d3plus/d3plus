@@ -12,7 +12,8 @@ export function wholeWords(
   return (sentence, i) =>
     split(sentence, i).reduce((words: string[], piece: string) => {
       const last = words.length - 1;
-      if (last >= 0 && words[last].endsWith(softHyphen)) words[last] = words[last].slice(0, -1) + piece;
+      if (last >= 0 && words[last].endsWith(softHyphen))
+        words[last] = words[last].slice(0, -1) + piece;
       else words.push(piece);
       return words;
     }, []);
@@ -38,7 +39,8 @@ export function wholeWordFit<T extends {lines: string[]; truncated: boolean}>(
   wrapWhole: () => T,
 ): {fits: boolean; result: T} {
   if (result.truncated) return {fits: false, result};
-  if (!result.lines.slice(0, -1).some(line => line.endsWith("-"))) return {fits: true, result};
+  if (!result.lines.slice(0, -1).some(line => line.endsWith("-")))
+    return {fits: true, result};
   const whole = wrapWhole();
   return whole.truncated ? {fits: false, result} : {fits: true, result: whole};
 }

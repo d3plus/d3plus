@@ -1,51 +1,44 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Counties · Geomap</title>
+    <meta
+      name="description"
+      content="US county choropleth with a bucketed colorScale and the geoAlbersUsaTerritories projection."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
-
-  <meta charset="utf-8">
-  <title>Counties · Geomap</title>
-  <meta name="description" content="US county choropleth with a bucketed colorScale and the geoAlbersUsaTerritories projection.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-
-  <style>
-
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-  new d3plus.Geomap()
-    .data("./county-population.json")
-    .topojson("./County.json")
-    .projection("geoAlbersUsaTerritories")
-    .colorScale("Population")
-    .colorScaleConfig({
-      buckets: [0, 100000, 500000, 1000000],
-      scale: "buckets"
-    })
-    .groupBy("County ID")
-    .label(d => d.County)
-    .ocean("transparent")
-    .shapeConfig({
-      activeOpacity: 0.25,
-      Path: {
-        fillOpacity: 0.75
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
       }
-    })
-    .render();
+    </style>
+  </head>
 
-</script>
+  <body></body>
 
+  <script>
+    new d3plus.Geomap()
+      .data("./county-population.json")
+      .topojson("./County.json")
+      .projection("geoAlbersUsaTerritories")
+      .colorScale("Population")
+      .colorScaleConfig({
+        buckets: [0, 100000, 500000, 1000000],
+        scale: "buckets",
+      })
+      .groupBy("County ID")
+      .label(d => d.County)
+      .ocean("transparent")
+      .shapeConfig({
+        activeOpacity: 0.25,
+        Path: {
+          fillOpacity: 0.75,
+        },
+      })
+      .render();
+  </script>
 </html>

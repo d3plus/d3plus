@@ -9,7 +9,13 @@ import {
 
 import type {ColorDefaultsConfig, D3plusConfig} from "./D3plusConfig.js";
 import RESET from "./RESET.js";
-import {containsReset, isPlainObject, mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../fluent.js";
+import {
+  containsReset,
+  isPlainObject,
+  mergeConfigBag,
+  resolvesReset,
+  RESOLVES_RESET,
+} from "../fluent.js";
 import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 
 /**
@@ -22,7 +28,9 @@ import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
 function nestedReset(value: unknown, defaults: unknown): unknown {
   if (!isPlainObject(value) || !containsReset(value)) return value;
   const out: Record<string, unknown> = {...value};
-  const fallbacks = isObject(defaults) ? (defaults as Record<string, unknown>) : {};
+  const fallbacks = isObject(defaults)
+    ? (defaults as Record<string, unknown>)
+    : {};
   for (const key of Object.keys(out)) {
     if (key.startsWith("_")) continue;
     if (out[key] === RESET) {
@@ -53,7 +61,16 @@ function getAllMethods(obj: object): string[] {
       // them as no-arg getters would run real work. `measure` runs the full
       // axis-layout pass; `destroy` tears down the scene renderer (which defeats
       // keyed reconcile and forces a full remount on the next draw).
-      !["config", "constructor", "destroy", "measure", "parent", "render", "renderMode", "toScene"].includes(e),
+      ![
+        "config",
+        "constructor",
+        "destroy",
+        "measure",
+        "parent",
+        "render",
+        "renderMode",
+        "toScene",
+      ].includes(e),
   );
 }
 
@@ -72,7 +89,8 @@ function cascadeColorDefaults(
   seen.add(obj);
   obj.schema.colorDefaults = {...obj.schema.colorDefaults, ...overrides};
   for (const child of [...Object.values(obj), ...Object.values(obj.ctx)]) {
-    if (child instanceof BaseClass) cascadeColorDefaults(child, overrides, seen);
+    if (child instanceof BaseClass)
+      cascadeColorDefaults(child, overrides, seen);
   }
 }
 
@@ -161,7 +179,10 @@ export default class BaseClass {
       const config: D3plusConfig = {};
       getAllMethods(Object.getPrototypeOf(this)).forEach(k => {
         const v = (this as unknown as Record<string, () => unknown>)[k]();
-        if (v !== this) config[k] = isObject(v) ? assign({}, v as Record<string, unknown>) : v;
+        if (v !== this)
+          config[k] = isObject(v)
+            ? assign({}, v as Record<string, unknown>)
+            : v;
       });
       this._configDefault = config;
     }
@@ -283,7 +304,8 @@ new Plot
   shapeConfig(_: D3plusConfig): this;
   shapeConfig(_?: D3plusConfig): D3plusConfig | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)),
+        this)
       : (this.schema.shapeConfig as D3plusConfig);
   }
 }

@@ -28,7 +28,10 @@ type TreeNode = DataPoint & {
   children?: TreeNode[];
 };
 
-type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<string, unknown>;
+type Branch = {key?: string | number; values?: Branch[] | DataPoint[]} & Record<
+  string,
+  unknown
+>;
 
 /** Merge a branch's leaf values (recursively) through the schema aggs. */
 function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
@@ -41,11 +44,17 @@ function flattenBranchData(viz: VizInstance, branch: Branch): DataPoint {
 }
 
 /** Run the d3-hierarchy tree layout, flatten branch aggregations, and tag nodes. */
-function buildTreeData(viz: VizInstance, width: number, height: number): TreeNode[] {
+function buildTreeData(
+  viz: VizInstance,
+  width: number,
+  height: number,
+): TreeNode[] {
   const treeLayout = viz.ctx.tree as {
     separation: (fn: (a: unknown, b: unknown) => number) => typeof treeLayout;
     size: (s: [number, number]) => typeof treeLayout;
-    (root: ReturnType<typeof hierarchy<Branch>>): ReturnType<typeof hierarchy<Branch>>;
+    (
+      root: ReturnType<typeof hierarchy<Branch>>,
+    ): ReturnType<typeof hierarchy<Branch>>;
   };
 
   const root = treeLayout
@@ -65,7 +74,9 @@ function buildTreeData(viz: VizInstance, width: number, height: number): TreeNod
 
   const treeData = (root as unknown as {descendants: () => TreeNode[]})
     .descendants()
-    .filter(d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent) as TreeNode[];
+    .filter(
+      d => (d.depth ?? 0) <= viz.schema.groupBy.length && !!d.parent,
+    ) as TreeNode[];
 
   treeData.forEach((d, i) => {
     const dd = d.data as Branch;
@@ -103,10 +114,14 @@ function measureTreeLabels(
     r = () => rv;
   }
   const rBufferRoot = max(treeData, d =>
-    d.depth === 1 ? (r as (d: DataPoint, i: number) => number)(d.data as DataPoint, d.i!) : 0,
+    d.depth === 1
+      ? (r as (d: DataPoint, i: number) => number)(d.data as DataPoint, d.i!)
+      : 0,
   ) as number;
   const rBufferEnd = max(treeData, d =>
-    d.children ? 0 : (r as (d: DataPoint, i: number) => number)(d.data as DataPoint, d.i!),
+    d.children
+      ? 0
+      : (r as (d: DataPoint, i: number) => number)(d.data as DataPoint, d.i!),
   ) as number;
 
   const yExtent = extent(treeData, d => d.y) as [number, number];
@@ -123,9 +138,15 @@ function measureTreeLabels(
     const vals = (d as {values: DataPoint[]}).values;
     return vals.reduce((num: number, vv: DataPoint, i: number) => {
       const next =
-        i < vals.length - 1 ? (vals[i + 1].x as number) : width + viz._margin[left];
+        i < vals.length - 1
+          ? (vals[i + 1].x as number)
+          : width + viz._margin[left];
       const prev = i ? (vals[i - 1].x as number) : viz._margin[left];
-      return min([num, next - (vv.x as number), (vv.x as number) - prev]) as number;
+      return min([
+        num,
+        next - (vv.x as number),
+        (vv.x as number) - prev,
+      ]) as number;
     }, width);
   });
   viz.ctx.labelWidths = labelWidths;
@@ -153,10 +174,12 @@ function buildTreeShapeConfig(
   isVertical: boolean,
   isHorizontal: boolean,
 ) {
-  const labelFn = viz.schema.label as ((d: DataPoint, i: number) => unknown) | undefined;
+  const labelFn = viz.schema.label as
+    ((d: DataPoint, i: number) => unknown) | undefined;
 
   return {
-    id: (d: TreeNode, i: number) => (viz._ids(d.data as DataPoint, i) as string[])[(d.depth ?? 1) - 1],
+    id: (d: TreeNode, i: number) =>
+      (viz._ids(d.data as DataPoint, i) as string[])[(d.depth ?? 1) - 1],
     label: (d: TreeNode, i: number) => {
       if (labelFn) return labelFn(d.data as DataPoint, i);
       const ids = viz._ids(d.data as DataPoint, i).slice(0, d.depth ?? 1);
@@ -177,7 +200,11 @@ function buildTreeShapeConfig(
         return isVertical ? (x.depth === 1 ? "bottom" : "top") : "middle";
       },
     },
-    hitArea: (d: TreeNode, _i: number, s: {r?: number; height: number; width: number}) => {
+    hitArea: (
+      d: TreeNode,
+      _i: number,
+      s: {r?: number; height: number; width: number},
+    ) => {
       const h = labelHeight;
       const offset = s.r ?? (isVertical ? s.height / 2 : s.width / 2);
       const w = labelWidths[(d.depth ?? 1) - 1];
@@ -196,7 +223,11 @@ function buildTreeShapeConfig(
             : -offset,
       };
     },
-    labelBounds: (d: TreeNode, _i: number, s: {r?: number; height: number; width: number}) => {
+    labelBounds: (
+      d: TreeNode,
+      _i: number,
+      s: {r?: number; height: number; width: number},
+    ) => {
       const h = labelHeight;
       const heightKey = isVertical ? "height" : "width";
       const offset = s.r ?? (isVertical ? s.height / 2 : s.width / 2);
@@ -238,8 +269,10 @@ function publishTreeCtx(
   const linkD = (d: TreeNode): string => {
     let rr = sc.r as ((d: DataPoint, i: number) => number) | number;
     if (typeof rr === "function") rr = rr(d.data as DataPoint, d.i!);
-    const px = (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : (rr as number));
-    const py = (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? (rr as number) : 0);
+    const px =
+      (d.parent!.x ?? 0) - (d.x ?? 0) + (isVertical ? 0 : (rr as number));
+    const py =
+      (d.parent!.y ?? 0) - (d.y ?? 0) + (isVertical ? (rr as number) : 0);
     const xx = isVertical ? 0 : -(rr as number);
     const yy = isVertical ? -(rr as number) : 0;
     return isVertical
@@ -247,7 +280,13 @@ function publishTreeCtx(
       : `M${xx},${yy}C${(xx + px) / 2},${yy} ${(xx + px) / 2},${py} ${px},${py}`;
   };
 
-  const shapeConfig = buildTreeShapeConfig(viz, labelHeight, labelWidths, isVertical, isHorizontal);
+  const shapeConfig = buildTreeShapeConfig(
+    viz,
+    labelHeight,
+    labelWidths,
+    isVertical,
+    isHorizontal,
+  );
 
   const shapeAccessor = viz.schema.shape as (d: DataPoint) => string;
   const shapeData = nest(treeData as DataPoint[], (d: DataPoint) =>
@@ -293,7 +332,14 @@ export const applyTreeLayout: TransformStage = ({viz}) => {
     left,
   );
 
-  publishTreeCtx(viz, treeData, labelHeight, labelWidths, isVertical, isHorizontal);
+  publishTreeCtx(
+    viz,
+    treeData,
+    labelHeight,
+    labelWidths,
+    isVertical,
+    isHorizontal,
+  );
 
   return {shapeData: treeData as DataPoint[]};
 };

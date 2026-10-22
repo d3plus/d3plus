@@ -1,9 +1,17 @@
 import parsePath, {arcPoint, arcToCenter} from "./pathParse.js";
 
 /** Value of a cubic Bézier on one axis at parameter t. */
-function cubicAt(p0: number, p1: number, p2: number, p3: number, t: number): number {
+function cubicAt(
+  p0: number,
+  p1: number,
+  p2: number,
+  p3: number,
+  t: number,
+): number {
   const u = 1 - t;
-  return u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3;
+  return (
+    u * u * u * p0 + 3 * u * u * t * p1 + 3 * u * t * t * p2 + t * t * t * p3
+  );
 }
 
 /** Value of a quadratic Bézier on one axis at parameter t. */
@@ -13,7 +21,12 @@ function quadAt(p0: number, p1: number, p2: number, t: number): number {
 }
 
 /** Parameters in (0,1) where a cubic Bézier's derivative is zero on one axis. */
-function cubicExtrema(p0: number, p1: number, p2: number, p3: number): number[] {
+function cubicExtrema(
+  p0: number,
+  p1: number,
+  p2: number,
+  p3: number,
+): number[] {
   const a = p3 - 3 * p2 + 3 * p1 - p0;
   const b = 2 * (p2 - 2 * p1 + p0);
   const c = p1 - p0;
@@ -65,7 +78,10 @@ export default function pathBounds(d: string): {
   width: number;
   height: number;
 } {
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
   const add = (x: number, y: number): void => {
     if (x < minX) minX = x;
     if (y < minY) minY = y;
@@ -73,7 +89,8 @@ export default function pathBounds(d: string): {
     if (y > maxY) maxY = y;
   };
 
-  let cx = 0, cy = 0;
+  let cx = 0,
+    cy = 0;
   for (const seg of parsePath(d)) {
     if (seg.type === "M" || seg.type === "L") {
       add(seg.x, seg.y);
@@ -89,13 +106,19 @@ export default function pathBounds(d: string): {
         ...cubicExtrema(cy, seg.y1, seg.y2, seg.y),
       ];
       for (const t of ts)
-        add(cubicAt(cx, seg.x1, seg.x2, seg.x, t), cubicAt(cy, seg.y1, seg.y2, seg.y, t));
+        add(
+          cubicAt(cx, seg.x1, seg.x2, seg.x, t),
+          cubicAt(cy, seg.y1, seg.y2, seg.y, t),
+        );
       cx = seg.x;
       cy = seg.y;
     } else if (seg.type === "Q") {
       add(cx, cy);
       add(seg.x, seg.y);
-      const ts = [...quadExtremum(cx, seg.x1, seg.x), ...quadExtremum(cy, seg.y1, seg.y)];
+      const ts = [
+        ...quadExtremum(cx, seg.x1, seg.x),
+        ...quadExtremum(cy, seg.y1, seg.y),
+      ];
       for (const t of ts)
         add(quadAt(cx, seg.x1, seg.x, t), quadAt(cy, seg.y1, seg.y, t));
       cx = seg.x;
@@ -104,7 +127,15 @@ export default function pathBounds(d: string): {
       add(cx, cy);
       add(seg.x, seg.y);
       const arc = arcToCenter(
-        cx, cy, seg.rx, seg.ry, seg.rot, seg.large, seg.sweep, seg.x, seg.y,
+        cx,
+        cy,
+        seg.rx,
+        seg.ry,
+        seg.rot,
+        seg.large,
+        seg.sweep,
+        seg.x,
+        seg.y,
       );
       if (arc) {
         const {phi, rx, ry, theta1, dtheta} = arc;

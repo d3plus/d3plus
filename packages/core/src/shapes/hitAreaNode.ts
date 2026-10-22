@@ -40,7 +40,10 @@ export function hitAreaNode(
   // stroke over the line's own geometry. `stroke: transparent` (not "none") is
   // painted, so it hit-tests across the full width on both backends.
   if (typeof bounds.width !== "number" && typeof geomD === "string") {
-    const sw = typeof bounds["stroke-width"] === "number" ? (bounds["stroke-width"] as number) : 10;
+    const sw =
+      typeof bounds["stroke-width"] === "number"
+        ? (bounds["stroke-width"] as number)
+        : 10;
     return {
       type: "path",
       d: geomD,
@@ -48,7 +51,12 @@ export function hitAreaNode(
       datum,
       index: i,
       shapeType: name,
-      paint: {fill: "none", stroke: "transparent", strokeWidth: sw, vectorEffect: "non-scaling-stroke"},
+      paint: {
+        fill: "none",
+        stroke: "transparent",
+        strokeWidth: sw,
+        vectorEffect: "non-scaling-stroke",
+      },
       transform,
       aria: {hidden: true},
     } as unknown as SceneNode;

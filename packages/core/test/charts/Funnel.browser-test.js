@@ -19,83 +19,87 @@ const stages = [
   {id: "Subscribed", value: 760},
 ];
 
-it("Funnel emits necks, stage paths, and labels", {timeout: 180000}, async function () {
-  // The first browser test also builds the UMD bundle.
-  const out = await render(
-    "<div id='viz' style='width:600px;height:400px'></div>",
-    async data => {
-      const viz = new window.d3plus.Funnel()
-        .select("#viz")
-        .duration(0)
-        .data(data);
-      await new Promise(r => viz.render(r));
-      const scene = viz._chartScene;
-      const svg = document.querySelector("#viz svg");
-      const paths = scene.filter(n => n.type === "path");
-      return {
-        keys: paths.map(n => n.key),
-        neckInteractive: paths
-          .filter(n => n.key.endsWith("-neck"))
-          .map(n => n.interactive),
-        neckDatum: paths.find(n => n.key === "funnel-Pricing-neck").datum.id,
-        neckOpacity: paths.find(n => n.key === "funnel-Pricing-neck").paint
-          .opacity,
-        neckFill: paths.find(n => n.key === "funnel-Pricing-neck").paint.fill,
-        stageFill: paths.find(n => n.key === "funnel-Pricing").paint.fill,
-        firstPath: paths.find(n => n.key === "funnel-Visited").d,
-        texts: [...svg.querySelectorAll("text")].map(t => t.textContent),
-        aria: [...svg.querySelectorAll("[aria-label]")].map(n =>
-          n.getAttribute("aria-label"),
-        ),
-        nan: [...svg.querySelectorAll("*")].filter(n =>
-          [...n.attributes].some(a => a.value.includes("NaN")),
-        ).length,
-        legend: viz.schema.legend({}, viz._filteredData),
-        zoom: viz.zoom(),
-        transform: viz._chartTransform,
-        margin: viz._margin,
-      };
-    },
-    stages,
-  );
-  assert.deepStrictEqual(out.keys, [
-    "funnel-Pricing-neck",
-    "funnel-Trial-neck",
-    "funnel-Activated-neck",
-    "funnel-Subscribed-neck",
-    "funnel-Visited",
-    "funnel-Pricing",
-    "funnel-Trial",
-    "funnel-Activated",
-    "funnel-Subscribed",
-  ]);
-  assert.ok(
-    out.neckInteractive.every(v => v === false),
-    "necks aren't hit targets",
-  );
-  assert.strictEqual(
-    out.neckDatum,
-    "Pricing",
-    "a neck belongs to the stage it leads into",
-  );
-  assert.strictEqual(out.neckOpacity, 0.35);
-  assert.strictEqual(
-    out.neckFill,
-    out.stageFill,
-    "necks take their stage's fill",
-  );
-  assert.ok(
-    /^M2,2L2,/.test(out.firstPath),
-    `first stage spans the width (${out.firstPath})`,
-  );
-  for (const t of ["Visited", "12.4k", "Subscribed", "760"])
-    assert.ok(out.texts.includes(t), `renders "${t}"`);
-  assert.ok(!out.texts.some(t => /of first/.test(t)), "no rates by default");
-  assert.ok(out.aria.includes("1. Visited, 12.4k."), "stage aria label");
-  assert.strictEqual(out.nan, 0, "no NaN attributes");
-  assert.strictEqual(out.legend, false, "stages are labeled, so no legend");
-  assert.strictEqual(out.zoom, false, "zoom is off by default");
-});
+it(
+  "Funnel emits necks, stage paths, and labels",
+  {timeout: 180000},
+  async function () {
+    // The first browser test also builds the UMD bundle.
+    const out = await render(
+      "<div id='viz' style='width:600px;height:400px'></div>",
+      async data => {
+        const viz = new window.d3plus.Funnel()
+          .select("#viz")
+          .duration(0)
+          .data(data);
+        await new Promise(r => viz.render(r));
+        const scene = viz._chartScene;
+        const svg = document.querySelector("#viz svg");
+        const paths = scene.filter(n => n.type === "path");
+        return {
+          keys: paths.map(n => n.key),
+          neckInteractive: paths
+            .filter(n => n.key.endsWith("-neck"))
+            .map(n => n.interactive),
+          neckDatum: paths.find(n => n.key === "funnel-Pricing-neck").datum.id,
+          neckOpacity: paths.find(n => n.key === "funnel-Pricing-neck").paint
+            .opacity,
+          neckFill: paths.find(n => n.key === "funnel-Pricing-neck").paint.fill,
+          stageFill: paths.find(n => n.key === "funnel-Pricing").paint.fill,
+          firstPath: paths.find(n => n.key === "funnel-Visited").d,
+          texts: [...svg.querySelectorAll("text")].map(t => t.textContent),
+          aria: [...svg.querySelectorAll("[aria-label]")].map(n =>
+            n.getAttribute("aria-label"),
+          ),
+          nan: [...svg.querySelectorAll("*")].filter(n =>
+            [...n.attributes].some(a => a.value.includes("NaN")),
+          ).length,
+          legend: viz.schema.legend({}, viz._filteredData),
+          zoom: viz.zoom(),
+          transform: viz._chartTransform,
+          margin: viz._margin,
+        };
+      },
+      stages,
+    );
+    assert.deepStrictEqual(out.keys, [
+      "funnel-Pricing-neck",
+      "funnel-Trial-neck",
+      "funnel-Activated-neck",
+      "funnel-Subscribed-neck",
+      "funnel-Visited",
+      "funnel-Pricing",
+      "funnel-Trial",
+      "funnel-Activated",
+      "funnel-Subscribed",
+    ]);
+    assert.ok(
+      out.neckInteractive.every(v => v === false),
+      "necks aren't hit targets",
+    );
+    assert.strictEqual(
+      out.neckDatum,
+      "Pricing",
+      "a neck belongs to the stage it leads into",
+    );
+    assert.strictEqual(out.neckOpacity, 0.35);
+    assert.strictEqual(
+      out.neckFill,
+      out.stageFill,
+      "necks take their stage's fill",
+    );
+    assert.ok(
+      /^M2,2L2,/.test(out.firstPath),
+      `first stage spans the width (${out.firstPath})`,
+    );
+    for (const t of ["Visited", "12.4k", "Subscribed", "760"])
+      assert.ok(out.texts.includes(t), `renders "${t}"`);
+    assert.ok(!out.texts.some(t => /of first/.test(t)), "no rates by default");
+    assert.ok(out.aria.includes("1. Visited, 12.4k."), "stage aria label");
+    assert.strictEqual(out.nan, 0, "no NaN attributes");
+    assert.strictEqual(out.legend, false, "stages are labeled, so no legend");
+    assert.strictEqual(out.zoom, false, "zoom is off by default");
+  },
+);
 
 it("Funnel places labels inside wide stages and beside narrow ones", async function () {
   const out = await render(
@@ -352,7 +356,10 @@ it("Funnel shares one width scale across panels only when facetConfig asks", asy
         return flat
           .filter(n => n.type === "path" && /funnel-Visited$/.test(n.key || ""))
           .map(n => {
-            const xs = n.d.slice(1, -1).split("L").map(p => +p.split(",")[0]);
+            const xs = n.d
+              .slice(1, -1)
+              .split("L")
+              .map(p => +p.split(",")[0]);
             return Math.max(...xs) - Math.min(...xs);
           });
       };
@@ -377,11 +384,21 @@ it("Funnel shares one width scale across panels only when facetConfig asks", asy
     stages,
   );
   const [a, b] = out.independent;
-  assert.ok(Math.abs(a - b) < 1, `each panel fills its own width by default (${a}, ${b})`);
+  assert.ok(
+    Math.abs(a - b) < 1,
+    `each panel fills its own width by default (${a}, ${b})`,
+  );
   const [sa, sb] = out.shared;
   assert.ok(Math.abs(sa - a) < 1, "the largest panel keeps its width");
-  assert.ok(Math.abs(sb - sa / 4) < 1, `a panel with a quarter the volume draws a quarter as wide (${sb})`);
-  assert.deepStrictEqual(out.canvas.map(Math.round), out.shared.map(Math.round), "Canvas lays out the same");
+  assert.ok(
+    Math.abs(sb - sa / 4) < 1,
+    `a panel with a quarter the volume draws a quarter as wide (${sb})`,
+  );
+  assert.deepStrictEqual(
+    out.canvas.map(Math.round),
+    out.shared.map(Math.round),
+    "Canvas lays out the same",
+  );
 });
 
 it("Funnel sorts stages with a comparator, and its labels follow the order", async function () {
@@ -399,14 +416,22 @@ it("Funnel sorts stages with a comparator, and its labels follow the order", asy
         order: viz._chartScene
           .filter(n => n.type === "path" && !/-neck$/.test(n.key))
           .map(n => n.key.replace("funnel-", "")),
-        texts: [...document.querySelectorAll("#viz text")].map(t => t.textContent),
+        texts: [...document.querySelectorAll("#viz text")].map(
+          t => t.textContent,
+        ),
       };
     },
     stages,
   );
-  assert.deepStrictEqual(out.order, stages.map(d => d.id));
+  assert.deepStrictEqual(
+    out.order,
+    stages.map(d => d.id),
+  );
   // Pricing is 6.9k of Visited's 12.4k: 55.6% of the stage drawn before it.
-  assert.ok(out.texts.some(t => /^55\.6\d*% of previous$/.test(t)), out.texts.join(" | "));
+  assert.ok(
+    out.texts.some(t => /^55\.6\d*% of previous$/.test(t)),
+    out.texts.join(" | "),
+  );
 });
 
 it("Funnel paints on Canvas and picks the stage under the pointer", async function () {
@@ -499,7 +524,8 @@ it("Funnel's stages, necks, and legend swatches take texture and backgroundImage
     const out = await render(
       "",
       async ({data, renderer: r}) => {
-        const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+        const image =
+          "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
         const draw = async connectorConfig => {
           const el = document.createElement("div");
           el.style.cssText = "width:600px;height:400px";
@@ -508,13 +534,19 @@ it("Funnel's stages, necks, and legend swatches take texture and backgroundImage
             .select(el)
             .duration(0)
             .renderer(r)
-            .config({data, groupBy: ["phase", "stage"], ...(connectorConfig ? {connectorConfig} : {})})
+            .config({
+              data,
+              groupBy: ["phase", "stage"],
+              ...(connectorConfig ? {connectorConfig} : {}),
+            })
             .shapeConfig({texture: "lines", backgroundImage: image});
           await new Promise(res => viz.render(res));
           const leaves = [];
           const walk = (n, anc) =>
             n.type === "group"
-              ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
+              ? (n.children || []).forEach(c =>
+                  walk(c, `${anc}>${n.key || ""}`),
+                )
               : leaves.push({...n, anc});
           walk(viz._lastSceneRendered.root, "");
           const groups = [];
@@ -524,18 +556,31 @@ it("Funnel's stages, necks, and legend swatches take texture and backgroundImage
             (n.children || []).forEach(walkGroups);
           };
           walkGroups(viz._lastSceneRendered.root);
-          const images = new Set(leaves.filter(n => n.type === "image").map(n => n.key));
+          const images = new Set(
+            leaves.filter(n => n.type === "image").map(n => n.key),
+          );
           const mark = n => ({
             key: n.key,
             textured: String(n.paint.fill).startsWith("pattern:"),
             image: images.has(`${n.key}-bgimage-img`),
             opacity: n.paint.opacity,
-            imageOpacity: (groups.find(g => g.key === `${n.key}-bgimage`) || {paint: {}}).paint.opacity,
+            imageOpacity: (
+              groups.find(g => g.key === `${n.key}-bgimage`) || {paint: {}}
+            ).paint.opacity,
           });
-          const paths = leaves.filter(n => n.type === "path" && /^funnel-/.test(n.key));
-          const swatches = leaves.filter(n =>
-            ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
-            !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
+          const paths = leaves.filter(
+            n => n.type === "path" && /^funnel-/.test(n.key),
+          );
+          const swatches = leaves.filter(
+            n =>
+              ["rect", "circle", "path"].includes(n.type) &&
+              n.datum &&
+              n.anc.includes("viz-legend") &&
+              !String(n.key).endsWith("::hit") &&
+              n.paint &&
+              n.paint.fill &&
+              n.paint.fill !== "none",
+          );
           const svg = el.querySelector("svg");
           const dom = svg ? svg.querySelectorAll("image").length : null;
           el.remove();
@@ -554,19 +599,47 @@ it("Funnel's stages, necks, and legend swatches take texture and backgroundImage
       {data: phases, renderer},
     );
     const {inherit, off} = out;
-    assert.strictEqual(inherit.stages.length, 4, `${renderer}: a path per stage`);
-    assert.strictEqual(inherit.necks.length, 3, `${renderer}: a neck between each pair`);
+    assert.strictEqual(
+      inherit.stages.length,
+      4,
+      `${renderer}: a path per stage`,
+    );
+    assert.strictEqual(
+      inherit.necks.length,
+      3,
+      `${renderer}: a neck between each pair`,
+    );
     for (const m of [...inherit.stages, ...inherit.necks])
       assert.ok(m.textured && m.image, `${renderer}: ${m.key} takes both`);
     for (const m of inherit.necks)
-      assert.strictEqual(m.imageOpacity, m.opacity, `${renderer}: ${m.key}'s image takes its opacity`);
+      assert.strictEqual(
+        m.imageOpacity,
+        m.opacity,
+        `${renderer}: ${m.key}'s image takes its opacity`,
+      );
     assert.strictEqual(inherit.necks[0].opacity, 0.35);
-    assert.strictEqual(inherit.swatches.length, 3, `${renderer}: a swatch per phase`);
+    assert.strictEqual(
+      inherit.swatches.length,
+      3,
+      `${renderer}: a swatch per phase`,
+    );
     for (const m of inherit.swatches)
-      assert.ok(m.textured && m.image, `${renderer}: swatch ${m.key} takes both`);
+      assert.ok(
+        m.textured && m.image,
+        `${renderer}: swatch ${m.key} takes both`,
+      );
     if (renderer === "svg")
-      assert.ok(inherit.dom >= 4 + 3 + 3, `the DOM draws ${inherit.dom} images`);
-    assert.ok(off.stages.every(m => m.textured && m.image), `${renderer}: stages keep both`);
-    assert.ok(off.necks.every(m => !m.textured && !m.image), `${renderer}: connectorConfig turns both off`);
+      assert.ok(
+        inherit.dom >= 4 + 3 + 3,
+        `the DOM draws ${inherit.dom} images`,
+      );
+    assert.ok(
+      off.stages.every(m => m.textured && m.image),
+      `${renderer}: stages keep both`,
+    );
+    assert.ok(
+      off.necks.every(m => !m.textured && !m.image),
+      `${renderer}: connectorConfig turns both off`,
+    );
   }
 });

@@ -70,7 +70,10 @@ export interface StageRates {
     rather than written onto the user's rows.
 */
 export function stageRates(viz: VizInstance): WeakMap<DataPoint, StageRates> {
-  return (viz.ctx.funnelRates ??= new WeakMap<DataPoint, StageRates>()) as WeakMap<DataPoint, StageRates>;
+  return (viz.ctx.funnelRates ??= new WeakMap<
+    DataPoint,
+    StageRates
+  >()) as WeakMap<DataPoint, StageRates>;
 }
 
 /**

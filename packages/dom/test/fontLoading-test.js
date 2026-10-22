@@ -1,10 +1,6 @@
 import {it} from "vitest";
 import assert from "assert";
-import {
-  noteMeasured,
-  onFontsLoaded,
-  watchFonts,
-} from "../src/fontLoading.ts";
+import {noteMeasured, onFontsLoaded, watchFonts} from "../src/fontLoading.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom({augment: false});

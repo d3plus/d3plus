@@ -36,15 +36,20 @@ it("a config change that fires two _renderTiles calls in one tick doesn't lose o
           // `applyConfig` + `render()` call does on every prop change.
           viz.config({
             projection: "geoMercator",
-            tileUrl: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+            tileUrl:
+              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
           });
           viz.render(() => {
             window.setTimeout(() => {
-              const tiles = [...document.querySelectorAll("image.d3plus-geomap-tile")];
+              const tiles = [
+                ...document.querySelectorAll("image.d3plus-geomap-tile"),
+              ];
               resolve({
                 count: tiles.length,
                 opacities: tiles.map(t => window.getComputedStyle(t).opacity),
-                hrefs: tiles.map(t => t.getAttribute("xlink:href") || t.getAttribute("href")),
+                hrefs: tiles.map(
+                  t => t.getAttribute("xlink:href") || t.getAttribute("href"),
+                ),
               });
             }, 300);
           });

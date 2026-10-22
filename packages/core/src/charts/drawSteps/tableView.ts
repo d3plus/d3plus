@@ -50,7 +50,9 @@ const PANEL_KEY = "viz-table-view-overlay";
 
 /** Resolves the `<th data-column="...">` a sort click/keypress landed on, or null outside one. */
 function sortColumnFromEvent(e: Event): string | undefined {
-  const th = (e.target as Element).closest(".tableview-sort-header") as HTMLElement | null;
+  const th = (e.target as Element).closest(
+    ".tableview-sort-header",
+  ) as HTMLElement | null;
   return th?.dataset.column;
 }
 
@@ -70,7 +72,9 @@ function buildOverlayPanel(viz: Viz): SceneNode {
       ".tableview-page-prev": {click: (): void => changeTableViewPage(viz, -1)},
       ".tableview-page-next": {click: (): void => changeTableViewPage(viz, 1)},
       ".tableview-download-csv": {click: (): void => downloadTableViewCsv(viz)},
-      ".tableview-source-toggle": {click: (): void => toggleTableViewDataSource(viz)},
+      ".tableview-source-toggle": {
+        click: (): void => toggleTableViewDataSource(viz),
+      },
       ".tableview-sort-header": {
         click: (e: Event): void => {
           const column = sortColumnFromEvent(e);
@@ -138,7 +142,8 @@ export function changeTableViewPage(viz: Viz, dir: number): void {
 */
 export function changeTableViewSort(viz: Viz, column: string): void {
   const current = getTableViewSort(viz);
-  const direction = current?.column === column && current.direction === "asc" ? "desc" : "asc";
+  const direction =
+    current?.column === column && current.direction === "asc" ? "desc" : "asc";
   setTableViewSort(viz, {column, direction});
   setTableViewPage(viz, 0);
   refreshTableViewOverlay(viz);
@@ -155,7 +160,10 @@ export function changeTableViewSort(viz: Viz, column: string): void {
     new source's columns, so there's nothing to actively reconcile.
 */
 export function toggleTableViewDataSource(viz: Viz): void {
-  setTableViewDataSource(viz, getTableViewDataSource(viz) === "raw" ? "aggregate" : "raw");
+  setTableViewDataSource(
+    viz,
+    getTableViewDataSource(viz) === "raw" ? "aggregate" : "raw",
+  );
   setTableViewPage(viz, 0);
   refreshTableViewOverlay(viz);
 }

@@ -17,7 +17,11 @@ import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The chrome that can be drawn inside the chart, in the order it is tried. */
 export type InsetKey = "sizeLegend" | "legend" | "colorScale";
-export const INSET_PRIORITY: InsetKey[] = ["sizeLegend", "legend", "colorScale"];
+export const INSET_PRIORITY: InsetKey[] = [
+  "sizeLegend",
+  "legend",
+  "colorScale",
+];
 
 /** How a legend or colorScale is laid out when drawn inside the chart. */
 export type InsetOrient = "column" | "row";
@@ -81,7 +85,10 @@ export function isInsetPending(viz: VizInstance, key: InsetKey): boolean {
 }
 
 /** The final placement of `key`, or null when it isn't drawn inside the chart. */
-export function insetPlacementFor(viz: VizInstance, key: InsetKey): InsetPlacement | null {
+export function insetPlacementFor(
+  viz: VizInstance,
+  key: InsetKey,
+): InsetPlacement | null {
   const p = viz._insetPlacement;
   return p && p.key === key ? p : null;
 }
@@ -106,7 +113,10 @@ export function insetFrame(
 }
 
 /** The semi-transparent box drawn behind inset chrome, so it stays legible over marks panned beneath it. */
-export function insetBackground(viz: VizInstance, placement: InsetPlacement): SceneNode {
+export function insetBackground(
+  viz: VizInstance,
+  placement: InsetPlacement,
+): SceneNode {
   const style = insetStyle(viz);
   const fill = style.fill ?? chartBackground(viz);
   return {
@@ -142,7 +152,10 @@ export function insetComponentScene(
 ): SceneNode[] {
   const transform = insetComponentOffset(viz, key, bounds);
   if (!transform) return [scene];
-  return [insetBackground(viz, insetPlacementFor(viz, key)!), {...scene, transform}];
+  return [
+    insetBackground(viz, insetPlacementFor(viz, key)!),
+    {...scene, transform},
+  ];
 }
 
 /**
@@ -158,5 +171,8 @@ export function insetComponentOffset(
   const placed = insetPlacementFor(viz, key);
   if (!placed) return null;
   const {margin} = insetStyle(viz);
-  return {x: placed.x + margin - (bounds.x ?? 0), y: placed.y + margin - (bounds.y ?? 0)};
+  return {
+    x: placed.x + margin - (bounds.x ?? 0),
+    y: placed.y + margin - (bounds.y ?? 0),
+  };
 }

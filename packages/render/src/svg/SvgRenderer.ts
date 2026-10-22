@@ -5,8 +5,18 @@ import textures from "textures";
 import type {FlipTransition} from "../animate/diff.js";
 import {trailPartsFromNode} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
-import {commitTrailCatchups, commitTrailScene, isPersistTrail, TrailLog} from "../animate/trailLog.js";
-import {attachPersistTrail, attachSvgTrail, removePersistTrail, TrailGradients} from "./svgTrail.js";
+import {
+  commitTrailCatchups,
+  commitTrailScene,
+  isPersistTrail,
+  TrailLog,
+} from "../animate/trailLog.js";
+import {
+  attachPersistTrail,
+  attachSvgTrail,
+  removePersistTrail,
+  TrailGradients,
+} from "./svgTrail.js";
 import {enterStart, reconcileExit} from "./svgFlip.js";
 import {clockedTransition, trackTransition} from "./svgClock.js";
 import {fadeSwapText} from "./svgFade.js";
@@ -69,7 +79,8 @@ let rendererInstanceSeq = 0;
     (headless DOMs).
 */
 function svgClientOrigin(svg: SVGSVGElement): {left: number; top: number} {
-  const ctm = typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
+  const ctm =
+    typeof svg.getScreenCTM === "function" ? svg.getScreenCTM() : null;
   if (ctm) return {left: ctm.e, top: ctm.f};
   const rect = svg.getBoundingClientRect();
   return {left: rect.left, top: rect.top};
@@ -101,7 +112,10 @@ export default class SvgRenderer implements Renderer {
   private _gradientDefs = new Map<string, string>();
   private _gradientSeq = 0;
   /** Reused per-mark userSpaceOnUse gradients for persistent trails. */
-  private _trailGrads = new TrailGradients(() => this._ensureDefs(), () => this._uid);
+  private _trailGrads = new TrailGradients(
+    () => this._ensureDefs(),
+    () => this._uid,
+  );
   private _handlers = new Set<(event: SceneEvent) => void>();
   private _domListeners: Record<string, (e: Event) => void> = {};
   private _listening = false;
@@ -184,7 +198,8 @@ export default class SvgRenderer implements Renderer {
     // reconcile node), so committed segments accumulate and stale keys prune.
     // Persistence is active only with a single-period timeline sequence; without
     // one (range/brushing selection, or no timeline) trails fall back to ephemeral.
-    if (opts?.trailCatchup) commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
+    if (opts?.trailCatchup)
+      commitTrailCatchups(this._trailLog, scene, opts.trailCatchup);
     this._trailActive = commitTrailScene(this._trailLog, scene, opts?.sequence);
 
     if (scene.meta?.background)
@@ -192,8 +207,10 @@ export default class SvgRenderer implements Renderer {
 
     const t = clockedTransition(duration);
     const flip: FlipTransition = {
-      enterFrom: opts?.enterFrom, enterFromBody: opts?.enterFromBody,
-      exitTo: opts?.exitTo, exitToBody: opts?.exitToBody,
+      enterFrom: opts?.enterFrom,
+      enterFromBody: opts?.enterFromBody,
+      exitTo: opts?.exitTo,
+      exitToBody: opts?.exitToBody,
       instantExitKey: opts?.instantExitKey,
       reunionEnterKey: opts?.reunionEnterKey,
       reunionEnterFrom: opts?.reunionEnterFrom,
@@ -252,7 +269,8 @@ export default class SvgRenderer implements Renderer {
     // userSpaceOnUse anchors the gradient to absolute scene coords (motion
     // trails), so it stays put as the path's box grows; the default is
     // objectBoundingBox (from/to in 0–1, relative to the painted node).
-    if (g.units === "userSpaceOnUse") lg.setAttribute("gradientUnits", "userSpaceOnUse");
+    if (g.units === "userSpaceOnUse")
+      lg.setAttribute("gradientUnits", "userSpaceOnUse");
     lg.setAttribute("x1", String(g.from[0]));
     lg.setAttribute("y1", String(g.from[1]));
     lg.setAttribute("x2", String(g.to[0]));
@@ -281,7 +299,9 @@ export default class SvgRenderer implements Renderer {
     const key = fill.slice("pattern:".length);
     let def = this._textureDefs.get(key);
     if (!def) {
-      const config = JSON.parse(key) as Record<string, unknown> & {texture: string};
+      const config = JSON.parse(key) as Record<string, unknown> & {
+        texture: string;
+      };
       const textureClass = config.texture;
       delete (config as Record<string, unknown>).texture;
       const t = textures[textureClass]();
@@ -346,7 +366,8 @@ export default class SvgRenderer implements Renderer {
       }
       // Drop any persistent-trail paths + gradient the exiting mark left behind
       // (its log entry is already pruned by commitTrailScene).
-      if (d && this.parentNode) removePersistTrail(this.parentNode as Element, d.key);
+      if (d && this.parentNode)
+        removePersistTrail(this.parentNode as Element, d.key);
       if (d) self._trailGrads.remove(d.key);
     });
     reconcileExit(exit, duration, t, flip, resolveFill);
@@ -385,13 +406,24 @@ export default class SvgRenderer implements Renderer {
       const prevText =
         duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
       const trailPrev =
-        duration && canTrail && !persistTrail ? stash.__d3plusTrailPrev__ : undefined;
+        duration && canTrail && !persistTrail
+          ? stash.__d3plusTrailPrev__
+          : undefined;
       const draw = (el: SvgSelection) => {
         applyStatic(el, d);
         applyGeometry(el, d, false, resolveFill);
       };
       // A fade-swap label (TextNode.fadeSwap) fades instead of gliding.
-      if (duration && fadeSwapText(s, d, prevText, () => windowed(trackTransition(s.transition(t), t)), draw)) {
+      if (
+        duration &&
+        fadeSwapText(
+          s,
+          d,
+          prevText,
+          () => windowed(trackTransition(s.transition(t), t)),
+          draw,
+        )
+      ) {
         // Its tween does the rest.
       } else if (duration) {
         applyStatic(s, d);
@@ -406,13 +438,20 @@ export default class SvgRenderer implements Renderer {
         // Sweep a motion-trail cone from the mark's previous position to its
         // current one, beneath the mark (parity with the Canvas backend). A
         // persistent trail draws its whole history from the log instead.
-        if (persistTrail) attachPersistTrail(this, tsel, self._trailLog, d, f => self._trailGrads.apply(d.key, f));
-        else if (trailPrev) attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
+        if (persistTrail)
+          attachPersistTrail(this, tsel, self._trailLog, d, f =>
+            self._trailGrads.apply(d.key, f),
+          );
+        else if (trailPrev)
+          attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
       } else {
         draw(s);
         // Redraw the persistent trail on non-animated repaints (e.g. hover) so
         // it doesn't vanish; static geometry, no tween.
-        if (persistTrail) attachPersistTrail(this, null, self._trailLog, d, f => self._trailGrads.apply(d.key, f));
+        if (persistTrail)
+          attachPersistTrail(this, null, self._trailLog, d, f =>
+            self._trailGrads.apply(d.key, f),
+          );
       }
       if (d.type === "text") stash.__d3plusTextPrev__ = d;
       if (canTrail && !persistTrail) {
@@ -472,7 +511,10 @@ export default class SvgRenderer implements Renderer {
     }
     let clipPath = this._defs.querySelector<SVGClipPathElement>(`#${id}`);
     if (!clipPath) {
-      clipPath = document.createElementNS(SVG_NS, "clipPath") as SVGClipPathElement;
+      clipPath = document.createElementNS(
+        SVG_NS,
+        "clipPath",
+      ) as SVGClipPathElement;
       clipPath.setAttribute("id", id);
       this._defs.appendChild(clipPath);
     }
@@ -525,24 +567,25 @@ export default class SvgRenderer implements Renderer {
     // inside either hook sees the realized DOM. The
     // dimension/style/innerHTML/events block is identical to the
     // Canvas backend's — both delegate to `applyOverlayToElement`.
-    enter
-      .merge(sel)
-      .each(function (this: HTMLDivElement, d) {
-        applyOverlayToElement(this, d);
-        const o = d.node;
-        const flags = this as unknown as {__justEntered?: boolean};
-        if (flags.__justEntered) {
-          flags.__justEntered = false;
-          if (o.onMount) o.onMount(this);
-        }
-        if (o.onUpdate) o.onUpdate(this);
-      });
+    enter.merge(sel).each(function (this: HTMLDivElement, d) {
+      applyOverlayToElement(this, d);
+      const o = d.node;
+      const flags = this as unknown as {__justEntered?: boolean};
+      if (flags.__justEntered) {
+        flags.__justEntered = false;
+        if (o.onMount) o.onMount(this);
+      }
+      if (o.onUpdate) o.onUpdate(this);
+    });
   }
 
   pick(point: [number, number]): PickResult | null {
     if (!this._svg) return null;
     const origin = svgClientOrigin(this._svg);
-    const el = document.elementFromPoint(origin.left + point[0], origin.top + point[1]);
+    const el = document.elementFromPoint(
+      origin.left + point[0],
+      origin.top + point[1],
+    );
     return this._pickFromElement(el);
   }
 
@@ -586,11 +629,16 @@ export default class SvgRenderer implements Renderer {
       cachedOrigin = null;
     };
     window.addEventListener("resize", invalidateRect, {passive: true});
-    window.addEventListener("scroll", invalidateRect, {passive: true, capture: true});
+    window.addEventListener("scroll", invalidateRect, {
+      passive: true,
+      capture: true,
+    });
     this._invalidatePointerRect = invalidateRect;
     this._removePointerRectListeners = () => {
       window.removeEventListener("resize", invalidateRect);
-      window.removeEventListener("scroll", invalidateRect, {capture: true} as EventListenerOptions);
+      window.removeEventListener("scroll", invalidateRect, {
+        capture: true,
+      } as EventListenerOptions);
     };
     const local = (e: MouseEvent): [number, number] => {
       if (!cachedOrigin) cachedOrigin = svgClientOrigin(svg);
@@ -603,7 +651,12 @@ export default class SvgRenderer implements Renderer {
         const key = pick?.node.key ?? null;
         if (key !== this._hoverKey) {
           if (this._hoverKey !== null)
-            this._dispatch({type: "mouseleave", point, pick: null, nativeEvent: e});
+            this._dispatch({
+              type: "mouseleave",
+              point,
+              pick: null,
+              nativeEvent: e,
+            });
           this._hoverKey = key;
           if (key !== null)
             this._dispatch({type: "mouseenter", point, pick, nativeEvent: e});

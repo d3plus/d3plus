@@ -12,8 +12,7 @@ import {installMeasureContext} from "./measure.js";
     Options for the raster (canvas/PNG) helpers.
 */
 export interface RasterRenderOptions
-  extends StaticRenderOptions,
-    NapiBackendOptions {
+  extends StaticRenderOptions, NapiBackendOptions {
   /**
       Device-pixel ratio (backing-store scale) for the output. Higher values
       yield sharper, larger rasters. Defaults to 2.

@@ -51,7 +51,9 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
   // Sankey's link config is the raw `viz.schema.shapeConfig.Path` (no
   // configPrep wrap) because links are raw `{source, target, value}`
   // records — not d3plus-wrapped.
-  const linkConfig = ((viz.schema.shapeConfig as Record<string, unknown> | undefined)?.Path ?? {}) as Record<string, unknown>;
+  const linkConfig = ((
+    viz.schema.shapeConfig as Record<string, unknown> | undefined
+  )?.Path ?? {}) as Record<string, unknown>;
   if (c.links && c.links.length) {
     for (let i = 0; i < c.links.length; i++) {
       const link = c.links[i];
@@ -60,7 +62,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
       out.push({
         type: "path",
         shapeType: "Link",
-        key: `sankey-link-${(link.source.id ?? "")}-${(link.target.id ?? "")}`,
+        key: `sankey-link-${link.source.id ?? ""}-${link.target.id ?? ""}`,
         d: c.pathFn(link),
         datum,
         paint,
@@ -76,13 +78,39 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
       if (ends.source || ends.target) {
         const width = typeof link.width === "number" ? link.width : 2;
         const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
-        const size = typeof sizeCfg === "number" ? sizeCfg : Math.max(8, Math.min(width, 28));
-        const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
+        const size =
+          typeof sizeCfg === "number"
+            ? sizeCfg
+            : Math.max(8, Math.min(width, 28));
+        const fill =
+          typeof paint.stroke === "string" ? paint.stroke : undefined;
         if (ends.target && typeof link.y1 === "number") {
-          out.push(arrowNode({key: `sankey-arrow-t-${link.source.id}-${link.target.id}`, datum, x: link.target.x0, y: link.y1, angle: 0, size, fill, opacity: 1}));
+          out.push(
+            arrowNode({
+              key: `sankey-arrow-t-${link.source.id}-${link.target.id}`,
+              datum,
+              x: link.target.x0,
+              y: link.y1,
+              angle: 0,
+              size,
+              fill,
+              opacity: 1,
+            }),
+          );
         }
         if (ends.source && typeof link.y0 === "number") {
-          out.push(arrowNode({key: `sankey-arrow-s-${link.source.id}-${link.target.id}`, datum, x: link.source.x1, y: link.y0, angle: Math.PI, size, fill, opacity: 1}));
+          out.push(
+            arrowNode({
+              key: `sankey-arrow-s-${link.source.id}-${link.target.id}`,
+              datum,
+              x: link.source.x1,
+              y: link.y0,
+              angle: Math.PI,
+              size,
+              fill,
+              opacity: 1,
+            }),
+          );
         }
       }
     }
@@ -111,7 +139,9 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
             aria,
           } as SceneNode);
         } else if (shapeKind === "Circle") {
-          const r = Number(resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0);
+          const r = Number(
+            resolveAccessor<number>(cfg.r, datum, d.i ?? i) ?? 0,
+          );
           out.push({
             type: "circle",
             key: `sankey-${shapeKind}-${d.id}`,
@@ -125,10 +155,12 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         }
         // Other shape kinds: skipped (Sankey's default is Rect).
       }
-      out.push(...backgroundImageNodes(cfg, out.slice(start), k => {
-        const d = values[k];
-        return [(d.data ?? d) as DataPoint, d.i ?? k];
-      }));
+      out.push(
+        ...backgroundImageNodes(cfg, out.slice(start), k => {
+          const d = values[k];
+          return [(d.data ?? d) as DataPoint, d.i ?? k];
+        }),
+      );
     }
   }
 

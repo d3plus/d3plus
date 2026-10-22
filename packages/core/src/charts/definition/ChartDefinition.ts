@@ -70,7 +70,9 @@ interface ChartDefinitionBase {
       after the layout stage runs; returns the transform applied to the
       chart scene. Default: margin-origin translation.
   */
-  chartTransform?: (viz: VizInstance) => import("@d3plus/render").Transform | undefined;
+  chartTransform?: (
+    viz: VizInstance,
+  ) => import("@d3plus/render").Transform | undefined;
   /**
       Optional fixed clip region for the chart-cells group (a window in absolute
       scene coordinates that the chart content is clipped to). Geomap uses this to
@@ -80,7 +82,9 @@ interface ChartDefinitionBase {
       group inside it), so the clip is in surface coordinates. Zoomable charts
       without one are clipped to the chart area.
   */
-  chartClip?: (viz: VizInstance) => import("@d3plus/render").ClipShape | undefined;
+  chartClip?: (
+    viz: VizInstance,
+  ) => import("@d3plus/render").ClipShape | undefined;
   /**
       Optional chart-specific "local body rect" — the box the drill-down morph
       transition (`enterFrom`/`exitTo`) measures its fractions against. Read
@@ -91,7 +95,12 @@ interface ChartDefinitionBase {
       group at that same local origin (Treemap; Pack overrides this, since its
       body is a diameter-sized square, not the full chart area).
   */
-  chartBodyRect?: (viz: VizInstance) => {x: number; y: number; width: number; height: number};
+  chartBodyRect?: (viz: VizInstance) => {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+  };
   /**
       Optional pass over the chart's finished scene, run each time the chart
       builds it (`toScene()`): after the chart cells, components, and feature
@@ -120,7 +129,9 @@ interface ChartDefinitionBase {
     A data-driven chart's emit: a pure function from a chart context (with
     optional laid-out `shapeData`) to the scene nodes for one frame.
 */
-export type ChartEmit = (ctx: VizContext & {shapeData?: DataPoint[]}) => SceneNode[];
+export type ChartEmit = (
+  ctx: VizContext & {shapeData?: DataPoint[]},
+) => SceneNode[];
 
 /** Data-driven chart: `emit(ctx)` produces the scene nodes. */
 export interface DataDrivenChartDefinition extends ChartDefinitionBase {
@@ -141,8 +152,7 @@ export interface PaintDrivenChartDefinition extends ChartDefinitionBase {
 
 /** Discriminated union; use `isPaintDriven` to narrow. */
 export type ChartDefinition =
-  | DataDrivenChartDefinition
-  | PaintDrivenChartDefinition;
+  DataDrivenChartDefinition | PaintDrivenChartDefinition;
 
 /** Type guard for the paint-driven variant. */
 export function isPaintDriven(

@@ -38,8 +38,13 @@ export const ridgelineEmit: ShapeEmitter = (ctx, key) => {
   const overlap = ridgeOverlap(viz);
   const domain = yDomain as unknown[];
   const positions = domain.map(c => y(c, "y")).sort((a, b) => a - b);
-  let step = categoryStep(yRange[yRange.length - 1] - yRange[0], domain.length, ridgelinePadding(overlap)[0]);
-  for (let i = 1; i < positions.length; i++) step = Math.min(step, positions[i] - positions[i - 1]);
+  let step = categoryStep(
+    yRange[yRange.length - 1] - yRange[0],
+    domain.length,
+    ridgelinePadding(overlap)[0],
+  );
+  for (let i = 1; i < positions.length; i++)
+    step = Math.min(step, positions[i] - positions[i - 1]);
   const height = overlap * step;
 
   const rows = values
@@ -51,7 +56,13 @@ export const ridgelineEmit: ShapeEmitter = (ctx, key) => {
   rows.forEach(({row, base}) => {
     const meta = densityMeta(row)!;
     meta.summary.curve.forEach(([v, density]) => {
-      outline.push({...row, id: densityShapeId(row), __pos: x(v), __base: base, __top: base - density * meta.scale * height});
+      outline.push({
+        ...row,
+        id: densityShapeId(row),
+        __pos: x(v),
+        __base: base,
+        __top: base - density * meta.scale * height,
+      });
     });
   });
 
@@ -59,7 +70,14 @@ export const ridgelineEmit: ShapeEmitter = (ctx, key) => {
   const base = (d: RidgeDatum) => d.__base;
   const top = (d: RidgeDatum) => d.__top;
   const geometry = {x: pos, x0: pos, x1: null, y: base, y0: base, y1: top};
-  const nodes = genericEmit({...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}}, key);
-  growFromLine(nodes, "y", new Map(rows.map(({row, base}) => [densityShapeId(row), base])));
+  const nodes = genericEmit(
+    {...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}},
+    key,
+  );
+  growFromLine(
+    nodes,
+    "y",
+    new Map(rows.map(({row, base}) => [densityShapeId(row), base])),
+  );
   return nodes;
 };

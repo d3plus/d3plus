@@ -6,117 +6,123 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Pie as D3plusPie} from "@d3plus/react";
-export const Pie = ({ config }) => <D3plusPie config={config} />;
+export const Pie = ({config}) => <D3plusPie config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Pie
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Pie-specific methods
    */
-  
+
   {
     innerRadius: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
-      description: "The inner radius of the Pie, in pixels, or a function that returns one; a nonzero value makes a Donut.",
+      description:
+        "The inner radius of the Pie, in pixels, or a function that returns one; a nonzero value makes a Donut.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     legend: {
       table: {
         defaultValue: {
-          summary: "rowLegend"
-        }
-      }
+          summary: "rowLegend",
+        },
+      },
     },
     legendSort: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     padAngle: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The padding between each arc, in radians. When set, takes precedence over `padPixel`.",
+      description:
+        "The padding between each arc, in radians. When set, takes precedence over `padPixel`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     padPixel: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
-      description: "The padding between each arc, in pixels, converted to an angle at the outer radius. Ignored when `padAngle` is set.",
+      description:
+        "The padding between each arc, in pixels, converted to an angle at the outer radius. Ignored when `padAngle` is set.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sort: {
       control: {},
-      description: "A comparator function that sorts the Pie slices. Defaults to descending by `value`.",
+      description:
+        "A comparator function that sorts the Pie slices. Defaults to descending by `value`.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "function | null"
-      }
+        summary: "function | null",
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: [shareRow(viz, \"value\")]}"
-        }
-      }
+          summary: '{tbody: [shareRow(viz, "value")]}',
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The accessor function or key for each data point's value, which sizes its slice.",
+      description:
+        "The accessor function or key for each data point's value, which sizes its slice.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

@@ -1,7 +1,7 @@
 # @d3plus/export API Reference
 
-| Functions | Description |
-| --- | --- |
+| Functions                     | Description                                      |
+| ----------------------------- | ------------------------------------------------ |
 | [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
 
 ## Functions
@@ -18,11 +18,11 @@ Downloads an HTML Element as a bitmap PNG image.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `elem` | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export. |
-| `options` | `SaveElementOptions` | Additional options to specify. |
-| `renderOptions` | `SaveElementRenderOptions` | Custom options to be passed to the html-to-image function. |
+| Parameter       | Type                          | Description                                                |
+| --------------- | ----------------------------- | ---------------------------------------------------------- |
+| `elem`          | `HTMLElement` \| `SVGElement` | The DOM element or d3 selection to export.                 |
+| `options`       | `SaveElementOptions`          | Additional options to specify.                             |
+| `renderOptions` | `SaveElementRenderOptions`    | Custom options to be passed to the html-to-image function. |
 
 #### Returns
 

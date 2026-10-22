@@ -6,101 +6,106 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Pack as D3plusPack} from "@d3plus/react";
-export const Pack = ({ config }) => <D3plusPack config={config} />;
+export const Pack = ({config}) => <D3plusPack config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Pack
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Pack-specific methods
    */
-  
+
   {
     layoutPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 1,
-      description: "The padding, in pixels, between sibling circles and inside each parent circle.",
+      description:
+        "The padding, in pixels, between sibling circles and inside each parent circle.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     legend: {
       table: {
         defaultValue: {
-          summary: "rowLegend"
-        }
-      }
+          summary: "rowLegend",
+        },
+      },
     },
     on: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     packOpacity: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The opacity of the parent circles that enclose nested circles: a number or a function of the data point and its index. Leaf circles stay opaque.",
+      description:
+        "The opacity of the parent circles that enclose nested circles: a number or a function of the data point and its index. Leaf circles stay opaque.",
       table: {
         defaultValue: {
-          summary: "0.25"
-        }
+          summary: "0.25",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Circle\""
-        }
-      }
+          summary: '"Circle"',
+        },
+      },
     },
     sort: {
       control: {},
-      description: "Comparator for sibling circles, given two d3-hierarchy nodes. Defaults to descending by summed value.",
+      description:
+        "Comparator for sibling circles, given two d3-hierarchy nodes. Defaults to descending by summed value.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "function | null"
-      }
+        summary: "function | null",
+      },
     },
     sum: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the value each circle's area is proportional to. Parent circles sum their children.",
+      description:
+        "Accessor function or string key for the value each circle's area is proportional to. Parent circles sum their children.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

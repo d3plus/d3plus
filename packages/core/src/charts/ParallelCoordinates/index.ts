@@ -23,7 +23,11 @@ import {makeChart} from "../definition/makeChart.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyParallelLayout, BRUSH_WIDTH, parallelDimensionKeys} from "./applyLayout.js";
+import {
+  applyParallelLayout,
+  BRUSH_WIDTH,
+  parallelDimensionKeys,
+} from "./applyLayout.js";
 import {syncBrushDom} from "./brushDom.js";
 import type {BrushTarget} from "./brushDom.js";
 import type {BrushSelection} from "./brushFilter.js";
@@ -34,9 +38,12 @@ import {dimensionTooltipRows} from "./format.js";
 import {applyLineStates} from "./lineStates.js";
 
 /** `brushConfig` with every function value called. */
-export function resolveBrushStyle(config: Record<string, unknown>): Record<string, unknown> {
+export function resolveBrushStyle(
+  config: Record<string, unknown>,
+): Record<string, unknown> {
   const out: Record<string, unknown> = {};
-  for (const [k, v] of Object.entries(config)) out[k] = typeof v === "function" ? (v as () => unknown)() : v;
+  for (const [k, v] of Object.entries(config))
+    out[k] = typeof v === "function" ? (v as () => unknown)() : v;
   return out;
 }
 
@@ -48,7 +55,9 @@ export function resolveBrushStyle(config: Record<string, unknown>): Record<strin
     point where every panel's strips are known.
 */
 function decorateParallelScene(viz: VizInstance, scene: Scene): Scene {
-  const style = resolveBrushStyle((viz.schema.brushConfig ?? {}) as Record<string, unknown>);
+  const style = resolveBrushStyle(
+    (viz.schema.brushConfig ?? {}) as Record<string, unknown>,
+  );
   const queue = viz.ctx.brushQueue as BrushTarget[] | undefined;
   if (queue) {
     viz.ctx.brushQueue = undefined;
@@ -56,7 +65,10 @@ function decorateParallelScene(viz: VizInstance, scene: Scene): Scene {
   }
   const root = applyLineStates(scene.root, {
     brushes: viz.schema.brushes as BrushSelection | undefined,
-    inactiveOpacity: typeof style.inactiveOpacity === "number" ? style.inactiveOpacity : undefined,
+    inactiveOpacity:
+      typeof style.inactiveOpacity === "number"
+        ? style.inactiveOpacity
+        : undefined,
   });
   return root === scene.root ? scene : {...scene, root: root as Scene["root"]};
 }
@@ -75,7 +87,10 @@ export const parallelCoordinatesDef: DataDrivenChartDefinition = {
       sharedDomains(
         parallelDimensionKeys(viz),
         panels.flat(),
-        (viz.schema.dimensionConfig ?? {}) as Record<string, DimensionOptions | undefined>,
+        (viz.schema.dimensionConfig ?? {}) as Record<
+          string,
+          DimensionOptions | undefined
+        >,
       ),
     panel: (viz: VizInstance, ctx) => {
       const previous = viz.ctx.sharedDomains;

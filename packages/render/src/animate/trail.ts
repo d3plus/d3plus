@@ -31,7 +31,9 @@ export function trailOpacity(t: number): number {
 /** Fade length, in step-segments, for a persistent trail (`true` = a long tail). */
 const TRAIL_PERSIST_FOREVER = 30;
 export function persistFadeLength(persist: number | boolean): number {
-  return persist === true ? TRAIL_PERSIST_FOREVER : Math.max(1, Math.floor(Number(persist) || 0));
+  return persist === true
+    ? TRAIL_PERSIST_FOREVER
+    : Math.max(1, Math.floor(Number(persist) || 0));
 }
 
 /**
@@ -72,15 +74,21 @@ export interface TrailSpec {
 }
 
 export type Pt = [number, number];
-interface Cone {d: string; box: {x: number; y: number; w: number; h: number}}
+interface Cone {
+  d: string;
+  box: {x: number; y: number; w: number; h: number};
+}
 
 const fmt = (p: Pt): string => `${p[0]},${p[1]}`;
 
 /** Bounding box of a point set. */
 function bbox(pts: Pt[]): {x: number; y: number; w: number; h: number} {
-  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
-  const minX = Math.min(...xs), maxX = Math.max(...xs);
-  const minY = Math.min(...ys), maxY = Math.max(...ys);
+  const xs = pts.map(p => p[0]),
+    ys = pts.map(p => p[1]);
+  const minX = Math.min(...xs),
+    maxX = Math.max(...xs);
+  const minY = Math.min(...ys),
+    maxY = Math.max(...ys);
   return {x: minX, y: minY, w: maxX - minX || 1, h: maxY - minY || 1};
 }
 
@@ -90,21 +98,36 @@ function pathBox(pts: Pt[]): Cone {
 }
 
 /** The four world-space corners of a rect centered at (cx,cy), rotated `rotate`°. */
-function rectCorners(cx: number, cy: number, hw: number, hh: number, rotate: number): Pt[] {
-  const th = rotate * DEG, c = Math.cos(th), s = Math.sin(th);
-  return ([[-hw, -hh], [hw, -hh], [hw, hh], [-hw, hh]] as Pt[]).map(
-    ([x, y]) => [cx + x * c - y * s, cy + x * s + y * c] as Pt,
-  );
+function rectCorners(
+  cx: number,
+  cy: number,
+  hw: number,
+  hh: number,
+  rotate: number,
+): Pt[] {
+  const th = rotate * DEG,
+    c = Math.cos(th),
+    s = Math.sin(th);
+  return (
+    [
+      [-hw, -hh],
+      [hw, -hh],
+      [hw, hh],
+      [-hw, hh],
+    ] as Pt[]
+  ).map(([x, y]) => [cx + x * c - y * s, cy + x * s + y * c] as Pt);
 }
 
 /** Convex hull (monotone chain, CCW) of a small point set; drops collinear points. */
 function convexHull(points: Pt[]): Pt[] {
   const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const cross = (o: Pt, a: Pt, b: Pt) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+  const cross = (o: Pt, a: Pt, b: Pt) =>
+    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
   const half = (seq: Pt[]): Pt[] => {
     const h: Pt[] = [];
     for (const p of seq) {
-      while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], p) <= 0) h.pop();
+      while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], p) <= 0)
+        h.pop();
       h.push(p);
     }
     h.pop();
@@ -126,15 +149,27 @@ function convexHull(points: Pt[]): Pt[] {
     trapezoid — correct at any travel angle, not only 0/45/90°.
 */
 export function coneAt(
-  shape: TrailShape, A: [number, number], aDims: number[],
-  B: [number, number], bDims: number[], rotate: number, t: number,
+  shape: TrailShape,
+  A: [number, number],
+  aDims: number[],
+  B: [number, number],
+  bDims: number[],
+  rotate: number,
+  t: number,
 ): Cone {
-  const hx = lerp(A[0], B[0], t), hy = lerp(A[1], B[1], t);
+  const hx = lerp(A[0], B[0], t),
+    hy = lerp(A[1], B[1], t);
   const hDims = aDims.map((v, i) => lerp(v, bDims[i], t));
   if (shape === "circle") {
-    const dx = B[0] - A[0], dy = B[1] - A[1], len = Math.hypot(dx, dy) || 1;
-    const px = -dy / len, py = dx / len, mx = dx / len, my = dy / len;
-    const aR = aDims[0], hR = hDims[0];
+    const dx = B[0] - A[0],
+      dy = B[1] - A[1],
+      len = Math.hypot(dx, dy) || 1;
+    const px = -dy / len,
+      py = dx / len,
+      mx = dx / len,
+      my = dy / len;
+    const aR = aDims[0],
+      hR = hDims[0];
     const tp: Pt = [A[0] + px * aR, A[1] + py * aR];
     const hp: Pt = [hx + px * hR, hy + py * hR];
     const hm: Pt = [hx - px * hR, hy - py * hR];
@@ -145,10 +180,12 @@ export function coneAt(
     const back: Pt = [A[0] - mx * aR, A[1] - my * aR];
     return {d, box: bbox([tp, hp, hm, tm, back])};
   }
-  return pathBox(convexHull([
-    ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),
-    ...rectCorners(hx, hy, hDims[0], hDims[1], rotate),
-  ]));
+  return pathBox(
+    convexHull([
+      ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),
+      ...rectCorners(hx, hy, hDims[0], hDims[1], rotate),
+    ]),
+  );
 }
 
 /**
@@ -160,9 +197,14 @@ export function coneAt(
     Persistent trails pass per-segment alphas so the whole path fades continuously.
 */
 export function trailGradient(
-  dx: number, dy: number, color: string, tailAlpha = 0, headAlpha = 1,
+  dx: number,
+  dy: number,
+  color: string,
+  tailAlpha = 0,
+  headAlpha = 1,
 ): string {
-  const fx = dx >= 0 ? 0 : 1, fy = dy >= 0 ? 0 : 1;
+  const fx = dx >= 0 ? 0 : 1,
+    fy = dy >= 0 ? 0 : 1;
   const c = rgb(color);
   const at = (a: number): string => {
     if (a >= 1) return color; // fully opaque → the raw color token
@@ -173,28 +215,58 @@ export function trailGradient(
     type: "linear",
     from: [fx, fy],
     to: [1 - fx, 1 - fy],
-    stops: [{offset: 0, color: at(tailAlpha)}, {offset: 1, color: at(headAlpha)}],
+    stops: [
+      {offset: 0, color: at(tailAlpha)},
+      {offset: 1, color: at(headAlpha)},
+    ],
   });
 }
 
 /** Reads the trail-relevant geometry off a mark node, or null if it can't trail. */
 export function trailPartsFromNode(node: SceneNode): TrailParts | null {
-  const x = node.transform?.x ?? 0, y = node.transform?.y ?? 0;
+  const x = node.transform?.x ?? 0,
+    y = node.transform?.y ?? 0;
   const color = node.paint?.fill;
   if (node.type === "circle") {
-    return {shape: "circle", dims: [(node as CircleNode).r ?? 0], rotate: 0, x, y, color};
+    return {
+      shape: "circle",
+      dims: [(node as CircleNode).r ?? 0],
+      rotate: 0,
+      x,
+      y,
+      color,
+    };
   }
   if (node.type === "rect") {
     const r = node as RectNode;
-    return {shape: "rect", dims: [(r.width ?? 0) / 2, (r.height ?? 0) / 2], rotate: node.transform?.rotate ?? 0, x, y, color};
+    return {
+      shape: "rect",
+      dims: [(r.width ?? 0) / 2, (r.height ?? 0) / 2],
+      rotate: node.transform?.rotate ?? 0,
+      x,
+      y,
+      color,
+    };
   }
   return null;
 }
 
 /** Builds the trail cone scene node for the Canvas backend at progress `t`. */
 export function trailNode(spec: TrailSpec, t: number): SceneNode | null {
-  if (Math.hypot(spec.B[0] - spec.A[0], spec.B[1] - spec.A[1]) < TRAIL_MIN_DISTANCE) return null;
-  const {d, box} = coneAt(spec.shape, spec.A, spec.aDims, spec.B, spec.bDims, spec.rotate, t);
+  if (
+    Math.hypot(spec.B[0] - spec.A[0], spec.B[1] - spec.A[1]) <
+    TRAIL_MIN_DISTANCE
+  )
+    return null;
+  const {d, box} = coneAt(
+    spec.shape,
+    spec.A,
+    spec.aDims,
+    spec.B,
+    spec.bDims,
+    spec.rotate,
+    t,
+  );
   return {
     type: "path",
     key: `${spec.key}__trail`,
@@ -202,7 +274,11 @@ export function trailNode(spec: TrailSpec, t: number): SceneNode | null {
     d,
     gradientBounds: box,
     paint: {
-      fill: trailGradient(spec.B[0] - spec.A[0], spec.B[1] - spec.A[1], spec.color),
+      fill: trailGradient(
+        spec.B[0] - spec.A[0],
+        spec.B[1] - spec.A[1],
+        spec.color,
+      ),
       opacity: trailOpacity(t),
     },
   } as unknown as SceneNode;

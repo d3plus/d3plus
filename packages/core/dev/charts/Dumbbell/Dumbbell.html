@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Dumbbell</title>
-    <meta name="description" content="Dumbbell variants: horizontal two-series dumbbells, sorted by gap both ways, vertical with three points per category, styled connectors, points sized by population with a size legend, and small multiples on canvas.">
+    <meta
+      name="description"
+      content="Dumbbell variants: horizontal two-series dumbbells, sorted by gap both ways, vertical with three points per category, styled connectors, points sized by population with a size legend, and small multiples on canvas."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -29,24 +30,38 @@
         height: 480px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="grid">
-      <div><h3>Horizontal (default)</h3><div class="viz" id="basic"></div></div>
-      <div><h3>gapSort("descending")</h3><div class="viz" id="sorted"></div></div>
-      <div><h3>gapSort("ascending"), styled connectors</h3><div class="viz" id="styled"></div></div>
-      <div><h3>Vertical (discrete: "x"), three points per category</h3><div class="viz" id="vertical"></div></div>
-      <div><h3>Points sized by population (size: "Population")</h3><div class="viz" id="sized"></div></div>
-      <div><h3>Small multiples (facet: "continent"), canvas</h3><div class="viz" id="facet"></div></div>
+      <div>
+        <h3>Horizontal (default)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>gapSort("descending")</h3>
+        <div class="viz" id="sorted"></div>
+      </div>
+      <div>
+        <h3>gapSort("ascending"), styled connectors</h3>
+        <div class="viz" id="styled"></div>
+      </div>
+      <div>
+        <h3>Vertical (discrete: "x"), three points per category</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>Points sized by population (size: "Population")</h3>
+        <div class="viz" id="sized"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "continent"), canvas</h3>
+        <div class="viz" id="facet"></div>
+      </div>
     </div>
-
   </body>
 
   <script>
-
     const countries = [
       ["Japan", "Asia", 81.1, 84.5],
       ["Switzerland", "Europe", 79.7, 83.9],
@@ -67,13 +82,30 @@
       life.push({country, continent, year: "2021", "Life Expectancy": after});
     });
 
-    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
     const lows = [-3, -2, 2, 7, 12, 17, 20, 19, 15, 9, 4, -1];
     const highs = [4, 6, 11, 17, 22, 27, 30, 29, 25, 18, 11, 6];
     const temperatures = [];
     months.forEach((month, i) => {
       temperatures.push({month, stat: "Low", "°C": lows[i]});
-      temperatures.push({month, stat: "Mean", "°C": Math.round((lows[i] + highs[i]) / 2 * 10) / 10});
+      temperatures.push({
+        month,
+        stat: "Mean",
+        "°C": Math.round(((lows[i] + highs[i]) / 2) * 10) / 10,
+      });
       temperatures.push({month, stat: "High", "°C": highs[i]});
     });
 
@@ -101,7 +133,10 @@
       .x("Life Expectancy")
       .y("country")
       .gapSort("ascending")
-      .shapeConfig({Circle: {r: 7}, Line: {stroke: "#adb5bd", strokeWidth: 8, strokeLinecap: "round"}})
+      .shapeConfig({
+        Circle: {r: 7},
+        Line: {stroke: "#adb5bd", strokeWidth: 8, strokeLinecap: "round"},
+      })
       .render();
 
     new d3plus.Dumbbell()
@@ -115,12 +150,21 @@
       .render();
 
     const populations = {
-      Japan: [127, 125], China: [1263, 1426], India: [1057, 1414], "United States": [282, 337],
-      Brazil: [175, 214], Russia: [146, 145], Nigeria: [123, 213], Ethiopia: [67, 120],
+      Japan: [127, 125],
+      China: [1263, 1426],
+      India: [1057, 1414],
+      "United States": [282, 337],
+      Brazil: [175, 214],
+      Russia: [146, 145],
+      Nigeria: [123, 213],
+      Ethiopia: [67, 120],
     };
     const sized = life
       .filter(d => populations[d.country])
-      .map(d => ({...d, Population: populations[d.country][d.year === "2000" ? 0 : 1]}));
+      .map(d => ({
+        ...d,
+        Population: populations[d.country][d.year === "2000" ? 0 : 1],
+      }));
 
     new d3plus.Dumbbell()
       .select("#sized")
@@ -145,7 +189,5 @@
       .y("country")
       .gapSort("descending")
       .render();
-
   </script>
-
 </html>

@@ -11,13 +11,32 @@ let D3plusVizComponent;
 
 /** A tracking mock visualization class plus the state it records. */
 function makeViz() {
-  const state = {instances: 0, configs: [], renders: 0, destroys: 0, dataArgs: null};
+  const state = {
+    instances: 0,
+    configs: [],
+    renders: 0,
+    destroys: 0,
+    dataArgs: null,
+  };
   class MockViz {
-    constructor() { state.instances++; }
-    config(c) { state.configs.push(c); return this; }
-    render(cb) { state.renders++; if (cb) cb(); return this; }
-    destroy() { state.destroys++; }
-    data(d, f) { state.dataArgs = [d, f]; }
+    constructor() {
+      state.instances++;
+    }
+    config(c) {
+      state.configs.push(c);
+      return this;
+    }
+    render(cb) {
+      state.renders++;
+      if (cb) cb();
+      return this;
+    }
+    destroy() {
+      state.destroys++;
+    }
+    data(d, f) {
+      state.dataArgs = [d, f];
+    }
   }
   return {MockViz, state};
 }
@@ -33,10 +52,14 @@ function makeComponent(viz, inputs = {}) {
 }
 
 beforeAll(async () => {
-  const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    url: "http://localhost",
+  });
   global.window = dom.window;
   global.document = dom.window.document;
-  ["Element", "SVGElement", "Node", "Event", "HTMLElement"].forEach(key => { global[key] = dom.window[key]; });
+  ["Element", "SVGElement", "Node", "Event", "HTMLElement"].forEach(key => {
+    global[key] = dom.window[key];
+  });
   // The FESM ships partial-compiled (the consumer's Angular Linker finalizes
   // it at build time). Loading it directly here needs the JIT compiler as a
   // fallback, so pull in @angular/compiler before the bundle.
@@ -76,7 +99,10 @@ it("does not re-render when the config content is unchanged", () => {
 
 it("forceUpdate re-renders even when the config is unchanged", () => {
   const {MockViz, state} = makeViz();
-  const {component} = makeComponent(MockViz, {config: {a: 1}, forceUpdate: true});
+  const {component} = makeComponent(MockViz, {
+    config: {a: 1},
+    forceUpdate: true,
+  });
   component.ngOnInit();
   component.ngOnChanges();
   assert.strictEqual(state.renders, 2, "forceUpdate bypasses config diffing");
@@ -85,11 +111,20 @@ it("forceUpdate re-renders even when the config is unchanged", () => {
 it("routes data + dataFormat to data() and strips them from config", () => {
   const {MockViz, state} = makeViz();
   const fmt = d => d;
-  const {component} = makeComponent(MockViz, {config: {data: [1, 2], dataFormat: fmt, keep: "yes"}});
+  const {component} = makeComponent(MockViz, {
+    config: {data: [1, 2], dataFormat: fmt, keep: "yes"},
+  });
   component.ngOnInit();
-  assert.deepStrictEqual(state.dataArgs, [[1, 2], fmt], "data() got the data + formatter");
+  assert.deepStrictEqual(
+    state.dataArgs,
+    [[1, 2], fmt],
+    "data() got the data + formatter",
+  );
   const cfg = state.configs[0];
-  assert.ok(!("data" in cfg) && !("dataFormat" in cfg), "data/dataFormat stripped");
+  assert.ok(
+    !("data" in cfg) && !("dataFormat" in cfg),
+    "data/dataFormat stripped",
+  );
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
 });
 
@@ -121,5 +156,9 @@ it("no-ops when the ViewChild svg is not yet resolved", () => {
   component.config = {a: 1};
   // svgRef undefined (first ngOnChanges, before the static query resolves)
   component.ngOnChanges();
-  assert.strictEqual(state.instances, 0, "nothing rendered without a target svg");
+  assert.strictEqual(
+    state.instances,
+    0,
+    "nothing rendered without a target svg",
+  );
 });

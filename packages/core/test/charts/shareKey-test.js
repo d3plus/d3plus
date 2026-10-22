@@ -2,7 +2,12 @@ import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {
-  INTERNAL_KEY_PREFIX, SHARE_KEY, isInternalKey, shareOf, stampShare, summedShare,
+  INTERNAL_KEY_PREFIX,
+  SHARE_KEY,
+  isInternalKey,
+  shareOf,
+  stampShare,
+  summedShare,
 } from "../../src/charts/features/shareKey.ts";
 
 useJsdom();
@@ -60,6 +65,8 @@ it("summedShare — sums a merged row's member shares", () => {
 });
 
 it("isInternalKey — matches only keys d3plus writes for itself", () => {
-  for (const key of ["__d3plusShare", "__d3plus__", "__d3plusShape__"]) assert.ok(isInternalKey(key), key);
-  for (const key of ["share", "id", "_d3plus", "d3plusShare"]) assert.ok(!isInternalKey(key), key);
+  for (const key of ["__d3plusShare", "__d3plus__", "__d3plusShape__"])
+    assert.ok(isInternalKey(key), key);
+  for (const key of ["share", "id", "_d3plus", "d3plusShare"])
+    assert.ok(!isInternalKey(key), key);
 });

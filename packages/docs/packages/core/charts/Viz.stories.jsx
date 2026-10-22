@@ -14,27 +14,34 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).",
+        component:
+          "The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Viz config={configify(args, argTypes)} />;
-  
+const Template = args => <Viz config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 import {BarChart, Donut, LinePlot, Matrix, Treemap} from "@d3plus/react";
 import datafy from "../../../helpers/datafy";
 
-
-const note = {margin: 0, fontSize: 14, lineHeight: 1.5, color: "#495057", maxWidth: 720};
+const note = {
+  margin: 0,
+  fontSize: 14,
+  lineHeight: 1.5,
+  color: "#495057",
+  maxWidth: 720,
+};
 
 export const Reference = () => (
   <p style={note}>
-    Not used directly: every chart class extends it. The table below is the configuration common to all of them;
-    each chart&apos;s own page documents what it adds.
+    Not used directly: every chart class extends it. The table below is the
+    configuration common to all of them; each chart&apos;s own page documents
+    what it adds.
   </p>
 );
 Reference.args = {height: 90};
@@ -57,7 +64,8 @@ new Treemap()
       language: "jsx",
     },
     description: {
-      story: "`Viz` owns the shared surface of every chart: loading and filtering `data`, `groupBy` hierarchies, color and size accessors, the title, legend, color scale, timeline, tooltip, zoom and table-view controls, and the render lifecycle. A chart definition plugs its layout into this pipeline, which is why the same `config` keys work on a Treemap and a LinePlot alike.",
+      story:
+        "`Viz` owns the shared surface of every chart: loading and filtering `data`, `groupBy` hierarchies, color and size accessors, the title, legend, color scale, timeline, tooltip, zoom and table-view controls, and the render lifecycle. A chart definition plugs its layout into this pipeline, which is why the same `config` keys work on a Treemap and a LinePlot alike.",
     },
   },
 };
@@ -77,16 +85,28 @@ const linkedCell = {flex: "1 1 280px", minWidth: 0, height: 320};
 export const LinkedCharts = () => (
   <div style={linkedRow}>
     <div style={linkedCell}>
-      <Treemap config={{
-        data: linkedData, groupBy: ["region", "country"], sum: "revenue",
-        title: "Revenue share", link: "storybook-linked",
-      }} />
+      <Treemap
+        config={{
+          data: linkedData,
+          groupBy: ["region", "country"],
+          sum: "revenue",
+          title: "Revenue share",
+          link: "storybook-linked",
+        }}
+      />
     </div>
     <div style={linkedCell}>
-      <BarChart config={{
-        data: linkedData, groupBy: "country", x: "country", y: "revenue", color: "region",
-        title: "Revenue by country", link: {group: "storybook-linked", by: "country"},
-      }} />
+      <BarChart
+        config={{
+          data: linkedData,
+          groupBy: "country",
+          x: "country",
+          y: "revenue",
+          color: "region",
+          title: "Revenue by country",
+          link: {group: "storybook-linked", by: "country"},
+        }}
+      />
     </div>
   </div>
 );
@@ -123,7 +143,8 @@ new BarChart()
       language: "jsx",
     },
     description: {
-      story: "Hover a tile, search, or click a legend entry in either chart and the other follows. `link` takes a group name, or `{group, by}` to choose the value rows match on (default: each chart's own id). Matching is by value, so a region tile in the Treemap lights up every country bar in that region. Set `hover`, `active`, `highlight`, or `legend` to `false` in the object form to stop mirroring that interaction.",
+      story:
+        "Hover a tile, search, or click a legend entry in either chart and the other follows. `link` takes a group name, or `{group, by}` to choose the value rows match on (default: each chart's own id). Matching is by value, so a region tile in the Treemap lights up every country bar in that region. Set `hover`, `active`, `highlight`, or `legend` to `false` in the object form to stop mirroring that interaction.",
     },
   },
 };
@@ -145,11 +166,16 @@ const smBox = {height: 520};
 
 export const SmallMultiples = () => (
   <div style={smBox}>
-    <BarChart config={{
-      data: smData, groupBy: "product", x: "year", y: "exports",
-      title: "Exports by region",
-      facet: "region",
-    }} />
+    <BarChart
+      config={{
+        data: smData,
+        groupBy: "product",
+        x: "year",
+        y: "exports",
+        title: "Exports by region",
+        facet: "region",
+      }}
+    />
   </div>
 );
 SmallMultiples.parameters = {
@@ -170,18 +196,24 @@ new BarChart()
       language: "jsx",
     },
     description: {
-      story: "`facet` splits a chart into a grid of equally sized panels, one per distinct value of a data key (or accessor). Every panel is the same chart drawn from its own rows, sharing one legend, title, timeline, and set of controls. Hover a bar to highlight its series in every panel, or click a legend entry to hide it everywhere. Panels share their x/y scales by default, so the axes are labeled only along the grid's left and bottom edges.",
+      story:
+        "`facet` splits a chart into a grid of equally sized panels, one per distinct value of a data key (or accessor). Every panel is the same chart drawn from its own rows, sharing one legend, title, timeline, and set of controls. Hover a bar to highlight its series in every panel, or click a legend entry to hide it everywhere. Panels share their x/y scales by default, so the axes are labeled only along the grid's left and bottom edges.",
     },
   },
 };
 
 export const SmallMultiplesLinePlot = () => (
   <div style={smBox}>
-    <LinePlot config={{
-      data: smData, groupBy: "product", x: "year", y: "exports",
-      facet: "region",
-      facetConfig: {padding: 12},
-    }} />
+    <LinePlot
+      config={{
+        data: smData,
+        groupBy: "product",
+        x: "year",
+        y: "exports",
+        facet: "region",
+        facetConfig: {padding: 12},
+      }}
+    />
   </div>
 );
 SmallMultiplesLinePlot.parameters = {
@@ -198,18 +230,25 @@ SmallMultiplesLinePlot.parameters = {
       language: "jsx",
     },
     description: {
-      story: "The grid sizes itself: the column count is the one that draws the panels largest for the chart's shape, so there is nothing to set. `facetConfig.padding` changes the space between panels. To pin the grid instead, set `columns` and/or `rows` (`facetConfig: {columns: 5}` puts every region in one row). The shared tooltip and crosshair follow the panel under the pointer.",
+      story:
+        "The grid sizes itself: the column count is the one that draws the panels largest for the chart's shape, so there is nothing to set. `facetConfig.padding` changes the space between panels. To pin the grid instead, set `columns` and/or `rows` (`facetConfig: {columns: 5}` puts every region in one row). The shared tooltip and crosshair follow the panel under the pointer.",
     },
   },
 };
 
 export const SmallMultiplesIndependentScales = () => (
   <div style={smBox}>
-    <BarChart config={{
-      data: smData, groupBy: "product", x: "year", y: "exports", stacked: true,
-      facet: "region",
-      facetConfig: {scales: "independent"},
-    }} />
+    <BarChart
+      config={{
+        data: smData,
+        groupBy: "product",
+        x: "year",
+        y: "exports",
+        stacked: true,
+        facet: "region",
+        facetConfig: {scales: "independent"},
+      }}
+    />
   </div>
 );
 SmallMultiplesIndependentScales.parameters = {
@@ -227,19 +266,26 @@ SmallMultiplesIndependentScales.parameters = {
       language: "jsx",
     },
     description: {
-      story: "With `scales: \"independent\"`, each panel fits its own rows, which shows the shape of small regions at the cost of comparing heights across panels. Every panel then labels its own axes.",
+      story:
+        'With `scales: "independent"`, each panel fits its own rows, which shows the shape of small regions at the cost of comparing heights across panels. Every panel then labels its own axes.',
     },
   },
 };
 
 export const SmallMultiplesDonut = () => (
   <div style={smBox}>
-    <Donut config={{
-      data: smLatest, groupBy: "product", value: "exports",
-      title: "2023 export mix",
-      facet: "region",
-      facetConfig: {sort: ["Asia", "Europe", "Americas", "Africa", "Oceania"]},
-    }} />
+    <Donut
+      config={{
+        data: smLatest,
+        groupBy: "product",
+        value: "exports",
+        title: "2023 export mix",
+        facet: "region",
+        facetConfig: {
+          sort: ["Asia", "Europe", "Americas", "Africa", "Oceania"],
+        },
+      }}
+    />
   </div>
 );
 SmallMultiplesDonut.parameters = {
@@ -258,21 +304,28 @@ new Donut()
       language: "jsx",
     },
     description: {
-      story: "Any chart type can be faceted. `sort` orders the panels: `\"ascending\"` (the default), `\"descending\"`, `\"data\"` (first appearance), a comparator, or an explicit list of values.",
+      story:
+        'Any chart type can be faceted. `sort` orders the panels: `"ascending"` (the default), `"descending"`, `"data"` (first appearance), a comparator, or an explicit list of values.',
     },
   },
 };
 
 export const SmallMultiplesTreemap = () => (
   <div style={smBox}>
-    <Treemap config={{
-      data: smData, groupBy: "product", sum: "exports", time: "year",
-      facet: "region",
-      facetConfig: {
-        title: (region, rows) => `${region}: ${rows.reduce((s, d) => s + d.exports, 0)}`,
-        titleConfig: {fontSize: 13, textAnchor: "start"},
-      },
-    }} />
+    <Treemap
+      config={{
+        data: smData,
+        groupBy: "product",
+        sum: "exports",
+        time: "year",
+        facet: "region",
+        facetConfig: {
+          title: (region, rows) =>
+            `${region}: ${rows.reduce((s, d) => s + d.exports, 0)}`,
+          titleConfig: {fontSize: 13, textAnchor: "start"},
+        },
+      }}
+    />
   </div>
 );
 SmallMultiplesTreemap.parameters = {
@@ -292,18 +345,24 @@ SmallMultiplesTreemap.parameters = {
       language: "jsx",
     },
     description: {
-      story: "One timeline drives every panel. `title` formats each panel's title from its facet value and rows (or `false` hides them), and `titleConfig` styles them.",
+      story:
+        "One timeline drives every panel. `title` formats each panel's title from its facet value and rows (or `false` hides them), and `titleConfig` styles them.",
     },
   },
 };
 
 export const SmallMultiplesMatrix = () => (
   <div style={smBox}>
-    <Matrix config={{
-      data: smData, groupBy: ["product", "year"], row: "product", column: "year",
-      colorScale: "exports",
-      facet: "region",
-    }} />
+    <Matrix
+      config={{
+        data: smData,
+        groupBy: ["product", "year"],
+        row: "product",
+        column: "year",
+        colorScale: "exports",
+        facet: "region",
+      }}
+    />
   </div>
 );
 SmallMultiplesMatrix.parameters = {
@@ -320,7 +379,8 @@ SmallMultiplesMatrix.parameters = {
       language: "jsx",
     },
     description: {
-      story: "A colorScale is shared too: one scale, spanning the values every panel draws, colors all of them.",
+      story:
+        "A colorScale is shared too: one scale, spanning the values every panel draws, colors all of them.",
     },
   },
 };

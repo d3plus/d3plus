@@ -9,7 +9,12 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig, textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
+import {
+  userLabelConfig,
+  textureFill,
+  shapeConfigFor,
+  resolveAccessor,
+} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {PriestleyDatum} from "./applyLayout.js";
@@ -33,7 +38,8 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
     // left edge at local x=0 (centered vertically) — a horizontal Bar's
     // geometry. The shared collapse() then grows the band in from its start
     // edge (left→right) instead of from its center.
-    const left = xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2 - width / 2;
+    const left =
+      xScale(d.start) + (xScale(d.end) - xScale(d.start)) / 2 - width / 2;
     const top = (yScale(String(d.lane)) ?? 0) + bandWidth / 2;
     return {
       type: "rect",
@@ -77,7 +83,10 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: {data?: PriestleyDatum}) => {
         const pd = (d.data ?? d) as PriestleyDatum;
         const fill = resolveAccessor<string>(sc.fill, pd.data, pd.i);
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
+        return colorContrast(
+          typeof fill === "string" ? fill : "rgb(255, 255, 255)",
+          viz.schema.colorDefaults,
+        );
       },
       fontResize: false,
       textAnchor: "start",
@@ -86,7 +95,10 @@ export const priestleyEmit: ChartEmit = ({viz, shapeData}) => {
     },
   });
 
-  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [data[k].data, k]);
+  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [
+    data[k].data,
+    k,
+  ]);
 
   return [...rectNodes, ...imageNodes, ...labelNodes];
 };

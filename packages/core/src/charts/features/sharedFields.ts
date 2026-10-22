@@ -22,7 +22,8 @@ export function shareRow(viz: VizInstance, sumKey: "sum" | "value"): unknown[] {
   return [
     () => viz.schema.translate("Share"),
     (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
-      const pct = (s: number) => `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
+      const pct = (s: number) =>
+        `${formatAbbreviate(s * 100, viz.schema.locale)}%`;
       if (x._isColorScaleBucket) {
         const s = colorScaleBucketShare(
           viz,
@@ -47,7 +48,10 @@ export function rowLegend(
   viz: VizInstance,
   labeled: (viz: VizInstance) => boolean = () => true,
 ): (config: D3plusConfig, arr: DataPoint[]) => unknown {
-  const base = viz.schema.legend as (config: D3plusConfig, arr: DataPoint[]) => unknown;
+  const base = viz.schema.legend as (
+    config: D3plusConfig,
+    arr: DataPoint[],
+  ) => unknown;
   return (config: D3plusConfig, arr: DataPoint[]) => {
     if (arr.length === viz._filteredData.length && labeled(viz)) return false;
     return base.call(viz, config, arr);

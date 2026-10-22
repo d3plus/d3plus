@@ -87,20 +87,20 @@ Upgrading from v3? The public API is unchanged for typical usage — see
 
 D3plus is a modular monorepo — install only what you need:
 
-| Package                                                          | Description                                      |
-| ---------------------------------------------------------------- | ------------------------------------------------ |
-| [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)     | React component wrappers for all chart types     |
-| [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)       | Charts, components, and shapes (the main engine) |
+| Package                                                          | Description                                        |
+| ---------------------------------------------------------------- | -------------------------------------------------- |
+| [@d3plus/react](https://www.npmjs.com/package/@d3plus/react)     | React component wrappers for all chart types       |
+| [@d3plus/core](https://www.npmjs.com/package/@d3plus/core)       | Charts, components, and shapes (the main engine)   |
 | [@d3plus/render](https://www.npmjs.com/package/@d3plus/render)   | Scene-graph renderer; owns the SVG/Canvas backends |
-| [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)     | Color scales, defaults, and utilities            |
-| [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)       | Data loading, filtering, and manipulation        |
-| [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)         | DOM and browser utility functions                |
-| [@d3plus/export](https://www.npmjs.com/package/@d3plus/export)   | SVG and image export                             |
-| [@d3plus/format](https://www.npmjs.com/package/@d3plus/format)   | Number and date formatting                       |
-| [@d3plus/locales](https://www.npmjs.com/package/@d3plus/locales) | Translation dictionaries for i18n                |
-| [@d3plus/math](https://www.npmjs.com/package/@d3plus/math)       | Math and geometry utilities                      |
-| [@d3plus/text](https://www.npmjs.com/package/@d3plus/text)       | Text measurement, wrapping, and fitting          |
-| [@d3plus/types](https://www.npmjs.com/package/@d3plus/types)     | Unified TypeScript type definitions              |
+| [@d3plus/color](https://www.npmjs.com/package/@d3plus/color)     | Color scales, defaults, and utilities              |
+| [@d3plus/data](https://www.npmjs.com/package/@d3plus/data)       | Data loading, filtering, and manipulation          |
+| [@d3plus/dom](https://www.npmjs.com/package/@d3plus/dom)         | DOM and browser utility functions                  |
+| [@d3plus/export](https://www.npmjs.com/package/@d3plus/export)   | SVG and image export                               |
+| [@d3plus/format](https://www.npmjs.com/package/@d3plus/format)   | Number and date formatting                         |
+| [@d3plus/locales](https://www.npmjs.com/package/@d3plus/locales) | Translation dictionaries for i18n                  |
+| [@d3plus/math](https://www.npmjs.com/package/@d3plus/math)       | Math and geometry utilities                        |
+| [@d3plus/text](https://www.npmjs.com/package/@d3plus/text)       | Text measurement, wrapping, and fitting            |
+| [@d3plus/types](https://www.npmjs.com/package/@d3plus/types)     | Unified TypeScript type definitions                |
 
 For example, to use just the number formatting:
 

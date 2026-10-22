@@ -13,8 +13,7 @@ const leave = (viz, d) => {
   globalThis.setTimeout = fn => fn();
   try {
     mouseleave.call(viz, d, 0);
-  }
-  finally {
+  } finally {
     globalThis.setTimeout = defer;
   }
 };
@@ -29,7 +28,10 @@ const fakeViz = ({hoverDatum = null, tooltip = []} = {}) => {
     schema: {shapeConfig: {hoverOpacity: 0.5}, tooltip: () => true},
     _select: {style: () => viz._select},
     _tooltipClass: {
-      data: v => v === undefined ? tooltip : (tooltip = v, calls.cleared = true, viz._tooltipClass),
+      data: v =>
+        v === undefined
+          ? tooltip
+          : ((tooltip = v), (calls.cleared = true), viz._tooltipClass),
       render: () => viz._tooltipClass,
     },
   };

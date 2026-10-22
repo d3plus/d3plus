@@ -15,9 +15,9 @@ export default {
         component: "Applies each key/value in an object as a style.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -25,7 +25,12 @@ import {select} from "d3-selection";
 
 import DomExample from "../../helpers/DomExample.jsx";
 
-const styles = {fill: "#1c7ed6", stroke: "#1864ab", "stroke-width": 3, opacity: 0.85};
+const styles = {
+  fill: "#1c7ed6",
+  stroke: "#1864ab",
+  "stroke-width": 3,
+  opacity: 0.85,
+};
 
 export const BasicExample = () => (
   <DomExample
@@ -47,7 +52,8 @@ stylize(select("rect"), ${JSON.stringify(styles, null, 2)});`,
       language: "jsx",
     },
     description: {
-      story: "Applies every key of an object as an inline style on a d3 selection, one `.style()` call per entry, which is how a chart's `shapeConfig` styles reach the drawn elements. Keys are CSS property names (`stroke-width`, not `strokeWidth`).",
+      story:
+        "Applies every key of an object as an inline style on a d3 selection, one `.style()` call per entry, which is how a chart's `shapeConfig` styles reach the drawn elements. Keys are CSS property names (`stroke-width`, not `strokeWidth`).",
     },
   },
 };

@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Renders a d3plus chart to a standalone SVG string in Node, with no browser.\n\nWorks for every non-map chart out of the box, and for Geomap in vector-only\nmode (.tiles(false)); to include basemap tiles use renderToStaticSVG\nwith a tiled Geomap, which fetches + inlines them (see the Geomap helper).\n\nThe chart is rendered into a throwaway headless DOM that is fully torn down\nbefore this resolves — no globals are left mutated.",
+        component:
+          "Renders a d3plus chart to a standalone SVG string in Node, with no browser.\n\nWorks for every non-map chart out of the box, and for Geomap in vector-only\nmode (.tiles(false)); to include basemap tiles use renderToStaticSVG\nwith a tiled Geomap, which fetches + inlines them (see the Geomap helper).\n\nThe chart is rendered into a throwaway headless DOM that is fully torn down\nbefore this resolves — no globals are left mutated.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -47,7 +48,8 @@ Example.parameters = {
   docs: {
     source: {code, language: "js"},
     description: {
-      story: "Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) covers setup, fonts, and maps.",
+      story:
+        "Renders any chart to a standalone `<svg>` string in Node, with no browser. The chart is configured exactly as in the browser; `width` and `height` are required because there is no container to measure. A temporary headless DOM is installed for the render and torn down before the promise resolves. This package runs in Node only, so the snippet is not executed here; the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) covers setup, fonts, and maps.",
     },
   },
 };

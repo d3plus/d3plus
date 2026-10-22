@@ -82,7 +82,9 @@ export function trendLineDefaults(): Record<string, unknown> {
 /** Resolves the `trendLine` setting to a regression type, or null when off. */
 export function resolveTrendType(value: unknown): RegressionType | null {
   if (value === true) return "linear";
-  return trendTypes.includes(value as RegressionType) ? (value as RegressionType) : null;
+  return trendTypes.includes(value as RegressionType)
+    ? (value as RegressionType)
+    : null;
 }
 
 /**
@@ -103,7 +105,9 @@ export function trendNumberScale(order: unknown[]): {
   fromNumber: (n: number) => unknown;
 } {
   const keys = order.map(v => `${v}`);
-  const categorical = order.some(v => !(v instanceof Date) && typeof v !== "number");
+  const categorical = order.some(
+    v => !(v instanceof Date) && typeof v !== "number",
+  );
   const time = order.some(v => v instanceof Date);
   return {
     toNumber: v => {
@@ -112,7 +116,8 @@ export function trendNumberScale(order: unknown[]): {
       const index = keys.indexOf(`${v}`);
       return index < 0 ? NaN : index;
     },
-    fromNumber: n => (categorical ? order[Math.round(n)] : time ? new Date(n) : n),
+    fromNumber: n =>
+      categorical ? order[Math.round(n)] : time ? new Date(n) : n,
   };
 }
 
@@ -129,7 +134,10 @@ export function trendSamplePositions(
   const [lo, hi] = extent;
   if (categories) return categories.filter(n => n >= lo && n <= hi);
   if (lo === hi) return [lo];
-  return Array.from({length: count}, (_, i) => lo + (hi - lo) * i / (count - 1));
+  return Array.from(
+    {length: count},
+    (_, i) => lo + ((hi - lo) * i) / (count - 1),
+  );
 }
 
 /**
@@ -151,20 +159,31 @@ export function trendProjectionPositions(
   const end = Math.max(...steps);
   if (!(end > hi)) return [];
   if (categories) return [hi, ...categories.filter(n => n > hi && n <= end)];
-  const count = hi > lo ? Math.round(SAMPLES * (end - hi) / (hi - lo)) : SAMPLES;
-  const even = trendSamplePositions([hi, end], null, Math.min(Math.max(count, 2), SAMPLES) + 1);
-  return Array.from(new Set([...even, ...steps.filter(n => n > hi)])).sort((a, b) => a - b);
+  const count =
+    hi > lo ? Math.round((SAMPLES * (end - hi)) / (hi - lo)) : SAMPLES;
+  const even = trendSamplePositions(
+    [hi, end],
+    null,
+    Math.min(Math.max(count, 2), SAMPLES) + 1,
+  );
+  return Array.from(new Set([...even, ...steps.filter(n => n > hi)])).sort(
+    (a, b) => a - b,
+  );
 }
 
 /** Whether an axis plots on a point (category) scale, matching `computePlotScales`. */
 function isPointAxis(viz: VizInstance, axis: Axis): boolean {
   if (viz[`_${axis}Time`]) return false;
-  return (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) || !!viz.schema[`${axis}Sort`];
+  return (
+    (viz.schema.discrete === axis && !isSpanAxis(viz, axis)) ||
+    !!viz.schema[`${axis}Sort`]
+  );
 }
 
 /** The id of the series a row belongs to at a `groupBy` depth. */
 function seriesKey(viz: VizInstance, row: Row, depth: number): string {
-  return viz._ids(row.data as DataPoint, row.i as number)
+  return viz
+    ._ids(row.data as DataPoint, row.i as number)
     .slice(0, depth + 1)
     .join("_");
 }
@@ -185,17 +204,29 @@ function fitGroups(
   toNumber: (v: unknown) => number,
 ): FitGroup[] {
   const dep = axis === "x" ? "y" : "x";
-  const point = (r: Row): [number, number] => [toNumber(r[axis]), +(r[dep] as number)];
+  const point = (r: Row): [number, number] => [
+    toNumber(r[axis]),
+    +(r[dep] as number),
+  ];
   // A stacked chart fits the stack totals, so the line follows the stack tops.
   if (viz.schema.stacked) {
-    const totals = groups(rows, r => toNumber(r[axis]))
-      .map(([n, rs]): [number, number] => [n, rs.reduce((s, r) => s + (+(r[dep] as number) || 0), 0)]);
+    const totals = groups(rows, r => toNumber(r[axis])).map(
+      ([n, rs]): [number, number] => [
+        n,
+        rs.reduce((s, r) => s + (+(r[dep] as number) || 0), 0),
+      ],
+    );
     return [["all", totals, undefined, -1]];
   }
   const all: FitGroup[] = [["all", rows.map(point), undefined, -1]];
   if (viz._trendLineConfig?.group === "all") return all;
   const bySeries = (depth: number): FitGroup[] =>
-    groups(rows, r => seriesKey(viz, r, depth)).map(([key, rs]) => [key, rs.map(point), rs[0], depth]);
+    groups(rows, r => seriesKey(viz, r, depth)).map(([key, rs]) => [
+      key,
+      rs.map(point),
+      rs[0],
+      depth,
+    ]);
   const depth = viz._drawDepth;
   const drawn = bySeries(depth);
   if (drawn.some(([, points]) => points.length > 1)) return drawn;
@@ -231,8 +262,15 @@ export function computeTrendFits(
   const fill = viz.schema.shapeConfig.fill;
 
   const fits: TrendFit[] = [];
-  for (const [id, points, source, depth] of fitGroups(viz, rows, axis, toNumber)) {
-    const fit = regression(points, type, {order: config.order as number | undefined});
+  for (const [id, points, source, depth] of fitGroups(
+    viz,
+    rows,
+    axis,
+    toNumber,
+  )) {
+    const fit = regression(points, type, {
+      order: config.order as number | undefined,
+    });
     if (!fit) continue;
     const banded = config.confidence && type === "linear";
     const level = config.confidenceLevel as number | undefined;
@@ -244,21 +282,31 @@ export function computeTrendFits(
     const sampleAt = (n: number, projectedRun: boolean) => {
       const value = fit.predict(n);
       if (!Number.isFinite(value) || (logDep && value <= 0)) return;
-      const sample = {[axis]: fromNumber(n), [dep]: value} as unknown as TrendSample;
+      const sample = {
+        [axis]: fromNumber(n),
+        [dep]: value,
+      } as unknown as TrendSample;
       const bounds = projectedRun ? fan : band;
       if (bounds) [sample.lci, sample.hci] = bounds(n);
       if (projectedRun) sample.projected = true;
-      if (projectedRun && n > fit.extent[1] && steps.includes(n)) sample.step = true;
+      if (projectedRun && n > fit.extent[1] && steps.includes(n))
+        sample.step = true;
       samples.push(sample);
     };
-    trendSamplePositions(fit.extent, categories).forEach(n => sampleAt(n, false));
-    trendProjectionPositions(fit.extent, steps, categories).forEach(n => sampleAt(n, true));
+    trendSamplePositions(fit.extent, categories).forEach(n =>
+      sampleAt(n, false),
+    );
+    trendProjectionPositions(fit.extent, steps, categories).forEach(n =>
+      sampleAt(n, true),
+    );
     if (samples.length < 2) continue;
     const row = source ? (source.data as DataPoint) : undefined;
     const color = config.stroke
       ? config.stroke
       : row
-        ? typeof fill === "function" ? fill(row, source!.i) : fill
+        ? typeof fill === "function"
+          ? fill(row, source!.i)
+          : fill
         : "#444";
     const label = row
       ? viz._drawLabel(row, source!.i as number, depth)
@@ -288,18 +336,26 @@ export function trendDomainValues(fits: TrendFit[]): number[] {
     stacked domain reads `viz._trendFits` directly). A projection's future
     positions join the independent axis's values, widening it to fit.
 */
-export const computePlotTrendFits: TransformStage = ({viz, plotFormattedData, xData, yData}) => {
+export const computePlotTrendFits: TransformStage = ({
+  viz,
+  plotFormattedData,
+  xData,
+  yData,
+}) => {
   const axis = trendAxis(viz.schema.discrete);
   const order = (axis === "x" ? xData : yData) || [];
   const projected = resolveTrendType(viz._trendLine)
     ? projectionPositions(order, viz._trendLineConfig?.projection)
     : [];
-  const fits = (viz._trendFits = viz._swarm ? [] : computeTrendFits(viz, plotFormattedData || [], order, projected));
+  const fits = (viz._trendFits = viz._swarm
+    ? []
+    : computeTrendFits(viz, plotFormattedData || [], order, projected));
   if (!fits.length) return {};
   const extra = trendDomainValues(fits);
-  const out = axis === "x"
-    ? {yData: (yData || []).concat(extra)}
-    : {xData: (xData || []).concat(extra)};
+  const out =
+    axis === "x"
+      ? {yData: (yData || []).concat(extra)}
+      : {xData: (xData || []).concat(extra)};
   if (!fits.some(f => f.samples.some(s => s.projected))) return out;
   return {...out, [`${axis}Data`]: order.concat(projected)};
 };

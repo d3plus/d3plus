@@ -37,7 +37,12 @@ import type {
   FacetPanelState,
   ResolvedFacetConfig,
 } from "./facetConfig.js";
-import {facetFilteredData, facetGroups, facetTimeFilter, formatFacetValue} from "./facetData.js";
+import {
+  facetFilteredData,
+  facetGroups,
+  facetTimeFilter,
+  formatFacetValue,
+} from "./facetData.js";
 import type {FacetGroup} from "./facetData.js";
 import {facetGrid} from "./facetGrid.js";
 import type {FacetArea, FacetGridOptions} from "./facetGrid.js";
@@ -91,7 +96,10 @@ interface FacetPlan {
 }
 
 /** Margins that make `area` the chart area of a `viz`-sized surface. */
-export function facetAreaMargin(viz: Pick<VizInstance, "schema">, area: FacetArea): VizInstance["_margin"] {
+export function facetAreaMargin(
+  viz: Pick<VizInstance, "schema">,
+  area: FacetArea,
+): VizInstance["_margin"] {
   return {
     top: area.y,
     left: area.x,
@@ -104,7 +112,10 @@ export function facetAreaMargin(viz: Pick<VizInstance, "schema">, area: FacetAre
     Which axes a panel labels: every axis labeled on every panel, and each
     outer one (`true` for both) only along the grid's left/bottom edges.
 */
-export function panelLabels(cell: FacetCell, outer: boolean | FacetLabels): FacetLabels {
+export function panelLabels(
+  cell: FacetCell,
+  outer: boolean | FacetLabels,
+): FacetLabels {
   const {x, y} = typeof outer === "boolean" ? {x: outer, y: outer} : outer;
   return {x: x ? cell.edges.bottom : true, y: y ? cell.edges.left : true};
 }
@@ -129,7 +140,8 @@ function drawPanel(
   viz._chartTransform = undefined;
   viz._chartClip = undefined;
   viz._zoomShapes = undefined;
-  if (!data.length || area.width <= 0 || area.height <= 0) return {scene: [], zoomShapes: [], state: {}};
+  if (!data.length || area.width <= 0 || area.height <= 0)
+    return {scene: [], zoomShapes: [], state: {}};
   const undo = plan.hooks.panel ? plan.hooks.panel(viz, ctx) : undefined;
   viz._facetStep = "panel";
   let nodes: SceneNode[], scene: SceneNode[];
@@ -137,8 +149,7 @@ function drawPanel(
     viz._draw();
     nodes = viz._chartScene || [];
     scene = plan.hooks.scene ? plan.hooks.scene(viz, nodes) : nodes;
-  }
-  finally {
+  } finally {
     viz._facetStep = undefined;
     if (undo) undo();
   }
@@ -168,7 +179,12 @@ export function facetTitleTexts(
   const {title} = config;
   const values = panels.map(p => p.value);
   return panels.map(p =>
-    title === false ? "" : title ? `${title(p.value, p.data)}` : formatFacetValue(p.value, values));
+    title === false
+      ? ""
+      : title
+        ? `${title(p.value, p.data)}`
+        : formatFacetValue(p.value, values),
+  );
 }
 
 /** The height every panel reserves for its title: the tallest title at its cell's width. */
@@ -179,7 +195,12 @@ export function facetTitleBand(
   style: Record<string, unknown>,
 ): number {
   const titles: FacetTitle[] = texts
-    .map((text, i) => ({text, x: 0, y: 0, width: cells[i] ? cells[i].width : 0}))
+    .map((text, i) => ({
+      text,
+      x: 0,
+      y: 0,
+      width: cells[i] ? cells[i].width : 0,
+    }))
     .filter(t => t.text && t.width > 0);
   return measureFacetTitles(titles, style, viz.schema.locale);
 }
@@ -212,8 +233,15 @@ function measureLabels(
   if (!data || !insets) return {};
   const measured: Record<string, FacetSides> = {};
   // An axis labeled on every panel is labeled in every probe.
-  for (const labels of LABEL_COMBOS.filter(l => (outer.x || l.x) && (outer.y || l.y))) {
-    drawPanel(viz, plan, data, area, {cell, shared: plan.shared, labels, scales: plan.scales});
+  for (const labels of LABEL_COMBOS.filter(
+    l => (outer.x || l.x) && (outer.y || l.y),
+  )) {
+    drawPanel(viz, plan, data, area, {
+      cell,
+      shared: plan.shared,
+      labels,
+      scales: plan.scales,
+    });
     measured[labelKey(labels)] = insets(viz);
   }
   return labelExpansions(measured, baselineLabels(outer));
@@ -242,7 +270,12 @@ function panelAlignment(
   if (!insets || outer.x === outer.y) return [];
   const drawn = plan.panels.map((panel, i) => {
     if (!panel.data.length) return undefined;
-    drawPanel(viz, plan, panel.data, areas[i], {cell: cells[i], shared: plan.shared, labels: labels[i], scales: plan.scales});
+    drawPanel(viz, plan, panel.data, areas[i], {
+      cell: cells[i],
+      shared: plan.shared,
+      labels: labels[i],
+      scales: plan.scales,
+    });
     // How far the plot sits in from the panel's base area.
     const grown = expansions[labelKey(labels[i])] ?? NO_SIDES;
     const inset = insets(viz);
@@ -264,7 +297,12 @@ function panelAlignment(
     labels, for the room the labeled panels need. Shares the chart's scales
     (see `FacetHooks.share`) along the way, at the panels' size.
 */
-function layoutGrid(viz: VizInstance, plan: FacetPlan, texts: string[], style: Record<string, unknown>): GridLayout {
+function layoutGrid(
+  viz: VizInstance,
+  plan: FacetPlan,
+  texts: string[],
+  style: Record<string, unknown>,
+): GridLayout {
   const {config, hooks, panels, area} = plan;
   const opts: FacetGridOptions = {
     columns: config.columns,
@@ -273,7 +311,12 @@ function layoutGrid(viz: VizInstance, plan: FacetPlan, texts: string[], style: R
     titleHeight: 0,
     aspect: hooks.aspect ?? FACET_ASPECT,
   };
-  const titleHeight = facetTitleBand(viz, texts, facetGrid(panels.length, area, opts), style);
+  const titleHeight = facetTitleBand(
+    viz,
+    texts,
+    facetGrid(panels.length, area, opts),
+    style,
+  );
   opts.titleHeight = titleHeight;
   const first = facetGrid(panels.length, area, opts)[0];
   const probeArea = panelBase(first, titleHeight, NO_SIDES, 1);
@@ -281,10 +324,14 @@ function layoutGrid(viz: VizInstance, plan: FacetPlan, texts: string[], style: R
     // Scales are shared at the panels' size, which is what pixel-sized
     // domain padding (a bubble's radius) is measured in.
     viz._margin = facetAreaMargin(viz, probeArea);
-    plan.scales = hooks.share(viz, panels.map(p => p.data));
+    plan.scales = hooks.share(
+      viz,
+      panels.map(p => p.data),
+    );
   }
   const outer = facetOuterAxes(viz, config, hooks, plan.shared);
-  const expansions = outer.x || outer.y ? measureLabels(viz, plan, first, probeArea, outer) : {};
+  const expansions =
+    outer.x || outer.y ? measureLabels(viz, plan, first, probeArea, outer) : {};
   const gutter = labelGutter(expansions);
   opts.gutter = gutter;
   opts.columnPadding = config.padding + labelOverhang(expansions);
@@ -295,24 +342,37 @@ function layoutGrid(viz: VizInstance, plan: FacetPlan, texts: string[], style: R
 }
 
 /** Where a panel's title goes: above its cell, across its base area. */
-export function panelTitle(text: string, cell: FacetCell, base: FacetArea): FacetTitle {
+export function panelTitle(
+  text: string,
+  cell: FacetCell,
+  base: FacetArea,
+): FacetTitle {
   return {text, x: base.x, y: cell.y, width: base.width};
 }
 
 /** Draws every panel and composes them into the chart's scene; returns the per-panel state and every panel's data shapes. */
-function drawPanels(viz: VizInstance, plan: FacetPlan): {states: FacetPanelState[]; zoomShapes: SceneNode[]} {
+function drawPanels(
+  viz: VizInstance,
+  plan: FacetPlan,
+): {states: FacetPanelState[]; zoomShapes: SceneNode[]} {
   const style = facetTitleStyle(viz, plan.config);
   const texts = facetTitleTexts(plan.config, plan.panels);
   const layout = layoutGrid(viz, plan, texts, style);
   const {cells, expansions} = layout;
-  const bases = cells.map(cell => panelBase(cell, layout.titleHeight, layout.gutter, layout.columns));
+  const bases = cells.map(cell =>
+    panelBase(cell, layout.titleHeight, layout.gutter, layout.columns),
+  );
   const titles = facetTitleNodes(
-    cells.map((cell, i) => panelTitle(texts[i], cell, bases[i])).filter(t => t.text),
+    cells
+      .map((cell, i) => panelTitle(texts[i], cell, bases[i]))
+      .filter(t => t.text),
     style,
     viz.schema.locale,
   );
   const labels = cells.map(cell => panelLabels(cell, layout.outer));
-  const areas = cells.map((_cell, i) => expandArea(bases[i], expansions[labelKey(labels[i])] ?? NO_SIDES));
+  const areas = cells.map((_cell, i) =>
+    expandArea(bases[i], expansions[labelKey(labels[i])] ?? NO_SIDES),
+  );
   const aligned = panelAlignment(viz, plan, cells, areas, labels, layout);
   let t = 0;
   const states: FacetPanelState[] = [];
@@ -321,17 +381,39 @@ function drawPanels(viz: VizInstance, plan: FacetPlan): {states: FacetPanelState
   plan.panels.forEach((panel, i) => {
     const cell = cells[i];
     const area = aligned[i] ? expandArea(areas[i], aligned[i]) : areas[i];
-    const drawn = drawPanel(viz, plan, panel.data, area, {cell, shared: plan.shared, labels: labels[i], scales: plan.scales});
+    const drawn = drawPanel(viz, plan, panel.data, area, {
+      cell,
+      shared: plan.shared,
+      labels: labels[i],
+      scales: plan.scales,
+    });
     const key = `facet-${panel.key}`;
     const title = texts[i] ? titles[t++] : undefined;
     const body = drawn.scene.length
-      ? facetBodyNode(key, prefixKeys(drawn.scene, key), drawn.chartTransform, drawn.chartClip)
+      ? facetBodyNode(
+          key,
+          prefixKeys(drawn.scene, key),
+          drawn.chartTransform,
+          drawn.chartClip,
+        )
       : undefined;
-    scene.push(facetPanelNode(key, title ? {...title, key: `${key}/title`} : undefined, body, texts[i]));
+    scene.push(
+      facetPanelNode(
+        key,
+        title ? {...title, key: `${key}/title`} : undefined,
+        body,
+        texts[i],
+      ),
+    );
     zoomShapes.push(...drawn.zoomShapes);
     states.push({
-      key, value: panel.value, cell, area,
-      chartTransform: drawn.chartTransform, scene: drawn.scene, state: drawn.state,
+      key,
+      value: panel.value,
+      cell,
+      area,
+      chartTransform: drawn.chartTransform,
+      scene: drawn.scene,
+      state: drawn.state,
     });
   });
   viz._chartScene = scene;
@@ -344,11 +426,16 @@ function drawPanels(viz: VizInstance, plan: FacetPlan): {states: FacetPanelState
     chart's filters.
 */
 export function drawFacets(viz: VizInstance): boolean {
-  const config = resolveFacetConfig(viz.schema.facetConfig as FacetConfig | undefined);
+  const config = resolveFacetConfig(
+    viz.schema.facetConfig as FacetConfig | undefined,
+  );
   const groups = facetGroups(viz, config.sort);
   if (!groups.length || !(viz._filteredData || []).length) return false;
   const timeFilter = facetTimeFilter(viz);
-  const panels: Panel[] = groups.map(g => ({...g, data: facetFilteredData(viz, g.rows, timeFilter)}));
+  const panels: Panel[] = groups.map(g => ({
+    ...g,
+    data: facetFilteredData(viz, g.rows, timeFilter),
+  }));
   // The chart's rows are every panel's rows: the chrome (a colorScale's
   // domain, the title and total) reads the values the panels draw, not
   // values rolled up across panels.
@@ -361,8 +448,7 @@ export function drawFacets(viz: VizInstance): boolean {
   viz._facetStep = "chrome";
   try {
     viz._draw();
-  }
-  finally {
+  } finally {
     viz._facetStep = undefined;
   }
   const margin = {...viz._margin};
@@ -376,7 +462,15 @@ export function drawFacets(viz: VizInstance): boolean {
 
   const hooks = viz._facetHooks ? viz._facetHooks() : {};
   const shared = facetScalesShared(config, hooks);
-  const {states, zoomShapes} = drawPanels(viz, {config, hooks, panels, area, shared, scales: undefined, padding});
+  const {states, zoomShapes} = drawPanels(viz, {
+    config,
+    hooks,
+    panels,
+    area,
+    shared,
+    scales: undefined,
+    padding,
+  });
 
   viz._filteredData = all;
   viz._margin = margin;

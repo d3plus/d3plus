@@ -20,8 +20,8 @@ it("highlight desaturates non-matching marks while preserving color, transparenc
   const nodes = [
     {datum: {group: "A"}, paint: {fill: "#4c6ef5", stroke: "#333333"}}, // highlighted mark
     {datum: {group: "B"}, paint: {fill: "#e03131", stroke: "#333333"}}, // other mark
-    {datum: {group: "B"}, paint: {fill: "transparent"}},                // legend hit-area
-    {type: "text", datum: {group: "B"}, paint: {fill: "#ffffff"}},      // white label on a mark
+    {datum: {group: "B"}, paint: {fill: "transparent"}}, // legend hit-area
+    {type: "text", datum: {group: "B"}, paint: {fill: "#ffffff"}}, // white label on a mark
   ];
   const viz = {_highlight: d => d.group === "A", schema: {shapeConfig: {}}};
 
@@ -36,33 +36,72 @@ it("highlight desaturates non-matching marks while preserving color, transparenc
   // its lightness is preserved so any label on it stays legible.
   const [r, g, b] = parseRGB(out[1].paint.fill);
   assert.ok(r === g && g === b, "grayed fill is achromatic (r=g=b)");
-  assert.notStrictEqual(out[1].paint.fill, "#e03131", "grayed fill differs from original");
+  assert.notStrictEqual(
+    out[1].paint.fill,
+    "#e03131",
+    "grayed fill differs from original",
+  );
 
   // A transparent fill (the legend hit-area rect) stays transparent — the bug
   // was a flat gray override turning it into a solid gray box.
   const hit = out[2].paint.fill;
   const hitRGBA = parseRGB(hit);
-  assert.ok(hit === "transparent" || (hitRGBA && hitRGBA[3] === 0), "transparent stays transparent");
+  assert.ok(
+    hit === "transparent" || (hitRGBA && hitRGBA[3] === 0),
+    "transparent stays transparent",
+  );
 
   // A white label stays white (lightness preserved) — the bug was it going
   // gray-on-gray and vanishing.
-  assert.deepStrictEqual(parseRGB(out[3].paint.fill).slice(0, 3), [255, 255, 255], "white label stays white");
+  assert.deepStrictEqual(
+    parseRGB(out[3].paint.fill).slice(0, 3),
+    [255, 255, 255],
+    "white label stays white",
+  );
 });
 
 it("hover/active thicken + darken the matched mark's stroke (v3 parity)", () => {
   const nodes = () => [
-    {type: "rect", datum: {group: "A"}, paint: {fill: "#4c6ef5", strokeWidth: 1}},
-    {type: "rect", datum: {group: "B"}, paint: {fill: "#e03131", strokeWidth: 1}},
+    {
+      type: "rect",
+      datum: {group: "A"},
+      paint: {fill: "#4c6ef5", strokeWidth: 1},
+    },
+    {
+      type: "rect",
+      datum: {group: "B"},
+      paint: {fill: "#e03131", strokeWidth: 1},
+    },
     {type: "text", datum: {group: "A"}, paint: {fill: "#ffffff"}}, // label — not a mark
   ];
 
-  const hovered = applyInteractionOpacity(nodes(), {_hover: d => d.group === "A", schema: {shapeConfig: {}}});
-  assert.strictEqual(hovered[0].paint.strokeWidth, 2, "hovered mark stroke doubled");
-  assert.ok(hovered[0].paint.stroke && hovered[0].paint.stroke !== "#4c6ef5", "hovered stroke darkened");
-  assert.ok(hovered[2].paint.strokeWidth === undefined, "text label gets no stroke emphasis");
+  const hovered = applyInteractionOpacity(nodes(), {
+    _hover: d => d.group === "A",
+    schema: {shapeConfig: {}},
+  });
+  assert.strictEqual(
+    hovered[0].paint.strokeWidth,
+    2,
+    "hovered mark stroke doubled",
+  );
+  assert.ok(
+    hovered[0].paint.stroke && hovered[0].paint.stroke !== "#4c6ef5",
+    "hovered stroke darkened",
+  );
+  assert.ok(
+    hovered[2].paint.strokeWidth === undefined,
+    "text label gets no stroke emphasis",
+  );
 
-  const active = applyInteractionOpacity(nodes(), {_active: d => d.group === "A", schema: {shapeConfig: {}}});
-  assert.strictEqual(active[0].paint.strokeWidth, 3, "active mark stroke tripled (stronger than hover)");
+  const active = applyInteractionOpacity(nodes(), {
+    _active: d => d.group === "A",
+    schema: {shapeConfig: {}},
+  });
+  assert.strictEqual(
+    active[0].paint.strokeWidth,
+    3,
+    "active mark stroke tripled (stronger than hover)",
+  );
 
   // Hovering an already-active node keeps the stronger active stroke.
   const both = applyInteractionOpacity(nodes(), {
@@ -70,7 +109,11 @@ it("hover/active thicken + darken the matched mark's stroke (v3 parity)", () => 
     _active: d => d.group === "A",
     schema: {shapeConfig: {}},
   });
-  assert.strictEqual(both[0].paint.strokeWidth, 3, "active node keeps active stroke while hovered");
+  assert.strictEqual(
+    both[0].paint.strokeWidth,
+    3,
+    "active node keeps active stroke while hovered",
+  );
 });
 
 it("colorScale bucket hover dims non-matching marks even at hoverOpacity:1", () => {
@@ -79,17 +122,36 @@ it("colorScale bucket hover dims non-matching marks even at hoverOpacity:1", () 
     {type: "path", datum: {v: 2}, paint: {fill: "#bbbbbb", opacity: 1}},
   ];
   // Geomap sets hoverOpacity:1 so a plain shape hover doesn't dim the map...
-  const plain = applyInteractionOpacity(nodes(), {_hover: d => d.v === 1, schema: {shapeConfig: {hoverOpacity: 1}}});
-  assert.strictEqual(plain[1].paint.opacity, 1, "plain hover at hoverOpacity:1 does not dim");
+  const plain = applyInteractionOpacity(nodes(), {
+    _hover: d => d.v === 1,
+    schema: {shapeConfig: {hoverOpacity: 1}},
+  });
+  assert.strictEqual(
+    plain[1].paint.opacity,
+    1,
+    "plain hover at hoverOpacity:1 does not dim",
+  );
   // ...but a colorScale bucket hover still highlights (dims non-matching to 0.5).
-  const bucket = applyInteractionOpacity(nodes(), {_hover: d => d.v === 1, _hoverBucket: true, schema: {shapeConfig: {hoverOpacity: 1}}});
-  assert.strictEqual(bucket[1].paint.opacity, 0.5, "bucket hover dims non-matching despite hoverOpacity:1");
+  const bucket = applyInteractionOpacity(nodes(), {
+    _hover: d => d.v === 1,
+    _hoverBucket: true,
+    schema: {shapeConfig: {hoverOpacity: 1}},
+  });
+  assert.strictEqual(
+    bucket[1].paint.opacity,
+    0.5,
+    "bucket hover dims non-matching despite hoverOpacity:1",
+  );
 });
 
 it("no highlight/hover/active is a no-op (same array back)", () => {
   const nodes = [{datum: {group: "A"}, paint: {fill: "#4c6ef5"}}];
   const viz = {schema: {shapeConfig: {}}};
-  assert.strictEqual(applyInteractionOpacity(nodes, viz), nodes, "unchanged reference");
+  assert.strictEqual(
+    applyInteractionOpacity(nodes, viz),
+    nodes,
+    "unchanged reference",
+  );
 });
 
 it("colorOrdinal builds a single-hue ramp ordered by value", () => {
@@ -109,7 +171,10 @@ it("colorOrdinal builds a single-hue ramp ordered by value", () => {
 });
 
 it("colorOrdinal is off by default and yields to a continuous colorScale", () => {
-  const off = {schema: {colorOrdinal: false, color: d => d.tier}, _filteredData: [{tier: 1}]};
+  const off = {
+    schema: {colorOrdinal: false, color: d => d.tier},
+    _filteredData: [{tier: 1}],
+  };
   configureOrdinalColor(off);
   assert.strictEqual(off._ordinalColorScale, undefined, "no scale when off");
 
@@ -118,5 +183,9 @@ it("colorOrdinal is off by default and yields to a continuous colorScale", () =>
     _filteredData: [{tier: 1, v: 5}],
   };
   configureOrdinalColor(continuous);
-  assert.strictEqual(continuous._ordinalColorScale, undefined, "continuous scale wins");
+  assert.strictEqual(
+    continuous._ordinalColorScale,
+    undefined,
+    "continuous scale wins",
+  );
 });

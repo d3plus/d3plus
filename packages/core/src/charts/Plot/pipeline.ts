@@ -13,13 +13,31 @@ import {date} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 import {merge as d3plusMerge, unique} from "@d3plus/data";
 import * as scales from "d3-scale";
-import {deviation, extent, groups, max, mean, min, range, rollups} from "d3-array";
+import {
+  deviation,
+  extent,
+  groups,
+  max,
+  mean,
+  min,
+  range,
+  rollups,
+} from "d3-array";
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
 import {withAxisInk} from "./axisInk.js";
 import {applyBarWidths} from "./barWidth.js";
-import {baselineBreakAxisConfig, userDomainBreaksBaseline} from "./baselineBreak.js";
-import {configOpenDomain, hasUserDomain, plotAxisRounding, secondaryAxisRounding, userAxisDomain} from "./baselineDomain.js";
+import {
+  baselineBreakAxisConfig,
+  userDomainBreaksBaseline,
+} from "./baselineBreak.js";
+import {
+  configOpenDomain,
+  hasUserDomain,
+  plotAxisRounding,
+  secondaryAxisRounding,
+  userAxisDomain,
+} from "./baselineDomain.js";
 import {openEnd} from "./openDomainEnds.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {isSpanAxis, spanEdges} from "./discreteSpan.js";
@@ -75,7 +93,10 @@ const isPlottableRow = (d: Record<string, unknown>): boolean =>
     from `sizeMin` (capped at half of `sizeMax`) to `sizeMax`. A single-value
     extent maps everything to `sizeMax`.
 */
-export function plotSizeScale(viz: Parameters<TransformStage>[0]["viz"], sizes: number[]): D3Scale {
+export function plotSizeScale(
+  viz: Parameters<TransformStage>[0]["viz"],
+  sizes: number[],
+): D3Scale {
   const rExtent = extent(sizes);
   return scaleConstructors[
     `scale${viz.schema.sizeScale.charAt(0).toUpperCase()}${viz.schema.sizeScale.slice(1)}`
@@ -94,17 +115,23 @@ export function plotSizeScale(viz: Parameters<TransformStage>[0]["viz"], sizes: 
     legend keys them: `"Circle"` rows, or the shapes a chart names in
     `viz._plotCircleShapes`.
 */
-const drawsSizedCircle = (viz: Parameters<TransformStage>[0]["viz"], shape: unknown): boolean =>
-  (viz._plotCircleShapes ?? ["Circle"]).includes(shape as string);
+const drawsSizedCircle = (
+  viz: Parameters<TransformStage>[0]["viz"],
+  shape: unknown,
+): boolean => (viz._plotCircleShapes ?? ["Circle"]).includes(shape as string);
 
 /**
     Plot's size-legend scale, available before layout: the same scale
     `formatPlotData` builds, over the plottable rows. Null when there's no
     `size` accessor or none of those rows draws as a sized circle.
 */
-export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): SizeLegendScale | null {
+export function plotSizeLegendScale(
+  viz: Parameters<TransformStage>[0]["viz"],
+): SizeLegendScale | null {
   if (!viz._size) return null;
-  const rows: DataPoint[] = viz._axisPersist ? viz._data : viz._filteredData || [];
+  const rows: DataPoint[] = viz._axisPersist
+    ? viz._data
+    : viz._filteredData || [];
   const sizes: number[] = [];
   let circles = false;
   rows.forEach((d, i) => {
@@ -112,7 +139,9 @@ export function plotSizeLegendScale(viz: Parameters<TransformStage>[0]["viz"]): 
     sizes.push(viz._size!(d, i));
     if (drawsSizedCircle(viz, viz.schema.shape(d, i))) circles = true;
   });
-  return circles ? (plotSizeScale(viz, sizes) as unknown as SizeLegendScale) : null;
+  return circles
+    ? (plotSizeScale(viz, sizes) as unknown as SizeLegendScale)
+    : null;
 }
 
 /**
@@ -132,10 +161,17 @@ export const formatPlotData: TransformStage = ({viz}) => {
   if (!viz._filteredData || !viz._filteredData.length) {
     viz._sizeLegendFinal = null;
     viz._swarm = null;
-    return {plotFormattedData: [], plotAxisData: [], x2Exists: false, y2Exists: false};
+    return {
+      plotFormattedData: [],
+      plotAxisData: [],
+      x2Exists: false,
+      y2Exists: false,
+    };
   }
 
-  const firstElemTime = viz.schema.time ? viz.schema.time(viz._filteredData[0], 0) : false;
+  const firstElemTime = viz.schema.time
+    ? viz.schema.time(viz._filteredData[0], 0)
+    : false;
   const x2Time = (viz._x2Time =
     firstElemTime && viz._x2(viz._filteredData[0], 0) === firstElemTime);
   const xTime = (viz._xTime =
@@ -165,13 +201,12 @@ export const formatPlotData: TransformStage = ({viz}) => {
       data: d,
       group: stackGroup(d, i),
       i,
-      hci:
-        viz._confidence && viz._confidence[1] && viz._confidence[1](d, i),
-      id: viz._ids(d, i)
+      hci: viz._confidence && viz._confidence[1] && viz._confidence[1](d, i),
+      id: viz
+        ._ids(d, i)
         .slice(0, viz._drawDepth + 1)
         .join("_"),
-      lci:
-        viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
+      lci: viz._confidence && viz._confidence[0] && viz._confidence[0](d, i),
       shape: viz.schema.shape(d, i),
       x: xTime ? date(viz._x(d, i)) : viz._x(d, i),
       x2: x2Time ? date(viz._x2(d, i)) : viz._x2(d, i),
@@ -183,13 +218,16 @@ export const formatPlotData: TransformStage = ({viz}) => {
         ? `${newD[viz.schema.discrete]}_${newD.group}`
         : `${newD[viz.schema.discrete]}`;
     newD.id =
-      newD.shape === "Bar" ? `${newD.id}_${newD[viz.schema.discrete]}` : newD.id;
+      newD.shape === "Bar"
+        ? `${newD.id}_${newD[viz.schema.discrete]}`
+        : newD.id;
     return newD;
   };
 
   const categories = discreteDomainCategories(viz);
   const keepRow = (d: Record<string, unknown>) =>
-    isPlottableRow(d) && (!categories || categories.has(d[viz.schema.discrete]));
+    isPlottableRow(d) &&
+    (!categories || categories.has(d[viz.schema.discrete]));
   const plotted = viz._filteredData.map(prepData).filter(keepRow);
   const [formattedData, axisData] = applyBarWidths(
     viz,
@@ -205,15 +243,28 @@ export const formatPlotData: TransformStage = ({viz}) => {
   }
 
   viz._sizeScaleD3 = viz._size
-    ? viz._plotFacetScales?.size ??
-      plotSizeScale(viz, axisData.map((d: Record<string, unknown>) => viz._size!(d.data as DataPoint)))
+    ? (viz._plotFacetScales?.size ??
+      plotSizeScale(
+        viz,
+        axisData.map((d: Record<string, unknown>) =>
+          viz._size!(d.data as DataPoint),
+        ),
+      ))
     : () => viz.schema.sizeMin;
-  viz._sizeLegendFinal = viz._size && axisData.some((d: Record<string, unknown>) => drawsSizedCircle(viz, d.shape))
-    ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
-    : null;
+  viz._sizeLegendFinal =
+    viz._size &&
+    axisData.some((d: Record<string, unknown>) =>
+      drawsSizedCircle(viz, d.shape),
+    )
+      ? (viz._sizeScaleD3 as unknown as SizeLegendScale)
+      : null;
 
-  const x2Exists = axisData.some((d: Record<string, unknown>) => d.x2 !== undefined);
-  const y2Exists = axisData.some((d: Record<string, unknown>) => d.y2 !== undefined);
+  const x2Exists = axisData.some(
+    (d: Record<string, unknown>) => d.x2 !== undefined,
+  );
+  const y2Exists = axisData.some(
+    (d: Record<string, unknown>) => d.y2 !== undefined,
+  );
 
   return {
     plotFormattedData: formattedData,
@@ -233,7 +284,11 @@ export const formatPlotData: TransformStage = ({viz}) => {
     Takes the axis name + the two data sources + the viz state and returns
     the sorted/unique values for that axis.
 */
-export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, plotAxisData}) => {
+export const computePlotAxisValues: TransformStage = ({
+  viz,
+  plotFormattedData,
+  plotAxisData,
+}) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
 
@@ -242,7 +297,8 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
     const localData = timeData ? data : axisData;
 
     const filteredData = localData.filter(
-      (d: Record<string, unknown>) => ![NaN, undefined, false].includes(d[axis] as never),
+      (d: Record<string, unknown>) =>
+        ![NaN, undefined, false].includes(d[axis] as never),
     );
     if (!filteredData.length) return [];
 
@@ -256,7 +312,9 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
               leaves.length === 1
                 ? leaves[0].data
                 : d3plusMerge(
-                    leaves.map((d: Record<string, unknown>) => d.data) as DataPoint[],
+                    leaves.map(
+                      (d: Record<string, unknown>) => d.data,
+                    ) as DataPoint[],
                     viz.schema.aggs,
                   ),
             (d: Record<string, unknown>) => d[axis],
@@ -294,9 +352,13 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
 
     if (viz.schema.discrete !== axis.charAt(0) && viz._confidence) {
       if (viz._confidence[0])
-        myData = myData.concat(localData.map((d: Record<string, unknown>) => d.lci));
+        myData = myData.concat(
+          localData.map((d: Record<string, unknown>) => d.lci),
+        );
       if (viz._confidence[1])
-        myData = myData.concat(localData.map((d: Record<string, unknown>) => d.hci));
+        myData = myData.concat(
+          localData.map((d: Record<string, unknown>) => d.hci),
+        );
       myData = myData.concat(extraBandValues(viz, localData));
     }
 
@@ -325,14 +387,23 @@ export const computePlotAxisValues: TransformStage = ({viz, plotFormattedData, p
     Returns the extended scales. Side-effect-free on viz (only on the scale
     instances, which are passed through the context).
 */
-export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plotAxisData, plotScales, plotConfigScales}) => {
+export const extendPlotOppScales: TransformStage = ({
+  viz,
+  plotFormattedData,
+  plotAxisData,
+  plotScales,
+  plotConfigScales,
+}) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let {x, y, x2, y2} = plotScales!;
-  const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} = plotConfigScales!;
-  const xScale = plotScales!.xScale, yScale = plotScales!.yScale;
+  const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} =
+    plotConfigScales!;
+  const xScale = plotScales!.xScale,
+    yScale = plotScales!.yScale;
 
-  const oppScale = viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
+  const oppScale =
+    viz.schema.discrete === "x" || viz._swarm?.axis === "y" ? yScale : xScale;
   if (oppScale !== "Point") {
     const allShapeData = groups(
       axisData,
@@ -340,7 +411,11 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
     );
     allShapeData.forEach(([key, values]) => {
       if (["Bar", "Box"].includes(key) && !viz._discreteExtent) {
-        discreteBufferFn(viz.schema.discrete === "x" ? x : y, data, viz.schema.discrete);
+        discreteBufferFn(
+          viz.schema.discrete === "x" ? x : y,
+          data,
+          viz.schema.discrete,
+        );
       }
       if (viz._buffer[key]) {
         const res = viz._buffer[key].bind(viz)({
@@ -386,7 +461,16 @@ export const extendPlotOppScales: TransformStage = ({viz, plotFormattedData, plo
 
     Pure compute. No DOM, no side effects on viz.
 */
-export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotScales, x2Exists, y2Exists, x2Data, y2Data, yData}) => {
+export const preparePlotAxisLayout: TransformStage = ({
+  viz,
+  plotAxisData,
+  plotScales,
+  x2Exists,
+  y2Exists,
+  x2Data,
+  y2Data,
+  yData,
+}) => {
   const axisData = plotAxisData || [];
   const {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale} = plotScales!;
   const xDomain = x.domain() as DomainValue[];
@@ -402,7 +486,8 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     tickSize: 0,
   };
   // An axis config's full `domain` is drawn as given (see `plotAxisRounding`).
-  const yRounding = hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside";
+  const yRounding =
+    hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside";
   const defaultX2Config = {
     ...(x2Exists ? {data: x2Data} : defaultConfig),
     baselineBreak: false,
@@ -415,11 +500,13 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
   };
   const showX =
     viz.schema.discrete === "x"
-      ? viz.schema.width > viz._discreteCutoff && viz.schema.width > viz.schema.xCutoff
+      ? viz.schema.width > viz._discreteCutoff &&
+        viz.schema.width > viz.schema.xCutoff
       : viz.schema.width > viz.schema.xCutoff && !swarmHidesAxis(viz, "x");
   const showY =
     viz.schema.discrete === "y"
-      ? viz.schema.height > viz._discreteCutoff && viz.schema.height > viz.schema.yCutoff
+      ? viz.schema.height > viz._discreteCutoff &&
+        viz.schema.height > viz.schema.yCutoff
       : viz.schema.height > viz.schema.yCutoff && !swarmHidesAxis(viz, "y");
 
   const yC: Record<string, unknown> = {
@@ -434,7 +521,10 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     yC.barConfig = {stroke: "transparent"};
     yC.tickSize = 0;
     yC.shapeConfig = {
-      labelBounds: (d: {labelBounds: {width: number; y: number}}, i: number) => {
+      labelBounds: (
+        d: {labelBounds: {width: number; y: number}},
+        i: number,
+      ) => {
         const {width: w, y: yy} = d.labelBounds;
         const h = viz.schema.height / 2;
         const xx = i ? -h : 0;
@@ -451,7 +541,7 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     barConfig.label !== undefined
       ? typeof barConfig.label === "function"
         ? barConfig.label
-        : (() => barConfig.label)
+        : () => barConfig.label
       : viz._drawLabel;
   const barLabels = axisData
     .map((d: Record<string, unknown>) => barLabelFunction(d.data, d.i))
@@ -491,9 +581,14 @@ export const preparePlotAxisLayout: TransformStage = ({viz, plotAxisData, plotSc
     strings), so they compare with the data; an undefined end stays undefined
     for `computePlotScales` to fill from the data.
 */
-function userDomain(domain: DomainValue[], time: boolean | undefined): DomainValue[] {
+function userDomain(
+  domain: DomainValue[],
+  time: boolean | undefined,
+): DomainValue[] {
   return time
-    ? domain.map(d => (d === undefined ? d : date(d as string | number) as Date))
+    ? domain.map(d =>
+        d === undefined ? d : (date(d as string | number) as Date),
+      )
     : domain.slice();
 }
 
@@ -521,7 +616,12 @@ function applyOppDomains(
     } else if (
       o &&
       viz.schema.baseline !== void 0 &&
-      !userDomainBreaksBaseline(viz, o, o.startsWith("x") ? configScales.x : configScales.y, user[o])
+      !userDomainBreaksBaseline(
+        viz,
+        o,
+        o.startsWith("x") ? configScales.x : configScales.y,
+        user[o],
+      )
     ) {
       const b = viz.schema.baseline;
       if (domains[o] && domains[o][0] > b) domains[o][0] = b;
@@ -543,15 +643,26 @@ function applyOppDomains(
     `Plot._draw` — extracting that requires untangling array sorts that
     mutate `axisData` in place, which is the natural next step.
 */
-export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotAxisData, plotInitialDomains}) => {
+export const computePlotScales: TransformStage = ({
+  viz,
+  plotFormattedData,
+  plotAxisData,
+  plotInitialDomains,
+}) => {
   const data = plotFormattedData || [];
   const axisData = plotAxisData || [];
   let domains = plotInitialDomains as Record<string, DomainValue[]>;
   const width = viz.schema.width - viz._margin.left - viz._margin.right;
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom;
-  const opp = viz.schema.discrete ? (viz.schema.discrete === "x" ? "y" : "x") : undefined;
+  const opp = viz.schema.discrete
+    ? viz.schema.discrete === "x"
+      ? "y"
+      : "x"
+    : undefined;
   const opp2 = viz.schema.discrete
-    ? viz.schema.discrete === "x" ? "y2" : "x2"
+    ? viz.schema.discrete === "x"
+      ? "y2"
+      : "x2"
     : undefined;
   const opps = [opp, opp2].filter(d => d) as string[];
   // The user's value domains, with a set `baseline` filling the end it bounds.
@@ -561,27 +672,37 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   };
   // A user domain that leaves an end open, and the domain the axis would have without it.
   const openEnds = {
-    x: openEnd(user.x, domains.x, opps.includes("x") ? viz.schema.baseline : undefined),
-    y: openEnd(user.y, domains.y, opps.includes("y") ? viz.schema.baseline : undefined),
+    x: openEnd(
+      user.x,
+      domains.x,
+      opps.includes("x") ? viz.schema.baseline : undefined,
+    ),
+    y: openEnd(
+      user.y,
+      domains.y,
+      opps.includes("y") ? viz.schema.baseline : undefined,
+    ),
   };
 
   function domainScaleSetup(axis: string) {
     const scale = viz[`_${axis}Time`]
       ? "Time"
-      : (!isSpanAxis(viz, axis) && (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) || viz._swarm?.cross === axis
+      : (!isSpanAxis(viz, axis) &&
+            (viz.schema.discrete === axis || viz.schema[`${axis}Sort`])) ||
+          viz._swarm?.cross === axis
         ? "Point"
         : "Linear";
-    const domain = user[axis] ? userDomain(user[axis]!, viz[`_${axis}Time`]) : domains[axis],
+    const domain = user[axis]
+        ? userDomain(user[axis]!, viz[`_${axis}Time`])
+        : domains[axis],
       domain2 = viz.schema[`${axis}2Domain`]
         ? userDomain(viz.schema[`${axis}2Domain`], viz[`_${axis}2Time`])
         : domains[`${axis}2`];
     if (scale !== "Point") {
       if (domain && domain[0] === void 0) domain[0] = domains[axis][0];
       if (domain && domain[1] === void 0) domain[1] = domains[axis][1];
-      if (domain2 && domain2[0] === void 0)
-        domain2[0] = domains[`${axis}2`][0];
-      if (domain2 && domain2[1] === void 0)
-        domain2[1] = domains[`${axis}2`][1];
+      if (domain2 && domain2[0] === void 0) domain2[0] = domains[`${axis}2`][0];
+      if (domain2 && domain2[1] === void 0) domain2[1] = domains[`${axis}2`][1];
     }
     return [domain, scale, domain2, scale] as const;
   }
@@ -593,7 +714,9 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
     const userScale = viz[`_${axis}Config`].scale;
     if (userScale === "auto") {
       if (viz.schema.discrete === axis) return fallback;
-      const values = axisData.map((d: Record<string, unknown>) => d[axis]) as number[];
+      const values = axisData.map(
+        (d: Record<string, unknown>) => d[axis],
+      ) as number[];
       return deviation(values)! / mean(values)! > 3 ? "log" : "linear";
     }
     return userScale || fallback;
@@ -621,13 +744,17 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
         domains[axis][1] = max(
           data
             .map((d: Record<string, unknown>) => d[axis])
-            .filter((d: unknown) => ![NaN, undefined, false].includes(d as never)) as number[],
+            .filter(
+              (d: unknown) => ![NaN, undefined, false].includes(d as never),
+            ) as number[],
         ) as number;
       else
         domains[axis][0] = min(
           axisData
             .map((d: Record<string, unknown>) => d[axis])
-            .filter((d: unknown) => ![NaN, undefined, false].includes(d as never)) as number[],
+            .filter(
+              (d: unknown) => ![NaN, undefined, false].includes(d as never),
+            ) as number[],
         ) as number;
     }
   });
@@ -653,7 +780,12 @@ export const computePlotScales: TransformStage = ({viz, plotFormattedData, plotA
   return {
     plotDomains: domains,
     plotScales: {x, y, x2, y2, xScale, yScale, x2Scale, y2Scale},
-    plotConfigScales: {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale},
+    plotConfigScales: {
+      xConfigScale,
+      yConfigScale,
+      x2ConfigScale,
+      y2ConfigScale,
+    },
     plotOpps: {opp, opp2, opps},
     plotOpenEnds: openEnds,
   };

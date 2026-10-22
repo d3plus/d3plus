@@ -74,14 +74,27 @@ it("partition hierarchy: mergeBranch drops bucket markers and stamped shares", (
 it("partition hierarchy: partitionLayout spans 0–1 by default and places each node via the callback", () => {
   const seen = [];
   const nodes = partitionLayout(
-    {data: rows, keys: [key("group"), key("item")], firstLevel: 0, focusPath: [], sum},
+    {
+      data: rows,
+      keys: [key("group"), key("item")],
+      firstLevel: 0,
+      focusPath: [],
+      sum,
+    },
     f => {
       seen.push(f.id);
       return {mid: (f.x0 + f.x1) / 2};
     },
   );
-  assert.strictEqual(nodes.length, 5, "2 groups + 3 items; the whole is not drawn");
-  assert.deepStrictEqual(seen, nodes.map(n => n.id));
+  assert.strictEqual(
+    nodes.length,
+    5,
+    "2 groups + 3 items; the whole is not drawn",
+  );
+  assert.deepStrictEqual(
+    seen,
+    nodes.map(n => n.id),
+  );
   const b = nodes.find(n => n.id === JSON.stringify(["B"]));
   near(b.x0, 0.4, 1e-9, "data order without a sort");
   near(b.x1, 1, 1e-9, "B's share");
@@ -114,7 +127,10 @@ it("partition hierarchy: partitionLayout honors breadth, a focus, and skips zero
   assert.deepStrictEqual([nodes[0].x0, nodes[0].x1], [0, 10]);
   assert.ok(!nodes.some(n => n.path[1] === "a3"), "zero-value branch left out");
   assert.deepStrictEqual(
-    partitionLayout({data: [], keys: [], firstLevel: 0, focusPath: [], sum}, () => ({})),
+    partitionLayout(
+      {data: [], keys: [], firstLevel: 0, focusPath: [], sum},
+      () => ({}),
+    ),
     [],
   );
 });
@@ -123,6 +139,9 @@ it("partition hierarchy: partitionLineage walks a node up to the drawn root", ()
   const root = {id: "r"};
   const mid = {id: "m", parent: root};
   const leaf = {id: "l", parent: mid};
-  assert.deepStrictEqual(partitionLineage(leaf).map(n => n.id), ["l", "m", "r"]);
+  assert.deepStrictEqual(
+    partitionLineage(leaf).map(n => n.id),
+    ["l", "m", "r"],
+  );
   assert.deepStrictEqual(partitionLineage(root), [root]);
 });

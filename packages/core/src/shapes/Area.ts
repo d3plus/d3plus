@@ -185,7 +185,6 @@ export default class Area extends Shape {
     return areas;
   }
 
-
   /**
       The x position accessor. Also sets x0 to the same value.
 */

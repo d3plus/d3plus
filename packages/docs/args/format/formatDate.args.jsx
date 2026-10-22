@@ -3,34 +3,32 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   d: {
     control: {},
     description: "The date to format.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "date"
-    }
+      summary: "date",
+    },
   },
   dataArray: {
     control: {},
     description: "The full array of ordered Date Objects.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;date&gt;"
-    }
+      summary: "array.&lt;date&gt;",
+    },
   },
   formatter: {
     control: {},
@@ -38,25 +36,26 @@ export const argTypes = {
     description: "Optional custom format string or function.",
     table: {
       defaultValue: {
-        summary: "timeFormat"
-      }
+        summary: "timeFormat",
+      },
     },
     type: {
       required: false,
-      summary: "dateformatter"
-    }
+      summary: "dateformatter",
+    },
   },
   shown: {
     control: {},
-    description: "Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date).",
+    description:
+      "Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "array.&lt;date&gt;"
-    }
-  }
+      summary: "array.&lt;date&gt;",
+    },
+  },
 };

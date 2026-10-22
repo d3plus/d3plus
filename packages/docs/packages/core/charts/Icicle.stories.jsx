@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Draws a hierarchy as nested rectangles, one band per groupBy level from\nthe root edge out, where each node's breadth is proportional to its summed\nvalue. Click a rectangle to zoom into it; click the root band (or Back) to\nzoom out.",
+        component:
+          "Draws a hierarchy as nested rectangles, one band per groupBy level from\nthe root edge out, where each node's breadth is proportional to its summed\nvalue. Click a rectangle to zoom into it; click the root band (or Back) to\nzoom out.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Icicle config={configify(args, argTypes)} />;
-  
+const Template = args => <Icicle config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

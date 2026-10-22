@@ -41,20 +41,34 @@ import {max} from "d3-array";
 import type Axis from "../../components/Axis/Axis.js";
 import {frozenAxis} from "./frozenAxis.js";
 
-import {END_LABEL_AXIS_CONFIG, alignAxisLine, endLabelSpace, labelsXEnds, measureEndLabels, placeEndLabels} from "./plotEndLabels.js";
+import {
+  END_LABEL_AXIS_CONFIG,
+  alignAxisLine,
+  endLabelSpace,
+  labelsXEnds,
+  measureEndLabels,
+  placeEndLabels,
+} from "./plotEndLabels.js";
 import type {XLabelMode} from "./plotEndLabels.js";
 import {bumpLineLabels} from "./lineLabels.js";
 import {buildXConfig} from "./xAxisConfig.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
-import type {LabelWidth, PlotMeasureResult, PlotPaintContext} from "./plotPaint.js";
+import type {
+  LabelWidth,
+  PlotMeasureResult,
+  PlotPaintContext,
+} from "./plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {solveFinalAxes, xRightInset} from "./axesFinal.js";
 import type {AxisBounds, YAxisMeasure} from "./axesFinal.js";
 
-
 /** A queued production-axis scene, drained after the shape loop; `gridOnly` keeps just its gridlines. */
-type AxisScene = {key: string; transform: {x: number; y: number}; axis: Axis; gridOnly?: boolean};
-
+type AxisScene = {
+  key: string;
+  transform: {x: number; y: number};
+  axis: Axis;
+  gridOnly?: boolean;
+};
 
 /** Zoom settings the chart's config doesn't set back (see `Plot/plotZoom.ts`), so an unzoomed paint draws as the chart first did. */
 const UNZOOMED_AXIS = {domainTicks: true, fixedSize: undefined};
@@ -63,7 +77,10 @@ const UNZOOMED_AXIS = {domainTicks: true, fixedSize: undefined};
 type PositionAccessor = (d: unknown, which?: string) => number;
 
 /** Derives an axis's transform relative to `_chartTransform`. */
-type RelativeTransform = (which: "x" | "x2" | "y" | "y2") => {x: number; y: number};
+type RelativeTransform = (which: "x" | "x2" | "y" | "y2") => {
+  x: number;
+  y: number;
+};
 
 /**
     The line-label measurement the joint solve interleaves between the first
@@ -138,9 +155,20 @@ export interface AxisMeasureResult {
 /** Measure the y/y2 test axes and report their bounds + claimed widths. */
 function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
   const {
-    yTest, y2Test, yDomain, y2Domain, yTicks, y2Ticks,
-    yConfigScale, y2ConfigScale, defaultY2Config, yC,
-    showY, y2Exists, height, width,
+    yTest,
+    y2Test,
+    yDomain,
+    y2Domain,
+    yTicks,
+    y2Ticks,
+    yConfigScale,
+    y2ConfigScale,
+    defaultY2Config,
+    yC,
+    showY,
+    y2Exists,
+    height,
+    width,
   } = inputs;
 
   if (showY) {
@@ -175,7 +203,9 @@ function measureYTestAxes(viz: Viz, inputs: AxisMeasureInputs): YAxisMeasure {
   }
 
   const y2Bounds = y2Test.outerBounds() as AxisBounds;
-  const y2Width = y2Bounds.width ? y2Bounds.width + y2Test.padding() : undefined;
+  const y2Width = y2Bounds.width
+    ? y2Bounds.width + y2Test.padding()
+    : undefined;
 
   return {yBounds, yWidth, y2Bounds, y2Width};
 }
@@ -192,11 +222,26 @@ function measureXTestAxes(
   y2Width: number | undefined,
   measureLineLabels: () => LineLabelMeasurement,
   ends: boolean,
-): Omit<AxisMeasureResult, "yBounds" | "y2Bounds" | "yWidth" | "y2Width" | "xC"> {
+): Omit<
+  AxisMeasureResult,
+  "yBounds" | "y2Bounds" | "yWidth" | "y2Width" | "xC"
+> {
   const {
-    xTest, x2Test, yTest, xDomain, x2Domain, xTicks, x2Ticks,
-    xConfigScale, x2ConfigScale, defaultX2Config,
-    showX, showY, x2Exists, height, width,
+    xTest,
+    x2Test,
+    yTest,
+    xDomain,
+    x2Domain,
+    xTicks,
+    x2Ticks,
+    xConfigScale,
+    x2ConfigScale,
+    defaultX2Config,
+    showX,
+    showY,
+    x2Exists,
+    height,
+    width,
   } = inputs;
 
   let xRangeMax: number | undefined = undefined;
@@ -217,8 +262,11 @@ function measureXTestAxes(
       .measure();
   }
 
-  const {labelWidths, largestLabel, xRangeMax: measuredXRangeMax} =
-    measureLineLabels();
+  const {
+    labelWidths,
+    largestLabel,
+    xRangeMax: measuredXRangeMax,
+  } = measureLineLabels();
   if (measuredXRangeMax !== undefined) xRangeMax = measuredXRangeMax;
 
   if (showX && xRangeMax) {
@@ -257,10 +305,19 @@ function measureXTestAxes(
   const x2Bounds = x2Test.outerBounds() as AxisBounds;
   const x2Height = x2Exists ? x2Bounds.height + x2Test.padding() : 0;
 
-  const xOffsetLeft = max([0, yWidth, xTestRange[0], x2TestRange[0], viz._plotMinLeft?.()] as number[])!;
+  const xOffsetLeft = max([
+    0,
+    yWidth,
+    xTestRange[0],
+    x2TestRange[0],
+    viz._plotMinLeft?.(),
+  ] as number[])!;
 
-  const yLabelConfig = yTest.shapeConfig().labelConfig as {fontSize: () => number};
-  const topOffset = (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
+  const yLabelConfig = yTest.shapeConfig().labelConfig as {
+    fontSize: () => number;
+  };
+  const topOffset =
+    (showY ? yLabelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
 
   const xOffsetRight = xRightInset(
     {xTest, x2Test, showX, x2Exists, xRangeMax, width},
@@ -268,8 +325,12 @@ function measureXTestAxes(
     y2Width,
   );
   const xBounds = xTest.outerBounds() as AxisBounds;
-  const endSpace = ends ? endLabelSpace(measureEndLabels(xTest), height - x2Height) : 0;
-  const xHeight = ends ? endSpace : xBounds.height + (showY || showX ? xTest.padding() : 0);
+  const endSpace = ends
+    ? endLabelSpace(measureEndLabels(xTest), height - x2Height)
+    : 0;
+  const xHeight = ends
+    ? endSpace
+    : xBounds.height + (showY || showX ? xTest.padding() : 0);
   const xLabelMode: XLabelMode = !ends ? "axis" : endSpace ? "ends" : "none";
 
   return {
@@ -306,7 +367,15 @@ export function measureAxes(
   const ends = labelsXEnds(viz, inputs.showX, inputs.showY);
   const xC = buildXConfig(viz, inputs);
 
-  const xResult = measureXTestAxes(viz, inputs, xC, yWidth, y2Width, measureLineLabels, ends);
+  const xResult = measureXTestAxes(
+    viz,
+    inputs,
+    xC,
+    yWidth,
+    y2Width,
+    measureLineLabels,
+    ends,
+  );
 
   viz._padding.left += xResult.xOffsetLeft;
   viz._padding.right += xResult.xOffsetRight;
@@ -350,7 +419,10 @@ function setupAxisTransforms(
     y: {x: viz._margin.left + xTrans, y: viz._margin.top + topOffset},
     // The y2 axis draws at the right edge of the width it measured against,
     // which already excludes any margins set before the chrome claimed its own.
-    y2: {x: viz._margin.left - pCtx.horizontalMargin, y: viz._margin.top + topOffset},
+    y2: {
+      x: viz._margin.left - pCtx.horizontalMargin,
+      y: viz._margin.top + topOffset,
+    },
   };
   return (which: "x" | "x2" | "y" | "y2") => ({
     x: axisAbsoluteTransforms[which].x - chartTransform.x,
@@ -372,7 +444,8 @@ function renderXAxes(
 ): PositionAccessor {
   const {xDomain, x2Domain, xConfigScale, x2ConfigScale} = pCtx;
   const {defaultX2Config, showX, x2Exists, xC} = pCtx;
-  const {xTicks, x2Ticks, x2Height, topOffset, height, width, verticalMargin} = pCtx;
+  const {xTicks, x2Ticks, x2Height, topOffset, height, width, verticalMargin} =
+    pCtx;
 
   // Plot sets these before the axis pass runs.
   const xAxis = viz._xAxis!;
@@ -429,7 +502,8 @@ function renderXAxes(
     });
   }
 
-  const xs = frozenAxis(xAxis), x2s = frozenAxis(x2Axis);
+  const xs = frozenAxis(xAxis),
+    x2s = frozenAxis(x2Axis);
   const x = (d: unknown, x?: string): number => {
     if (x === "x2") {
       if (x2ConfigScale === "log" && d === 0)
@@ -512,7 +586,8 @@ function renderYAxes(
     });
   }
 
-  const ys = frozenAxis(yAxis), y2s = frozenAxis(y2Axis);
+  const ys = frozenAxis(yAxis),
+    y2s = frozenAxis(y2Axis);
   const y = (d: unknown, y?: string): number => {
     if (y === "y2") {
       if (y2ConfigScale === "log" && d === 0)
@@ -535,7 +610,10 @@ function renderYAxes(
 }
 
 /** A range whose end never falls before its start: a chart too small for its axes plots in no space. */
-const nonNegative = ([start, end]: number[]): number[] => [start, Math.max(start, end)];
+const nonNegative = ([start, end]: number[]): number[] => [
+  start,
+  Math.max(start, end),
+];
 
 /**
     Render the production axes and solve the final ranges/offsets.
@@ -546,55 +624,88 @@ const nonNegative = ([start, end]: number[]): number[] => [start, Math.max(start
     bumps the line labels, and queues axis scenes for the emit phase.
     Returns everything `plotEmit` needs to consume.
 */
-export function renderAxes(viz: Viz, pCtx: PlotPaintContext, frozen?: PlotMeasureResult): PlotMeasureResult {
-    const {labelWidths} = pCtx;
-    const final = solveFinalAxes(viz, pCtx, frozen);
-    pCtx = final.pCtx;
-    const {x2Height, horizontalMargin} = pCtx;
-    let yRange = final.yRange;
-    const {insetBottom, yBottom} = final;
-    const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} = final.solved;
+export function renderAxes(
+  viz: Viz,
+  pCtx: PlotPaintContext,
+  frozen?: PlotMeasureResult,
+): PlotMeasureResult {
+  const {labelWidths} = pCtx;
+  const final = solveFinalAxes(viz, pCtx, frozen);
+  pCtx = final.pCtx;
+  const {x2Height, horizontalMargin} = pCtx;
+  let yRange = final.yRange;
+  const {insetBottom, yBottom} = final;
+  const {yBounds, yWidth, y2Bounds, y2Width, xOffsetLeft, xOffsetRight} =
+    final.solved;
 
-    const xRange = frozen?.xRange ?? nonNegative([xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)]);
+  const xRange =
+    frozen?.xRange ??
+    nonNegative([xOffsetLeft, pCtx.width - (xOffsetRight + horizontalMargin)]);
 
-    const axisRelativeTransform = setupAxisTransforms(viz, pCtx, xOffsetLeft, yWidth);
+  const axisRelativeTransform = setupAxisTransforms(
+    viz,
+    pCtx,
+    xOffsetLeft,
+    yWidth,
+  );
 
-    // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop so
-    // axes render above shapes.
-    const axisSceneQueue: AxisScene[] = [];
+  // Queued axis scenes — pushed onto `_chartScene` AFTER the shape loop so
+  // axes render above shapes.
+  const axisSceneQueue: AxisScene[] = [];
 
-    // Content space puts the plot's top at the y axis's `x2Height`.
-    const plotBottom = (frozen?.yRange ?? yRange)[1] + insetBottom - x2Height;
-    const x = renderXAxes(viz, pCtx, xRange, axisRelativeTransform, axisSceneQueue, plotBottom);
-    const xEndLabels = pCtx.xLabelMode === "ends" ? placeEndLabels(viz._xAxis!, xRange, plotBottom) : [];
+  // Content space puts the plot's top at the y axis's `x2Height`.
+  const plotBottom = (frozen?.yRange ?? yRange)[1] + insetBottom - x2Height;
+  const x = renderXAxes(
+    viz,
+    pCtx,
+    xRange,
+    axisRelativeTransform,
+    axisSceneQueue,
+    plotBottom,
+  );
+  const xEndLabels =
+    pCtx.xLabelMode === "ends"
+      ? placeEndLabels(viz._xAxis!, xRange, plotBottom)
+      : [];
 
-    yRange = frozen?.yRange ?? nonNegative([viz._xAxis!.outerBounds().y + x2Height, yBottom - insetBottom]);
+  yRange =
+    frozen?.yRange ??
+    nonNegative([
+      viz._xAxis!.outerBounds().y + x2Height,
+      yBottom - insetBottom,
+    ]);
 
-    const y = renderYAxes(
-      viz, pCtx, xRange, yRange, xOffsetRight, y2Width,
-      axisRelativeTransform, axisSceneQueue,
-    );
+  const y = renderYAxes(
+    viz,
+    pCtx,
+    xRange,
+    yRange,
+    xOffsetRight,
+    y2Width,
+    axisRelativeTransform,
+    axisSceneQueue,
+  );
 
-    const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
+  const labelPositions = bumpLineLabels(viz, labelWidths, yRange);
 
-    let yOffset = viz._xAxis!.barConfig()["stroke-width"] as number;
-    if (yOffset) yOffset /= 2;
+  let yOffset = viz._xAxis!.barConfig()["stroke-width"] as number;
+  if (yOffset) yOffset /= 2;
 
-    return {
-      x,
-      y,
-      xRange,
-      yRange,
-      xOffsetLeft: xOffsetLeft as number,
-      xOffsetRight: xOffsetRight as number,
-      yWidth,
-      y2Width,
-      yBounds,
-      y2Bounds,
-      axisSceneQueue,
-      yOffset: yOffset || 0,
-      labelPositions: labelPositions as Record<string, number>,
-      xEndLabels,
-      insetBottom,
-    };
+  return {
+    x,
+    y,
+    xRange,
+    yRange,
+    xOffsetLeft: xOffsetLeft as number,
+    xOffsetRight: xOffsetRight as number,
+    yWidth,
+    y2Width,
+    yBounds,
+    y2Bounds,
+    axisSceneQueue,
+    yOffset: yOffset || 0,
+    labelPositions: labelPositions as Record<string, number>,
+    xEndLabels,
+    insetBottom,
+  };
 }

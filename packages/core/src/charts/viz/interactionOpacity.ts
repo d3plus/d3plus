@@ -31,7 +31,11 @@ const HOVER_RAISE_Z = 1e6;
     and multiply the stroke width by `widthMult` (treating a 0/absent width as 1,
     matching the shape defaults). Non-mark nodes (labels, groups) are untouched.
 */
-function emphasizeStroke(node: SceneNode, darken: number, widthMult: number): SceneNode {
+function emphasizeStroke(
+  node: SceneNode,
+  darken: number,
+  widthMult: number,
+): SceneNode {
   const paint = {...((node.paint ?? {}) as Record<string, unknown>)};
   let base = typeof paint.fill === "string" ? paint.fill : undefined;
   if (!base || base === "transparent" || base === "none")
@@ -41,7 +45,10 @@ function emphasizeStroke(node: SceneNode, darken: number, widthMult: number): Sc
   if (!base || base === "transparent" || base === "none") return node;
   const c = color(base);
   if (c) paint.stroke = c.darker(darken).formatHex();
-  const w = typeof paint.strokeWidth === "number" && paint.strokeWidth ? paint.strokeWidth : 1;
+  const w =
+    typeof paint.strokeWidth === "number" && paint.strokeWidth
+      ? paint.strokeWidth
+      : 1;
   paint.strokeWidth = w * widthMult;
   return {...node, paint} as SceneNode;
 }
@@ -60,14 +67,18 @@ function dimSettings(viz: VizInstance): {
   kind: "hover" | "active" | "highlight";
   activePredicate: Predicate | null;
 } | null {
-  const hover = typeof viz._hover === "function" ? (viz._hover as Predicate) : null;
-  const active = typeof viz._active === "function" ? (viz._active as Predicate) : null;
+  const hover =
+    typeof viz._hover === "function" ? (viz._hover as Predicate) : null;
+  const active =
+    typeof viz._active === "function" ? (viz._active as Predicate) : null;
   const highlight =
     typeof viz._highlight === "function" ? (viz._highlight as Predicate) : null;
   if (!hover && !active && !highlight) return null;
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
-  let hoverOpacity = typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
-  const activeOpacity = typeof sc.activeOpacity === "number" ? sc.activeOpacity : 0.25;
+  let hoverOpacity =
+    typeof sc.hoverOpacity === "number" ? sc.hoverOpacity : 0.5;
+  const activeOpacity =
+    typeof sc.activeOpacity === "number" ? sc.activeOpacity : 0.25;
   const gray = !hover && !active;
   // A colorScale bucket hover must dim the non-matching marks to read as a
   // highlight, even on charts (Geomap) that set hoverOpacity:1 to keep a plain
@@ -109,16 +120,27 @@ export function applyColorScaleBucketOpacity(
     // Unwrap the node's datum to the source row: the swatch label is a
     // double-wrapped TextBox node (label → shape-row → bucket).
     let src = node.datum as
-      | (DataPoint & {__d3plus__?: boolean; data?: DataPoint; _isColorScaleBucket?: boolean; color?: unknown})
+      | (DataPoint & {
+          __d3plus__?: boolean;
+          data?: DataPoint;
+          _isColorScaleBucket?: boolean;
+          color?: unknown;
+        })
       | undefined;
     while (src && src.__d3plus__ && src.data) src = src.data as typeof src;
     if (src && src._isColorScaleBucket && !activeColors.has(src.color)) {
       const base =
-        node.paint && typeof node.paint.opacity === "number" ? node.paint.opacity : 1;
-      next = {...node, paint: {...(node.paint ?? {}), opacity: base * settings.dimOpacity}};
+        node.paint && typeof node.paint.opacity === "number"
+          ? node.paint.opacity
+          : 1;
+      next = {
+        ...node,
+        paint: {...(node.paint ?? {}), opacity: base * settings.dimOpacity},
+      };
     }
     const kids = (next as {children?: SceneNode[]}).children;
-    if (kids && kids.length) next = {...next, children: kids.map(walk)} as SceneNode;
+    if (kids && kids.length)
+      next = {...next, children: kids.map(walk)} as SceneNode;
     return next;
   };
   return nodes.map(walk);
@@ -130,7 +152,11 @@ export function applyColorScaleBucketOpacity(
     more (label → mark datum → row), so a label is only recognized as its
     mark's by following the `__d3plus__` chain down to the row.
 */
-function matchesChain(predicate: Predicate, row: DataPoint, i: number): boolean {
+function matchesChain(
+  predicate: Predicate,
+  row: DataPoint,
+  i: number,
+): boolean {
   let d = row as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
   if (predicate(d, i)) return true;
   while (d && d.__d3plus__ && d.data) {
@@ -152,7 +178,12 @@ function nodeMatches(node: SceneNode, predicate: Predicate): boolean | null {
   const datum = node.datum as (DataPoint & {data?: DataPoint}) | undefined;
   if (datum) {
     const row = (datum.data ?? datum) as DataPoint & {i?: number};
-    const i = typeof node.index === "number" ? node.index : typeof row.i === "number" ? row.i : 0;
+    const i =
+      typeof node.index === "number"
+        ? node.index
+        : typeof row.i === "number"
+          ? row.i
+          : 0;
     return matchesChain(predicate, row, i);
   }
   const points = node.interactionPoints;
@@ -172,7 +203,8 @@ export function applyInteractionOpacity(
   // compounding when several are momentarily set.
   const settings = dimSettings(viz);
   if (!settings) return nodes;
-  const {predicate, dimOpacity, isHover, gray, kind, activePredicate} = settings;
+  const {predicate, dimOpacity, isHover, gray, kind, activePredicate} =
+    settings;
 
   const walk = (node: SceneNode): SceneNode => {
     // Axes and the timeline are chrome, not data marks — they keep full
@@ -188,8 +220,10 @@ export function applyInteractionOpacity(
           // highlight: recolor the mark to the de-emphasis gray so the
           // highlighted series keeps the only color on the chart.
           const next2: Record<string, unknown> = {...paint};
-          if (typeof paint.fill === "string") next2.fill = colorGrayscale(paint.fill);
-          if (typeof paint.stroke === "string") next2.stroke = colorGrayscale(paint.stroke);
+          if (typeof paint.fill === "string")
+            next2.fill = colorGrayscale(paint.fill);
+          if (typeof paint.stroke === "string")
+            next2.stroke = colorGrayscale(paint.stroke);
           next = {...node, paint: next2} as SceneNode;
         } else {
           const base = typeof paint.opacity === "number" ? paint.opacity : 1;
@@ -203,8 +237,13 @@ export function applyInteractionOpacity(
         // while hovered, rather than dropping to the thinner hover stroke.
         if (kind !== "highlight" && MARK_TYPES.has(node.type)) {
           const active =
-            kind === "active" || (activePredicate ? nodeMatches(node, activePredicate) === true : false);
-          next = active ? emphasizeStroke(node, 1, 3) : emphasizeStroke(node, 0.5, 2);
+            kind === "active" ||
+            (activePredicate
+              ? nodeMatches(node, activePredicate) === true
+              : false);
+          next = active
+            ? emphasizeStroke(node, 1, 3)
+            : emphasizeStroke(node, 0.5, 2);
         }
         if (isHover) {
           // Raise the hovered node above its siblings. Both renderers paint by

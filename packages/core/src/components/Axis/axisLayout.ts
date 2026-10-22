@@ -82,14 +82,20 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
       : axis.schema.shape === "Rect"
         ? axis.schema.shapeConfig[width]
         : axis.schema.shapeConfig.strokeWidth;
-  const tickGet =
-    typeof tickValue !== "function" ? () => tickValue : tickValue;
+  const tickGet = typeof tickValue !== "function" ? () => tickValue : tickValue;
 
-  const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  const margin: Record<string, number> = (axis._margin = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  });
   resetAxisDates(axis);
   axis._scaleData = axisScaleData(axis);
 
-  let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
+  let labels: unknown[] = [],
+    range: number[] = [],
+    ticks: unknown[] = [];
 
   const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
   axis._labelFormat = tickFormat;
@@ -97,7 +103,12 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // Rebuilds the scale (over `newRange`, else the configured range) and
   // keeps the ticks the formatter reads in step with it.
   const rescale = (newRange?: number[]) =>
-    ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet, newRange));
+    ({range, ticks, labels} = setAxisScale(
+      axis,
+      rangeOuter,
+      tickGet,
+      newRange,
+    ));
   axis._labelSet = 0;
   rescale();
 
@@ -108,8 +119,19 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // Labels at given values naming things (one per variable-width bar) wrap
   // within their own share of the axis, so a wide bar's label lies flat
   // across it while a narrow one's wraps (see `fitOwnSpaces`).
-  const ownSpace = horizontal && !isDiscreteScale(axis.schema.scale) && rotatesLabels(axis, labels, tickFormat);
-  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace};
+  const ownSpace =
+    horizontal &&
+    !isDiscreteScale(axis.schema.scale) &&
+    rotatesLabels(axis, labels, tickFormat);
+  const labelCtx = {
+    rangeOuter,
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    rescale,
+    ownSpace,
+  };
   const setting = axis._labelRotationSetting;
   axis._labelRotation = setting ?? false;
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
@@ -146,8 +168,13 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   }
 
   // The ticks whose labels the layout hides no longer count as visible.
-  const hidden = new Set(textData.filter((t: AxisTextDatum) => t.truncated).map((t: AxisTextDatum) => t.d));
-  if (hidden.size) axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
+  const hidden = new Set(
+    textData
+      .filter((t: AxisTextDatum) => t.truncated)
+      .map((t: AxisTextDatum) => t.d),
+  );
+  if (hidden.size)
+    axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 
@@ -158,7 +185,19 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
   );
 
-  const bounds = computeAxisBounds(axis, {textData, rangeOuter, hBuff, horizontal, p, width, height, x, y, opposite, margin});
+  const bounds = computeAxisBounds(axis, {
+    textData,
+    rangeOuter,
+    hBuff,
+    horizontal,
+    p,
+    width,
+    height,
+    x,
+    y,
+    opposite,
+    margin,
+  });
 
   return {
     ticks,
@@ -196,11 +235,28 @@ function layoutLabels(
   const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
   let {labels} = scale;
 
-  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace});
+  let textData = createTextData(axis, {
+    labels,
+    rangeOuter,
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    ownSpace,
+  });
   const offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
   if (offsetEnabled)
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: 2});
+    textData = createTextData(axis, {
+      labels,
+      rangeOuter,
+      horizontal,
+      hBuff,
+      p,
+      tickFormat,
+      ownSpace,
+      offset: 2,
+    });
 
   // Narrowing the range can change which labels a time axis draws (its ticks
   // follow the range); a new first or last label is measured again, a few
@@ -223,7 +279,8 @@ function layoutLabels(
 
     const newRange = [first + spillovers[0], last - spillovers[1]];
     if (axis.schema.range) {
-      if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
+      if (axis.schema.range[0] !== undefined)
+        newRange[0] = axis.schema.range[0];
       if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
         newRange[1] = axis.schema.range[axis.schema.range.length - 1];
     }
@@ -232,7 +289,16 @@ function layoutLabels(
     const ends = endLabels(textData);
     [first, last] = newRange;
     ({labels} = rescale(newRange));
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: offsetEnabled ? 2 : 1});
+    textData = createTextData(axis, {
+      labels,
+      rangeOuter,
+      horizontal,
+      hBuff,
+      p,
+      tickFormat,
+      ownSpace,
+      offset: offsetEnabled ? 2 : 1,
+    });
     if (endLabels(textData) === ends) break;
   }
 
@@ -243,7 +309,11 @@ function layoutLabels(
 function endLabels(textData: AxisTextDatum[]): string {
   const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
   const ends = [shown[0], shown[shown.length - 1]];
-  return ends.map((t?: AxisTextDatum) => (t ? `${t.d instanceof Date ? +t.d : t.d}` : "")).join(",");
+  return ends
+    .map((t?: AxisTextDatum) =>
+      t ? `${t.d instanceof Date ? +t.d : t.d}` : "",
+    )
+    .join(",");
 }
 
 /**
@@ -260,8 +330,11 @@ export function rotatesLabels(
 ): boolean {
   const named = (d: unknown) => !(d instanceof Date) && isNaN(d as number);
   if (isDiscreteScale(axis.schema.scale)) return labels.some(named);
-  return Array.isArray(axis.schema.labels) && !!tickFormat &&
-    labels.some((d: unknown) => named(tickFormat(d)));
+  return (
+    Array.isArray(axis.schema.labels) &&
+    !!tickFormat &&
+    labels.some((d: unknown) => named(tickFormat(d)))
+  );
 }
 
 /** How many labels don't fit whole, or are hidden to make room for others. */

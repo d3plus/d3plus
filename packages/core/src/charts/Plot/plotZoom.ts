@@ -16,10 +16,16 @@
 
 import type {ClipShape, SceneNode} from "@d3plus/render";
 
-import {PLOT_ZOOM_CONTENT_KEY, plotPaintMeasured} from "../features/plotPaint.js";
+import {
+  PLOT_ZOOM_CONTENT_KEY,
+  plotPaintMeasured,
+} from "../features/plotPaint.js";
 import {unwrapBreakMasks} from "./plotBreaks.js";
 import {unwrapDomainClips} from "./domainClip.js";
-import type {PlotMeasureResult, PlotPaintContext} from "../features/plotPaint.js";
+import type {
+  PlotMeasureResult,
+  PlotPaintContext,
+} from "../features/plotPaint.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 type AxisName = "x" | "x2" | "y" | "y2";
@@ -58,22 +64,27 @@ export interface PlotZoomBase {
     axis. Point (category) axes and log axes don't.
 */
 const zoomable = (plotScale: string, configScale: string): boolean =>
-  configScale === "time" || (plotScale === "Linear" && configScale === "linear");
+  configScale === "time" ||
+  (plotScale === "Linear" && configScale === "linear");
 
 /** Which of the plot's axes are simple linear or time axes (the zoomable ones). */
 function zoomableAxes(pCtx: PlotPaintContext): AxisName[] {
   const axes: AxisName[] = [];
   if (zoomable(pCtx.xScale, pCtx.xConfigScale)) axes.push("x");
-  if (pCtx.x2Exists && zoomable(pCtx.xScale, pCtx.x2ConfigScale)) axes.push("x2");
+  if (pCtx.x2Exists && zoomable(pCtx.xScale, pCtx.x2ConfigScale))
+    axes.push("x2");
   if (zoomable(pCtx.yScale, pCtx.yConfigScale)) axes.push("y");
-  if (pCtx.y2Exists && zoomable(pCtx.yScale, pCtx.y2ConfigScale)) axes.push("y2");
+  if (pCtx.y2Exists && zoomable(pCtx.yScale, pCtx.y2ConfigScale))
+    axes.push("y2");
   return axes;
 }
 
 /** The content group `plotEmit` wraps a zoomable plot's shapes in. */
 function contentNodes(nodes: SceneNode[]): SceneNode[] | undefined {
   const group = nodes.find(n => n.key === PLOT_ZOOM_CONTENT_KEY);
-  return group && group.type === "group" ? unwrapDomainClips(unwrapBreakMasks(group.children)) : undefined;
+  return group && group.type === "group"
+    ? unwrapDomainClips(unwrapBreakMasks(group.children))
+    : undefined;
 }
 
 /**
@@ -98,7 +109,8 @@ export function paintZoomablePlot(
   const breaks: PlotZoomBase["breaks"] = {};
   for (const axis of zoomableAxes(pCtx)) {
     const axisInstance = viz[`_${axis}Axis`];
-    const d3Scale = axisInstance?._d3Scale as LinearScale & {copy(): LinearScale} | undefined;
+    const d3Scale = axisInstance?._d3Scale as
+      (LinearScale & {copy(): LinearScale}) | undefined;
     if (d3Scale && typeof d3Scale.invert === "function") {
       scales[axis] = d3Scale.copy();
       labelSpace[axis] = axisInstance?._labelSpace;
@@ -110,7 +122,14 @@ export function paintZoomablePlot(
   if (!Object.keys(scales).length) return nodes;
 
   const {x = 0, y = 0} = viz._chartTransform || {};
-  viz._plotZoomBase = {pCtx, layout, chartTransform: {x, y}, scales, labelSpace, breaks};
+  viz._plotZoomBase = {
+    pCtx,
+    layout,
+    chartTransform: {x, y},
+    scales,
+    labelSpace,
+    breaks,
+  };
   if (current && (current.k !== 1 || current.x || current.y)) {
     const zoomed = rescalePlot(viz, current);
     if (zoomed) return zoomed;
@@ -122,7 +141,10 @@ export function paintZoomablePlot(
     The paint-context overrides a zoom transform makes: each rescaled axis's
     domain and axis config, and where the unzoomed plot ranges land.
 */
-function zoomedContext(base: PlotZoomBase, t: ZoomState): Partial<PlotPaintContext> {
+function zoomedContext(
+  base: PlotZoomBase,
+  t: ZoomState,
+): Partial<PlotPaintContext> {
   const {pCtx, layout, chartTransform: ct, scales} = base;
 
   // Surface point s shows unzoomed surface point (s - t) / k. Axis positions
@@ -135,12 +157,16 @@ function zoomedContext(base: PlotZoomBase, t: ZoomState): Partial<PlotPaintConte
     const origin = vertical ? ct.y : ct.x;
     const shift = vertical ? t.y : t.x;
     const offset = vertical ? -pCtx.x2Height : 0;
-    const domain = scale.range().map(r =>
-      scale.invert((r + offset + origin - shift) / t.k - origin - offset),
-    );
+    const domain = scale
+      .range()
+      .map(r =>
+        scale.invert((r + offset + origin - shift) / t.k - origin - offset),
+      );
     // Keep the base domain's orientation.
     const [b0, b1] = scale.domain();
-    return (+b1 - +b0) * (+domain[1] - +domain[0]) < 0 ? domain.reverse() : domain;
+    return (+b1 - +b0) * (+domain[1] - +domain[0]) < 0
+      ? domain.reverse()
+      : domain;
   };
 
   const zoomed: Partial<PlotPaintContext> = {};
@@ -169,7 +195,9 @@ function zoomedContext(base: PlotZoomBase, t: ZoomState): Partial<PlotPaintConte
   const land = (r: number, vertical: boolean): number => {
     const origin = vertical ? ct.y : ct.x;
     const offset = vertical ? -pCtx.x2Height : 0;
-    return (r + offset + origin) * t.k + (vertical ? t.y : t.x) - origin - offset;
+    return (
+      (r + offset + origin) * t.k + (vertical ? t.y : t.x) - origin - offset
+    );
   };
   zoomed.zoomRanges = {};
   if (scales.x) zoomed.zoomRanges.x = layout.xRange.map(r => land(r, false));
@@ -198,15 +226,17 @@ export function rescalePlot(
   // rounded domains and their end ticks included), so a reset restores it.
   const identity = t.k === 1 && !t.x && !t.y;
   const zoomed = identity ? {} : zoomedContext(base, t);
-  const clip: ClipShape | undefined = identity && !keepClip
-    ? undefined
-    : {
-        type: "rect",
-        x: layout.xRange[0],
-        y: layout.yRange[0] - pCtx.x2Height,
-        width: layout.xRange[1] - layout.xRange[0],
-        height: layout.yRange[1] - layout.yRange[0] + (layout.insetBottom ?? 0),
-      };
+  const clip: ClipShape | undefined =
+    identity && !keepClip
+      ? undefined
+      : {
+          type: "rect",
+          x: layout.xRange[0],
+          y: layout.yRange[0] - pCtx.x2Height,
+          width: layout.xRange[1] - layout.xRange[0],
+          height:
+            layout.yRange[1] - layout.yRange[0] + (layout.insetBottom ?? 0),
+        };
 
   return plotPaintMeasured(viz, {...pCtx, ...zoomed}, layout, clip).nodes;
 }

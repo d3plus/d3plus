@@ -60,7 +60,10 @@ export const radialMatrixDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
     viz.schema.on["mousemove.shape"] = (
-      d: DataPoint, i: number, x: unknown, event: unknown,
+      d: DataPoint,
+      i: number,
+      x: unknown,
+      event: unknown,
     ) => {
       baseMouseMoveShape(d, i, x, event);
       // A colorScale swatch routes through the shape path but has no row/column,

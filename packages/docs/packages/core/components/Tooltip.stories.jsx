@@ -17,11 +17,11 @@ export default {
         component: "Creates HTML tooltips in the body of a webpage.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Tooltip config={configify(args, argTypes)} />;
-  
+const Template = args => <Tooltip config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -80,10 +80,20 @@ const HoverDemo = ({id, config = {}, datum, track, label = "hover me"}) => {
   const hide = () => tip.current.data([]).render();
   return (
     <div style={{display: "grid", gap: 8, justifyItems: "start"}}>
-      <div ref={box} style={boxStyle} onMouseEnter={show} onMouseMove={move} onMouseLeave={hide}>
+      <div
+        ref={box}
+        style={boxStyle}
+        onMouseEnter={show}
+        onMouseMove={move}
+        onMouseLeave={hide}
+      >
         {label}
       </div>
-      {track ? <code style={{fontSize: 12, color: "#666"}}>position → {JSON.stringify(pointer)}</code> : null}
+      {track ? (
+        <code style={{fontSize: 12, color: "#666"}}>
+          position → {JSON.stringify(pointer)}
+        </code>
+      ) : null}
     </div>
   );
 };
@@ -91,11 +101,20 @@ const HoverDemo = ({id, config = {}, datum, track, label = "hover me"}) => {
 const story = (props, code, description) => ({
   render: () => <HoverDemo {...props} />,
   args: {height: 200},
-  parameters: {docs: {source: {code, language: "jsx"}, description: {story: description}}},
+  parameters: {
+    docs: {source: {code, language: "jsx"}, description: {story: description}},
+  },
 });
 
 export const BasicExample = story(
-  {id: "basic", datum: {title: "Alpha", body: "A tooltip built from the datum's title, body, and footer fields.", footer: "Hover away to hide it"}},
+  {
+    id: "basic",
+    datum: {
+      title: "Alpha",
+      body: "A tooltip built from the datum's title, body, and footer fields.",
+      footer: "Hover away to hide it",
+    },
+  },
   `import {Tooltip} from "@d3plus/core";
 
 const tooltip = new Tooltip().parent(container);
@@ -144,7 +163,10 @@ new Tooltip()
 export const Styling = story(
   {
     id: "styling",
-    datum: {title: "Dark theme", body: "background, border, padding, and borderRadius are all config keys."},
+    datum: {
+      title: "Dark theme",
+      body: "background, border, padding, and borderRadius are all config keys.",
+    },
     config: {
       background: "#212529",
       border: "1px solid #212529",
@@ -169,7 +191,15 @@ new Tooltip()
 );
 
 export const CoordinatePosition = story(
-  {id: "pointer", datum: {title: "Following the pointer", body: "position returns [x, y] in viewport coordinates."}, track: true, label: "move the pointer around here"},
+  {
+    id: "pointer",
+    datum: {
+      title: "Following the pointer",
+      body: "position returns [x, y] in viewport coordinates.",
+    },
+    track: true,
+    label: "move the pointer around here",
+  },
   `import {Tooltip} from "@d3plus/core";
 
 const tooltip = new Tooltip().parent(container).data([{title: "Following the pointer", body: "…"}]);

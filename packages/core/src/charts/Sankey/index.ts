@@ -48,7 +48,9 @@ export const sankeyDef: ChartDefinition = {
       nodeAlign: (align?: unknown) => unknown;
       nodeId: (id?: unknown) => unknown;
       value: (value?: unknown) => unknown;
-      hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
+      hover: (
+        predicate?: boolean | ((d: DataPoint, i: number) => boolean),
+      ) => unknown;
     };
     const v = viz as VizInstance & SankeyFluent;
     viz.schema.on.mouseenter = () => undefined;
@@ -56,7 +58,12 @@ export const sankeyDef: ChartDefinition = {
       v.hover(false);
     };
     const defaultMouseMove = viz.schema.on["mousemove.shape"];
-    viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+    viz.schema.on["mousemove.shape"] = (
+      d: DataPoint,
+      i: number,
+      x: unknown,
+      event: MouseEvent,
+    ) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
         v.hover(false);
@@ -66,16 +73,27 @@ export const sankeyDef: ChartDefinition = {
       }
       // An edge datum is a `{source, target}` link, not a node — highlight the
       // hovered link plus its two endpoint nodes.
-      const edge = d as DataPoint & {source?: {id: string | number}; target?: {id: string | number}};
+      const edge = d as DataPoint & {
+        source?: {id: string | number};
+        target?: {id: string | number};
+      };
       if (edge.source && edge.target) {
         const sourceId = edge.source.id;
         const targetId = edge.target.id;
-        v.hover((h: DataPoint & {source?: {id: string | number}; target?: {id: string | number}}, hi: number) => {
-          if (h.source && h.target)
-            return h.source.id === sourceId && h.target.id === targetId;
-          const hid = viz.schema.nodeId(h, hi) as string | number;
-          return hid === sourceId || hid === targetId;
-        });
+        v.hover(
+          (
+            h: DataPoint & {
+              source?: {id: string | number};
+              target?: {id: string | number};
+            },
+            hi: number,
+          ) => {
+            if (h.source && h.target)
+              return h.source.id === sourceId && h.target.id === targetId;
+            const hid = viz.schema.nodeId(h, hi) as string | number;
+            return hid === sourceId || hid === targetId;
+          },
+        );
         return;
       }
       const id = viz.schema.nodeId(d, i) as string | number;
@@ -88,13 +106,22 @@ export const sankeyDef: ChartDefinition = {
         },
         {},
       );
-      const links = (viz.ctx.linkLookup as Record<number, number[]>)[node] ?? [];
+      const links =
+        (viz.ctx.linkLookup as Record<number, number[]>)[node] ?? [];
       const filterIds: (string | number)[] = [id];
       links.forEach(l => filterIds.push(nodeLookup[l]));
-      v.hover((h: DataPoint & {source?: DataPoint; target?: DataPoint}, hi: number) => {
-        if (h.source && h.target) return h.source.id === id || h.target.id === id;
-        return filterIds.includes(viz.schema.nodeId(h, hi) as string | number);
-      });
+      v.hover(
+        (
+          h: DataPoint & {source?: DataPoint; target?: DataPoint},
+          hi: number,
+        ) => {
+          if (h.source && h.target)
+            return h.source.id === id || h.target.id === id;
+          return filterIds.includes(
+            viz.schema.nodeId(h, hi) as string | number,
+          );
+        },
+      );
     };
 
     /**
@@ -105,9 +132,13 @@ export const sankeyDef: ChartDefinition = {
         receives the loaded data and returns the final links array.
         @type {object[] | string}
     */
-    v.links = function(this: VizInstance, _: unknown, f?: unknown) {
+    v.links = function (this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+          _,
+          f,
+          "links",
+        );
         return this;
       }
       return this.schema.links;
@@ -120,9 +151,13 @@ export const sankeyDef: ChartDefinition = {
         returns the final nodes array.
         @type {object[] | string}
     */
-    v.nodes = function(this: VizInstance, _: unknown, f?: unknown) {
+    v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
       if (arguments.length) {
-        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
+        (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+          _,
+          f,
+          "nodes",
+        );
         return this;
       }
       return this.schema.nodes;
@@ -133,11 +168,15 @@ export const sankeyDef: ChartDefinition = {
         [alignment function](https://github.com/d3/d3-sankey#sankey_nodeAlign).
         @type {"justify" | "left" | "right" | "center" | function}
     */
-    v.nodeAlign = function(this: VizInstance, _: unknown) {
+    v.nodeAlign = function (this: VizInstance, _: unknown) {
       return arguments.length
-        ? ((this.schema.nodeAlign = typeof _ === "function"
-            ? (_ as (...a: unknown[]) => unknown)
-            : (sankeyAligns as unknown as Record<string, unknown>)[_ as string]), this)
+        ? ((this.schema.nodeAlign =
+            typeof _ === "function"
+              ? (_ as (...a: unknown[]) => unknown)
+              : (sankeyAligns as unknown as Record<string, unknown>)[
+                  _ as string
+                ]),
+          this)
         : this.schema.nodeAlign;
     };
     /**
@@ -145,11 +184,13 @@ export const sankeyDef: ChartDefinition = {
         sources and targets are matched against these ids.
         @type {string | function}
     */
-    v.nodeId = function(this: VizInstance, _: unknown) {
+    v.nodeId = function (this: VizInstance, _: unknown) {
       return arguments.length
-        ? ((this.schema.nodeId = typeof _ === "function"
-            ? (_ as (...a: unknown[]) => unknown)
-            : accessor(_ as string)), this)
+        ? ((this.schema.nodeId =
+            typeof _ === "function"
+              ? (_ as (...a: unknown[]) => unknown)
+              : accessor(_ as string)),
+          this)
         : this.schema.nodeId;
     };
     /**
@@ -158,11 +199,13 @@ export const sankeyDef: ChartDefinition = {
         every link.
         @type {string | function}
     */
-    v.value = function(this: VizInstance, _: unknown) {
+    v.value = function (this: VizInstance, _: unknown) {
       if (!arguments.length) return this.schema.value;
-      this.schema.value = (typeof _ === "function"
-        ? (_ as (...a: unknown[]) => unknown)
-        : accessor(_ as string)) as (d: DataPoint, i: number) => number;
+      this.schema.value = (
+        typeof _ === "function"
+          ? (_ as (...a: unknown[]) => unknown)
+          : accessor(_ as string)
+      ) as (d: DataPoint, i: number) => number;
       return this;
     };
     v.hover = simpleHover;
@@ -234,7 +277,8 @@ export const sankeyDef: ChartDefinition = {
         const linkStrokeWidth = (d: SankeyLinkDatum) =>
           Math.max(
             1,
-            Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) - 2,
+            Math.abs(d.source.y1 - d.source.y0) * (d.value / d.source.value) -
+              2,
           );
         return {
           Path: {

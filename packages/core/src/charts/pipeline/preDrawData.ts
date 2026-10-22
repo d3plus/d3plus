@@ -15,8 +15,7 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 /** A time filter synthesized from the chart's `time` key. */
 export type TimeFilterFn =
-  | ((d: DataPoint, i: number) => boolean)
-  | (() => boolean);
+  ((d: DataPoint, i: number) => boolean) | (() => boolean);
 
 /** The rows `computeFilteredData` collects for a draw. */
 export interface VizPreDrawResult {
@@ -32,8 +31,11 @@ export interface VizPreDrawResult {
     The `filter` the pipeline runs over `viz._data`: the configured `filter`,
     passing the rows the chart has already filtered (see `_filterApplied`).
 */
-export function dataFilter(viz: Viz): ((d: DataPoint, i: number) => boolean) | undefined {
-  const filter = viz.schema.filter as ((d: DataPoint, i: number) => boolean) | undefined;
+export function dataFilter(
+  viz: Viz,
+): ((d: DataPoint, i: number) => boolean) | undefined {
+  const filter = viz.schema.filter as
+    ((d: DataPoint, i: number) => boolean) | undefined;
   const applied = viz._filterApplied;
   return filter && applied ? (d, i) => applied(d) || filter(d, i) : filter;
 }
@@ -47,7 +49,7 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
   if (viz.schema.time && !viz.schema.timeFilter && viz._data.length) {
     const dates = viz._data
       .map(viz.schema.time)
-      .map((d) => date(d as Parameters<typeof date>[0]));
+      .map(d => date(d as Parameters<typeof date>[0]));
     const d = viz._data[0],
       i = 0;
     if (
@@ -110,7 +112,9 @@ export function computeFilteredData(
         const shape = viz.schema.shape(leaves[0], index);
         const localId = id(leaves[0], index) as string | number;
 
-        const d = viz._mergeRows ? viz._mergeRows(leaves) : (merge(leaves, viz.schema.aggs) as DataPoint);
+        const d = viz._mergeRows
+          ? viz._mergeRows(leaves)
+          : (merge(leaves, viz.schema.aggs) as DataPoint);
 
         if (
           !viz._hidden.includes(localId) &&

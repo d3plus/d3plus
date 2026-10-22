@@ -6,160 +6,169 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {RadialMatrix as D3plusRadialMatrix} from "@d3plus/react";
-export const RadialMatrix = ({ config }) => <D3plusRadialMatrix config={config} />;
+export const RadialMatrix = ({config}) => (
+  <D3plusRadialMatrix config={config} />
+);
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in RadialMatrix
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * RadialMatrix-specific methods
    */
-  
+
   {
     cellPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 2,
       description: "The pixel padding between neighboring cells.",
       table: {
         defaultValue: {
-          summary: "2"
-        }
+          summary: "2",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     column: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The column each data point falls in (one slice of the circle): a key present in every data point, or an accessor function that receives a data point and its index and returns its column value.",
+      description:
+        "The column each data point falls in (one slice of the circle): a key present in every data point, or an accessor function that receives a data point and its index and returns its column value.",
       table: {
         defaultValue: {
-          summary: "\"column\""
-        }
+          summary: '"column"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     columnConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Config for the column labels drawn around the circle: `shapeConfig.labelConfig` styles them (a `TextBox` config), and `labels`, an array of column values, limits which ones are drawn.",
+      description:
+        "Config for the column labels drawn around the circle: `shapeConfig.labelConfig` styles them (a `TextBox` config), and `labels`, an array of column values, limits which ones are drawn.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     columnList: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "A manual list of column values to draw, in place of the unique `column` values found in the data. Sorted by `columnSort`.",
+      description:
+        "A manual list of column values to draw, in place of the unique `column` values found in the data. Sorted by `columnSort`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "(string | number | boolean)[]"
-      }
+        summary: "(string | number | boolean)[]",
+      },
     },
     columnSort: {
       control: {},
       description: "A sort comparator run on the unique set of column values.",
       table: {
         defaultValue: {
-          summary: "localeCompare"
-        }
+          summary: "localeCompare",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     innerRadius: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The pixel radius of the empty center: a number, or a function that receives the outer radius and returns one. Defaults to a fifth of the outer radius.",
+      description:
+        "The pixel radius of the empty center: a number, or a function that receives the outer radius and returns one. Defaults to a fifth of the outer radius.",
       table: {
         defaultValue: {
-          summary: "r / 5"
-        }
+          summary: "r / 5",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     label: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     row: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The row each data point falls in (one ring): a key present in every data point, or an accessor function that receives a data point and its index and returns its row value.",
+      description:
+        "The row each data point falls in (one ring): a key present in every data point, or an accessor function that receives a data point and its index and returns its row value.",
       table: {
         defaultValue: {
-          summary: "\"row\""
-        }
+          summary: '"row"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     rowList: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "A manual list of row values to draw, in place of the unique `row` values found in the data. Sorted by `rowSort`.",
+      description:
+        "A manual list of row values to draw, in place of the unique `row` values found in the data. Sorted by `rowSort`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "(string | number | boolean)[]"
-      }
+        summary: "(string | number | boolean)[]",
+      },
     },
     rowSort: {
       control: {},
       description: "A sort comparator run on the unique set of row values.",
       table: {
         defaultValue: {
-          summary: "localeCompare"
-        }
+          summary: "localeCompare",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
-    }
-  }
+        summary: "function",
+      },
+    },
+  },
 );

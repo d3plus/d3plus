@@ -44,7 +44,14 @@ export function titleWidths(
   locale?: string,
 ): number[] {
   if (!texts.length) return [];
-  const titles = texts.map((text, i) => ({key: `${i}`, text, x: 0, y: 0, width: UNWRAPPED, height: UNWRAPPED}));
+  const titles = texts.map((text, i) => ({
+    key: `${i}`,
+    text,
+    x: 0,
+    y: 0,
+    width: UNWRAPPED,
+    height: UNWRAPPED,
+  }));
   return titleBox(titles, {...style, padding: 0}, locale)
     ._textData()
     .map(d => Math.ceil(Math.max(0, ...d.widths)));
@@ -57,7 +64,11 @@ export function titleHeight(
   locale?: string,
 ): number {
   if (!titles.length) return 0;
-  const data = titleBox(titles.map(t => ({...t, height: UNWRAPPED})), {...style, padding: 0}, locale)._textData();
+  const data = titleBox(
+    titles.map(t => ({...t, height: UNWRAPPED})),
+    {...style, padding: 0},
+    locale,
+  )._textData();
   return Math.ceil(Math.max(0, ...data.map(d => d.lines.length * d.lH)));
 }
 
@@ -71,7 +82,11 @@ export function titleNodes(
   return titleBox(titles, {...style, padding: 0}, locale)
     .toScene()
     .children.map(node => {
-      const next = {...node, interactive: false, interactionGroup: "axis"} as SceneNode;
+      const next = {
+        ...node,
+        interactive: false,
+        interactionGroup: "axis",
+      } as SceneNode;
       delete next.datum;
       delete next.index;
       return next;

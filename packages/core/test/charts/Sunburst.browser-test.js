@@ -902,31 +902,35 @@ function assertLabelsFade({before, after, samples}, name) {
 }
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Sunburst: labels fade out in place and back in at their new place on zoom in, out, and Back (${renderer})`, {timeout: 120000}, async function () {
-    const out = await page(
-      async ({renderer, recorder}) => {
-        new Function(recorder)();
-        const chart = await window.build({renderer});
-        const duration = 1000;
-        chart.duration(duration);
-        const zoomIn = await window.recordLabels(chart, duration, () =>
-          window.route(chart, "click", window.arcFor(chart, ["Backend"])),
-        );
-        const zoomOut = await window.recordLabels(chart, duration, () =>
-          window.route(chart, "click", window.arcFor(chart, ["Backend"])),
-        );
-        await window.recordLabels(chart, duration, () =>
-          window.route(chart, "click", window.arcFor(chart, ["Frontend"])),
-        );
-        const back = await window.recordLabels(chart, duration, () =>
-          document.querySelector("#viz .back-control").click(),
-        );
-        return {zoomIn, zoomOut, back};
-      },
-      {renderer, recorder: recordLabels},
-    );
-    assertLabelsFade(out.zoomIn, "zoom in");
-    assertLabelsFade(out.zoomOut, "zoom out");
-    assertLabelsFade(out.back, "Back");
-  });
+  it(
+    `Sunburst: labels fade out in place and back in at their new place on zoom in, out, and Back (${renderer})`,
+    {timeout: 120000},
+    async function () {
+      const out = await page(
+        async ({renderer, recorder}) => {
+          new Function(recorder)();
+          const chart = await window.build({renderer});
+          const duration = 1000;
+          chart.duration(duration);
+          const zoomIn = await window.recordLabels(chart, duration, () =>
+            window.route(chart, "click", window.arcFor(chart, ["Backend"])),
+          );
+          const zoomOut = await window.recordLabels(chart, duration, () =>
+            window.route(chart, "click", window.arcFor(chart, ["Backend"])),
+          );
+          await window.recordLabels(chart, duration, () =>
+            window.route(chart, "click", window.arcFor(chart, ["Frontend"])),
+          );
+          const back = await window.recordLabels(chart, duration, () =>
+            document.querySelector("#viz .back-control").click(),
+          );
+          return {zoomIn, zoomOut, back};
+        },
+        {renderer, recorder: recordLabels},
+      );
+      assertLabelsFade(out.zoomIn, "zoom in");
+      assertLabelsFade(out.zoomOut, "zoom out");
+      assertLabelsFade(out.back, "Back");
+    },
+  );
 }

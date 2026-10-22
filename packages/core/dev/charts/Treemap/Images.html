@@ -1,39 +1,34 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Images · Treemap</title>
+    <meta
+      name="description"
+      content="Treemap cells filled with background images."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+  </head>
 
-<head>
+  <body></body>
 
-  <meta charset="utf-8">
-  <title>Images · Treemap</title>
-  <meta name="description" content="Treemap cells filled with background images.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+  <script>
+    var data = [
+      {id: "alpha", value: 29, image: "./apple.svg"},
+      {id: "beta", value: 10, image: "./fish.svg"},
+      {id: "gamma", value: 2, image: "./tomato.svg"},
+    ];
 
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-  var data = [
-    {id: "alpha", value: 29, image: "./apple.svg"},
-    {id: "beta",  value: 10, image: "./fish.svg"},
-    {id: "gamma", value: 2,  image: "./tomato.svg"}
-  ];
-
-  new d3plus.Treemap()
-    .data(data)
-    .groupBy("id")
-    .shapeConfig({
-      backgroundImage: function(d) {
-        return d.image;
-      }
-    })
-    .sum("value")
-    .render();
-
-</script>
-
+    new d3plus.Treemap()
+      .data(data)
+      .groupBy("id")
+      .shapeConfig({
+        backgroundImage: function (d) {
+          return d.image;
+        },
+      })
+      .sum("value")
+      .render();
+  </script>
 </html>

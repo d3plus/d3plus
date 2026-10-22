@@ -1,58 +1,53 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BaseClass · utils</title>
+    <meta
+      name="description"
+      content="BaseClass config(), locale and the RESET token."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
-
-  <meta charset="utf-8">
-  <title>BaseClass · utils</title>
-  <meta name="description" content="BaseClass config(), locale and the RESET token.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-
-  <style>
-
-    body {
-      margin: 0;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  <script>
-
-    // Prints each logged value into the page as well as the console.
-    const output = document.body.appendChild(document.createElement("pre"));
-    const log = (...args) => {
-      console.log(...args);
-      const text = args.map(a => {
-        if (typeof a === "string") return a;
-        try {
-          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
-        } catch {
-          return String(a);
-        }
-      });
-      output.textContent += `${text.join(" ")}\n`;
-    };
-
-    var tester = new d3plus.BaseClass();
-
-    tester.config({
-      locale: "zh",
-      on: {
-        click: d => log("click", d)
+    <style>
+      body {
+        margin: 0;
       }
-    });
-    log("locale after config():", tester.locale());
+    </style>
+  </head>
 
-    tester.config({locale: d3plus.RESET});
-    log("locale after RESET:", tester.locale());
+  <body>
+    <script>
+      // Prints each logged value into the page as well as the console.
+      const output = document.body.appendChild(document.createElement("pre"));
+      const log = (...args) => {
+        console.log(...args);
+        const text = args.map(a => {
+          if (typeof a === "string") return a;
+          try {
+            return JSON.stringify(a, (k, v) =>
+              typeof v === "function" ? `${v}` : v,
+            );
+          } catch {
+            return String(a);
+          }
+        });
+        output.textContent += `${text.join(" ")}\n`;
+      };
 
-  </script>
+      var tester = new d3plus.BaseClass();
 
-</body>
+      tester.config({
+        locale: "zh",
+        on: {
+          click: d => log("click", d),
+        },
+      });
+      log("locale after config():", tester.locale());
 
+      tester.config({locale: d3plus.RESET});
+      log("locale after RESET:", tester.locale());
+    </script>
+  </body>
 </html>

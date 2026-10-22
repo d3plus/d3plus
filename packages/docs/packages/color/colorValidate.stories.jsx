@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Validates a chart color palette against the computable accessibility checks.",
+        component:
+          "Validates a chart color palette against the computable accessibility checks.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -37,10 +38,18 @@ const Report = ({palette, result}) => (
       <tbody>
         {result.checks.map(({name, state, detail}) => (
           <tr key={name}>
-            <td style={{padding: "3px 12px 3px 0", fontWeight: "bold", color: STATE_COLOR[state]}}>
+            <td
+              style={{
+                padding: "3px 12px 3px 0",
+                fontWeight: "bold",
+                color: STATE_COLOR[state],
+              }}
+            >
               {state.toUpperCase()}
             </td>
-            <td style={{padding: "3px 12px 3px 0", whiteSpace: "nowrap"}}>{name}</td>
+            <td style={{padding: "3px 12px 3px 0", whiteSpace: "nowrap"}}>
+              {name}
+            </td>
             <td style={{padding: "3px 0", color: "#666"}}>{detail}</td>
           </tr>
         ))}
@@ -58,29 +67,50 @@ export const DefaultPalette = () => {
 };
 DefaultPalette.parameters = {
   docs: {
-    ...sourceSnippet("color", "colorValidate, colorDefaults", [{
-      call: "colorValidate(colorDefaults.scale.range().slice(0, 8))",
-      result: JSON.stringify(colorValidate(colorDefaults.scale.range().slice(0, 8)), null, 2),
-    }]).docs,
-    description: {story: "Runs the categorical accessibility checks against the first eight swatches of the built-in `colorDefaults.scale`, reporting each check's pass/warn/fail state and whether the palette clears every hard requirement."},
+    ...sourceSnippet("color", "colorValidate, colorDefaults", [
+      {
+        call: "colorValidate(colorDefaults.scale.range().slice(0, 8))",
+        result: JSON.stringify(
+          colorValidate(colorDefaults.scale.range().slice(0, 8)),
+          null,
+          2,
+        ),
+      },
+    ]).docs,
+    description: {
+      story:
+        "Runs the categorical accessibility checks against the first eight swatches of the built-in `colorDefaults.scale`, reporting each check's pass/warn/fail state and whether the palette clears every hard requirement.",
+    },
   },
 };
 
 export const OrdinalRamp = () => {
   const palette = colorRamp(colorDefaults.sequential, 5, {ordinal: true});
-  return <Report palette={palette} result={colorValidate(palette, {ordinal: true})} />;
+  return (
+    <Report
+      palette={palette}
+      result={colorValidate(palette, {ordinal: true})}
+    />
+  );
 };
 OrdinalRamp.parameters = {
   docs: {
-    ...sourceSnippet("color", "colorValidate, colorRamp, colorDefaults", [{
-      call: "colorValidate(colorRamp(colorDefaults.sequential, 5, {ordinal: true}), {ordinal: true})",
-      result: JSON.stringify(
-        colorValidate(colorRamp(colorDefaults.sequential, 5, {ordinal: true}), {ordinal: true}),
-        null,
-        2,
-      ),
-    }]).docs,
-    description: {story: "Pass `{ordinal: true}` to validate an ordered single-hue ramp instead: it checks monotone lightness, visible step gaps, a light end that still clears the surface, and a single hue — the categorical checks would fail a correct ramp by design."},
+    ...sourceSnippet("color", "colorValidate, colorRamp, colorDefaults", [
+      {
+        call: "colorValidate(colorRamp(colorDefaults.sequential, 5, {ordinal: true}), {ordinal: true})",
+        result: JSON.stringify(
+          colorValidate(
+            colorRamp(colorDefaults.sequential, 5, {ordinal: true}),
+            {ordinal: true},
+          ),
+          null,
+          2,
+        ),
+      },
+    ]).docs,
+    description: {
+      story:
+        "Pass `{ordinal: true}` to validate an ordered single-hue ramp instead: it checks monotone lightness, visible step gaps, a light end that still clears the surface, and a single hue — the categorical checks would fail a correct ramp by design.",
+    },
   },
 };
-

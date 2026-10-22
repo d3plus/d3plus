@@ -1,7 +1,10 @@
 import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
-import {BRUSH_GROUPS, startsOnBrush} from "../../src/charts/drawSteps/zoomGesture.ts";
+import {
+  BRUSH_GROUPS,
+  startsOnBrush,
+} from "../../src/charts/drawSteps/zoomGesture.ts";
 
 useJsdom();
 
@@ -24,8 +27,16 @@ function surface(className) {
 it("charts/zoomGesture startsOnBrush: a press inside the timeline belongs to its brush", () => {
   const {svg, group, inner, outside} = surface("d3plus-viz-timeline");
   assert.strictEqual(startsOnBrush({target: inner}), true, "the brush overlay");
-  assert.strictEqual(startsOnBrush({target: group}), true, "the timeline group itself");
-  assert.strictEqual(startsOnBrush({target: outside}), false, "a shape beside it");
+  assert.strictEqual(
+    startsOnBrush({target: group}),
+    true,
+    "the timeline group itself",
+  );
+  assert.strictEqual(
+    startsOnBrush({target: outside}),
+    false,
+    "a shape beside it",
+  );
   assert.strictEqual(startsOnBrush({target: svg}), false, "the chart surface");
 });
 
@@ -37,7 +48,11 @@ it("charts/zoomGesture startsOnBrush: a press inside the zoom brush belongs to i
 it("charts/zoomGesture startsOnBrush: ignores targets that aren't elements", () => {
   assert.strictEqual(startsOnBrush({target: null}), false, "no target");
   assert.strictEqual(startsOnBrush({target: window}), false, "the window");
-  assert.strictEqual(startsOnBrush({target: document.createTextNode("x")}), false, "a text node");
+  assert.strictEqual(
+    startsOnBrush({target: document.createTextNode("x")}),
+    false,
+    "a text node",
+  );
 });
 
 it("charts/zoomGesture BRUSH_GROUPS names the timeline and zoom brush groups", () => {

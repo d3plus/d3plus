@@ -1,14 +1,14 @@
 # @d3plus/format API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`dateFormatter`](#dateformatter) | Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval and position of every date once up front, so labeling all of them takes linear time. |
-| [`dateFullFormatter`](#datefullformatter) | Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against `dataArray`, reading the interval its dates step by once up front. |
-| [`format`](#format) |  |
-| [`formatAbbreviate`](#formatabbreviate) | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie. |
-| [`formatDate`](#formatdate) | A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points. |
-| [`formatDateFull`](#formatdatefull) | Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day. |
-| [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters. |
+| Functions                                     | Description                                                                                                                                                                                                                            |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`dateFormatter`](#dateformatter)             | Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval and position of every date once up front, so labeling all of them takes linear time.                           |
+| [`dateFullFormatter`](#datefullformatter)     | Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against `dataArray`, reading the interval its dates step by once up front.                                                                  |
+| [`format`](#format)                           |                                                                                                                                                                                                                                        |
+| [`formatAbbreviate`](#formatabbreviate)       | Formats a number to an appropriate number of decimal places and rounding, adding suffixes if applicable (ie.                                                                                                                           |
+| [`formatDate`](#formatdate)                   | A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.                                                                                         |
+| [`formatDateFull`](#formatdatefull)           | Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from `dataArray` (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day. |
+| [`formatDefaultLocale`](#formatdefaultlocale) | An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.                                                                             |
 
 ## Functions
 
@@ -24,16 +24,16 @@ Returns a function that labels any date in `dataArray` exactly as [formatDate](#
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `dataArray` | `Date`[] | *required* | The full array of ordered Date Objects. |
+| Parameter   | Type            | Default      | Description                                |
+| ----------- | --------------- | ------------ | ------------------------------------------ |
+| `dataArray` | `Date`[]        | _required_   | The full array of ordered Date Objects.    |
 | `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function. |
 
 #### Returns
 
 (`d`: `Date`, `shown?`: `Date`[]) => `string`
 
-***
+---
 
 <a id="datefullformatter"></a>
 
@@ -47,16 +47,16 @@ Returns a function that labels any date exactly as [formatDateFull](#formatDateF
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `dataArray` | `Date`[] | *required* | The full array of ordered Date Objects. |
+| Parameter   | Type            | Default      | Description                                |
+| ----------- | --------------- | ------------ | ------------------------------------------ |
+| `dataArray` | `Date`[]        | _required_   | The full array of ordered Date Objects.    |
 | `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function. |
 
 #### Returns
 
 (`d`: `Date`) => `string`
 
-***
+---
 
 <a id="format"></a>
 
@@ -68,15 +68,15 @@ Defined in: [format.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/f
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
+| Parameter   | Type     |
+| ----------- | -------- |
 | `specifier` | `string` |
 
 #### Returns
 
 `Formatter`
 
-***
+---
 
 <a id="formatabbreviate"></a>
 
@@ -90,17 +90,17 @@ Formats a number to an appropriate number of decimal places and rounding, adding
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `n` | `string` \| `number` | *required* | The number to be formatted. |
-| `locale` | `string` \| `FormatLocaleDefinition` | `"en-US"` | The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties. |
-| `precision?` | `string` | *required* | Number of significant digits to display. |
+| Parameter    | Type                                 | Default    | Description                                                                                                                                                                                      |
+| ------------ | ------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `n`          | `string` \| `number`                 | _required_ | The number to be formatted.                                                                                                                                                                      |
+| `locale`     | `string` \| `FormatLocaleDefinition` | `"en-US"`  | The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties. |
+| `precision?` | `string`                             | _required_ | Number of significant digits to display.                                                                                                                                                         |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="formatdate"></a>
 
@@ -116,18 +116,18 @@ Without `shown`, the year rides on the first and last dates and on each January 
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `d` | `Date` | *required* | The date to format. |
-| `dataArray` | `Date`[] | *required* | The full array of ordered Date Objects. |
-| `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function. |
-| `shown?` | `Date`[] | *required* | Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date). |
+| Parameter   | Type            | Default      | Description                                                                                                    |
+| ----------- | --------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
+| `d`         | `Date`          | _required_   | The date to format.                                                                                            |
+| `dataArray` | `Date`[]        | _required_   | The full array of ordered Date Objects.                                                                        |
+| `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function.                                                                     |
+| `shown?`    | `Date`[]        | _required_   | Optional dates drawn alongside `d`, which decide which labels carry the year (and, at hourly steps, the date). |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="formatdatefull"></a>
 
@@ -141,17 +141,17 @@ Formats a date to be read on its own, such as in a tooltip: the same interval as
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `d` | `Date` | *required* | The date to format. |
-| `dataArray` | `Date`[] | *required* | The full array of ordered Date Objects. |
+| Parameter   | Type            | Default      | Description                                |
+| ----------- | --------------- | ------------ | ------------------------------------------ |
+| `d`         | `Date`          | _required_   | The date to format.                        |
+| `dataArray` | `Date`[]        | _required_   | The full array of ordered Date Objects.    |
 | `formatter` | `DateFormatter` | `timeFormat` | Optional custom format string or function. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="formatdefaultlocale"></a>
 
@@ -165,8 +165,8 @@ An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-r
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter    | Type                     | Description                  |
+| ------------ | ------------------------ | ---------------------------- |
 | `definition` | `FormatLocaleDefinition` | The localization definition. |
 
 #### Returns

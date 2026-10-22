@@ -12,7 +12,10 @@ it("a default-position colorScale paints in its own margin band", async function
   const out = await render(
     "<div id='viz' style='width:500px;height:700px'></div>",
     async () => {
-      const data = Array.from({length: 40}, (_, i) => ({id: `n${i}`, value: i + 1}));
+      const data = Array.from({length: 40}, (_, i) => ({
+        id: `n${i}`,
+        value: i + 1,
+      }));
       const viz = new window.d3plus.Treemap()
         .select("#viz")
         .data(data)

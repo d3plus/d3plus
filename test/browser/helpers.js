@@ -42,23 +42,39 @@ export function findNode(scene, test) {
  * @param {String} [options.renderer] "svg" or "canvas".
  * @param {String} [options.html] The page's body, holding a `#viz`.
  */
-export function probeChart(src, extract, {data, renderer, html = '<div id="viz" style="width:700px;height:450px"></div>'} = {}) {
-  return render(html, ([src, data, renderer]) =>
-    new Promise((resolve, reject) => {
-      try {
-        const viz = new Function("lib", "data", `return (${src})(lib, data);`)(window.d3plus, data)
-          .duration(0)
-          .select("#viz");
-        if (renderer) viz.renderer(renderer);
-        viz.render(async () => {
-          try {
-            resolve(await extract(viz));
-          } catch (e) {
-            reject(e);
-          }
-        });
-      } catch (e) {
-        reject(e);
-      }
-    }), [src, data, renderer]);
+export function probeChart(
+  src,
+  extract,
+  {
+    data,
+    renderer,
+    html = '<div id="viz" style="width:700px;height:450px"></div>',
+  } = {},
+) {
+  return render(
+    html,
+    ([src, data, renderer]) =>
+      new Promise((resolve, reject) => {
+        try {
+          const viz = new Function(
+            "lib",
+            "data",
+            `return (${src})(lib, data);`,
+          )(window.d3plus, data)
+            .duration(0)
+            .select("#viz");
+          if (renderer) viz.renderer(renderer);
+          viz.render(async () => {
+            try {
+              resolve(await extract(viz));
+            } catch (e) {
+              reject(e);
+            }
+          });
+        } catch (e) {
+          reject(e);
+        }
+      }),
+    [src, data, renderer],
+  );
 }

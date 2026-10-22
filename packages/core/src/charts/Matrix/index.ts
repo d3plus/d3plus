@@ -46,7 +46,10 @@ export const matrixDef: ChartDefinition = {
   setup: (viz: VizInstance) => {
     const baseMouseMoveShape = viz.schema.on["mousemove.shape"];
     viz.schema.on["mousemove.shape"] = (
-      d: DataPoint, i: number, x: unknown, event: unknown,
+      d: DataPoint,
+      i: number,
+      x: unknown,
+      event: unknown,
     ) => {
       baseMouseMoveShape(d, i, x, event);
       // A colorScale swatch routes through the shape path but has no row/column,
@@ -56,13 +59,15 @@ export const matrixDef: ChartDefinition = {
       const row = getProp.bind(viz)("row", d, i);
       const column = getProp.bind(viz)("column", d, i);
       // Without a colorScale every cell has a value to highlight.
-      const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
+      const colorScale = viz.schema.colorScale as
+        ((d: DataPoint, i: number) => unknown) | undefined;
       type HoverFn = (fn: (h: DataPoint, ii: number) => boolean) => unknown;
       (viz as VizInstance & {hover: HoverFn}).hover(
         (h: DataPoint, ii: number) =>
           (getProp.bind(viz)("row", h, ii) === row ||
             getProp.bind(viz)("column", h, ii) === column) &&
-          (typeof colorScale !== "function" || typeof colorScale(h, ii) === "number"),
+          (typeof colorScale !== "function" ||
+            typeof colorScale(h, ii) === "number"),
       );
     };
   },
@@ -117,9 +122,17 @@ export const matrixDef: ChartDefinition = {
     /** A sort comparator run on the unique set of row values. */
     {key: "rowSort", default: localeCompare},
     /** Config for the `Axis` that draws the row labels, merged over the defaults. */
-    {key: "rowConfig", merge: true, default: {orient: "left", ...defaultAxisConfig}},
+    {
+      key: "rowConfig",
+      merge: true,
+      default: {orient: "left", ...defaultAxisConfig},
+    },
     /** Config for the `Axis` that draws the column labels, merged over the defaults. */
-    {key: "columnConfig", merge: true, default: {orient: "top", ...defaultAxisConfig}},
+    {
+      key: "columnConfig",
+      merge: true,
+      default: {orient: "top", ...defaultAxisConfig},
+    },
     {
       key: "label",
       coerce: "const",

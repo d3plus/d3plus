@@ -37,7 +37,15 @@ it("charts/labelPlacement outside auto-places labels by comparing bar size to sp
     _y: d => d.y,
   };
   // Short bar (y=50): occupies 100px, less than half the 400px space → outside.
-  assert.strictEqual(outside.call(ctx, {y: 50}, 0), true, "short bar → outside");
+  assert.strictEqual(
+    outside.call(ctx, {y: 50}, 0),
+    true,
+    "short bar → outside",
+  );
   // Tall bar (y=180): occupies 360px, more than half the space → inside.
-  assert.strictEqual(outside.call(ctx, {y: 180}, 0), false, "tall bar → inside");
+  assert.strictEqual(
+    outside.call(ctx, {y: 180}, 0),
+    false,
+    "tall bar → inside",
+  );
 });

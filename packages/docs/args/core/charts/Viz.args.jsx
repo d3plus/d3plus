@@ -4,7 +4,7 @@
 import React from "react";
 
 import {Viz as D3plusViz} from "@d3plus/react";
-export const Viz = ({ config }) => <D3plusViz config={config} />;
+export const Viz = ({config}) => <D3plusViz config={config} />;
 
 export const argTypes = {
   active: {
@@ -12,1924 +12,2006 @@ export const argTypes = {
     description: "The active callback function for highlighting shapes.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | function"
-    }
+      summary: "false | function",
+    },
   },
   aggs: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "Custom aggregation functions keyed by data property.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "object"
-    }
+      summary: "object",
+    },
   },
   ariaHidden: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Hides the SVG from assistive technology when true (`aria-hidden`).",
+    description:
+      "Hides the SVG from assistive technology when true (`aria-hidden`).",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   attribution: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: false,
-    description: "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
+    description:
+      "Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "string | boolean"
-    }
+      summary: "string | boolean",
+    },
   },
   attributionIcon: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Overrides the \"ⓘ\" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.",
+    description:
+      "Overrides the \"ⓘ\" icon a long attribution collapses to (see `attribution`), which otherwise renders as an inline SVG. Accepts an HTML string — used as the toggle button's content — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot so a live component (a React tree via `createRoot(el).render(...)`, or anything else imperative) can be mounted into it. A returned cleanup function runs right before that slot is discarded, which happens whenever the credit's markup regenerates (its text or theme changes), not just once per chart.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   attributionStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "CSS key/value pairs used to style the attribution text.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   backControlClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the back button, alongside its fixed `back-control` class. Setting this automatically disables d3plus's built-in inline `backControlStyle` default (as long as you haven't already customized it yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   backControlStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the back button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.backControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   cache: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
     description: "Whether to cache the processed data between renders.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   color: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.\n\nWhen the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `\"country\"` and colored by `\"region\"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.",
+    description:
+      'Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.\n\nWhen the color is a category that isn\'t one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | false | function"
-    }
+      summary: "string | false | function",
+    },
   },
   colorDefaults: {
     control: {},
-    description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+    description:
+      "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "colordefaultsconfig"
-    }
+      summary: "colordefaultsconfig",
+    },
   },
   colorOrdinal: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: false,
-    description: "Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues.",
+    description:
+      "Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   colorScale: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
+    description:
+      "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | false | function"
-    }
+      summary: "string | false | function",
+    },
   },
   colorScaleConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "A pass-through to the config method of ColorScale.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "object"
-    }
+      summary: "object",
+    },
   },
   colorScaleMaxSize: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 600,
-    description: "The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
+    description:
+      "The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.",
     table: {
       defaultValue: {
-        summary: "600"
-      }
+        summary: "600",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   colorScalePadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   colorScalePosition: {
     control: {},
-    description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
+    description:
+      'Defines which side of the visualization to anchor the color scale. Acceptable values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false`. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | panelposition | function"
-    }
+      summary: "false | panelposition | function",
+    },
   },
   config: {
     control: {},
-    description: "Methods that correspond to the key/value pairs and returns this class.",
+    description:
+      "Methods that correspond to the key/value pairs and returns this class.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "d3plusconfig"
-    }
+      summary: "d3plusconfig",
+    },
   },
   data: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with \"url\" and \"headers\" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nDefaults to an empty array (`[]`).",
+    description:
+      'The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nDefaults to an empty array (`[]`).',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | array.&lt;datapoint&gt; | object"
-    }
+      summary: "string | array.&lt;datapoint&gt; | object",
+    },
   },
   dataCutoff: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 100,
     description: "Maximum number of data points to render before downsampling.",
     table: {
       defaultValue: {
-        summary: "100"
-      }
+        summary: "100",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   depth: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "Active depth level for nested groupings.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   detectResize: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
+    description:
+      "If the width and/or height of a Viz is not user-defined, it is determined by the size of it's parent element. When this method is set to `true`, the Viz will listen for the `window.onresize` event and adjust it's dimensions accordingly.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   detectResizeDelay: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 400,
-    description: "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
+    description:
+      "When resizing the browser window, this is the millisecond delay to trigger the resize event.",
     table: {
       defaultValue: {
-        summary: "400"
-      }
+        summary: "400",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   detectVisible: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
+    description:
+      "Toggles whether or not the Viz should try to detect if it visible in the current viewport. When this method is set to `true`, the Viz will only be rendered when it has entered the viewport either through scrolling or if it's display or visibility is changed.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   detectVisibleInterval: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 1000,
-    description: "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
+    description:
+      "The interval, in milliseconds, for checking if the visualization is visible on the page. When `detectVisible` defers a render until the visualization scrolls into view, this is also how long it must stay in view before it renders, so visualizations scrolled past quickly are never drawn.",
     table: {
       defaultValue: {
-        summary: "1000"
-      }
+        summary: "1000",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   detectVisibleUnload: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
+    description:
+      "When `true` (the default) and `detectVisible` is enabled, the Viz releases its DOM and scene while it is scrolled out of view and redraws when it returns, keeping the page light when there are many visualizations. Data and configuration are retained; interaction state such as zoom or selection is not, so set this to `false` to keep it. With `detectVisible` enabled, each chart's `<svg>` is also given `content-visibility: auto`, so the browser skips rendering its contents while it is far off-screen (this matters most when this is `false` and charts are kept). For a larger saving you can also apply `content-visibility: auto` and a `contain-intrinsic-size` to the container element yourself; that adds paint containment to an element you own, so it is not done automatically. Requires `IntersectionObserver`.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   discrete: {
     control: {
-      type: "radio"
+      type: "radio",
     },
     description: "Sets orientation of main category axis.",
-    options: [
-      "x",
-      "y",
-      "radius",
-      "angle"
-    ],
+    options: ["x", "y", "radius", "angle"],
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "\"x\" | \"y\" | \"radius\" | \"angle\""
-    }
+      summary: '"x" | "y" | "radius" | "angle"',
+    },
   },
   duration: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 600,
     description: "Default duration of transitions, in milliseconds.",
     table: {
       defaultValue: {
-        summary: "600"
-      }
+        summary: "600",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   facet: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.",
+    description:
+      "Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | false | function"
-    }
+      summary: "string | false | function",
+    },
   },
   facetConfig: {
     control: {},
-    description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows. Funnel defaults to `\"independent\"` (each panel sized to its own widest stage); `\"shared\"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `\"independent\"` (each panel's rings and ticks fit its own values); `\"shared\"` gives every panel the same value domain.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel. An object sets each axis on its own, as in `{x: \"all\", y: \"outer\"}`: every panel labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. BumpChart defaults to `\"all\"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
+    description:
+      'Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid\'s shape. Chosen by default to make the panels as large as the chart\'s shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `"ascending"` (default), `"descending"`, `"data"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows. Funnel defaults to `"independent"` (each panel sized to its own widest stage); `"shared"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `"independent"` (each panel\'s rings and ticks fit its own values); `"shared"` gives every panel the same value domain.\n- `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid\'s left and bottom edges; `"all"` labels every panel. An object sets each axis on its own, as in `{x: "all", y: "outer"}`: every panel labels its x axis, only the left column labels its y axis, and the panels\' plot areas line up. BumpChart defaults to `"all"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.\n- `title`: a `(value, data) => string` function for each panel\'s title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "facetconfig"
-    }
+      summary: "facetconfig",
+    },
   },
   filter: {
     control: {},
-    description: "Predicate filtering which data points are included, or false to disable.",
+    description:
+      "Predicate filtering which data points are included, or false to disable.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | function"
-    }
+      summary: "false | function",
+    },
   },
   fontFamily: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The font family used throughout the visualization.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | array.&lt;string&gt;"
-    }
+      summary: "string | array.&lt;string&gt;",
+    },
   },
   groupBy: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is \"id\"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.",
+    description:
+      'Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function | array.&lt;string | function&gt;"
-    }
+      summary: "string | function | array.&lt;string | function&gt;",
+    },
   },
   height: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "Overall height of the visualization in pixels.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   hiddenColor: {
     control: {
-      type: "color"
+      type: "color",
     },
-    description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
+    description:
+      "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "csscolor | function"
-    }
+      summary: "csscolor | function",
+    },
   },
   hiddenOpacity: {
     control: {
-      type: "number"
+      type: "number",
     },
-    description: "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
+    description:
+      "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number | function"
-    }
+      summary: "number | function",
+    },
   },
   highlight: {
     control: {},
-    description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
+    description:
+      'Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the "emphasis" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | function"
-    }
+      summary: "false | function",
+    },
   },
   hover: {
     control: {},
-    description: "The hover callback function for highlighting shapes on mouseover.",
+    description:
+      "The hover callback function for highlighting shapes on mouseover.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | function"
-    }
+      summary: "false | function",
+    },
   },
   label: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
+    description:
+      "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | false | array.&lt;string&gt; | accessorfn"
-    }
+      summary: "string | false | array.&lt;string&gt; | accessorfn",
+    },
   },
   legend: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.",
+    description:
+      "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   legendConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "Configuration object passed to the legend's config method.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "object"
-    }
+      summary: "object",
+    },
   },
   legendFilterInvert: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
+    description:
+      "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   legendInset: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `\"auto\"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.",
+    description:
+      'Whether the chart may draw one of its legends inside the empty space around its marks instead of in a margin, for charts that leave open space around their marks, such as Plot and the charts built on it, Network, Pack, Pie, and Geomap; a chart whose marks fill its area, like Treemap, keeps its legends in the margins. After the chart lays out, the size legend is tried first, then the legend, then the colorScale; the first that fits is drawn over a semi-transparent box (see `legendInsetConfig`), and any others keep their margins. Space enclosed by the marks, like the middle of a ring of points, is never used. Only a legend or colorScale whose position is `"auto"` (the default) can move inside; one set to a side stays in that margin. Defaults to `true`; also accepts a function that receives the resolved chart config and returns a boolean.',
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   legendInsetConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
+    description:
+      "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "object"
-    }
+      summary: "object",
+    },
   },
   legendPadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   legendPosition: {
     control: {},
-    description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
+    description:
+      'Defines which side of the visualization to anchor the legend. Expected values are `"auto"` (the default), `"top"`, `"bottom"`, `"left"`, `"right"`, and `false` to hide it. `"auto"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | panelposition | function"
-    }
+      summary: "false | panelposition | function",
+    },
   },
   legendSort: {
     control: {},
     description: "Custom sort comparator for legend items.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   legendTooltip: {
     control: {},
     description: "Configuration object for the legend tooltip.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "tooltipconfig"
-    }
+      summary: "tooltipconfig",
+    },
   },
   link: {
     control: {},
-    description: "Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior.",
+    description:
+      "Links this chart to every other chart with the same group name, so hovering, `active`, `highlight` (including search), and legend hide/solo clicks in one are mirrored in the rest, and a value gets the same categorical color in every chart. Rows match across charts by the value of `by` (a data key or accessor), which defaults to the chart's own id. A string is shorthand for `{group}`; set `hover`, `active`, `highlight`, `legend`, or `color` to `false` to stop sharing that behavior.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "linkoption"
-    }
+      summary: "linkoption",
+    },
   },
   loadingHTML: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
+    description:
+      "The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   loadingMessage: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
+    description:
+      "Toggles the visibility of the status message that is displayed when loading AJAX requests and displaying errors.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   locale: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+    description:
+      'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | object"
-    }
+      summary: "string | object",
+    },
   },
   messageMask: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "rgba(0, 0, 0, 0.05)",
-    description: "The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.",
+    description:
+      "The color of the mask displayed underneath the status message when loading AJAX requests and displaying errors. Set to `false` to turn off the mask completely.",
     table: {
       defaultValue: {
-        summary: "rgba(0, 0, 0, 0.05)"
-      }
+        summary: "rgba(0, 0, 0, 0.05)",
+      },
     },
     type: {
       required: false,
-      summary: "string | boolean"
-    }
+      summary: "string | boolean",
+    },
   },
   messageStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
+    description:
+      "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   minimap: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled.",
+    description:
+      "Shows a small overview + draggable-viewport minimap underneath the zoom controls once the chart is zoomed in. On by default whenever `zoom` is enabled.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   minimapClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the minimap's outer box, viewport box, and zoom-level label, alongside their fixed `d3plus-minimap` / `d3plus-minimap-viewport` / `d3plus-minimap-label` classes. Setting this automatically disables d3plus's built-in inline `minimapStyle`/`minimapViewportStyle`/`minimapViewportStyleActive`/`minimapLabelStyle` defaults (as long as you haven't already customized them yourself), so a host page's own styling applies through the cascade with no other configuration needed.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   minimapLabelStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. \"2x\"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the minimap's zoom-level text label (e.g. \"2x\"). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   minimapStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the minimap's outer box (the full-scene overview). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   minimapViewportStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box in its resting state. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   minimapViewportStyleActive: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the minimap's draggable viewport box while it's being dragged. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.minimapClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   noDataHTML: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
+    description:
+      "The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   noDataMessage: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
+    description:
+      "Toggles the visibility of the status message that is displayed when no data is supplied to the visualization.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   on: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+    description:
+      "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   parent: {
     control: {},
     description: "Parent config used by the wrapper.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "unknown"
-    }
+      summary: "unknown",
+    },
   },
   render: {
     control: {},
     description: "Draws the visualization given the specified configuration.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   renderer: {
     control: {
-      type: "radio"
+      type: "radio",
     },
-    description: "Selects which @d3plus/render backend paints the visible output.\n`\"svg\"` = SvgRenderer (default), `\"canvas\"` = CanvasRenderer.\nBoolean arguments both normalize to `\"svg\"`.",
-    options: [
-      "svg",
-      "canvas"
-    ],
+    description:
+      'Selects which @d3plus/render backend paints the visible output.\n`"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.\nBoolean arguments both normalize to `"svg"`.',
+    options: ["svg", "canvas"],
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "boolean | \"svg\" | \"canvas\""
-    }
+      summary: 'boolean | "svg" | "canvas"',
+    },
   },
   scrollContainer: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "",
-    description: "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
+    description:
+      "If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.",
     table: {
       defaultValue: {
-        summary: ""
-      }
+        summary: "",
+      },
     },
     type: {
       required: false,
-      summary: "string | htmlelement | window"
-    }
+      summary: "string | htmlelement | window",
+    },
   },
   search: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart.",
+    description:
+      "Shows a top-left search button that expands into an input; typing highlights shapes whose label matches. On by default for every chart.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   searchAccessor: {
     control: {},
-    description: "Resolves the string the search box matches its typed term against, for\na given datum. Defaults to the mark's resolved on-screen label\n(`viz._drawLabel`) — the same text the user reads on the chart.\nOverride it to match against something else instead, e.g. a data\nfield that isn't shown as the label.\n\nThis is checked alongside, not instead of, every level of the datum's\nown groupBy hierarchy — searching a leaf's label also matches its\nancestor group's cell/legend entry, and vice versa, regardless of\nthis accessor's override.",
+    description:
+      "Resolves the string the search box matches its typed term against, for\na given datum. Defaults to the mark's resolved on-screen label\n(`viz._drawLabel`) — the same text the user reads on the chart.\nOverride it to match against something else instead, e.g. a data\nfield that isn't shown as the label.\n\nThis is checked alongside, not instead of, every level of the datum's\nown groupBy hierarchy — searching a leaf's label also matches its\nancestor group's cell/legend entry, and vice versa, regardless of\nthis accessor's override.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   searchControlClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the search toggle button and input, alongside their fixed `search-control` classes. Setting this automatically disables d3plus's built-in inline `searchControlStyle`/`searchControlStyleActive`/`searchControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   searchControlStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the search toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   searchControlStyleActive: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the search toggle button while open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   searchControlStyleHover: {
     control: {
-      type: "object"
+      type: "object",
     },
     defaultValue: false,
-    description: "An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the search toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.searchControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   select: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.",
+    description:
+      "The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | htmlelement"
-    }
+      summary: "string | htmlelement",
+    },
   },
   shape: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
+    description:
+      'Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, "Rect" or "Circle"), or an accessor Function that returns the String class name to be used for each individual data point.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   shapeConfig: {
     control: {},
-    description: "Configuration object with key/value pairs applied as method calls on each shape.",
+    description:
+      "Configuration object with key/value pairs applied as method calls on each shape.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "d3plusconfig"
-    }
+      summary: "d3plusconfig",
+    },
   },
   sizeLegend: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.",
+    description:
+      "Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   sizeLegendConfig: {
     control: {},
-    description: "Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.",
+    description:
+      "Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "sizelegendconfig"
-    }
+      summary: "sizelegendconfig",
+    },
   },
   sizeLegendPosition: {
     control: {
-      type: "radio"
+      type: "radio",
     },
     defaultValue: "right",
-    description: "Which margin the size legend claims in the chart's bottom-right corner. `\"right\"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `\"bottom\"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.",
-    options: [
-      "right",
-      "bottom"
-    ],
+    description:
+      'Which margin the size legend claims in the chart\'s bottom-right corner. `"right"` (the default) widens the right margin, so the chart keeps its full height and the legend sits at the bottom of the right column, below any right-side legend or colorScale. `"bottom"` deepens the bottom margin instead, so the chart keeps its full width and any bottom legend or colorScale narrows to sit beside it.',
+    options: ["right", "bottom"],
     table: {
       defaultValue: {
-        summary: "right"
-      }
+        summary: "right",
+      },
     },
     type: {
       required: false,
-      summary: "\"right\" | \"bottom\""
-    }
+      summary: '"right" | "bottom"',
+    },
   },
   subtitle: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Accessor function or string for the visualization's subtitle.",
+    description:
+      "Accessor function or string for the visualization's subtitle.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   subtitleConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "Configuration object for the subtitle.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   subtitlePadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   svgDesc: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "",
     description: "Accessible description applied to the root SVG (`<desc>`).",
     table: {
       defaultValue: {
-        summary: ""
-      }
+        summary: "",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   svgTitle: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "",
     description: "Accessible title applied to the root SVG (`<title>`).",
     table: {
       defaultValue: {
-        summary: ""
-      }
+        summary: "",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   tableView: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart.",
+    description:
+      "Enables the top-left table-view toggle button, which swaps the chart for a static, scrollable `<table>` of its data. On by default for every chart.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   tableViewClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the `<table>` element the table-view toggle renders, alongside the fixed `d3plus-table-view-table` class. Lets a host page style the data table with its own table styling (Tailwind, Bootstrap, a design system) via descendant selectors.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   tableViewControlClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the table-view toggle button, alongside the fixed `table-view-control`/`table-view-toggle` classes. Setting this automatically disables d3plus's built-in inline `tableViewControlStyle`/`tableViewControlStyleActive`/`tableViewControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   tableViewControlStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the table-view toggle button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   tableViewControlStyleActive: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the table-view toggle button while it is active (showing the data table). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   tableViewControlStyleHover: {
     control: {
-      type: "object"
+      type: "object",
     },
     defaultValue: false,
-    description: "An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the table-view toggle button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.tableViewControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   tableViewDownload: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Whether the data table shows a \"download CSV\" button, exporting its full (sorted, unpaginated) rows. On by default.",
+    description:
+      'Whether the data table shows a "download CSV" button, exporting its full (sorted, unpaginated) rows. On by default.',
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   tableViewPageSize: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 50,
-    description: "The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.",
+    description:
+      "The number of data-table rows shown per page while in table view. Set to `false` (or any non-positive number) to disable pagination and show every row on one page.",
     table: {
       defaultValue: {
-        summary: "50"
-      }
+        summary: "50",
+      },
     },
     type: {
       required: false,
-      summary: "number | false"
-    }
+      summary: "number | false",
+    },
   },
   tableViewSort: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default.",
+    description:
+      "Whether the data table's column headers are clickable to sort (toggling asc/desc). On by default.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   threshold: {
     control: {
-      type: "number"
+      type: "number",
     },
-    description: "The threshold value for bucketing small data points together.",
+    description:
+      "The threshold value for bucketing small data points together.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number | function"
-    }
+      summary: "number | function",
+    },
   },
   thresholdKey: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "Accessor for the value used in the threshold algorithm.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   thresholdName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Label for the threshold group, or a `(datum, index)` accessor.",
+    description:
+      "Label for the threshold group, or a `(datum, index)` accessor.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   time: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Accessor function or string key for the time dimension of each data point.",
+    description:
+      "Accessor function or string key for the time dimension of each data point.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | false | function"
-    }
+      summary: "string | false | function",
+    },
   },
   timeFilter: {
     control: {},
-    description: "Predicate filtering which time slices are shown, or false to disable.",
+    description:
+      "Predicate filtering which time slices are shown, or false to disable.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | function"
-    }
+      summary: "false | function",
+    },
   },
   timeline: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
     description: "Whether to show the timeline component.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   timelineConfig: {
     control: {},
     description: "Configuration object for the timeline.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "timelineconfig"
-    }
+      summary: "timelineconfig",
+    },
   },
   timelineDefault: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.",
+    description:
+      "The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | date | array.&lt;string | date&gt;"
-    }
+      summary: "string | date | array.&lt;string | date&gt;",
+    },
   },
   timelinePadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   title: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "Accessor function or string for the visualization's title.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | function"
-    }
+      summary: "string | function",
+    },
   },
   titleConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "CSS style configuration for the title.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   titlePadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   toCanvas: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "unknown"
-    }
+      summary: "unknown",
+    },
   },
   tooltip: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Whether to show tooltips, or a `(datum, index)` accessor deciding per mark.",
+    description:
+      "Whether to show tooltips, or a `(datum, index)` accessor deciding per mark.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   tooltipConfig: {
     control: {},
     description: "Configuration for the tooltip component.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "tooltipconfig"
-    }
+      summary: "tooltipconfig",
+    },
   },
   total: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Accessor function or string key for the total value displayed in the visualization.",
+    description:
+      "Accessor function or string key for the total value displayed in the visualization.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | boolean | function"
-    }
+      summary: "string | boolean | function",
+    },
   },
   totalConfig: {
     control: {
-      type: "object"
+      type: "object",
     },
     description: "Configuration object for the total bar.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   totalFormat: {
     control: {},
     description: "Formatter function for the value in the total bar.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   totalPadding: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
-    description: "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
+    description:
+      "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | function"
-    }
+      summary: "boolean | function",
+    },
   },
   translate: {
     control: {},
-    description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+    description:
+      "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   width: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "Overall width of the visualization in pixels.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   zoom: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
-    description: "Enables pan/zoom with zoom-control buttons. On by default for every chart.",
+    description:
+      "Enables pan/zoom with zoom-control buttons. On by default for every chart.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   zoomBrushHandleSize: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 1,
     description: "The pixel stroke-width of the zoom brush area.",
     table: {
       defaultValue: {
-        summary: "1"
-      }
+        summary: "1",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   zoomBrushHandleStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the outer handle area of the zoom brush. Passing `false` will remove all default styling.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   zoomBrushSelectionStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
+    description:
+      "An object containing CSS key/value pairs that is used to style the inner selection area of the zoom brush. Passing `false` will remove all default styling.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   zoomControlClassName: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to each zoom control button, alongside the fixed `zoom-control` / `zoom-in` / `zoom-out` / `zoom-reset` / `zoom-brush` classes. Setting this automatically disables d3plus's built-in inline `zoomControlStyle`/`zoomControlStyleActive`/`zoomControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling — Tailwind, Bootstrap, a design system — applies through the cascade with no other configuration needed.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   zoomControlIcons: {
     control: {},
-    description: "Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.",
+    description:
+      "Overrides one or more of the four built-in zoom-control icons (`zoomIn`, `zoomOut`, `zoomReset`, `zoomBrush`), which otherwise render as inline SVGs. Each value is either an HTML string — used as the button's content in place of the built-in icon — or a mount function, `(el: HTMLElement) => void | (() => void)`, called once with the button's reserved icon slot (a 12x12px element) so you can mount anything imperative into it: a React tree (`createRoot(el).render(<Icon/>)`), a Vue app, a canvas sprite, a brand `<img>`. Return a cleanup function from the mount function if there's teardown to do; it runs right before that slot is discarded — which happens whenever the whole button panel's markup regenerates (a `.locale(...)` change, a `zoomControlClassName` change, or the brush toggle switching), not just once per chart.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "partial"
-    }
+      summary: "partial",
+    },
   },
   zoomControlStyle: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style each zoom control button (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   zoomControlStyleActive: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style each zoom control button when active (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   zoomControlStyleHover: {
     control: {
-      type: "object"
+      type: "object",
     },
     defaultValue: false,
-    description: "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    description:
+      "An object containing CSS key/value pairs that is used to style each zoom control button on hover (`.zoom-in`, `.zoom-out`, `.zoom-reset`, and `.zoom-brush`). Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.zoomControlClassName(...)` is set, unless you've explicitly customized this yourself.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "false | record"
-    }
+      summary: "false | record",
+    },
   },
   zoomFactor: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 2,
     description: "Multiplier applied to programmatic zoom steps.",
     table: {
       defaultValue: {
-        summary: "2"
-      }
+        summary: "2",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   zoomMax: {
     control: {
-      type: "number"
+      type: "number",
     },
-    description: "Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area.",
+    description:
+      "Maximum zoom scale factor. Defaults to the scale at which the smallest shape fills the chart area.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   zoomPadding: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 20,
     description: "A pixel value to be used to pad all sides of a zoomed area.",
     table: {
       defaultValue: {
-        summary: "20"
-      }
+        summary: "20",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   zoomPan: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: true,
     description: "Whether panning (drag) is enabled while zoomed.",
     table: {
       defaultValue: {
-        summary: "true"
-      }
+        summary: "true",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   zoomScroll: {
     control: {
-      type: "radio"
+      type: "radio",
     },
     defaultValue: "modifier",
-    description: "Whether the mouse wheel (and one-finger touch) zooms. `\"modifier\"` (the\ndefault) leaves page scrolling alone: only\nCtrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans\nonly once zoomed in. `true` zooms on any wheel; `false` never does.",
-    options: [
-      "modifier"
-    ],
+    description:
+      'Whether the mouse wheel (and one-finger touch) zooms. `"modifier"` (the\ndefault) leaves page scrolling alone: only\nCtrl/⌘ + wheel or a trackpad/two-finger pinch zooms, and one finger pans\nonly once zoomed in. `true` zooms on any wheel; `false` never does.',
+    options: ["modifier"],
     table: {
       defaultValue: {
-        summary: "modifier"
-      }
+        summary: "modifier",
+      },
     },
     type: {
       required: false,
-      summary: "boolean | \"modifier\""
-    }
-  }
+      summary: 'boolean | "modifier"',
+    },
+  },
 };

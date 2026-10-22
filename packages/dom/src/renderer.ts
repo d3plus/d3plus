@@ -41,7 +41,7 @@ export function applyConfig(
 ): D3plusInstance {
   const c = assign(
     {select: node},
-    ...configs.filter(Boolean) as Record<string, unknown>[],
+    ...(configs.filter(Boolean) as Record<string, unknown>[]),
   ) as Record<string, unknown>;
 
   FORMAT_FIELDS.forEach(field => {
@@ -78,8 +78,7 @@ export function hash(val: unknown): string {
       }
       return v;
     });
-  }
-  catch {
+  } catch {
     return String(val);
   }
 }

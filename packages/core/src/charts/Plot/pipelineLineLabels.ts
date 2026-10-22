@@ -54,13 +54,30 @@ function measureLineLabel(
     d = d.data as Record<string, unknown>;
     i = d.i as number | undefined;
   }
-  const label = typeof labelFunction === "function" ? labelFunction(d, i) : labelFunction;
-  const fontColor = typeof fontColorAccessor === "function" ? fontColorAccessor(d, i) : fontColorAccessor;
-  const fontSize = typeof fontSizeAccessor === "function" ? fontSizeAccessor(d, i) : fontSizeAccessor;
-  const fontWeight = typeof fontWeightAccessor === "function" ? fontWeightAccessor(d, i) : fontWeightAccessor;
-  let fontFamily = typeof fontFamilyAccessor === "function" ? fontFamilyAccessor(d, i) : fontFamilyAccessor;
-  if (Array.isArray(fontFamily)) fontFamily = fontFamily.map((f: string) => `'${f}'`).join(", ");
-  const labelPadding = typeof paddingAccessor === "function" ? paddingAccessor(d, i) : paddingAccessor;
+  const label =
+    typeof labelFunction === "function" ? labelFunction(d, i) : labelFunction;
+  const fontColor =
+    typeof fontColorAccessor === "function"
+      ? fontColorAccessor(d, i)
+      : fontColorAccessor;
+  const fontSize =
+    typeof fontSizeAccessor === "function"
+      ? fontSizeAccessor(d, i)
+      : fontSizeAccessor;
+  const fontWeight =
+    typeof fontWeightAccessor === "function"
+      ? fontWeightAccessor(d, i)
+      : fontWeightAccessor;
+  let fontFamily =
+    typeof fontFamilyAccessor === "function"
+      ? fontFamilyAccessor(d, i)
+      : fontFamilyAccessor;
+  if (Array.isArray(fontFamily))
+    fontFamily = fontFamily.map((f: string) => `'${f}'`).join(", ");
+  const labelPadding =
+    typeof paddingAccessor === "function"
+      ? paddingAccessor(d, i)
+      : paddingAccessor;
   const labelWidth = d3plusTextWidth(label, {
     "font-size": fontSize,
     "font-family": fontFamily,
@@ -75,7 +92,9 @@ function measureLineLabel(
     lineValues.map((d: Record<string, unknown>) => xEstimate(d.x)),
   ) as number;
   const labelY = (
-    lineValues.find((d: Record<string, unknown>) => xEstimate(d.x) === myMaxX) as Record<string, unknown>
+    lineValues.find(
+      (d: Record<string, unknown>) => xEstimate(d.x) === myMaxX,
+    ) as Record<string, unknown>
   ).y;
   return {
     id: lineKey,
@@ -92,10 +111,22 @@ function measureLineLabel(
   };
 }
 
-export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, plotScales, plotConfigScales, plotTestAxes, plotLineLabelTest, y2Exists}) => {
+export const measurePlotLineLabels: TransformStage = ({
+  viz,
+  plotFormattedData,
+  plotScales,
+  plotConfigScales,
+  plotTestAxes,
+  plotLineLabelTest,
+  y2Exists,
+}) => {
   const data = plotFormattedData || [];
   if (!viz.schema.lineLabels || y2Exists) {
-    return {plotLabelWidths: [], plotLargestLabel: undefined, plotXRangeMax: undefined};
+    return {
+      plotLabelWidths: [],
+      plotLargestLabel: undefined,
+      plotXRangeMax: undefined,
+    };
   }
   const labelData = data.filter((d: Record<string, unknown>) => {
     if (d.shape !== "Line") return false;
@@ -105,7 +136,11 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   });
   const lineData = groups(labelData, (d: Record<string, unknown>) => d.id);
   if (!lineData.length) {
-    return {plotLabelWidths: [], plotLargestLabel: undefined, plotXRangeMax: undefined};
+    return {
+      plotLabelWidths: [],
+      plotLargestLabel: undefined,
+      plotXRangeMax: undefined,
+    };
   }
 
   const {testLineShape, testTextBox} = plotLineLabelTest as {
@@ -124,21 +159,48 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   const lineLabelConfig = testLineShape.labelConfig();
   // Each accessor falls back from the Line shape's labelConfig to the test
   // TextBox's getter; both yield a d3plus config value (constant or accessor).
-  const fontColorAccessor = (lineLabelConfig.fontColor !== undefined ? lineLabelConfig.fontColor : testTextBox.fontColor()) as ConfigAccessor<string>;
-  const fontSizeAccessor = (lineLabelConfig.fontSize !== undefined ? lineLabelConfig.fontSize : testTextBox.fontSize()) as ConfigAccessor<number>;
-  const fontWeightAccessor = (lineLabelConfig.fontWeight !== undefined ? lineLabelConfig.fontWeight : testTextBox.fontWeight()) as ConfigAccessor<number | string>;
-  const fontFamilyAccessor = (lineLabelConfig.fontFamily !== undefined ? lineLabelConfig.fontFamily : testTextBox.fontFamily()) as ConfigAccessor<string | string[]>;
-  const paddingAccessor = (lineLabelConfig.padding !== undefined ? lineLabelConfig.padding : testTextBox.padding()) as ConfigAccessor<number>;
-  const labelFunction = (userConfig.label || viz._drawLabel) as ConfigAccessor<string>;
+  const fontColorAccessor = (
+    lineLabelConfig.fontColor !== undefined
+      ? lineLabelConfig.fontColor
+      : testTextBox.fontColor()
+  ) as ConfigAccessor<string>;
+  const fontSizeAccessor = (
+    lineLabelConfig.fontSize !== undefined
+      ? lineLabelConfig.fontSize
+      : testTextBox.fontSize()
+  ) as ConfigAccessor<number>;
+  const fontWeightAccessor = (
+    lineLabelConfig.fontWeight !== undefined
+      ? lineLabelConfig.fontWeight
+      : testTextBox.fontWeight()
+  ) as ConfigAccessor<number | string>;
+  const fontFamilyAccessor = (
+    lineLabelConfig.fontFamily !== undefined
+      ? lineLabelConfig.fontFamily
+      : testTextBox.fontFamily()
+  ) as ConfigAccessor<string | string[]>;
+  const paddingAccessor = (
+    lineLabelConfig.padding !== undefined
+      ? lineLabelConfig.padding
+      : testTextBox.padding()
+  ) as ConfigAccessor<number>;
+  const labelFunction = (userConfig.label ||
+    viz._drawLabel) as ConfigAccessor<string>;
 
   const xEstimate = (d: unknown): number => {
     if (xConfigScale === "log" && d === 0)
-      d = (xDomain[0] as number) < 0 ? xTest._d3Scale!.domain()[1] : xTest._d3Scale!.domain()[0];
+      d =
+        (xDomain[0] as number) < 0
+          ? xTest._d3Scale!.domain()[1]
+          : xTest._d3Scale!.domain()[0];
     return xTest._getPosition.bind(xTest)(d);
   };
   const yEstimate = (d: unknown): number => {
     if (yConfigScale === "log" && d === 0)
-      d = (yDomain[0] as number) < 0 ? yTest._d3Scale!.domain()[1] : yTest._d3Scale!.domain()[0];
+      d =
+        (yDomain[0] as number) < 0
+          ? yTest._d3Scale!.domain()[1]
+          : yTest._d3Scale!.domain()[0];
     return yTest._getPosition.bind(yTest)(d);
   };
 
@@ -154,7 +216,9 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   };
 
   const labelWidths = lineData
-    .map((entry: [unknown, Record<string, unknown>[]]) => measureLineLabel(entry, labelCtx))
+    .map((entry: [unknown, Record<string, unknown>[]]) =>
+      measureLineLabel(entry, labelCtx),
+    )
     .sort((a, b) =>
       (yDomain[1] as number) > (yDomain[0] as number)
         ? (a.value as number) - (b.value as number)
@@ -181,12 +245,19 @@ export const measurePlotLineLabels: TransformStage = ({viz, plotFormattedData, p
   let xRangeMax: number | undefined;
   const spaceNeeded =
     maxX === xTest._getRange.bind(xTest)()[1]
-      ? max(labelWidths.filter(d => d.maxX === maxX), d => d.spaceNeeded)
+      ? max(
+          labelWidths.filter(d => d.maxX === maxX),
+          d => d.spaceNeeded,
+        )
       : 0;
   if (spaceNeeded) {
     const labelSpace = min([spaceNeeded, width / 4]);
     xRangeMax = width - labelSpace! - viz._margin.right;
   }
 
-  return {plotLabelWidths: labelWidths, plotLargestLabel: largestLabel, plotXRangeMax: xRangeMax};
+  return {
+    plotLabelWidths: labelWidths,
+    plotLargestLabel: largestLabel,
+    plotXRangeMax: xRangeMax,
+  };
 };

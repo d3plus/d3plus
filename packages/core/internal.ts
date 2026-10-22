@@ -11,7 +11,10 @@
 */
 
 // ── Chart-specific layout stages (one per Viz subclass) ──────────────────────
-export {applyBulletLayout, bulletExtents} from "./src/charts/Bullet/applyLayout.js";
+export {
+  applyBulletLayout,
+  bulletExtents,
+} from "./src/charts/Bullet/applyLayout.js";
 export {
   applyCalendarLayout,
   calendarDateFormat,
@@ -38,15 +41,24 @@ export {applyRadarLayout} from "./src/charts/Radar/applyLayout.js";
 export {applyRadialBarLayout} from "./src/charts/RadialBar/applyLayout.js";
 export {applyRadialMatrixLayout} from "./src/charts/RadialMatrix/applyLayout.js";
 export {applyIcicleLayout} from "./src/charts/Icicle/applyLayout.js";
-export {applySunburstLayout, sunburstFocus} from "./src/charts/Sunburst/applyLayout.js";
+export {
+  applySunburstLayout,
+  sunburstFocus,
+} from "./src/charts/Sunburst/applyLayout.js";
 export {applyTreeLayout} from "./src/charts/Tree/applyLayout.js";
 export {applyTreemapLayout} from "./src/charts/Treemap/applyLayout.js";
-export {applyWaffleLayout, waffleFillOptions} from "./src/charts/Waffle/applyLayout.js";
+export {
+  applyWaffleLayout,
+  waffleFillOptions,
+} from "./src/charts/Waffle/applyLayout.js";
 export type {WaffleCell} from "./src/charts/Waffle/applyLayout.js";
 
 export {default as binData} from "./src/charts/Histogram/binData.js";
 export {bulletStack} from "./src/charts/Bullet/bulletLayout.js";
-export {fitAxis as bulletAxis, normalizeBands as bulletBands} from "./src/charts/Bullet/bulletGeometry.js";
+export {
+  fitAxis as bulletAxis,
+  normalizeBands as bulletBands,
+} from "./src/charts/Bullet/bulletGeometry.js";
 export {
   absoluteFormat,
   frameTotals,
@@ -72,7 +84,11 @@ export {
   sideTitleBoxes,
 } from "./src/charts/Pyramid/scene.js";
 export {curveFactory, lineCurve} from "./src/charts/Plot/lineCurve.js";
-export {curvePolyline, splitDash, splitLength} from "./src/charts/Plot/curveLength.js";
+export {
+  curvePolyline,
+  splitDash,
+  splitLength,
+} from "./src/charts/Plot/curveLength.js";
 export {
   autoForecastStart,
   discreteOrder,
@@ -83,7 +99,11 @@ export {
   seriesForecastStarts,
   trendForecastStart,
 } from "./src/charts/Plot/forecast.js";
-export type {ForecastRow, ForecastSetting, ForecastStart} from "./src/charts/Plot/forecast.js";
+export type {
+  ForecastRow,
+  ForecastSetting,
+  ForecastStart,
+} from "./src/charts/Plot/forecast.js";
 export {
   backdropDecor,
   discreteDirection,
@@ -104,7 +124,10 @@ export {
   sideClip,
   valueDirection,
 } from "./src/charts/Plot/fillBetween.js";
-export type {BetweenPoint, FillBetweenSetting} from "./src/charts/Plot/fillBetween.js";
+export type {
+  BetweenPoint,
+  FillBetweenSetting,
+} from "./src/charts/Plot/fillBetween.js";
 export {
   closestFreeOffset,
   fitSwarms,
@@ -112,9 +135,24 @@ export {
   swarmFitScale,
   swarmLayout,
 } from "./src/charts/Plot/swarmLayout.js";
-export type {SwarmFit, SwarmFitOptions, SwarmNode, SwarmOverflow} from "./src/charts/Plot/swarmLayout.js";
-export {applySwarmLanes, resolveSwarm, swarmHidesAxis, swarmPlacements} from "./src/charts/Plot/swarm.js";
-export type {SwarmConfig, SwarmPlacement, SwarmSetting, SwarmState} from "./src/charts/Plot/swarm.js";
+export type {
+  SwarmFit,
+  SwarmFitOptions,
+  SwarmNode,
+  SwarmOverflow,
+} from "./src/charts/Plot/swarmLayout.js";
+export {
+  applySwarmLanes,
+  resolveSwarm,
+  swarmHidesAxis,
+  swarmPlacements,
+} from "./src/charts/Plot/swarm.js";
+export type {
+  SwarmConfig,
+  SwarmPlacement,
+  SwarmSetting,
+  SwarmState,
+} from "./src/charts/Plot/swarm.js";
 export {
   compareCategories,
   stepValue,
@@ -123,10 +161,27 @@ export {
   waterfallStep,
   waterfallSteps,
 } from "./src/charts/Waterfall/steps.js";
-export type {StepAccessors, WaterfallKind, WaterfallStep} from "./src/charts/Waterfall/steps.js";
-export {connectorBars, connectorNodes, connectorSegments} from "./src/charts/Waterfall/connectors.js";
-export type {ConnectorBar, ConnectorSegment} from "./src/charts/Waterfall/connectors.js";
-export {kindColor, labelAlign, labelBox, stepLabel, tooltipRows as waterfallTooltipRows} from "./src/charts/Waterfall/labels.js";
+export type {
+  StepAccessors,
+  WaterfallKind,
+  WaterfallStep,
+} from "./src/charts/Waterfall/steps.js";
+export {
+  connectorBars,
+  connectorNodes,
+  connectorSegments,
+} from "./src/charts/Waterfall/connectors.js";
+export type {
+  ConnectorBar,
+  ConnectorSegment,
+} from "./src/charts/Waterfall/connectors.js";
+export {
+  kindColor,
+  labelAlign,
+  labelBox,
+  stepLabel,
+  tooltipRows as waterfallTooltipRows,
+} from "./src/charts/Waterfall/labels.js";
 export {
   bandOpacityTargets,
   boundOrValue,
@@ -137,12 +192,21 @@ export {
   resolveConfidenceBands,
   rowBands,
 } from "./src/charts/Plot/confidenceBands.js";
-export type {BandBounds, ConfidenceBand} from "./src/charts/Plot/confidenceBands.js";
+export type {
+  BandBounds,
+  ConfidenceBand,
+} from "./src/charts/Plot/confidenceBands.js";
 export {bandRows, rangeText} from "./src/charts/Plot/confidenceTooltip.js";
 export {emitLineBands} from "./src/charts/Plot/lineBands.js";
 export {nestSunburst, sunburstLayout} from "./src/charts/Sunburst/partition.js";
-export {sunburstPadAngle, sunburstRadii} from "./src/charts/Sunburst/geometry.js";
-export {sunburstLabelBox, sunburstSplit} from "./src/charts/Sunburst/labelFit.js";
+export {
+  sunburstPadAngle,
+  sunburstRadii,
+} from "./src/charts/Sunburst/geometry.js";
+export {
+  sunburstLabelBox,
+  sunburstSplit,
+} from "./src/charts/Sunburst/labelFit.js";
 export {
   addDays,
   blockDays,
@@ -158,7 +222,11 @@ export {
   weekIndex,
   weekdaySlot,
 } from "./src/charts/Calendar/calendarDates.js";
-export type {CalendarBlock, CalendarDay, CalendarPeriod} from "./src/charts/Calendar/calendarDates.js";
+export type {
+  CalendarBlock,
+  CalendarDay,
+  CalendarPeriod,
+} from "./src/charts/Calendar/calendarDates.js";
 export {
   blockGrid,
   cellCornerRadius,
@@ -168,8 +236,17 @@ export {
   slotPosition,
   weekdayLabelSlots,
 } from "./src/charts/Calendar/calendarGrid.js";
-export type {CalendarFit, CalendarFitInput, CalendarOrient} from "./src/charts/Calendar/calendarGrid.js";
-export {calendarInsets, calendarLayout, labelPadding, weekdayNames} from "./src/charts/Calendar/calendarLayout.js";
+export type {
+  CalendarFit,
+  CalendarFitInput,
+  CalendarOrient,
+} from "./src/charts/Calendar/calendarGrid.js";
+export {
+  calendarInsets,
+  calendarLayout,
+  labelPadding,
+  weekdayNames,
+} from "./src/charts/Calendar/calendarLayout.js";
 export type {
   CalendarCell,
   CalendarLabel,
@@ -184,7 +261,12 @@ export {
   calendarTimeLocale,
   narrowName,
 } from "./src/charts/Calendar/calendarFormat.js";
-export {calendarEmit, calendarPalette, colorValue, hasColorValue} from "./src/charts/Calendar/emit.js";
+export {
+  calendarEmit,
+  calendarPalette,
+  colorValue,
+  hasColorValue,
+} from "./src/charts/Calendar/emit.js";
 export {sunburstLabelMetrics} from "./src/charts/Sunburst/emit.js";
 export {
   conversionRates,
@@ -232,7 +314,10 @@ export {
   shareFunnelScale,
 } from "./src/charts/Funnel/funnelFacet.js";
 export type {FunnelFacetScale} from "./src/charts/Funnel/funnelFacet.js";
-export type {FunnelShared, FunnelStage} from "./src/charts/Funnel/applyLayout.js";
+export type {
+  FunnelShared,
+  FunnelStage,
+} from "./src/charts/Funnel/applyLayout.js";
 export {
   funnelEmit,
   neckConfig,
@@ -261,7 +346,12 @@ export {
   layoutBarSpans,
   measureBars,
 } from "./src/charts/Plot/barWidth.js";
-export type {BarSpan, BarSpanLayout, BarWidthAccessor, MeasuredBar} from "./src/charts/Plot/barWidth.js";
+export type {
+  BarSpan,
+  BarSpanLayout,
+  BarWidthAccessor,
+  MeasuredBar,
+} from "./src/charts/Plot/barWidth.js";
 export {
   isExpandOffset,
   marimekkoAxisDefaults,
@@ -276,13 +366,29 @@ export {
   stemFromBar,
   stemPoints,
 } from "./src/charts/Lollipop/stemLayout.js";
-export type {BarBox, StemLayout, StemPoint} from "./src/charts/Lollipop/stemLayout.js";
+export type {
+  BarBox,
+  StemLayout,
+  StemPoint,
+} from "./src/charts/Lollipop/stemLayout.js";
 export {lollipopEmit} from "./src/charts/Lollipop/emit.js";
 export {columnHighlight} from "./src/charts/Plot/columnHighlight.js";
-export {CONNECTOR_KEY_SUFFIX, dumbbellEmit, dumbbellSpans} from "./src/charts/Dumbbell/emit.js";
+export {
+  CONNECTOR_KEY_SUFFIX,
+  dumbbellEmit,
+  dumbbellSpans,
+} from "./src/charts/Dumbbell/emit.js";
 export type {DumbbellSpan} from "./src/charts/Dumbbell/emit.js";
-export {categoryGaps, gapComparator, syncGapSort} from "./src/charts/Dumbbell/gapSort.js";
-export type {CategoryComparator, GapSort, GapSortState} from "./src/charts/Dumbbell/gapSort.js";
+export {
+  categoryGaps,
+  gapComparator,
+  syncGapSort,
+} from "./src/charts/Dumbbell/gapSort.js";
+export type {
+  CategoryComparator,
+  GapSort,
+  GapSortState,
+} from "./src/charts/Dumbbell/gapSort.js";
 export {
   largestRemainder,
   waffleCellGeometry,
@@ -296,9 +402,16 @@ export type {
   WaffleFillStart,
   WaffleGridPosition,
 } from "./src/charts/Waffle/waffleLayout.js";
-export {waffleCellGeometryNode, waffleCellShape} from "./src/charts/Waffle/emit.js";
+export {
+  waffleCellGeometryNode,
+  waffleCellShape,
+} from "./src/charts/Waffle/emit.js";
 export type {WaffleCellShape} from "./src/charts/Waffle/emit.js";
-export {formatShare, waffleShare, waffleTooltipRows} from "./src/charts/Waffle/tooltip.js";
+export {
+  formatShare,
+  waffleShare,
+  waffleTooltipRows,
+} from "./src/charts/Waffle/tooltip.js";
 export {
   densityAt,
   densityGroups,
@@ -322,14 +435,38 @@ export {
   summarizeBeforePreDraw,
   unwrapRow,
 } from "./src/charts/helpers/densityChart.js";
-export type {DensityLayout, DensityMeta} from "./src/charts/helpers/densityChart.js";
-export {growFromLine, growRectsFromCenter} from "./src/charts/helpers/densityEnter.js";
-export {categoryStep, violinEdges, violinOutline, violinSlots} from "./src/charts/Violin/violinLayout.js";
-export type {ViolinPoint, ViolinSide, ViolinSlot, ViolinSlotOptions} from "./src/charts/Violin/violinLayout.js";
+export type {
+  DensityLayout,
+  DensityMeta,
+} from "./src/charts/helpers/densityChart.js";
+export {
+  growFromLine,
+  growRectsFromCenter,
+} from "./src/charts/helpers/densityEnter.js";
+export {
+  categoryStep,
+  violinEdges,
+  violinOutline,
+  violinSlots,
+} from "./src/charts/Violin/violinLayout.js";
+export type {
+  ViolinPoint,
+  ViolinSide,
+  ViolinSlot,
+  ViolinSlotOptions,
+} from "./src/charts/Violin/violinLayout.js";
 export {emitInner, innerSet} from "./src/charts/Violin/inner.js";
-export type {InnerFrame, PlacedViolin, ViolinInner} from "./src/charts/Violin/inner.js";
+export type {
+  InnerFrame,
+  PlacedViolin,
+  ViolinInner,
+} from "./src/charts/Violin/inner.js";
 export {VIOLIN_PADDING, violinEmit} from "./src/charts/Violin/emit.js";
-export {ridgelineEmit, ridgelinePadding, ridgeOverlap} from "./src/charts/Ridgeline/emit.js";
+export {
+  ridgelineEmit,
+  ridgelinePadding,
+  ridgeOverlap,
+} from "./src/charts/Ridgeline/emit.js";
 export {
   autoLineOpacity,
   axisPositions,
@@ -341,7 +478,10 @@ export {
   resolveDimensions,
   sharedDomains,
 } from "./src/charts/ParallelCoordinates/dimensions.js";
-export type {DimensionType, ParallelDimension} from "./src/charts/ParallelCoordinates/dimensions.js";
+export type {
+  DimensionType,
+  ParallelDimension,
+} from "./src/charts/ParallelCoordinates/dimensions.js";
 export {
   brushFromPixels,
   hasBrushes,
@@ -351,18 +491,53 @@ export {
   valuePasses,
 } from "./src/charts/ParallelCoordinates/brushFilter.js";
 export type {BrushAxis} from "./src/charts/ParallelCoordinates/brushFilter.js";
-export {linePoints, parallelPath} from "./src/charts/ParallelCoordinates/paths.js";
-export type {LineAxis, ParallelCurve, ParallelOrient} from "./src/charts/ParallelCoordinates/paths.js";
-export {axisDomain, dimensionAxisConfig, dimensionTitleStyle, layoutAxes} from "./src/charts/ParallelCoordinates/axes.js";
-export type {AxesLayout, PlacedAxis} from "./src/charts/ParallelCoordinates/axes.js";
-export {brushTarget, parallelDimensionKeys, parallelOrient} from "./src/charts/ParallelCoordinates/applyLayout.js";
-export {clearStrip, stripLength, stripSelection, syncBrushDom} from "./src/charts/ParallelCoordinates/brushDom.js";
+export {
+  linePoints,
+  parallelPath,
+} from "./src/charts/ParallelCoordinates/paths.js";
+export type {
+  LineAxis,
+  ParallelCurve,
+  ParallelOrient,
+} from "./src/charts/ParallelCoordinates/paths.js";
+export {
+  axisDomain,
+  dimensionAxisConfig,
+  dimensionTitleStyle,
+  layoutAxes,
+} from "./src/charts/ParallelCoordinates/axes.js";
+export type {
+  AxesLayout,
+  PlacedAxis,
+} from "./src/charts/ParallelCoordinates/axes.js";
+export {
+  brushTarget,
+  parallelDimensionKeys,
+  parallelOrient,
+} from "./src/charts/ParallelCoordinates/applyLayout.js";
+export {
+  clearStrip,
+  stripLength,
+  stripSelection,
+  syncBrushDom,
+} from "./src/charts/ParallelCoordinates/brushDom.js";
 export type {BrushTarget} from "./src/charts/ParallelCoordinates/brushDom.js";
-export {lineAriaLabel, parallelEmit, resolveLineOpacity} from "./src/charts/ParallelCoordinates/emit.js";
+export {
+  lineAriaLabel,
+  parallelEmit,
+  resolveLineOpacity,
+} from "./src/charts/ParallelCoordinates/emit.js";
 export type {ParallelLine} from "./src/charts/ParallelCoordinates/emit.js";
 export {applyLineStates} from "./src/charts/ParallelCoordinates/lineStates.js";
-export {dimensionTooltipRows, formatDimensionValue} from "./src/charts/ParallelCoordinates/format.js";
-export {titleHeight, titleNodes, titleWidths} from "./src/charts/ParallelCoordinates/titles.js";
+export {
+  dimensionTooltipRows,
+  formatDimensionValue,
+} from "./src/charts/ParallelCoordinates/format.js";
+export {
+  titleHeight,
+  titleNodes,
+  titleWidths,
+} from "./src/charts/ParallelCoordinates/titles.js";
 export {
   candleChange,
   candleDirection,
@@ -404,11 +579,25 @@ export {
   volumeScale,
   volumeStripRect,
 } from "./src/charts/Candlestick/volume.js";
-export type {VolumeConfig, VolumeStrip} from "./src/charts/Candlestick/volume.js";
-export {candlestickBuffer, widenDomain} from "./src/charts/Candlestick/buffer.js";
-export {CANDLESTICK_SHAPE, candleTexture, emitCandlesticks, layoutCandles} from "./src/charts/Candlestick/emit.js";
+export type {
+  VolumeConfig,
+  VolumeStrip,
+} from "./src/charts/Candlestick/volume.js";
+export {
+  candlestickBuffer,
+  widenDomain,
+} from "./src/charts/Candlestick/buffer.js";
+export {
+  CANDLESTICK_SHAPE,
+  candleTexture,
+  emitCandlesticks,
+  layoutCandles,
+} from "./src/charts/Candlestick/emit.js";
 export type {CandleLayout} from "./src/charts/Candlestick/emit.js";
-export {bandAxisDefaults, periodDate} from "./src/charts/Candlestick/periods.js";
+export {
+  bandAxisDefaults,
+  periodDate,
+} from "./src/charts/Candlestick/periods.js";
 export {
   candleAriaLabel,
   candleTooltipRows,
@@ -434,13 +623,24 @@ export type {
 } from "./src/charts/partition/hierarchy.js";
 export {partitionFocus} from "./src/charts/partition/zoom.js";
 export {partitionShadeAmount} from "./src/charts/partition/shade.js";
-export {labelMetrics, partitionSplit, wrapLineCount} from "./src/charts/partition/labelWords.js";
+export {
+  labelMetrics,
+  partitionSplit,
+  wrapLineCount,
+} from "./src/charts/partition/labelWords.js";
 export {icicleLayout} from "./src/charts/Icicle/layout.js";
 export type {IcicleNode} from "./src/charts/Icicle/layout.js";
-export {icicleBands, icicleCollapse, icicleRect} from "./src/charts/Icicle/geometry.js";
+export {
+  icicleBands,
+  icicleCollapse,
+  icicleRect,
+} from "./src/charts/Icicle/geometry.js";
 export type {IcicleOrient, IcicleRect} from "./src/charts/Icicle/geometry.js";
 export {icicleLabelBox} from "./src/charts/Icicle/labelFit.js";
-export {icicleRootEdge, icicleStagger} from "./src/charts/Icicle/enterStagger.js";
+export {
+  icicleRootEdge,
+  icicleStagger,
+} from "./src/charts/Icicle/enterStagger.js";
 export type {IcicleStagger} from "./src/charts/Icicle/enterStagger.js";
 export {
   polarInnerRadius,
@@ -450,7 +650,12 @@ export {
   polarSlots,
   polarStack,
 } from "./src/charts/polar/geometry.js";
-export type {PolarDomainInput, PolarScale, PolarSlot, PolarStackSegment} from "./src/charts/polar/geometry.js";
+export type {
+  PolarDomainInput,
+  PolarScale,
+  PolarSlot,
+  PolarStackSegment,
+} from "./src/charts/polar/geometry.js";
 export {
   polarBoxesOverlap,
   polarHorizontalLayout,
@@ -460,23 +665,52 @@ export {
   polarLabelsCollide,
   polarSpokeRotation,
 } from "./src/charts/polar/labels.js";
-export {polarCategoryLayout, polarCategoryNodes, polarLevelNodes} from "./src/charts/polar/chrome.js";
-export {polarAxisConfig, polarValueRow, polarWedgeNodes} from "./src/charts/polar/config.js";
+export {
+  polarCategoryLayout,
+  polarCategoryNodes,
+  polarLevelNodes,
+} from "./src/charts/polar/chrome.js";
+export {
+  polarAxisConfig,
+  polarValueRow,
+  polarWedgeNodes,
+} from "./src/charts/polar/config.js";
 export {rowLegend, shareRow} from "./src/charts/features/sharedFields.js";
-export {polarSlotArc, polarSlotTops, polarWedgeLayout} from "./src/charts/polar/wedgeLayout.js";
-export type {PolarFrame, PolarWedge, PolarWedgeOptions} from "./src/charts/polar/wedgeLayout.js";
+export {
+  polarSlotArc,
+  polarSlotTops,
+  polarWedgeLayout,
+} from "./src/charts/polar/wedgeLayout.js";
+export type {
+  PolarFrame,
+  PolarWedge,
+  PolarWedgeOptions,
+} from "./src/charts/polar/wedgeLayout.js";
 export {
   polarFacetHooks,
   polarFacetPanel,
   polarSharedExtent,
   sharePolarScale,
 } from "./src/charts/polar/polarFacet.js";
-export type {PolarDomainValues, PolarFacetScale} from "./src/charts/polar/polarFacet.js";
-export {polarAreaDomainValues, polarAreaSlotOf} from "./src/charts/PolarArea/applyLayout.js";
+export type {
+  PolarDomainValues,
+  PolarFacetScale,
+} from "./src/charts/polar/polarFacet.js";
+export {
+  polarAreaDomainValues,
+  polarAreaSlotOf,
+} from "./src/charts/PolarArea/applyLayout.js";
 export {polarAreaEmit} from "./src/charts/PolarArea/emit.js";
-export {radialBarDomainValues, radialBarRows} from "./src/charts/RadialBar/applyLayout.js";
+export {
+  radialBarDomainValues,
+  radialBarRows,
+} from "./src/charts/RadialBar/applyLayout.js";
 export {radialBarEmit} from "./src/charts/RadialBar/emit.js";
-export {radialBarFootprint, radialBarLabelRoom, radialBarTracks} from "./src/charts/RadialBar/tracks.js";
+export {
+  radialBarFootprint,
+  radialBarLabelRoom,
+  radialBarTracks,
+} from "./src/charts/RadialBar/tracks.js";
 export {
   RADIAL_BAR_MIN_LABEL_GAP,
   radialBarSweep,
@@ -505,7 +739,10 @@ export {networkDef} from "./src/charts/Network/index.js";
 export {ringsDef} from "./src/charts/Rings/index.js";
 export {sankeyDef} from "./src/charts/Sankey/index.js";
 export {packDef} from "./src/charts/Pack/index.js";
-export {parallelCoordinatesDef, resolveBrushStyle} from "./src/charts/ParallelCoordinates/index.js";
+export {
+  parallelCoordinatesDef,
+  resolveBrushStyle,
+} from "./src/charts/ParallelCoordinates/index.js";
 export {pieDef} from "./src/charts/Pie/index.js";
 export {polarAreaDef} from "./src/charts/PolarArea/index.js";
 export {priestleyDef} from "./src/charts/Priestley/index.js";
@@ -534,10 +771,16 @@ export type {FluentHost} from "./src/fluent.js";
 
 // ── Pipeline orchestration + the config/context boundary ─────────────────────
 export {runStages} from "./src/charts/pipeline/stages.js";
-export {runPostDrawFeatures, runVizPipeline} from "./src/charts/pipeline/runVizPipeline.js";
+export {
+  runPostDrawFeatures,
+  runVizPipeline,
+} from "./src/charts/pipeline/runVizPipeline.js";
 export {resolveSpec} from "./src/charts/pipeline/resolveSpec.js";
 export {vizDraw} from "./src/charts/pipeline/vizDraw.js";
-export {vizPostThresholdCtx, vizPreDraw} from "./src/charts/pipeline/vizPreDraw.js";
+export {
+  vizPostThresholdCtx,
+  vizPreDraw,
+} from "./src/charts/pipeline/vizPreDraw.js";
 
 // ── Plot paint phase + axis rendering ────────────────────────────────────────
 export {plotEmit, plotPaint} from "./src/charts/features/plotPaint.js";
@@ -564,7 +807,12 @@ export {
   isBrokenScale,
   normalizeBreaks,
 } from "./src/components/Axis/brokenScale.js";
-export type {BreakRange, BrokenScale, BrokenScaleSpec, ScaleSegment} from "./src/components/Axis/brokenScale.js";
+export type {
+  BreakRange,
+  BrokenScale,
+  BrokenScaleSpec,
+  ScaleSegment,
+} from "./src/components/Axis/brokenScale.js";
 export {
   applyAxisBreaks,
   axisBarNodes,
@@ -575,7 +823,11 @@ export {
   brokenBarScene,
   resolveBaselineBreak,
 } from "./src/components/Axis/axisBreak.js";
-export type {AxisBaselineBreak, AxisBreak, BreakStyle} from "./src/components/Axis/axisBreak.js";
+export type {
+  AxisBaselineBreak,
+  AxisBreak,
+  BreakStyle,
+} from "./src/components/Axis/axisBreak.js";
 export {
   bandPolygon,
   breakLineNodes,
@@ -605,7 +857,11 @@ export {
   secondaryAxisRounding,
   userAxisDomain,
 } from "./src/charts/Plot/baselineDomain.js";
-export {openEnd, roundOpenEnd, roundPlotOpenEnds} from "./src/charts/Plot/openDomainEnds.js";
+export {
+  openEnd,
+  roundOpenEnd,
+  roundPlotOpenEnds,
+} from "./src/charts/Plot/openDomainEnds.js";
 export {xAxisRounding} from "./src/charts/features/xAxisConfig.js";
 export {roundedDomain} from "./src/components/Axis/axisRounding.js";
 export {
@@ -648,16 +904,30 @@ export {
   bottomRightControlsInset,
   bottomRightControlsShortfall,
 } from "./src/charts/drawSteps/bottomRightControlsMarkup.js";
-export type {BottomRightBox, BottomRightContribution} from "./src/charts/drawSteps/bottomRightControlsMarkup.js";
+export type {
+  BottomRightBox,
+  BottomRightContribution,
+} from "./src/charts/drawSteps/bottomRightControlsMarkup.js";
 export {
   computeSizeLegend,
   defaultSizeLegendValues,
   zoomSizeLegendScale,
 } from "./src/components/SizeLegend/sizeLegendLayout.js";
-export type {SizeLegendLayout, SizeLegendScale, SizeLegendSize} from "./src/components/SizeLegend/sizeLegendLayout.js";
-export {drawWithInset, fitInset, sceneInsetRegion} from "./src/charts/pipeline/insetPlacement.js";
+export type {
+  SizeLegendLayout,
+  SizeLegendScale,
+  SizeLegendSize,
+} from "./src/components/SizeLegend/sizeLegendLayout.js";
+export {
+  drawWithInset,
+  fitInset,
+  sceneInsetRegion,
+} from "./src/charts/pipeline/insetPlacement.js";
 export {markBoxes} from "./src/charts/features/sceneBounds.js";
-export {backgroundImageNode, backgroundImageNodes} from "./src/charts/features/backgroundImageEmit.js";
+export {
+  backgroundImageNode,
+  backgroundImageNodes,
+} from "./src/charts/features/backgroundImageEmit.js";
 export {
   INSET_PRIORITY,
   insetBackground,
@@ -730,8 +1000,15 @@ export {
   toFacetValue,
 } from "./src/charts/facet/facetData.js";
 export type {FacetGroup} from "./src/charts/facet/facetData.js";
-export {facetDimensions, facetGrid, fittedArea} from "./src/charts/facet/facetGrid.js";
-export type {FacetArea, FacetGridOptions} from "./src/charts/facet/facetGrid.js";
+export {
+  facetDimensions,
+  facetGrid,
+  fittedArea,
+} from "./src/charts/facet/facetGrid.js";
+export type {
+  FacetArea,
+  FacetGridOptions,
+} from "./src/charts/facet/facetGrid.js";
 export {
   facetBodyNode,
   facetPanelNode,
@@ -740,7 +1017,11 @@ export {
   prefixKeys,
 } from "./src/charts/facet/facetScene.js";
 export type {FacetTitle} from "./src/charts/facet/facetScene.js";
-export {clearPanelSlots, facetPanelAt, withFacetPanel} from "./src/charts/facet/facetPanel.js";
+export {
+  clearPanelSlots,
+  facetPanelAt,
+  withFacetPanel,
+} from "./src/charts/facet/facetPanel.js";
 export {
   alignInsets,
   expandArea,
@@ -774,15 +1055,26 @@ export {
 } from "./src/charts/Plot/plotFacet.js";
 export {applyPaddedDomains} from "./src/charts/Plot/facetScales.js";
 export type {PlotFacetScales} from "./src/charts/Plot/facetScales.js";
-export {computeFilteredData, computeTimeFilter} from "./src/charts/pipeline/preDrawData.js";
+export {
+  computeFilteredData,
+  computeTimeFilter,
+} from "./src/charts/pipeline/preDrawData.js";
 
 // ── Pipeline types ───────────────────────────────────────────────────────────
 export type {ResolvedSpec} from "./src/charts/pipeline/resolveSpec.js";
 export type {VizContext} from "./src/charts/pipeline/stages.js";
 export type {VizDrawResult} from "./src/charts/pipeline/vizDraw.js";
 export type {VizPreDrawResult} from "./src/charts/pipeline/preDrawData.js";
-export type {PlotMeasureResult, PlotPaintContext} from "./src/charts/features/plotPaint.js";
-export type {EndLabel, EndLabelBox, EndLabelMeasure, XLabelMode} from "./src/charts/features/plotEndLabels.js";
+export type {
+  PlotMeasureResult,
+  PlotPaintContext,
+} from "./src/charts/features/plotPaint.js";
+export type {
+  EndLabel,
+  EndLabelBox,
+  EndLabelMeasure,
+  XLabelMode,
+} from "./src/charts/features/plotEndLabels.js";
 export type {ShapeLike, VizLike} from "./src/charts/features/emitHelpers.js";
 export type {VizInstance, VizRenderer} from "./src/charts/viz/vizTypes.js";
 export type {AxisLayout, AxisLayoutResult} from "./src/components/Axis/Axis.js";

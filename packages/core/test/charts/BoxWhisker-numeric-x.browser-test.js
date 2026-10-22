@@ -18,7 +18,11 @@ it("BoxWhisker places boxes on numeric discrete categories", async function () {
         const data = [];
         for (const id of ["a", "b", "c", "d", "e"])
           for (let year = 2000; year < 2005; year++)
-            data.push({id, year: key(year), value: (year * 7 + id.charCodeAt(0) * 13) % 100});
+            data.push({
+              id,
+              year: key(year),
+              value: (year * 7 + id.charCodeAt(0) * 13) % 100,
+            });
         const el = document.createElement("div");
         document.body.appendChild(el);
         const viz = new window.d3plus.BoxWhisker()
@@ -34,7 +38,9 @@ it("BoxWhisker places boxes on numeric discrete categories", async function () {
         else viz.x("year").y("value");
         viz.render(() => {
           const rects = [
-            ...el.querySelectorAll("g[data-key='plot-zoom-content'] rect.d3plus-render-rect"),
+            ...el.querySelectorAll(
+              "g[data-key='plot-zoom-content'] rect.d3plus-render-rect",
+            ),
           ];
           const nan = [...el.querySelectorAll("*")].filter(n =>
             [...n.attributes].some(a => a.value.includes("NaN")),
@@ -45,7 +51,10 @@ it("BoxWhisker places boxes on numeric discrete categories", async function () {
               rects
                 .map(r => r.getAttribute("transform"))
                 .filter(Boolean)
-                .map(t => t.match(/translate\(([^,]+),([^)]+)\)/)[horizontal ? 2 : 1]),
+                .map(
+                  t =>
+                    t.match(/translate\(([^,]+),([^)]+)\)/)[horizontal ? 2 : 1],
+                ),
             ),
           ].sort();
           resolve({nan, boxes: rects.length, coords});
@@ -61,7 +70,11 @@ it("BoxWhisker places boxes on numeric discrete categories", async function () {
   for (const [orient, [numeric, string]] of Object.entries(out)) {
     assert.strictEqual(numeric.nan, 0, `${orient}: no NaN attributes`);
     assert.ok(numeric.boxes > 0, `${orient}: boxes rendered`);
-    assert.strictEqual(numeric.coords.length, 5, `${orient}: one box per category`);
+    assert.strictEqual(
+      numeric.coords.length,
+      5,
+      `${orient}: one box per category`,
+    );
     assert.deepStrictEqual(
       numeric.coords,
       string.coords,

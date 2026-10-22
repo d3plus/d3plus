@@ -27,7 +27,10 @@ it("Plot back annotations render below shapes; front annotations render above", 
             // BEHIND the bars.
             {
               shape: "Line",
-              data: [{x: 0, y: 5}, {x: 4, y: 5}],
+              data: [
+                {x: 0, y: 5},
+                {x: 4, y: 5},
+              ],
               stroke: "red",
               strokeWidth: 1,
             },
@@ -35,7 +38,10 @@ it("Plot back annotations render below shapes; front annotations render above", 
             {
               shape: "Line",
               layer: "front",
-              data: [{x: 0, y: 12}, {x: 4, y: 12}],
+              data: [
+                {x: 0, y: 12},
+                {x: 4, y: 12},
+              ],
               stroke: "blue",
               strokeWidth: 2,
             },
@@ -48,7 +54,9 @@ it("Plot back annotations render below shapes; front annotations render above", 
             const lines = Array.from(
               document.querySelectorAll("path.d3plus-render-path"),
             ).map(p => p.getAttribute("stroke"));
-            const rects = document.querySelectorAll("rect.d3plus-render-rect").length;
+            const rects = document.querySelectorAll(
+              "rect.d3plus-render-rect",
+            ).length;
             // Position of red (back) and blue (front) relative to first bar.
             const allShapes = Array.from(
               document.querySelectorAll(
@@ -61,9 +69,7 @@ it("Plot back annotations render below shapes; front annotations render above", 
             const blueIdx = allShapes.findIndex(
               n => n.tagName === "path" && n.getAttribute("stroke") === "blue",
             );
-            const firstRectIdx = allShapes.findIndex(
-              n => n.tagName === "rect",
-            );
+            const firstRectIdx = allShapes.findIndex(n => n.tagName === "rect");
             resolve({lines, rects, redIdx, blueIdx, firstRectIdx});
           });
       }),

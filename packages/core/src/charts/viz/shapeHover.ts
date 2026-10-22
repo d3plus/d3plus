@@ -8,6 +8,7 @@ export function shapeHoverEnabled(viz: {
   schema: Record<string, unknown>;
   _hoverOutline?: boolean;
 }): boolean {
-  const shapeConfig = viz.schema.shapeConfig as {hoverOpacity?: number} | undefined;
+  const shapeConfig = viz.schema.shapeConfig as
+    {hoverOpacity?: number} | undefined;
   return Boolean(viz._hoverOutline) || shapeConfig?.hoverOpacity !== 1;
 }

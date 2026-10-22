@@ -36,5 +36,9 @@ it("a Line keyed 0 hands style accessors the merged aggregate", () => {
       return "black";
     })
     .toScene();
-  assert.strictEqual(seen.y, 30, "accessor gets the aggregate, not the nest wrapper");
+  assert.strictEqual(
+    seen.y,
+    30,
+    "accessor gets the aggregate, not the nest wrapper",
+  );
 });

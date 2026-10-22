@@ -2,7 +2,10 @@ import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {BarChart, Plot, Treemap} from "../../index.ts";
-import {autoPosition, sanitizePosition} from "../../src/charts/features/features.ts";
+import {
+  autoPosition,
+  sanitizePosition,
+} from "../../src/charts/features/features.ts";
 
 useJsdom();
 
@@ -13,15 +16,23 @@ useJsdom();
 const wide = {schema: {width: 800, height: 500}};
 const tall = {schema: {width: 500, height: 700}};
 
-it("legendPosition and colorScalePosition default to \"auto\" on every chart", () => {
+it('legendPosition and colorScalePosition default to "auto" on every chart', () => {
   for (const Chart of [Plot, BarChart, Treemap]) {
     const viz = new Chart();
-    assert.strictEqual(viz.legendPosition()(), "auto", `${Chart.name} legendPosition`);
-    assert.strictEqual(viz.colorScalePosition()(), "auto", `${Chart.name} colorScalePosition`);
+    assert.strictEqual(
+      viz.legendPosition()(),
+      "auto",
+      `${Chart.name} legendPosition`,
+    );
+    assert.strictEqual(
+      viz.colorScalePosition()(),
+      "auto",
+      `${Chart.name} colorScalePosition`,
+    );
   }
 });
 
-it("legendPosition(\"auto\") can be set explicitly, and an explicit side replaces it", () => {
+it('legendPosition("auto") can be set explicitly, and an explicit side replaces it', () => {
   const viz = new Plot().legendPosition("left");
   assert.strictEqual(viz.legendPosition()(), "left");
   viz.legendPosition("auto");
@@ -31,11 +42,18 @@ it("legendPosition(\"auto\") can be set explicitly, and an explicit side replace
 it("autoPosition picks the right side of wide charts and the bottom of others", () => {
   assert.strictEqual(autoPosition(wide), "right");
   assert.strictEqual(autoPosition(tall), "bottom");
-  assert.strictEqual(autoPosition({schema: {width: 750, height: 500}}), "bottom", "exactly 1.5x is not wide");
-  assert.strictEqual(autoPosition({schema: {width: 751, height: 500}}), "right");
+  assert.strictEqual(
+    autoPosition({schema: {width: 750, height: 500}}),
+    "bottom",
+    "exactly 1.5x is not wide",
+  );
+  assert.strictEqual(
+    autoPosition({schema: {width: 751, height: 500}}),
+    "right",
+  );
 });
 
-it("sanitizePosition resolves \"auto\" to a side and keeps explicit positions", () => {
+it('sanitizePosition resolves "auto" to a side and keeps explicit positions', () => {
   assert.strictEqual(sanitizePosition("auto", wide), "right");
   assert.strictEqual(sanitizePosition("auto", tall), "bottom");
   for (const side of ["top", "right", "bottom", "left"]) {
@@ -43,5 +61,9 @@ it("sanitizePosition resolves \"auto\" to a side and keeps explicit positions", 
     assert.strictEqual(sanitizePosition(side, tall), side);
   }
   assert.strictEqual(sanitizePosition(false, wide), false);
-  assert.strictEqual(sanitizePosition("middle", wide), "bottom", "unknown values still fall back to bottom");
+  assert.strictEqual(
+    sanitizePosition("middle", wide),
+    "bottom",
+    "unknown values still fall back to bottom",
+  );
 });

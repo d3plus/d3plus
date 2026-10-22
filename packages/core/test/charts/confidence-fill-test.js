@@ -17,7 +17,12 @@ it("confidence band fill matches the line's stroke colour at 0.5 opacity", () =>
     .x("time")
     .y("value");
 
-  const datum = {__d3plus__: true, data: {id: "alpha", time: 2010, value: 10}, i: 0, id: "alpha"};
+  const datum = {
+    __d3plus__: true,
+    data: {id: "alpha", time: 2010, value: 10},
+    i: 0,
+    id: "alpha",
+  };
   const {fill, fillOpacity} = plot._confidenceConfig;
 
   const bandColor = fill(datum, 0);
@@ -25,7 +30,8 @@ it("confidence band fill matches the line's stroke colour at 0.5 opacity", () =>
 
   const lineStroke = plot.schema.shapeConfig.stroke(datum, 0);
   assert.strictEqual(
-    String(bandColor), String(lineStroke),
+    String(bandColor),
+    String(lineStroke),
     "band fill equals the line's stroke colour",
   );
   assert.strictEqual(fillOpacity(datum, 0), 0.5, "band is semi-transparent");

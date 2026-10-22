@@ -6,68 +6,68 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Tree as D3plusTree} from "@d3plus/react";
-export const Tree = ({ config }) => <D3plusTree config={config} />;
+export const Tree = ({config}) => <D3plusTree config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Tree
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Tree-specific methods
    */
-  
+
   {
     legendTooltip: {
       table: {
         defaultValue: {
-          summary: "{title: legendLabel.bind(viz as unknown as Viz)}"
-        }
-      }
+          summary: "{title: legendLabel.bind(viz as unknown as Viz)}",
+        },
+      },
     },
     orient: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "vertical",
-      description: "The orientation of the whole tree: `\"vertical\"` (top to bottom) or `\"horizontal\"` (left to right).",
-      options: [
-        "vertical",
-        "horizontal"
-      ],
+      description:
+        'The orientation of the whole tree: `"vertical"` (top to bottom) or `"horizontal"` (left to right).',
+      options: ["vertical", "horizontal"],
       table: {
         defaultValue: {
-          summary: "vertical"
-        }
+          summary: "vertical",
+        },
       },
       type: {
         required: false,
-        summary: "\"vertical\" | \"horizontal\""
-      }
+        summary: '"vertical" | "horizontal"',
+      },
     },
     separation: {
       control: {},
-      description: "The [separation](https://github.com/d3/d3-hierarchy#tree_separation) between neighboring nodes: a function of two nodes `a` and `b` that returns their relative spacing. The nodes are usually siblings, but may be more distant relatives placed side by side. Defaults to `1` for siblings and `2` for other neighbors.",
+      description:
+        "The [separation](https://github.com/d3/d3-hierarchy#tree_separation) between neighboring nodes: a function of two nodes `a` and `b` that returns their relative spacing. The nodes are usually siblings, but may be more distant relatives placed side by side. Defaults to `1` for siblings and `2` for other neighbors.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Circle\""
-        }
-      }
-    }
-  }
+          summary: '"Circle"',
+        },
+      },
+    },
+  },
 );

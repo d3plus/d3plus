@@ -1,21 +1,26 @@
-<meta name="description" content="An open-source JavaScript visualization library that streamlines the creation of beautiful and accessible SVG data visualizations."/>
+<meta
+  name="description"
+  content="An open-source JavaScript visualization library that streamlines the creation of beautiful and accessible SVG data visualizations."
+/>
 
-<link rel="apple-touch-icon" href="/images/touchicon.png?v=4" sizes="256x256">
+<link rel="apple-touch-icon" href="/images/touchicon.png?v=4" sizes="256x256" />
 
 <!-- Inter -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+  rel="stylesheet"
+/>
 
 <!--  Social Sharing META Tags -->
-<meta property="og:title" content="D3plus">
+<meta property="og:title" content="D3plus" />
 <meta property="og:type" content="website" />
-<meta property="og:image" content="https://d3plus.org/images/share.png?v=1">
-<meta property="og:url" content="https://d3plus.org">
-<meta name="twitter:card" content="summary">
+<meta property="og:image" content="https://d3plus.org/images/share.png?v=1" />
+<meta property="og:url" content="https://d3plus.org" />
+<meta name="twitter:card" content="summary" />
 
 <style>
-
   /* styles logo text */
   .sidebar-header a {
     font-size: 24px;
@@ -28,7 +33,6 @@
   section.sb-bar[data-testid="sb-preview-toolbar"] {
     display: none !important;
   }
-
 </style>
 
 <script id="storybook-mod-expand-all-folders" type="text/javascript">
@@ -36,7 +40,9 @@
     setTimeout(() => {
       try {
         var itemsLeftToClick = Array.from(
-          document.querySelectorAll('#storybook-explorer-tree button#core-charts[aria-expanded="false"]')
+          document.querySelectorAll(
+            '#storybook-explorer-tree button#core-charts[aria-expanded="false"]',
+          ),
         );
         if (itemsLeftToClick.length > 0) {
           itemsLeftToClick.forEach(item => item.click());
@@ -48,6 +54,6 @@
     }, 200);
   };
 
-  window.removeEventListener('load', clickCollapsedItemsUntilNoneLeft);
-  window.addEventListener('load', clickCollapsedItemsUntilNoneLeft);
+  window.removeEventListener("load", clickCollapsedItemsUntilNoneLeft);
+  window.addEventListener("load", clickCollapsedItemsUntilNoneLeft);
 </script>

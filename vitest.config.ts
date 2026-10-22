@@ -21,16 +21,31 @@ const node = (name: string, test = {}) => ({
 export default defineConfig({
   root: import.meta.dirname,
   plugins: built ? [builtOutput()] : [],
-  resolve: {alias: built ? aliases.filter(a => String(a.find).includes("~test")) : aliases},
+  resolve: {
+    alias: built
+      ? aliases.filter(a => String(a.find).includes("~test"))
+      : aliases,
+  },
   test: {
     silent: "passed-only",
-    reporters: process.env.GITHUB_ACTIONS ? ["default", "github-actions"] : ["default"],
+    reporters: process.env.GITHUB_ACTIONS
+      ? ["default", "github-actions"]
+      : ["default"],
     coverage: {
       provider: "v8",
       reporter: ["text-summary", "lcov"],
     },
     projects: [
-      ...["color", "data", "format", "locales", "math", "svelte", "vue", "element"].map(name => node(name)),
+      ...[
+        "color",
+        "data",
+        "format",
+        "locales",
+        "math",
+        "svelte",
+        "vue",
+        "element",
+      ].map(name => node(name)),
       // Server renders pay for transforming core on first use.
       node("ssr", {testTimeout: 20000}),
       node("dom", {setupFiles: [canvasSetup], testTimeout: 10000}),
@@ -60,7 +75,9 @@ export default defineConfig({
           sequence: {groupOrder: 1},
           maxWorkers: "50%",
           provide: {
-            updateSnapshots: process.argv.some(arg => arg === "-u" || arg === "--update"),
+            updateSnapshots: process.argv.some(
+              arg => arg === "-u" || arg === "--update",
+            ),
           },
           browser: {
             enabled: true,
@@ -69,7 +86,9 @@ export default defineConfig({
               // Only the test server resolves: map tiles and other remote
               // requests fail at once instead of reaching the network.
               launchOptions: {
-                args: ["--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1"],
+                args: [
+                  "--host-resolver-rules=MAP * ~NOTFOUND, EXCLUDE localhost, EXCLUDE 127.0.0.1",
+                ],
               },
               contextOptions: {deviceScaleFactor: 1},
             }),

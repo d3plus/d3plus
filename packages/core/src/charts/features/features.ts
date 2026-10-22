@@ -21,7 +21,10 @@ import type TextBox from "../../components/TextBox.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {wholeWordFit, wholeWords} from "../../utils/wholeWords.js";
-import {zoomControlsBox, zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
+import {
+  zoomControlsBox,
+  zoomControlsReach,
+} from "../drawSteps/zoomControlsMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
 import {
   topLeftControlsInset as topLeftControlsInsetRaw,
@@ -140,7 +143,10 @@ export function autoPosition(viz: VizInstance): "right" | "bottom" {
     `vizDraw` (for sanitized ctx publication) and by `legendFeature`
     + `colorScaleFeature` (for their internal positioning math).
 */
-export function sanitizePosition(raw: unknown, viz: VizInstance): PanelPosition {
+export function sanitizePosition(
+  raw: unknown,
+  viz: VizInstance,
+): PanelPosition {
   if (raw === "auto") return autoPosition(viz);
   return (VALID_POSITIONS.has(raw as string) ? raw : "bottom") as PanelPosition;
 }
@@ -240,7 +246,11 @@ const CORNER_INSET_GAP = 6;
     when the chart shows no controls or the content starts below their reach
     (see `zoomControlsReach`).
 */
-export function zoomControlsInset(viz: VizInstance, top: number, right: number): number {
+export function zoomControlsInset(
+  viz: VizInstance,
+  top: number,
+  right: number,
+): number {
   const box = zoomControlsBox(viz as never);
   if (!box || top >= zoomControlsReach(viz as never)) return 0;
   const inset = box.width - right;
@@ -254,7 +264,11 @@ export function zoomControlsInset(viz: VizInstance, top: number, right: number):
     panel (back / table-view / search). Zero when nothing is showing there
     or content starts below the panel's height.
 */
-export function topLeftControlsInset(viz: VizInstance, top: number, left: number): number {
+export function topLeftControlsInset(
+  viz: VizInstance,
+  top: number,
+  left: number,
+): number {
   const contributions = getTopLeftContributions(viz as never);
   const inset = topLeftControlsInsetRaw(viz as never, top, left, contributions);
   return inset > 0 ? inset + CORNER_INSET_GAP : 0;
@@ -275,7 +289,11 @@ export function cornerInsets(
 ): {left: number; right: number; symmetric: number} {
   const leftInset = topLeftControlsInset(viz, top, left);
   const rightInset = zoomControlsInset(viz, top, right);
-  return {left: leftInset, right: rightInset, symmetric: Math.max(leftInset, rightInset)};
+  return {
+    left: leftInset,
+    right: rightInset,
+    symmetric: Math.max(leftInset, rightInset),
+  };
 }
 
 /**
@@ -321,7 +339,11 @@ export function cornerPlacements(
     placements.push({left: insets.symmetric, right: insets.symmetric, drop: 0});
   }
   placements.push({left: insets.left, right: insets.right, drop: 0});
-  placements.push({left: 0, right: 0, drop: Math.max(0, cornerControlsHeight(viz) - top)});
+  placements.push({
+    left: 0,
+    right: 0,
+    drop: Math.max(0, cornerControlsHeight(viz) - top),
+  });
   return placements;
 }
 
@@ -353,11 +375,22 @@ function fitTextBlock(
   width: number,
 ): TextBlockFit {
   const split = textClass.split() as (sentence: string, i?: number) => string[];
-  const fit = (x: number, w: number, drop: number): {fits: boolean; result: TextBlockFit} => {
+  const fit = (
+    x: number,
+    w: number,
+    drop: number,
+  ): {fits: boolean; result: TextBlockFit} => {
     textClass.width(w);
     const wrap = (): TextBlockFit & {lines: string[]; truncated: boolean} => {
       const boxes = textClass._textData() as TextDatum[];
-      return {x, width: w, drop, boxes, lines: boxes[0]?.lines ?? [], truncated: !boxes.length || boxes[0].truncated};
+      return {
+        x,
+        width: w,
+        drop,
+        boxes,
+        lines: boxes[0]?.lines ?? [],
+        truncated: !boxes.length || boxes[0].truncated,
+      };
     };
     return wholeWordFit(wrap(), () => {
       textClass.split(wholeWords(split));
@@ -368,7 +401,13 @@ function fitTextBlock(
   };
   const full = fit(left, width, 0).result;
   if (!full.boxes.length) return full;
-  const placements = cornerPlacements(viz, top, left, right, full.boxes[0].tA === "middle");
+  const placements = cornerPlacements(
+    viz,
+    top,
+    left,
+    right,
+    full.boxes[0].tA === "middle",
+  );
   if (placements.length === 1) return full;
   for (const [i, {left: l, right: r, drop}] of placements.entries()) {
     const {fits, result} = fit(left + l, width - l - r, drop);
@@ -397,7 +436,9 @@ function textBlockLayout(
   const text = opts.getText(viz);
   if (!text) return {panel: null, margin: {}};
 
-  const usesPadding = (viz.schema[opts.paddingMethod] as (viz: VizInstance) => boolean)(viz);
+  const usesPadding = (
+    viz.schema[opts.paddingMethod] as (viz: VizInstance) => boolean
+  )(viz);
   const padding = usesPadding
     ? viz._padding
     : {top: 0, right: 0, bottom: 0, left: 0};
@@ -412,7 +453,8 @@ function textBlockLayout(
     layoutMargin.top,
     layoutMargin.left + padding.left,
     layoutMargin.right + padding.right,
-    viz.schema.width - (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
+    viz.schema.width -
+      (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
   );
   if (!boxes.length) return {panel: null, margin: {}};
   const box = boxes[0];
@@ -432,12 +474,7 @@ function textBlockLayout(
 
   const lines = box.lines.map((str: string, i: number) => ({
     text: str,
-    x:
-      box.tA === "middle"
-        ? width / 2
-        : box.tA === "end"
-          ? width
-          : 0,
+    x: box.tA === "middle" ? width / 2 : box.tA === "end" ? width : 0,
     y: (i + 1) * lineHeight - (lineHeight - box.fS),
     width: box.widths?.[i] ?? 0,
   }));
@@ -474,7 +511,8 @@ export const titleFeature: FeatureModule = {
   layout: ctx =>
     textBlockLayout(ctx, {
       panelKey: "viz-title",
-      getText: viz => (viz.schema.title ? viz.schema.title(viz._filteredData || []) : false),
+      getText: viz =>
+        viz.schema.title ? viz.schema.title(viz._filteredData || []) : false,
       textClassKey: "_titleClass",
       configKey: "titleConfig",
       paddingMethod: "titlePadding",
@@ -488,7 +526,10 @@ export const subtitleFeature: FeatureModule = {
   layout: ctx =>
     textBlockLayout(ctx, {
       panelKey: "viz-subtitle",
-      getText: viz => (viz.schema.subtitle ? viz.schema.subtitle(viz._filteredData || []) : false),
+      getText: viz =>
+        viz.schema.subtitle
+          ? viz.schema.subtitle(viz._filteredData || [])
+          : false,
       textClassKey: "_subtitleClass",
       configKey: "subtitleConfig",
       paddingMethod: "subtitlePadding",
@@ -510,12 +551,10 @@ function setTimeFilter(viz: VizInstance, s: Date | Date[] | number[]): void {
   if (JSON.stringify(s) !== JSON.stringify(viz._timelineSelection)) {
     viz._timelineSelection = s;
     const nums = (s as Array<Date | number>).map(Number) as number[];
-    viz
-      .timeFilter!((d: DataPoint) => {
-        const ms = (date(viz.schema.time(d)) as Date).getTime();
-        return ms >= nums[0] && ms <= nums[1];
-      })
-      .render!();
+    viz.timeFilter!((d: DataPoint) => {
+      const ms = (date(viz.schema.time(d)) as Date).getTime();
+      return ms >= nums[0] && ms <= nums[1];
+    }).render!();
   }
 }
 
@@ -534,8 +573,8 @@ export const timelineFeature: FeatureModule = {
     let timelinePossible = viz.schema.time && viz.schema.timeline;
     const ticks = (
       timelinePossible
-        ? unique(viz._data.map(viz.schema.time)).map(
-            (d: unknown) => date(d as string | number),
+        ? unique(viz._data.map(viz.schema.time)).map((d: unknown) =>
+            date(d as string | number),
           )
         : []
     ) as Date[];
@@ -568,7 +607,10 @@ export const timelineFeature: FeatureModule = {
       .ticks(ticks.sort((a: Date, b: Date) => +a - +b))
       .width(
         viz.schema.width -
-          (layoutMargin.left + layoutMargin.right + padding.left + padding.right),
+          (layoutMargin.left +
+            layoutMargin.right +
+            padding.left +
+            padding.right),
       );
 
     // Clamp bound = the full time range (every tick); it never goes stale

@@ -1,47 +1,41 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Timeline · Viz</title>
+    <meta
+      name="description"
+      content="Viz timeline with brushing and a default range selection."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
 
-  <meta charset="utf-8">
-  <title>Timeline · Viz</title>
-  <meta name="description" content="Viz timeline with brushing and a default range selection.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+  <body>
+    <script>
+      var viz = new d3plus.Viz()
+        .data("data2.json")
+        .time("year")
+        .legend(false)
+        .timelineDefault([2010, "01/01/2011"])
+        .timelineConfig({
+          brushing: true,
+        })
+        .render();
 
-  <style>
+      // setTimeout(() => {
+      //   viz.data("data2.json").render();
+      // }, 2000);
 
-    body {
-    margin: 0;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  <script>
-
-    var viz = new d3plus.Viz()
-      .data("data2.json")
-      .time("year")
-      .legend(false)
-      .timelineDefault([2010, "01/01/2011"])
-      .timelineConfig({
-        brushing: true
-      })
-      .render();
-
-    // setTimeout(() => {
-    //   viz.data("data2.json").render();
-    // }, 2000);
-
-    // setTimeout(() => {
-    //   viz.data("data.json").render();
-    // }, 4000);
-
-  </script>
-</body>
-
+      // setTimeout(() => {
+      //   viz.data("data.json").render();
+      // }, 4000);
+    </script>
+  </body>
 </html>

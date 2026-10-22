@@ -15,7 +15,10 @@ const wordSegmenter = new Intl.Segmenter(undefined, {granularity: "word"});
 
 /** Whether a segment is a run of word characters, which pretext can break between letters. */
 function isWordRun(str: string): boolean {
-  return str.length > 1 && Array.from(wordSegmenter.segment(str)).some(s => s.isWordLike);
+  return (
+    str.length > 1 &&
+    Array.from(wordSegmenter.segment(str)).some(s => s.isWordLike)
+  );
 }
 
 const minHyphenLength = 8;

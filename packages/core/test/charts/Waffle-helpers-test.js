@@ -2,9 +2,20 @@ import {it} from "vitest";
 import assert from "assert";
 import {useJsdom} from "~test/jsdom.js";
 import {Waffle} from "../../index.ts";
-import {applyWaffleLayout, waffleFillOptions} from "../../src/charts/Waffle/applyLayout.ts";
-import {waffleCellGeometryNode, waffleCellShape, waffleEmit} from "../../src/charts/Waffle/emit.ts";
-import {formatShare, waffleShare, waffleTooltipRows} from "../../src/charts/Waffle/tooltip.ts";
+import {
+  applyWaffleLayout,
+  waffleFillOptions,
+} from "../../src/charts/Waffle/applyLayout.ts";
+import {
+  waffleCellGeometryNode,
+  waffleCellShape,
+  waffleEmit,
+} from "../../src/charts/Waffle/emit.ts";
+import {
+  formatShare,
+  waffleShare,
+  waffleTooltipRows,
+} from "../../src/charts/Waffle/tooltip.ts";
 import {waffleDef} from "../../src/charts/Waffle/index.ts";
 import {SHARE_KEY} from "../../src/charts/features/shareKey.ts";
 
@@ -18,7 +29,10 @@ const rows = () => [
 
 /** A Waffle laid out by hand over `data` in a `width × height` chart area. */
 function laidOut(data, config = {}, {width = 220, height = 220} = {}) {
-  const viz = new Waffle().config({groupBy: "id", ...config}).width(width).height(height);
+  const viz = new Waffle()
+    .config({groupBy: "id", ...config})
+    .width(width)
+    .height(height);
   viz._filteredData = data;
   viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
   viz._ids = d => [d.id];
@@ -28,7 +42,11 @@ function laidOut(data, config = {}, {width = 220, height = 220} = {}) {
 
 it("waffleFillOptions: reads the fill settings, falling back to the defaults", () => {
   const options = schema => waffleFillOptions({schema});
-  assert.deepStrictEqual(options({}), {fillDirection: "row", fillStart: "top-left", unit: undefined});
+  assert.deepStrictEqual(options({}), {
+    fillDirection: "row",
+    fillStart: "top-left",
+    unit: undefined,
+  });
   assert.deepStrictEqual(
     options({fillDirection: "column", fillStart: "bottom-right", unit: 25}),
     {fillDirection: "column", fillStart: "bottom-right", unit: 25},
@@ -52,15 +70,28 @@ it("applyWaffleLayout: fills 100 cells in descending order, keyed per category",
   assert.strictEqual(shapeData[0].id, "beta-0");
   assert.strictEqual(shapeData[49].id, "beta-49");
   assert.strictEqual(shapeData[50].n, 0, "each category counts its own cells");
-  assert.strictEqual(shapeData[0].i, 1, "the index of the row in the drawn data");
-  assert.strictEqual(new Set(shapeData.map(c => `${c.row},${c.column}`)).size, 100, "no two cells overlap");
+  assert.strictEqual(
+    shapeData[0].i,
+    1,
+    "the index of the row in the drawn data",
+  );
+  assert.strictEqual(
+    new Set(shapeData.map(c => `${c.row},${c.column}`)).size,
+    100,
+    "no two cells overlap",
+  );
   assert.strictEqual(viz.ctx.waffleTotal, 100);
   assert.deepStrictEqual(viz.ctx.waffleGrid, {rows: 10, columns: 10});
 });
 
 it("applyWaffleLayout: places cells on a centered square grid", () => {
-  const {shapeData} = laidOut(rows(), {cellPadding: 2}, {width: 400, height: 218});
-  const first = shapeData[0], last = shapeData[99];
+  const {shapeData} = laidOut(
+    rows(),
+    {cellPadding: 2},
+    {width: 400, height: 218},
+  );
+  const first = shapeData[0],
+    last = shapeData[99];
   assert.strictEqual(first.size, 20);
   assert.deepStrictEqual([first.x, first.y], [91, 0]);
   assert.deepStrictEqual([last.x, last.y], [91 + 9 * 22, 9 * 22]);
@@ -69,7 +100,10 @@ it("applyWaffleLayout: places cells on a centered square grid", () => {
 it("applyWaffleLayout: stamps each row's share", () => {
   const data = rows();
   const {shapeData} = laidOut(data);
-  assert.deepStrictEqual(data.map(d => d[SHARE_KEY]), [0.2, 0.5, 0.3]);
+  assert.deepStrictEqual(
+    data.map(d => d[SHARE_KEY]),
+    [0.2, 0.5, 0.3],
+  );
   assert.strictEqual(shapeData[0].share, 0.5);
 });
 
@@ -83,7 +117,11 @@ it("applyWaffleLayout: honors sort, unit, direction, and starting corner", () =>
   });
   assert.strictEqual(shapeData.length, 10, "100 / 10");
   assert.deepStrictEqual(viz.ctx.waffleGrid, {rows: 3, columns: 4});
-  assert.deepStrictEqual(shapeData.map(c => c.data.id).slice(0, 3), ["alpha", "alpha", "beta"], "data order");
+  assert.deepStrictEqual(
+    shapeData.map(c => c.data.id).slice(0, 3),
+    ["alpha", "alpha", "beta"],
+    "data order",
+  );
   assert.deepStrictEqual([shapeData[0].row, shapeData[0].column], [2, 3]);
 });
 
@@ -107,12 +145,28 @@ it("waffleCellShape: accepts the three shapes, defaulting to square", () => {
 
 it("waffleCellGeometryNode: draws squares, rounded squares, and circles", () => {
   const cell = {x: 10, y: 20, size: 40};
-  assert.deepStrictEqual(waffleCellGeometryNode(cell, "square"), {type: "rect", x: 10, y: 20, width: 40, height: 40});
-  assert.deepStrictEqual(
-    waffleCellGeometryNode(cell, "rounded"),
-    {type: "rect", x: 10, y: 20, width: 40, height: 40, rx: 10, ry: 10},
-  );
-  assert.deepStrictEqual(waffleCellGeometryNode(cell, "circle"), {type: "circle", cx: 30, cy: 40, r: 20});
+  assert.deepStrictEqual(waffleCellGeometryNode(cell, "square"), {
+    type: "rect",
+    x: 10,
+    y: 20,
+    width: 40,
+    height: 40,
+  });
+  assert.deepStrictEqual(waffleCellGeometryNode(cell, "rounded"), {
+    type: "rect",
+    x: 10,
+    y: 20,
+    width: 40,
+    height: 40,
+    rx: 10,
+    ry: 10,
+  });
+  assert.deepStrictEqual(waffleCellGeometryNode(cell, "circle"), {
+    type: "circle",
+    cx: 30,
+    cy: 40,
+    r: 20,
+  });
 });
 
 it("waffleEmit: one node per cell carrying its category's row", () => {
@@ -123,10 +177,20 @@ it("waffleEmit: one node per cell carrying its category's row", () => {
   assert.strictEqual(nodes[0].key, "waffle-beta-0");
   assert.strictEqual(nodes[0].datum, shapeData[0].data);
   assert.strictEqual(nodes[0].index, 1);
-  const fills = new Set(nodes.filter(n => n.datum.id === "beta").map(n => n.paint.fill));
+  const fills = new Set(
+    nodes.filter(n => n.datum.id === "beta").map(n => n.paint.fill),
+  );
   assert.strictEqual(fills.size, 1, "a category shares one fill");
-  assert.strictEqual(nodes[0].aria.label, "beta, 50, 50%", "the first cell names its category");
-  assert.strictEqual(nodes[1].aria.hidden, true, "the rest stay out of the accessibility tree");
+  assert.strictEqual(
+    nodes[0].aria.label,
+    "beta, 50, 50%",
+    "the first cell names its category",
+  );
+  assert.strictEqual(
+    nodes[1].aria.hidden,
+    true,
+    "the rest stay out of the accessibility tree",
+  );
 });
 
 it("waffleEmit: draws an icon over a transparent cell", () => {
@@ -139,12 +203,22 @@ it("waffleEmit: draws an icon over a transparent cell", () => {
   assert.ok(cells.every(n => n.paint.fill === "transparent"));
   const image = images[0].children.find(n => n.type === "image");
   assert.strictEqual(image.href, "./beta.svg");
-  assert.strictEqual(image.preserveAspectRatio, "xMidYMid meet", "icons fit inside their cell");
-  assert.strictEqual(images[0].datum, cells[0].datum, "the icon dims with its cell");
+  assert.strictEqual(
+    image.preserveAspectRatio,
+    "xMidYMid meet",
+    "icons fit inside their cell",
+  );
+  assert.strictEqual(
+    images[0].datum,
+    cells[0].datum,
+    "the icon dims with its cell",
+  );
 });
 
 it("waffleEmit: draws shapeConfig.backgroundImage over the fill", () => {
-  const {viz, shapeData} = laidOut(rows(), {shapeConfig: {backgroundImage: "./pattern.png"}});
+  const {viz, shapeData} = laidOut(rows(), {
+    shapeConfig: {backgroundImage: "./pattern.png"},
+  });
   const nodes = waffleEmit({viz, shapeData});
   assert.strictEqual(nodes.filter(n => n.type === "group").length, 100);
   assert.notStrictEqual(nodes[0].paint.fill, "transparent");
@@ -185,8 +259,14 @@ it("waffleShare: reads a row's stamped share, summing merged rows", () => {
 
 it("waffleShare: sums the share of a colorScale swatch's range", () => {
   const viz = fakeViz();
-  assert.strictEqual(waffleShare(viz, {_isColorScaleBucket: true, color: "dark"}), 0.8);
-  assert.strictEqual(waffleShare(viz, {_isColorScaleBucket: true, color: "light"}), 0.2);
+  assert.strictEqual(
+    waffleShare(viz, {_isColorScaleBucket: true, color: "dark"}),
+    0.8,
+  );
+  assert.strictEqual(
+    waffleShare(viz, {_isColorScaleBucket: true, color: "light"}),
+    0.2,
+  );
 });
 
 it("waffleTooltipRows: a translated Value row and Share row", () => {
@@ -198,9 +278,17 @@ it("waffleTooltipRows: a translated Value row and Share row", () => {
   assert.strictEqual(value(row, 0, row), "1.5k");
   assert.strictEqual(share(row, 0, row), "50%");
   const bucket = {_isColorScaleBucket: true, color: "dark"};
-  assert.strictEqual(value(bucket, 0, bucket), "", "a swatch has no single value");
+  assert.strictEqual(
+    value(bucket, 0, bucket),
+    "",
+    "a swatch has no single value",
+  );
   assert.strictEqual(share(bucket, 0, bucket), "80%");
-  assert.strictEqual(value({id: "x"}, 0, {id: "x"}), "", "a missing value is blank");
+  assert.strictEqual(
+    value({id: "x"}, 0, {id: "x"}),
+    "",
+    "a missing value is blank",
+  );
 });
 
 it("waffleDef: ctx and fields are the last two keys", () => {
@@ -228,7 +316,10 @@ it("Waffle: the legend lists categories in fill order", () => {
   const viz = new Waffle();
   const [a, b] = [{value: 1}, {value: 9}];
   assert.ok(viz.legendSort()(a, b) > 0, "descending by sum by default");
-  assert.ok(viz.legendSort()({value: 99, _isAggregation: true}, b) > 0, "a threshold bucket last");
+  assert.ok(
+    viz.legendSort()({value: 99, _isAggregation: true}, b) > 0,
+    "a threshold bucket last",
+  );
   viz.sort(false);
   assert.strictEqual(viz.legendSort()(a, b), 0, "data order without a sort");
   viz.sort((x, y) => x.value - y.value);

@@ -14,8 +14,19 @@ import BarChart from "../BarChart/index.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {waterfallBuffer} from "./buffer.js";
-import {connectorBars, connectorNodes, connectorSegments} from "./connectors.js";
-import {KIND_LABELS, kindColor, labelAlign, labelBox, stepLabel, tooltipRows} from "./labels.js";
+import {
+  connectorBars,
+  connectorNodes,
+  connectorSegments,
+} from "./connectors.js";
+import {
+  KIND_LABELS,
+  kindColor,
+  labelAlign,
+  labelBox,
+  stepLabel,
+  tooltipRows,
+} from "./labels.js";
 import {
   categoryAxis,
   interceptAxes,
@@ -29,9 +40,20 @@ import {
   valueFormat,
   type WaterfallState,
 } from "./state.js";
-import {WATERFALL_KINDS, waterfallKinds, waterfallStackOffset, type RowAccessor} from "./steps.js";
+import {
+  WATERFALL_KINDS,
+  waterfallKinds,
+  waterfallStackOffset,
+  type RowAccessor,
+} from "./steps.js";
 
-type Handler = (this: unknown, d: DataPoint, i: number, x?: unknown, event?: unknown) => void;
+type Handler = (
+  this: unknown,
+  d: DataPoint,
+  i: number,
+  x?: unknown,
+  event?: unknown,
+) => void;
 
 /** A kind's display name, translated. */
 const kindText = (viz: VizInstance, d: DataPoint) => {
@@ -47,7 +69,7 @@ function tooltipTitle(viz: VizInstance, d: DataPoint, i: number): string {
   const row = sourceRow(d)!;
   if (legendKind(row)) return kindText(viz, row) ?? "";
   const label = viz._drawLabel(row, i);
-  return label === "undefined" ? kindText(viz, row) ?? label : label;
+  return label === "undefined" ? (kindText(viz, row) ?? label) : label;
 }
 
 /** Bars: kind colors, value labels past each bar's end, and a plain-language aria label. */
@@ -55,9 +77,15 @@ function configureBars(viz: VizInstance): void {
   const baseFill = viz.schema.shapeConfig.fill as RowAccessor;
   viz.schema.shapeConfig.fill = (d: DataPoint, i: number) => {
     const kind = kindOf(viz, d);
-    return kind ? kindColor(kind, viz.schema, viz.schema.colorDefaults) : baseFill(d, i);
+    return kind
+      ? kindColor(kind, viz.schema, viz.schema.colorDefaults)
+      : baseFill(d, i);
   };
-  const align = (d: DataPoint, key: "textAnchor" | "verticalAlign", fallback: string) => {
+  const align = (
+    d: DataPoint,
+    key: "textAnchor" | "verticalAlign",
+    fallback: string,
+  ) => {
     const step = stepOf(viz, d);
     return step ? labelAlign(step, vertical(viz))[key] : fallback;
   };
@@ -73,7 +101,11 @@ function configureBars(viz: VizInstance): void {
       const step = stepOf(viz, d);
       return step ? stepLabel(step, valueFormat(viz)) : false;
     },
-    labelBounds: (d: DataPoint, _i: number, s: {width: number; height: number}) => {
+    labelBounds: (
+      d: DataPoint,
+      _i: number,
+      s: {width: number; height: number},
+    ) => {
       const step = stepOf(viz, d);
       return step ? labelBox(step, s, vertical(viz)) : false;
     },
@@ -93,7 +125,8 @@ function configureBars(viz: VizInstance): void {
 
 /** The legend: one entry per kind drawn, which highlights that kind's bars. */
 function configureLegend(viz: VizInstance): void {
-  const label = (d: DataPoint, i: number) => kindText(viz, d) ?? viz._drawLabel(d, i);
+  const label = (d: DataPoint, i: number) =>
+    kindText(viz, d) ?? viz._drawLabel(d, i);
   const legendConfig = viz.schema.legendConfig;
   viz.schema.legendConfig = {
     ...legendConfig,
@@ -101,11 +134,18 @@ function configureLegend(viz: VizInstance): void {
     shapeConfig: {...(legendConfig.shapeConfig ?? {}), ariaLabel: label},
   };
   viz.schema.legendSort = (a: DataPoint, b: DataPoint) =>
-    WATERFALL_KINDS.indexOf(kindOf(viz, a)!) - WATERFALL_KINDS.indexOf(kindOf(viz, b)!);
+    WATERFALL_KINDS.indexOf(kindOf(viz, a)!) -
+    WATERFALL_KINDS.indexOf(kindOf(viz, b)!);
   // Hiding a kind would rewrite every running total, so entries are a key only.
   delete viz.schema.on["click.legend"];
   const enter = viz.schema.on.mouseenter as Handler;
-  viz.schema.on.mouseenter = function (this: unknown, d: DataPoint, i: number, x?: unknown, event?: unknown) {
+  viz.schema.on.mouseenter = function (
+    this: unknown,
+    d: DataPoint,
+    i: number,
+    x?: unknown,
+    event?: unknown,
+  ) {
     const kind = legendKind(d);
     if (!kind) return enter.call(this, d, i, x, event);
     if (viz.schema.shapeConfig.hoverOpacity === 1) return;
@@ -126,7 +166,11 @@ export const waterfallDef: ChartDefinition = {
     interceptAxes(viz);
     viz._stackOffset = waterfallStackOffset(row => stepOf(viz, row));
     // Each series keeps its own running total, drawn side by side.
-    viz._stackGroup = (d, i) => viz._ids(d, i).slice(0, viz._drawDepth + 1).join("_");
+    viz._stackGroup = (d, i) =>
+      viz
+        ._ids(d, i)
+        .slice(0, viz._drawDepth + 1)
+        .join("_");
     // Each bar is alone in its stack, so a share would always be 100%.
     viz._stackShares = false;
     viz.schema.color = (d: DataPoint) => kindOf(viz, d);
@@ -144,7 +188,10 @@ export const waterfallDef: ChartDefinition = {
       const upright = vertical(viz);
       const bars = connectorBars(shapes, row => stepOf(viz, row), upright);
       const level = upright ? (v: number) => y(v) : (v: number) => x(v);
-      return connectorNodes(connectorSegments(bars, level, upright), viz.schema.connectorConfig);
+      return connectorNodes(
+        connectorSegments(bars, level, upright),
+        viz.schema.connectorConfig,
+      );
     };
     const preDraw = viz._preDraw.bind(viz);
     viz._preDraw = () => {
@@ -152,7 +199,9 @@ export const waterfallDef: ChartDefinition = {
       syncCategorySort(viz);
       preDraw();
       const rows: DataPoint[] = viz._filteredData || [];
-      viz._legendData = waterfallKinds(rows.map(d => stepOf(viz, d))).map(kind => ({[KIND_KEY]: kind}));
+      viz._legendData = waterfallKinds(rows.map(d => stepOf(viz, d))).map(
+        kind => ({[KIND_KEY]: kind}),
+      );
     };
   },
 
@@ -185,7 +234,12 @@ export const waterfallDef: ChartDefinition = {
     */
     {
       key: "subtotal",
-      coerce: v => (typeof v === "string" ? accessor(v) : typeof v === "function" ? v : undefined),
+      coerce: v =>
+        typeof v === "string"
+          ? accessor(v)
+          : typeof v === "function"
+            ? v
+            : undefined,
     },
     /**
         Fill for subtotal bars. Defaults to `colorDefaults.sequential`.
@@ -212,7 +266,8 @@ export const waterfallDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => ({
         title: (d: DataPoint, i: number) => tooltipTitle(viz, d, i),
-        tbody: (d: DataPoint) => tooltipRows(stepOf(viz, d), valueFormat(viz), viz.schema.translate),
+        tbody: (d: DataPoint) =>
+          tooltipRows(stepOf(viz, d), valueFormat(viz), viz.schema.translate),
       }),
     },
   ],

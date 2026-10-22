@@ -39,5 +39,6 @@ export function autoTitle(
   previous: string | undefined,
   next: string | undefined,
 ): void {
-  if (config && (config.title === undefined || config.title === previous)) config.title = next;
+  if (config && (config.title === undefined || config.title === previous))
+    config.title = next;
 }

@@ -6,121 +6,128 @@ import {argTypes as barChartArgTypes} from "./BarChart.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Waterfall as D3plusWaterfall} from "@d3plus/react";
-export const Waterfall = ({ config }) => <D3plusWaterfall config={config} />;
+export const Waterfall = ({config}) => <D3plusWaterfall config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BarChart primitive and
    * overrides any defaults that have been changed in Waterfall
    */
   Object.keys(barChartArgTypes)
     .filter(k => !k.match(/^(shape|stacked|stackOffset|stackOrder)$/))
-    .reduce((obj, k) => (obj[k] = barChartArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = barChartArgTypes[k]), obj), {}),
 
   /**
    * Waterfall-specific methods
    */
-  
+
   {
     connectorConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Line styles for the connectors: `stroke`, `strokeWidth`, `strokeOpacity`, and `strokeDasharray`. Each may be a function of the row the connector leaves and its index.",
+      description:
+        "Line styles for the connectors: `stroke`, `strokeWidth`, `strokeOpacity`, and `strokeDasharray`. Each may be a function of the row the connector leaves and its index.",
       table: {
         defaultValue: {
-          summary: "{stroke: () => backgroundInk(viz), strokeDasharray: \"\", strokeOpacity: 0.6, strokeWidth: 1}"
-        }
+          summary:
+            '{stroke: () => backgroundInk(viz), strokeDasharray: "", strokeOpacity: 0.6, strokeWidth: 1}',
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     connectors: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Draws a thin line from the end of each bar to the start of the next.",
+      description:
+        "Draws a thin line from the end of each bar to the start of the next.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     decreaseColor: {
       control: {
-        type: "color"
+        type: "color",
       },
-      description: "Fill for bars that lower the running total. Defaults to `colorDefaults.off`.",
+      description:
+        "Fill for bars that lower the running total. Defaults to `colorDefaults.off`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "CssColor | function"
-      }
+        summary: "CssColor | function",
+      },
     },
     increaseColor: {
       control: {
-        type: "color"
+        type: "color",
       },
-      description: "Fill for bars that raise the running total. Defaults to `colorDefaults.on`.",
+      description:
+        "Fill for bars that raise the running total. Defaults to `colorDefaults.on`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "CssColor | function"
-      }
+        summary: "CssColor | function",
+      },
     },
     legend: {
-      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nShows the legend when it has more than one kind of bar.",
+      description:
+        "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nShows the legend when it has more than one kind of bar.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     subtotal: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Marks subtotal rows (a data key or accessor; truthy marks the row). A subtotal bar draws from zero to the running total. When the row has its own value, the running total resets to that value.",
+      description:
+        "Marks subtotal rows (a data key or accessor; truthy marks the row). A subtotal bar draws from zero to the running total. When the row has its own value, the running total resets to that value.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     totalColor: {
       control: {
-        type: "color"
+        type: "color",
       },
-      description: "Fill for subtotal bars. Defaults to `colorDefaults.sequential`.",
+      description:
+        "Fill for subtotal bars. Defaults to `colorDefaults.sequential`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "CssColor | function"
-      }
-    }
-  }
+        summary: "CssColor | function",
+      },
+    },
+  },
 );

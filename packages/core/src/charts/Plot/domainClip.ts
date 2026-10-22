@@ -52,7 +52,9 @@ const isHit = (node: SceneNode): boolean => String(node.key).endsWith("::hit");
 
 /** Whether a node is a label or axis chrome drawn among the marks, which no clip may cut. */
 const isLabel = (node: SceneNode): boolean =>
-  node.type === "text" || node.type === "htmlOverlay" || node.interactionGroup === "axis";
+  node.type === "text" ||
+  node.type === "htmlOverlay" ||
+  node.interactionGroup === "axis";
 
 /** Whether a node is a point mark, whose overhang past the edge is its radius. */
 const isPoint = (node: SceneNode): boolean => node.type === "circle";
@@ -60,7 +62,13 @@ const isPoint = (node: SceneNode): boolean => node.type === "circle";
 /** Half a node's visible stroke, in its own units. */
 function halfStroke(node: SceneNode): number {
   const paint = node.paint;
-  if (!paint || !paint.stroke || paint.stroke === "none" || paint.stroke === "transparent") return 0;
+  if (
+    !paint ||
+    !paint.stroke ||
+    paint.stroke === "none" ||
+    paint.stroke === "transparent"
+  )
+    return 0;
   const width = Number(paint.strokeWidth ?? 1);
   return Number.isFinite(width) && width > 0 ? width / 2 : 0;
 }
@@ -73,7 +81,8 @@ function slack(node: SceneNode): number {
   if (isHit(node)) return 0;
   if (node.type === "group") return widest(node.children);
   const scale = Math.abs(node.transform?.scale ?? 1);
-  const own = node.type === "circle" ? node.r + halfStroke(node) : halfStroke(node);
+  const own =
+    node.type === "circle" ? node.r + halfStroke(node) : halfStroke(node);
   return own * scale;
 }
 
@@ -92,10 +101,16 @@ function anchorPoints(node: SceneNode): Point[] {
       return [[node.cx, node.cy]];
     case "rect":
     case "image":
-      return [[node.x, node.y], [node.x + node.width, node.y + node.height]];
+      return [
+        [node.x, node.y],
+        [node.x + node.width, node.y + node.height],
+      ];
     case "path": {
       const b = pathBounds(node.d);
-      return [[b.x, b.y], [b.x + b.width, b.y + b.height]];
+      return [
+        [b.x, b.y],
+        [b.x + b.width, b.y + b.height],
+      ];
     }
     case "line":
       return node.points;
@@ -107,14 +122,22 @@ function anchorPoints(node: SceneNode): Point[] {
 }
 
 /** Whether a node (or anything inside it) places geometry outside `rect`. */
-function overflows(node: SceneNode, rect: Rect, chain: Transform[] = []): boolean {
+function overflows(
+  node: SceneNode,
+  rect: Rect,
+  chain: Transform[] = [],
+): boolean {
   if (isHit(node)) return false;
   const next = node.transform ? [node.transform, ...chain] : chain;
-  if (node.type === "group") return node.children.some(child => overflows(child, rect, next));
+  if (node.type === "group")
+    return node.children.some(child => overflows(child, rect, next));
   return anchorPoints(node).some(p => {
     const [x, y] = next.reduce<Point>((q, t) => applyTransform(q, t), p);
-    return Number.isFinite(x) && Number.isFinite(y) &&
-      (x < rect.x0 || x > rect.x1 || y < rect.y0 || y > rect.y1);
+    return (
+      Number.isFinite(x) &&
+      Number.isFinite(y) &&
+      (x < rect.x0 || x > rect.x1 || y < rect.y0 || y > rect.y1)
+    );
   });
 }
 
@@ -122,12 +145,21 @@ function overflows(node: SceneNode, rect: Rect, chain: Transform[] = []): boolea
 function plotRect(frame: MaskFrame): Rect {
   const xs = frame.xRange.slice(0, 2).map(Number);
   const ys = frame.yRange.slice(0, 2).map(r => Number(r) - frame.x2Height);
-  return {x0: Math.min(...xs), y0: Math.min(...ys), x1: Math.max(...xs), y1: Math.max(...ys)};
+  return {
+    x0: Math.min(...xs),
+    y0: Math.min(...ys),
+    x1: Math.max(...xs),
+    y1: Math.max(...ys),
+  };
 }
 
 /** Grows a rect by `by` on each side, and by `dy` more vertically. */
-const grow = (rect: Rect, by: number, dy = 0): Rect =>
-  ({x0: rect.x0 - by, y0: rect.y0 - by - dy, x1: rect.x1 + by, y1: rect.y1 + by + dy});
+const grow = (rect: Rect, by: number, dy = 0): Rect => ({
+  x0: rect.x0 - by,
+  y0: rect.y0 - by - dy,
+  x1: rect.x1 + by,
+  y1: rect.y1 + by + dy,
+});
 
 /**
     Wraps each run of `nodes` that reaches past the plot rect in a group
@@ -136,9 +168,13 @@ const grow = (rect: Rect, by: number, dy = 0): Rect =>
     @param nodes The plot's data marks and their labels, in paint order.
     @param frame The plot rect, in shape coordinates.
 */
-export function clipToPlotArea(nodes: SceneNode[], frame: ClipFrame): SceneNode[] {
+export function clipToPlotArea(
+  nodes: SceneNode[],
+  frame: ClipFrame,
+): SceneNode[] {
   const rect = plotRect(frame);
-  if (![rect.x0, rect.y0, rect.x1, rect.y1].every(Number.isFinite)) return nodes;
+  if (![rect.x0, rect.y0, rect.x1, rect.y1].every(Number.isFinite))
+    return nodes;
   const inside = grow(rect, TOLERANCE, frame.yOffset ?? 0);
   const out: SceneNode[] = [];
   let run: SceneNode[] = [];
@@ -152,17 +188,24 @@ export function clipToPlotArea(nodes: SceneNode[], frame: ClipFrame): SceneNode[
       // A sorted run (Plot's circles by size, their background images above
       // them) keeps its place among its siblings: the backends order each
       // group's children by `z`.
-      const zs = run.map(node => node.z).filter((z): z is number => typeof z === "number");
+      const zs = run
+        .map(node => node.z)
+        .filter((z): z is number => typeof z === "number");
       out.push({
         type: "group",
         key,
-        clip: {type: "rect", x: r.x0, y: r.y0, width: r.x1 - r.x0, height: r.y1 - r.y0},
+        clip: {
+          type: "rect",
+          x: r.x0,
+          y: r.y0,
+          width: r.x1 - r.x0,
+          height: r.y1 - r.y0,
+        },
         children: run,
         ...(zs.length ? {z: Math.min(...zs)} : {}),
       });
       clipped = true;
-    }
-    else out.push(...run);
+    } else out.push(...run);
     run = [];
   };
   for (const node of nodes) {
@@ -188,6 +231,8 @@ export const isDomainClip = (node: SceneNode): boolean =>
 /** `nodes` with each of `clipToPlotArea`'s clip groups replaced by the marks inside it. */
 export function unwrapDomainClips(nodes: SceneNode[]): SceneNode[] {
   return nodes.some(isDomainClip)
-    ? nodes.flatMap(node => (node.type === "group" && isDomainClip(node) ? node.children : [node]))
+    ? nodes.flatMap(node =>
+        node.type === "group" && isDomainClip(node) ? node.children : [node],
+      )
     : nodes;
 }

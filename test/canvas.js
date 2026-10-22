@@ -63,7 +63,10 @@ export function installCanvas(window) {
   };
   proto.toBlob = function (callback, type = "image/png", quality) {
     const format = type.replace("image/", "");
-    const bytes = native(this).encodeSync(format === "jpg" ? "jpeg" : format, quality);
+    const bytes = native(this).encodeSync(
+      format === "jpg" ? "jpeg" : format,
+      quality,
+    );
     setTimeout(() => callback(new window.Blob([bytes], {type})));
   };
 }

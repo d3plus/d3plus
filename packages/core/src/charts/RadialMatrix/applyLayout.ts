@@ -102,7 +102,8 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
 
   const labelHeight = 50;
   const labelWidth = 100;
-  const radius = (min([height - labelHeight * 2, width - labelWidth * 2]) ?? 0) / 2;
+  const radius =
+    (min([height - labelHeight * 2, width - labelWidth * 2]) ?? 0) / 2;
 
   const flippedColumns = columnValues.slice().reverse();
   flippedColumns.unshift(flippedColumns.pop());
@@ -155,9 +156,7 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   const innerRadius = innerRadiusFn(radius);
   const rowHeight = (radius - innerRadius) / rowValues.length;
   const columnWidth =
-    labelData.length > 1
-      ? labelData[1].radians - labelData[0].radians
-      : TAU;
+    labelData.length > 1 ? labelData[1].radians - labelData[0].radians : TAU;
   const flippedRows = rowValues.slice().reverse();
 
   // Precompute row/column index Maps once (would be O(R*C*(R+C)) per draw without).
@@ -172,10 +171,22 @@ export const applyRadialMatrixLayout: TransformStage = ({viz}) => {
   );
 
   const arc = arcData
-    .innerRadius(d => innerRadius + (rowIndex.get(d.row) ?? 0) * rowHeight + cellPadding / 2)
-    .outerRadius(d => innerRadius + ((rowIndex.get(d.row) ?? 0) + 1) * rowHeight - cellPadding / 2)
-    .startAngle(d => labelData[colIndex.get(d.column) ?? 0].radians - columnWidth / 2)
-    .endAngle(d => labelData[colIndex.get(d.column) ?? 0].radians + columnWidth / 2);
+    .innerRadius(
+      d =>
+        innerRadius + (rowIndex.get(d.row) ?? 0) * rowHeight + cellPadding / 2,
+    )
+    .outerRadius(
+      d =>
+        innerRadius +
+        ((rowIndex.get(d.row) ?? 0) + 1) * rowHeight -
+        cellPadding / 2,
+    )
+    .startAngle(
+      d => labelData[colIndex.get(d.column) ?? 0].radians - columnWidth / 2,
+    )
+    .endAngle(
+      d => labelData[colIndex.get(d.column) ?? 0].radians + columnWidth / 2,
+    );
 
   viz.ctx.arcData = arc;
   return {shapeData};

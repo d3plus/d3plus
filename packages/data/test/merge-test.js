@@ -53,7 +53,10 @@ it("merge", () => {
     {id: "a", meta: {x: 1}},
     {id: "b", meta: {x: 2}},
   ]);
-  assert.ok(typeof nested.meta === "object" && !Array.isArray(nested.meta), "Nested Object Merge");
+  assert.ok(
+    typeof nested.meta === "object" && !Array.isArray(nested.meta),
+    "Nested Object Merge",
+  );
 
   const allUndef = merge([
     {id: "a", val: undefined},

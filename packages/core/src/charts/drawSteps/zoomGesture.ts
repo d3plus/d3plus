@@ -18,5 +18,9 @@ export const BRUSH_GROUPS = "g.d3plus-viz-timeline, g.d3plus-zoom-brush";
 */
 export function startsOnBrush(event: Pick<Event, "target">): boolean {
   const target = event.target as Partial<Element> | null;
-  return Boolean(target && typeof target.closest === "function" && target.closest(BRUSH_GROUPS));
+  return Boolean(
+    target &&
+    typeof target.closest === "function" &&
+    target.closest(BRUSH_GROUPS),
+  );
 }

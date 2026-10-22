@@ -1,32 +1,32 @@
 # @d3plus/dom API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`applyConfig`](#applyconfig) | Merges the supplied config objects over a fresh `{select: node}` target, routes any `<field>` + `<field>Format` pairs to their loader methods, then applies whatever remains via `instance.config()`. |
-| [`assign`](#assign) | A deeply recursive version of `Object.assign`. |
-| [`attrize`](#attrize) | Applies each key/value in an object as an attr. |
-| [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the ancestor chain until a non-transparent background is found. |
-| [`date`](#date) | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats. |
-| [`elem`](#elem) | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions. |
-| [`fontExists`](#fontexists) | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine. |
-| [`getSize`](#getsize) | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions. |
-| [`hash`](#hash) | Stable hash that serializes functions by their source, so function-valued config props (accessors, formatters) still register as changed when their body changes. |
-| [`inViewport`](#inviewport) | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer. |
-| [`isObject`](#isobject) | Detects if a variable is a javascript Object. |
-| [`onFontsLoaded`](#onfontsloaded) | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. |
-| [`parseSides`](#parsesides) | Converts a string of directional CSS shorthand values into an object with the values expanded. |
-| [`rtl`](#rtl) | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl". |
-| [`stylize`](#stylize) | Applies each key/value in an object as a style. |
-| [`textWidth`](#textwidth) | Given a text string, returns the predicted pixel width of the string when placed into DOM. |
+| Functions                             | Description                                                                                                                                                                                           |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`applyConfig`](#applyconfig)         | Merges the supplied config objects over a fresh `{select: node}` target, routes any `<field>` + `<field>Format` pairs to their loader methods, then applies whatever remains via `instance.config()`. |
+| [`assign`](#assign)                   | A deeply recursive version of `Object.assign`.                                                                                                                                                        |
+| [`attrize`](#attrize)                 | Applies each key/value in an object as an attr.                                                                                                                                                       |
+| [`backgroundColor`](#backgroundcolor) | Given a DOM element, returns its background color by walking up the ancestor chain until a non-transparent background is found.                                                                       |
+| [`date`](#date)                       | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.                                                                              |
+| [`elem`](#elem)                       | Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.                                                                |
+| [`fontExists`](#fontexists)           | Given either a single font-family or a list of fonts, returns the name of the first font that can be rendered, or `false` if none are installed on the user's machine.                                |
+| [`getSize`](#getsize)                 | Finds the available width and height for a specified HTMLElement, traversing it's parents until it finds something with constrained dimensions.                                                       |
+| [`hash`](#hash)                       | Stable hash that serializes functions by their source, so function-valued config props (accessors, formatters) still register as changed when their body changes.                                     |
+| [`inViewport`](#inviewport)           | Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.                                                                                         |
+| [`isObject`](#isobject)               | Detects if a variable is a javascript Object.                                                                                                                                                         |
+| [`onFontsLoaded`](#onfontsloaded)     | Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale.       |
+| [`parseSides`](#parsesides)           | Converts a string of directional CSS shorthand values into an object with the values expanded.                                                                                                        |
+| [`rtl`](#rtl)                         | Returns `true` if the HTML or body element has either the "dir" HTML attribute or the "direction" CSS property set to "rtl".                                                                          |
+| [`stylize`](#stylize)                 | Applies each key/value in an object as a style.                                                                                                                                                       |
+| [`textWidth`](#textwidth)             | Given a text string, returns the predicted pixel width of the string when placed into DOM.                                                                                                            |
 
-| Interfaces | Description |
-| --- | --- |
+| Interfaces                          | Description                                                                                      |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------ |
 | [`D3plusInstance`](#d3plusinstance) | A minimal structural interface for the d3plus class instances that the framework wrappers drive. |
 
-| Type Aliases | Description |
-| --- | --- |
+| Type Aliases                              | Description                                                              |
+| ----------------------------------------- | ------------------------------------------------------------------------ |
 | [`D3plusConstructor`](#d3plusconstructor) | Constructor type for d3plus visualization, component, and shape classes. |
-| [`D3Selection`](#d3selection) |  |
+| [`D3Selection`](#d3selection)             |                                                                          |
 
 ## Functions
 
@@ -45,17 +45,17 @@ framework wrapper so this routing lives in exactly one place.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `instance` | [`D3plusInstance`](#d3plusinstance) | A d3plus class instance. |
-| `node` | `Element` | The DOM element the visualization renders into (its `select`). |
+| Parameter    | Type                                               | Description                                                                                                   |
+| ------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `instance`   | [`D3plusInstance`](#d3plusinstance)                | A d3plus class instance.                                                                                      |
+| `node`       | `Element`                                          | The DOM element the visualization renders into (its `select`).                                                |
 | ...`configs` | (`Record`\<`string`, `unknown`\> \| `undefined`)[] | One or more config objects, merged left-to-right (later objects win); `undefined`/`null` entries are ignored. |
 
 #### Returns
 
 [`D3plusInstance`](#d3plusinstance)
 
-***
+---
 
 <a id="assign"></a>
 
@@ -69,8 +69,8 @@ A deeply recursive version of `Object.assign`.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter    | Type                              | Description                                  |
+| ------------ | --------------------------------- | -------------------------------------------- |
 | ...`objects` | `Record`\<`string`, `unknown`\>[] | The source objects to merge into the target. |
 
 #### Returns
@@ -87,7 +87,7 @@ assign({id: "foo", deep: {group: "A"}}, {id: "bar", deep: {value: 20}}));
 {id: "bar", deep: {group: "A", value: 20}}
 ```
 
-***
+---
 
 <a id="attrize"></a>
 
@@ -101,16 +101,16 @@ Applies each key/value in an object as an attr.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `e` | `Attrable` | The d3 selection to apply attributes to. |
-| `a` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value attr pairs. |
+| Parameter | Type                                                              | Description                              |
+| --------- | ----------------------------------------------------------------- | ---------------------------------------- |
+| `e`       | `Attrable`                                                        | The d3 selection to apply attributes to. |
+| `a`       | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value attr pairs.       |
 
 #### Returns
 
 `void`
 
-***
+---
 
 <a id="backgroundcolor"></a>
 
@@ -126,15 +126,15 @@ to "rgb(255, 255, 255)" (white) if every ancestor is transparent.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `elem` | `BaseType` \| *required* | The DOM element to check. |
+| Parameter | Type                     | Description               |
+| --------- | ------------------------ | ------------------------- |
+| `elem`    | `BaseType` \| _required_ | The DOM element to check. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="date"></a>
 
@@ -148,15 +148,15 @@ Parses numbers and strings into valid JavaScript Date objects, supporting years,
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `d` | `string` \| `number` \| `false` \| *required* | The date value to parse (number, string, or Date). |
+| Parameter | Type                                          | Description                                        |
+| --------- | --------------------------------------------- | -------------------------------------------------- |
+| `d`       | `string` \| `number` \| `false` \| _required_ | The date value to parse (number, string, or Date). |
 
 #### Returns
 
 `false` \| `Date` \| `undefined`
 
-***
+---
 
 <a id="elem"></a>
 
@@ -170,16 +170,16 @@ Manages the enter/update/exit pattern for a single DOM element, applying enter, 
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `selector` | `string` | A CSS selector string for the element tag and classes. |
-| `p?` | `ElemParams` | Configuration object with enter, exit, update, and parent options. |
+| Parameter  | Type         | Description                                                        |
+| ---------- | ------------ | ------------------------------------------------------------------ |
+| `selector` | `string`     | A CSS selector string for the element tag and classes.             |
+| `p?`       | `ElemParams` | Configuration object with enter, exit, update, and parent options. |
 
 #### Returns
 
 `Selection`
 
-***
+---
 
 <a id="fontexists"></a>
 
@@ -193,15 +193,15 @@ Given either a single font-family or a list of fonts, returns the name of the fi
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `font` | `string` \| `string`[] | Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names. |
+| Parameter | Type                   | Description                                                                                                 |
+| --------- | ---------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `font`    | `string` \| `string`[] | Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names. |
 
 #### Returns
 
 `string` \| `false`
 
-***
+---
 
 <a id="getsize"></a>
 
@@ -215,15 +215,15 @@ Finds the available width and height for a specified HTMLElement, traversing it'
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `elem` | `HTMLElement` |
+| Parameter | Type          |
+| --------- | ------------- |
+| `elem`    | `HTMLElement` |
 
 #### Returns
 
 \[`number` \| `undefined`, `number` \| `undefined`\]
 
-***
+---
 
 <a id="hash"></a>
 
@@ -241,15 +241,15 @@ unchanged config skips a re-render.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `val` | `unknown` | Any config value. |
+| Parameter | Type      | Description       |
+| --------- | --------- | ----------------- |
+| `val`     | `unknown` | Any config value. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="inviewport"></a>
 
@@ -263,16 +263,16 @@ Determines whether a given DOM element is visible within the current viewport, w
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `elem` | `Element` | *required* | The DOM element to check. |
-| `buffer` | `number` | `0` | Extra pixel margin around the viewport boundary. |
+| Parameter | Type      | Default    | Description                                      |
+| --------- | --------- | ---------- | ------------------------------------------------ |
+| `elem`    | `Element` | _required_ | The DOM element to check.                        |
+| `buffer`  | `number`  | `0`        | Extra pixel margin around the viewport boundary. |
 
 #### Returns
 
 `boolean`
 
-***
+---
 
 <a id="isobject"></a>
 
@@ -286,15 +286,15 @@ Detects if a variable is a javascript Object.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `item` | `unknown` | The value to test. |
+| Parameter | Type      | Description        |
+| --------- | --------- | ------------------ |
+| `item`    | `unknown` | The value to test. |
 
 #### Returns
 
 `boolean`
 
-***
+---
 
 <a id="onfontsloaded"></a>
 
@@ -308,15 +308,15 @@ Registers a callback to run whenever the browser finishes loading a web font tha
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter  | Type         | Description                               |
+| ---------- | ------------ | ----------------------------------------- |
 | `callback` | () => `void` | The function to run after the font loads. |
 
 #### Returns
 
 () => `void`
 
-***
+---
 
 <a id="parsesides"></a>
 
@@ -330,15 +330,15 @@ Converts a string of directional CSS shorthand values into an object with the va
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `sides` | `string` \| `number` | The CSS shorthand string to expand. |
+| Parameter | Type                 | Description                         |
+| --------- | -------------------- | ----------------------------------- |
+| `sides`   | `string` \| `number` | The CSS shorthand string to expand. |
 
 #### Returns
 
 `ParsedSides`
 
-***
+---
 
 <a id="rtl"></a>
 
@@ -354,7 +354,7 @@ Returns `true` if the HTML or body element has either the "dir" HTML attribute o
 
 `boolean`
 
-***
+---
 
 <a id="stylize"></a>
 
@@ -368,16 +368,16 @@ Applies each key/value in an object as a style.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `e` | `Stylable` | The d3 selection to apply styles to. |
-| `s` | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value style pairs. |
+| Parameter | Type                                                              | Description                          |
+| --------- | ----------------------------------------------------------------- | ------------------------------------ |
+| `e`       | `Stylable`                                                        | The d3 selection to apply styles to. |
+| `s`       | `Record`\<`string`, `string` \| `number` \| `boolean` \| `null`\> | An object of key/value style pairs.  |
 
 #### Returns
 
 `void`
 
-***
+---
 
 <a id="textwidth"></a>
 
@@ -393,10 +393,10 @@ Given a text string, returns the predicted pixel width of the string when placed
 
 ##### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `text` | `string` | The text string to measure. |
-| `style?` | `Record`\<`string`, `string` \| `number`\> | CSS style properties to apply when measuring. |
+| Parameter | Type                                       | Description                                   |
+| --------- | ------------------------------------------ | --------------------------------------------- |
+| `text`    | `string`                                   | The text string to measure.                   |
+| `style?`  | `Record`\<`string`, `string` \| `number`\> | CSS style properties to apply when measuring. |
 
 ##### Returns
 
@@ -410,10 +410,10 @@ Defined in: [textWidth.ts:102](https://github.com/d3plus/d3plus/blob/main/packag
 
 ##### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `text` | `string`[] |
-| `style?` | `Record`\<`string`, `string` \| `number`\> |
+| Parameter | Type                                       |
+| --------- | ------------------------------------------ |
+| `text`    | `string`[]                                 |
+| `style?`  | `Record`\<`string`, `string` \| `number`\> |
 
 ##### Returns
 
@@ -448,9 +448,9 @@ Defined in: [renderer.ts:10](https://github.com/d3plus/d3plus/blob/main/packages
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `c` | `Record`\<`string`, `unknown`\> |
+| Parameter | Type                            |
+| --------- | ------------------------------- |
+| `c`       | `Record`\<`string`, `unknown`\> |
 
 ###### Returns
 
@@ -478,8 +478,8 @@ Defined in: [renderer.ts:11](https://github.com/d3plus/d3plus/blob/main/packages
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
+| Parameter   | Type         |
+| ----------- | ------------ |
 | `callback?` | () => `void` |
 
 ###### Returns
@@ -500,20 +500,20 @@ Constructor type for d3plus visualization, component, and shape classes.
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
+| Parameter | Type    |
+| --------- | ------- |
 | ...`args` | `any`[] |
 
 #### Returns
 
 [`D3plusInstance`](#d3plusinstance)
 
-***
+---
 
 <a id="d3selection"></a>
 
 ### D3Selection
 
-> **D3Selection** = `ReturnType`\<*typeof* `select`\>
+> **D3Selection** = `ReturnType`\<_typeof_ `select`\>
 
 Defined in: [D3Selection.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/dom/src/D3Selection.ts#L11)

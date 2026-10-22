@@ -8,7 +8,12 @@ import type {DataPoint} from "@d3plus/data";
 import type {Paint, SceneNode, Transform} from "@d3plus/render";
 
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {arrowEnds, arrowNode, arrowSizeFor, straightEdgeArrows} from "../features/edgeArrows.js";
+import {
+  arrowEnds,
+  arrowNode,
+  arrowSizeFor,
+  straightEdgeArrows,
+} from "../features/edgeArrows.js";
 import type {ArrowValue} from "../features/edgeArrows.js";
 import {
   drawNodeLabel,
@@ -87,15 +92,46 @@ function ringsEdgeArrows(
   }
   const ends = arrowEnds(arrows, datum, i);
   if (!ends.source && !ends.target) return [];
-  const size = arrowSizeFor(viz.schema.arrowSize, datum, i, typeof strokeWidth === "number" ? strokeWidth : 1);
+  const size = arrowSizeFor(
+    viz.schema.arrowSize,
+    datum,
+    i,
+    typeof strokeWidth === "number" ? strokeWidth : 1,
+  );
   const out: SceneNode[] = [];
   if (ends.target && edge.targetX != null) {
-    const angle = Math.atan2(edge.targetY! - edge.targetBisectY!, edge.targetX - edge.targetBisectX!);
-    out.push(arrowNode({key: `rings-arrow-t-${baseKey}`, datum, x: edge.targetX, y: edge.targetY!, angle, size, fill}));
+    const angle = Math.atan2(
+      edge.targetY! - edge.targetBisectY!,
+      edge.targetX - edge.targetBisectX!,
+    );
+    out.push(
+      arrowNode({
+        key: `rings-arrow-t-${baseKey}`,
+        datum,
+        x: edge.targetX,
+        y: edge.targetY!,
+        angle,
+        size,
+        fill,
+      }),
+    );
   }
   if (ends.source && edge.sourceX != null) {
-    const angle = Math.atan2(edge.sourceY! - edge.sourceBisectY!, edge.sourceX - edge.sourceBisectX!);
-    out.push(arrowNode({key: `rings-arrow-s-${baseKey}`, datum, x: edge.sourceX, y: edge.sourceY!, angle, size, fill}));
+    const angle = Math.atan2(
+      edge.sourceY! - edge.sourceBisectY!,
+      edge.sourceX - edge.sourceBisectX!,
+    );
+    out.push(
+      arrowNode({
+        key: `rings-arrow-s-${baseKey}`,
+        datum,
+        x: edge.sourceX,
+        y: edge.sourceY!,
+        angle,
+        size,
+        fill,
+      }),
+    );
   }
   return out;
 }
@@ -105,16 +141,33 @@ function ringsNode(
   shapeKind: string,
   d: RingsNode,
   merged: Record<string, unknown>,
-  base: {datum: DataPoint; paint: Paint; transform: Transform; aria: {label: string}},
+  base: {
+    datum: DataPoint;
+    paint: Paint;
+    transform: Transform;
+    aria: {label: string};
+  },
   i: number,
 ): SceneNode | null {
   const key = `rings-${shapeKind}-${d.id}`;
   if (shapeKind === "Circle")
     return {type: "circle", key, cx: 0, cy: 0, r: d.r, ...base};
   if (shapeKind === "Rect") {
-    const w = Number(resolveAccessor<number>(merged.width, base.datum, i) ?? d.r * 2);
-    const h = Number(resolveAccessor<number>(merged.height, base.datum, i) ?? d.r * 2);
-    return {type: "rect", key, x: -w / 2, y: -h / 2, width: w, height: h, ...base};
+    const w = Number(
+      resolveAccessor<number>(merged.width, base.datum, i) ?? d.r * 2,
+    );
+    const h = Number(
+      resolveAccessor<number>(merged.height, base.datum, i) ?? d.r * 2,
+    );
+    return {
+      type: "rect",
+      key,
+      x: -w / 2,
+      y: -h / 2,
+      width: w,
+      height: h,
+      ...base,
+    };
   }
   return null;
 }
@@ -143,7 +196,16 @@ export const ringsEmit: ChartEmit = ({viz}) => {
       } as SceneNode);
 
       // Optional directional arrowheads.
-      out.push(...ringsEdgeArrows(viz, edge, datum, paint.stroke, paint.strokeWidth, i));
+      out.push(
+        ...ringsEdgeArrows(
+          viz,
+          edge,
+          datum,
+          paint.stroke,
+          paint.strokeWidth,
+          i,
+        ),
+      );
     }
   }
 
@@ -166,13 +228,21 @@ export const ringsEmit: ChartEmit = ({viz}) => {
         const paint = paintFromShapeConfig(merged, datum, d.i ?? i);
         // Nodes are data shapes: keep their stroke a constant screen width as the
         // diagram zooms (the edges above deliberately scale with the zoom).
-        if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
+        if (paint.vectorEffect === undefined)
+          paint.vectorEffect = "non-scaling-stroke";
         const rotate = nodeCfg.rotate ? nodeCfg.rotate(d) : 0;
         const transform = rotate ? {x: d.x, y: d.y, rotate} : {x: d.x, y: d.y};
-        const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
+        const sizeFn = viz._size as
+          ((d: DataPoint, i: number) => unknown) | undefined;
         const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
         const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
-        const node = ringsNode(shapeKind, d, merged, {datum, paint, transform, aria}, d.i ?? i);
+        const node = ringsNode(
+          shapeKind,
+          d,
+          merged,
+          {datum, paint, transform, aria},
+          d.i ?? i,
+        );
         // Other shape kinds: skipped (Rings's default is Circle).
         if (!node) continue;
         out.push(node);
@@ -193,7 +263,10 @@ export const ringsEmit: ChartEmit = ({viz}) => {
           rotate: d => (nodeCfg.rotate ? nodeCfg.rotate(d as RingsNode) : 0),
           id: d => `rings-label-${(d as RingsNode).id}`,
           labelBounds: (d, _i) => boundsFn(d as RingsNode),
-          labelConfig: {...userLabelConfig(viz, shapeKind), ...nodeCfg.labelConfig},
+          labelConfig: {
+            ...userLabelConfig(viz, shapeKind),
+            ...nodeCfg.labelConfig,
+          },
         });
         out.push(...labelNodes);
       }

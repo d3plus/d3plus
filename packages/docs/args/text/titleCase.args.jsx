@@ -3,38 +3,37 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   locale: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "en-US",
-    description: "A locale code (e.g. \"en-US\", \"fr-FR\") or an explicit rules object. Defaults to \"en-US\".",
+    description:
+      'A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US".',
     table: {
       defaultValue: {
-        summary: "en-US"
-      }
+        summary: "en-US",
+      },
     },
     type: {
       required: false,
-      summary: "string | titlecaserules"
-    }
+      summary: "string | titlecaserules",
+    },
   },
   str: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The string to capitalize.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | undefined"
-    }
-  }
+      summary: "string | undefined",
+    },
+  },
 };

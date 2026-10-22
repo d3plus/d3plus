@@ -28,23 +28,24 @@ export const fixFloat = (d: number): number => {
 };
 
 /** A linear domain rounded to "nice" values per the rounding mode, or undefined when it has no digits to round. */
-function roundLinear(initialDomain: number[], rounding: string, scale: string): number[] | undefined {
+function roundLinear(
+  initialDomain: number[],
+  rounding: string,
+  scale: string,
+): number[] | undefined {
   const zeroLength = (d: number) => {
     if (smallScale) {
       if (!d) return 0;
       const m = `${d}`.match(/0\.(0*)/);
       if (m)
-        return +`0.${Array(m[1].length + 1).fill(0).join("")}1`;
+        return +`0.${Array(m[1].length + 1)
+          .fill(0)
+          .join("")}1`;
     }
     return `${Math.round(Math.abs(d))}`.length;
   };
-  const smallScale = initialDomain.every(
-    (d: number) => Math.abs(d) < 1,
-  );
-  const zeroArray = [
-    zeroLength(initialDomain[0]),
-    zeroLength(initialDomain[1]),
-  ]
+  const smallScale = initialDomain.every((d: number) => Math.abs(d) < 1);
+  const zeroArray = [zeroLength(initialDomain[0]), zeroLength(initialDomain[1])]
     .filter(Boolean)
     .sort();
   if (!zeroArray.length) return undefined;
@@ -62,9 +63,10 @@ function roundLinear(initialDomain: number[], rounding: string, scale: string): 
   let factor: number =
     zeros < 1
       ? fixFloat(zeros)
-      : +`1${Array(Math.floor(fixFloat(zeros)) - 1).fill(0).join("")}`;
-  if (factor >= Math.abs(initialDomain[1] - initialDomain[0]))
-    factor /= 2;
+      : +`1${Array(Math.floor(fixFloat(zeros)) - 1)
+          .fill(0)
+          .join("")}`;
+  if (factor >= Math.abs(initialDomain[1] - initialDomain[0])) factor /= 2;
   const inverted = initialDomain[1] < initialDomain[0];
   const newDomain = [
     Math[
@@ -98,7 +100,11 @@ function roundLinear(initialDomain: number[], rounding: string, scale: string): 
     ("outside" or "inside") rounds it, or undefined when the axis leaves the
     domain as given (another scale, or nothing to round).
 */
-export function roundedDomain(initialDomain: number[], rounding: string, scale: string): number[] | undefined {
+export function roundedDomain(
+  initialDomain: number[],
+  rounding: string,
+  scale: string,
+): number[] | undefined {
   if (scale === "linear") {
     return roundLinear(initialDomain, rounding, scale);
   } else if (scale === "log") {

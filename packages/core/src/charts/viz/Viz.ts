@@ -10,11 +10,20 @@ import type {PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
 import VizBase from "./VizBase.js";
 import type {ColorScale, Legend, Timeline} from "../../components/index.js";
 import type {SizeLegendScale} from "../../components/SizeLegend/sizeLegendLayout.js";
-import {applyColorScaleBucketOpacity, applyInteractionOpacity} from "./interactionOpacity.js";
+import {
+  applyColorScaleBucketOpacity,
+  applyInteractionOpacity,
+} from "./interactionOpacity.js";
 import {chartAreaRect} from "../features/chartGeometry.js";
-import {initInsetDefaults, insetComponentScene} from "../features/insetState.js";
+import {
+  initInsetDefaults,
+  insetComponentScene,
+} from "../features/insetState.js";
 import type {InsetKey, InsetRegion} from "../features/insetState.js";
-import {applyZoomPointerEvents, bindCanvasZoom} from "../drawSteps/zoomControls.js";
+import {
+  applyZoomPointerEvents,
+  bindCanvasZoom,
+} from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {unregisterLink} from "./linkGroup.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
@@ -57,7 +66,6 @@ function mountTargetFor(kind: string, target: Element): Element {
     The base class every d3plus chart extends. Owns the shared configuration surface (data, groupBy, size and color accessors, title, legend, tooltip, timeline, zoom, table view) and the render lifecycle that each chart type's definition plugs its layout into. Not used directly; see the chart classes (BarChart, Treemap, …).
 */
 export default class Viz extends VizBase {
-
   /**
       Invoked when creating a new class instance, and sets any default parameters.
       @private
@@ -109,22 +117,32 @@ export default class Viz extends VizBase {
       // zoom adds a brand-new group → the renderer treats the chart cells as
       // exit+enter (teardown/rebuild) instead of tweening the group transform,
       // so the zoom snaps in instead of animating.
-      const zoomNode = [{
-        type: "group" as const,
-        key: "viz-zoom",
-        transform: this._zoomTransform ?? {x: 0, y: 0, scale: 1},
-        children: [{
+      const zoomNode = [
+        {
           type: "group" as const,
-          key: "viz-chart-body",
-          ...(this._chartTransform ? {transform: this._chartTransform} : {}),
-          children: sliced,
-        }],
-      }];
+          key: "viz-zoom",
+          transform: this._zoomTransform ?? {x: 0, y: 0, scale: 1},
+          children: [
+            {
+              type: "group" as const,
+              key: "viz-chart-body",
+              ...(this._chartTransform
+                ? {transform: this._chartTransform}
+                : {}),
+              children: sliced,
+            },
+          ],
+        },
+      ];
       // Fixed clip window (e.g. Geomap's map rect): stays put in scene space
       // while the viz-zoom child transform pans/scales content beneath it.
       // Any zoomable chart without its own clip is clipped to the chart area,
       // so zoomed content can't spill over the legend/title/timeline.
-      const clip = this._chartClip ?? (this.schema.zoom && this._margin ? chartAreaRect(this as unknown as VizInstance) : undefined);
+      const clip =
+        this._chartClip ??
+        (this.schema.zoom && this._margin
+          ? chartAreaRect(this as unknown as VizInstance)
+          : undefined);
       children.push({
         type: "group",
         key: "viz-chart-cells",
@@ -171,20 +189,31 @@ export default class Viz extends VizBase {
         }
         // Tag the timeline subtree so its ticks/labels are exempt from shape
         // tooltips and hover/active dimming (it's chrome, not data marks).
-        else if (name === "timeline") tagInteractionGroup(compScene, "timeline");
+        else if (name === "timeline")
+          tagInteractionGroup(compScene, "timeline");
         children.push({
           type: "group",
           key: `viz-${name}`,
-          children: name === "timeline"
-            ? [compScene]
-            : insetComponentScene(this as unknown as VizInstance, name as InsetKey, compScene, (comp as Legend | ColorScale).outerBounds()),
+          children:
+            name === "timeline"
+              ? [compScene]
+              : insetComponentScene(
+                  this as unknown as VizInstance,
+                  name as InsetKey,
+                  compScene,
+                  (comp as Legend | ColorScale).outerBounds(),
+                ),
         });
       }
     }
     // E2: FeatureModule.layout() panels (title/subtitle/total, plus the
     // zoom/top-left-controls/attribution overlays appended post-draw).
     if (this._featurePanels && this._featurePanels.length) {
-      children.push({type: "group", key: "viz-features", children: this._featurePanels});
+      children.push({
+        type: "group",
+        key: "viz-features",
+        children: this._featurePanels,
+      });
     }
     return {
       width: this.schema.width,
@@ -206,7 +235,10 @@ export default class Viz extends VizBase {
       Charts that size marks override this; the base chart sizes nothing.
       @private
   */
-  _sizeLegendScale(_available: {width: number; height: number}): SizeLegendScale | null {
+  _sizeLegendScale(_available: {
+    width: number;
+    height: number;
+  }): SizeLegendScale | null {
     return null;
   }
 
@@ -242,7 +274,7 @@ export default class Viz extends VizBase {
     w! -= parseFloat(this._select.style("border-right-width"));
     h! -= parseFloat(this._select.style("border-top-width"));
     h! -= parseFloat(this._select.style("border-bottom-width"));
-    
+
     if (this._autoWidth) this._measuredWidth = w;
     if (this._autoHeight) this._measuredHeight = h;
     if (this._autoWidth && this.schema.width !== w) {
@@ -313,7 +345,8 @@ export default class Viz extends VizBase {
   */
   _drawSceneToTarget(durationOverride?: number): void {
     const kind = this._renderer === "canvas" ? "canvas" : "svg";
-    const computeSvg = this._select && this._select.node ? this._select.node() : null;
+    const computeSvg =
+      this._select && this._select.node ? this._select.node() : null;
     if (!computeSvg) return;
     // Mount renderer INSIDE the user's `_select` (svg or div). Tests like
     // `svgA.querySelector('[data-key="viz-legend"]')` need the scene output
@@ -344,7 +377,10 @@ export default class Viz extends VizBase {
       // transition timers; without this, switching kind (svg<->canvas) or
       // container orphans that DOM in the user's element, stacking the old
       // mode's output behind the new one and accumulating on every switch.
-      if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function")
+      if (
+        this._sceneRenderer &&
+        typeof this._sceneRenderer.destroy === "function"
+      )
         this._sceneRenderer.destroy();
       const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
       this._sceneRenderer = new Ctor();
@@ -367,7 +403,9 @@ export default class Viz extends VizBase {
       // so `mouseleave` — fired with a null pick — can still tell the matching
       // handlers which shape/legend item was left (so the tooltip clears).
       this._lastScenePick = null;
-      this._sceneRenderer.on((event: SceneEvent) => this._routeSceneEvent(event));
+      this._sceneRenderer.on((event: SceneEvent) =>
+        this._routeSceneEvent(event),
+      );
     } else {
       this._sceneRenderer.resize(w, h);
     }
@@ -409,27 +447,39 @@ export default class Viz extends VizBase {
     const brushing = this._timelineClass
       ? (this._timelineClass.schema as {brushing?: boolean}).brushing !== false
       : true;
-    const sequence = !brushing && Array.isArray(sel) && sel.length
-      ? Math.max(...sel.map(v => Number(date(Number(v)))))
-      : undefined;
+    const sequence =
+      !brushing && Array.isArray(sel) && sel.length
+        ? Math.max(...sel.map(v => Number(date(Number(v)))))
+        : undefined;
     // A forward jump that skips periods (manual click, not single-step play) draws
     // one coarse segment; compute the marks' real positions at the skipped periods
     // so the trail bends through them (see render commitTrailCatchups).
     const trailCatchup =
-      sequence !== undefined && this._trailSeq !== undefined && sequence > this._trailSeq
-        ? computeTrailCatchup(this as unknown as VizInstance, scene, this._trailSeq, sequence)
+      sequence !== undefined &&
+      this._trailSeq !== undefined &&
+      sequence > this._trailSeq
+        ? computeTrailCatchup(
+            this as unknown as VizInstance,
+            scene,
+            this._trailSeq,
+            sequence,
+          )
         : undefined;
     if (sequence !== undefined) this._trailSeq = sequence;
     this._sceneRenderer.drawScene(scene, {
-      duration: drawDuration, sequence, trailCatchup,
+      duration: drawDuration,
+      sequence,
+      trailCatchup,
       // The drill-down morph's resolved boxes for this draw, if a drill
       // click armed one (resolveDrillMorph, run just before this method via
       // runVizPipeline). One-shot: cleared right below so a later repaint
       // that reaches this method by some OTHER path (a zoom/pan tick, a
       // coalesced hover repaint, Rings' click-to-recenter) never inherits a
       // stale box from an earlier drill click.
-      enterFrom: this._resolvedEnterFrom, enterFromBody: this._resolvedEnterFromBody,
-      exitTo: this._resolvedExitTo, exitToBody: this._resolvedExitToBody,
+      enterFrom: this._resolvedEnterFrom,
+      enterFromBody: this._resolvedEnterFromBody,
+      exitTo: this._resolvedExitTo,
+      exitToBody: this._resolvedExitToBody,
       instantExitKey: this._resolvedInstantExitKey,
       reunionEnterKey: this._resolvedReunionEnterKey,
       reunionEnterFrom: this._resolvedReunionEnterFrom,
@@ -478,9 +528,13 @@ export default class Viz extends VizBase {
         : null;
       if (tlGroup) host!.appendChild(tlGroup);
       // Likewise the zoom brush and any chart-owned brush layer (`g.d3plus-viz-brush`), so their selections draw over the shapes.
-      host?.querySelectorAll(":scope > g.d3plus-zoom-brush, :scope > g.d3plus-viz-brush").forEach(layer => {
-        if (layer !== host.lastElementChild) host.appendChild(layer);
-      });
+      host
+        ?.querySelectorAll(
+          ":scope > g.d3plus-zoom-brush, :scope > g.d3plus-viz-brush",
+        )
+        .forEach(layer => {
+          if (layer !== host.lastElementChild) host.appendChild(layer);
+        });
     }
   }
 
@@ -527,7 +581,9 @@ export default class Viz extends VizBase {
   */
   _routeSceneEvent(event: SceneEvent): void {
     const viz = this as unknown as VizInstance;
-    withFacetPanel(viz, facetPanelAt(viz, event.point), () => this._dispatchSceneEvent(event));
+    withFacetPanel(viz, facetPanelAt(viz, event.point), () =>
+      this._dispatchSceneEvent(event),
+    );
   }
 
   /**
@@ -555,12 +611,7 @@ export default class Viz extends VizBase {
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.
-    const fire = (
-      key: string,
-      d: unknown,
-      i: number,
-      x: unknown,
-    ): void => {
+    const fire = (key: string, d: unknown, i: number, x: unknown): void => {
       const fn = this.schema.on && this.schema.on[key];
       if (typeof fn === "function") {
         try {
@@ -580,7 +631,8 @@ export default class Viz extends VizBase {
           lastPick.i,
           lastPick.x,
         );
-        for (const t of lastPick.shapeTargets) fire(`mouseleave.${t.shapeType}`, t.d, t.i, t.x);
+        for (const t of lastPick.shapeTargets)
+          fire(`mouseleave.${t.shapeType}`, t.d, t.i, t.x);
         fire("mouseleave", lastPick.d, lastPick.i, lastPick.x);
       }
       this._lastScenePick = null;
@@ -607,8 +659,7 @@ export default class Viz extends VizBase {
     // legend swatches route to legend handlers on Canvas too — where the
     // single canvas element has no per-shape DOM to walk. Fall back to SVG
     // DOM ancestry for nodes the stamp didn't reach.
-    const target =
-      event.nativeEvent && (event.nativeEvent as Event).target;
+    const target = event.nativeEvent && (event.nativeEvent as Event).target;
     const isLegendNode =
       nodeAny.interactionGroup === "legend" ||
       (target && typeof (target as Element).closest === "function"
@@ -621,10 +672,11 @@ export default class Viz extends VizBase {
     // which datum the pointer is over. The base unwraps the node's raw datum to
     // its source row; Plot overrides `_interactionDatum` to report the point
     // nearest the cursor for multi-point shapes (Line/Area).
-    const {d: sourceDatum, i: sourceIndex, x: rawDatum} = this._interactionDatum(
-      pick,
-      event,
-    );
+    const {
+      d: sourceDatum,
+      i: sourceIndex,
+      x: rawDatum,
+    } = this._interactionDatum(pick, event);
     // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`): the
     // node's own shape type, then any composite it is a part of (`"click.Box"`
     // on a box's whisker). On the scene path this is the only place these fire
@@ -632,9 +684,17 @@ export default class Viz extends VizBase {
     // a legend swatch's shape type can't masquerade as a chart-shape handler.
     const shapeTargets = isLegendNode
       ? []
-      : shapeClassTargets(pick.node, {d: sourceDatum, i: sourceIndex, x: rawDatum});
+      : shapeClassTargets(pick.node, {
+          d: sourceDatum,
+          i: sourceIndex,
+          x: rawDatum,
+        });
     this._lastScenePick = {
-      d: sourceDatum, i: sourceIndex, x: rawDatum, isLegend: isLegendNode, shapeTargets,
+      d: sourceDatum,
+      i: sourceIndex,
+      x: rawDatum,
+      isLegend: isLegendNode,
+      shapeTargets,
       // The live picked node's own geometry, read synchronously by clickShape
       // (before the drill-down re-render replaces this frame) to arm the
       // forward drill-down morph.
@@ -642,7 +702,8 @@ export default class Viz extends VizBase {
     };
     this._hoverDatum = rawDatum;
     fire(handlerKey, sourceDatum, sourceIndex, rawDatum);
-    for (const t of shapeTargets) fire(`${event.type}.${t.shapeType}`, t.d, t.i, t.x);
+    for (const t of shapeTargets)
+      fire(`${event.type}.${t.shapeType}`, t.d, t.i, t.x);
     // Also fire the un-suffixed handler (e.g. "mousemove") so user-registered
     // global handlers see the event too.
     fire(event.type, sourceDatum, sourceIndex, rawDatum);
@@ -707,11 +768,13 @@ export default class Viz extends VizBase {
       select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
     // Destroy the active scene renderer (clears its own pointer-rect
     // listeners, overlay host, canvas/svg DOM, timers).
-    if (this._sceneRenderer && typeof this._sceneRenderer.destroy === "function") {
+    if (
+      this._sceneRenderer &&
+      typeof this._sceneRenderer.destroy === "function"
+    ) {
       this._sceneRenderer.destroy();
       this._sceneRenderer = undefined;
     }
     return this;
   }
-
 }

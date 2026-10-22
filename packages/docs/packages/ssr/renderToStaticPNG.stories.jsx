@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Renders a d3plus chart to a PNG Buffer in Node, with no browser.",
+        component:
+          "Renders a d3plus chart to a PNG Buffer in Node, with no browser.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -46,7 +47,8 @@ Example.parameters = {
   docs: {
     source: {code, language: "js"},
     description: {
-      story: "Rasterizes a chart to a PNG buffer in Node through `@napi-rs/canvas`, with no browser. `pixelRatio` (default 2) scales the backing store for sharper output, and `fonts` registers font files so text matches the browser. Node only, so the snippet is not executed here; see the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) for fonts and the Geomap tile options.",
+      story:
+        "Rasterizes a chart to a PNG buffer in Node through `@napi-rs/canvas`, with no browser. `pixelRatio` (default 2) scales the backing store for sharper output, and `fonts` registers font files so text matches the browser. Node only, so the snippet is not executed here; see the [Server-Side Rendering guide](?path=/docs/guides-server-side-rendering--docs) for fonts and the Geomap tile options.",
     },
   },
 };

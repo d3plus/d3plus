@@ -18,7 +18,9 @@ assign({id: "foo", deep: {group: "A"}}, {id: "bar", deep: {value: 20}}));
 {id: "bar", deep: {group: "A", value: 20}}
     @param objects The source objects to merge into the target.
 */
-function assign(...objects: Record<string, unknown>[]): Record<string, unknown> {
+function assign(
+  ...objects: Record<string, unknown>[]
+): Record<string, unknown> {
   const target = objects[0];
   for (let i = 1; i < objects.length; i++) {
     const source = objects[i];
@@ -32,7 +34,11 @@ function assign(...objects: Record<string, unknown>[]): Record<string, unknown> 
           Object.prototype.hasOwnProperty.call(target, prop) &&
           isObject(target[prop])
         )
-          target[prop] = assign({}, target[prop] as Record<string, unknown>, value as Record<string, unknown>);
+          target[prop] = assign(
+            {},
+            target[prop] as Record<string, unknown>,
+            value as Record<string, unknown>,
+          );
         else target[prop] = assign({}, value as Record<string, unknown>);
       } else if (Array.isArray(value)) target[prop] = value.slice();
       else target[prop] = value;

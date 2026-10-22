@@ -26,7 +26,11 @@ const titleLayout = (title, renderer) =>
       new Promise((resolve, reject) => {
         const viz = new window.d3plus.Plot()
           .select("#s")
-          .data([{id: "a", x: 1, y: 2}, {id: "a", x: 2, y: 50000}, {id: "b", x: 3, y: 3}])
+          .data([
+            {id: "a", x: 1, y: 2},
+            {id: "a", x: 2, y: 50000},
+            {id: "b", x: 3, y: 3},
+          ])
           .groupBy("id")
           .x("x")
           .y("y")
@@ -43,19 +47,30 @@ const titleLayout = (title, renderer) =>
             }
             const host = document.querySelector("#s").getBoundingClientRect();
             const rects = selector =>
-              [...document.querySelectorAll(selector)].map(e => e.getBoundingClientRect().toJSON());
+              [...document.querySelectorAll(selector)].map(e =>
+                e.getBoundingClientRect().toJSON(),
+              );
             const out = {
               lines: node ? node.lines.map(l => l.text) : [],
               controlsHeight: window.d3plus.cornerControlsHeight(viz),
               marginTop: viz._margin.top,
-              plotCenter: host.left + viz._padding.left + (host.width - viz._padding.left - viz._padding.right) / 2,
+              plotCenter:
+                host.left +
+                viz._padding.left +
+                (host.width - viz._padding.left - viz._padding.right) / 2,
               zoom: rects("#s .zoom-control"),
               topLeft: rects("#s .d3plus-top-left-controls-item button"),
             };
             if (node) {
               const {x, y} = node.transform;
-              const lH = node.lines.length > 1 ? node.lines[1].y - node.lines[0].y : node.font.size * 1.2;
-              const spans = node.lines.map(l => [x + l.x - l.width / 2, x + l.x + l.width / 2]);
+              const lH =
+                node.lines.length > 1
+                  ? node.lines[1].y - node.lines[0].y
+                  : node.font.size * 1.2;
+              const spans = node.lines.map(l => [
+                x + l.x - l.width / 2,
+                x + l.x + l.width / 2,
+              ]);
               out.title = {
                 left: host.left + Math.min(...spans.map(s => s[0])),
                 right: host.left + Math.max(...spans.map(s => s[1])),
@@ -74,10 +89,20 @@ const titleLayout = (title, renderer) =>
 
 /** Asserts the title reads in full and stays clear of every corner control. */
 function assertClear(out, text, label) {
-  assert.strictEqual(out.lines.join(" "), text, `${label}: the whole title is drawn`);
-  assert.ok(out.zoom.length && out.topLeft.length, `${label}: both corner panels show`);
+  assert.strictEqual(
+    out.lines.join(" "),
+    text,
+    `${label}: the whole title is drawn`,
+  );
+  assert.ok(
+    out.zoom.length && out.topLeft.length,
+    `${label}: both corner panels show`,
+  );
   for (const r of [...out.zoom, ...out.topLeft]) {
-    assert.ok(!overlaps(out.title, r), `${label}: the title clears the control at ${r.left},${r.top}`);
+    assert.ok(
+      !overlaps(out.title, r),
+      `${label}: the title clears the control at ${r.left},${r.top}`,
+    );
   }
 }
 
@@ -86,25 +111,42 @@ for (const renderer of ["svg", "canvas"]) {
     const text = "Exports 1234567890";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
-    assert.ok(out.title.top < Math.min(...out.zoom.map(r => r.bottom)), "the title stays on the controls' row");
+    assert.ok(
+      out.title.top < Math.min(...out.zoom.map(r => r.bottom)),
+      "the title stays on the controls' row",
+    );
   });
 
   it(`${renderer}: a title that doesn't fit beside the corner controls drops below them`, async function () {
     const text = "123456789012345678901";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
-    const panelsBottom = Math.max(...[...out.zoom, ...out.topLeft].map(r => r.bottom));
-    assert.ok(out.title.top >= panelsBottom - 1, `the title starts below the panels (${out.title.top} vs ${panelsBottom})`);
-    assert.ok(out.marginTop >= out.controlsHeight, "the claimed margin covers the drop below the panels");
+    const panelsBottom = Math.max(
+      ...[...out.zoom, ...out.topLeft].map(r => r.bottom),
+    );
+    assert.ok(
+      out.title.top >= panelsBottom - 1,
+      `the title starts below the panels (${out.title.top} vs ${panelsBottom})`,
+    );
+    assert.ok(
+      out.marginTop >= out.controlsHeight,
+      "the claimed margin covers the drop below the panels",
+    );
   });
 
   it(`${renderer}: a title that fits the symmetric inset stays centered on its row`, async function () {
     const text = "Exports";
     const out = await titleLayout(text, renderer);
     assertClear(out, text, renderer);
-    assert.ok(out.title.top < Math.min(...out.zoom.map(r => r.bottom)), "the title stays on the controls' row");
+    assert.ok(
+      out.title.top < Math.min(...out.zoom.map(r => r.bottom)),
+      "the title stays on the controls' row",
+    );
     const center = (out.title.left + out.title.right) / 2;
-    assert.ok(Math.abs(center - out.plotCenter) < 2, `centered over the plot (${center} vs ${out.plotCenter})`);
+    assert.ok(
+      Math.abs(center - out.plotCenter) < 2,
+      `centered over the plot (${center} vs ${out.plotCenter})`,
+    );
   });
 }
 
@@ -113,25 +155,60 @@ it("cornerControlsHeight is the taller corner panel's height, and 0 with no pane
     '<div id="a" style="width:300px;height:300px;"></div><div id="b" style="width:300px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "a", x: 1, y: 2}, {id: "b", x: 2, y: 3}];
-        const shown = new window.d3plus.Plot().select("#a").data(data).groupBy("id").x("x").y("y")
-          .tableView(true).search(true).duration(0);
-        const hidden = new window.d3plus.Plot().select("#b").data(data).groupBy("id").x("x").y("y")
-          .zoom(false).tableView(false).search(false).duration(0);
+        const data = [
+          {id: "a", x: 1, y: 2},
+          {id: "b", x: 2, y: 3},
+        ];
+        const shown = new window.d3plus.Plot()
+          .select("#a")
+          .data(data)
+          .groupBy("id")
+          .x("x")
+          .y("y")
+          .tableView(true)
+          .search(true)
+          .duration(0);
+        const hidden = new window.d3plus.Plot()
+          .select("#b")
+          .data(data)
+          .groupBy("id")
+          .x("x")
+          .y("y")
+          .zoom(false)
+          .tableView(false)
+          .search(false)
+          .duration(0);
         shown.render(() =>
           hidden.render(() => {
-            const bottom = sel => Math.max(...[...document.querySelectorAll(sel)].map(e => e.getBoundingClientRect().bottom));
-            const top = document.querySelector("#a").getBoundingClientRect().top;
+            const bottom = sel =>
+              Math.max(
+                ...[...document.querySelectorAll(sel)].map(
+                  e => e.getBoundingClientRect().bottom,
+                ),
+              );
+            const top = document
+              .querySelector("#a")
+              .getBoundingClientRect().top;
             resolve({
               shown: window.d3plus.cornerControlsHeight(shown),
-              panelsBottom: Math.max(bottom("#a .zoom-control"), bottom("#a .d3plus-top-left-controls-item button")) - top,
+              panelsBottom:
+                Math.max(
+                  bottom("#a .zoom-control"),
+                  bottom("#a .d3plus-top-left-controls-item button"),
+                ) - top,
               hidden: window.d3plus.cornerControlsHeight(hidden),
             });
           }),
         );
       }),
   );
-  assert.ok(out.shown >= out.panelsBottom - 1, `covers the panels (${out.shown} vs ${out.panelsBottom})`);
-  assert.ok(out.shown < out.panelsBottom + 12, `hugs the panels (${out.shown} vs ${out.panelsBottom})`);
+  assert.ok(
+    out.shown >= out.panelsBottom - 1,
+    `covers the panels (${out.shown} vs ${out.panelsBottom})`,
+  );
+  assert.ok(
+    out.shown < out.panelsBottom + 12,
+    `hugs the panels (${out.shown} vs ${out.panelsBottom})`,
+  );
   assert.strictEqual(out.hidden, 0);
 });

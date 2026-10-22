@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   options: {
     control: {},
@@ -12,39 +10,40 @@ export const argTypes = {
     description: "Additional options, such as the polynomial `order`.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "regressionoptions"
-    }
+      summary: "regressionoptions",
+    },
   },
   points: {
     control: {},
     description: "An array of `[x, y]` pairs.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;[number, number]&gt;"
-    }
+      summary: "array.&lt;[number, number]&gt;",
+    },
   },
   type: {
     control: {},
     defaultValue: "linear",
-    description: "The regression model: \"linear\", \"exponential\", \"logarithmic\", \"power\", or \"polynomial\".",
+    description:
+      'The regression model: "linear", "exponential", "logarithmic", "power", or "polynomial".',
     table: {
       defaultValue: {
-        summary: "linear"
-      }
+        summary: "linear",
+      },
     },
     type: {
       required: false,
-      summary: "regressiontype"
-    }
-  }
+      summary: "regressiontype",
+    },
+  },
 };

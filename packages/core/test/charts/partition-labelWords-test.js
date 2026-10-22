@@ -36,7 +36,10 @@ it("partition labelWords: labelMetrics measures words and the space at 1px", () 
     labelMetrics("Docs Guides", s => s.map(w => w.length)),
     {words: [4, 6], space: 1},
   );
-  assert.deepStrictEqual(labelMetrics("   ", () => []), {words: [], space: 0});
+  assert.deepStrictEqual(
+    labelMetrics("   ", () => []),
+    {words: [], space: 0},
+  );
 });
 
 it("partition labelWords: measureLabel returns one width per word", () => {
@@ -44,7 +47,11 @@ it("partition labelWords: measureLabel returns one width per word", () => {
   assert.strictEqual(metrics.words.length, 2);
   assert.ok(metrics.words.every(w => Number.isFinite(w) && w >= 0));
   assert.ok(Number.isFinite(metrics.space));
-  const accessor = measureLabel("API", {}, {fontWeight: () => 700, fontFamily: () => ["Arial"]});
+  const accessor = measureLabel(
+    "API",
+    {},
+    {fontWeight: () => 700, fontFamily: () => ["Arial"]},
+  );
   assert.strictEqual(accessor.words.length, 1);
 });
 
@@ -57,8 +64,21 @@ it("partition labelWords: wrapLineCount wraps between words, Infinity for a word
 });
 
 it("partition labelWords: largestFontSize binary-searches the largest fitting whole size", () => {
-  assert.strictEqual(largestFontSize(s => s <= 13, 8, 24), 13);
-  assert.strictEqual(largestFontSize(() => true, 8, 24), 24);
-  assert.strictEqual(largestFontSize(() => false, 8, 24), null);
-  assert.strictEqual(largestFontSize(() => true, 10, 6), 10, "fontMax below fontMin");
+  assert.strictEqual(
+    largestFontSize(s => s <= 13, 8, 24),
+    13,
+  );
+  assert.strictEqual(
+    largestFontSize(() => true, 8, 24),
+    24,
+  );
+  assert.strictEqual(
+    largestFontSize(() => false, 8, 24),
+    null,
+  );
+  assert.strictEqual(
+    largestFontSize(() => true, 10, 6),
+    10,
+    "fontMax below fontMin",
+  );
 });

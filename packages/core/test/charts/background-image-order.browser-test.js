@@ -24,7 +24,11 @@ const probe = renderer =>
       .y("y")
       .size("value")
       .sizeMax(60)
-      .shapeConfig({Circle: {backgroundImage: () => "data:image/gif;base64,R0lGODlhAQABAAAAACw="}})
+      .shapeConfig({
+        Circle: {
+          backgroundImage: () => "data:image/gif;base64,R0lGODlhAQABAAAAACw=",
+        },
+      })
       .duration(0)
       .renderer(renderer)
       .select("#viz");
@@ -39,7 +43,9 @@ const probe = renderer =>
           .forEach(({child}) => walk(child));
       };
       walk(viz._paintedScene.root);
-      const dom = [...document.querySelectorAll("#viz [data-key]")].map(n => n.getAttribute("data-key"));
+      const dom = [...document.querySelectorAll("#viz [data-key]")].map(n =>
+        n.getAttribute("data-key"),
+      );
       const clipped = order.some(k => String(k).startsWith("plot-domain-clip"));
       resolve({order, dom, clipped, svg: renderer === "svg"});
     });
@@ -47,12 +53,30 @@ const probe = renderer =>
 
 for (const renderer of ["svg", "canvas"])
   it(`${renderer}: Plot circles' background images paint above every circle`, async () => {
-    const {order, dom, clipped, svg} = await render('<div id="viz" style="width:400px;height:300px"></div>', probe, renderer);
+    const {order, dom, clipped, svg} = await render(
+      '<div id="viz" style="width:400px;height:300px"></div>',
+      probe,
+      renderer,
+    );
     assert.ok(clipped, "the images are wrapped in a domain clip");
     for (const id of ["a", "b", "c", "d"]) {
-      assert.ok(order.indexOf(`${id}-bgimage`) > order.indexOf(id), `${id}'s image paints after it in the scene`);
-      if (svg) assert.ok(dom.indexOf(`${id}-bgimage`) > dom.indexOf(id), `${id}'s image follows it in the SVG`);
+      assert.ok(
+        order.indexOf(`${id}-bgimage`) > order.indexOf(id),
+        `${id}'s image paints after it in the scene`,
+      );
+      if (svg)
+        assert.ok(
+          dom.indexOf(`${id}-bgimage`) > dom.indexOf(id),
+          `${id}'s image follows it in the SVG`,
+        );
     }
-    const lastCircle = Math.max(...["a", "b", "c", "d"].map(id => order.indexOf(id)));
-    assert.ok(["a", "b", "c", "d"].every(id => order.indexOf(`${id}-bgimage`) > lastCircle), "every image paints above every circle");
+    const lastCircle = Math.max(
+      ...["a", "b", "c", "d"].map(id => order.indexOf(id)),
+    );
+    assert.ok(
+      ["a", "b", "c", "d"].every(
+        id => order.indexOf(`${id}-bgimage`) > lastCircle,
+      ),
+      "every image paints above every circle",
+    );
   });

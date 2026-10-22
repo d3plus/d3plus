@@ -233,32 +233,74 @@ it("non-time Axis data is used as given", () => {
 });
 
 it("axisTimeLocale: the axis's timeLocale, else its locale's, else en-US", () => {
-  assert.strictEqual(axisTimeLocale(new AxisBottom()).quarter, "Q", "en-US by default");
-  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("es-ES")).quarter, "T", "the locale's");
-  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("xx-XX")).quarter, "Q", "en-US for an unknown locale");
+  assert.strictEqual(
+    axisTimeLocale(new AxisBottom()).quarter,
+    "Q",
+    "en-US by default",
+  );
+  assert.strictEqual(
+    axisTimeLocale(new AxisBottom().locale("es-ES")).quarter,
+    "T",
+    "the locale's",
+  );
+  assert.strictEqual(
+    axisTimeLocale(new AxisBottom().locale("xx-XX")).quarter,
+    "Q",
+    "en-US for an unknown locale",
+  );
   const custom = {...axisTimeLocale(new AxisBottom()), quarter: "K"};
-  assert.strictEqual(axisTimeLocale(new AxisBottom().locale("es-ES").timeLocale(custom)), custom, "timeLocale wins");
+  assert.strictEqual(
+    axisTimeLocale(new AxisBottom().locale("es-ES").timeLocale(custom)),
+    custom,
+    "timeLocale wins",
+  );
 });
 
 it("axisTimeReference: a time axis's parsed data in order, else its domain", () => {
-  const data = draw({data: ["2026-03-01", "2026-01-01", "2026-02-01"], domain: ["2026-01-01", "2026-03-01"]});
-  assert.deepStrictEqual(axisTimeReference(data.axis).map(Number), ["2026-01-01", "2026-02-01", "2026-03-01"].map(d => +date(d)));
+  const data = draw({
+    data: ["2026-03-01", "2026-01-01", "2026-02-01"],
+    domain: ["2026-01-01", "2026-03-01"],
+  });
+  assert.deepStrictEqual(
+    axisTimeReference(data.axis).map(Number),
+    ["2026-01-01", "2026-02-01", "2026-03-01"].map(d => +date(d)),
+  );
   const domain = draw({domain: ["2024-01-01", "2020-01-01"]});
-  assert.deepStrictEqual(axisTimeReference(domain.axis).map(Number), ["2020-01-01", "2024-01-01"].map(d => +date(d)));
+  assert.deepStrictEqual(
+    axisTimeReference(domain.axis).map(Number),
+    ["2020-01-01", "2024-01-01"].map(d => +date(d)),
+  );
 });
 
 it("axisDateLabel: a date at the axis's tick interval, always with the year, in its locale", () => {
   const months = Array.from({length: 36}, (_, i) => new Date(2024, i, 1));
   const monthly = draw({data: months, domain: ends(months)});
-  assert.ok(monthly.labels.some(l => !/\d{4}/.test(l)), `middle ticks drop the year (got ${monthly.labels})`);
+  assert.ok(
+    monthly.labels.some(l => !/\d{4}/.test(l)),
+    `middle ticks drop the year (got ${monthly.labels})`,
+  );
   assert.strictEqual(axisDateLabel(monthly.axis, months[15]), "Apr 2025");
   assert.strictEqual(axisDateLabel(monthly.axis, months[0]), "Jan 2024");
 
-  const quarters = Array.from({length: 12}, (_, i) => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1));
-  const quarterly = draw({data: quarters, domain: ends(quarters), locale: "es-ES"});
-  assert.strictEqual(axisDateLabel(quarterly.axis, quarters[6]), "T3 2025", "the locale's quarter prefix");
+  const quarters = Array.from(
+    {length: 12},
+    (_, i) => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1),
+  );
+  const quarterly = draw({
+    data: quarters,
+    domain: ends(quarters),
+    locale: "es-ES",
+  });
+  assert.strictEqual(
+    axisDateLabel(quarterly.axis, quarters[6]),
+    "T3 2025",
+    "the locale's quarter prefix",
+  );
 
-  const days = Array.from({length: 20}, (_, i) => `2026-03-${String(i + 1).padStart(2, "0")}`);
+  const days = Array.from(
+    {length: 20},
+    (_, i) => `2026-03-${String(i + 1).padStart(2, "0")}`,
+  );
   const daily = draw({data: days, domain: ends(days)});
   assert.strictEqual(axisDateLabel(daily.axis, date(days[9])), "Mar 10, 2026");
 });
@@ -269,10 +311,18 @@ it("time axis: the first label drawn, and the first in each new year, names the 
     const {axis, labels} = draw({data: months, domain: ends(months), width});
     const shown = axis._shownLabels.map(d => new Date(d));
     const painted = shown.map(axis._labelFormat);
-    assert.deepStrictEqual([...painted].sort(), [...labels].sort(), `${width}px: the shown labels are the painted ones`);
+    assert.deepStrictEqual(
+      [...painted].sort(),
+      [...labels].sort(),
+      `${width}px: the shown labels are the painted ones`,
+    );
     shown.forEach((d, i) => {
       const opens = !i || shown[i - 1].getFullYear() !== d.getFullYear();
-      assert.strictEqual(/\d{4}/.test(painted[i]), opens, `${width}px: "${painted[i]}" (got ${painted})`);
+      assert.strictEqual(
+        /\d{4}/.test(painted[i]),
+        opens,
+        `${width}px: "${painted[i]}" (got ${painted})`,
+      );
     });
   }
 });
@@ -281,8 +331,20 @@ it("time axis: hourly labels read their hour, with the date on the first drawn e
   const hours = Array.from({length: 12}, (_, i) => new Date(2026, 2, 3, 6 + i));
   const {axis} = draw({data: hours, domain: ends(hours), width: 700});
   const painted = axis._shownLabels.map(axis._labelFormat);
-  assert.strictEqual(painted[0], "Mar 3, 2026, 06 AM", `the first label reads its date and hour (got ${painted})`);
-  painted.slice(1).forEach(l => assert.match(l, /^\d\d [AP]M$/, `the rest read their hour (got ${painted})`));
+  assert.strictEqual(
+    painted[0],
+    "Mar 3, 2026, 06 AM",
+    `the first label reads its date and hour (got ${painted})`,
+  );
+  painted
+    .slice(1)
+    .forEach(l =>
+      assert.match(
+        l,
+        /^\d\d [AP]M$/,
+        `the rest read their hour (got ${painted})`,
+      ),
+    );
   const days = Array.from({length: 48}, (_, i) => new Date(2026, 2, 3, 6 + i));
   const multi = draw({data: days, domain: ends(days), width: 400}).axis;
   const shown = multi._shownLabels.map(d => new Date(d));

@@ -37,15 +37,28 @@ const hoverAcross = ({type, renderer}) =>
     const move = (x, y) =>
       document
         .elementFromPoint(x, y)
-        .dispatchEvent(new MouseEvent("mousemove", {clientX: x, clientY: y, bubbles: true}));
+        .dispatchEvent(
+          new MouseEvent("mousemove", {clientX: x, clientY: y, bubbles: true}),
+        );
     /** Fires `mouseleave` on every element the pointer leaves, up to the chart's container. */
     const leave = (x, y, container) => {
-      for (let el = document.elementFromPoint(x, y); el && el !== container.parentNode; el = el.parentNode)
-        el.dispatchEvent(new MouseEvent("mouseleave", {clientX: x, clientY: y}));
+      for (
+        let el = document.elementFromPoint(x, y);
+        el && el !== container.parentNode;
+        el = el.parentNode
+      )
+        el.dispatchEvent(
+          new MouseEvent("mouseleave", {clientX: x, clientY: y}),
+        );
     };
-    const tips = viz => [...(viz._tooltipClass._portalEl?.querySelectorAll(".d3plus-tooltip") ?? [])];
-    const shown = viz => tips(viz).filter(t => getComputedStyle(t).visibility === "visible");
-    const ids = () => [...document.querySelectorAll("[id^='d3plus-tooltip']")].map(el => el.id);
+    const tips = viz => [
+      ...(viz._tooltipClass._portalEl?.querySelectorAll(".d3plus-tooltip") ??
+        []),
+    ];
+    const shown = viz =>
+      tips(viz).filter(t => getComputedStyle(t).visibility === "visible");
+    const ids = () =>
+      [...document.querySelectorAll("[id^='d3plus-tooltip']")].map(el => el.id);
 
     (async () => {
       const [a, b] = [await make("#a"), await make("#b")];
@@ -61,10 +74,16 @@ const hoverAcross = ({type, renderer}) =>
           if (shown(a).length) point = [x, y];
         }
       if (!point) throw new Error("no hoverable mark found in the first chart");
-      const title = shown(a)[0].querySelector(".d3plus-tooltip-title").textContent;
+      const title = shown(a)[0].querySelector(
+        ".d3plus-tooltip-title",
+      ).textContent;
 
       // Straight to the same mark in the second chart.
-      leave(boxA.left + point[0], boxA.top + point[1], document.querySelector("#a"));
+      leave(
+        boxA.left + point[0],
+        boxA.top + point[1],
+        document.querySelector("#a"),
+      );
       const [bx, by] = [boxB.left + point[0], boxB.top + point[1]];
       move(bx, by);
       const idsWhileBoth = ids();
@@ -84,15 +103,19 @@ const hoverAcross = ({type, renderer}) =>
 
 for (const type of ["Treemap", "BarChart"])
   for (const renderer of ["svg", "canvas"])
-    it(`${type} (${renderer}): two charts on one page each show their own tooltip`, {timeout: 120000}, async function () {
-      const r = await render(body, hoverAcross, {type, renderer});
-      assert.strictEqual(
-        new Set(r.idsWhileBoth).size,
-        r.idsWhileBoth.length,
-        `tooltip element ids are unique: ${r.idsWhileBoth.join(", ")}`,
-      );
-      assert.strictEqual(r.tipsA, 0, "the first chart's tooltip clears");
-      assert.strictEqual(r.shownB, 1, "the second chart shows its tooltip");
-      assert.strictEqual(r.titleB, r.title, "for the same mark");
-      assert.ok(r.offsetB < 150, `next to the pointer (${r.offsetB}px away)`);
-    });
+    it(
+      `${type} (${renderer}): two charts on one page each show their own tooltip`,
+      {timeout: 120000},
+      async function () {
+        const r = await render(body, hoverAcross, {type, renderer});
+        assert.strictEqual(
+          new Set(r.idsWhileBoth).size,
+          r.idsWhileBoth.length,
+          `tooltip element ids are unique: ${r.idsWhileBoth.join(", ")}`,
+        );
+        assert.strictEqual(r.tipsA, 0, "the first chart's tooltip clears");
+        assert.strictEqual(r.shownB, 1, "the second chart shows its tooltip");
+        assert.strictEqual(r.titleB, r.title, "for the same mark");
+        assert.ok(r.offsetB < 150, `next to the pointer (${r.offsetB}px away)`);
+      },
+    );

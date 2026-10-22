@@ -58,7 +58,10 @@ export function nodeMatrix(tr?: Transform): Mat {
     const rot: Mat = [cos, sin, -sin, cos, 0, 0];
     if (tr.rotateAnchor) {
       const [ax, ay] = tr.rotateAnchor;
-      m = multiply(m, multiply([1, 0, 0, 1, ax, ay], multiply(rot, [1, 0, 0, 1, -ax, -ay])));
+      m = multiply(
+        m,
+        multiply([1, 0, 0, 1, ax, ay], multiply(rot, [1, 0, 0, 1, -ax, -ay])),
+      );
     } else {
       m = multiply(m, rot);
     }

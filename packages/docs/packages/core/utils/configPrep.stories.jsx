@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' this context.",
+        component:
+          "Preps a config object for d3plus data, and optionally bubbles up a specific nested type. When using this function, you must bind a d3plus class' this context.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -40,8 +41,14 @@ const wrappedDatum = {__d3plus__: true, data: {color: "#c92a2a"}, i: 0};
 const calls = [
   {call: "Object.keys(prepped)", result: JSON.stringify(Object.keys(prepped))},
   {call: "prepped.duration", result: JSON.stringify(prepped.duration)},
-  {call: "Object.keys(prepped.on)", result: JSON.stringify(Object.keys(prepped.on))},
-  {call: 'prepped.fill({__d3plus__: true, data: {color: "#c92a2a"}, i: 0})', result: JSON.stringify(prepped.fill(wrappedDatum, 0))},
+  {
+    call: "Object.keys(prepped.on)",
+    result: JSON.stringify(Object.keys(prepped.on)),
+  },
+  {
+    call: 'prepped.fill({__d3plus__: true, data: {color: "#c92a2a"}, i: 0})',
+    result: JSON.stringify(prepped.fill(wrappedDatum, 0)),
+  },
 ];
 
 export const BasicExample = () => <CallGrid calls={calls} />;
@@ -61,7 +68,8 @@ ${calls.map(({call, result}) => `${call}; // ${result}`).join("\n")}`,
       language: "jsx",
     },
     description: {
-      story: "Prepares a `shapeConfig` for the shapes a chart draws: it copies in the chart's `duration`, keeps only the events that are global (`mouseenter`) or namespaced to the requested type (`click.shape`, not `click.legend`), and wraps every accessor so that when a shape hands it a wrapped datum, the function receives the original data row underneath. Charts call it with `this` bound; a plain object with a `schema` works the same way here.",
+      story:
+        "Prepares a `shapeConfig` for the shapes a chart draws: it copies in the chart's `duration`, keeps only the events that are global (`mouseenter`) or namespaced to the requested type (`click.shape`, not `click.legend`), and wraps every accessor so that when a shape hands it a wrapped datum, the function receives the original data row underneath. Charts call it with `this` bound; a plain object with a `schema` works the same way here.",
     },
   },
 };

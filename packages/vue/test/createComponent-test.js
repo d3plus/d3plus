@@ -8,23 +8,47 @@ import {JSDOM} from "jsdom";
 let createApp, h, nextTick, reactive, createD3plusComponent, D3plusConfigKey;
 
 beforeAll(async () => {
-  const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    url: "http://localhost",
+  });
   global.window = dom.window;
   global.document = dom.window.document;
-  ["Element", "SVGElement", "Node", "Event"].forEach(key => { global[key] = dom.window[key]; });
+  ["Element", "SVGElement", "Node", "Event"].forEach(key => {
+    global[key] = dom.window[key];
+  });
   ({createApp, h, nextTick, reactive} = await import("vue"));
-  ({createD3plusComponent, D3plusConfigKey} = await import("../src/createComponent.ts"));
+  ({createD3plusComponent, D3plusConfigKey} =
+    await import("../src/createComponent.ts"));
 });
 
 /** A tracking mock visualization class plus the state it records. */
 function makeViz() {
-  const state = {instances: 0, configs: [], renders: 0, destroys: 0, dataArgs: null};
+  const state = {
+    instances: 0,
+    configs: [],
+    renders: 0,
+    destroys: 0,
+    dataArgs: null,
+  };
   class MockViz {
-    constructor() { state.instances++; }
-    config(c) { state.configs.push(c); return this; }
-    render(cb) { state.renders++; if (cb) cb(); return this; }
-    destroy() { state.destroys++; }
-    data(d, f) { state.dataArgs = [d, f]; }
+    constructor() {
+      state.instances++;
+    }
+    config(c) {
+      state.configs.push(c);
+      return this;
+    }
+    render(cb) {
+      state.renders++;
+      if (cb) cb();
+      return this;
+    }
+    destroy() {
+      state.destroys++;
+    }
+    data(d, f) {
+      state.dataArgs = [d, f];
+    }
   }
   return {MockViz, state};
 }
@@ -43,7 +67,10 @@ it("renders div.<className> > svg and calls config()/render() on mount", () => {
   const {MockViz, state} = makeViz();
   const Comp = createD3plusComponent(MockViz);
   const {app, host} = mount({render: () => h(Comp, {config: {a: 1}})});
-  assert.ok(host.querySelector("div.chart"), "wrapper div with default className");
+  assert.ok(
+    host.querySelector("div.chart"),
+    "wrapper div with default className",
+  );
   const svg = host.querySelector("svg");
   assert.ok(svg, "internal svg");
   assert.strictEqual(state.instances, 1, "one instance");
@@ -56,7 +83,9 @@ it("renders div.<className> > svg and calls config()/render() on mount", () => {
 it("honors a custom className", () => {
   const {MockViz} = makeViz();
   const Comp = createD3plusComponent(MockViz);
-  const {app, host} = mount({render: () => h(Comp, {config: {}, className: "my-chart"})});
+  const {app, host} = mount({
+    render: () => h(Comp, {config: {}, className: "my-chart"}),
+  });
   assert.ok(host.querySelector("div.my-chart"), "uses the provided className");
   app.unmount();
 });
@@ -90,7 +119,9 @@ it("forceUpdate re-renders even when the config is unchanged", async () => {
   const {MockViz, state} = makeViz();
   const Comp = createD3plusComponent(MockViz);
   const store = reactive({config: {a: 1}});
-  const {app} = mount({render: () => h(Comp, {config: store.config, forceUpdate: true})});
+  const {app} = mount({
+    render: () => h(Comp, {config: store.config, forceUpdate: true}),
+  });
   store.config = {a: 1};
   await nextTick();
   assert.strictEqual(state.renders, 2, "forceUpdate bypasses config diffing");
@@ -109,10 +140,20 @@ it("routes data + dataFormat to data() and strips them from config", () => {
   const {MockViz, state} = makeViz();
   const Comp = createD3plusComponent(MockViz);
   const fmt = d => d;
-  const {app} = mount({render: () => h(Comp, {config: {data: [1, 2], dataFormat: fmt, keep: "yes"}})});
-  assert.deepStrictEqual(state.dataArgs, [[1, 2], fmt], "data() got the data + formatter");
+  const {app} = mount({
+    render: () =>
+      h(Comp, {config: {data: [1, 2], dataFormat: fmt, keep: "yes"}}),
+  });
+  assert.deepStrictEqual(
+    state.dataArgs,
+    [[1, 2], fmt],
+    "data() got the data + formatter",
+  );
   const cfg = state.configs[0];
-  assert.ok(!("data" in cfg) && !("dataFormat" in cfg), "data/dataFormat stripped");
+  assert.ok(
+    !("data" in cfg) && !("dataFormat" in cfg),
+    "data/dataFormat stripped",
+  );
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
   app.unmount();
 });
@@ -135,14 +176,20 @@ it("uses the className passed to createD3plusComponent as the default", () => {
   const {MockViz} = makeViz();
   const Comp = createD3plusComponent(MockViz, "factory-chart");
   const {app, host} = mount({render: () => h(Comp, {config: {}})});
-  assert.ok(host.querySelector("div.factory-chart"), "factory className applied");
+  assert.ok(
+    host.querySelector("div.factory-chart"),
+    "factory className applied",
+  );
   app.unmount();
 });
 
 it("tolerates visualizations without render() or destroy()", () => {
   const configs = [];
   class BareViz {
-    config(c) { configs.push(c); return this; }
+    config(c) {
+      configs.push(c);
+      return this;
+    }
   }
   const Comp = createD3plusComponent(BareViz);
   const {app} = mount({render: () => h(Comp, {config: {a: 1}})});

@@ -110,12 +110,14 @@ export default class Image {
       .attr(
         "x",
         (d: DataPoint, i: number) =>
-          (this.schema.x(d, i) as number) + (this.schema.width(d, i) as number) / 2,
+          (this.schema.x(d, i) as number) +
+          (this.schema.width(d, i) as number) / 2,
       )
       .attr(
         "y",
         (d: DataPoint, i: number) =>
-          (this.schema.y(d, i) as number) + (this.schema.height(d, i) as number) / 2,
+          (this.schema.y(d, i) as number) +
+          (this.schema.height(d, i) as number) / 2,
       );
 
     const t = transition().duration(this.schema.duration),

@@ -19,7 +19,11 @@ it("decodeEntities decodes decimal and hex numeric references", () => {
 });
 
 it("decodeEntities leaves unknown or out-of-range entities untouched", () => {
-  assert.strictEqual(decodeEntities("&notareal;"), "&notareal;", "unknown named entity");
+  assert.strictEqual(
+    decodeEntities("&notareal;"),
+    "&notareal;",
+    "unknown named entity",
+  );
   assert.strictEqual(
     decodeEntities("&#99999999999;"),
     "&#99999999999;",
@@ -35,30 +39,50 @@ jsdomit("textWidth accepts a string font-size", () => {
 
 // Forces htmlDecode's DOM-free branch by removing DOMParser while keeping the
 // jsdom document (so pretext can still measure). Restored by the jsdom teardown.
-jsdomit("textWidth falls back to the DOM-free decoder when DOMParser is absent", () => {
-  assert.ok(typeof DOMParser !== "undefined", "precondition: jsdom provides DOMParser");
-  delete global.DOMParser;
-  assert.strictEqual(typeof DOMParser, "undefined", "DOMParser removed");
+jsdomit(
+  "textWidth falls back to the DOM-free decoder when DOMParser is absent",
+  () => {
+    assert.ok(
+      typeof DOMParser !== "undefined",
+      "precondition: jsdom provides DOMParser",
+    );
+    delete global.DOMParser;
+    assert.strictEqual(typeof DOMParser, "undefined", "DOMParser removed");
 
-  const style = {"font-family": "Verdana", "font-size": 14};
-  const decoded = textWidth("A &amp; B", style);
-  const literal = textWidth("A & B", style);
-  assert.ok(decoded > 0, "measures a non-zero width via the fallback");
-  assert.strictEqual(decoded, literal, "&amp; is decoded to & (same measured width)");
-});
+    const style = {"font-family": "Verdana", "font-size": 14};
+    const decoded = textWidth("A &amp; B", style);
+    const literal = textWidth("A & B", style);
+    assert.ok(decoded > 0, "measures a non-zero width via the fallback");
+    assert.strictEqual(
+      decoded,
+      literal,
+      "&amp; is decoded to & (same measured width)",
+    );
+  },
+);
 
 // A DOMParser that yields no documentElement (not something a real HTML parser
 // produces) makes htmlDecode measure the input as given. Restored by the jsdom
 // teardown.
-jsdomit("textWidth measures the raw input when DOMParser yields no document element", () => {
-  const style = {"font-family": "Verdana", "font-size": 14};
-  const decoded = textWidth("A & B", style);
-  assert.strictEqual(textWidth("A &amp; B", style), decoded, "precondition: real DOMParser decodes");
+jsdomit(
+  "textWidth measures the raw input when DOMParser yields no document element",
+  () => {
+    const style = {"font-family": "Verdana", "font-size": 14};
+    const decoded = textWidth("A & B", style);
+    assert.strictEqual(
+      textWidth("A &amp; B", style),
+      decoded,
+      "precondition: real DOMParser decodes",
+    );
 
-  global.DOMParser = class {
-    parseFromString() {
-      return {documentElement: null};
-    }
-  };
-  assert.ok(textWidth("A &amp; B", style) > decoded, "&amp; is measured undecoded");
-});
+    global.DOMParser = class {
+      parseFromString() {
+        return {documentElement: null};
+      }
+    };
+    assert.ok(
+      textWidth("A &amp; B", style) > decoded,
+      "&amp; is measured undecoded",
+    );
+  },
+);

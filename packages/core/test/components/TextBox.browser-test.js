@@ -37,10 +37,15 @@ it("TextBox", async function () {
           // plain-text assertion below stays meaningful when bold runs appear.
           o.tspans = document.querySelectorAll("#box text > tspan").length;
           // Count any styled child tspans (bold/italic runs).
-          o.styledTspans = document.querySelectorAll('#box tspan tspan[style]').length;
+          o.styledTspans = document.querySelectorAll(
+            "#box tspan tspan[style]",
+          ).length;
           o.plainLineCount = o.lines.length;
           const bbox = document.getElementById("d3plus-textBox-0").getBBox();
-          o.bbox = {width: Math.round(bbox.width), height: Math.round(bbox.height)};
+          o.bbox = {
+            width: Math.round(bbox.width),
+            height: Math.round(bbox.height),
+          };
 
           await draw(b =>
             b.data([
@@ -52,9 +57,7 @@ it("TextBox", async function () {
 
           await draw(b =>
             b
-              .data([
-                {text: "Hello D3plus, please wrap this sentence for me."},
-              ])
+              .data([{text: "Hello D3plus, please wrap this sentence for me."}])
               .fontResize(true),
           );
           o.resizedLineCount = lineTspans().length;
@@ -69,13 +72,15 @@ it("TextBox", async function () {
   // the lines reconstruct the original sentence (a trailing "-" marks a
   // hyphenation break, so re-join those without a space).
   assert.ok(out.lines.length >= 2, "wraps text onto multiple lines");
-  const rejoined = out.lines.reduce((acc, line, i) =>
-    i === 0
-      ? line
-      : acc.endsWith("-")
-        ? acc.slice(0, -1) + line
-        : `${acc} ${line}`,
-  "");
+  const rejoined = out.lines.reduce(
+    (acc, line, i) =>
+      i === 0
+        ? line
+        : acc.endsWith("-")
+          ? acc.slice(0, -1) + line
+          : `${acc} ${line}`,
+    "",
+  );
   assert.strictEqual(
     rejoined,
     "Hello D3plus, please wrap this sentence for me.",
@@ -127,9 +132,8 @@ it("TextBox sizes its render surface to fit the laid-out content", async functio
             const svg = document.querySelector("#s .d3plus-render-svg");
             resolve({
               svgWidth: svg ? Number(svg.getAttribute("width")) : null,
-              boxes: document.querySelectorAll(
-                "#s [id^='d3plus-textBox-']",
-              ).length,
+              boxes: document.querySelectorAll("#s [id^='d3plus-textBox-']")
+                .length,
             });
           });
       }),

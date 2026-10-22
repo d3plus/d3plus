@@ -15,7 +15,14 @@ import {render} from "~test/browser/render.js";
       became `NaN`, leaking `translate(NaN, …)` into the rendered SVG.
 */
 
-const charts = ["BarChart", "LinePlot", "StackedArea", "BumpChart", "Treemap", "Pie"];
+const charts = [
+  "BarChart",
+  "LinePlot",
+  "StackedArea",
+  "BumpChart",
+  "Treemap",
+  "Pie",
+];
 const sizes = [
   [1, 1],
   [10, 10],
@@ -25,58 +32,69 @@ const sizes = [
   [200, 15],
 ];
 
-it("charts render at very small sizes without errors or NaN attributes", {timeout: 120000}, async function () {
-  const results = await render(
-    "",
-    ({charts, sizes}) => {
-      const data = [];
-      for (const id of ["alpha", "beta", "gamma", "delta", "epsilon"])
-        for (let year = 2000; year < 2010; year++) data.push({id, year, value: year});
+it(
+  "charts render at very small sizes without errors or NaN attributes",
+  {timeout: 120000},
+  async function () {
+    const results = await render(
+      "",
+      ({charts, sizes}) => {
+        const data = [];
+        for (const id of ["alpha", "beta", "gamma", "delta", "epsilon"])
+          for (let year = 2000; year < 2010; year++)
+            data.push({id, year, value: year});
 
-      const run = (name, width, height) =>
-        new Promise(resolve => {
-          // A throw inside the render pipeline never reaches the callback, so
-          // settle on it here; `render` then fails the test with the message.
-          const onError = () => resolve({chart: `${name} ${width}x${height}`, error: true});
-          window.addEventListener("error", onError, {once: true});
-          window.addEventListener("unhandledrejection", onError, {once: true});
-          const el = document.createElement("div");
-          document.body.appendChild(el);
-          const viz = new window.d3plus[name]()
-            .select(el)
-            .data(data)
-            .groupBy("id")
-            .duration(0)
-            // Each chart reserves its size, so later ones sit below the fold.
-            .detectVisible(false)
-            .width(width)
-            .height(height);
-          if (viz.x) viz.x("year").y("value");
-          else if (viz.sum) viz.sum("value");
-          else viz.value("value");
-          viz.render(() => {
-            window.removeEventListener("error", onError);
-            window.removeEventListener("unhandledrejection", onError);
-            const nan = [...el.querySelectorAll("*")].filter(n =>
-              [...n.attributes].some(a => a.value.includes("NaN")),
-            ).length;
-            resolve({chart: `${name} ${width}x${height}`, nan});
+        const run = (name, width, height) =>
+          new Promise(resolve => {
+            // A throw inside the render pipeline never reaches the callback, so
+            // settle on it here; `render` then fails the test with the message.
+            const onError = () =>
+              resolve({chart: `${name} ${width}x${height}`, error: true});
+            window.addEventListener("error", onError, {once: true});
+            window.addEventListener("unhandledrejection", onError, {
+              once: true,
+            });
+            const el = document.createElement("div");
+            document.body.appendChild(el);
+            const viz = new window.d3plus[name]()
+              .select(el)
+              .data(data)
+              .groupBy("id")
+              .duration(0)
+              // Each chart reserves its size, so later ones sit below the fold.
+              .detectVisible(false)
+              .width(width)
+              .height(height);
+            if (viz.x) viz.x("year").y("value");
+            else if (viz.sum) viz.sum("value");
+            else viz.value("value");
+            viz.render(() => {
+              window.removeEventListener("error", onError);
+              window.removeEventListener("unhandledrejection", onError);
+              const nan = [...el.querySelectorAll("*")].filter(n =>
+                [...n.attributes].some(a => a.value.includes("NaN")),
+              ).length;
+              resolve({chart: `${name} ${width}x${height}`, nan});
+            });
           });
-        });
 
-      return (async () => {
-        const out = [];
-        for (const name of charts)
-          for (const [width, height] of sizes) out.push(await run(name, width, height));
-        return out;
-      })();
-    },
-    {charts, sizes},
-  );
+        return (async () => {
+          const out = [];
+          for (const name of charts)
+            for (const [width, height] of sizes)
+              out.push(await run(name, width, height));
+          return out;
+        })();
+      },
+      {charts, sizes},
+    );
 
-  // `render` rejects on any uncaught page error, so reaching here means no
-  // chart threw; every chart must also have completed its render callback.
-  assert.strictEqual(results.length, charts.length * sizes.length);
-  const withNaN = results.filter(r => r.nan).map(r => `${r.chart} (${r.nan})`);
-  assert.deepStrictEqual(withNaN, [], "no rendered attribute contains NaN");
-});
+    // `render` rejects on any uncaught page error, so reaching here means no
+    // chart threw; every chart must also have completed its render callback.
+    assert.strictEqual(results.length, charts.length * sizes.length);
+    const withNaN = results
+      .filter(r => r.nan)
+      .map(r => `${r.chart} (${r.nan})`);
+    assert.deepStrictEqual(withNaN, [], "no rendered attribute contains NaN");
+  },
+);

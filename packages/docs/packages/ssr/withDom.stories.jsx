@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Runs fn with a headless DOM installed, tearing it down afterward even if\nfn throws. The DomEnv is passed to fn for access to window/document.",
+        component:
+          "Runs fn with a headless DOM installed, tearing it down afterward even if\nfn throws. The DomEnv is passed to fn for access to window/document.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -42,7 +43,8 @@ Example.parameters = {
   docs: {
     source: {code, language: "js"},
     description: {
-      story: "`installDom` with the cleanup handled for you: the callback receives the environment, its return value is passed through, and `teardown()` runs in a `finally`, so an exception inside the callback cannot leave browser globals behind. Node only; the snippet is not executed here.",
+      story:
+        "`installDom` with the cleanup handled for you: the callback receives the environment, its return value is passed through, and `teardown()` runs in a `finally`, so an exception inside the callback cannot leave browser globals behind. Node only; the snippet is not executed here.",
     },
   },
 };

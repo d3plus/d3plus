@@ -71,8 +71,14 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // take the resolved config as their argument, so a single snapshot
   // reflects config once instead of twice.
   const spec = resolveSpec(viz);
-  const legendPosition = sanitizePosition(viz.schema.legendPosition.bind(viz)(spec), viz);
-  const colorScalePosition = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(spec), viz);
+  const legendPosition = sanitizePosition(
+    viz.schema.legendPosition.bind(viz)(spec),
+    viz,
+  );
+  const colorScalePosition = sanitizePosition(
+    viz.schema.colorScalePosition.bind(viz)(spec),
+    viz,
+  );
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 
@@ -94,11 +100,11 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // zero-margin contribution to the shared top-left controls panel
   // (`topLeftControlsFeature`, registered post-draw in `runVizPipeline`),
   // the same way zoom's buttons float rather than claim margin.
-  const topBlocks = runLayout({viz}, [
-    titleFeature,
-    subtitleFeature,
-    totalFeature,
-  ], running);
+  const topBlocks = runLayout(
+    {viz},
+    [titleFeature, subtitleFeature, totalFeature],
+    running,
+  );
   viz._featurePanels.push(...topBlocks.panels);
   out.marginDelta.top += topBlocks.margin.top;
   running.top += topBlocks.margin.top;
@@ -177,7 +183,10 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // buttons plus an equal gap above and below), top margin.top up to it,
   // so the body's top edge — a Treemap's top row, a y-axis's max label —
   // never sits against the buttons.
-  const topShortfall = Math.max(0, cornerControlsHeight(viz) - out.marginDelta.top);
+  const topShortfall = Math.max(
+    0,
+    cornerControlsHeight(viz) - out.marginDelta.top,
+  );
   out.marginDelta.top += topShortfall;
   running.top += topShortfall;
 

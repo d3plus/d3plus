@@ -1,16 +1,16 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>LabelRotation · Axis</title>
-    <meta name="description" content="Ordinal AxisLeft with labelRotation(false), outlined by its outer bounds.">
+    <meta
+      name="description"
+      content="Ordinal AxisLeft with labelRotation(false), outlined by its outer bounds."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
     <style>
-
       body {
         margin: 0;
       }
@@ -19,25 +19,20 @@
         border: 1px solid red;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
     <main>
-      <svg width=600 height=600>
+      <svg width="600" height="600">
         <g id="my-axis"></g>
       </svg>
     </main>
 
-    <div class="bounds" id="bounds">
-
+    <div class="bounds" id="bounds"></div>
   </body>
 
   <script>
-
     // var bottom = new d3plus.AxisLeft()
     //   .select("#my-axis")
     //   .domain([0, 100000])
@@ -61,7 +56,5 @@
     square.style.height = bounds.height + "px";
     square.style.left = bounds.x + "px";
     square.style.top = bounds.y + "px";
-
   </script>
-
 </html>

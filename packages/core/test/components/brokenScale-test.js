@@ -15,18 +15,64 @@ import {near} from "~test/helpers.js";
 */
 
 it("normalizeBreaks reads a single pair or a list, flipping, merging, and dropping bad ranges", () => {
-  assert.deepStrictEqual(normalizeBreaks([100, 900], 0, 1000), [[100, 900]], "single pair");
-  assert.deepStrictEqual(normalizeBreaks([900, 100], 0, 1000), [[100, 900]], "reversed pair flipped");
   assert.deepStrictEqual(
-    normalizeBreaks([[600, 800], [100, 300], [250, 400]], 0, 1000),
-    [[100, 400], [600, 800]],
+    normalizeBreaks([100, 900], 0, 1000),
+    [[100, 900]],
+    "single pair",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks([900, 100], 0, 1000),
+    [[100, 900]],
+    "reversed pair flipped",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks(
+      [
+        [600, 800],
+        [100, 300],
+        [250, 400],
+      ],
+      0,
+      1000,
+    ),
+    [
+      [100, 400],
+      [600, 800],
+    ],
     "sorted, overlaps merged",
   );
-  assert.deepStrictEqual(normalizeBreaks([[100, 200], [200, 300]], 0, 1000), [[100, 300]], "touching ranges merged");
-  assert.deepStrictEqual(normalizeBreaks([[5, 5], ["a", 3], [1], [2, 4]], 0, 10), [[2, 4]], "empty/non-numeric/short dropped");
-  assert.deepStrictEqual(normalizeBreaks([-50, 500], 0, 1000), [], "starts outside the domain");
-  assert.deepStrictEqual(normalizeBreaks([500, 1000], 0, 1000), [], "touching a domain end");
-  assert.deepStrictEqual(normalizeBreaks([-10, 2000], 0, 1000), [], "swallows the whole domain");
+  assert.deepStrictEqual(
+    normalizeBreaks(
+      [
+        [100, 200],
+        [200, 300],
+      ],
+      0,
+      1000,
+    ),
+    [[100, 300]],
+    "touching ranges merged",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks([[5, 5], ["a", 3], [1], [2, 4]], 0, 10),
+    [[2, 4]],
+    "empty/non-numeric/short dropped",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks([-50, 500], 0, 1000),
+    [],
+    "starts outside the domain",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks([500, 1000], 0, 1000),
+    [],
+    "touching a domain end",
+  );
+  assert.deepStrictEqual(
+    normalizeBreaks([-10, 2000], 0, 1000),
+    [],
+    "swallows the whole domain",
+  );
   assert.deepStrictEqual(normalizeBreaks(false, 0, 1000), []);
   assert.deepStrictEqual(normalizeBreaks(undefined, 0, 1000), []);
   assert.deepStrictEqual(normalizeBreaks([], 0, 1000), []);
@@ -34,7 +80,12 @@ it("normalizeBreaks reads a single pair or a list, flipping, merging, and droppi
 
 it("brokenScale collapses each break to its fixed space and shares one rate elsewhere", () => {
   // 0–1000 over 0–436px with [100, 900] removed: 200 kept units over 400px.
-  const s = brokenScale({domain: [0, 1000], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const s = brokenScale({
+    domain: [0, 1000],
+    range: [0, 436],
+    breaks: [[100, 900]],
+    space: 36,
+  });
   near(s(0), 0, 1e-9);
   near(s(100), 200, 1e-9, "break start");
   near(s(900), 236, 1e-9, "break end, one space later");
@@ -50,7 +101,12 @@ it("brokenScale collapses each break to its fixed space and shares one rate else
 });
 
 it("brokenScale follows a descending domain, like a y axis", () => {
-  const s = brokenScale({domain: [1000, 0], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const s = brokenScale({
+    domain: [1000, 0],
+    range: [0, 436],
+    breaks: [[100, 900]],
+    space: 36,
+  });
   near(s(1000), 0, 1e-9, "max at the top");
   near(s(0), 436, 1e-9, "min at the bottom");
   near(s(900), 200, 1e-9);
@@ -62,7 +118,15 @@ it("brokenScale follows a descending domain, like a y axis", () => {
 });
 
 it("brokenScale handles several breaks", () => {
-  const s = brokenScale({domain: [0, 100], range: [0, 172], breaks: [[10, 40], [60, 90]], space: 36});
+  const s = brokenScale({
+    domain: [0, 100],
+    range: [0, 172],
+    breaks: [
+      [10, 40],
+      [60, 90],
+    ],
+    space: 36,
+  });
   // 40 kept units over 100px: 2.5px per unit.
   near(s(10), 25, 1e-9);
   near(s(40), 61, 1e-9);
@@ -74,7 +138,13 @@ it("brokenScale handles several breaks", () => {
 
 it("brokenScale maps a baseline edge break outside its domain", () => {
   const edge = {value: 0, position: 400, edge: 1100, edgePosition: 364};
-  const s = brokenScale({domain: [2100, 1100], range: [0, 364], breaks: [], space: 36, edge});
+  const s = brokenScale({
+    domain: [2100, 1100],
+    range: [0, 364],
+    breaks: [],
+    space: 36,
+    edge,
+  });
   near(s(0), 400, 1e-9, "baseline at the axis end");
   near(s(-50), 400, 1e-9, "beyond the baseline pins to the end");
   near(s(550), 382, 1e-9, "between baseline and domain interpolates");
@@ -87,7 +157,12 @@ it("brokenScale maps a baseline edge break outside its domain", () => {
 });
 
 it("brokenScale copy, setters, and ticks", () => {
-  const s = brokenScale({domain: [0, 1000], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const s = brokenScale({
+    domain: [0, 1000],
+    range: [0, 436],
+    breaks: [[100, 900]],
+    space: 36,
+  });
   const c = s.copy();
   near(c(950), 336, 1e-9, "copy maps the same");
   c.range([0, 872]);
@@ -101,21 +176,44 @@ it("brokenScale copy, setters, and ticks", () => {
 });
 
 it("brokenScaleTicks ticks each segment as its own axis and labels both break edges", () => {
-  const s = brokenScale({domain: [0, 1000], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const s = brokenScale({
+    domain: [0, 1000],
+    range: [0, 436],
+    breaks: [[100, 900]],
+    space: 36,
+  });
   const seen = [];
   const ticks = brokenScaleTicks(s, seg => {
     seen.push(seg.domain());
     return seg.ticks(4);
   });
-  assert.deepStrictEqual(seen, [[0, 100], [900, 1000]], "one plain scale per segment");
+  assert.deepStrictEqual(
+    seen,
+    [
+      [0, 100],
+      [900, 1000],
+    ],
+    "one plain scale per segment",
+  );
   assert.ok(ticks.includes(100) && ticks.includes(900), "both break edges");
-  assert.ok(ticks.some(t => t > 0 && t < 100), "the low segment gets its own nice ticks");
-  assert.ok(ticks.some(t => t > 900 && t < 1000), "so does the high one");
+  assert.ok(
+    ticks.some(t => t > 0 && t < 100),
+    "the low segment gets its own nice ticks",
+  );
+  assert.ok(
+    ticks.some(t => t > 900 && t < 1000),
+    "so does the high one",
+  );
   assert.strictEqual(new Set(ticks).size, ticks.length, "no duplicates");
 });
 
 it("brokenScaleTicks only adds a missing break edge that keepEdge accepts", () => {
-  const s = brokenScale({domain: [0, 1000], range: [0, 436], breaks: [[100, 900]], space: 36});
+  const s = brokenScale({
+    domain: [0, 1000],
+    range: [0, 436],
+    breaks: [[100, 900]],
+    space: 36,
+  });
   const seen = [];
   const ticks = brokenScaleTicks(
     s,
@@ -125,7 +223,14 @@ it("brokenScaleTicks only adds a missing break edge that keepEdge accepts", () =
       return edge === 900;
     },
   );
-  assert.deepStrictEqual(seen.map(d => d[0]), [100, 900], "asked about each missing edge");
-  assert.ok(seen.every(d => d[1] && d[2] === "function"), "with the segment's ticks and scale");
+  assert.deepStrictEqual(
+    seen.map(d => d[0]),
+    [100, 900],
+    "asked about each missing edge",
+  );
+  assert.ok(
+    seen.every(d => d[1] && d[2] === "function"),
+    "with the segment's ticks and scale",
+  );
   assert.ok(!ticks.includes(100) && ticks.includes(900));
 });

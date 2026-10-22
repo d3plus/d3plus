@@ -127,4 +127,6 @@ const fields = {
 /** The keys of `vizFields`. */
 export type VizFieldKey = keyof typeof fields;
 
-export const vizFields: ConfigField[] = Object.entries(fields).map(([key, field]) => ({key, ...field}));
+export const vizFields: ConfigField[] = Object.entries(fields).map(
+  ([key, field]) => ({key, ...field}),
+);

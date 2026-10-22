@@ -9,7 +9,11 @@ it("lighter", () => {
 
   const custom = lighter("#440000", 0.2);
   assert.ok(custom.startsWith("rgb("), "custom intensity value");
-  assert.notStrictEqual(custom, lighter("#440000"), "different intensity produces different result");
+  assert.notStrictEqual(
+    custom,
+    lighter("#440000"),
+    "different intensity produces different result",
+  );
 
   const zero = lighter("#440000", 0);
   assert.ok(zero.startsWith("rgb("), "zero intensity");

@@ -24,8 +24,7 @@ interface SceneComponent {
 
 export function paintComponentScene(instance: SceneComponent): void {
   const sel = instance._select;
-  const node =
-    sel && typeof sel.node === "function" ? sel.node() : null;
+  const node = sel && typeof sel.node === "function" ? sel.node() : null;
   if (!(node instanceof Element)) return;
   const container: Element = node;
 

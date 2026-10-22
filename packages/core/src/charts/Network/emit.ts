@@ -94,7 +94,17 @@ function emitNetworkLinks(viz: VizInstance, c: NetworkCtx): SceneNode[] {
     } as SceneNode);
 
     // Optional directional arrowheads at the node boundary.
-    out.push(...networkLinkArrows(viz, link, datum, paint.stroke, paint.strokeWidth, i, `network-arrow-${srcId}-${tgtId}-${i}`));
+    out.push(
+      ...networkLinkArrows(
+        viz,
+        link,
+        datum,
+        paint.stroke,
+        paint.strokeWidth,
+        i,
+        `network-arrow-${srcId}-${tgtId}-${i}`,
+      ),
+    );
   }
   return out;
 }
@@ -111,9 +121,21 @@ function networkNode(
   if (shapeKind === "Circle")
     return {type: "circle", key, cx: d.x, cy: d.y, r: d.r, ...base};
   if (shapeKind === "Rect") {
-    const w = Number(d.width ?? resolveAccessor<number>(merged.width, base.datum, i) ?? 0);
-    const h = Number(d.height ?? resolveAccessor<number>(merged.height, base.datum, i) ?? 0);
-    return {type: "rect", key, x: d.x - w / 2, y: d.y - h / 2, width: w, height: h, ...base};
+    const w = Number(
+      d.width ?? resolveAccessor<number>(merged.width, base.datum, i) ?? 0,
+    );
+    const h = Number(
+      d.height ?? resolveAccessor<number>(merged.height, base.datum, i) ?? 0,
+    );
+    return {
+      type: "rect",
+      key,
+      x: d.x - w / 2,
+      y: d.y - h / 2,
+      width: w,
+      height: h,
+      ...base,
+    };
   }
   return null;
 }
@@ -139,11 +161,19 @@ export const networkEmit: ChartEmit = ({viz}) => {
         // Nodes are data shapes: keep their stroke a constant screen width as the
         // network zooms (the links above deliberately scale with the zoom, so
         // heavier connections read as heavier when zoomed in).
-        if (paint.vectorEffect === undefined) paint.vectorEffect = "non-scaling-stroke";
-        const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
+        if (paint.vectorEffect === undefined)
+          paint.vectorEffect = "non-scaling-stroke";
+        const sizeFn = viz._size as
+          ((d: DataPoint, i: number) => unknown) | undefined;
         const validSize = sizeFn ? `, ${sizeFn(datum, d.i ?? i)}` : "";
         const aria = {label: `${drawNodeLabel(viz, d, i)}${validSize}.`};
-        const node = networkNode(shapeKind, d, merged, {datum, paint, aria}, d.i ?? i);
+        const node = networkNode(
+          shapeKind,
+          d,
+          merged,
+          {datum, paint, aria},
+          d.i ?? i,
+        );
         // Other shape kinds: skipped (Network's default is Circle).
         if (!node) continue;
         out.push(node);
@@ -154,7 +184,8 @@ export const networkEmit: ChartEmit = ({viz}) => {
 
       // Labels via the chart-specific label fn. labelBounds is the
       // shape's aes (r for circles, width/height for rects).
-      const labelFn = c.nodeShapeConfig.label as ((d: NetworkNode, i: number) => unknown) | undefined;
+      const labelFn = c.nodeShapeConfig.label as
+        ((d: NetworkNode, i: number) => unknown) | undefined;
       if (labelFn) {
         const labelNodes = emitLabels({
           data: values as DataPoint[],
@@ -163,7 +194,8 @@ export const networkEmit: ChartEmit = ({viz}) => {
           y: d => (d as NetworkNode).y,
           aes: d => {
             const n = d as NetworkNode;
-            if (shapeKind === "Circle") return {r: n.r, width: n.r * 2, height: n.r * 2};
+            if (shapeKind === "Circle")
+              return {r: n.r, width: n.r * 2, height: n.r * 2};
             return {width: n.width ?? 0, height: n.height ?? 0};
           },
           rotate: constant(0),
@@ -172,14 +204,21 @@ export const networkEmit: ChartEmit = ({viz}) => {
             const a = aes as {r?: number; width?: number; height?: number};
             if (shapeKind === "Circle") {
               const r = a.r ?? 0;
-              return {width: r * 1.5, height: r * 1.5, x: -r * 0.75, y: -r * 0.75};
+              return {
+                width: r * 1.5,
+                height: r * 1.5,
+                x: -r * 0.75,
+                y: -r * 0.75,
+              };
             }
             const w = a.width ?? 0;
             const h = a.height ?? 0;
             return {width: w, height: h, x: -w / 2, y: -h / 2};
           },
           labelConfig: {
-            ...((merged.labelConfig as Record<string, unknown>) ?? {fontResize: true}),
+            ...((merged.labelConfig as Record<string, unknown>) ?? {
+              fontResize: true,
+            }),
             fontColor: (d: {data?: NetworkNode}) => {
               const node = (d.data ?? d) as NetworkNode;
               const fill = resolveAccessor<string>(
@@ -187,7 +226,10 @@ export const networkEmit: ChartEmit = ({viz}) => {
                 (node.data ?? node) as DataPoint,
                 node.i ?? 0,
               );
-              return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
+              return colorContrast(
+                typeof fill === "string" ? fill : "rgb(255, 255, 255)",
+                viz.schema.colorDefaults,
+              );
             },
             ...userLabelConfig(viz, shapeKind),
           },

@@ -40,21 +40,57 @@ it("textWrap", () => {
     "catch for literal line break (\\n)",
   );
 
-  const truncResult = textWrap().fontFamily(font).fontSize(14).width(200).height(14)("This is a very long sentence that should definitely be truncated at some point.");
-  assert.strictEqual(truncResult.truncated, true, "truncated when height is too small");
+  const truncResult = textWrap()
+    .fontFamily(font)
+    .fontSize(14)
+    .width(200)
+    .height(14)(
+    "This is a very long sentence that should definitely be truncated at some point.",
+  );
+  assert.strictEqual(
+    truncResult.truncated,
+    true,
+    "truncated when height is too small",
+  );
 
-  const maxLinesResult = textWrap().fontFamily(font).fontSize(14).maxLines(1)("Hello D3plus, please wrap this sentence for me.");
-  assert.strictEqual(maxLinesResult.lines.length, 1, "maxLines limits output to 1 line");
-  assert.strictEqual(maxLinesResult.truncated, true, "maxLines truncates remaining text");
+  const maxLinesResult = textWrap().fontFamily(font).fontSize(14).maxLines(1)(
+    "Hello D3plus, please wrap this sentence for me.",
+  );
+  assert.strictEqual(
+    maxLinesResult.lines.length,
+    1,
+    "maxLines limits output to 1 line",
+  );
+  assert.strictEqual(
+    maxLinesResult.truncated,
+    true,
+    "maxLines truncates remaining text",
+  );
 
   const nonString = textWrap()(42);
-  assert.strictEqual(nonString.sentence, "42", "non-string input is stringified");
+  assert.strictEqual(
+    nonString.sentence,
+    "42",
+    "non-string input is stringified",
+  );
 
   const undefInput = textWrap()(undefined);
-  assert.strictEqual(undefInput.sentence, "undefined", "undefined input is stringified");
+  assert.strictEqual(
+    undefInput.sentence,
+    "undefined",
+    "undefined input is stringified",
+  );
 
-  const overflowResult = textWrap().fontFamily(font).fontSize(14).width(5).overflow(false)("Superlongword");
-  assert.strictEqual(overflowResult.truncated, true, "overflow false truncates wide word");
+  const overflowResult = textWrap()
+    .fontFamily(font)
+    .fontSize(14)
+    .width(5)
+    .overflow(false)("Superlongword");
+  assert.strictEqual(
+    overflowResult.truncated,
+    true,
+    "overflow false truncates wide word",
+  );
 
   // Re-wrapping text at the width it reports must be stable: a consumer that
   // sizes a box to `ceil(max(widths))` should not trigger another line break.
@@ -66,9 +102,17 @@ it("textWrap", () => {
     "internationalization",
   ];
   for (const s of idemSentences) {
-    const first = textWrap().fontFamily(font).fontSize(14).width(400).height(400)(s);
+    const first = textWrap()
+      .fontFamily(font)
+      .fontSize(14)
+      .width(400)
+      .height(400)(s);
     const boxWidth = Math.ceil(Math.max(...first.widths));
-    const refit = textWrap().fontFamily(font).fontSize(14).width(boxWidth).height(400)(s);
+    const refit = textWrap()
+      .fontFamily(font)
+      .fontSize(14)
+      .width(boxWidth)
+      .height(400)(s);
     assert.deepStrictEqual(
       refit.lines,
       first.lines,
@@ -87,7 +131,11 @@ it("textWrap", () => {
   assert.strictEqual(getters.fontWeight(), 400, "fontWeight getter");
   assert.strictEqual(getters.overflow(), false, "overflow getter");
   assert.strictEqual(getters.maxLines(), null, "maxLines getter");
-  assert.strictEqual(getters.shape(), "square", "shape getter defaults to square");
+  assert.strictEqual(
+    getters.shape(),
+    "square",
+    "shape getter defaults to square",
+  );
   assert.strictEqual(getters.shape("circle").shape(), "circle", "shape setter");
 });
 
@@ -120,7 +168,11 @@ it("textWrap circle", () => {
     .width(300)
     .height(300)
     .shape("circle")(sentence);
-  assert.strictEqual(circle.truncated, false, "the label fits without truncating");
+  assert.strictEqual(
+    circle.truncated,
+    false,
+    "the label fits without truncating",
+  );
   assert.ok(circle.lines.length >= 2, "the label wraps to multiple lines");
   circle.widths.forEach((w, i) => {
     const chord = chordAt(150, circle.lines.length, 20, 16, i + 1);
@@ -147,7 +199,11 @@ it("textWrap circle", () => {
     .width(30)
     .height(30)
     .shape("circle")(sentence);
-  assert.strictEqual(tiny.truncated, true, "text too large for the circle truncates");
+  assert.strictEqual(
+    tiny.truncated,
+    true,
+    "text too large for the circle truncates",
+  );
 
   // maxLines caps the circle search just like the square path.
   const capped = textWrap()
@@ -224,7 +280,11 @@ it("textWrap keeps every line within the configured width", () => {
   ];
   for (const width of [120, 160, 200, 260]) {
     for (const sentence of sentences) {
-      const wrapped = textWrap().fontFamily(font).fontSize(14).width(width).height(400)(sentence);
+      const wrapped = textWrap()
+        .fontFamily(font)
+        .fontSize(14)
+        .width(width)
+        .height(400)(sentence);
       wrapped.lines.forEach((line, i) => {
         const visible = textWidth(line, style);
         const single = line.trim().split(/\s+/).length === 1;
@@ -250,9 +310,22 @@ it("textWrap counts the spaces between words, not the one after the last", () =>
   // Room for the three words and the two gaps between them, and nothing more:
   // the trailing space after "gamma" must not force a break.
   const exact = widths.reduce((a, b) => a + b, 0) + 2 * space;
-  const fits = textWrap().fontFamily(font).fontSize(14).width(Math.ceil(exact))(words.join(" ") + " ");
-  assert.deepStrictEqual(fits.lines.map(line => line.trimEnd()), ["alpha beta gamma"], "two gaps fit exactly");
+  const fits = textWrap().fontFamily(font).fontSize(14).width(Math.ceil(exact))(
+    words.join(" ") + " ",
+  );
+  assert.deepStrictEqual(
+    fits.lines.map(line => line.trimEnd()),
+    ["alpha beta gamma"],
+    "two gaps fit exactly",
+  );
   // One space less than the gaps need, and the last word wraps.
-  const tight = textWrap().fontFamily(font).fontSize(14).width(Math.floor(exact - space))(words.join(" "));
-  assert.deepStrictEqual(tight.lines, ["alpha beta", "gamma"], "the gaps count toward the line width");
+  const tight = textWrap()
+    .fontFamily(font)
+    .fontSize(14)
+    .width(Math.floor(exact - space))(words.join(" "));
+  assert.deepStrictEqual(
+    tight.lines,
+    ["alpha beta", "gamma"],
+    "the gaps count toward the line width",
+  );
 });

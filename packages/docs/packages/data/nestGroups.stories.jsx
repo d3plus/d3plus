@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.",
+        component:
+          "Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -38,10 +39,15 @@ const dataSource = `const data = [
 const show = value => JSON.stringify(value, null, 2);
 
 const example = (call, result, story) => {
-  const Story = () => <FunctionExample input={`${dataSource}\n\n${call}`} output={show(result)} />;
+  const Story = () => (
+    <FunctionExample input={`${dataSource}\n\n${call}`} output={show(result)} />
+  );
   Story.parameters = {
     docs: {
-      source: {code: `import {nestGroups} from "@d3plus/data";\n\n${dataSource}\n\n${call};\n// → ${show(result).replace(/\n/g, "\n//   ")}`, language: "jsx"},
+      source: {
+        code: `import {nestGroups} from "@d3plus/data";\n\n${dataSource}\n\n${call};\n// → ${show(result).replace(/\n/g, "\n//   ")}`,
+        language: "jsx",
+      },
       description: {story},
     },
   };

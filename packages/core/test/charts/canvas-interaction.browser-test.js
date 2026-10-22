@@ -34,25 +34,32 @@ const probeFn = src =>
       const viz = build(window.d3plus).duration(0).select("#viz");
       viz.render(() => {
         try {
-          const canvas = document.querySelector("#viz canvas.d3plus-render-canvas");
+          const canvas = document.querySelector(
+            "#viz canvas.d3plus-render-canvas",
+          );
           if (!canvas) return reject(new Error("no <canvas> mounted in #viz"));
           const ctx = canvas.getContext("2d");
           const {width, height} = canvas;
           const data = ctx.getImageData(0, 0, width, height).data;
 
           // Find a strongly-blue pixel (an Alpha bar) in backing-store space.
-          let bx = -1, by = -1;
+          let bx = -1,
+            by = -1;
           for (let y = 0; y < height && by < 0; y++)
             for (let x = 0; x < width; x++) {
               const i = (y * width + x) * 4;
-              const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+              const r = data[i],
+                g = data[i + 1],
+                b = data[i + 2],
+                a = data[i + 3];
               if (a > 250 && b > 140 && r < 120 && g < 120) {
                 bx = x;
                 by = y;
                 break;
               }
             }
-          if (bx < 0) return reject(new Error("no blue bar pixel found on canvas"));
+          if (bx < 0)
+            return reject(new Error("no blue bar pixel found on canvas"));
 
           // Backing store may be devicePixelRatio-scaled; the listeners read CSS
           // coords (clientX - rect.left), so convert and offset by the rect.
@@ -83,8 +90,15 @@ it("Canvas backend routes a click on a shape to the chart's on('click') handler"
     '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
   const fp = await render(body, probeFn, builderSrc);
 
-  assert.ok(fp.clicked, `click handler fired with a datum (got ${JSON.stringify(fp.clicked)})`);
-  assert.strictEqual(fp.clicked.group, "Alpha", "the clicked bar's datum is an Alpha bar");
+  assert.ok(
+    fp.clicked,
+    `click handler fired with a datum (got ${JSON.stringify(fp.clicked)})`,
+  );
+  assert.strictEqual(
+    fp.clicked.group,
+    "Alpha",
+    "the clicked bar's datum is an Alpha bar",
+  );
   assert.ok(
     fp.clicked.x === "Q1" || fp.clicked.x === "Q2",
     `the datum carries the source x (got ${JSON.stringify(fp.clicked.x)})`,
@@ -103,15 +117,19 @@ it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click"
         {id: "Delta", x: "Delta", y: 30},
       ])
       .groupBy("id")
-      .x("x").y("y")
-      .width(400).height(300)
+      .x("x")
+      .y("y")
+      .width(400)
+      .height(300)
       .duration(0)
       .on("click", () => fired.push("global"))
       .on("click.shape", () => fired.push("shape"))
       .on("click.Bar", () => fired.push("Bar"))
       .on("click.Circle", () => fired.push("Circle"));
 
-    await new Promise(resolve => viz.select(target).renderer("canvas").render(resolve));
+    await new Promise(resolve =>
+      viz.select(target).renderer("canvas").render(resolve),
+    );
     const renderer = viz._sceneRenderer;
     const canvas = target.querySelector("canvas.d3plus-render-canvas");
     const rect = canvas.getBoundingClientRect();
@@ -127,18 +145,26 @@ it("Canvas dispatches per-shape events (global + .shape + .Bar) on a real click"
       }
     }
     if (hit) {
-      canvas.dispatchEvent(new window.MouseEvent("click", {
-        bubbles: true,
-        clientX: rect.left + hit[0],
-        clientY: rect.top + hit[1],
-      }));
+      canvas.dispatchEvent(
+        new window.MouseEvent("click", {
+          bubbles: true,
+          clientX: rect.left + hit[0],
+          clientY: rect.top + hit[1],
+        }),
+      );
     }
     return {hit, fired};
   });
 
   assert.ok(res.hit, "found a pickable Bar on the canvas");
-  assert.ok(res.fired.includes("Bar"), "shape-class handler click.Bar fired on canvas");
+  assert.ok(
+    res.fired.includes("Bar"),
+    "shape-class handler click.Bar fired on canvas",
+  );
   assert.ok(res.fired.includes("shape"), "click.shape fired on canvas");
   assert.ok(res.fired.includes("global"), "global click fired on canvas");
-  assert.ok(!res.fired.includes("Circle"), "click.Circle did NOT fire for a Bar");
+  assert.ok(
+    !res.fired.includes("Circle"),
+    "click.Circle did NOT fire for a Bar",
+  );
 });

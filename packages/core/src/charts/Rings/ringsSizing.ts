@@ -46,7 +46,13 @@ export interface RingGeometry {
 export function ringsGeometry(width: number, height: number): RingGeometry {
   const radius = (min([height, width]) || 0) / 2;
   const ringWidth = radius / 3;
-  return {width, height, ringWidth, primaryRing: ringWidth, secondaryRing: ringWidth * 2};
+  return {
+    width,
+    height,
+    ringWidth,
+    primaryRing: ringWidth,
+    secondaryRing: ringWidth * 2,
+  };
 }
 
 /** Clamps a radius into `[sizeMin, sizeMax]` (either bound optional). */
@@ -72,14 +78,29 @@ function ringsSizeScale(
 ): RadiusScale {
   const {ringWidth, primaryRing, secondaryRing} = geom;
   const half = Math.sin(Math.PI / Math.max(slots, 2));
-  const cap = Math.max(1, Math.floor(min([ringWidth / 4, primaryRing * half - 1, secondaryRing * half - 1])!));
-  const rMax = Math.min((v.schema.sizeMax as number | undefined) ?? Infinity, cap);
-  const rMin = Math.min(rMax / 2, (v.schema.sizeMin as number | undefined) ?? 3);
+  const cap = Math.max(
+    1,
+    Math.floor(
+      min([ringWidth / 4, primaryRing * half - 1, secondaryRing * half - 1])!,
+    ),
+  );
+  const rMax = Math.min(
+    (v.schema.sizeMax as number | undefined) ?? Infinity,
+    cap,
+  );
+  const rMin = Math.min(
+    rMax / 2,
+    (v.schema.sizeMin as number | undefined) ?? 3,
+  );
   const domain = extent(values) as [number, number];
   const name = `scale${v.schema.sizeScale.charAt(0).toUpperCase()}${v.schema.sizeScale.slice(1)}`;
-  return ((scales as unknown as Record<string, () => RScale>)[name]()
+  return (scales as unknown as Record<string, () => RScale>)
+    [name]()
     .domain(domain)
-    .range([domain[0] === domain[1] ? rMax : rMin, rMax]) as unknown) as RadiusScale;
+    .range([
+      domain[0] === domain[1] ? rMax : rMin,
+      rMax,
+    ]) as unknown as RadiusScale;
 }
 
 /**
@@ -102,10 +123,17 @@ export function sizeRingsNodes(
   if (v._size) {
     const all = [center, ...primaries, ...secondaries];
     all.forEach(n => (n.size = Number(v._size!(n.data, n.i))));
-    const values = all.map(n => n.size as number).filter(n => Number.isFinite(n));
+    const values = all
+      .map(n => n.size as number)
+      .filter(n => Number.isFinite(n));
     if (values.length) {
       const radius = ringsSizeScale(v, geom, slots, values);
-      all.forEach(n => (n.r = Number.isFinite(n.size) ? radius(n.size as number) : clampRadius(v, 0)));
+      all.forEach(
+        n =>
+          (n.r = Number.isFinite(n.size)
+            ? radius(n.size as number)
+            : clampRadius(v, 0)),
+      );
       return radius;
     }
   }
@@ -115,19 +143,21 @@ export function sizeRingsNodes(
   const secondaryDistance = ringWidth / 4;
 
   let primaryMax = primaryDistance / 2 - 4;
-  if (primaryDistance / 2 - 4 < 8) primaryMax = min([primaryDistance / 2, 8]) || 0;
+  if (primaryDistance / 2 - 4 < 8)
+    primaryMax = min([primaryDistance / 2, 8]) || 0;
 
   let secondaryMax = secondaryDistance / 2 - 4;
-  if (secondaryDistance / 2 - 4 < 4) secondaryMax = min([secondaryDistance / 2, 4]) || 0;
+  if (secondaryDistance / 2 - 4 < 4)
+    secondaryMax = min([secondaryDistance / 2, 4]) || 0;
   if (secondaryMax > ringWidth / 10) secondaryMax = ringWidth / 10;
-  if (secondaryMax > primaryMax && secondaryMax > 10) secondaryMax = primaryMax * 0.75;
+  if (secondaryMax > primaryMax && secondaryMax > 10)
+    secondaryMax = primaryMax * 0.75;
   if (primaryMax > secondaryMax * 1.5) primaryMax = secondaryMax * 1.5;
 
   primaries.forEach(p => (p.r = clampRadius(v, Math.floor(primaryMax))));
   secondaries.forEach(s => (s.r = clampRadius(v, Math.floor(secondaryMax))));
   return null;
 }
-
 
 /** Smallest font size, in pixels, a center label may shrink to and still sit inside its circle. */
 const CENTER_LABEL_MIN_FONT = 9;
@@ -146,18 +176,42 @@ export function ringsCenterLabel(
   geom: RingGeometry,
   text: string,
   fontFamily: string | string[],
-): {bounds: {x: number; y: number; width: number; height: number}; inside: boolean} {
+): {
+  bounds: {x: number; y: number; width: number; height: number};
+  inside: boolean;
+} {
   const {primaryRing} = geom;
   if (!v._size)
-    return {bounds: {x: -primaryRing / 2, y: -primaryRing / 2, width: primaryRing, height: primaryRing}, inside: true};
+    return {
+      bounds: {
+        x: -primaryRing / 2,
+        y: -primaryRing / 2,
+        width: primaryRing,
+        height: primaryRing,
+      },
+      inside: true,
+    };
   const r = center.r ?? 0;
   const side = r * Math.SQRT2;
   const longestWord = Math.max(
     0,
-    ...String(text ?? "").split(/\s+/).map(w => textWidth(w, {"font-family": fontFamilyStringify(fontFamily), "font-size": CENTER_LABEL_MIN_FONT})),
+    ...String(text ?? "")
+      .split(/\s+/)
+      .map(w =>
+        textWidth(w, {
+          "font-family": fontFamilyStringify(fontFamily),
+          "font-size": CENTER_LABEL_MIN_FONT,
+        }),
+      ),
   );
   if (side >= longestWord && side >= CENTER_LABEL_MIN_FONT * 1.4)
-    return {bounds: {x: -side / 2, y: -side / 2, width: side, height: side}, inside: true};
+    return {
+      bounds: {x: -side / 2, y: -side / 2, width: side, height: side},
+      inside: true,
+    };
   const width = primaryRing;
-  return {bounds: {x: -width / 2, y: r + 3, width, height: primaryRing / 2}, inside: false};
+  return {
+    bounds: {x: -width / 2, y: r + 3, width, height: primaryRing / 2},
+    inside: false,
+  };
 }

@@ -62,10 +62,15 @@ interface RScale {
   range: ((r: [number, number]) => RScale) & (() => [number, number]);
 }
 
-type RawLink = {source: string | number | DataPoint; target: string | number | DataPoint};
+type RawLink = {
+  source: string | number | DataPoint;
+  target: string | number | DataPoint;
+};
 
 /** Resolves filtered data + schema nodes into laid-out node records (pre-layout). */
-function buildNetworkNodes(v: Parameters<TransformStage>[0]["viz"]): NetworkNode[] {
+function buildNetworkNodes(
+  v: Parameters<TransformStage>[0]["viz"],
+): NetworkNode[] {
   const nodeId = (d: Record<string, unknown>, i: number) =>
     `${v._id(d, i) || v.schema.nodeGroupBy[min([v._drawDepth, v.schema.nodeGroupBy.length - 1])](d, i)}`;
 
@@ -77,13 +82,12 @@ function buildNetworkNodes(v: Parameters<TransformStage>[0]["viz"]): NetworkNode
     {},
   );
 
-  let rawNodes: Record<string, DataPoint> = (v.schema.nodes as DataPoint[]).reduce(
-    (obj: Record<string, DataPoint>, d, i) => {
-      obj[nodeId(d as Record<string, unknown>, i)] = d;
-      return obj;
-    },
-    {},
-  );
+  let rawNodes: Record<string, DataPoint> = (
+    v.schema.nodes as DataPoint[]
+  ).reduce((obj: Record<string, DataPoint>, d, i) => {
+    obj[nodeId(d as Record<string, unknown>, i)] = d;
+    return obj;
+  }, {});
 
   const nodes: NetworkNode[] = Array.from(
     new Set(Object.keys(data).concat(Object.keys(rawNodes))),
@@ -92,7 +96,7 @@ function buildNetworkNodes(v: Parameters<TransformStage>[0]["viz"]): NetworkNode
       const d = data[id];
       const n = rawNodes[id];
       if (n === undefined) return false;
-      const pickFrom = <T,>(
+      const pickFrom = <T>(
         accessor: (x: DataPoint) => T,
         validate: (x: T) => boolean = vv => vv !== undefined,
       ): T =>
@@ -102,10 +106,18 @@ function buildNetworkNodes(v: Parameters<TransformStage>[0]["viz"]): NetworkNode
         data: (d || n) as DataPoint,
         i,
         id,
-        fx: pickFrom(v._x as (x: DataPoint) => number, (val: number) => !isNaN(val)),
-        fy: pickFrom(v._y as (x: DataPoint) => number, (val: number) => !isNaN(val)),
+        fx: pickFrom(
+          v._x as (x: DataPoint) => number,
+          (val: number) => !isNaN(val),
+        ),
+        fy: pickFrom(
+          v._y as (x: DataPoint) => number,
+          (val: number) => !isNaN(val),
+        ),
         node: n,
-        r: v._size ? pickFrom(v._size as (x: DataPoint) => number) : (v.schema.sizeMin as number),
+        r: v._size
+          ? pickFrom(v._size as (x: DataPoint) => number)
+          : (v.schema.sizeMin as number),
         shape: pickFrom(v.schema.shape) as string,
       } as NetworkNode;
     })
@@ -138,28 +150,29 @@ function buildNetworkLinks(
     return {
       size: v.schema.linkSize(l) as number,
       source: (referenceType === "number"
-        ? nodeByOriginal.get((v.schema.nodes as DataPoint[])[l.source as number])
+        ? nodeByOriginal.get(
+            (v.schema.nodes as DataPoint[])[l.source as number],
+          )
         : referenceType === "string"
           ? nodeLookup[l.source as string]
           : nodeLookup[(l.source as DataPoint).id as string]) as NetworkNode,
       target: (referenceType === "number"
-        ? nodeByOriginal.get((v.schema.nodes as DataPoint[])[l.target as number])
+        ? nodeByOriginal.get(
+            (v.schema.nodes as DataPoint[])[l.target as number],
+          )
         : referenceType === "string"
           ? nodeLookup[l.target as string]
           : nodeLookup[(l.target as DataPoint).id as string]) as NetworkNode,
     };
   });
 
-  v.ctx.linkLookup = links.reduce(
-    (obj: Record<string, NetworkNode[]>, d) => {
-      if (!obj[d.source.id]) obj[d.source.id] = [];
-      obj[d.source.id].push(d.target);
-      if (!obj[d.target.id]) obj[d.target.id] = [];
-      obj[d.target.id].push(d.source);
-      return obj;
-    },
-    {},
-  );
+  v.ctx.linkLookup = links.reduce((obj: Record<string, NetworkNode[]>, d) => {
+    if (!obj[d.source.id]) obj[d.source.id] = [];
+    obj[d.source.id].push(d.target);
+    if (!obj[d.target.id]) obj[d.target.id] = [];
+    obj[d.target.id].push(d.source);
+    return obj;
+  }, {});
 
   return links;
 }
@@ -196,7 +209,9 @@ function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
   const nodePositions = nodes.map(
     n => [n.vx ?? 0, n.vy ?? 0] as [number, number],
   );
-  let angle = 0, cx = 0, cy = 0;
+  let angle = 0,
+    cx = 0,
+    cy = 0;
   if (nodePositions.length === 2) {
     angle = 100;
   } else if (nodePositions.length > 2) {
@@ -208,7 +223,11 @@ function runForceLayout(nodes: NetworkNode[], links: NetworkLink[]): void {
   }
 
   nodes.forEach(n => {
-    const p = pointRotate([n.vx ?? 0, n.vy ?? 0], -1 * ((Math.PI / 180) * angle), [cx, cy]);
+    const p = pointRotate(
+      [n.vx ?? 0, n.vy ?? 0],
+      -1 * ((Math.PI / 180) * angle),
+      [cx, cy],
+    );
     n.fx = p[0];
     n.fy = p[1];
   });
@@ -229,7 +248,8 @@ function positionNetworkNodes(
   const key = `${nodes.map(n => n.id).join("\u0000")}|${links
     .map(l => `${l.source.id}>${l.target.id}:${l.size}`)
     .join("\u0000")}`;
-  const cache = v.ctx.networkForceCache as {key: string; positions: [number, number][]} | undefined;
+  const cache = v.ctx.networkForceCache as
+    {key: string; positions: [number, number][]} | undefined;
   if (cache && cache.key === key) {
     nodes.forEach((n, i) => {
       n.fx = cache.positions[i][0];
@@ -253,7 +273,11 @@ export function networkSizeLegendScale(
   height: number,
 ): SizeLegendScale | null {
   if (!v._size) return null;
-  if (!Array.isArray(v._filteredData) || !Array.isArray(v.schema.nodes) || !Array.isArray(v.schema.links))
+  if (
+    !Array.isArray(v._filteredData) ||
+    !Array.isArray(v.schema.nodes) ||
+    !Array.isArray(v.schema.links)
+  )
     return null;
   const nodes = buildNetworkNodes(v);
   if (!nodes.length) return null;
@@ -262,7 +286,12 @@ export function networkSizeLegendScale(
   v.ctx.nodeLookup = nodeLookup;
   v.ctx.linkLookup = linkLookup;
   positionNetworkNodes(v, nodes, links);
-  return scaleNetworkNodes(v, nodes, width, height) as unknown as SizeLegendScale;
+  return scaleNetworkNodes(
+    v,
+    nodes,
+    width,
+    height,
+  ) as unknown as SizeLegendScale;
 }
 
 /** Positions nodes within bounds and assigns final r/width/height via a fitted radius scale. */
@@ -303,21 +332,26 @@ function scaleNetworkNodes(
         d3ArrayMerge(
           nodes.map(n1 =>
             nodes.map(n2 =>
-              n1 === n2 ? null : pointDistance([n1.x ?? 0, n1.y ?? 0], [n2.x ?? 0, n2.y ?? 0]),
+              n1 === n2
+                ? null
+                : pointDistance([n1.x ?? 0, n1.y ?? 0], [n2.x ?? 0, n2.y ?? 0]),
             ),
           ) as unknown as Iterable<Iterable<number>>,
         ),
       ) as unknown as number) / 2,
     ]) as unknown as number);
 
-  const r: RScale = ((scales as unknown as Record<string, () => RScale>)[
+  const r: RScale = (scales as unknown as Record<string, () => RScale>)
+    [
       `scale${v.schema.sizeScale.charAt(0).toUpperCase()}${v.schema.sizeScale.slice(1)}`
-    ]())
-      .domain(rExtent)
-      .range([
-        rExtent[0] === rExtent[1] ? rMax : (min([rMax / 2, v.schema.sizeMin as number]) as number),
-        rMax,
-      ]);
+    ]()
+    .domain(rExtent)
+    .range([
+      rExtent[0] === rExtent[1]
+        ? rMax
+        : (min([rMax / 2, v.schema.sizeMin as number]) as number),
+      rMax,
+    ]);
   const xDomain = x.domain();
   const yDomain = y.domain();
 
@@ -370,9 +404,10 @@ function normalizeLinkStrokes(
 ): void {
   const strokeExtent = extent(links, (d: NetworkLink) => d.size);
   if (strokeExtent[0] !== strokeExtent[1]) {
-    const strokeScale = (scales as unknown as Record<string, () => RScale>)[
-      `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
-    ]()
+    const strokeScale = (scales as unknown as Record<string, () => RScale>)
+      [
+        `scale${v.schema.linkSizeScale.charAt(0).toUpperCase()}${v.schema.linkSizeScale.slice(1)}`
+      ]()
       .domain(strokeExtent as [number, number])
       .range([v.schema.linkSizeMin as number, r.range()[0]]);
     links.forEach(link => {

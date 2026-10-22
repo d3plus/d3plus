@@ -41,7 +41,10 @@ it("partition shade: honors a custom step and cap", () => {
 });
 
 it("partition shade: partitionShadeFill lightens colors and passes the rest through", () => {
-  assert.strictEqual(partitionShadeFill("#4c6ef5", 0.3), colorLighter("#4c6ef5", 0.3));
+  assert.strictEqual(
+    partitionShadeFill("#4c6ef5", 0.3),
+    colorLighter("#4c6ef5", 0.3),
+  );
   assert.strictEqual(partitionShadeFill("#4c6ef5", 0), "#4c6ef5");
   assert.strictEqual(partitionShadeFill("none", 0.3), "none");
   assert.strictEqual(partitionShadeFill("url(#x)", 0.3), "url(#x)");
@@ -51,19 +54,47 @@ it("partition shade: partitionShadeFill lightens colors and passes the rest thro
 
 it("partition shade: partitionShadeActive applies only on the default color path", () => {
   assert.strictEqual(partitionShadeActive(schema(), defaults), true);
-  assert.strictEqual(partitionShadeActive(schema({shade: false}), defaults), false, "turned off");
-  assert.strictEqual(partitionShadeActive(schema({colorScale: "v"}), defaults), false, "colorScale");
-  assert.strictEqual(partitionShadeActive(schema({colorOrdinal: true}), defaults), false, "ordinal colors");
-  assert.strictEqual(partitionShadeActive(schema({color: () => "red"}), defaults), false, "user color accessor");
-  assert.strictEqual(partitionShadeActive(schema({shapeConfig: {fill: () => "red"}}), defaults), false, "user fill");
+  assert.strictEqual(
+    partitionShadeActive(schema({shade: false}), defaults),
+    false,
+    "turned off",
+  );
+  assert.strictEqual(
+    partitionShadeActive(schema({colorScale: "v"}), defaults),
+    false,
+    "colorScale",
+  );
+  assert.strictEqual(
+    partitionShadeActive(schema({colorOrdinal: true}), defaults),
+    false,
+    "ordinal colors",
+  );
+  assert.strictEqual(
+    partitionShadeActive(schema({color: () => "red"}), defaults),
+    false,
+    "user color accessor",
+  );
+  assert.strictEqual(
+    partitionShadeActive(schema({shapeConfig: {fill: () => "red"}}), defaults),
+    false,
+    "user fill",
+  );
 });
 
 it("partition shade: partitionShadeActive reads the chart's own shapeConfig key", () => {
   const rectFill = schema({shapeConfig: {fill, Rect: {fill: "red"}}});
   assert.strictEqual(partitionShadeActive(rectFill, defaults, "Rect"), false);
-  assert.strictEqual(partitionShadeActive(rectFill, defaults), true, "Path is the default key");
+  assert.strictEqual(
+    partitionShadeActive(rectFill, defaults),
+    true,
+    "Path is the default key",
+  );
   const pathFill = schema({shapeConfig: {fill, Path: {fill: "red"}}});
-  assert.strictEqual(partitionShadeActive(pathFill, defaults), false, "user Path fill");
+  assert.strictEqual(
+    partitionShadeActive(pathFill, defaults),
+    false,
+    "user Path fill",
+  );
   assert.strictEqual(partitionShadeActive(pathFill, defaults, "Rect"), true);
 });
 
@@ -80,8 +111,22 @@ it("partition shade: partitionFillResolver shades by level on the default path o
     "Rect",
   );
   assert.strictEqual(custom(node(2)), colorLighter("#4c6ef5", 0.2));
-  const off = partitionFillResolver(schema({shade: false}), sc, defaults, "Rect");
+  const off = partitionFillResolver(
+    schema({shade: false}),
+    sc,
+    defaults,
+    "Rect",
+  );
   assert.strictEqual(off(node(2)), "#4c6ef5");
-  const none = partitionFillResolver(schema(), {fill: () => 4}, defaults, "Rect");
-  assert.strictEqual(none(node(1)), undefined, "a non-string fill resolves to nothing");
+  const none = partitionFillResolver(
+    schema(),
+    {fill: () => 4},
+    defaults,
+    "Rect",
+  );
+  assert.strictEqual(
+    none(node(1)),
+    undefined,
+    "a non-string fill resolves to nothing",
+  );
 });

@@ -3,36 +3,34 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   level: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "0.95",
     description: "The confidence level, between 0 and 1. Defaults to 0.95.",
     table: {
       defaultValue: {
-        summary: "0.95"
-      }
+        summary: "0.95",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   points: {
     control: {},
     description: "An array of `[x, y]` pairs.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;[number, number]&gt;"
-    }
-  }
+      summary: "array.&lt;[number, number]&gt;",
+    },
+  },
 };

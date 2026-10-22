@@ -1,4 +1,10 @@
-import type {GroupNode, Scene, SceneNode, TextNode, TransitionRect} from "../scene.js";
+import type {
+  GroupNode,
+  Scene,
+  SceneNode,
+  TextNode,
+  TransitionRect,
+} from "../scene.js";
 import {
   arcEnterStart,
   pathEnterStart,
@@ -27,15 +33,21 @@ import type {TrailLog} from "./trailLog.js";
     cone geometry the two backends share.
 */
 function trailSpec(a: SceneNode, b: SceneNode): TrailSpec | null {
-  const pa = trailPartsFromNode(a), pb = trailPartsFromNode(b);
+  const pa = trailPartsFromNode(a),
+    pb = trailPartsFromNode(b);
   if (!pa || !pb || pa.shape !== pb.shape) return null;
   if (Math.hypot(pb.x - pa.x, pb.y - pa.y) < TRAIL_MIN_DISTANCE) return null;
   const color = pb.color ?? pa.color;
   if (typeof color !== "string") return null;
   return {
-    key: b.key, shape: pb.shape, color,
-    A: [pa.x, pa.y], B: [pb.x, pb.y],
-    aDims: pa.dims, bDims: pb.dims, rotate: pb.rotate,
+    key: b.key,
+    shape: pb.shape,
+    color,
+    A: [pa.x, pa.y],
+    B: [pb.x, pb.y],
+    aDims: pa.dims,
+    bDims: pb.dims,
+    rotate: pb.rotate,
   };
 }
 
@@ -107,16 +119,32 @@ function fadeSwapInterp(
   if (!node || node.type !== "text" || !node.fadeSwap) return null;
   const swap = node.fadeSwap;
   if (from && to) {
-    if (from.type !== "text" || sameTextLayout(from as TextNode, to as TextNode)) return null;
+    if (
+      from.type !== "text" ||
+      sameTextLayout(from as TextNode, to as TextNode)
+    )
+      return null;
     return t => {
-      const {opacity, swapped} = fadeSwapOpacity(t, swap, opacityOf(from), opacityOf(to), "update");
+      const {opacity, swapped} = fadeSwapOpacity(
+        t,
+        swap,
+        opacityOf(from),
+        opacityOf(to),
+        "update",
+      );
       const base = swapped ? to : from;
       return {...base, paint: {...base.paint, opacity}} as SceneNode;
     };
   }
   const phase = to ? "enter" : "exit";
   return t => {
-    const {opacity} = fadeSwapOpacity(t, swap, opacityOf(node), opacityOf(node), phase);
+    const {opacity} = fadeSwapOpacity(
+      t,
+      swap,
+      opacityOf(node),
+      opacityOf(node),
+      phase,
+    );
     return {...node, paint: {...node.paint, opacity}} as SceneNode;
   };
 }
@@ -130,11 +158,16 @@ function interpolateChildren(
 ): Interp<SceneNode[]> {
   const {enter, update, exit} = diffChildren(prev, next);
 
-  const wrapGroup = (
-    nodeInterp: Interp<SceneNode>,
-    childInterp: Interp<SceneNode[]>,
-  ): Interp<SceneNode> => t =>
-    ({...(nodeInterp(t) as GroupNode), children: childInterp(t)}) as SceneNode;
+  const wrapGroup =
+    (
+      nodeInterp: Interp<SceneNode>,
+      childInterp: Interp<SceneNode[]>,
+    ): Interp<SceneNode> =>
+    t =>
+      ({
+        ...(nodeInterp(t) as GroupNode),
+        children: childInterp(t),
+      }) as SceneNode;
 
   const trailSpecs: TrailSpec[] = [];
   const persist: {key: string | number; persist: number | boolean}[] = [];
@@ -142,12 +175,16 @@ function interpolateChildren(
     const swap = fadeSwapInterp(a, b);
     if (swap) return swap;
     if (a.type === "group" && b.type === "group") {
-      return wrapGroup(interpolateNode(a, b), interpolateChildren(a.children, b.children, log, flip));
+      return wrapGroup(
+        interpolateNode(a, b),
+        interpolateChildren(a.children, b.children, log, flip),
+      );
     }
     if (b.trail && (b.type === "circle" || b.type === "rect")) {
       // A persistent trail draws its whole history from the log; the plain
       // ephemeral trail draws only this move and fades out on arrival.
-      if (log && isPersistTrail(b)) persist.push({key: b.key, persist: b.trailPersist as number | boolean});
+      if (log && isPersistTrail(b))
+        persist.push({key: b.key, persist: b.trailPersist as number | boolean});
       else {
         const spec = trailSpec(a, b);
         if (spec) trailSpecs.push(spec);
@@ -158,7 +195,10 @@ function interpolateChildren(
 
   // An entering node with an `enterWindow` runs its own enter over that
   // share of the progress (a group's children keep their own timing).
-  const windowed = (n: SceneNode, interp: Interp<SceneNode>): Interp<SceneNode> =>
+  const windowed = (
+    n: SceneNode,
+    interp: Interp<SceneNode>,
+  ): Interp<SceneNode> =>
     n.enterWindow ? t => interp(enterWindowProgress(t, n.enterWindow)) : interp;
   const enters: Interp<SceneNode>[] = enter.map(n => {
     const swap = fadeSwapInterp(undefined, n);
@@ -166,18 +206,22 @@ function interpolateChildren(
     // The drill-up reunion node starts at the full size its former children
     // currently occupy and animates down to its own real target — see
     // `DrawOptions.reunionEnterKey`/`reunionEnterFrom`.
-    const start = flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
-      ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
-      : arcEnterStart(n) ??
-        pathEnterStart(n) ??
-        rectEnterStart(n) ??
-        groupEnterStart(n) ??
-        (flip?.enterFrom && isFlipEligible(n)
-          ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
-          : collapse(n));
+    const start =
+      flip?.reunionEnterKey !== undefined && n.key === flip.reunionEnterKey
+        ? collapseTo(n, flip.reunionEnterFrom!, undefined, true)
+        : (arcEnterStart(n) ??
+          pathEnterStart(n) ??
+          rectEnterStart(n) ??
+          groupEnterStart(n) ??
+          (flip?.enterFrom && isFlipEligible(n)
+            ? collapseTo(n, flip.enterFrom, flip.enterFromBody, true)
+            : collapse(n)));
     const interp = windowed(n, interpolateNode(start, n));
     if (n.type === "group") {
-      return wrapGroup(interp, interpolateChildren([], n.children, undefined, flip));
+      return wrapGroup(
+        interp,
+        interpolateChildren([], n.children, undefined, flip),
+      );
     }
     return interp;
   });
@@ -196,9 +240,10 @@ function interpolateChildren(
   const exits: Interp<SceneNode>[] = animatedExit.map(n => {
     const swap = fadeSwapInterp(n, undefined);
     if (swap) return swap;
-    const end = flip?.exitTo && isFlipEligible(n)
-      ? collapseTo(n, flip.exitTo, flip.exitToBody)
-      : collapse(n);
+    const end =
+      flip?.exitTo && isFlipEligible(n)
+        ? collapseTo(n, flip.exitTo, flip.exitToBody)
+        : collapse(n);
     const interp = interpolateNode(n, end);
     // A group with its own opacity fades out over its children as they
     // stand, as SVG does, rather than also collapsing each of them.
@@ -216,10 +261,11 @@ function interpolateChildren(
         if (n) out.push(n);
       }
     }
-    if (log) for (const p of persist) {
-      const n = persistTrailNode(log, p.key, t);
-      if (n) out.push(n);
-    }
+    if (log)
+      for (const p of persist) {
+        const n = persistTrailNode(log, p.key, t);
+        if (n) out.push(n);
+      }
     for (const u of updaters) out.push(u(t));
     for (const e of enters) out.push(e(t));
     if (t < 1) for (const x of exits) out.push(x(t));
@@ -235,7 +281,17 @@ function interpolateChildren(
     @param next The target scene.
     @param flip The drill-morph enter/exit override for this draw, if any.
 */
-export function interpolateScene(prev: Scene | null, next: Scene, log?: TrailLog, flip?: FlipTransition): Interp<Scene> {
-  const rootInterp = interpolateChildren(prev ? prev.root.children : [], next.root.children, log, flip);
+export function interpolateScene(
+  prev: Scene | null,
+  next: Scene,
+  log?: TrailLog,
+  flip?: FlipTransition,
+): Interp<Scene> {
+  const rootInterp = interpolateChildren(
+    prev ? prev.root.children : [],
+    next.root.children,
+    log,
+    flip,
+  );
   return t => ({...next, root: {...next.root, children: rootInterp(t)}});
 }

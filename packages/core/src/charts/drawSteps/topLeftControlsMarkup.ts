@@ -71,7 +71,10 @@ const ESTIMATED_ITEM_HEIGHT = 20;
     Falls back to a stacked estimate when there's no ancestor `HTMLElement`
     to mount a probe in at all.
 */
-function measureContributions(viz: Viz, contributions: Contribution[]): Measurement {
+function measureContributions(
+  viz: Viz,
+  contributions: Contribution[],
+): Measurement {
   const host = overlayHost(viz);
   if (!host) {
     let x = 0;
@@ -80,7 +83,11 @@ function measureContributions(viz: Viz, contributions: Contribution[]): Measurem
       x += ESTIMATED_ITEM_WIDTH + PANEL_GAP;
       return item;
     });
-    return {items, width: Math.max(0, x - PANEL_GAP), height: ESTIMATED_ITEM_HEIGHT};
+    return {
+      items,
+      width: Math.max(0, x - PANEL_GAP),
+      height: ESTIMATED_ITEM_HEIGHT,
+    };
   }
 
   const probe = document.createElement("div");
@@ -93,13 +100,18 @@ function measureContributions(viz: Viz, contributions: Contribution[]): Measurem
   probe.style.setProperty("visibility", "hidden");
   probe.style.setProperty("pointer-events", "none");
   probe.innerHTML = contributions
-    .map(c => `<span class="tlc-item" data-tlc-key="${c.key}" style="display:inline-flex;align-items:center;">${c.html}</span>`)
+    .map(
+      c =>
+        `<span class="tlc-item" data-tlc-key="${c.key}" style="display:inline-flex;align-items:center;">${c.html}</span>`,
+    )
     .join("");
   for (const c of contributions) c.onUpdate?.(probe);
 
   host.appendChild(probe);
   const probeRect = probe.getBoundingClientRect();
-  const itemEls = Array.from(probe.querySelectorAll<HTMLElement>(":scope > .tlc-item"));
+  const itemEls = Array.from(
+    probe.querySelectorAll<HTMLElement>(":scope > .tlc-item"),
+  );
   const items = contributions.map((c, i) => {
     const r = itemEls[i]?.getBoundingClientRect();
     return {...c, x: r ? Math.round(r.left - probeRect.left) : 0};
@@ -121,13 +133,24 @@ function measureContributions(viz: Viz, contributions: Contribution[]): Measurem
     change the rendered size has changed (mirrors `zoomControlsBox`'s own
     `html|JSON.stringify(base)` signature).
 */
-function getMeasurement(viz: Viz, contributions: Contribution[]): Measurement | null {
+function getMeasurement(
+  viz: Viz,
+  contributions: Contribution[],
+): Measurement | null {
   if (!contributions.length) return null;
-  const signature = contributions.map(c => `${c.key}:${c.html}|${c.styleSignature ?? ""}`).join("||");
+  const signature = contributions
+    .map(c => `${c.key}:${c.html}|${c.styleSignature ?? ""}`)
+    .join("||");
   const cached = viz._topLeftControlsBox;
-  if (cached && cached.signature === signature) return cached.measurement as Measurement;
+  if (cached && cached.signature === signature)
+    return cached.measurement as Measurement;
   const measurement = measureContributions(viz, contributions);
-  viz._topLeftControlsBox = {width: measurement.width, height: measurement.height, signature, measurement};
+  viz._topLeftControlsBox = {
+    width: measurement.width,
+    height: measurement.height,
+    signature,
+    measurement,
+  };
   return measurement;
 }
 
@@ -142,7 +165,10 @@ function getMeasurement(viz: Viz, contributions: Contribution[]): Measurement | 
     mid-type. Separate nodes mean each contribution's DOM subtree is only
     ever touched by ITS OWN html changing.
 */
-export function buildTopLeftPanel(viz: Viz, contributions: Contribution[]): SceneNode | null {
+export function buildTopLeftPanel(
+  viz: Viz,
+  contributions: Contribution[],
+): SceneNode | null {
   const measurement = getMeasurement(viz, contributions);
   if (!measurement) return null;
   return {
@@ -188,7 +214,10 @@ export function topLeftControlsBox(
     padding included) plus that padding again. Zero when nothing is
     contributing. The top-left mirror of `zoomControlsReach`.
 */
-export function topLeftControlsReach(viz: Viz, contributions: Contribution[]): number {
+export function topLeftControlsReach(
+  viz: Viz,
+  contributions: Contribution[],
+): number {
   const box = topLeftControlsBox(viz, contributions);
   return box && box.height ? box.height + PANEL_PADDING : 0;
 }

@@ -15,15 +15,22 @@ export type Themed<T> = T | {light: T; dark: T};
 
 /** Esri's Canvas basemaps: muted, nearly label-free bases for data overlays. */
 export const DEFAULT_TILE_URL: Themed<string> = {
-  light: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+  light:
+    "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}",
   dark: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
 };
 
 /** The Canvas basemaps' own water colors, so the ocean around the tiles matches. */
-export const DEFAULT_OCEAN: Themed<string> = {light: "#d0cfd4", dark: "#222327"};
+export const DEFAULT_OCEAN: Themed<string> = {
+  light: "#d0cfd4",
+  dark: "#222327",
+};
 
 const isPair = <T>(value: Themed<T>): value is {light: T; dark: T} =>
-  typeof value === "object" && value !== null && "light" in value && "dark" in value;
+  typeof value === "object" &&
+  value !== null &&
+  "light" in value &&
+  "dark" in value;
 
 /** Picks a themed value's light or dark side. */
 export function resolveThemed<T>(value: Themed<T>, dark: boolean): T {
@@ -42,17 +49,26 @@ export function isThemed(viz: VizInstance): boolean {
     `color-scheme` and the system prefers dark. Server renders are light.
 */
 export function pageIsDark(viz: VizInstance): boolean {
-  if (viz._ssr || typeof window === "undefined" || typeof getComputedStyle !== "function") return false;
+  if (
+    viz._ssr ||
+    typeof window === "undefined" ||
+    typeof getComputedStyle !== "function"
+  )
+    return false;
   let node: Element | null = viz._select?.node() ?? null;
   while (node) {
     const bg = getComputedStyle(node).backgroundColor;
-    if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)") return lab(bg).l < 50;
+    if (bg && bg !== "transparent" && bg !== "rgba(0, 0, 0, 0)")
+      return lab(bg).l < 50;
     node = node.parentElement;
   }
   const scheme = getComputedStyle(document.documentElement).colorScheme || "";
   if (!scheme.includes("dark")) return false;
   if (!scheme.includes("light")) return true;
-  return typeof matchMedia === "function" && matchMedia("(prefers-color-scheme: dark)").matches;
+  return (
+    typeof matchMedia === "function" &&
+    matchMedia("(prefers-color-scheme: dark)").matches
+  );
 }
 
 /**
@@ -68,9 +84,13 @@ export function watchPageTheme(viz: VizInstance): void {
     if (!host || !host.isConnected) return;
     if (isThemed(viz) && pageIsDark(viz) !== viz._basemapDark) viz.render?.();
   };
-  const media = typeof matchMedia === "function" ? matchMedia("(prefers-color-scheme: dark)") : null;
+  const media =
+    typeof matchMedia === "function"
+      ? matchMedia("(prefers-color-scheme: dark)")
+      : null;
   media?.addEventListener?.("change", check);
-  const observer = typeof MutationObserver === "function" ? new MutationObserver(check) : null;
+  const observer =
+    typeof MutationObserver === "function" ? new MutationObserver(check) : null;
   for (const el of [document.documentElement, document.body])
     if (el) observer?.observe(el, {attributes: true});
   viz._themeWatch = true;

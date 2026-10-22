@@ -6,263 +6,268 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Network as D3plusNetwork} from "@d3plus/react";
-export const Network = ({ config }) => <D3plusNetwork config={config} />;
+export const Network = ({config}) => <D3plusNetwork config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Network
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Network-specific methods
    */
-  
+
   {
     arrowSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to three times the link's stroke width (at least 6).",
+      description:
+        "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to three times the link's stroke width (at least 6).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     arrows: {
       control: {
-        type: "select"
+        type: "select",
       },
       defaultValue: false,
-      description: "Draws arrowheads on the links: `true` (or `\"target\"`) at each link's target end, `\"source\"` at its source end, `\"both\"`, or `false` for none. Also accepts an accessor function returning one of those per link.",
-      options: [
-        true,
-        false,
-        "target",
-        "source",
-        "both"
-      ],
+      description:
+        'Draws arrowheads on the links: `true` (or `"target"`) at each link\'s target end, `"source"` at its source end, `"both"`, or `false` for none. Also accepts an accessor function returning one of those per link.',
+      options: [true, false, "target", "source", "both"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | \"target\" | \"source\" | \"both\" | function"
-      }
+        summary: 'boolean | "target" | "source" | "both" | function',
+      },
     },
     linkSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The thickness of each link: a pixel number used for every link, or an accessor function whose values are scaled between `linkSizeMin` and the smallest node radius (see `linkSizeScale`).",
+      description:
+        "The thickness of each link: a pixel number used for every link, or an accessor function whose values are scaled between `linkSizeMin` and the smallest node radius (see `linkSizeScale`).",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     linkSizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 1,
       description: "The minimum pixel stroke width used when sizing links.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     linkSizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "sqrt",
-      description: "The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size links (e.g. `\"linear\"`, `\"sqrt\"`, `\"log\"`).",
+      description:
+        'The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size links (e.g. `"linear"`, `"sqrt"`, `"log"`).',
       table: {
         defaultValue: {
-          summary: "sqrt"
-        }
+          summary: "sqrt",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     links: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: [],
-      description: "The edges that connect the `nodes`. The `source` and `target` of each link refer to a node in one of three ways: its index in the `nodes` array, the node object itself (matched by its `id`), or a string matching the node's `id`.\n\nAccepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
+      description:
+        "The edges that connect the `nodes`. The `source` and `target` of each link refer to a node in one of three ways: its index in the `nodes` array, the node object itself (matched by its `id`), or a string matching the node's `id`.\n\nAccepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
       table: {
         defaultValue: {
-          summary: "[]"
-        }
+          summary: "[]",
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     noDataMessage: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     nodeGroupBy: {
       control: {
-        type: "object"
+        type: "object",
       },
-      defaultValue: [
-        null
-      ],
-      description: "The key(s) or accessor(s) that identify each object passed to `nodes`, one per `groupBy` depth, used in place of `groupBy` for nodes that the data doesn't cover. Defaults to each node's `id`.",
+      defaultValue: [null],
+      description:
+        "The key(s) or accessor(s) that identify each object passed to `nodes`, one per `groupBy` depth, used in place of `groupBy` for nodes that the data doesn't cover. Defaults to each node's `id`.",
       table: {
         defaultValue: {
-          summary: "[null]"
-        }
+          summary: "[null]",
+        },
       },
       type: {
         required: false,
-        summary: "string | function | (string | function)[]"
-      }
+        summary: "string | function | (string | function)[]",
+      },
     },
     nodes: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: [],
-      description: "The nodes to draw. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
+      description:
+        "The nodes to draw. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
       table: {
         defaultValue: {
-          summary: "[]"
-        }
+          summary: "[]",
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Circle\""
-        }
-      }
+          summary: '"Circle"',
+        },
+      },
     },
     size: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Sizes each node: a data key or an accessor function whose values are scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset, every node is drawn at the same size.",
+      description:
+        "Sizes each node: a data key or an accessor function whose values are scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset, every node is drawn at the same size.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     sizeMax: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The maximum pixel radius used when sizing nodes. Defaults to half the distance between the two closest nodes.",
+      description:
+        "The maximum pixel radius used when sizing nodes. Defaults to half the distance between the two closest nodes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
       description: "The minimum pixel radius used when sizing nodes.",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "sqrt",
-      description: "The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size nodes (e.g. `\"linear\"`, `\"sqrt\"`, `\"log\"`).",
+      description:
+        'The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size nodes (e.g. `"linear"`, `"sqrt"`, `"log"`).',
       table: {
         defaultValue: {
-          summary: "sqrt"
-        }
+          summary: "sqrt",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     x: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The x position of each node: a key in the data or `nodes`, or an accessor function. Defaults to `\"x\"`. When any node has no x/y position, every node is placed by a force simulation instead.",
+      description:
+        'The x position of each node: a key in the data or `nodes`, or an accessor function. Defaults to `"x"`. When any node has no x/y position, every node is placed by a force simulation instead.',
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     y: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The y position of each node: a key in the data or `nodes`, or an accessor function. Defaults to `\"y\"`. When any node has no x/y position, every node is placed by a force simulation instead.",
+      description:
+        'The y position of each node: a key in the data or `nodes`, or an accessor function. Defaults to `"y"`. When any node has no x/y position, every node is placed by a force simulation instead.',
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

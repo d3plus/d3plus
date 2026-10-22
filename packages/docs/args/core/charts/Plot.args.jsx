@@ -6,1157 +6,1222 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Plot as D3plusPlot} from "@d3plus/react";
-export const Plot = ({ config }) => <D3plusPlot config={config} />;
+export const Plot = ({config}) => <D3plusPlot config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Plot
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Plot-specific methods
    */
-  
+
   {
     active: {
       control: {},
       description: "The active callback function for highlighting shapes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "false | function"
-      }
+        summary: "false | function",
+      },
     },
     annotations: {
       control: {},
       defaultValue: "unknown",
-      description: "Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the \"shape\", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).\n\nAdditionally, each config object can also contain an optional \"layer\" key, which defines whether the annotations will be displayed in \"front\" or in \"back\" of the primary visualization shapes. This value defaults to \"back\" if not present.",
+      description:
+        'Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).\n\nAdditionally, each config object can also contain an optional "layer" key, which defines whether the annotations will be displayed in "front" or in "back" of the primary visualization shapes. This value defaults to "back" if not present.',
       table: {
         defaultValue: {
-          summary: "unknown"
-        }
+          summary: "unknown",
+        },
       },
       type: {
         required: false,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     axisPersist: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: "unknown",
-      description: "Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).",
+      description:
+        "Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).",
       table: {
         defaultValue: {
-          summary: "unknown"
-        }
+          summary: "unknown",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     backgroundConfig: {
       control: {},
       defaultValue: "{duration: 0, fill: transparent}",
-      description: "A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).",
+      description:
+        "A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).",
       table: {
         defaultValue: {
-          summary: "{duration: 0, fill: transparent}"
-        }
+          summary: "{duration: 0, fill: transparent}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     barPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
       description: "Padding between bars in pixels.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     baseline: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
+      description:
+        "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     baselineBreak: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for the Plots whose marks grow from `0`, such as BarChart,\nAreaPlot, Histogram, and Lollipop (each chart lists its own default),\nand `false` for other Plots and a standalone Axis.",
+      description:
+        "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for the Plots whose marks grow from `0`, such as BarChart,\nAreaPlot, Histogram, and Lollipop (each chart lists its own default),\nand `false` for other Plots and a standalone Axis.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     buffer: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: "assign({}, defaultBuffers, {Bar: false, Line: false})",
-      description: "Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).",
+      description:
+        "Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).",
       table: {
         defaultValue: {
-          summary: "assign({}, defaultBuffers, {Bar: false, Line: false})"
-        }
+          summary: "assign({}, defaultBuffers, {Bar: false, Line: false})",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | record"
-      }
+        summary: "boolean | record",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     confidence: {
       control: {},
       defaultValue: false,
-      description: "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.\n\nPass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label (\"Band 1\", \"Band 2\", … when unlabeled), and bars draw the first band's error bar.",
+      description:
+        "The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.\n\nPass an array of bands, outermost first, to draw nested bands around each line (a fan): each band is a `[lower, upper]` pair or `[lower, upper, label]`, or a `{lower, upper, label}` object, and `confidenceConfig.bandOpacity` shades them from the widest (lightest) to the narrowest (darkest). Tooltips list each band's range under its label (\"Band 1\", \"Band 2\", … when unlabeled), and bars draw the first band's error bar.",
       table: {
         defaultValue: {
-          summary: false
-        }
+          summary: false,
+        },
       },
       type: {
         required: false,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     confidenceConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-      description: "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
+      defaultValue:
+        '{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === "function" ? s(d, i) : s;\n}, fillOpacity: 0.5}',
+      description:
+        "Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `\"50%\"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a \"Lower Bound\" and \"Upper Bound\" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === \"function\" ? s(d, i) : s;\n}, fillOpacity: 0.5}",
-          summary: "function"
-        }
+          detail:
+            '{fill: (d, i) => {\n  const { Line, stroke } = this.schema.shapeConfig;\n  const s = Line && Line.stroke !== undefined ? Line.stroke : stroke;\n  return typeof s === "function" ? s(d, i) : s;\n}, fillOpacity: 0.5}',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     config: {
       control: {},
-      description: "Methods that correspond to the key/value pairs and returns this class.",
+      description:
+        "Methods that correspond to the key/value pairs and returns this class.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     crosshairConfig: {
       control: {},
-      defaultValue: "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}",
-      description: "Paint for the shared tooltip's crosshair guide line (`stroke`,\n`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the\ncurrent config.",
+      defaultValue:
+        "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}",
+      description:
+        "Paint for the shared tooltip's crosshair guide line (`stroke`,\n`strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the\ncurrent config.",
       table: {
         defaultValue: {
-          summary: "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}"
-        }
+          summary:
+            "{stroke: colorGray.500, strokeDasharray: 4 3, strokeWidth: 1}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     data: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with \"url\" and \"headers\" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nDefaults to an empty array (`[]`).",
+      description:
+        'The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.\n\nIf your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.\n\nAdditionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.\n\nIf you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).\n\nDefaults to an empty array (`[]`).',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | array.&lt;datapoint&gt; | object"
-      }
+        summary: "string | array.&lt;datapoint&gt; | object",
+      },
     },
     discreteCutoff: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: "unknown",
-      description: "When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
+      description:
+        "When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.",
       table: {
         defaultValue: {
-          summary: "unknown"
-        }
+          summary: "unknown",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     facet: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.",
+      description:
+        "Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | false | function"
-      }
+        summary: "string | false | function",
+      },
     },
     facetConfig: {
       control: {},
-      description: "Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid's shape. Chosen by default to make the panels as large as the chart's shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `\"ascending\"` (default), `\"descending\"`, `\"data\"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `\"shared\"` (default) gives every panel of a chart with axes the same x/y domains; `\"independent\"` fits each panel to its own rows. Funnel defaults to `\"independent\"` (each panel sized to its own widest stage); `\"shared\"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `\"independent\"` (each panel's rings and ticks fit its own values); `\"shared\"` gives every panel the same value domain.\n- `axes`: with shared scales, `\"outer\"` (default) labels the axes only along the grid's left and bottom edges; `\"all\"` labels every panel. An object sets each axis on its own, as in `{x: \"all\", y: \"outer\"}`: every panel labels its x axis, only the left column labels its y axis, and the panels' plot areas line up. BumpChart defaults to `\"all\"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.\n- `title`: a `(value, data) => string` function for each panel's title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).",
+      description:
+        'Configuration for small multiples (see `facet`), merged into the current config:\n- `columns` / `rows`: the grid\'s shape. Chosen by default to make the panels as large as the chart\'s shape allows.\n- `padding`: the space between panels, in pixels (default `20`).\n- `sort`: panel order — `"ascending"` (default), `"descending"`, `"data"` (first appearance), a comparator over facet values, or an Array of values.\n- `scales`: `"shared"` (default) gives every panel of a chart with axes the same x/y domains; `"independent"` fits each panel to its own rows. Funnel defaults to `"independent"` (each panel sized to its own widest stage); `"shared"` sizes every panel against the widest stage across all panels. PolarArea and RadialBar default to `"independent"` (each panel\'s rings and ticks fit its own values); `"shared"` gives every panel the same value domain.\n- `axes`: with shared scales, `"outer"` (default) labels the axes only along the grid\'s left and bottom edges; `"all"` labels every panel. An object sets each axis on its own, as in `{x: "all", y: "outer"}`: every panel labels its x axis, only the left column labels its y axis, and the panels\' plot areas line up. BumpChart defaults to `"all"`, and Marimekko labels its categories on every panel and its 0–100% share axis only along the outer edge, even with independent scales.\n- `title`: a `(value, data) => string` function for each panel\'s title, or `false` to hide panel titles.\n- `titleConfig`: TextBox config for the panel titles (`fontSize`, `fontWeight`, `fontColor`, `textAnchor`, `padding`, …).',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "facetconfig"
-      }
+        summary: "facetconfig",
+      },
     },
     fillBetween: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: false,
-      description: "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
+      description:
+        "Fills the area between two series' lines, in the color of whichever\nseries is higher, switching color where the lines cross: `true` fills\nbetween the first two series, `[a, b]` between the series with ids `a`\nand `b`, and a list of `[a, b]` pairs fills between each pair. The fill\nfollows the lines' curve and leaves pointer events to the lines.\nDefaults to `false`.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | [string|number, string|number] | array.&lt;[string|number, string|number]&gt;"
-      }
+        summary:
+          "boolean | [string|number, string|number] | array.&lt;[string|number, string|number]&gt;",
+      },
     },
     fillBetweenConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
+      description:
+        "Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style\naccessors receive a data row of whichever series is higher, with\n`above` and `below` keys naming the higher and lower series, so a\n`fill` accessor can color the A > B and B > A regions apart. Like a\nconfidence band, the fill takes `texture`, `textureDefault`,\n`backgroundImage`, and `backgroundImageFit` from `shapeConfig` (or\n`shapeConfig.Area`), so a texture accessor that picks a series\ntextures the regions where that series is higher; set them here to\nstyle the fill alone, or to `false` to keep it plain.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     fontFamily: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "The font family used throughout the visualization.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | array.&lt;string&gt;"
-      }
+        summary: "string | array.&lt;string&gt;",
+      },
     },
     forecast: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated \"Forecast\"\nlabel, and each line's forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === \"Predicted\"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `\"auto\"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `\"auto\"` on a FanChart.",
+      description:
+        'Marks a forecast: the stretch of the discrete axis after it gets a\nshaded backdrop, a rule at its start, and a translated "Forecast"\nlabel, and each line\'s forecast stretch is dashed (see\n`forecastConfig`). A function flags the forecast rows (e.g.\n`d => d.Type === "Predicted"`): each line is dashed from its last\nunflagged point, or throughout when every row is flagged, and the\nbackdrop starts at the earliest of those. `"auto"` (or `true`) flags\nthe rows whose `confidence` bounds spread away from their line. A\ndiscrete-axis value (a date or year on a time axis) starts the\nforecast there. Unset (the default), only a trend line projection\n(`trendLineConfig.projection`) is marked, from the last fitted value;\n`false` marks nothing, not even a projection. On bar charts the\nbackdrop starts at the edge of the first forecast bar, and bars keep\ntheir own styles. Defaults to `"auto"` on a FanChart.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | number | boolean | date | function"
-      }
+        summary: "string | number | boolean | date | function",
+      },
     },
     forecastConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Styles for the `forecast` marker: the backdrop's `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule's\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`\"4 4\"`; `stroke: false` hides it), the label's\ntext as `label` (default \"Forecast\", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline's forecast stretch (default `\"6 4\"`; `false` keeps lines solid).\nColors default to the chart's text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop's color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `\"cover\"` or `\"contain\"`). Both are off\nby default.",
+      description:
+        'Styles for the `forecast` marker: the backdrop\'s `fill` and\n`fillOpacity` (default `0.05`; `fill: false` hides it), the rule\'s\n`stroke`, `strokeWidth` (`1`), `strokeOpacity` (`0.4`), and\n`strokeDasharray` (`"4 4"`; `stroke: false` hides it), the label\'s\ntext as `label` (default "Forecast", translated; `false` hides it)\nwith `fontColor`, `fontFamily`, `fontSize` (`12`), `fontWeight`, and\n`fontOpacity` (`0.7`), and `lineDasharray`, the dash pattern of each\nline\'s forecast stretch (default `"6 4"`; `false` keeps lines solid).\nColors default to the chart\'s text color for its background. The\nbackdrop is chart chrome with no data row, so `shapeConfig.texture`\nand `shapeConfig.backgroundImage` leave it plain; give it its own\n`texture` (a textures.js name or config, drawn in the backdrop\'s color\nover its shade at `textureOpacity`, default `0.3`, with\n`textureDefault`) or `backgroundImage` (a URL,\nfit by `backgroundImageFit`, `"cover"` or `"contain"`). Both are off\nby default.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     groupBy: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is \"id\"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.",
+      description:
+        'Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function | array.&lt;string | function&gt;"
-      }
+        summary: "string | function | array.&lt;string | function&gt;",
+      },
     },
     groupPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: "unknown",
       description: "The pixel space between groups of bars.",
       table: {
         defaultValue: {
-          summary: "unknown"
-        }
+          summary: "unknown",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     highlight: {
       control: {},
-      description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
+      description:
+        'Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the "emphasis" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "false | function"
-      }
+        summary: "false | function",
+      },
     },
     hover: {
       control: {},
-      description: "The hover callback function for highlighting shapes on mouseover.",
+      description:
+        "The hover callback function for highlighting shapes on mouseover.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "false | function"
-      }
+        summary: "false | function",
+      },
     },
     labelConnectorConfig: {
       control: {},
       defaultValue: "{strokeDasharray: 1 1}",
-      description: "The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.",
+      description:
+        "The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.",
       table: {
         defaultValue: {
-          summary: "{strokeDasharray: 1 1}"
-        }
+          summary: "{strokeDasharray: 1 1}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     labelPosition: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "auto",
-      description: "The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values \"outside\" or \"inside\" can be set for Bar shapes, whose \"auto\" default will calculate the best position dynamically based on the available space.",
+      description:
+        'The behavior to be used when calculating the position and size of each shape\'s label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.',
       table: {
         defaultValue: {
-          summary: "auto"
-        }
+          summary: "auto",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     lineLabels: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       description: "Whether to show labels on line charts.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     lineMarkerConfig: {
       control: {},
-      defaultValue: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
-      description: "Shape config for the Circle shapes drawn by the lineMarkers method.",
+      defaultValue:
+        "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
+      description:
+        "Shape config for the Circle shapes drawn by the lineMarkers method.",
       table: {
         defaultValue: {
-          detail: "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
-          summary: "function"
-        }
+          detail:
+            "{fill: (d, i) => colorAssign(this._id(d, i), linkedColorDefaults(this)), r: 3}",
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     lineMarkers: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: "unknown",
       description: "Draws circle markers on each vertex of a Line.",
       table: {
         defaultValue: {
-          summary: "unknown"
-        }
+          summary: "unknown",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     render: {
       control: {},
       description: "Draws the visualization given the specified configuration.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     renderer: {
       control: {
-        type: "radio"
+        type: "radio",
       },
-      description: "Selects which @d3plus/render backend paints the visible output.\n`\"svg\"` = SvgRenderer (default), `\"canvas\"` = CanvasRenderer.\nBoolean arguments both normalize to `\"svg\"`.",
-      options: [
-        "svg",
-        "canvas"
-      ],
+      description:
+        'Selects which @d3plus/render backend paints the visible output.\n`"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.\nBoolean arguments both normalize to `"svg"`.',
+      options: ["svg", "canvas"],
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "boolean | \"svg\" | \"canvas\""
-      }
+        summary: 'boolean | "svg" | "canvas"',
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.",
+      description:
+        "The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | htmlelement"
-      }
+        summary: "string | htmlelement",
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     shapeSort: {
       control: {},
-      description: "A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)\nthat receives each shape class (e.g. \"Circle\", \"Line\") as its arguments.\nShapes are drawn in groups by type, so this defines the layering order for\nall shapes of a given type.",
+      description:
+        'A [sort comparator](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/sort)\nthat receives each shape class (e.g. "Circle", "Line") as its arguments.\nShapes are drawn in groups by type, so this defines the layering order for\nall shapes of a given type.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     size: {
       control: {},
-      description: "Sets the size of bubbles to the given Number, data key, or function.",
+      description:
+        "Sets the size of bubbles to the given Number, data key, or function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "false | plotaccessorarg"
-      }
+        summary: "false | plotaccessorarg",
+      },
     },
     sizeMax: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 20,
       description: "",
       table: {
         defaultValue: {
-          summary: "20"
-        }
+          summary: "20",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
       description: "",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "sqrt",
       description: "",
       table: {
         defaultValue: {
-          summary: "sqrt"
-        }
+          summary: "sqrt",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     stackOffset: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "stackOffsetDiverging",
-      description: "Sets the vertical offset applied to stacked series. Accepts a named\noffset — `\"diverging\"` (default), `\"none\"`, `\"expand\"`, `\"silhouette\"`,\nor `\"wiggle\"` — or a custom offset function. Unknown names warn and fall\nback to `\"diverging\"`. If *value* is not specified, returns the current\nstack offset function.",
+      description:
+        'Sets the vertical offset applied to stacked series. Accepts a named\noffset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,\nor `"wiggle"` — or a custom offset function. Unknown names warn and fall\nback to `"diverging"`. If *value* is not specified, returns the current\nstack offset function.',
       table: {
         defaultValue: {
-          summary: "stackOffsetDiverging"
-        }
+          summary: "stackOffsetDiverging",
+        },
       },
       type: {
         required: false,
-        summary: "string | stackoffsetfn"
-      }
+        summary: "string | stackoffsetfn",
+      },
     },
     stackOrder: {
       control: {},
       defaultValue: "stackOrderTotalDescending",
-      description: "Sets the order of stacked series, from the bottom of the stack upward.\nAccepts:\n- a named order: `\"descending\"` (default) / `\"ascending\"` by summed\n  value, `\"key\"` / `\"keyReverse\"` alphabetically by series key,\n  `\"none\"` / `\"data\"` for input order, or d3's `\"insideOut\"`,\n  `\"appearance\"`, `\"reverse\"`;\n- an Array of series keys for an explicit order;\n- a value accessor, or a `{value, order}` config, to rank series by an\n  aggregate of any data field.\n\nUnknown named strings warn and fall back to `\"descending\"`. If *value*\nis not specified, returns the current stack order.",
+      description:
+        'Sets the order of stacked series, from the bottom of the stack upward.\nAccepts:\n- a named order: `"descending"` (default) / `"ascending"` by summed\n  value, `"key"` / `"keyReverse"` alphabetically by series key,\n  `"none"` / `"data"` for input order, or d3\'s `"insideOut"`,\n  `"appearance"`, `"reverse"`;\n- an Array of series keys for an explicit order;\n- a value accessor, or a `{value, order}` config, to rank series by an\n  aggregate of any data field.\n\nUnknown named strings warn and fall back to `"descending"`. If *value*\nis not specified, returns the current stack order.',
       table: {
         defaultValue: {
-          summary: "stackOrderTotalDescending"
-        }
+          summary: "stackOrderTotalDescending",
+        },
       },
       type: {
         required: false,
-        summary: "stackorderinput"
-      }
+        summary: "stackorderinput",
+      },
     },
     stacked: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       description: "Whether to stack series.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     swarm: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "auto",
-      description: "Packs a Plot's circles into a beeswarm: each circle keeps its value along\none axis and is placed beside its neighbors along the other, so none\noverlap. `\"x\"` or `\"y\"` names the value axis; `true` uses x when its\nvalues are numeric, else y; `false` draws a plain scatter. When the other\naxis holds categories (strings), each category gets its own swarm in its\nown band; otherwise that axis's values are ignored and its axis is hidden.\nCircles keep their ids, so switching a chart between `false` and `true`\nanimates each circle between its scatter and swarm position. The default,\n`\"auto\"`, swarms only when every mark is a Circle and every row lacks a y\n(or x) value.",
-      options: [
-        "x",
-        "y",
-        "auto"
-      ],
+      description:
+        'Packs a Plot\'s circles into a beeswarm: each circle keeps its value along\none axis and is placed beside its neighbors along the other, so none\noverlap. `"x"` or `"y"` names the value axis; `true` uses x when its\nvalues are numeric, else y; `false` draws a plain scatter. When the other\naxis holds categories (strings), each category gets its own swarm in its\nown band; otherwise that axis\'s values are ignored and its axis is hidden.\nCircles keep their ids, so switching a chart between `false` and `true`\nanimates each circle between its scatter and swarm position. The default,\n`"auto"`, swarms only when every mark is a Circle and every row lacks a y\n(or x) value.',
+      options: ["x", "y", "auto"],
       table: {
         defaultValue: {
-          summary: "auto"
-        }
+          summary: "auto",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | \"x\" | \"y\" | \"auto\""
-      }
+        summary: 'boolean | "x" | "y" | "auto"',
+      },
     },
     swarmConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Options for `swarm`: `padding`, the minimum pixel gap between circles\n(default `1`), and `overflow`, what happens when a swarm is wider than\nits band — `\"shrink\"` (default) scales every circle down until each\nswarm fits, `\"clamp\"` keeps the sizes and holds outlying circles at the\nband's edge, and `\"visible\"` lets swarms spill past their band.",
+      description:
+        'Options for `swarm`: `padding`, the minimum pixel gap between circles\n(default `1`), and `overflow`, what happens when a swarm is wider than\nits band — `"shrink"` (default) scales every circle down until each\nswarm fits, `"clamp"` keeps the sizes and holds outlying circles at the\nband\'s edge, and `"visible"` lets swarms spill past their band.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "object"
-      }
+        summary: "object",
+      },
     },
     threshold: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The threshold value for bucketing small data points together.",
+      description:
+        "The threshold value for bucketing small data points together.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     thresholdKey: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "Accessor for the value used in the threshold algorithm.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     time: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the time dimension of each data point.",
+      description:
+        "Accessor function or string key for the time dimension of each data point.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | false | function"
-      }
+        summary: "string | false | function",
+      },
     },
     timelineDefault: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.",
+      description:
+        "The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | date | array.&lt;string | date&gt;"
-      }
+        summary: "string | date | array.&lt;string | date&gt;",
+      },
     },
     tooltipShared: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Whether hovering a Plot's plot area shows one tooltip listing every\nseries' value at the nearest discrete-axis position, with a crosshair\nthrough it. Applies when a discrete axis is set and at least two series\nshare that position.",
+      description:
+        "Whether hovering a Plot's plot area shows one tooltip listing every\nseries' value at the nearest discrete-axis position, with a crosshair\nthrough it. Applies when a discrete axis is set and at least two series\nshare that position.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     total: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the total value displayed in the visualization.",
+      description:
+        "Accessor function or string key for the total value displayed in the visualization.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | boolean | function"
-      }
+        summary: "string | boolean | function",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     trendLine: {
       control: {},
-      description: "Draws an automatic trend line fit to the plotted data: `true` (or `\"linear\"`) for a least-squares line, or one of `\"exponential\"`, `\"logarithmic\"`, `\"power\"`, or `\"polynomial\"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.",
+      description:
+        'Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "trendlinetype"
-      }
+        summary: "trendlinetype",
+      },
     },
     trendLineConfig: {
       control: {},
-      description: "Options for the trend lines drawn by `trendLine`, merged into the current config:\n- `group`: `\"series\"` (default) fits one line per series, colored to match it; `\"all\"` fits a single line to every point.\n- `order`: the polynomial degree when `trendLine` is `\"polynomial\"` (default `2`).\n- `confidence`: draws a confidence band around a linear fit (default `false`).\n- `confidenceLevel`: the band's confidence level (default `0.95`).\n- `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).\n- `projection`: extends each line past the end of its data, by a number of steps at the data's own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit's band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series' projected value. Ignored on a category axis.\n- `projectionConfig`: Line shape config for the projected stretch, over the line's own styles (default `{strokeDasharray: \"2 4\"}`).\n- `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).\n- Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.\n\nStacked charts always fit one line to the stack totals.",
+      description:
+        'Options for the trend lines drawn by `trendLine`, merged into the current config:\n- `group`: `"series"` (default) fits one line per series, colored to match it; `"all"` fits a single line to every point.\n- `order`: the polynomial degree when `trendLine` is `"polynomial"` (default `2`).\n- `confidence`: draws a confidence band around a linear fit (default `false`).\n- `confidenceLevel`: the band\'s confidence level (default `0.95`).\n- `confidenceConfig`: Area shape config for the band (default `{fillOpacity: 0.15}`; fill defaults to the line color).\n- `projection`: extends each line past the end of its data, by a number of steps at the data\'s own spacing (e.g. `5` more years), or to an end value with `{to: 2030}` (default `0`, off). The axis widens to fit, and a linear fit\'s band becomes a prediction interval that fans out over the projection. Hovering a projected step lists each series\' projected value. Ignored on a category axis.\n- `projectionConfig`: Line shape config for the projected stretch, over the line\'s own styles (default `{strokeDasharray: "2 4"}`).\n- `tooltip`: shows the fitted equation and R² when hovering a line (default `true`).\n- Any other key (`stroke`, `strokeWidth`, `strokeDasharray`, …) styles the Line shape.\n\nStacked charts always fit one line to the stack totals.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     x: {
       control: {},
-      defaultValue: "d => d[\"x\"]",
-      description: "Accessor function or string key for the x-axis value of each data point.",
+      defaultValue: 'd => d["x"]',
+      description:
+        "Accessor function or string key for the x-axis value of each data point.",
       table: {
         defaultValue: {
-          detail: "d => d[\"x\"]",
-          summary: "function"
-        }
+          detail: 'd => d["x"]',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "plotaccessorarg"
-      }
+        summary: "plotaccessorarg",
+      },
     },
     x2: {
       control: {},
-      defaultValue: "d => d[\"x2\"]",
-      description: "Accessor function or string key for the secondary x-axis value of each data point.",
+      defaultValue: 'd => d["x2"]',
+      description:
+        "Accessor function or string key for the secondary x-axis value of each data point.",
       table: {
         defaultValue: {
-          detail: "d => d[\"x2\"]",
-          summary: "function"
-        }
+          detail: 'd => d["x2"]',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "plotaccessorarg"
-      }
+        summary: "plotaccessorarg",
+      },
     },
     x2Config: {
       control: {},
       defaultValue: "{}",
-      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
+      description:
+        'A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.',
       table: {
         defaultValue: {
-          summary: "{}"
-        }
+          summary: "{}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     x2Domain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The x2 domain as an array. If either value is undefined, it is calculated from the data.",
+      description:
+        "The x2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "array.&lt;number | date&gt;"
-      }
+        summary: "array.&lt;number | date&gt;",
+      },
     },
     x2Sort: {
       control: {},
-      description: "Defines a custom sorting comparator function for discrete x2 axes.",
+      description:
+        "Defines a custom sorting comparator function for discrete x2 axes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     xBreak: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Value range(s) to remove from the x axis — `[start, end]` or a list of\nthem — drawn as a break in the axis with a gap cut across the shapes\nthat cross it (see the axis `break` and `breakConfig`).",
+      description:
+        "Value range(s) to remove from the x axis — `[start, end]` or a list of\nthem — drawn as a break in the axis with a gap cut across the shapes\nthat cross it (see the axis `break` and `breakConfig`).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "[number, number] | array.&lt;[number, number]&gt;"
-      }
+        summary: "[number, number] | array.&lt;[number, number]&gt;",
+      },
     },
     xConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"x\" || this._swarm?.cross === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
-      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
+      defaultValue:
+        '{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === "x" || this._swarm?.cross === "x") return "transparent";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return "transparent";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}',
+      description:
+        'A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.',
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"x\" || this._swarm?.cross === \"x\") return \"transparent\";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
-          summary: "function"
-        }
+          detail:
+            '{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === "x" || this._swarm?.cross === "x") return "transparent";\n  const range = this._xAxis.range();\n  const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);\n  if (range[0] === position) return "transparent";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     xCutoff: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 150,
       description: "",
       table: {
         defaultValue: {
-          summary: "150"
-        }
+          summary: "150",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     xDomain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `xConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `xConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
+      description:
+        "The x domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `xConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `xConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `xConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "array.&lt;string | number | date&gt;"
-      }
+        summary: "array.&lt;string | number | date&gt;",
+      },
     },
     xSort: {
       control: {},
       description: "Custom sort function for x-axis values.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     y: {
       control: {},
-      defaultValue: "d => d[\"y\"]",
-      description: "Accessor function or string key for the y-axis value of each data point.",
+      defaultValue: 'd => d["y"]',
+      description:
+        "Accessor function or string key for the y-axis value of each data point.",
       table: {
         defaultValue: {
-          detail: "d => d[\"y\"]",
-          summary: "function"
-        }
+          detail: 'd => d["y"]',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "plotaccessorarg"
-      }
+        summary: "plotaccessorarg",
+      },
     },
     y2: {
       control: {},
-      defaultValue: "d => d[\"y2\"]",
-      description: "Accessor function or string key for the secondary y-axis value of each data point.",
+      defaultValue: 'd => d["y2"]',
+      description:
+        "Accessor function or string key for the secondary y-axis value of each data point.",
       table: {
         defaultValue: {
-          detail: "d => d[\"y2\"]",
-          summary: "function"
-        }
+          detail: 'd => d["y2"]',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "plotaccessorarg"
-      }
+        summary: "plotaccessorarg",
+      },
     },
     y2Config: {
       control: {},
       defaultValue: "{}",
-      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.",
+      description:
+        'A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.',
       table: {
         defaultValue: {
-          summary: "{}"
-        }
+          summary: "{}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     y2Domain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The y2 domain as an array. If either value is undefined, it is calculated from the data.",
+      description:
+        "The y2 domain as an array. If either value is undefined, it is calculated from the data.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "array.&lt;number | date&gt;"
-      }
+        summary: "array.&lt;number | date&gt;",
+      },
     },
     y2Sort: {
       control: {},
-      description: "Defines a custom sorting comparator function for discrete y2 axes.",
+      description:
+        "Defines a custom sorting comparator function for discrete y2 axes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     yBreak: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Value range(s) to remove from the y axis — `[start, end]` or a list of\nthem, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the\naxis with a gap cut across the shapes that cross it (see the axis\n`break` and `breakConfig`).",
+      description:
+        "Value range(s) to remove from the y axis — `[start, end]` or a list of\nthem, e.g. `[100, 900]` to fit one outlier bar — drawn as a break in the\naxis with a gap cut across the shapes that cross it (see the axis\n`break` and `breakConfig`).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "[number, number] | array.&lt;[number, number]&gt;"
-      }
+        summary: "[number, number] | array.&lt;[number, number]&gt;",
+      },
     },
     yConfig: {
       control: {},
-      defaultValue: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"y\" || this._swarm?.cross === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
-      description: "A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing \"auto\" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be \"linear\" or \"log\" based on the provided data.\n\n*Note:* If a \"domain\" array is passed to the y-axis config, it will be reversed.",
+      defaultValue:
+        '{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === "y" || this._swarm?.cross === "y") return "transparent";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return "transparent";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}',
+      description:
+        'A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.\n\n*Note:* If a "domain" array is passed to the y-axis config, it will be reversed.',
       table: {
         defaultValue: {
-          detail: "{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === \"y\" || this._swarm?.cross === \"y\") return \"transparent\";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return \"transparent\";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}",
-          summary: "function"
-        }
+          detail:
+            '{gridConfig: {stroke: (d) => {\n  if (this.schema.discrete?.charAt(0) === "y" || this._swarm?.cross === "y") return "transparent";\n  const range = this._yAxis.range();\n  const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);\n  if (range[range.length - 1] === position) return "transparent";\n  return gridStroke(this._select?.node(), this.schema.colorDefaults);\n}}}',
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     yCutoff: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 150,
       description: "",
       table: {
         defaultValue: {
-          summary: "150"
-        }
+          summary: "150",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     yDomain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `yConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `yConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
+      description:
+        "The y domain as an array. On a continuous axis it is `[min, max]`.\nSetting just one end (`[min]` or `[undefined, max]`) pins only that\nend: the data fills the other, rounded where the axis would round it\nwith no domain set (left at the data when `yConfig`'s `rounding`\nis \"none\"; time axes aren't rounded). With both ends set, neither is\nrounded. On a discrete axis it lists the categories to show, in\norder; data in other categories is not drawn. A full `yConfig`\n`domain` is the lower-level override: it wins over this, and is drawn\nexactly as given (rounded only by `yConfig`'s own `rounding`),\nwithout stretching to the chart's `baseline`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "array.&lt;string | number | date&gt;"
-      }
+        summary: "array.&lt;string | number | date&gt;",
+      },
     },
     ySort: {
       control: {},
       description: "Custom sort function for y-axis values.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
-    }
-  }
+        summary: "function",
+      },
+    },
+  },
 );

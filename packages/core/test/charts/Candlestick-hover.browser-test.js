@@ -27,7 +27,15 @@ const draw = ([config, renderer]) =>
         const open = close * (1 + (rand() - 0.5) * 0.02);
         close = open * (1 + (rand() - 0.5) * 0.04);
         const date = `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
-        rows.push({symbol, date, open, close, high: Math.max(open, close) * 1.01, low: Math.min(open, close) * 0.99, volume: 1e6 * (1 + rand())});
+        rows.push({
+          symbol,
+          date,
+          open,
+          close,
+          high: Math.max(open, close) * 1.01,
+          low: Math.min(open, close) * 0.99,
+          volume: 1e6 * (1 + rand()),
+        });
         n++;
       }
     }
@@ -53,7 +61,8 @@ const draw = ([config, renderer]) =>
 */
 const marks = () => {
   const viz = window.__viz;
-  const host = document.querySelector("#viz svg") || document.querySelector("#viz canvas");
+  const host =
+    document.querySelector("#viz svg") || document.querySelector("#viz canvas");
   const box = host.getBoundingClientRect();
   const out = {};
   const hits = {};
@@ -61,25 +70,48 @@ const marks = () => {
   let axisDims = false;
   const walk = (n, x, y, inherited, axis, inLegend) => {
     const t = n.transform || {};
-    const nx = x + (t.x || 0), ny = y + (t.y || 0);
-    const opacity = inherited * (n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1);
+    const nx = x + (t.x || 0),
+      ny = y + (t.y || 0);
+    const opacity =
+      inherited *
+      (n.paint && typeof n.paint.opacity === "number" ? n.paint.opacity : 1);
     const inAxis = axis || n.interactionGroup === "axis";
     if (inAxis && opacity < 1) axisDims = true;
     const key = String(n.key);
     const swatches = inLegend || n.interactionGroup === "legend";
     if (swatches && n.type === "rect" && n.datum)
-      legend.push({x: box.left + nx + n.x + n.width / 2, y: box.top + ny + n.y + n.height / 2});
+      legend.push({
+        x: box.left + nx + n.x + n.width / 2,
+        y: box.top + ny + n.y + n.height / 2,
+      });
     if (n.shapeType === "Candlestick" && key.endsWith("::hit"))
-      hits[key.slice(0, -5)] = {top: box.top + ny + n.y, middle: box.top + ny + n.y + n.height / 2};
-    else if (n.shapeType === "Candlestick" && n.type === "path" && n.interactionPoints) {
+      hits[key.slice(0, -5)] = {
+        top: box.top + ny + n.y,
+        middle: box.top + ny + n.y + n.height / 2,
+      };
+    else if (
+      n.shapeType === "Candlestick" &&
+      n.type === "path" &&
+      n.interactionPoints
+    ) {
       const p = n.interactionPoints[0];
-      out[key] = {x: box.left + nx + p.x, y: box.top + ny + p.y, opacity, strokeWidth: n.paint.strokeWidth};
+      out[key] = {
+        x: box.left + nx + p.x,
+        y: box.top + ny + p.y,
+        opacity,
+        strokeWidth: n.paint.strokeWidth,
+      };
     }
     (n.children || []).forEach(c => walk(c, nx, ny, opacity, inAxis, swatches));
   };
   walk(viz._paintedScene.root, 0, 0, 1, false, false);
   Object.keys(out).forEach(k => Object.assign(out[k], hits[k] || {}));
-  return {marks: out, legend, axisDims, hovered: typeof viz._hover === "function"};
+  return {
+    marks: out,
+    legend,
+    axisDims,
+    hovered: typeof viz._hover === "function",
+  };
 };
 
 /**
@@ -91,7 +123,11 @@ const marks = () => {
     change. With `legend`, the pointer moves onto the first legend swatch
     instead.
 */
-async function hover(config, renderer, {target = 6, beside = false, legend = false} = {}) {
+async function hover(
+  config,
+  renderer,
+  {target = 6, beside = false, legend = false} = {},
+) {
   await loadD3plus();
   resetPage("<div id='viz' style='width:600px;height:400px'></div>");
   await draw(JSON.parse(JSON.stringify([config, renderer])));
@@ -101,13 +137,20 @@ async function hover(config, renderer, {target = 6, beside = false, legend = fal
   const m = before.marks[key];
   // Beside: a third of the way to the next period, still nearest this one.
   const dx = beside ? (before.marks[keys[target + 1]].x - m.x) / 3 : 0;
-  let arrows = 0, watching = true;
-  const check = () => document.querySelectorAll(".d3plus-tooltip").forEach(tip => {
-    const arrow = tip.querySelector(".d3plus-tooltip-arrow");
-    const style = getComputedStyle(tip);
-    if (arrow && getComputedStyle(arrow).display !== "none" && style.visibility !== "hidden" && Number(style.opacity) > 0)
-      arrows++;
-  });
+  let arrows = 0,
+    watching = true;
+  const check = () =>
+    document.querySelectorAll(".d3plus-tooltip").forEach(tip => {
+      const arrow = tip.querySelector(".d3plus-tooltip-arrow");
+      const style = getComputedStyle(tip);
+      if (
+        arrow &&
+        getComputedStyle(arrow).display !== "none" &&
+        style.visibility !== "hidden" &&
+        Number(style.opacity) > 0
+      )
+        arrows++;
+    });
   const frame = () => {
     if (!watching) return;
     check();
@@ -115,17 +158,25 @@ async function hover(config, renderer, {target = 6, beside = false, legend = fal
   };
   frame();
   const observer = new MutationObserver(check);
-  observer.observe(document.body, {subtree: true, attributes: true, childList: true});
+  observer.observe(document.body, {
+    subtree: true,
+    attributes: true,
+    childList: true,
+  });
   try {
-    if (legend) await commands.mouseMove(before.legend[0].x, before.legend[0].y, {steps: 4});
+    if (legend)
+      await commands.mouseMove(before.legend[0].x, before.legend[0].y, {
+        steps: 4,
+      });
     else {
       // Start above the candle, clear of it, then move in steps.
       await commands.mouseMove(m.x + dx, m.top - 30);
-      await commands.mouseMove(m.x + dx, beside ? m.top - 20 : m.middle, {steps: 12});
+      await commands.mouseMove(m.x + dx, beside ? m.top - 20 : m.middle, {
+        steps: 12,
+      });
     }
     await new Promise(resolve => setTimeout(resolve, 100));
-  }
-  finally {
+  } finally {
     watching = false;
     observer.disconnect();
   }
@@ -152,20 +203,40 @@ function highlightsOne({before, after, key}, volume) {
     const m = after.marks[k];
     assert.ok(m, `${k} is drawn`);
     assert.strictEqual(m.opacity, 1, `${k} stays bright`);
-    assert.ok(m.strokeWidth > (before.marks[k].strokeWidth || 0), `${k} is emphasized (${before.marks[k].strokeWidth} -> ${m.strokeWidth})`);
+    assert.ok(
+      m.strokeWidth > (before.marks[k].strokeWidth || 0),
+      `${k} is emphasized (${before.marks[k].strokeWidth} -> ${m.strokeWidth})`,
+    );
   });
   const others = Object.keys(after.marks).filter(k => !own.includes(k));
-  assert.ok(others.length >= (volume ? 30 : 15), `other periods are drawn (${others.length})`);
-  others.forEach(k => assert.ok(after.marks[k].opacity < 1, `${k} dims (${after.marks[k].opacity})`));
+  assert.ok(
+    others.length >= (volume ? 30 : 15),
+    `other periods are drawn (${others.length})`,
+  );
+  others.forEach(k =>
+    assert.ok(
+      after.marks[k].opacity < 1,
+      `${k} dims (${after.marks[k].opacity})`,
+    ),
+  );
   assert.ok(!after.axisDims, "axes stay bright");
 }
 
 const cases = {
   candles: {symbols: ["ACME"]},
   "candles with volume": {symbols: ["ACME"], config: {volume: "volume"}},
-  "OHLC bars with volume": {symbols: ["ACME"], config: {volume: "volume", variant: "ohlc"}},
-  "skipGaps false with volume": {symbols: ["ACME"], config: {volume: "volume", skipGaps: false}},
-  "facets with volume": {symbols: ["ACME", "BOLT"], config: {volume: "volume", facet: "symbol"}},
+  "OHLC bars with volume": {
+    symbols: ["ACME"],
+    config: {volume: "volume", variant: "ohlc"},
+  },
+  "skipGaps false with volume": {
+    symbols: ["ACME"],
+    config: {volume: "volume", skipGaps: false},
+  },
+  "facets with volume": {
+    symbols: ["ACME", "BOLT"],
+    config: {volume: "volume", facet: "symbol"},
+  },
 };
 
 for (const renderer of ["svg", "canvas"]) {
@@ -183,18 +254,32 @@ for (const renderer of ["svg", "canvas"]) {
       // Down candles are filled, up candles hollow: cross onto one of each.
       for (const target of [4, 5, 6, 7]) {
         const {arrows} = await hoverOnce(config, renderer, {target});
-        assert.strictEqual(arrows, 0, `no arrow over candle ${target} (${arrows} samples showed one)`);
+        assert.strictEqual(
+          arrows,
+          0,
+          `no arrow over candle ${target} (${arrows} samples showed one)`,
+        );
       }
     });
   }
 
   it(`Candlestick ${renderer} — a legend hover still highlights its whole series`, async function () {
-    const {after} = await hover({symbols: ["ACME", "BOLT"], config: {legend: true, volume: "volume"}}, renderer, {legend: true});
+    const {after} = await hover(
+      {symbols: ["ACME", "BOLT"], config: {legend: true, volume: "volume"}},
+      renderer,
+      {legend: true},
+    );
     assert.ok(after.hovered, "a hover is set");
     const keys = Object.keys(after.marks);
     assert.ok(after.legend.length >= 2, "the legend is drawn");
-    keys.filter(k => k.startsWith("ACME_")).forEach(k => assert.strictEqual(after.marks[k].opacity, 1, `${k} stays bright`));
-    keys.filter(k => k.startsWith("BOLT_")).forEach(k => assert.ok(after.marks[k].opacity < 1, `${k} dims`));
+    keys
+      .filter(k => k.startsWith("ACME_"))
+      .forEach(k =>
+        assert.strictEqual(after.marks[k].opacity, 1, `${k} stays bright`),
+      );
+    keys
+      .filter(k => k.startsWith("BOLT_"))
+      .forEach(k => assert.ok(after.marks[k].opacity < 1, `${k} dims`));
     assert.ok(!after.axisDims, "axes stay bright");
   });
 }

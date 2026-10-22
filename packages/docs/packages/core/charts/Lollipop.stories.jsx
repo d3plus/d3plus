@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a lollipop chart from an array of data: each row draws a thin stem\nfrom the baseline (or the value axis's break) to a circle at its value,\nwith a category axis set by discrete (\"x\" draws vertical stems, \"y\"\nhorizontal ones). Rows sharing a category but differing in groupBy sit\nside by side, as grouped bars do. Stems are styled by shapeConfig.Line\n(stroke, strokeWidth, …) and heads by shapeConfig.Circle (r,\nfill, …); a size accessor scales the heads and adds a size legend.",
+        component:
+          'Creates a lollipop chart from an array of data: each row draws a thin stem\nfrom the baseline (or the value axis\'s break) to a circle at its value,\nwith a category axis set by discrete ("x" draws vertical stems, "y"\nhorizontal ones). Rows sharing a category but differing in groupBy sit\nside by side, as grouped bars do. Stems are styled by shapeConfig.Line\n(stroke, strokeWidth, …) and heads by shapeConfig.Circle (r,\nfill, …); a size accessor scales the heads and adds a size legend.',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Lollipop config={configify(args, argTypes)} />;
-  
+const Template = args => <Lollipop config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -41,7 +42,15 @@ BasicExample.args = {
   x: "country",
   y: "kg",
 };
-BasicExample.parameters = {controls: {include: ["x", "y", "shapeConfig"]}, docs: {description: {story: "Each row draws a stem from the baseline to a circle at its value. A lollipop reads like a bar chart with far less ink, which helps when many categories have similar, large values."}}};
+BasicExample.parameters = {
+  controls: {include: ["x", "y", "shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each row draws a stem from the baseline to a circle at its value. A lollipop reads like a bar chart with far less ink, which helps when many categories have similar, large values.",
+    },
+  },
+};
 
 export const Horizontal = Template.bind({});
 Horizontal.args = {
@@ -59,12 +68,17 @@ Horizontal.args = {
   discrete: "y",
   x: "kg",
   y: "country",
-  ySort: funcify(
-    (a, b) => a.kg - b.kg,
-    "(a, b) => a.kg - b.kg",
-  ),
+  ySort: funcify((a, b) => a.kg - b.kg, "(a, b) => a.kg - b.kg"),
 };
-Horizontal.parameters = {controls: {include: ["discrete", "ySort"]}, docs: {description: {story: "Set `discrete` to `\"y\"` for horizontal stems, which leave room for long category names. A `ySort` comparator orders the categories; the first sorts to the bottom, so sorting ascending puts the largest value on top."}}};
+Horizontal.parameters = {
+  controls: {include: ["discrete", "ySort"]},
+  docs: {
+    description: {
+      story:
+        'Set `discrete` to `"y"` for horizontal stems, which leave room for long category names. A `ySort` comparator orders the categories; the first sorts to the bottom, so sorting ascending puts the largest value on top.',
+    },
+  },
+};
 
 export const GroupedSeries = Template.bind({});
 GroupedSeries.args = {
@@ -82,22 +96,55 @@ GroupedSeries.args = {
   x: "quarter",
   y: "sales",
 };
-GroupedSeries.parameters = {controls: {include: ["groupBy", "groupPadding", "barPadding"]}, docs: {description: {story: "Rows that share a category but differ in `groupBy` sit side by side, the way grouped bars do, colored by series. Hover a category to compare every series there in one tooltip."}}};
+GroupedSeries.parameters = {
+  controls: {include: ["groupBy", "groupPadding", "barPadding"]},
+  docs: {
+    description: {
+      story:
+        "Rows that share a category but differ in `groupBy` sit side by side, the way grouped bars do, colored by series. Hover a category to compare every series there in one tooltip.",
+    },
+  },
+};
 
 export const NegativeValues = Template.bind({});
 NegativeValues.args = {
-  data: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
-    .map((month, i) => ({month, anomaly: [-1.2, -0.4, 0.6, 1.4, 0.9, -0.3, 1.8, 2.1, 0.7, -0.8, -1.5, 0.2][i]})),
+  data: [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ].map((month, i) => ({
+    month,
+    anomaly: [-1.2, -0.4, 0.6, 1.4, 0.9, -0.3, 1.8, 2.1, 0.7, -0.8, -1.5, 0.2][
+      i
+    ],
+  })),
   groupBy: "month",
   x: "month",
   y: "anomaly",
   color: funcify(
     d => (d.anomaly < 0 ? "#4c6ef5" : "#f03e3e"),
-    "d => (d.anomaly < 0 ? \"#4c6ef5\" : \"#f03e3e\")",
+    'd => (d.anomaly < 0 ? "#4c6ef5" : "#f03e3e")',
   ),
   legend: false,
 };
-NegativeValues.parameters = {controls: {include: ["baseline", "color"]}, docs: {description: {story: "Stems always start at the `baseline` (0 by default), so negative values hang below it."}}};
+NegativeValues.parameters = {
+  controls: {include: ["baseline", "color"]},
+  docs: {
+    description: {
+      story:
+        "Stems always start at the `baseline` (0 by default), so negative values hang below it.",
+    },
+  },
+};
 
 export const StyledStems = Template.bind({});
 StyledStems.args = {
@@ -121,7 +168,24 @@ StyledStems.args = {
   sizeMax: 12,
   shapeConfig: {Line: {strokeWidth: 1, strokeDasharray: "3 2"}},
 };
-StyledStems.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "sizeScale", "sizeLegend", "shapeConfig"]}, docs: {description: {story: "Stems are styled through `shapeConfig.Line` and heads through `shapeConfig.Circle`. A `size` accessor scales the heads, here by annual growth, and adds a size legend whose circles match the heads."}}};
+StyledStems.parameters = {
+  controls: {
+    include: [
+      "size",
+      "sizeMin",
+      "sizeMax",
+      "sizeScale",
+      "sizeLegend",
+      "shapeConfig",
+    ],
+  },
+  docs: {
+    description: {
+      story:
+        "Stems are styled through `shapeConfig.Line` and heads through `shapeConfig.Circle`. A `size` accessor scales the heads, here by annual growth, and adds a size legend whose circles match the heads.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -129,10 +193,19 @@ SmallMultiples.args = {
     ["Q1", "Q2", "Q3", "Q4"].flatMap((quarter, q) => [
       {region, quarter, year: "2024", sales: 20 + ((r * 7 + q * 5) % 17)},
       {region, quarter, year: "2025", sales: 24 + ((r * 5 + q * 9) % 19)},
-    ])),
+    ]),
+  ),
   groupBy: "year",
   facet: "region",
   x: "quarter",
   y: "sales",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` splits the chart into one panel per region, sharing the value axis so panels compare directly."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` splits the chart into one panel per region, sharing the value axis so panels compare directly.",
+    },
+  },
+};

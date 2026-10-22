@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Builds an n-step single-hue ramp from a pale tint to the given base color,\nstepped evenly in OKLab so each step looks equally far from the next.\n\nThis replaces lightening in HSL (which desaturates toward pure white and\nshifts hue, so the pale end loses its identity and can render as white). In\nOKLab the hue is held fixed and lightness/chroma taper together, so the ramp\nreads as one hue getting lighter.\n\nReturned lightest→darkest; the darkest step is the base color itself for a\ncontinuous ramp.",
+        component:
+          "Builds an n-step single-hue ramp from a pale tint to the given base color,\nstepped evenly in OKLab so each step looks equally far from the next.\n\nThis replaces lightening in HSL (which desaturates toward pure white and\nshifts hue, so the pale end loses its identity and can render as white). In\nOKLab the hue is held fixed and lightness/chroma taper together, so the ramp\nreads as one hue getting lighter.\n\nReturned lightest→darkest; the darkest step is the base color itself for a\ncontinuous ramp.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -34,8 +35,17 @@ const Swatches = ({colors}) => (
 );
 
 export const BasicExample = () => (
-  <div style={{display: "flex", flexDirection: "column", gap: 8, fontFamily: "sans-serif"}}>
-    {bases.map(base => <Swatches key={base} colors={colorRamp(base, 6)} />)}
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      fontFamily: "sans-serif",
+    }}
+  >
+    {bases.map(base => (
+      <Swatches key={base} colors={colorRamp(base, 6)} />
+    ))}
   </div>
 );
 BasicExample.parameters = {
@@ -48,13 +58,25 @@ BasicExample.parameters = {
         result: JSON.stringify(colorRamp(base, 6)),
       })),
     ).docs,
-    description: {story: "Builds a six-step ramp from each of three base hues, returned lightest to darkest with the base color itself as the final step; the tint end holds its hue instead of washing out to white."},
+    description: {
+      story:
+        "Builds a six-step ramp from each of three base hues, returned lightest to darkest with the base color itself as the final step; the tint end holds its hue instead of washing out to white.",
+    },
   },
 };
 
 export const OrdinalRamp = () => (
-  <div style={{display: "flex", flexDirection: "column", gap: 8, fontFamily: "sans-serif"}}>
-    {bases.map(base => <Swatches key={base} colors={colorRamp(base, 5, {ordinal: true})} />)}
+  <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      gap: 8,
+      fontFamily: "sans-serif",
+    }}
+  >
+    {bases.map(base => (
+      <Swatches key={base} colors={colorRamp(base, 5, {ordinal: true})} />
+    ))}
   </div>
 );
 OrdinalRamp.parameters = {
@@ -67,6 +89,9 @@ OrdinalRamp.parameters = {
         result: JSON.stringify(colorRamp(base, 5, {ordinal: true})),
       })),
     ).docs,
-    description: {story: "With `{ordinal: true}` the palest step is held darker so every step still reads as a distinct mark against the surface — the ramp for ordered *discrete* categories, versus the default continuous ramp whose light end may fade into the background."},
+    description: {
+      story:
+        "With `{ordinal: true}` the palest step is held darker so every step still reads as a distinct mark against the surface — the ramp for ordered *discrete* categories, versus the default continuous ramp whose light end may fade into the background.",
+    },
   },
 };

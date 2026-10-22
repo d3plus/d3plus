@@ -23,11 +23,7 @@ import {
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FunnelShared, FunnelStage} from "./applyLayout.js";
-import {
-  conversionModes,
-  lineBoxes,
-  planFunnelLabels,
-} from "./funnelLabels.js";
+import {conversionModes, lineBoxes, planFunnelLabels} from "./funnelLabels.js";
 import type {
   FunnelConversionOption,
   LabelBox,

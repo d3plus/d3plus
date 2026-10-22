@@ -1,198 +1,209 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Waffle</title>
+    <meta
+      name="description"
+      content="Waffle charts: a 10×10 percent grid, circle and rounded cells, column-wise fill from a corner, one-cell-per-unit counts, person-icon pictograms, textures and background images (with icon-less pictogram cells keeping theirs), and faceted small multiples."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
 
-  <meta charset="utf-8">
-  <title>Waffle</title>
-  <meta name="description" content="Waffle charts: a 10×10 percent grid, circle and rounded cells, column-wise fill from a corner, one-cell-per-unit counts, person-icon pictograms, textures and background images (with icon-less pictogram cells keeping theirs), and faceted small multiples.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+      .viz {
+        height: 380px;
+      }
 
-  <style>
+      .wide {
+        grid-column: 1 / -1;
+      }
+    </style>
+  </head>
 
-    body {
-      display: grid;
-      gap: 20px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin: 20px;
-    }
+  <body>
+    <div class="viz" id="percent"></div>
+    <div class="viz" id="circles"></div>
+    <div class="viz" id="units"></div>
+    <div class="viz" id="icons"></div>
+    <div class="viz" id="textured"></div>
+    <div class="viz" id="iconFallback"></div>
+    <div class="viz wide" id="facet"></div>
+  </body>
 
-    .viz {
-      height: 380px;
-    }
+  <script>
+    var energy = [
+      {source: "Natural Gas", share: 43.1},
+      {source: "Nuclear", share: 18.6},
+      {source: "Coal", share: 16.2},
+      {source: "Wind", share: 10.2},
+      {source: "Hydro", share: 5.7},
+      {source: "Solar", share: 3.9},
+      {source: "Other", share: 2.3},
+    ];
 
-    .wide {
-      grid-column: 1 / -1;
-    }
+    new d3plus.Waffle()
+      .select("#percent")
+      .config({
+        data: energy,
+        groupBy: "source",
+        sum: "share",
+        title: "Electricity by Source (1 cell = 1%)",
+      })
+      .render();
 
-  </style>
+    var survey = [
+      {answer: "Love it", count: 412},
+      {answer: "Like it", count: 655},
+      {answer: "Neutral", count: 233},
+      {answer: "Dislike it", count: 121},
+      {answer: "Hate it", count: 64},
+    ];
 
-</head>
+    window.circles = new d3plus.Waffle()
+      .select("#circles")
+      .config({
+        data: survey,
+        groupBy: "answer",
+        sum: "count",
+        sort: false,
+        cellShape: "circle",
+        fillDirection: "column",
+        fillStart: "bottom-left",
+        title: "Survey Responses, Filled by Column",
+      })
+      .render();
 
-<body>
-  <div class="viz" id="percent"></div>
-  <div class="viz" id="circles"></div>
-  <div class="viz" id="units"></div>
-  <div class="viz" id="icons"></div>
-  <div class="viz" id="textured"></div>
-  <div class="viz" id="iconFallback"></div>
-  <div class="viz wide" id="facet"></div>
-</body>
+    var tickets = [
+      {type: "General Admission", attendees: 18400},
+      {type: "VIP", attendees: 3150},
+      {type: "Student", attendees: 6870},
+      {type: "Staff", attendees: 1240},
+    ];
 
-<script>
+    new d3plus.Waffle()
+      .select("#units")
+      .config({
+        data: tickets,
+        groupBy: "type",
+        sum: "attendees",
+        unit: 500,
+        columns: 12,
+        cellShape: "rounded",
+        cellPadding: 3,
+        title: "Festival Attendance (1 cell = 500)",
+      })
+      .render();
 
-  var energy = [
-    {source: "Natural Gas", share: 43.1},
-    {source: "Nuclear", share: 18.6},
-    {source: "Coal", share: 16.2},
-    {source: "Wind", share: 10.2},
-    {source: "Hydro", share: 5.7},
-    {source: "Solar", share: 3.9},
-    {source: "Other", share: 2.3}
-  ];
+    var commute = [
+      {mode: "Drove", people: 14, color: "#1a6fb5", icon: "./person-car.svg"},
+      {mode: "Transit", people: 5, color: "#e8833a", icon: "./person-bus.svg"},
+      {mode: "Biked", people: 3, color: "#3f9b4f", icon: "./person-bike.svg"},
+      {mode: "Walked", people: 2, color: "#8a5cc2", icon: "./person-walk.svg"},
+      {mode: "Remote", people: 6, color: "#9aa0a6", icon: "./person-home.svg"},
+    ];
 
-  new d3plus.Waffle()
-    .select("#percent")
-    .config({
-      data: energy,
-      groupBy: "source",
-      sum: "share",
-      title: "Electricity by Source (1 cell = 1%)"
-    })
-    .render();
+    new d3plus.Waffle()
+      .select("#icons")
+      .config({
+        data: commute,
+        groupBy: "mode",
+        sum: "people",
+        color: "color",
+        icon: function (d) {
+          return d.icon;
+        },
+        unit: 1,
+        columns: 10,
+        cellPadding: 4,
+        title: "How 30 Colleagues Commute",
+      })
+      .render();
 
-  var survey = [
-    {answer: "Love it", count: 412},
-    {answer: "Like it", count: 655},
-    {answer: "Neutral", count: 233},
-    {answer: "Dislike it", count: 121},
-    {answer: "Hate it", count: 64}
-  ];
+    new d3plus.Waffle()
+      .select("#textured")
+      .config({
+        data: energy,
+        groupBy: "source",
+        sum: "share",
+        shapeConfig: {
+          texture: function (d) {
+            return d.source === "Nuclear"
+              ? "lines"
+              : d.source === "Coal"
+                ? "grid"
+                : false;
+          },
+          backgroundImage: function (d) {
+            return d.source === "Natural Gas" ? "./Landscape.svg" : false;
+          },
+        },
+        title: "shapeConfig texture + backgroundImage",
+      })
+      .render();
 
-  window.circles = new d3plus.Waffle()
-    .select("#circles")
-    .config({
-      data: survey,
-      groupBy: "answer",
-      sum: "count",
-      sort: false,
-      cellShape: "circle",
-      fillDirection: "column",
-      fillStart: "bottom-left",
-      title: "Survey Responses, Filled by Column"
-    })
-    .render();
+    new d3plus.Waffle()
+      .select("#iconFallback")
+      .config({
+        data: commute,
+        groupBy: "mode",
+        sum: "people",
+        color: "color",
+        icon: function (d) {
+          return d.mode === "Drove" || d.mode === "Transit" ? d.icon : null;
+        },
+        unit: 1,
+        columns: 10,
+        cellPadding: 4,
+        shapeConfig: {
+          texture: function (d) {
+            return d.mode === "Biked" ? "lines" : false;
+          },
+          backgroundImage: function (d) {
+            return d.mode === "Remote" ? "./Landscape.svg" : false;
+          },
+        },
+        title: "Icons for two modes; the rest keep texture and backgroundImage",
+      })
+      .render();
 
-  var tickets = [
-    {type: "General Admission", attendees: 18400},
-    {type: "VIP", attendees: 3150},
-    {type: "Student", attendees: 6870},
-    {type: "Staff", attendees: 1240}
-  ];
+    var devices = [
+      {age: "18–29", device: "Phone", value: 58},
+      {age: "18–29", device: "Laptop", value: 27},
+      {age: "18–29", device: "Tablet", value: 6},
+      {age: "18–29", device: "Desktop", value: 9},
+      {age: "30–49", device: "Phone", value: 44},
+      {age: "30–49", device: "Laptop", value: 31},
+      {age: "30–49", device: "Tablet", value: 10},
+      {age: "30–49", device: "Desktop", value: 15},
+      {age: "50–64", device: "Phone", value: 31},
+      {age: "50–64", device: "Laptop", value: 28},
+      {age: "50–64", device: "Tablet", value: 17},
+      {age: "50–64", device: "Desktop", value: 24},
+      {age: "65+", device: "Phone", value: 22},
+      {age: "65+", device: "Laptop", value: 21},
+      {age: "65+", device: "Tablet", value: 26},
+      {age: "65+", device: "Desktop", value: 31},
+    ];
 
-  new d3plus.Waffle()
-    .select("#units")
-    .config({
-      data: tickets,
-      groupBy: "type",
-      sum: "attendees",
-      unit: 500,
-      columns: 12,
-      cellShape: "rounded",
-      cellPadding: 3,
-      title: "Festival Attendance (1 cell = 500)"
-    })
-    .render();
-
-  var commute = [
-    {mode: "Drove", people: 14, color: "#1a6fb5", icon: "./person-car.svg"},
-    {mode: "Transit", people: 5, color: "#e8833a", icon: "./person-bus.svg"},
-    {mode: "Biked", people: 3, color: "#3f9b4f", icon: "./person-bike.svg"},
-    {mode: "Walked", people: 2, color: "#8a5cc2", icon: "./person-walk.svg"},
-    {mode: "Remote", people: 6, color: "#9aa0a6", icon: "./person-home.svg"}
-  ];
-
-  new d3plus.Waffle()
-    .select("#icons")
-    .config({
-      data: commute,
-      groupBy: "mode",
-      sum: "people",
-      color: "color",
-      icon: function(d) { return d.icon; },
-      unit: 1,
-      columns: 10,
-      cellPadding: 4,
-      title: "How 30 Colleagues Commute"
-    })
-    .render();
-
-  new d3plus.Waffle()
-    .select("#textured")
-    .config({
-      data: energy,
-      groupBy: "source",
-      sum: "share",
-      shapeConfig: {
-        texture: function(d) { return d.source === "Nuclear" ? "lines" : d.source === "Coal" ? "grid" : false; },
-        backgroundImage: function(d) { return d.source === "Natural Gas" ? "./Landscape.svg" : false; }
-      },
-      title: "shapeConfig texture + backgroundImage"
-    })
-    .render();
-
-  new d3plus.Waffle()
-    .select("#iconFallback")
-    .config({
-      data: commute,
-      groupBy: "mode",
-      sum: "people",
-      color: "color",
-      icon: function(d) { return d.mode === "Drove" || d.mode === "Transit" ? d.icon : null; },
-      unit: 1,
-      columns: 10,
-      cellPadding: 4,
-      shapeConfig: {
-        texture: function(d) { return d.mode === "Biked" ? "lines" : false; },
-        backgroundImage: function(d) { return d.mode === "Remote" ? "./Landscape.svg" : false; }
-      },
-      title: "Icons for two modes; the rest keep texture and backgroundImage"
-    })
-    .render();
-
-  var devices = [
-    {age: "18–29", device: "Phone", value: 58},
-    {age: "18–29", device: "Laptop", value: 27},
-    {age: "18–29", device: "Tablet", value: 6},
-    {age: "18–29", device: "Desktop", value: 9},
-    {age: "30–49", device: "Phone", value: 44},
-    {age: "30–49", device: "Laptop", value: 31},
-    {age: "30–49", device: "Tablet", value: 10},
-    {age: "30–49", device: "Desktop", value: 15},
-    {age: "50–64", device: "Phone", value: 31},
-    {age: "50–64", device: "Laptop", value: 28},
-    {age: "50–64", device: "Tablet", value: 17},
-    {age: "50–64", device: "Desktop", value: 24},
-    {age: "65+", device: "Phone", value: 22},
-    {age: "65+", device: "Laptop", value: 21},
-    {age: "65+", device: "Tablet", value: 26},
-    {age: "65+", device: "Desktop", value: 31}
-  ];
-
-  new d3plus.Waffle()
-    .select("#facet")
-    .config({
-      data: devices,
-      groupBy: "device",
-      sum: "value",
-      facet: "age",
-      sort: false,
-      cellShape: "rounded",
-      title: "Primary Device by Age Group"
-    })
-    .render();
-
-</script>
-
+    new d3plus.Waffle()
+      .select("#facet")
+      .config({
+        data: devices,
+        groupBy: "device",
+        sum: "value",
+        facet: "age",
+        sort: false,
+        cellShape: "rounded",
+        title: "Primary Device by Age Group",
+      })
+      .render();
+  </script>
 </html>

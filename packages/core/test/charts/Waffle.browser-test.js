@@ -55,7 +55,10 @@ const setup = `
 const page = (fn, arg) =>
   render(
     "<div id='viz' style='width:600px;height:400px'></div>",
-    new Function("arg", `window.DATA = arg.data; ${setup}; return (${fn})(arg.arg);`),
+    new Function(
+      "arg",
+      `window.DATA = arg.data; ${setup}; return (${fn})(arg.arg);`,
+    ),
     {data, arg},
   );
 
@@ -64,12 +67,15 @@ it("Waffle: draws 100 cells, one per percent, with a legend", async function () 
     const chart = await window.build();
     const cells = window.cells(chart);
     const counts = {};
-    for (const c of cells) counts[c.datum.source] = (counts[c.datum.source] || 0) + 1;
+    for (const c of cells)
+      counts[c.datum.source] = (counts[c.datum.source] || 0) + 1;
     const xs = [...new Set(cells.map(c => c.x))].length;
     const ys = [...new Set(cells.map(c => c.y))].length;
     return {
       cells: cells.length,
-      svg: document.querySelectorAll("#viz svg.d3plus-render-svg rect[data-key^='waffle-']").length,
+      svg: document.querySelectorAll(
+        "#viz svg.d3plus-render-svg rect[data-key^='waffle-']",
+      ).length,
       counts,
       xs,
       ys,
@@ -79,10 +85,26 @@ it("Waffle: draws 100 cells, one per percent, with a legend", async function () 
   });
   assert.strictEqual(out.cells, 100);
   assert.strictEqual(out.svg, 100, "every cell reached the SVG");
-  assert.deepStrictEqual(out.counts, {Gas: 43, Nuclear: 19, Coal: 16, Wind: 10, Hydro: 6, Solar: 4, Other: 2});
+  assert.deepStrictEqual(out.counts, {
+    Gas: 43,
+    Nuclear: 19,
+    Coal: 16,
+    Wind: 10,
+    Hydro: 6,
+    Solar: 4,
+    Other: 2,
+  });
   assert.deepStrictEqual([out.xs, out.ys], [10, 10]);
   assert.ok(out.square, "square cells");
-  assert.deepStrictEqual(out.legend, ["Gas", "Nuclear", "Coal", "Wind", "Hydro", "Solar", "Other"]);
+  assert.deepStrictEqual(out.legend, [
+    "Gas",
+    "Nuclear",
+    "Coal",
+    "Wind",
+    "Hydro",
+    "Solar",
+    "Other",
+  ]);
 });
 
 it("Waffle: hovering a cell highlights its whole category, with value and share in the tooltip", async function () {
@@ -92,7 +114,9 @@ it("Waffle: hovering a cell highlights its whole category, with value and share 
     window.route(chart, "mouseenter", target);
     window.route(chart, "mousemove", target);
     await window.wait(50);
-    const bright = window.cells(chart).filter(n => chart._hover(n.datum, n.index));
+    const bright = window
+      .cells(chart)
+      .filter(n => chart._hover(n.datum, n.index));
     const tooltip = document.querySelector(".d3plus-tooltip");
     return {
       bright: bright.length,
@@ -126,10 +150,22 @@ it("Waffle: one cell per unit grows the grid along the fill direction", async fu
     const byRow = await window.build({config: {unit: 4, columns: 5}});
     const rowGrid = byRow.ctx.waffleGrid;
     const rowCells = window.cells(byRow).length;
-    const byColumn = await window.build({config: {unit: 4, rows: 3, fillDirection: "column", fillStart: "bottom-left"}});
+    const byColumn = await window.build({
+      config: {
+        unit: 4,
+        rows: 3,
+        fillDirection: "column",
+        fillStart: "bottom-left",
+      },
+    });
     const first = window.cells(byColumn)[0];
     const maxY = Math.max(...window.cells(byColumn).map(c => c.y));
-    return {rowGrid, rowCells, columnGrid: byColumn.ctx.waffleGrid, firstAtBottom: first.y === maxY};
+    return {
+      rowGrid,
+      rowCells,
+      columnGrid: byColumn.ctx.waffleGrid,
+      firstAtBottom: first.y === maxY,
+    };
   });
   assert.strictEqual(out.rowCells, 25, "100 / 4");
   assert.deepStrictEqual(out.rowGrid, {rows: 5, columns: 5});
@@ -138,20 +174,30 @@ it("Waffle: one cell per unit grows the grid along the fill direction", async fu
 });
 
 it("Waffle: draws rounded and circular cells, and icons in pictogram mode", async function () {
-  const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>");
+  const icon =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>",
+    );
   const out = await page(async src => {
     const rounded = await window.build({config: {cellShape: "rounded"}});
     const rx = window.cells(rounded)[0].rx;
-    const svgRx = document.querySelector("#viz rect[data-key^='waffle-']").getAttribute("rx");
+    const svgRx = document
+      .querySelector("#viz rect[data-key^='waffle-']")
+      .getAttribute("rx");
     const circles = await window.build({config: {cellShape: "circle"}});
-    const circleCount = window.cells(circles).filter(n => n.type === "circle").length;
+    const circleCount = window
+      .cells(circles)
+      .filter(n => n.type === "circle").length;
     const icons = await window.build({config: {icon: src}});
     return {
       rx,
       svgRx,
       circleCount,
       images: document.querySelectorAll("#viz image").length,
-      transparent: window.cells(icons).every(n => n.paint.fill === "transparent"),
+      transparent: window
+        .cells(icons)
+        .every(n => n.paint.fill === "transparent"),
     };
   }, icon);
   assert.ok(out.rx > 0);
@@ -167,7 +213,9 @@ it("Waffle: facet draws one waffle per panel", async function () {
     const cells = window.cells(chart);
     return {
       cells: cells.length,
-      west: cells.filter(c => c.datum.region === "West" && c.datum.source === "Hydro").length,
+      west: cells.filter(
+        c => c.datum.region === "West" && c.datum.source === "Hydro",
+      ).length,
     };
   });
   assert.strictEqual(out.cells, 200, "two panels of 100");
@@ -183,14 +231,19 @@ it("Waffle: renders on Canvas and hit-tests a real hover", async function () {
     const rect = canvas.getBoundingClientRect();
     const clientX = rect.left + t.x + target.x + target.width / 2;
     const clientY = rect.top + t.y + target.y + target.height / 2;
-    canvas.dispatchEvent(new MouseEvent("mousemove", {clientX, clientY, bubbles: true}));
+    canvas.dispatchEvent(
+      new MouseEvent("mousemove", {clientX, clientY, bubbles: true}),
+    );
     await window.wait(150);
     return {
       canvas: Boolean(canvas),
-      svgCells: document.querySelectorAll("#viz rect[data-key^='waffle-']").length,
-      hovered: typeof chart._hover === "function"
-        ? window.cells(chart).filter(n => chart._hover(n.datum, n.index)).length
-        : 0,
+      svgCells: document.querySelectorAll("#viz rect[data-key^='waffle-']")
+        .length,
+      hovered:
+        typeof chart._hover === "function"
+          ? window.cells(chart).filter(n => chart._hover(n.datum, n.index))
+              .length
+          : 0,
     };
   });
   assert.ok(out.canvas, "painted to a canvas");
@@ -199,52 +252,108 @@ it("Waffle: renders on Canvas and hit-tests a real hover", async function () {
 });
 
 it("Waffle: shapeConfig texture and backgroundImage reach every cell and legend swatch, on SVG and Canvas", async function () {
-  const image = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'/>");
-  const icon = "data:image/svg+xml," + encodeURIComponent("<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>");
+  const image =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      "<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10'/>",
+    );
+  const icon =
+    "data:image/svg+xml," +
+    encodeURIComponent(
+      "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 2 2'><circle cx='1' cy='1' r='1'/></svg>",
+    );
   for (const renderer of ["svg", "canvas"]) {
-    const out = await page(async ({renderer: r, image: img, icon: ico}) => {
-      const probe = async config => {
-        const chart = await window.build({
-          renderer: r,
-          config: {...config, shapeConfig: {texture: "lines", backgroundImage: img}},
-        });
-        const leaves = [];
-        const walk = (n, anc) =>
-          n.type === "group"
-            ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
-            : leaves.push({...n, anc});
-        walk(chart._lastSceneRendered.root, "");
-        const images = new Map(leaves.filter(n => n.type === "image").map(n => [n.key, n]));
-        const mark = n => {
-          const image = images.get(`${n.key}-bgimage-img`);
+    const out = await page(
+      async ({renderer: r, image: img, icon: ico}) => {
+        const probe = async config => {
+          const chart = await window.build({
+            renderer: r,
+            config: {
+              ...config,
+              shapeConfig: {texture: "lines", backgroundImage: img},
+            },
+          });
+          const leaves = [];
+          const walk = (n, anc) =>
+            n.type === "group"
+              ? (n.children || []).forEach(c =>
+                  walk(c, `${anc}>${n.key || ""}`),
+                )
+              : leaves.push({...n, anc});
+          walk(chart._lastSceneRendered.root, "");
+          const images = new Map(
+            leaves.filter(n => n.type === "image").map(n => [n.key, n]),
+          );
+          const mark = n => {
+            const image = images.get(`${n.key}-bgimage-img`);
+            return {
+              source: n.datum.source,
+              textured: String(n.paint.fill).startsWith("pattern:"),
+              href: image ? image.href : null,
+              fit: image ? image.preserveAspectRatio : null,
+            };
+          };
+          const swatches = leaves.filter(
+            n =>
+              ["rect", "circle", "path"].includes(n.type) &&
+              n.datum &&
+              n.anc.includes("viz-legend") &&
+              !String(n.key).endsWith("::hit") &&
+              n.paint &&
+              n.paint.fill &&
+              n.paint.fill !== "none",
+          );
           return {
-            source: n.datum.source,
-            textured: String(n.paint.fill).startsWith("pattern:"),
-            href: image ? image.href : null,
-            fit: image ? image.preserveAspectRatio : null,
+            cells: window.cells(chart).map(mark),
+            swatches: swatches.map(mark),
           };
         };
-        const swatches = leaves.filter(n =>
-          ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
-          !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
-        return {cells: window.cells(chart).map(mark), swatches: swatches.map(mark)};
-      };
-      return {
-        plain: await probe({}),
-        // Gas has an icon; every other category's icon resolves to nothing.
-        picto: await probe({icon: d => (d.source === "Gas" ? ico : null)}),
-      };
-    }, {renderer, image, icon});
+        return {
+          plain: await probe({}),
+          // Gas has an icon; every other category's icon resolves to nothing.
+          picto: await probe({icon: d => (d.source === "Gas" ? ico : null)}),
+        };
+      },
+      {renderer, image, icon},
+    );
     const {plain, picto} = out;
     assert.strictEqual(plain.cells.length, 100, `${renderer}: 100 cells`);
-    assert.deepStrictEqual(plain.cells.filter(m => !m.textured || m.href !== image), [], `${renderer}: every cell takes both`);
-    assert.strictEqual(plain.swatches.length, 7, `${renderer}: a swatch per source`);
-    assert.deepStrictEqual(plain.swatches.filter(m => !m.textured || m.href !== image), [], `${renderer}: every swatch takes both`);
+    assert.deepStrictEqual(
+      plain.cells.filter(m => !m.textured || m.href !== image),
+      [],
+      `${renderer}: every cell takes both`,
+    );
+    assert.strictEqual(
+      plain.swatches.length,
+      7,
+      `${renderer}: a swatch per source`,
+    );
+    assert.deepStrictEqual(
+      plain.swatches.filter(m => !m.textured || m.href !== image),
+      [],
+      `${renderer}: every swatch takes both`,
+    );
     const gas = picto.cells.filter(m => m.source === "Gas");
     const rest = picto.cells.filter(m => m.source !== "Gas");
-    assert.ok(gas.length && gas.every(m => !m.textured && m.href === icon), `${renderer}: icon cells draw their icon`);
-    assert.ok(gas.every(m => m.fit !== plain.cells[0].fit), `${renderer}: an icon is contained, an image covers`);
-    assert.deepStrictEqual(rest.filter(m => !m.textured || m.href !== image || m.fit !== plain.cells[0].fit), [], `${renderer}: cells without an icon keep their texture and backgroundImage`);
-    assert.deepStrictEqual(picto.swatches.filter(m => !m.textured || m.href !== image), [], `${renderer}: pictogram swatches take both`);
+    assert.ok(
+      gas.length && gas.every(m => !m.textured && m.href === icon),
+      `${renderer}: icon cells draw their icon`,
+    );
+    assert.ok(
+      gas.every(m => m.fit !== plain.cells[0].fit),
+      `${renderer}: an icon is contained, an image covers`,
+    );
+    assert.deepStrictEqual(
+      rest.filter(
+        m => !m.textured || m.href !== image || m.fit !== plain.cells[0].fit,
+      ),
+      [],
+      `${renderer}: cells without an icon keep their texture and backgroundImage`,
+    );
+    assert.deepStrictEqual(
+      picto.swatches.filter(m => !m.textured || m.href !== image),
+      [],
+      `${renderer}: pictogram swatches take both`,
+    );
   }
 });

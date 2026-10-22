@@ -20,14 +20,36 @@ it("Line emits a fat transparent hit-area path behind the visible line", () => {
   const line = scene.children[lineIdx];
 
   assert.ok(hit, "a ::hit node is emitted");
-  assert.ok(hitIdx < lineIdx, "the hit area is painted behind the visible line");
+  assert.ok(
+    hitIdx < lineIdx,
+    "the hit area is painted behind the visible line",
+  );
   assert.strictEqual(hit.type, "path");
   assert.strictEqual(hit.paint.fill, "none", "no fill");
-  assert.strictEqual(hit.paint.stroke, "transparent", "invisible but painted (so it hit-tests)");
-  assert.strictEqual(hit.paint.strokeWidth, 10, "fat stroke widens the hover target");
-  assert.strictEqual(hit.d, line.d, "overlaps the visible line's geometry exactly");
-  assert.strictEqual(hit.datum.y, 45, "carries the same aggregate datum as the line");
-  assert.ok(hit.interactionPoints?.length === 3, "carries interaction points so a hover off the line still resolves nearest");
+  assert.strictEqual(
+    hit.paint.stroke,
+    "transparent",
+    "invisible but painted (so it hit-tests)",
+  );
+  assert.strictEqual(
+    hit.paint.strokeWidth,
+    10,
+    "fat stroke widens the hover target",
+  );
+  assert.strictEqual(
+    hit.d,
+    line.d,
+    "overlaps the visible line's geometry exactly",
+  );
+  assert.strictEqual(
+    hit.datum.y,
+    45,
+    "carries the same aggregate datum as the line",
+  );
+  assert.ok(
+    hit.interactionPoints?.length === 3,
+    "carries interaction points so a hover off the line still resolves nearest",
+  );
 
   // The visible line keeps its real (thin) stroke.
   assert.strictEqual(line.paint.stroke, "black");

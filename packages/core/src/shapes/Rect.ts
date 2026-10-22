@@ -64,7 +64,9 @@ export default class Rect extends Shape {
       ...(rx == null ? {} : {rx: Number(rx)}),
       ...(ry == null ? {} : {ry: Number(ry)}),
       ...(this.schema.trail ? {trail: true} : {}),
-      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
+      ...(this.schema.trailPersist
+        ? {trailPersist: this.schema.trailPersist}
+        : {}),
     };
   }
 

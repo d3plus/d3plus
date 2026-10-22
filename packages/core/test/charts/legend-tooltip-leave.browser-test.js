@@ -17,15 +17,23 @@ const body = `
 const hoverLegend = ({chart, renderer}) =>
   new Promise((resolve, reject) => {
     const data = [
-      {group: "A", id: "a1", value: 10}, {group: "A", id: "a2", value: 20},
-      {group: "B", id: "b1", value: 15}, {group: "B", id: "b2", value: 25},
-      {group: "C", id: "c1", value: 12}, {group: "C", id: "c2", value: 18},
+      {group: "A", id: "a1", value: 10},
+      {group: "A", id: "a2", value: 20},
+      {group: "B", id: "b1", value: 15},
+      {group: "B", id: "b2", value: 25},
+      {group: "C", id: "c1", value: 12},
+      {group: "C", id: "c2", value: 18},
     ];
     const tick = ms => new Promise(r => setTimeout(r, ms));
     const make = (sel, kind) =>
       new Promise(res => {
-        const viz = new window.d3plus.Treemap().data(data).sum("value").legend(true)
-          .duration(0).renderer(kind).select(sel);
+        const viz = new window.d3plus.Treemap()
+          .data(data)
+          .sum("value")
+          .legend(true)
+          .duration(0)
+          .renderer(kind)
+          .select(sel);
         if (chart === "nested") viz.groupBy(["group", "id"]);
         else viz.groupBy("id").color("group");
         viz.render(() => res(viz));
@@ -37,12 +45,19 @@ const hoverLegend = ({chart, renderer}) =>
     const move = (x, y) => {
       const el = document.elementFromPoint(x, y) || document.body;
       if (over && surface.contains(over) && !surface.contains(el))
-        surface.dispatchEvent(new MouseEvent("mouseleave", {clientX: x, clientY: y}));
+        surface.dispatchEvent(
+          new MouseEvent("mouseleave", {clientX: x, clientY: y}),
+        );
       over = el;
-      el.dispatchEvent(new MouseEvent("mousemove", {clientX: x, clientY: y, bubbles: true}));
+      el.dispatchEvent(
+        new MouseEvent("mousemove", {clientX: x, clientY: y, bubbles: true}),
+      );
     };
     const shown = viz =>
-      [...(viz._tooltipClass._portalEl?.querySelectorAll(".d3plus-tooltip") ?? [])]
+      [
+        ...(viz._tooltipClass._portalEl?.querySelectorAll(".d3plus-tooltip") ??
+          []),
+      ]
         .filter(t => getComputedStyle(t).visibility === "visible")
         .map(t => t.querySelector(".d3plus-tooltip-title").textContent);
 
@@ -50,21 +65,37 @@ const hoverLegend = ({chart, renderer}) =>
       // Lay the chart out in SVG to read the legend entries' positions, which
       // the canvas chart shares.
       await make("#layout", "svg");
-      const labels = [...document.querySelectorAll('#layout [data-key="viz-legend"] text')];
+      const labels = [
+        ...document.querySelectorAll('#layout [data-key="viz-legend"] text'),
+      ];
       const center = text => {
-        const b = labels.find(t => t.textContent.trim() === text).getBoundingClientRect();
+        const b = labels
+          .find(t => t.textContent.trim() === text)
+          .getBoundingClientRect();
         return [b.left + b.width / 2, b.top + b.height / 2];
       };
       const [a, b] = [center("A"), center("B")];
       // Entry A's swatch: the legend shape nearest the left of its label.
-      const swatchA = [...document.querySelectorAll('#layout [data-key="viz-legend"] rect, #layout [data-key="viz-legend"] path')]
+      const swatchA = [
+        ...document.querySelectorAll(
+          '#layout [data-key="viz-legend"] rect, #layout [data-key="viz-legend"] path',
+        ),
+      ]
         .map(el => el.getBoundingClientRect())
-        .filter(r => r.width > 2 && r.width < 40 && r.right <= a[0] && Math.abs(r.top + r.height / 2 - a[1]) < r.height)
+        .filter(
+          r =>
+            r.width > 2 &&
+            r.width < 40 &&
+            r.right <= a[0] &&
+            Math.abs(r.top + r.height / 2 - a[1]) < r.height,
+        )
         .sort((p, q) => q.right - p.right)[0];
       document.querySelector("#layout").remove();
 
       const viz = await make("#viz", renderer);
-      surface = document.querySelector(renderer === "canvas" ? "#viz canvas" : "#viz svg.d3plus-render-svg");
+      surface = document.querySelector(
+        renderer === "canvas" ? "#viz canvas" : "#viz svg.d3plus-render-svg",
+      );
       const out = {};
 
       move(...a);
@@ -97,11 +128,31 @@ const hoverLegend = ({chart, renderer}) =>
 
 for (const chart of ["nested", "color"])
   for (const renderer of ["svg", "canvas"])
-    it(`legend tooltip (${chart} legend, ${renderer}): hides when the pointer leaves the entry`, {timeout: 120000}, async function () {
-      const r = await render(body, hoverLegend, {chart, renderer});
-      assert.deepStrictEqual(r.onEntry, ["A"], "hovering the entry shows its tooltip");
-      assert.deepStrictEqual(r.onSwatch, ["A"], "moving to the entry's swatch keeps it");
-      assert.deepStrictEqual(r.afterEmpty, [], "moving onto empty space hides it");
-      assert.deepStrictEqual(r.afterOff, [], "leaving the chart hides it");
-      assert.deepStrictEqual(r.afterSweep, [], "sweeping across entries and off hides it");
-    });
+    it(
+      `legend tooltip (${chart} legend, ${renderer}): hides when the pointer leaves the entry`,
+      {timeout: 120000},
+      async function () {
+        const r = await render(body, hoverLegend, {chart, renderer});
+        assert.deepStrictEqual(
+          r.onEntry,
+          ["A"],
+          "hovering the entry shows its tooltip",
+        );
+        assert.deepStrictEqual(
+          r.onSwatch,
+          ["A"],
+          "moving to the entry's swatch keeps it",
+        );
+        assert.deepStrictEqual(
+          r.afterEmpty,
+          [],
+          "moving onto empty space hides it",
+        );
+        assert.deepStrictEqual(r.afterOff, [], "leaving the chart hides it");
+        assert.deepStrictEqual(
+          r.afterSweep,
+          [],
+          "sweeping across entries and off hides it",
+        );
+      },
+    );

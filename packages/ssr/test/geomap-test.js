@@ -11,7 +11,10 @@ const cities = [
   {city: "Tokyo", coords: [139.7, 35.7]},
 ];
 const geomap = () =>
-  new Geomap().data(cities).point(d => d.coords).groupBy("city");
+  new Geomap()
+    .data(cities)
+    .point(d => d.coords)
+    .groupBy("city");
 
 /** A deterministic tile so tests need no network. */
 function mockTile() {
@@ -42,7 +45,10 @@ it("Geomap tiled SVG inlines fetched tiles as data URIs", async () => {
     },
   });
   assert.ok(calls > 0, "fetched at least one tile");
-  assert.ok((svg.match(/<image/g) || []).length > 0, "emitted tile image nodes");
+  assert.ok(
+    (svg.match(/<image/g) || []).length > 0,
+    "emitted tile image nodes",
+  );
   assert.ok(svg.includes('href="data:image'), "tiles inlined as data URIs");
   assert.ok(!/href="https?:/.test(svg), "no remote tile references remain");
 });
@@ -66,7 +72,10 @@ it("the default tile fetcher identifies itself, honors tileUserAgent, and caches
   const seen = [];
   const netFetch = async (url, init) => {
     seen.push({url, ua: init.headers?.["User-Agent"]});
-    return new globalThis.Response(mockTile(), {status: 200, headers: {"content-type": "image/png"}});
+    return new globalThis.Response(mockTile(), {
+      status: 200,
+      headers: {"content-type": "image/png"},
+    });
   };
 
   const uri = await fetchOne("https://tile.example/1/2/3.png", {}, netFetch);
@@ -75,7 +84,11 @@ it("the default tile fetcher identifies itself, honors tileUserAgent, and caches
   assert.ok(/d3plus/.test(seen[0].ua), "default User-Agent names d3plus");
 
   await fetchOne("https://tile.example/1/2/3.png", {}, netFetch);
-  assert.strictEqual(seen.length, 1, "a repeat fetch of the same URL reuses the cache");
+  assert.strictEqual(
+    seen.length,
+    1,
+    "a repeat fetch of the same URL reuses the cache",
+  );
 
   await fetchOne(
     "https://tile.example/9/9/9.png",
@@ -83,7 +96,11 @@ it("the default tile fetcher identifies itself, honors tileUserAgent, and caches
     netFetch,
   );
   assert.strictEqual(seen.length, 2, "a different URL isn't served from cache");
-  assert.strictEqual(seen[1].ua, "my-app/1.0 (ops@example.com)", "tileUserAgent overrides the default");
+  assert.strictEqual(
+    seen[1].ua,
+    "my-app/1.0 (ops@example.com)",
+    "tileUserAgent overrides the default",
+  );
 });
 
 it("Geomap's default basemap resolves to Esri's Light Gray Canvas in SSR", async () => {
@@ -96,5 +113,8 @@ it("Geomap's default basemap resolves to Esri's Light Gray Canvas in SSR", async
       return mockTile();
     },
   });
-  assert.ok(/World_Light_Gray_Base/.test(seenUrl), "server renders use the light default basemap");
+  assert.ok(
+    /World_Light_Gray_Base/.test(seenUrl),
+    "server renders use the light default basemap",
+  );
 });

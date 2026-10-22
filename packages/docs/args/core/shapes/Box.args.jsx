@@ -6,373 +6,383 @@ import {argTypes as baseClassArgTypes} from "../utils/BaseClass.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Box as D3plusBox} from "@d3plus/react";
-export const Box = ({ config }) => <D3plusBox config={config} />;
+export const Box = ({config}) => <D3plusBox config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BaseClass primitive and
    * overrides any defaults that have been changed in Box
    */
-  Object.keys(baseClassArgTypes)
-    .reduce((obj, k) => (obj[k] = baseClassArgTypes[k], obj), {}),
+  Object.keys(baseClassArgTypes).reduce(
+    (obj, k) => ((obj[k] = baseClassArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Box-specific methods
    */
-  
+
   {
     active: {
       control: {},
       description: "The active highlight state for all sub-shapes in this Box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function | null"
-      }
+        summary: "function | null",
+      },
     },
     backgroundImage: {
       control: {},
-      description: "An image drawn inside each box (see `ShapeConfig.backgroundImage`); `rectConfig.backgroundImage` overrides it.",
+      description:
+        "An image drawn inside each box (see `ShapeConfig.backgroundImage`); `rectConfig.backgroundImage` overrides it.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     backgroundImageFit: {
       control: {},
-      description: "How the box's `backgroundImage` fits it: `\"cover\"` (default) or `\"contain\"`.",
+      description:
+        'How the box\'s `backgroundImage` fits it: `"cover"` (default) or `"contain"`.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     config: {
       control: {},
-      description: "Narrowed `.config()` for Box. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",
+      description:
+        "Narrowed `.config()` for Box. Inherited surface from\n`BaseClass.config()`; the override exists only to surface per-shape\nkeys (e.g. `width`/`height` for Rect) in autocomplete + type checks.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "partial"
-      }
+        summary: "partial",
+      },
     },
     data: {
       control: {},
       description: "The data array used to create shapes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "array.&lt;datapoint&gt;"
-      }
+        summary: "array.&lt;datapoint&gt;",
+      },
     },
     hover: {
       control: {},
       description: "The hover highlight state for all sub-shapes in this Box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function | null"
-      }
+        summary: "function | null",
+      },
     },
     id: {
       control: {},
-      description: "Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value.",
+      description:
+        "Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     medianConfig: {
       control: {},
       description: "Configuration object for the median line.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     orient: {
       control: {},
-      description: "Orientation: \"vertical\" or \"horizontal\".",
+      description: 'Orientation: "vertical" or "horizontal".',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     outlier: {
       control: {},
       description: "Outlier accessor (per-datum predicate).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     outlierConfig: {
       control: {},
       description: "Configuration object for each outlier point.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     rectConfig: {
       control: {},
       description: "Configuration object for the rect shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     rectWidth: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The SVG container element for this visualization. 3 selector or DOM element.",
+      description:
+        "The SVG container element for this visualization. 3 selector or DOM element.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | htmlelement | svgelement | null"
-      }
+        summary: "string | htmlelement | svgelement | null",
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     texture: {
       control: {},
-      description: "Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.",
+      description:
+        "Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     textureDefault: {
       control: {
-        type: "object"
+        type: "object",
       },
       description: "Default texture config merged into the box's texture.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     whiskerConfig: {
       control: {},
       description: "Configuration object for the whisker.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     whiskerMode: {
       control: {
-        type: "object"
+        type: "object",
       },
-      defaultValue: [
-        "tukey",
-        "tukey"
-      ],
-      description: "Whisker mode: single mode string/number or [low, high] pair.",
+      defaultValue: ["tukey", "tukey"],
+      description:
+        "Whisker mode: single mode string/number or [low, high] pair.",
       table: {
         defaultValue: {
-          summary: "[\"tukey\",\"tukey\"]"
-        }
+          summary: '["tukey","tukey"]',
+        },
       },
       type: {
         required: false,
-        summary: "string | number | array.&lt;string | number&gt;"
-      }
+        summary: "string | number | array.&lt;string | number&gt;",
+      },
     },
     x: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     y: {
       control: {},
       description: "",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
-    }
-  }
+        summary: "constoraccessor",
+      },
+    },
+  },
 );

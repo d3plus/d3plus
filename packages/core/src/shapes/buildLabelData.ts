@@ -22,7 +22,12 @@ type BoundsFn = (
   d: DataPoint,
   i: number,
   aesValue: unknown,
-) => Record<string, unknown> | Record<string, unknown>[] | false | null | undefined;
+) =>
+  | Record<string, unknown>
+  | Record<string, unknown>[]
+  | false
+  | null
+  | undefined;
 
 export interface BuildLabelDataOpts {
   /** Source data array. */
@@ -55,7 +60,18 @@ export interface BuildLabelDataOpts {
 }
 
 export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
-  const {data, dataFilter, label, labelBounds, x, y, aes, rotate, id, datum: datumFn} = opts;
+  const {
+    data,
+    dataFilter,
+    label,
+    labelBounds,
+    x,
+    y,
+    aes,
+    rotate,
+    id,
+    datum: datumFn,
+  } = opts;
   const out: DataPoint[] = [];
   const src = dataFilter ? dataFilter(data) : data;
 
@@ -74,7 +90,10 @@ export function buildLabelData(opts: BuildLabelDataOpts): DataPoint[] {
       labels !== undefined &&
       labels !== null
     ) {
-      const bounds = labelBounds(d, i, aes(datum, i)) as Record<string, unknown>;
+      const bounds = labelBounds(d, i, aes(datum, i)) as Record<
+        string,
+        unknown
+      >;
       if (!bounds) return;
 
       if ((labels as unknown[]).constructor !== Array) labels = [labels];

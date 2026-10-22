@@ -6,70 +6,73 @@ import {argTypes as barChartArgTypes} from "./BarChart.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Marimekko as D3plusMarimekko} from "@d3plus/react";
-export const Marimekko = ({ config }) => <D3plusMarimekko config={config} />;
+export const Marimekko = ({config}) => <D3plusMarimekko config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BarChart primitive and
    * overrides any defaults that have been changed in Marimekko
    */
-  Object.keys(barChartArgTypes)
-    .reduce((obj, k) => (obj[k] = barChartArgTypes[k], obj), {}),
+  Object.keys(barChartArgTypes).reduce(
+    (obj, k) => ((obj[k] = barChartArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Marimekko-specific methods
    */
-  
+
   {
     barWidth: {
-      description: "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.\n\nMarimekko defaults to each bar's total: its rows' summed `y`, or `x` when the bars run along `y`, shown as \"Bar Total\" in tooltips.",
+      description:
+        "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.\n\nMarimekko defaults to each bar's total: its rows' summed `y`, or `x` when the bars run along `y`, shown as \"Bar Total\" in tooltips.",
       table: {
         defaultValue: {
-          summary: "the bar's total"
-        }
-      }
+          summary: "the bar's total",
+        },
+      },
     },
     barWidthShare: {
       defaultValue: true,
-      description: "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.\n\nMarimekko shows the shares by default (\"Retail\" over \"50%\"); `false` shows the name alone. The tooltip always shows the share. In small multiples (`facet`), each panel's shares add to 100%, even when shared scales (the default) draw a smaller panel narrower.",
+      description:
+        "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.\n\nMarimekko shows the shares by default (\"Retail\" over \"50%\"); `false` shows the name alone. The tooltip always shows the share. In small multiples (`facet`), each panel's shares add to 100%, even when shared scales (the default) draw a smaller panel narrower.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     groupPadding: {
       defaultValue: 1,
       table: {
         defaultValue: {
-          summary: "1"
-        }
-      }
+          summary: "1",
+        },
+      },
     },
     stackOffset: {
       defaultValue: "expand",
       table: {
         defaultValue: {
-          summary: "expand"
-        }
-      }
+          summary: "expand",
+        },
+      },
     },
     stacked: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     tooltipShared: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
-    }
-  }
+          summary: "false",
+        },
+      },
+    },
+  },
 );

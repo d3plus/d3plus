@@ -108,7 +108,8 @@ function computeNodeRanks(nodes: SankeyNode[], key: "depth" | "height"): void {
   while (current.size) {
     for (const node of current) {
       node[key] = x;
-      if (key === "depth") for (const {target} of node.sourceLinks) next.add(target);
+      if (key === "depth")
+        for (const {target} of node.sourceLinks) next.add(target);
       else for (const {source} of node.targetLinks) next.add(source);
     }
     if (++x > n) throw new Error("circular link");
@@ -134,9 +135,13 @@ interface LayoutState {
 
 export function sankey(): SankeyGenerator {
   const s: LayoutState = {
-    x0: 0, y0: 0, x1: 1, y1: 1, // size
+    x0: 0,
+    y0: 0,
+    x1: 1,
+    y1: 1, // size
     dx: 24, // nodeWidth
-    dy: 8, py: 8, // nodePadding
+    dy: 8,
+    py: 8, // nodePadding
     align: sankeyJustify,
     sort: undefined,
     linkSort: undefined,
@@ -151,9 +156,10 @@ export function sankey(): SankeyGenerator {
     const links = linkList as unknown as SankeyLink[];
     computeNodeLinks(s, nodes, links);
     for (const node of nodes) {
-      node.value = node.fixedValue === undefined
-        ? Math.max(sum(node.sourceLinks, value), sum(node.targetLinks, value))
-        : node.fixedValue;
+      node.value =
+        node.fixedValue === undefined
+          ? Math.max(sum(node.sourceLinks, value), sum(node.targetLinks, value))
+          : node.fixedValue;
     }
     computeNodeRanks(nodes, "depth");
     computeNodeRanks(nodes, "height");
@@ -175,7 +181,11 @@ export function sankey(): SankeyGenerator {
   return generator;
 }
 
-function computeNodeLinks(s: LayoutState, nodes: SankeyNode[], links: SankeyLink[]): void {
+function computeNodeLinks(
+  s: LayoutState,
+  nodes: SankeyNode[],
+  links: SankeyLink[],
+): void {
   for (const [i, node] of nodes.entries()) {
     node.index = i;
     node.sourceLinks = [];
@@ -203,7 +213,10 @@ function computeNodeLinks(s: LayoutState, nodes: SankeyNode[], links: SankeyLink
   }
 }
 
-function computeNodeLayers(s: LayoutState, nodes: SankeyNode[]): SankeyNode[][] {
+function computeNodeLayers(
+  s: LayoutState,
+  nodes: SankeyNode[],
+): SankeyNode[][] {
   const x = (max(nodes, d => d.depth) as number) + 1;
   const kx = (s.x1 - s.x0 - s.dx) / (x - 1);
   const columns: SankeyNode[][] = new Array(x);
@@ -220,7 +233,10 @@ function computeNodeLayers(s: LayoutState, nodes: SankeyNode[]): SankeyNode[][] 
 }
 
 function initializeNodeBreadths(s: LayoutState, columns: SankeyNode[][]): void {
-  const ky = min(columns, c => (s.y1 - s.y0 - (c.length - 1) * s.py) / sum(c, value)) as number;
+  const ky = min(
+    columns,
+    c => (s.y1 - s.y0 - (c.length - 1) * s.py) / sum(c, value),
+  ) as number;
   for (const nodes of columns) {
     let y = s.y0;
     for (const node of nodes) {
@@ -241,7 +257,10 @@ function initializeNodeBreadths(s: LayoutState, columns: SankeyNode[][]): void {
 
 function computeNodeBreadths(s: LayoutState, nodes: SankeyNode[]): void {
   const columns = computeNodeLayers(s, nodes);
-  s.py = Math.min(s.dy, (s.y1 - s.y0) / ((max(columns, c => c.length) as number) - 1));
+  s.py = Math.min(
+    s.dy,
+    (s.y1 - s.y0) / ((max(columns, c => c.length) as number) - 1),
+  );
   initializeNodeBreadths(s, columns);
   for (let i = 0; i < s.iterations; ++i) {
     const alpha = Math.pow(0.99, i);
@@ -252,7 +271,12 @@ function computeNodeBreadths(s: LayoutState, nodes: SankeyNode[]): void {
 }
 
 // Reposition each node based on its incoming (target) links.
-function relaxLeftToRight(s: LayoutState, columns: SankeyNode[][], alpha: number, beta: number): void {
+function relaxLeftToRight(
+  s: LayoutState,
+  columns: SankeyNode[][],
+  alpha: number,
+  beta: number,
+): void {
   for (let i = 1, n = columns.length; i < n; ++i) {
     const column = columns[i];
     for (const target of column) {
@@ -275,7 +299,12 @@ function relaxLeftToRight(s: LayoutState, columns: SankeyNode[][], alpha: number
 }
 
 // Reposition each node based on its outgoing (source) links.
-function relaxRightToLeft(s: LayoutState, columns: SankeyNode[][], alpha: number, beta: number): void {
+function relaxRightToLeft(
+  s: LayoutState,
+  columns: SankeyNode[][],
+  alpha: number,
+  beta: number,
+): void {
   for (let n = columns.length, i = n - 2; i >= 0; --i) {
     const column = columns[i];
     for (const source of column) {
@@ -297,7 +326,11 @@ function relaxRightToLeft(s: LayoutState, columns: SankeyNode[][], alpha: number
   }
 }
 
-function resolveCollisions(s: LayoutState, nodes: SankeyNode[], alpha: number): void {
+function resolveCollisions(
+  s: LayoutState,
+  nodes: SankeyNode[],
+  alpha: number,
+): void {
   const i = nodes.length >> 1;
   const subject = nodes[i];
   resolveCollisionsBottomToTop(s, nodes, subject.y0 - s.py, i - 1, alpha);
@@ -307,29 +340,46 @@ function resolveCollisions(s: LayoutState, nodes: SankeyNode[], alpha: number): 
 }
 
 // Push any overlapping nodes down.
-function resolveCollisionsTopToBottom(s: LayoutState, nodes: SankeyNode[], y: number, i: number, alpha: number): void {
+function resolveCollisionsTopToBottom(
+  s: LayoutState,
+  nodes: SankeyNode[],
+  y: number,
+  i: number,
+  alpha: number,
+): void {
   for (; i < nodes.length; ++i) {
     const node = nodes[i];
     const shift = (y - node.y0) * alpha;
-    if (shift > 1e-6) (node.y0 += shift), (node.y1 += shift);
+    if (shift > 1e-6) ((node.y0 += shift), (node.y1 += shift));
     y = node.y1 + s.py;
   }
 }
 
 // Push any overlapping nodes up.
-function resolveCollisionsBottomToTop(s: LayoutState, nodes: SankeyNode[], y: number, i: number, alpha: number): void {
+function resolveCollisionsBottomToTop(
+  s: LayoutState,
+  nodes: SankeyNode[],
+  y: number,
+  i: number,
+  alpha: number,
+): void {
   for (; i >= 0; --i) {
     const node = nodes[i];
     const shift = (node.y1 - y) * alpha;
-    if (shift > 1e-6) (node.y0 -= shift), (node.y1 -= shift);
+    if (shift > 1e-6) ((node.y0 -= shift), (node.y1 -= shift));
     y = node.y0 - s.py;
   }
 }
 
-function reorderNodeLinks(s: LayoutState, {sourceLinks, targetLinks}: SankeyNode): void {
+function reorderNodeLinks(
+  s: LayoutState,
+  {sourceLinks, targetLinks}: SankeyNode,
+): void {
   if (s.linkSort === undefined) {
-    for (const {source} of targetLinks) source.sourceLinks.sort(ascendingTargetBreadth);
-    for (const {target} of sourceLinks) target.targetLinks.sort(ascendingSourceBreadth);
+    for (const {source} of targetLinks)
+      source.sourceLinks.sort(ascendingTargetBreadth);
+    for (const {target} of sourceLinks)
+      target.targetLinks.sort(ascendingSourceBreadth);
   }
 }
 
@@ -343,8 +393,12 @@ function reorderLinks(s: LayoutState, nodes: SankeyNode[]): void {
 }
 
 // Returns the target.y0 that would produce an ideal link from source to target.
-function targetTop(s: LayoutState, source: SankeyNode, target: SankeyNode): number {
-  let y = source.y0 - (source.sourceLinks.length - 1) * s.py / 2;
+function targetTop(
+  s: LayoutState,
+  source: SankeyNode,
+  target: SankeyNode,
+): number {
+  let y = source.y0 - ((source.sourceLinks.length - 1) * s.py) / 2;
   for (const {target: node, width} of source.sourceLinks) {
     if (node === target) break;
     y += width + s.py;
@@ -357,8 +411,12 @@ function targetTop(s: LayoutState, source: SankeyNode, target: SankeyNode): numb
 }
 
 // Returns the source.y0 that would produce an ideal link from source to target.
-function sourceTop(s: LayoutState, source: SankeyNode, target: SankeyNode): number {
-  let y = target.y0 - (target.targetLinks.length - 1) * s.py / 2;
+function sourceTop(
+  s: LayoutState,
+  source: SankeyNode,
+  target: SankeyNode,
+): number {
+  let y = target.y0 - ((target.targetLinks.length - 1) * s.py) / 2;
   for (const {source: node, width} of target.targetLinks) {
     if (node === source) break;
     y += width + s.py;

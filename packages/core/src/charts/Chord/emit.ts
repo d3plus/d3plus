@@ -18,7 +18,10 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
-import {backgroundImageNode, backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {
+  backgroundImageNode,
+  backgroundImageNodes,
+} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
@@ -52,7 +55,11 @@ export const chordEmit: ChartEmit = ({viz}) => {
       // A chord accumulates duplicate links into one matrix cell, so bind a
       // synthesized flat link datum (source/target ids + flow) — the tooltip
       // title and hover predicates read `.source.id`/`.target.id`.
-      datum: {source: {id: src.id}, target: {id: tgt.id}, value: ch.source.value} as unknown as DataPoint,
+      datum: {
+        source: {id: src.id},
+        target: {id: tgt.id},
+        value: ch.source.value,
+      } as unknown as DataPoint,
       index: i,
       paint: {
         fill: textureFill(pathCfg, src.data, src.i, fill),
@@ -70,7 +77,13 @@ export const chordEmit: ChartEmit = ({viz}) => {
     // still show through each other.
     const image = backgroundImageNode(
       pathCfg,
-      {...ribbon, paint: {...ribbon.paint, opacity: (ribbon.paint?.opacity ?? 1) * chordOpacity}},
+      {
+        ...ribbon,
+        paint: {
+          ...ribbon.paint,
+          opacity: (ribbon.paint?.opacity ?? 1) * chordOpacity,
+        },
+      },
       src.data,
       src.i,
     );
@@ -81,7 +94,8 @@ export const chordEmit: ChartEmit = ({viz}) => {
   // Arcs (groups).
   const arcNodes: SceneNode[] = [];
   const arcData = c.nodes.filter(
-    (nd): nd is ChordNode & {group: NonNullable<ChordNode["group"]>} => Boolean(nd.group),
+    (nd): nd is ChordNode & {group: NonNullable<ChordNode["group"]>} =>
+      Boolean(nd.group),
   );
   for (const node of arcData) {
     const paint = paintFromShapeConfig(pathCfg, node.data, node.i);
@@ -98,7 +112,13 @@ export const chordEmit: ChartEmit = ({viz}) => {
     } as SceneNode);
   }
 
-  out.push(...arcNodes, ...backgroundImageNodes(pathCfg, arcNodes, k => [arcData[k].data, arcData[k].i]));
+  out.push(
+    ...arcNodes,
+    ...backgroundImageNodes(pathCfg, arcNodes, k => [
+      arcData[k].data,
+      arcData[k].i,
+    ]),
+  );
 
   // Group labels, positioned + rotated by the layout stage.
   if (arcData.length) {

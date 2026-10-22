@@ -3,21 +3,19 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   e: {
     control: {},
     description: "The d3 selection to apply styles to.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "stylable"
-    }
+      summary: "stylable",
+    },
   },
   s: {
     control: {},
@@ -25,12 +23,12 @@ export const argTypes = {
     description: "An object of key/value style pairs.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
-  }
+      summary: "record",
+    },
+  },
 };

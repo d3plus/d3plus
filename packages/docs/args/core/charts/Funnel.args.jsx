@@ -6,213 +6,216 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Funnel as D3plusFunnel} from "@d3plus/react";
-export const Funnel = ({ config }) => <D3plusFunnel config={config} />;
+export const Funnel = ({config}) => <D3plusFunnel config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Funnel
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Funnel-specific methods
    */
-  
+
   {
     connector: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Whether to fill the gap between consecutive stages with a neck joining their widths. A neck takes its stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; see `connectorConfig` to override them.",
+      description:
+        "Whether to fill the gap between consecutive stages with a neck joining their widths. A neck takes its stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; see `connectorConfig` to override them.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     connectorConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Paint for the necks between stages (`fill`, `opacity`, `stroke`, `strokeWidth`, `texture`, `backgroundImage`, `backgroundImageFit`), each a value or a function of the stage the neck leads into. `fill` defaults to that stage's fill. A neck inherits that stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; `connectorConfig.texture` and `connectorConfig.backgroundImage` override them, and `false` turns either off for the necks. The image takes the neck's `opacity`, like its fill.",
+      description:
+        "Paint for the necks between stages (`fill`, `opacity`, `stroke`, `strokeWidth`, `texture`, `backgroundImage`, `backgroundImageFit`), each a value or a function of the stage the neck leads into. `fill` defaults to that stage's fill. A neck inherits that stage's `shapeConfig.texture` and `shapeConfig.backgroundImage`; `connectorConfig.texture` and `connectorConfig.backgroundImage` override them, and `false` turns either off for the necks. The image takes the neck's `opacity`, like its fill.",
       table: {
         defaultValue: {
-          summary: "{opacity: 0.35}"
-        }
+          summary: "{opacity: 0.35}",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     conversion: {
       control: {
-        type: "select"
+        type: "select",
       },
       defaultValue: false,
-      description: "Which conversion rates each stage's label shows beneath its value: `\"first\"` (its value as a share of the first stage's), `\"previous\"` (as a share of the stage before it), `\"both\"` (or `true`), or `false` for none. Tooltips always show both.",
-      options: [
-        true,
-        false,
-        "first",
-        "previous",
-        "both"
-      ],
+      description:
+        'Which conversion rates each stage\'s label shows beneath its value: `"first"` (its value as a share of the first stage\'s), `"previous"` (as a share of the stage before it), `"both"` (or `true`), or `false` for none. Tooltips always show both.',
+      options: [true, false, "first", "previous", "both"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | \"first\" | \"previous\" | \"both\" | (\"first\" | \"previous\")[]"
-      }
+        summary:
+          'boolean | "first" | "previous" | "both" | ("first" | "previous")[]',
+      },
     },
     curve: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "linear",
-      description: "How the funnel's width changes from one stage to the next: `\"linear\"` (straight sides) or `\"smooth\"` (curved sides that ease into each stage).",
-      options: [
-        "linear",
-        "smooth"
-      ],
+      description:
+        'How the funnel\'s width changes from one stage to the next: `"linear"` (straight sides) or `"smooth"` (curved sides that ease into each stage).',
+      options: ["linear", "smooth"],
       table: {
         defaultValue: {
-          summary: "linear"
-        }
+          summary: "linear",
+        },
       },
       type: {
         required: false,
-        summary: "\"linear\" | \"smooth\""
-      }
+        summary: '"linear" | "smooth"',
+      },
     },
     legend: {
-      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nHides the legend when every stage would be its own entry (stages are labeled), including across small multiples.",
+      description:
+        "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.\n\nHides the legend when every stage would be its own entry (stages are labeled), including across small multiples.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     orient: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "vertical",
-      description: "The direction stages run: `\"vertical\"` (top to bottom, widths across) or `\"horizontal\"` (left to right, heights across).",
-      options: [
-        "vertical",
-        "horizontal"
-      ],
+      description:
+        'The direction stages run: `"vertical"` (top to bottom, widths across) or `"horizontal"` (left to right, heights across).',
+      options: ["vertical", "horizontal"],
       table: {
         defaultValue: {
-          summary: "vertical"
-        }
+          summary: "vertical",
+        },
       },
       type: {
         required: false,
-        summary: "\"vertical\" | \"horizontal\""
-      }
+        summary: '"vertical" | "horizontal"',
+      },
     },
     sort: {
       control: {},
-      description: "A comparator that orders the stages, given two data rows, as `(a, b) => number`. Defaults to data order. Conversion rates follow the sorted order: \"% of previous stage\" compares each stage with the one drawn before it.",
+      description:
+        'A comparator that orders the stages, given two data rows, as `(a, b) => number`. Defaults to data order. Conversion rates follow the sorted order: "% of previous stage" compares each stage with the one drawn before it.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     stagePadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0.3,
-      description: "The gap between consecutive stages, as a fraction (0–1) of each stage's slot; the necks fill it.",
+      description:
+        "The gap between consecutive stages, as a fraction (0–1) of each stage's slot; the necks fill it.",
       table: {
         defaultValue: {
-          summary: "0.3"
-        }
+          summary: "0.3",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     taper: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: false,
-      description: "Whether each stage narrows from its own width to the next stage's, drawing a continuous straight- or smooth-sided funnel instead of flat bars. The last stage keeps its own width.",
+      description:
+        "Whether each stage narrows from its own width to the next stage's, drawing a continuous straight- or smooth-sided funnel instead of flat bars. The last stage keeps its own width.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     tooltipConfig: {
-      description: "Configuration for the tooltip component.\n\nTooltip rows show each stage's value, then its share of the first and of the previous stage.",
+      description:
+        "Configuration for the tooltip component.\n\nTooltip rows show each stage's value, then its share of the first and of the previous stage.",
       table: {
         defaultValue: {
-          summary: "{tbody: (d: DataPoint, i: number) => funnelTooltipRows(viz, d, i)}"
-        }
-      }
+          summary:
+            "{tbody: (d: DataPoint, i: number) => funnelTooltipRows(viz, d, i)}",
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "Accessor function or string key for each stage's value.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     valueFormat: {
       control: {},
-      description: "Formats each stage's value in its label and tooltip, as `(value, datum) => string`. Defaults to the locale's abbreviated number format.",
+      description:
+        "Formats each stage's value in its label and tooltip, as `(value, datum) => string`. Defaults to the locale's abbreviated number format.",
       table: {
         defaultValue: {
-          summary: "function"
-        }
+          summary: "function",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     zoom: {
       defaultValue: false,
-      description: "Enables pan/zoom with zoom-control buttons. On by default for every chart.\n\nZooming and panning don't help read a funnel, so they're off by default.",
+      description:
+        "Enables pan/zoom with zoom-control buttons. On by default for every chart.\n\nZooming and panning don't help read a funnel, so they're off by default.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
-    }
-  }
+          summary: "false",
+        },
+      },
+    },
+  },
 );

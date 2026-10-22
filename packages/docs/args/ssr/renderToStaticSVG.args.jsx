@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   opts: {
     control: {},
@@ -12,25 +10,25 @@ export const argTypes = {
     description: "Output size (required here or on the chart) and DOM options.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "staticrenderoptions"
-    }
+      summary: "staticrenderoptions",
+    },
   },
   viz: {
     control: {},
     description: "A configured chart instance (data + accessors already set).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "renderableviz"
-    }
-  }
+      summary: "renderableviz",
+    },
+  },
 };

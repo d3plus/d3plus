@@ -13,7 +13,8 @@ const data = [
 @Component({
   selector: "app-root",
   imports: [D3plusVizComponent],
-  template: "<d3plus-viz [viz]=\"Treemap\" [config]=\"config\" style=\"display:block;height:75vh\"></d3plus-viz>",
+  template:
+    '<d3plus-viz [viz]="Treemap" [config]="config" style="display:block;height:75vh"></d3plus-viz>',
 })
 export class AppComponent {
   readonly Treemap = Treemap;

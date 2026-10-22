@@ -68,13 +68,20 @@ function reduceExtentFeatures(
       geometry: {type: string; coordinates: number[][][][]};
     };
     if (!d.geometry) return arr;
-    const reduced: {type: string; id: string; geometry: {type: string; coordinates: number[][][][]}} = {
+    const reduced: {
+      type: string;
+      id: string;
+      geometry: {type: string; coordinates: number[][][][]};
+    } = {
       type: d.type,
       id: d.id,
       geometry: {coordinates: d.geometry.coordinates, type: d.geometry.type},
     };
 
-    if (d.geometry.type === "MultiPolygon" && d.geometry.coordinates.length > 1) {
+    if (
+      d.geometry.type === "MultiPolygon" &&
+      d.geometry.coordinates.length > 1
+    ) {
       const areas: number[] = [];
       const distances: number[] = [];
 
@@ -121,13 +128,20 @@ function applyPointExtentBounds(
   pointData: DataPoint[],
   r: (n: number) => number,
 ): void {
-  const bounds: (number | undefined)[][] = [[undefined, undefined], [undefined, undefined]];
+  const bounds: (number | undefined)[][] = [
+    [undefined, undefined],
+    [undefined, undefined],
+  ];
   pointData.forEach((d: DataPoint, i: number) => {
     const point = v.schema.projection(v.schema.point(d, i));
-    if (bounds[0][0] === void 0 || point[0] < bounds[0][0]) bounds[0][0] = point[0];
-    if (bounds[1][0] === void 0 || point[0] > bounds[1][0]) bounds[1][0] = point[0];
-    if (bounds[0][1] === void 0 || point[1] < bounds[0][1]) bounds[0][1] = point[1];
-    if (bounds[1][1] === void 0 || point[1] > bounds[1][1]) bounds[1][1] = point[1];
+    if (bounds[0][0] === void 0 || point[0] < bounds[0][0])
+      bounds[0][0] = point[0];
+    if (bounds[1][0] === void 0 || point[0] > bounds[1][0])
+      bounds[1][0] = point[0];
+    if (bounds[0][1] === void 0 || point[1] < bounds[0][1])
+      bounds[0][1] = point[1];
+    if (bounds[1][1] === void 0 || point[1] > bounds[1][1])
+      bounds[1][1] = point[1];
   });
 
   ctx.extentBounds = {
@@ -137,12 +151,16 @@ function applyPointExtentBounds(
         type: "Feature",
         geometry: {
           type: "MultiPoint",
-          coordinates: bounds.map((b: (number | undefined)[]) => v.schema.projection.invert(b)),
+          coordinates: bounds.map((b: (number | undefined)[]) =>
+            v.schema.projection.invert(b),
+          ),
         },
       },
     ],
   };
-  const maxSize = max(pointData, (d: DataPoint, i: number) => r(v.schema.pointSize(d, i)));
+  const maxSize = max(pointData, (d: DataPoint, i: number) =>
+    r(v.schema.pointSize(d, i)),
+  );
   ctx.effectivePadding = {
     top: v.schema.projectionPadding.top + maxSize,
     right: v.schema.projectionPadding.right + maxSize,
@@ -159,12 +177,23 @@ export function geomapPointData(v: GeomapViz): DataPoint[] {
 }
 
 /** The point radius scale: `pointSizeScale` over the points' `pointSize` extent, onto `[pointSizeMin, pointSizeMax]`. */
-export function geomapPointSizeScale(v: GeomapViz, pointData: DataPoint[]): SizeLegendScale {
+export function geomapPointSizeScale(
+  v: GeomapViz,
+  pointData: DataPoint[],
+): SizeLegendScale {
   const scaleName = `scale${v.schema.pointSizeScale.charAt(0).toUpperCase()}${v.schema.pointSizeScale.slice(1)}`;
-  return ((scales as unknown as Record<string, ScaleFactory>)[scaleName]() as {
-    domain: (d: [number, number]) => {range: (r: [number, number]) => SizeLegendScale};
-  })
-    .domain(extent(pointData, (d: DataPoint, i: number) => v.schema.pointSize(d, i)) as unknown as [number, number])
+  return (
+    (scales as unknown as Record<string, ScaleFactory>)[scaleName]() as {
+      domain: (d: [number, number]) => {
+        range: (r: [number, number]) => SizeLegendScale;
+      };
+    }
+  )
+    .domain(
+      extent(pointData, (d: DataPoint, i: number) =>
+        v.schema.pointSize(d, i),
+      ) as unknown as [number, number],
+    )
     .range([v.schema.pointSizeMin, v.schema.pointSizeMax]);
 }
 
@@ -173,19 +202,23 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const ctx = viz.ctx as unknown as GeomapCtx;
   const {width, height} = chartBounds(v);
 
-  const coordData: {type: string; features: Record<string, unknown>[]} = v.schema.topojson
+  const coordData: {type: string; features: Record<string, unknown>[]} = v
+    .schema.topojson
     ? topo2feature(v.schema.topojson, v.schema.topojsonKey)
     : {type: "FeatureCollection", features: []};
   ctx.coordData = coordData;
 
-  if (v.schema.topojsonFilter) coordData.features = coordData.features.filter(v.schema.topojsonFilter);
+  if (v.schema.topojsonFilter)
+    coordData.features = coordData.features.filter(v.schema.topojsonFilter);
 
-  const path = (d3GeoCore.geoPath as () => {
-    projection: (p: unknown) => unknown;
-    area: (d: unknown) => number;
-    centroid: (d: unknown) => [number, number];
-    (d: unknown): string;
-  })().projection(v.schema.projection) as ((d: unknown) => string) & {
+  const path = (
+    d3GeoCore.geoPath as () => {
+      projection: (p: unknown) => unknown;
+      area: (d: unknown) => number;
+      centroid: (d: unknown) => [number, number];
+      (d: unknown): string;
+    }
+  )().projection(v.schema.projection) as ((d: unknown) => string) & {
     area: (d: unknown) => number;
     centroid: (d: unknown) => [number, number];
   };
@@ -194,7 +227,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
   const pointData = geomapPointData(v);
 
   const pathData = v._filteredData
-    .filter((d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array))
+    .filter(
+      (d: DataPoint, i: number) => !(v.schema.point(d, i) instanceof Array),
+    )
     .reduce((obj: Record<string, DataPoint>, d: DataPoint, i: number) => {
       obj[v._id(d, i)] = d;
       return obj;
@@ -216,7 +251,9 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     // The point-radius padding belongs with the extent it was computed for,
     // so a later draw that reuses the cached extent fits the same way.
     ctx.effectivePadding = undefined;
-    const fitData = v.schema.fitObject ? topo2feature(v.schema.fitObject, v.schema.fitKey) : coordData;
+    const fitData = v.schema.fitObject
+      ? topo2feature(v.schema.fitObject, v.schema.fitKey)
+      : coordData;
 
     ctx.extentBounds = {
       type: "FeatureCollection",
@@ -224,7 +261,10 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
         ? fitData.features.filter(v.schema.fitFilter)
         : fitData.features.slice(),
     };
-    ctx.extentBounds.features = reduceExtentFeatures(ctx.extentBounds.features, path);
+    ctx.extentBounds.features = reduceExtentFeatures(
+      ctx.extentBounds.features,
+      path,
+    );
 
     if (!ctx.extentBounds.features.length && pointData.length) {
       applyPointExtentBounds(v, ctx, pointData, r);
@@ -239,7 +279,10 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
           [effectivePadding.left, effectivePadding.top],
           [width - effectivePadding.right, height - effectivePadding.bottom],
         ]
-      : [[0, 0], [width, height]],
+      : [
+          [0, 0],
+          [width, height],
+        ],
     ctx.extentBounds.features.length ? ctx.extentBounds : {type: "Sphere"},
   );
 
@@ -251,9 +294,12 @@ export const applyGeomapLayout: TransformStage = ({viz}) => {
     pathFn: (d: Record<string, unknown>) => path(d.feature),
     pointData,
     pointR: (d: DataPoint, i: number) => r(v.schema.pointSize(d, i)),
-    pointSort: (a: DataPoint, b: DataPoint) => v.schema.pointSize(b) - v.schema.pointSize(a),
-    pointX: (d: DataPoint, i: number) => v.schema.projection(v.schema.point(d, i))[0],
-    pointY: (d: DataPoint, i: number) => v.schema.projection(v.schema.point(d, i))[1],
+    pointSort: (a: DataPoint, b: DataPoint) =>
+      v.schema.pointSize(b) - v.schema.pointSize(a),
+    pointX: (d: DataPoint, i: number) =>
+      v.schema.projection(v.schema.point(d, i))[0],
+    pointY: (d: DataPoint, i: number) =>
+      v.schema.projection(v.schema.point(d, i))[1],
   };
 
   return {shapeData: topoData};

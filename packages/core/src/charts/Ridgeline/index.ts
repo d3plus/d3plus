@@ -6,7 +6,11 @@
 
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {densityAccessorFields, densityConfigFields, installDensity} from "../helpers/densityChart.js";
+import {
+  densityAccessorFields,
+  densityConfigFields,
+  installDensity,
+} from "../helpers/densityChart.js";
 import Plot from "../Plot/index.js";
 import {ridgelineEmit, ridgelinePadding, ridgeOverlap} from "./emit.js";
 

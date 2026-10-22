@@ -12,12 +12,12 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against dataArray, reading the interval its dates step by once up front.",
+        component:
+          "Returns a function that labels any date exactly as [formatDateFull](#formatDateFull) would against dataArray, reading the interval its dates step by once up front.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
-

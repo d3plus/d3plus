@@ -41,7 +41,13 @@ it("a chart's timeline composes into its scene (time-based Treemap)", async () =
     };
   });
 
-  assert.ok(res.hasTimelineInRender, "timeline rendered by viz.render() (scene path)");
+  assert.ok(
+    res.hasTimelineInRender,
+    "timeline rendered by viz.render() (scene path)",
+  );
   assert.ok(res.hasTimelineGroup, "timeline composed into the scene");
-  assert.ok(res.text.includes("2000") && res.text.includes("2001"), "timeline tick labels present in scene");
+  assert.ok(
+    res.text.includes("2000") && res.text.includes("2001"),
+    "timeline tick labels present in scene",
+  );
 });

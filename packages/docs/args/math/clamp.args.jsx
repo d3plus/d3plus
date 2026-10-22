@@ -3,52 +3,50 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   max: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The upper bound; when it is below `min`, `min` wins.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   min: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The lower bound.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   value: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The number to constrain.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

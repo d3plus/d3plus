@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   sentence: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The sentence to split into words.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

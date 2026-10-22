@@ -58,13 +58,25 @@ it("applyGeomapLayout derives point-extent bounds by projecting then inverting",
   applyGeomapLayout({viz});
   // No topojson -> no path features -> shapeData is empty, but the layout still
   // computes an extent from the points (project to pixels, invert back to lon/lat).
-  assert.ok(Array.isArray(viz.ctx.geomapCtx.topoData), "geomapCtx exposes topoData");
-  assert.ok(viz.ctx.extentBounds.features.length >= 1, "computed point-extent bounds");
+  assert.ok(
+    Array.isArray(viz.ctx.geomapCtx.topoData),
+    "geomapCtx exposes topoData",
+  );
+  assert.ok(
+    viz.ctx.extentBounds.features.length >= 1,
+    "computed point-extent bounds",
+  );
   const coords = viz.ctx.extentBounds.features[0].geometry.coordinates;
   // The two inverted corner points must be finite lon/lat pairs.
   coords.forEach(([lon, lat]) => {
-    assert.ok(Number.isFinite(lon) && lon >= -180 && lon <= 180, `lon in range: ${lon}`);
-    assert.ok(Number.isFinite(lat) && lat >= -90 && lat <= 90, `lat in range: ${lat}`);
+    assert.ok(
+      Number.isFinite(lon) && lon >= -180 && lon <= 180,
+      `lon in range: ${lon}`,
+    );
+    assert.ok(
+      Number.isFinite(lat) && lat >= -90 && lat <= 90,
+      `lat in range: ${lat}`,
+    );
   });
 });
 
@@ -73,16 +85,26 @@ it("applyGeomapLayout fits the projection so every point lands inside the chart 
   applyGeomapLayout({viz});
   const {pointX, pointY} = viz.ctx.geomapCtx;
   pointData.forEach((d, i) => {
-    const x = pointX(d, i), y = pointY(d, i);
-    assert.ok(Number.isFinite(x) && x >= 0 && x <= 400, `point ${d.id} x in [0,400]: ${x}`);
-    assert.ok(Number.isFinite(y) && y >= 0 && y <= 300, `point ${d.id} y in [0,300]: ${y}`);
+    const x = pointX(d, i),
+      y = pointY(d, i);
+    assert.ok(
+      Number.isFinite(x) && x >= 0 && x <= 400,
+      `point ${d.id} x in [0,400]: ${x}`,
+    );
+    assert.ok(
+      Number.isFinite(y) && y >= 0 && y <= 300,
+      `point ${d.id} y in [0,300]: ${y}`,
+    );
   });
 });
 
 it("applyGeomapLayout fits the same projection when a later draw reuses the cached extent", () => {
   const viz = mockGeomapViz();
   applyGeomapLayout({viz});
-  const first = {scale: viz.schema.projection.scale(), translate: viz.schema.projection.translate()};
+  const first = {
+    scale: viz.schema.projection.scale(),
+    translate: viz.schema.projection.translate(),
+  };
   // Once zoom is wired the extent is cached; the point-radius padding it was
   // fitted with must be reused with it, or the map shifts between draws.
   viz._zoomSet = true;
@@ -94,13 +116,25 @@ it("applyGeomapLayout fits the same projection when a later draw reuses the cach
 it("Geomap.projection resolves a named d3-geo projection (geoMercator)", () => {
   const proj = new Geomap().projection("geoMercator").projection();
   const ref = geoMercator();
-  assert.deepStrictEqual(proj([10, 50]), ref([10, 50]), "matches a fresh geoMercator");
+  assert.deepStrictEqual(
+    proj([10, 50]),
+    ref([10, 50]),
+    "matches a fresh geoMercator",
+  );
 });
 
 it("Geomap.projection picks the named projection (equirectangular, not mercator)", () => {
   const proj = new Geomap().projection("geoEquirectangular").projection();
-  assert.deepStrictEqual(proj([10, 50]), geoEquirectangular()([10, 50]), "matches a fresh geoEquirectangular");
-  assert.notDeepStrictEqual(proj([10, 50]), geoMercator()([10, 50]), "differs from mercator off the equator");
+  assert.deepStrictEqual(
+    proj([10, 50]),
+    geoEquirectangular()([10, 50]),
+    "matches a fresh geoEquirectangular",
+  );
+  assert.notDeepStrictEqual(
+    proj([10, 50]),
+    geoMercator()([10, 50]),
+    "differs from mercator off the equator",
+  );
 });
 
 it("Geomap.projection falls back to geoMercator for an unknown name, with a warning", () => {
@@ -108,7 +142,11 @@ it("Geomap.projection falls back to geoMercator for an unknown name, with a warn
   const warnings = captureWarnings(() => {
     proj = new Geomap().projection("notARealProjection").projection();
   });
-  assert.deepStrictEqual(proj([10, 50]), geoMercator()([10, 50]), "unknown name falls back to geoMercator");
+  assert.deepStrictEqual(
+    proj([10, 50]),
+    geoMercator()([10, 50]),
+    "unknown name falls back to geoMercator",
+  );
   assert.strictEqual(warnings.length, 1);
   assert.match(warnings[0], /unknown projection "notARealProjection"/);
 });
@@ -117,7 +155,10 @@ it("Geomap.projection builds every named projection", () => {
   for (const name of Object.keys(projections)) {
     const proj = new Geomap().projection(name).projection();
     const point = proj([-90, 40]);
-    assert.ok(point && point.every(Number.isFinite), `${name} projects a point`);
+    assert.ok(
+      point && point.every(Number.isFinite),
+      `${name} projects a point`,
+    );
   }
   assert.ok("geoRobinson" in projections && "geoMiller" in projections);
 });

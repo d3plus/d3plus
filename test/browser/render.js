@@ -15,7 +15,10 @@ document.documentElement.removeAttribute("lang");
 
 const initialHead = new Set(document.head.childNodes);
 const initialBody = new Set(document.body.childNodes);
-const bodyAttributes = [...document.body.attributes].map(a => [a.name, a.value]);
+const bodyAttributes = [...document.body.attributes].map(a => [
+  a.name,
+  a.value,
+]);
 
 const {errors, resetIds} = setUpPage(window);
 
@@ -23,7 +26,8 @@ const {errors, resetIds} = setUpPage(window);
  * Loads d3plus onto `window.d3plus` (once per test file).
  */
 export async function loadD3plus() {
-  if (!window.d3plus) window.d3plus = {...(await import("../../packages/core/umd-entry.ts"))};
+  if (!window.d3plus)
+    window.d3plus = {...(await import("../../packages/core/umd-entry.ts"))};
   return window.d3plus;
 }
 
@@ -34,10 +38,14 @@ export async function loadD3plus() {
  * @param {String} [bodyHtml]
  */
 export function resetPage(bodyHtml = "") {
-  for (const node of [...document.head.childNodes]) if (!initialHead.has(node)) node.remove();
-  for (const node of [...document.body.childNodes]) if (!initialBody.has(node)) node.remove();
-  for (const {name} of [...document.body.attributes]) document.body.removeAttribute(name);
-  for (const [name, value] of bodyAttributes) document.body.setAttribute(name, value);
+  for (const node of [...document.head.childNodes])
+    if (!initialHead.has(node)) node.remove();
+  for (const node of [...document.body.childNodes])
+    if (!initialBody.has(node)) node.remove();
+  for (const {name} of [...document.body.attributes])
+    document.body.removeAttribute(name);
+  for (const [name, value] of bodyAttributes)
+    document.body.setAttribute(name, value);
   document.body.insertAdjacentHTML("beforeend", bodyHtml);
   window.scrollTo(0, 0);
   resetIds();

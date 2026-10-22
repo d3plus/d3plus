@@ -14,7 +14,10 @@ import {
 } from "../viz/vizDefaults.js";
 import {kebab} from "./zoomControlsMarkup.js";
 
-export type StyleObject = Record<string, string | number | undefined | null | false>;
+export type StyleObject = Record<
+  string,
+  string | number | undefined | null | false
+>;
 type MinimapStyleValue = StyleObject | false | null | undefined;
 
 /**
@@ -44,14 +47,26 @@ export function minimapStyles(viz: Viz): {
   label: StyleObject;
 } {
   return {
-    outer: resolveMinimapStyle(viz, viz.schema.minimapStyle, minimapStyleDefault),
-    viewport: resolveMinimapStyle(viz, viz.schema.minimapViewportStyle, minimapViewportStyleDefault),
+    outer: resolveMinimapStyle(
+      viz,
+      viz.schema.minimapStyle,
+      minimapStyleDefault,
+    ),
+    viewport: resolveMinimapStyle(
+      viz,
+      viz.schema.minimapViewportStyle,
+      minimapViewportStyleDefault,
+    ),
     viewportActive: resolveMinimapStyle(
       viz,
       viz.schema.minimapViewportStyleActive,
       minimapViewportStyleActiveDefault,
     ),
-    label: resolveMinimapStyle(viz, viz.schema.minimapLabelStyle, minimapLabelStyleDefault),
+    label: resolveMinimapStyle(
+      viz,
+      viz.schema.minimapLabelStyle,
+      minimapLabelStyleDefault,
+    ),
   };
 }
 
@@ -61,14 +76,19 @@ export function minimapStyles(viz: Viz): {
     undoes it. Mirrors `paintZoomButton`'s clear-then-apply pattern in
     `zoomControlsMarkup.ts`.
 */
-export function paintMinimapStyle(el: HTMLElement, ...layers: StyleObject[]): void {
+export function paintMinimapStyle(
+  el: HTMLElement,
+  ...layers: StyleObject[]
+): void {
   const keys = new Set<string>();
-  for (const style of layers) for (const key of Object.keys(style)) keys.add(key);
+  for (const style of layers)
+    for (const key of Object.keys(style)) keys.add(key);
   for (const key of keys) el.style.removeProperty(kebab(key));
   for (const style of layers)
     for (const key in style) {
       const v = style[key];
-      if (v !== undefined && v !== null && v !== false) el.style.setProperty(kebab(key), String(v));
+      if (v !== undefined && v !== null && v !== false)
+        el.style.setProperty(kebab(key), String(v));
     }
 }
 
@@ -95,7 +115,9 @@ export function formatZoomLabel(k: number): string {
     `className`, since that one isn't part of this inner HTML string.
 */
 export function minimapHtml(viz: Viz): string {
-  const extraClass = viz.schema.minimapClassName ? ` ${viz.schema.minimapClassName}` : "";
+  const extraClass = viz.schema.minimapClassName
+    ? ` ${viz.schema.minimapClassName}`
+    : "";
   return (
     `<div class="d3plus-minimap-viewport${extraClass}" tabindex="0" aria-label="${viz.schema.translate("Pan viewport — drag or use arrow keys")}"></div>` +
     `<div class="d3plus-minimap-label${extraClass}"></div>`

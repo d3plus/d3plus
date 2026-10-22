@@ -4,283 +4,288 @@
 import React from "react";
 
 import {Image as D3plusImage} from "@d3plus/react";
-export const Image = ({ config }) => <D3plusImage config={config} />;
+export const Image = ({config}) => <D3plusImage config={config} />;
 
 export const argTypes = {
   colorDefaults: {
     control: {},
-    description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+    description:
+      "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "colordefaultsconfig"
-    }
+      summary: "colordefaultsconfig",
+    },
   },
   config: {
     control: {},
-    description: "Get/set multiple config values at once. Mirrors the `BaseClass.config()`\ncontract used by the other shapes (and relied on by the React wrapper):\neach patch key is routed through its matching fluent accessor (or\n`data`/`select`), with unknown keys stored on `schema` verbatim.",
+    description:
+      "Get/set multiple config values at once. Mirrors the `BaseClass.config()`\ncontract used by the other shapes (and relied on by the React wrapper):\neach patch key is routed through its matching fluent accessor (or\n`data`/`select`), with unknown keys stored on `schema` verbatim.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   data: {
     control: {},
-    description: "The data array used to create image shapes. An <image> tag will be drawn for each object in the array.",
+    description:
+      "The data array used to create image shapes. An <image> tag will be drawn for each object in the array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;datapoint&gt;"
-    }
+      summary: "array.&lt;datapoint&gt;",
+    },
   },
   duration: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: 600,
     description: "",
     table: {
       defaultValue: {
-        summary: "600"
-      }
+        summary: "600",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   height: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
+      summary: "constoraccessor",
+    },
   },
   id: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "accessorfn"
-    }
+      summary: "accessorfn",
+    },
   },
   locale: {
     control: {
-      type: "object"
+      type: "object",
     },
-    description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+    description:
+      'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | object"
-    }
+      summary: "string | object",
+    },
   },
   on: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+    description:
+      "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   opacity: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
+      summary: "constoraccessor",
+    },
   },
   parent: {
     control: {},
     description: "Parent config used by the wrapper.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "unknown"
-    }
+      summary: "unknown",
+    },
   },
   pointerEvents: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
+      summary: "constoraccessor",
+    },
   },
   render: {
     control: {},
-    description: "Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.",
+    description:
+      "Renders the current Image to the page. If a *callback* is specified, it will be called once the images are done drawing.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   renderMode: {
     control: {
-      type: "radio"
+      type: "radio",
     },
     defaultValue: "full",
-    description: "\"full\" runs the DOM enter/update/exit; \"compute\" skips DOM.",
-    options: [
-      "full",
-      "compute"
-    ],
+    description: '"full" runs the DOM enter/update/exit; "compute" skips DOM.',
+    options: ["full", "compute"],
     table: {
       defaultValue: {
-        summary: "full"
-      }
+        summary: "full",
+      },
     },
     type: {
       required: false,
-      summary: "\"full\" | \"compute\""
-    }
+      summary: '"full" | "compute"',
+    },
   },
   select: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The SVG container element as a d3 selector or DOM element.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | htmlelement | svgelement | null"
-    }
+      summary: "string | htmlelement | svgelement | null",
+    },
   },
   shapeConfig: {
     control: {},
-    description: "Configuration object with key/value pairs applied as method calls on each shape.",
+    description:
+      "Configuration object with key/value pairs applied as method calls on each shape.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "d3plusconfig"
-    }
+      summary: "d3plusconfig",
+    },
   },
   translate: {
     control: {},
-    description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+    description:
+      "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   url: {
     control: {},
     description: "URL accessor returning the image src.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "accessorfn"
-    }
+      summary: "accessorfn",
+    },
   },
   width: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
+      summary: "constoraccessor",
+    },
   },
   x: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
+      summary: "constoraccessor",
+    },
   },
   y: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "constoraccessor"
-    }
-  }
+      summary: "constoraccessor",
+    },
+  },
 };

@@ -27,17 +27,14 @@ const maxTimezoneOffset = 1000 * 60 * 60 * 26;
  * @param {scale} scale A d3-scale object
  * @param {Array} scaleData The time axis's data inside the scale's domain.
  * @private
-*/
+ */
 function calculateStep(
   this: Axis,
   scale: D3Scale,
   minorTicks: boolean,
   scaleData: Date[],
 ): number {
-  const stepScale = scales
-    .scaleLinear()
-    .domain([200, 1200])
-    .range([8, 28]);
+  const stepScale = scales.scaleLinear().domain([200, 1200]).range([8, 28]);
   const scaleRange = scale.range();
   const size = Math.abs(scaleRange[1] - scaleRange[0]);
   let step = Math.floor(stepScale(size));
@@ -71,7 +68,7 @@ function calculateStep(
  * Calculates ticks from a given scale (negative and/or positive)
  * @param {scale} scale A d3-scale object
  * @private
-*/
+ */
 export function calculateTicks(
   this: Axis,
   scale: D3Scale,
@@ -79,13 +76,22 @@ export function calculateTicks(
 ): unknown[] {
   // A broken scale ticks each segment like an axis; a label pass drops a crowded break edge's label.
   if (isBrokenScale(scale))
-    return brokenScaleTicks(scale, s => calculateTicks.call(this, s, minorTicks), minorTicks ? undefined : (v, regular, s) => !crowdsEndLabel(v, regular, d => s(d)));
+    return brokenScaleTicks(
+      scale,
+      s => calculateTicks.call(this, s, minorTicks),
+      minorTicks
+        ? undefined
+        : (v, regular, s) => !crowdsEndLabel(v, regular, d => s(d)),
+    );
   let ticks: unknown[];
 
   const scaleClone = scale.copy();
   // A time axis ticks the data it shows: the dates inside its domain, so a
   // domain narrower than the data (a zoomed view) re-ticks for that window.
-  const scaleData = this.schema.scale === "time" ? timeDataInDomain(this._scaleData as Date[], scale) : [];
+  const scaleData =
+    this.schema.scale === "time"
+      ? timeDataInDomain(this._scaleData as Date[], scale)
+      : [];
   if (scaleData.length) {
     const newDomain = extent(scaleData) as unknown as number[];
     const range = newDomain.map(d => scale(d));
@@ -112,9 +118,9 @@ export function calculateTicks(
 
     ticks =
       (powMod <= 1 && powers[0] === powers[1]) || invertedRound !== inverted
-        ? scaleClone
-            .ticks!(step)
-            .filter((d: number) => +`${d}`.replace("0.", "") % 2 === 0)
+        ? scaleClone.ticks!(step).filter(
+            (d: number) => +`${d}`.replace("0.", "") % 2 === 0,
+          )
         : d3Range(powers[0], powers[1], powers[1] < powers[0] ? -1 : 1)
             .concat([powers[1]])
             .filter((d: number) => Math.abs(d) % powMod === 0)
@@ -136,7 +142,9 @@ export function calculateTicks(
       !["log", "time"].includes(this.schema.scale) &&
       ticks.length > 1
     ) {
-      const majorDiff = Math.abs(fixFloat((ticks[1] as number) - (ticks[0] as number)) * 2);
+      const majorDiff = Math.abs(
+        fixFloat((ticks[1] as number) - (ticks[0] as number)) * 2,
+      );
       ticks = ticks.filter((d: unknown) => {
         const mod = Math.abs(d as number) % majorDiff;
         const modFloat = fixFloat(mod);
@@ -180,7 +188,10 @@ export interface AxisMeasure {
     behavior is identical.
     @private
 */
-export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, unknown>[] {
+export function buildTickData(
+  axis: Axis,
+  measure: AxisMeasure,
+): Record<string, unknown>[] {
   const {ticks, labels, textData, tickFormat, hBuff, labelHeight} = measure;
   const {height, x, y, horizontal, opposite} = axis._position;
   const flip = ["top", "left"].includes(axis.schema.orient);
@@ -199,80 +210,81 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
     .map((d: unknown) => {
       const data = textData.find((td: AxisTextDatum) => td.d === d);
 
-    const xPos = axis._getPosition(d);
-    const space = data ? data.space : 0;
-    const lines = data ? data.lines.length : 1;
-    const lineHeight = data ? data.lineHeight : 1;
-    const fP = data ? data.fP : 0;
+      const xPos = axis._getPosition(d);
+      const space = data ? data.space : 0;
+      const lines = data ? data.lines.length : 1;
+      const lineHeight = data ? data.lineHeight : 1;
+      const fP = data ? data.fP : 0;
 
-    const labelOffset = data && axis.schema.labelOffset ? data.offset ?? 0 : 0;
+      const labelOffset =
+        data && axis.schema.labelOffset ? (data.offset ?? 0) : 0;
 
-    const fitWidth = horizontal
-      ? space
-      : bounds.width -
-        margin[axis._position.opposite] -
-        hBuff -
-        margin[axis.schema.orient] +
-        p;
-    // A `fixedSize` label space can be narrower than a label: widen that
-    // label's box (outward, away from the axis line) instead of dropping it.
-    const labelWidth =
-      !horizontal && data && typeof axis.schema.fixedSize === "number"
-        ? Math.max(fitWidth, Math.ceil(data.width) + p)
-        : fitWidth;
+      const fitWidth = horizontal
+        ? space
+        : bounds.width -
+          margin[axis._position.opposite] -
+          hBuff -
+          margin[axis.schema.orient] +
+          p;
+      // A `fixedSize` label space can be narrower than a label: widen that
+      // label's box (outward, away from the axis line) instead of dropping it.
+      const labelWidth =
+        !horizontal && data && typeof axis.schema.fixedSize === "number"
+          ? Math.max(fitWidth, Math.ceil(data.width) + p)
+          : fitWidth;
 
-    const offset = margin[opposite],
-      size = (hBuff + labelOffset) * (flip ? -1 : 1),
-      yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
+      const offset = margin[opposite],
+        size = (hBuff + labelOffset) * (flip ? -1 : 1),
+        yPos = flip ? bounds[y] + bounds[height] - offset : bounds[y] + offset;
 
-    const tickConfig: Record<string, unknown> = {
-      id: d,
-      labelBounds:
-        rotated && data
-          ? {
-              x: -data.width / 2 + data.fS / 4,
-              y:
-                axis.schema.orient === "bottom"
-                  ? size + (data.width - lineHeight * lines) / 2 + fP
-                  : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
-              width: data.width,
-              height: data.height,
-            }
-          : {
-              x: horizontal
-                ? -space / 2
-                : axis.schema.orient === "left"
-                  ? -labelWidth - p + size
-                  : size + p,
-              y: horizontal
-                ? axis.schema.orient === "bottom"
-                  ? size + fP
-                  : size - labelHeight - fP
-                : -space / 2,
-              width: horizontal ? space : labelWidth,
-              height: horizontal ? labelHeight : space,
-            },
-      rotate: data ? data.rotate : false,
-      size:
-        labels.includes(d) ||
-        (axis.schema.scale === "log" && Math.log10(Math.abs(d as number)) % 1 === 0)
-          ? size
-          : ticks.includes(d)
-            ? Math.ceil(size / 2)
-            : axis._scaleData.find((t: unknown) => +(t as number) === d)
-              ? Math.ceil(size / 4)
-              : 0,
-      text:
-        !data?.truncated && labels.includes(d) ? tickFormat(d) : false,
-      tick: ticks.includes(d),
-      [x]:
-        xPos +
-        (axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0),
-      [y]: yPos,
-    };
+      const tickConfig: Record<string, unknown> = {
+        id: d,
+        labelBounds:
+          rotated && data
+            ? {
+                x: -data.width / 2 + data.fS / 4,
+                y:
+                  axis.schema.orient === "bottom"
+                    ? size + (data.width - lineHeight * lines) / 2 + fP
+                    : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
+                width: data.width,
+                height: data.height,
+              }
+            : {
+                x: horizontal
+                  ? -space / 2
+                  : axis.schema.orient === "left"
+                    ? -labelWidth - p + size
+                    : size + p,
+                y: horizontal
+                  ? axis.schema.orient === "bottom"
+                    ? size + fP
+                    : size - labelHeight - fP
+                  : -space / 2,
+                width: horizontal ? space : labelWidth,
+                height: horizontal ? labelHeight : space,
+              },
+        rotate: data ? data.rotate : false,
+        size:
+          labels.includes(d) ||
+          (axis.schema.scale === "log" &&
+            Math.log10(Math.abs(d as number)) % 1 === 0)
+            ? size
+            : ticks.includes(d)
+              ? Math.ceil(size / 2)
+              : axis._scaleData.find((t: unknown) => +(t as number) === d)
+                ? Math.ceil(size / 4)
+                : 0,
+        text: !data?.truncated && labels.includes(d) ? tickFormat(d) : false,
+        tick: ticks.includes(d),
+        [x]:
+          xPos +
+          (axis.schema.scale === "band" ? axis._d3Scale!.bandwidth!() / 2 : 0),
+        [y]: yPos,
+      };
 
-    return tickConfig;
-  });
+      return tickConfig;
+    });
 
   if (axis.schema.shape === "Line") {
     tickData = tickData.concat(
@@ -292,7 +304,10 @@ export function buildTickData(axis: Axis, measure: AxisMeasure): Record<string, 
     Extracted from `Axis.render`; behavior is identical.
     @private
 */
-export function configureTickShape(axis: Axis, tickData: Record<string, unknown>[]): void {
+export function configureTickShape(
+  axis: Axis,
+  tickData: Record<string, unknown>[],
+): void {
   axis._tickShape = new (shapes as unknown as Record<string, new () => Shape>)[
     axis.schema.shape
   ]()
@@ -316,8 +331,8 @@ export function configureTickShape(axis: Axis, tickData: Record<string, unknown>
     });
   // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
   // No `g.ticks` DOM wrapper needed in the detached compute.
-  axis._tickShape!
-    .config(
+  axis
+    ._tickShape!.config(
       configPrep.bind(axis as unknown as ConfigPrepHost)(
         axis.schema.shapeConfig,
       ) as Partial<BaseShapeConfig>,
@@ -349,7 +364,13 @@ export function renderAxisTitle(
     .data(axis.schema.title ? [{text: axis.schema.title}] : [])
     .duration(axis.schema.duration)
     .height(margin[axis.schema.orient])
-    .rotate(axis.schema.orient === "left" ? -90 : axis.schema.orient === "right" ? 90 : 0)
+    .rotate(
+      axis.schema.orient === "left"
+        ? -90
+        : axis.schema.orient === "right"
+          ? 90
+          : 0,
+    )
     .select(
       !group
         ? (null as unknown as HTMLElement)
@@ -379,7 +400,11 @@ export function renderAxisTitle(
             (range[range.length - 1] - range[0]) / 2 -
             margin[axis.schema.orient] / 2,
     )
-    .config(configPrep.bind(axis as unknown as ConfigPrepHost)(axis.schema.titleConfig))
+    .config(
+      configPrep.bind(axis as unknown as ConfigPrepHost)(
+        axis.schema.titleConfig,
+      ),
+    )
     .render();
 }
 
@@ -455,7 +480,9 @@ export function gridLinePoints(axis: Axis): {points: [number, number][]}[] {
   const isHorizontalAxis = xKey === "x";
   return (axis._gridLineData ?? []).map(d => {
     const xPos = (axis._getPosition(d.id) as number) + xDiff;
-    const a: [number, number] = isHorizontalAxis ? [xPos, position] : [position, xPos];
+    const a: [number, number] = isHorizontalAxis
+      ? [xPos, position]
+      : [position, xPos];
     const b: [number, number] = isHorizontalAxis
       ? [xPos, position + size]
       : [position + size, xPos];
@@ -475,7 +502,10 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
     ? axis._outerBounds[yKey] + axis._outerBounds[height] - offset
     : axis._outerBounds[yKey] + offset;
   // A point scale's outer padding splits between its ends by `align`.
-  const align = axis.schema.scale === "point" && axis._d3Scale!.align ? axis._d3Scale!.align() : 0.5;
+  const align =
+    axis.schema.scale === "point" && axis._d3Scale!.align
+      ? axis._d3Scale!.align()
+      : 0.5;
   const x1mod =
     axis.schema.scale === "band"
       ? axis._d3Scale!.step!() - axis._d3Scale!.bandwidth!()
@@ -496,7 +526,8 @@ export function barLinePoints(axis: Axis): {points: [number, number][]} | null {
   if (!sortedDomain.length) return null;
   const x1 = (axis._getPosition(sortedDomain[0]) as number) - x1mod;
   const x2 =
-    (axis._getPosition(sortedDomain[sortedDomain.length - 1]) as number) + x2mod;
+    (axis._getPosition(sortedDomain[sortedDomain.length - 1]) as number) +
+    x2mod;
   const isHorizontalAxis = xKey === "x";
   return {
     points: isHorizontalAxis
@@ -528,7 +559,12 @@ export function axisToScene(axis: Axis): GroupNode {
       gridData[i],
       i,
     );
-    children.push({type: "line", key: `grid-${i}`, points: g.points, paint: gridPaint});
+    children.push({
+      type: "line",
+      key: `grid-${i}`,
+      points: g.points,
+      paint: gridPaint,
+    });
   });
 
   const tickGroup =
@@ -540,7 +576,11 @@ export function axisToScene(axis: Axis): GroupNode {
   // includes _labelClass children (collectComputed is the canonical
   // aggregator for the chart pipeline; Axis composes labels itself).
   if (axis._tickShape) {
-    const lbl = (axis._tickShape as {_labelClass?: {toScene?: () => GroupNode; _data?: unknown[]}})._labelClass;
+    const lbl = (
+      axis._tickShape as {
+        _labelClass?: {toScene?: () => GroupNode; _data?: unknown[]};
+      }
+    )._labelClass;
     if (
       lbl &&
       typeof lbl.toScene === "function" &&
@@ -554,7 +594,10 @@ export function axisToScene(axis: Axis): GroupNode {
   }
 
   const bar = barLinePoints(axis);
-  if (bar) children.push(...axisBarNodes(axis, bar.points, cfg => configToPaint(axis, cfg)));
+  if (bar)
+    children.push(
+      ...axisBarNodes(axis, bar.points, cfg => configToPaint(axis, cfg)),
+    );
 
   if (
     axis._titleClass &&

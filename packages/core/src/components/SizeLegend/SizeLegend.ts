@@ -4,14 +4,21 @@ import {colorDefaults} from "@d3plus/color";
 import {formatAbbreviate} from "@d3plus/format";
 import type {D3Selection} from "@d3plus/dom";
 import type {GroupNode, SceneNode, SvgRenderer} from "@d3plus/render";
-import {fontFamily as defaultFontFamily, fontFamilyStringify} from "@d3plus/text";
+import {
+  fontFamily as defaultFontFamily,
+  fontFamilyStringify,
+} from "@d3plus/text";
 
 import {BaseClass, paintComponentScene} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
 import {computeSizeLegend, emptySizeLegendLayout} from "./sizeLegendLayout.js";
-import type {SizeLegendLayout, SizeLegendScale, SizeLegendValues} from "./sizeLegendLayout.js";
+import type {
+  SizeLegendLayout,
+  SizeLegendScale,
+  SizeLegendValues,
+} from "./sizeLegendLayout.js";
 
 /** Circle paint for the legend's nested circles. */
 export interface SizeLegendShapeConfig {
@@ -51,7 +58,9 @@ const sizeLegendSchema: ConfigField[] = [
 ];
 
 const familyString = (f: string | string[] | undefined): string =>
-  fontFamilyStringify(f === undefined ? defaultFontFamily : Array.isArray(f) ? f : [f]);
+  fontFamilyStringify(
+    f === undefined ? defaultFontFamily : Array.isArray(f) ? f : [f],
+  );
 
 /**
     A nested-circle legend for a size scale: concentric circles sharing a
@@ -88,7 +97,11 @@ export default class SizeLegend extends BaseClass {
     installFluent(this, sizeLegendSchema);
     this._layout = emptySizeLegendLayout();
     this.schema.labelConfig = {fontColor: colorDefaults.dark, fontSize: 10};
-    this.schema.lineConfig = {stroke: colorDefaults.dark, strokeOpacity: 0.5, strokeWidth: 1};
+    this.schema.lineConfig = {
+      stroke: colorDefaults.dark,
+      strokeOpacity: 0.5,
+      strokeWidth: 1,
+    };
     this.schema.shapeConfig = {
       fill: colorDefaults.dark,
       fillOpacity: 0.05,
@@ -96,7 +109,11 @@ export default class SizeLegend extends BaseClass {
       strokeOpacity: 0.6,
       strokeWidth: 1,
     };
-    this.schema.titleConfig = {fontColor: colorDefaults.dark, fontSize: 11, fontWeight: 600};
+    this.schema.titleConfig = {
+      fontColor: colorDefaults.dark,
+      fontSize: 11,
+      fontWeight: 600,
+    };
   }
 
   /**
@@ -106,7 +123,8 @@ export default class SizeLegend extends BaseClass {
   labelConfig(_: SizeLegendTextConfig): this;
   labelConfig(_?: SizeLegendTextConfig): SizeLegendTextConfig | this {
     return arguments.length
-      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)),
+        this)
       : this.schema.labelConfig;
   }
 
@@ -128,7 +146,8 @@ export default class SizeLegend extends BaseClass {
   shapeConfig(_: SizeLegendShapeConfig): this;
   shapeConfig(_?: SizeLegendShapeConfig): SizeLegendShapeConfig | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)),
+        this)
       : this.schema.shapeConfig;
   }
 
@@ -139,7 +158,8 @@ export default class SizeLegend extends BaseClass {
   titleConfig(_: SizeLegendTextConfig): this;
   titleConfig(_?: SizeLegendTextConfig): SizeLegendTextConfig | this {
     return arguments.length
-      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)),
+        this)
       : this.schema.titleConfig;
   }
 
@@ -148,7 +168,9 @@ export default class SizeLegend extends BaseClass {
   */
   select(): D3Selection | undefined;
   select(_: string | HTMLElement | SVGElement): this;
-  select(_?: string | HTMLElement | SVGElement): D3Selection | undefined | this {
+  select(
+    _?: string | HTMLElement | SVGElement,
+  ): D3Selection | undefined | this {
     if (arguments.length) {
       this._select = select(_ as string) as unknown as D3Selection;
       return this;
@@ -163,14 +185,16 @@ export default class SizeLegend extends BaseClass {
   */
   layout(): SizeLegendLayout {
     const scale = this.schema.scale as SizeLegendScale | undefined;
-    if (!scale || typeof scale.domain !== "function") return (this._layout = emptySizeLegendLayout());
+    if (!scale || typeof scale.domain !== "function")
+      return (this._layout = emptySizeLegendLayout());
     const label = this.schema.labelConfig as SizeLegendTextConfig;
     const title = this.schema.titleConfig as SizeLegendTextConfig;
     const locale = this.schema.locale;
     this._layout = computeSizeLegend({
       scale,
       values: this.schema.values as SizeLegendValues | undefined,
-      tickFormat: (this.schema.tickFormat as ((v: number) => string) | undefined) ??
+      tickFormat:
+        (this.schema.tickFormat as ((v: number) => string) | undefined) ??
         ((v: number) => formatAbbreviate(v, locale)),
       fontFamily: familyString(label.fontFamily),
       fontSize: label.fontSize ?? 10,
@@ -237,7 +261,12 @@ export default class SizeLegend extends BaseClass {
         y: 0,
         transform: {x: l.x, y: l.y},
         lines: [{text: l.text, x: 0, y: 0, width: l.width}],
-        font: {family: labelFamily, size: label.fontSize ?? 10, anchor: "start", baseline: "middle"},
+        font: {
+          family: labelFamily,
+          size: label.fontSize ?? 10,
+          anchor: "start",
+          baseline: "middle",
+        },
         paint: {fill: label.fontColor},
       }),
     );
@@ -249,7 +278,9 @@ export default class SizeLegend extends BaseClass {
         x: 0,
         y: 0,
         transform: {x: layout.title.x, y: layout.title.y},
-        lines: [{text: layout.title.text, x: 0, y: 0, width: layout.title.width}],
+        lines: [
+          {text: layout.title.text, x: 0, y: 0, width: layout.title.width},
+        ],
         font: {
           family: familyString(title.fontFamily),
           size: title.fontSize ?? 11,
@@ -277,7 +308,8 @@ export default class SizeLegend extends BaseClass {
   render(callback?: () => void): this {
     this.layout();
     if (this.schema.renderMode !== "compute") {
-      if (this._select === undefined) this.select(select("body").append("div").node() as HTMLElement);
+      if (this._select === undefined)
+        this.select(select("body").append("div").node() as HTMLElement);
       this.schema.width = this._layout.width;
       this.schema.height = this._layout.height;
       paintComponentScene(this);
@@ -287,4 +319,10 @@ export default class SizeLegend extends BaseClass {
   }
 }
 
-resolvesReset(SizeLegend.prototype, "labelConfig", "lineConfig", "shapeConfig", "titleConfig");
+resolvesReset(
+  SizeLegend.prototype,
+  "labelConfig",
+  "lineConfig",
+  "shapeConfig",
+  "titleConfig",
+);

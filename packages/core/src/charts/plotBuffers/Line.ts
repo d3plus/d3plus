@@ -36,7 +36,8 @@ export default function (
   if (this.schema.discrete === "x") d.reverse();
 
   const vals = data.map(
-    (d: Record<string, unknown>) => d[this.schema.discrete === "x" ? yKey : xKey],
+    (d: Record<string, unknown>) =>
+      d[this.schema.discrete === "x" ? yKey : xKey],
   ) as number[];
   const b = s.invert!(
     s(max(vals) as number) + (this.schema.discrete === "x" ? -10 : 10),

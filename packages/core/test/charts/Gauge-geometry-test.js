@@ -18,10 +18,7 @@ import {
   dialLayout,
   dialRings,
 } from "../../src/charts/Gauge/dialLayout.ts";
-import {
-  applyGaugeLayout,
-  hasName,
-} from "../../src/charts/Gauge/applyLayout.ts";
+import {applyGaugeLayout, hasName} from "../../src/charts/Gauge/applyLayout.ts";
 import {gaugeDef} from "../../src/charts/Gauge/index.ts";
 import {near} from "~test/helpers.js";
 
@@ -42,7 +39,12 @@ it("Gauge geometry: gaugeAngle maps the domain onto the sweep and clamps outside
   near(gaugeAngle(150, [0, 100], s, e), e, 1e-9, "above max clamps to end");
   near(gaugeAngle(-20, [0, 100], s, e), s, 1e-9, "below min clamps to start");
   near(gaugeAngle(NaN, [0, 100], s, e), s, 1e-9, "NaN → start");
-  near(gaugeAngle(25, [0, 100], e, s), toRadians(60), 1e-9, "reversed sweep runs counter-clockwise");
+  near(
+    gaugeAngle(25, [0, 100], e, s),
+    toRadians(60),
+    1e-9,
+    "reversed sweep runs counter-clockwise",
+  );
 });
 
 it("Gauge geometry: gaugeDomain includes zero and band edges, nices auto ends, and keeps user ends", () => {
@@ -305,7 +307,12 @@ it("Gauge dialLayout: dialRings gives one track per progress row, stepping inwar
   );
   const many = dialRings(100, 0.2, 5, true);
   assert.strictEqual(many.length, 5);
-  near(many[0].outer - many[4].inner, 50, 1e-9, "many tracks thin out to span half the radius");
+  near(
+    many[0].outer - many[4].inner,
+    50,
+    1e-9,
+    "many tracks thin out to span half the radius",
+  );
   assert.ok(
     many.every((r, i) => !i || r.outer < many[i - 1].inner),
     "tracks don't overlap",
@@ -385,7 +392,12 @@ it("Gauge dialLayout: dialBox covers the sweep, the needle tail, and the labels"
     hasValue: true,
     extent: semi,
   });
-  near(progress.y1, 0, 1e-9, "a progress semicircle needs nothing below its center");
+  near(
+    progress.y1,
+    0,
+    1e-9,
+    "a progress semicircle needs nothing below its center",
+  );
 });
 
 const field = key => gaugeDef.fields.find(f => f.key === key);

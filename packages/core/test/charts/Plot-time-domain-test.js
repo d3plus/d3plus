@@ -22,20 +22,40 @@ useJsdom();
 */
 
 const data = ["a", "b"].flatMap((id, j) =>
-  [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({id, year, value: (i + 1) * (j + 2)})),
+  [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({
+    id,
+    year,
+    value: (i + 1) * (j + 2),
+  })),
 );
 
 /** Runs Plot's data → scale stages and returns the given axis's scale domain as years. */
 function domainYears(viz, axis = "x") {
   viz._preDraw();
   viz._margin = {top: 0, right: 0, bottom: 0, left: 0};
-  const ctx = runStages({viz}, [formatPlotData, computePlotAxisValues, computePlotInitialDomains, computePlotScales]);
+  const ctx = runStages({viz}, [
+    formatPlotData,
+    computePlotAxisValues,
+    computePlotInitialDomains,
+    computePlotScales,
+  ]);
   const domain = ctx.plotScales[axis].domain();
-  assert.ok(domain.every(d => d instanceof Date && !isNaN(d)), `valid Dates: ${domain}`);
+  assert.ok(
+    domain.every(d => d instanceof Date && !isNaN(d)),
+    `valid Dates: ${domain}`,
+  );
   return domain.map(d => d.getFullYear()).sort();
 }
 
-const line = () => new LinePlot().data(data).groupBy("id").x("year").time("year").y("value").width(600).height(300);
+const line = () =>
+  new LinePlot()
+    .data(data)
+    .groupBy("id")
+    .x("year")
+    .time("year")
+    .y("value")
+    .width(600)
+    .height(300);
 
 it("time xDomain: Dates, years, date strings and timestamps all set the scale's domain", () => {
   const forms = {
@@ -47,12 +67,24 @@ it("time xDomain: Dates, years, date strings and timestamps all set the scale's 
     timestamps: [+new Date(2016, 0, 1), +new Date(2019, 0, 1)],
   };
   for (const [name, domain] of Object.entries(forms))
-    assert.deepStrictEqual(domainYears(line().xDomain(domain)), [2016, 2019], name);
+    assert.deepStrictEqual(
+      domainYears(line().xDomain(domain)),
+      [2016, 2019],
+      name,
+    );
 });
 
 it("time xDomain: an undefined end comes from the data", () => {
-  assert.deepStrictEqual(domainYears(line().xDomain([2017])), [2017, 2020], "[start]");
-  assert.deepStrictEqual(domainYears(line().xDomain([undefined, 2018])), [2015, 2018], "[undefined, end]");
+  assert.deepStrictEqual(
+    domainYears(line().xDomain([2017])),
+    [2017, 2020],
+    "[start]",
+  );
+  assert.deepStrictEqual(
+    domainYears(line().xDomain([undefined, 2018])),
+    [2015, 2018],
+    "[undefined, end]",
+  );
 });
 
 it("time xDomain does not change the user's array", () => {
@@ -62,24 +94,51 @@ it("time xDomain does not change the user's array", () => {
 });
 
 it("time yDomain on a horizontal BarChart parses its ends", () => {
-  const viz = new BarChart().data(data).groupBy("id").discrete("y").x("value").y("year").time("year")
-    .yDomain(["2016", "2018"]).width(600).height(300);
+  const viz = new BarChart()
+    .data(data)
+    .groupBy("id")
+    .discrete("y")
+    .x("value")
+    .y("year")
+    .time("year")
+    .yDomain(["2016", "2018"])
+    .width(600)
+    .height(300);
   assert.deepStrictEqual(domainYears(viz, "y"), [2016, 2018]);
 });
 
 it("axisScaleData: a time axis keeps only the data inside its domain", () => {
-  const years = [2015, 2016, 2017, 2018, 2019, 2020].map(y => new Date(y, 0, 1));
-  const axis = new AxisBottom().scale("time").data(years).domain([new Date(2016, 0, 1), new Date(2019, 0, 1)]);
-  assert.deepStrictEqual(axisScaleData(axis).map(d => d.getFullYear()), [2016, 2017, 2018, 2019]);
+  const years = [2015, 2016, 2017, 2018, 2019, 2020].map(
+    y => new Date(y, 0, 1),
+  );
+  const axis = new AxisBottom()
+    .scale("time")
+    .data(years)
+    .domain([new Date(2016, 0, 1), new Date(2019, 0, 1)]);
+  assert.deepStrictEqual(
+    axisScaleData(axis).map(d => d.getFullYear()),
+    [2016, 2017, 2018, 2019],
+  );
   axis.domain([new Date(2019, 0, 1), new Date(2016, 0, 1)]);
-  assert.strictEqual(axisScaleData(axis).length, 4, "an inverted domain works too");
+  assert.strictEqual(
+    axisScaleData(axis).length,
+    4,
+    "an inverted domain works too",
+  );
   axis.domain(["2017", "2018"]);
-  assert.deepStrictEqual(axisScaleData(axis).map(d => d.getFullYear()), [2017, 2018], "string ends");
+  assert.deepStrictEqual(
+    axisScaleData(axis).map(d => d.getFullYear()),
+    [2017, 2018],
+    "string ends",
+  );
 });
 
 it("axisScaleData: a time axis with an unparseable domain end keeps every value", () => {
   const years = [2015, 2016, 2017].map(y => new Date(y, 0, 1));
-  const axis = new AxisBottom().scale("time").data(years).domain([new Date(2016, 0, 1), "not a date"]);
+  const axis = new AxisBottom()
+    .scale("time")
+    .data(years)
+    .domain([new Date(2016, 0, 1), "not a date"]);
   assert.strictEqual(axisScaleData(axis).length, 3);
 });
 
@@ -89,9 +148,19 @@ it("axisScaleData: a linear axis returns its data as given", () => {
 });
 
 it("a standalone time axis ticks only inside its domain", () => {
-  const years = [2015, 2016, 2017, 2018, 2019, 2020].map(y => new Date(y, 0, 1));
-  const axis = new AxisBottom().scale("time").width(500).height(100).duration(0)
-    .data(years).domain([new Date(2016, 0, 1), new Date(2019, 0, 1)]);
+  const years = [2015, 2016, 2017, 2018, 2019, 2020].map(
+    y => new Date(y, 0, 1),
+  );
+  const axis = new AxisBottom()
+    .scale("time")
+    .width(500)
+    .height(100)
+    .duration(0)
+    .data(years)
+    .domain([new Date(2016, 0, 1), new Date(2019, 0, 1)]);
   axis.render();
-  assert.deepStrictEqual(axis._visibleTicks.map(d => new Date(d).getFullYear()), [2016, 2017, 2018, 2019]);
+  assert.deepStrictEqual(
+    axis._visibleTicks.map(d => new Date(d).getFullYear()),
+    [2016, 2017, 2018, 2019],
+  );
 });

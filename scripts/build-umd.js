@@ -21,7 +21,9 @@ rollup({log})
       },
     };
 
-    log.timer(`minifying umd/${fileName}.min.js and umd/${fileName}.full.min.js`);
+    log.timer(
+      `minifying umd/${fileName}.min.js and umd/${fileName}.full.min.js`,
+    );
     const soloCode = fs.readFileSync(`umd/${fileName}.js`, "utf8");
     const soloResult = await minify(soloCode, params);
     fs.writeFileSync(`umd/${fileName}.min.js`, soloResult.code);

@@ -8,7 +8,15 @@ useJsdom();
 
 // #212: a line's `confidence` bands, one Area per band, outermost first.
 
-const plotted = (d, i) => ({__d3plus__: true, data: d, i, id: d.id, x: d.t, y: d.v, discrete: d.t});
+const plotted = (d, i) => ({
+  __d3plus__: true,
+  data: d,
+  i,
+  id: d.id,
+  x: d.t,
+  y: d.v,
+  discrete: d.t,
+});
 const rows = [
   {id: "a", t: 1, v: 10},
   {id: "a", t: 2, v: 10, p5: 6, p95: 14, p25: 8, p75: 12},
@@ -30,7 +38,11 @@ const ctx = viz => ({
   values: rows,
   x,
   y,
-  shapeConfig: positions("x", d => x(d.x), d => y(d.y)),
+  shapeConfig: positions(
+    "x",
+    d => x(d.x),
+    d => y(d.y),
+  ),
 });
 
 const chart = (confidence, config) => {
@@ -60,25 +72,75 @@ it("emitLineBands — one band keeps the line's id and confidenceConfig's opacit
   const [band] = nodes;
   assert.strictEqual(band.key, "a", "the band shares its line's key");
   assert.strictEqual(band.shapeType, "Area");
-  assert.strictEqual(band.paint.fillOpacity, 0.5, "the default single-band opacity");
-  assert.deepStrictEqual(upperEdge(band), [[0, 100], [100, 60], [200, 40]], "a row without bounds pinches onto the line");
+  assert.strictEqual(
+    band.paint.fillOpacity,
+    0.5,
+    "the default single-band opacity",
+  );
+  assert.deepStrictEqual(
+    upperEdge(band),
+    [
+      [0, 100],
+      [100, 60],
+      [200, 40],
+    ],
+    "a row without bounds pinches onto the line",
+  );
 });
 
 it("emitLineBands — nested bands draw outermost first, each with its own key", () => {
-  const nodes = emitLineBands(ctx(chart([["p5", "p95"], ["p25", "p75"]])));
-  assert.deepStrictEqual(nodes.map(n => n.key), ["a", "a::band-1"]);
-  assert.deepStrictEqual(upperEdge(nodes[0]).map(p => p[1]), [100, 60, 40], "outer upper bound");
-  assert.deepStrictEqual(upperEdge(nodes[1]).map(p => p[1]), [100, 80, 70], "inner upper bound");
+  const nodes = emitLineBands(
+    ctx(
+      chart([
+        ["p5", "p95"],
+        ["p25", "p75"],
+      ]),
+    ),
+  );
+  assert.deepStrictEqual(
+    nodes.map(n => n.key),
+    ["a", "a::band-1"],
+  );
+  assert.deepStrictEqual(
+    upperEdge(nodes[0]).map(p => p[1]),
+    [100, 60, 40],
+    "outer upper bound",
+  );
+  assert.deepStrictEqual(
+    upperEdge(nodes[1]).map(p => p[1]),
+    [100, 80, 70],
+    "inner upper bound",
+  );
   const [outer, inner] = nodes.map(n => n.paint.fillOpacity);
   assert.strictEqual(outer, 0.15, "the outermost band at the ramp's light end");
-  assert.ok(Math.abs(1 - (1 - outer) * (1 - inner) - 0.6) < 1e-5, "the innermost composites to the dark end");
+  assert.ok(
+    Math.abs(1 - (1 - outer) * (1 - inner) - 0.6) < 1e-5,
+    "the innermost composites to the dark end",
+  );
 });
 
 it("emitLineBands — bandOpacity sets the ramp; other confidenceConfig keys still style the Area", () => {
-  const nodes = emitLineBands(ctx(chart([["p5", "p95"], ["p25", "p75"]], {bandOpacity: 0.3, fill: "#123456"})));
-  assert.deepStrictEqual(nodes.map(n => n.paint.fill), ["#123456", "#123456"]);
+  const nodes = emitLineBands(
+    ctx(
+      chart(
+        [
+          ["p5", "p95"],
+          ["p25", "p75"],
+        ],
+        {bandOpacity: 0.3, fill: "#123456"},
+      ),
+    ),
+  );
+  assert.deepStrictEqual(
+    nodes.map(n => n.paint.fill),
+    ["#123456", "#123456"],
+  );
   assert.strictEqual(nodes[0].paint.fillOpacity, 0.3);
-  assert.strictEqual(nodes[1].paint.fillOpacity, 0, "an equal inner target adds nothing");
+  assert.strictEqual(
+    nodes[1].paint.fillOpacity,
+    0,
+    "an equal inner target adds nothing",
+  );
 });
 
 it("emitLineBands — nothing without confidence", () => {
@@ -89,7 +151,25 @@ it("emitLineBands — a vertical plot spans x", () => {
   const viz = chart(["p5", "p95"]);
   viz.schema.discrete = "y";
   const flipped = rows.map(d => ({...d, x: d.y, y: d.x}));
-  const shapeConfig = positions("y", d => d.x * 10, d => (d.y - 1) * 100);
-  const [band] = emitLineBands({viz, values: flipped, x: v => v * 10, y: v => (v - 1) * 100, shapeConfig});
-  assert.deepStrictEqual(upperEdge(band), [[100, 0], [140, 100], [160, 200]], "upper bounds along x");
+  const shapeConfig = positions(
+    "y",
+    d => d.x * 10,
+    d => (d.y - 1) * 100,
+  );
+  const [band] = emitLineBands({
+    viz,
+    values: flipped,
+    x: v => v * 10,
+    y: v => (v - 1) * 100,
+    shapeConfig,
+  });
+  assert.deepStrictEqual(
+    upperEdge(band),
+    [
+      [100, 0],
+      [140, 100],
+      [160, 200],
+    ],
+    "upper bounds along x",
+  );
 });

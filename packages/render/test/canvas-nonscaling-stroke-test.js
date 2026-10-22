@@ -26,14 +26,20 @@ function fakeCtx() {
 
 it("non-scaling stroke halves its width at 2× zoom (constant on screen)", () => {
   const ctx = fakeCtx();
-  const node = {type: "circle", paint: {stroke: "#000", strokeWidth: 4, vectorEffect: "non-scaling-stroke"}};
+  const node = {
+    type: "circle",
+    paint: {stroke: "#000", strokeWidth: 4, vectorEffect: "non-scaling-stroke"},
+  };
   paint(ctx, node, 1, undefined, undefined, 2);
   assert.strictEqual(ctx.lineWidth, 2);
 });
 
 it("non-scaling stroke is unchanged at scale 1 (no zoom)", () => {
   const ctx = fakeCtx();
-  const node = {type: "circle", paint: {stroke: "#000", strokeWidth: 4, vectorEffect: "non-scaling-stroke"}};
+  const node = {
+    type: "circle",
+    paint: {stroke: "#000", strokeWidth: 4, vectorEffect: "non-scaling-stroke"},
+  };
   paint(ctx, node, 1, undefined, undefined, 1);
   assert.strictEqual(ctx.lineWidth, 4);
 });

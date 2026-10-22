@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>ColorScale · LinePlot</title>
-    <meta name="description" content="LinePlot whose lines are colored by a colorScale of each series' latest value.">
+    <meta
+      name="description"
+      content="LinePlot whose lines are colored by a colorScale of each series' latest value."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -42,9 +45,12 @@
     // Colors every line by the series' most recent value, not its first.
     const latest = {};
     data.forEach(d => {
-      if (!latest[d.Country] || d.Year > latest[d.Country].Year) latest[d.Country] = d;
+      if (!latest[d.Country] || d.Year > latest[d.Country].Year)
+        latest[d.Country] = d;
     });
-    data.forEach(d => (d["Latest Trade Value"] = latest[d.Country]["Trade Value"]));
+    data.forEach(
+      d => (d["Latest Trade Value"] = latest[d.Country]["Trade Value"]),
+    );
 
     new d3plus.LinePlot()
       .config({

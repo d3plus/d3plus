@@ -24,7 +24,10 @@ export interface RadarLevels {
     @param values Every plotted (aggregated) value.
     @param levels A tick-count hint, or the exact ring values.
 */
-export function radarLevels(values: number[], levels: number | number[]): RadarLevels {
+export function radarLevels(
+  values: number[],
+  levels: number | number[],
+): RadarLevels {
   const custom = Array.isArray(levels) ? levels.filter(Number.isFinite) : [];
   const finite = values.filter(Number.isFinite).concat(custom);
   const lo = Math.min(0, ...finite);
@@ -40,7 +43,11 @@ export function radarLevels(values: number[], levels: number | number[]): RadarL
 }
 
 /** Maps a value onto a pixel radius for the given domain. */
-export function radarRadius(value: number, domain: [number, number], radius: number): number {
+export function radarRadius(
+  value: number,
+  domain: [number, number],
+  radius: number,
+): number {
   const span = domain[1] - domain[0];
   return span ? ((value - domain[0]) / span) * radius : 0;
 }
@@ -88,7 +95,8 @@ export interface RadarLevelLabelOpts {
 */
 export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
   const {ticks, domain, radius, angle, format, measure, fontSize} = opts;
-  const toRadius = opts.toRadius ?? ((v: number) => radarRadius(v, domain, radius));
+  const toRadius =
+    opts.toRadius ?? ((v: number) => radarRadius(v, domain, radius));
   const radians = (angle * Math.PI) / 180;
   // Unit vectors along the label direction (d) and perpendicular to its
   // clockwise side (p), in screen coordinates (y down).
@@ -120,10 +128,15 @@ export function radarLevelLabels(opts: RadarLevelLabelOpts): RadarLevelLabel[] {
         anchor,
       };
     });
-  const extent = Math.max(0, ...labels.map(l => 2 * half(l.width, l.height, dx, dy)));
+  const extent = Math.max(
+    0,
+    ...labels.map(l => 2 * half(l.width, l.height, dx, dy)),
+  );
   let gap = Infinity;
-  for (let i = 1; i < labels.length; i++) gap = Math.min(gap, labels[i].r - labels[i - 1].r);
-  const stride = gap > 0 ? Math.max(1, Math.ceil((extent + 2) / gap)) : labels.length;
+  for (let i = 1; i < labels.length; i++)
+    gap = Math.min(gap, labels[i].r - labels[i - 1].r);
+  const stride =
+    gap > 0 ? Math.max(1, Math.ceil((extent + 2) / gap)) : labels.length;
   return labels.filter((_l, i) => i % stride === 0);
 }
 
@@ -144,7 +157,12 @@ export function emitRadarLevelLabels(
   if (!labels.length) return [];
   const children: SceneNode[] = [];
   for (const l of labels) {
-    const offset = l.anchor === "start" ? -l.width / 2 : l.anchor === "end" ? l.width / 2 : 0;
+    const offset =
+      l.anchor === "start"
+        ? -l.width / 2
+        : l.anchor === "end"
+          ? l.width / 2
+          : 0;
     children.push({
       type: "text",
       key: `${prefix}-level-label-${l.value}`,
@@ -163,5 +181,12 @@ export function emitRadarLevelLabels(
       paint: {fill: paint.fontColor, opacity: paint.fontOpacity},
     });
   }
-  return [{type: "group", key: `${prefix}-level-labels`, interactive: false, children}];
+  return [
+    {
+      type: "group",
+      key: `${prefix}-level-labels`,
+      interactive: false,
+      children,
+    },
+  ];
 }

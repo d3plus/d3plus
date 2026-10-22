@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Stacked Grow</title>
-    <meta name="description" content="Stacked bars growing in from their stack, one segment after another: vertical, horizontal, and diverging stacks, with a slow duration, a replay, and a data update that animates as before.">
+    <meta
+      name="description"
+      content="Stacked bars growing in from their stack, one segment after another: vertical, horizontal, and diverging stacks, with a slow duration, a replay, and a data update that animates as before."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -32,11 +33,9 @@
         height: 360px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="controls">
       <button id="replay">Replay</button>
       <button id="update">Update data</button>
@@ -57,7 +56,6 @@
     </div>
 
     <script>
-
       const regions = ["North", "South", "East", "West"];
       const channels = ["Online", "Retail", "Wholesale"];
 
@@ -67,7 +65,11 @@
         channels.forEach((channel, c) => {
           regions.forEach((region, r) => {
             const value = 10 + ((r * 7 + c * 5 + seed * 3) % 11) * 3;
-            rows.push({channel, region, value: signed && c === 1 ? -value / 2 : value});
+            rows.push({
+              channel,
+              region,
+              value: signed && c === 1 ? -value / 2 : value,
+            });
           });
         });
         return rows;
@@ -96,7 +98,9 @@
             .x("region")
             .y("value"),
         ];
-        charts.forEach(viz => viz.groupBy("channel").stacked(true).duration(2400).render());
+        charts.forEach(viz =>
+          viz.groupBy("channel").stacked(true).duration(2400).render(),
+        );
       };
       build();
 
@@ -105,9 +109,6 @@
         seed++;
         charts.forEach((viz, i) => viz.data(sales(seed, i === 2)).render());
       });
-
     </script>
-
   </body>
-
 </html>

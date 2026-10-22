@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a bar chart based on an array of data. When stacked, each bar's\nfraction of its stack total is available to tooltip accessors as share\n(unless the data has its own share field).",
+        component:
+          "Creates a bar chart based on an array of data. When stacked, each bar's\nfraction of its stack total is available to tooltip accessors as share\n(unless the data has its own share field).",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <BarChart config={configify(args, argTypes)} />;
-  
+const Template = args => <BarChart config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -30,92 +31,159 @@ import {formatAbbreviate} from "@d3plus/format";
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: [
-    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 4, y: 7},
     {id: "alpha", x: 5, y: 25},
     {id: "alpha", x: 6, y: 13},
-    {id: "beta",  x: 4, y: 17},
-    {id: "beta",  x: 5, y:  8},
-    {id: "beta",  x: 6, y: 13}
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   x: "x",
-  y: "y"
+  y: "y",
 };
-BasicExample.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "A minimal grouped bar chart: the two series in `groupBy` share each `x` position and sit side by side, with each bar's height read from `y`."}}};
+BasicExample.parameters = {
+  controls: {include: ["x", "y"]},
+  docs: {
+    description: {
+      story:
+        "A minimal grouped bar chart: the two series in `groupBy` share each `x` position and sit side by side, with each bar's height read from `y`.",
+    },
+  },
+};
 
 export const SortingBars = Template.bind({});
 SortingBars.args = {
   data: [
-    {"Travel Time": "< 5 Minutes",     "ID Travel Time": "0", "Population Percentage":  2},
-    {"Travel Time": "15 - 24 Minutes", "ID Travel Time": "2", "Population Percentage": 30},
-    {"Travel Time": "35 - 44 Minutes", "ID Travel Time": "4", "Population Percentage":  7},
-    {"Travel Time": "45 - 89 Minutes", "ID Travel Time": "5", "Population Percentage": 11},
-    {"Travel Time": "5 - 14 Minutes",  "ID Travel Time": "1", "Population Percentage": 20},
-    {"Travel Time": "90+ Minutes",     "ID Travel Time": "6", "Population Percentage":  5},
-    {"Travel Time": "25 - 34 Minutes", "ID Travel Time": "3", "Population Percentage": 25}
+    {
+      "Travel Time": "< 5 Minutes",
+      "ID Travel Time": "0",
+      "Population Percentage": 2,
+    },
+    {
+      "Travel Time": "15 - 24 Minutes",
+      "ID Travel Time": "2",
+      "Population Percentage": 30,
+    },
+    {
+      "Travel Time": "35 - 44 Minutes",
+      "ID Travel Time": "4",
+      "Population Percentage": 7,
+    },
+    {
+      "Travel Time": "45 - 89 Minutes",
+      "ID Travel Time": "5",
+      "Population Percentage": 11,
+    },
+    {
+      "Travel Time": "5 - 14 Minutes",
+      "ID Travel Time": "1",
+      "Population Percentage": 20,
+    },
+    {
+      "Travel Time": "90+ Minutes",
+      "ID Travel Time": "6",
+      "Population Percentage": 5,
+    },
+    {
+      "Travel Time": "25 - 34 Minutes",
+      "ID Travel Time": "3",
+      "Population Percentage": 25,
+    },
   ],
   groupBy: "Travel Time",
   x: "Travel Time",
   y: "Population Percentage",
   xSort: funcify(
     (a, b) => a["ID Travel Time"] - b["ID Travel Time"],
-    `(a, b) => a["ID Travel Time"] - b["ID Travel Time"]`
-  )
+    `(a, b) => a["ID Travel Time"] - b["ID Travel Time"]`,
+  ),
 };
-SortingBars.parameters = {controls: {include: ["xSort"]}, docs: {description: {story: "The discrete `x` axis sorts alphabetically by default; pass an `xSort` comparator to order the bars by a different field — here the travel-time buckets follow their numeric `\"ID Travel Time\"` instead of their labels."}}};
+SortingBars.parameters = {
+  controls: {include: ["xSort"]},
+  docs: {
+    description: {
+      story:
+        'The discrete `x` axis sorts alphabetically by default; pass an `xSort` comparator to order the bars by a different field — here the travel-time buckets follow their numeric `"ID Travel Time"` instead of their labels.',
+    },
+  },
+};
 
 export const CustomBarPadding = Template.bind({});
 CustomBarPadding.args = {
   data: [
-    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 4, y: 7},
     {id: "alpha", x: 5, y: 25},
     {id: "alpha", x: 6, y: 13},
-    {id: "beta",  x: 4, y: 17},
-    {id: "beta",  x: 5, y:  8},
-    {id: "beta",  x: 6, y: 13}
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   barPadding: 5,
   groupBy: "id",
   groupPadding: 40,
   x: "x",
-  y: "y"
-}
-CustomBarPadding.parameters = {controls: {include: ["barPadding", "groupPadding"]}, docs: {description: {story: "`barPadding` sets the pixel gap between bars within a group, while `groupPadding` sets the gap between adjacent groups — raise the latter to visually separate each `x` cluster."}}};
+  y: "y",
+};
+CustomBarPadding.parameters = {
+  controls: {include: ["barPadding", "groupPadding"]},
+  docs: {
+    description: {
+      story:
+        "`barPadding` sets the pixel gap between bars within a group, while `groupPadding` sets the gap between adjacent groups — raise the latter to visually separate each `x` cluster.",
+    },
+  },
+};
 
 export const StackedBars = Template.bind({});
 StackedBars.args = {
   data: [
-    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 4, y: 7},
     {id: "alpha", x: 5, y: 25},
     {id: "alpha", x: 6, y: 13},
-    {id: "beta",  x: 4, y: 17},
-    {id: "beta",  x: 5, y:  8},
-    {id: "beta",  x: 6, y: 13}
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   stacked: true,
   x: "x",
-  y: "y"
+  y: "y",
 };
-StackedBars.parameters = {controls: {include: ["stacked"]}, docs: {description: {story: "Set `stacked: true` to stack the series into one bar per `x` position rather than grouping them side by side, emphasizing the combined total over per-series comparison."}}};
+StackedBars.parameters = {
+  controls: {include: ["stacked"]},
+  docs: {
+    description: {
+      story:
+        "Set `stacked: true` to stack the series into one bar per `x` position rather than grouping them side by side, emphasizing the combined total over per-series comparison.",
+    },
+  },
+};
 
 export const HorizontalBars = Template.bind({});
 HorizontalBars.args = {
   data: [
-    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 4, y: 7},
     {id: "alpha", x: 5, y: 25},
     {id: "alpha", x: 6, y: 13},
-    {id: "beta",  x: 4, y: 17},
-    {id: "beta",  x: 5, y:  8},
-    {id: "beta",  x: 6, y: 13}
-
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   discrete: "y",
   x: "y",
-  y: "x"
+  y: "x",
 };
-HorizontalBars.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "Run the bars horizontally by setting `discrete: \"y\"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous."}}};
+HorizontalBars.parameters = {
+  controls: {include: ["discrete", "x", "y"]},
+  docs: {
+    description: {
+      story:
+        'Run the bars horizontally by setting `discrete: "y"` so the category sits on the vertical axis and the measured length extends along `x`. Reach for this when category labels are long or numerous.',
+    },
+  },
+};
 
 export const TrendLine = Template.bind({});
 TrendLine.args = {
@@ -126,20 +194,28 @@ TrendLine.args = {
     {id: "alpha", year: 2022, value: 57},
     {id: "alpha", year: 2023, value: 55},
     {id: "alpha", year: 2024, value: 66},
-    {id: "beta",  year: 2019, value: 61},
-    {id: "beta",  year: 2020, value: 63},
-    {id: "beta",  year: 2021, value: 56},
-    {id: "beta",  year: 2022, value: 54},
-    {id: "beta",  year: 2023, value: 49},
-    {id: "beta",  year: 2024, value: 47}
+    {id: "beta", year: 2019, value: 61},
+    {id: "beta", year: 2020, value: 63},
+    {id: "beta", year: 2021, value: 56},
+    {id: "beta", year: 2022, value: 54},
+    {id: "beta", year: 2023, value: 49},
+    {id: "beta", year: 2024, value: 47},
   ],
   groupBy: "id",
   x: "year",
   y: "value",
   trendLine: true,
-  trendLineConfig: {strokeWidth: 3}
+  trendLineConfig: {strokeWidth: 3},
 };
-TrendLine.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "`trendLine` works on the discrete axis too: each series gets a line fit across its bars, sampled at every category and drawn behind them. Categories that aren't numbers or dates are fit by their order along the axis."}}};
+TrendLine.parameters = {
+  controls: {include: ["trendLine", "trendLineConfig"]},
+  docs: {
+    description: {
+      story:
+        "`trendLine` works on the discrete axis too: each series gets a line fit across its bars, sampled at every category and drawn behind them. Categories that aren't numbers or dates are fit by their order along the axis.",
+    },
+  },
+};
 
 export const TrendLineProjection = Template.bind({});
 TrendLineProjection.args = {
@@ -148,19 +224,27 @@ TrendLineProjection.args = {
   x: "year",
   y: "value",
   trendLine: true,
-  trendLineConfig: {projection: 3}
+  trendLineConfig: {projection: 3},
 };
-TrendLineProjection.parameters = {controls: {include: ["trendLine", "trendLineConfig"]}, docs: {description: {story: "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it. The projected slots are marked as a forecast, shaded from the edge of the first one; set `forecast: false` to leave them unmarked."}}};
+TrendLineProjection.parameters = {
+  controls: {include: ["trendLine", "trendLineConfig"]},
+  docs: {
+    description: {
+      story:
+        "On a numeric or time axis, `trendLineConfig.projection` adds future slots to the axis and carries each series' trend line across them. Categories that aren't numbers or dates have no next value, so they ignore it. The projected slots are marked as a forecast, shaded from the edge of the first one; set `forecast: false` to leave them unmarked.",
+    },
+  },
+};
 
 export const TexturedBars = Template.bind({});
 TexturedBars.args = {
   data: [
-    {id: "alpha", x: 4, y:  7},
+    {id: "alpha", x: 4, y: 7},
     {id: "alpha", x: 5, y: 25},
     {id: "alpha", x: 6, y: 13},
-    {id: "beta",  x: 4, y: 17},
-    {id: "beta",  x: 5, y:  8},
-    {id: "beta",  x: 6, y: 13}
+    {id: "beta", x: 4, y: 17},
+    {id: "beta", x: 5, y: 8},
+    {id: "beta", x: 6, y: 13},
   ],
   groupBy: "id",
   shapeConfig: {
@@ -172,9 +256,17 @@ TexturedBars.args = {
     },
   },
   x: "x",
-  y: "y"
+  y: "y",
 };
-TexturedBars.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Overlay a repeating pattern on the bars via `shapeConfig.texture` (here `\"nylon\"`), with `textureDefault` tuning its size and stroke — useful for keeping series distinguishable in print or grayscale."}}};
+TexturedBars.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        'Overlay a repeating pattern on the bars via `shapeConfig.texture` (here `"nylon"`), with `textureDefault` tuning its size and stroke — useful for keeping series distinguishable in print or grayscale.',
+    },
+  },
+};
 
 export const PopulationPyramid = Template.bind({});
 PopulationPyramid.args = {
@@ -182,196 +274,204 @@ PopulationPyramid.args = {
   data: [
     {
       "Age range": "0 to 4",
-      "Sex": "Male",
-      "Population": 1445122
+      Sex: "Male",
+      Population: 1445122,
     },
     {
       "Age range": "0 to 4",
-      "Sex": "Female",
-      "Population": 1385933
+      Sex: "Female",
+      Population: 1385933,
     },
     {
       "Age range": "5 to 9",
-      "Sex": "Male",
-      "Population": 1473968
+      Sex: "Male",
+      Population: 1473968,
     },
     {
       "Age range": "5 to 9",
-      "Sex": "Female",
-      "Population": 1417319
+      Sex: "Female",
+      Population: 1417319,
     },
     {
       "Age range": "10 to 15",
-      "Sex": "Male",
-      "Population": 1483727
+      Sex: "Male",
+      Population: 1483727,
     },
     {
       "Age range": "10 to 15",
-      "Sex": "Female",
-      "Population": 1430083
+      Sex: "Female",
+      Population: 1430083,
     },
     {
       "Age range": "15 to 19",
-      "Sex": "Male",
-      "Population": 1466289
+      Sex: "Male",
+      Population: 1466289,
     },
     {
       "Age range": "15 to 19",
-      "Sex": "Female",
-      "Population": 1420257
+      Sex: "Female",
+      Population: 1420257,
     },
     {
       "Age range": "20 to 24",
-      "Sex": "Male",
-      "Population": 1438000
+      Sex: "Male",
+      Population: 1438000,
     },
     {
       "Age range": "20 to 24",
-      "Sex": "Female",
-      "Population": 1401017
+      Sex: "Female",
+      Population: 1401017,
     },
     {
       "Age range": "25 to 29",
-      "Sex": "Male",
-      "Population": 1371191
+      Sex: "Male",
+      Population: 1371191,
     },
     {
       "Age range": "25 to 29",
-      "Sex": "Female",
-      "Population": 1344048
+      Sex: "Female",
+      Population: 1344048,
     },
     {
       "Age range": "30 to 34",
-      "Sex": "Male",
-      "Population": 1251238
+      Sex: "Male",
+      Population: 1251238,
     },
     {
       "Age range": "30 to 34",
-      "Sex": "Female",
-      "Population": 1233884
+      Sex: "Female",
+      Population: 1233884,
     },
     {
       "Age range": "35 to 39",
-      "Sex": "Male",
-      "Population": 1156915
+      Sex: "Male",
+      Population: 1156915,
     },
     {
       "Age range": "35 to 39",
-      "Sex": "Female",
-      "Population": 1145477
+      Sex: "Female",
+      Population: 1145477,
     },
     {
       "Age range": "40 to 44",
-      "Sex": "Male",
-      "Population": 1038422
+      Sex: "Male",
+      Population: 1038422,
     },
     {
       "Age range": "40 to 44",
-      "Sex": "Female",
-      "Population": 1034343
+      Sex: "Female",
+      Population: 1034343,
     },
     {
       "Age range": "45 to 49",
-      "Sex": "Male",
-      "Population": 899326
+      Sex: "Male",
+      Population: 899326,
     },
     {
       "Age range": "45 to 49",
-      "Sex": "Female",
-      "Population": 903752
+      Sex: "Female",
+      Population: 903752,
     },
     {
       "Age range": "50 to 54",
-      "Sex": "Male",
-      "Population": 774590
+      Sex: "Male",
+      Population: 774590,
     },
     {
       "Age range": "50 to 54",
-      "Sex": "Female",
-      "Population": 788241
+      Sex: "Female",
+      Population: 788241,
     },
     {
       "Age range": "55 to 59",
-      "Sex": "Male",
-      "Population": 634510
+      Sex: "Male",
+      Population: 634510,
     },
     {
       "Age range": "55 to 59",
-      "Sex": "Female",
-      "Population": 658490
+      Sex: "Female",
+      Population: 658490,
     },
     {
       "Age range": "60 to 64",
-      "Sex": "Male",
-      "Population": 501128
+      Sex: "Male",
+      Population: 501128,
     },
     {
       "Age range": "60 to 64",
-      "Sex": "Female",
-      "Population": 532940
+      Sex: "Female",
+      Population: 532940,
     },
     {
       "Age range": "65 to 69",
-      "Sex": "Male",
-      "Population": 379352
+      Sex: "Male",
+      Population: 379352,
     },
     {
       "Age range": "65 to 69",
-      "Sex": "Female",
-      "Population": 415647
+      Sex: "Female",
+      Population: 415647,
     },
     {
       "Age range": "70 to 74",
-      "Sex": "Male",
-      "Population": 271687
+      Sex: "Male",
+      Population: 271687,
     },
     {
       "Age range": "70 to 74",
-      "Sex": "Female",
-      "Population": 311231
+      Sex: "Female",
+      Population: 311231,
     },
     {
       "Age range": "75 to 79",
-      "Sex": "Male",
-      "Population": 186805
+      Sex: "Male",
+      Population: 186805,
     },
     {
       "Age range": "75 to 79",
-      "Sex": "Female",
-      "Population": 229221
+      Sex: "Female",
+      Population: 229221,
     },
     {
       "Age range": "80+",
-      "Sex": "Male",
-      "Population": 166789
+      Sex: "Male",
+      Population: 166789,
     },
     {
       "Age range": "80+",
-      "Sex": "Female",
-      "Population": 235076
-    }
+      Sex: "Female",
+      Population: 235076,
+    },
   ],
   discrete: "y",
   groupBy: "Sex",
   height: 400,
   shapeConfig: {
-    label: d => d["Age range"]
+    label: d => d["Age range"],
   },
   stacked: true,
   x: funcify(
-      d => d.Population * (d.Sex === 'Female' ? -1 : 1),
-      "d => d.Population * (d.Sex === 'Female' ? -1 : 1)"
-    ),
+    d => d.Population * (d.Sex === "Female" ? -1 : 1),
+    "d => d.Population * (d.Sex === 'Female' ? -1 : 1)",
+  ),
   xConfig: {
     tickFormat: funcify(
       d => formatAbbreviate(Math.abs(d)),
-      "d => formatAbbreviate(Math.abs(d))"
-    )
+      "d => formatAbbreviate(Math.abs(d))",
+    ),
   },
   y: "Age range",
-  yConfig: {barConfig: {stroke: "transparent"}, ticks: []}
+  yConfig: {barConfig: {stroke: "transparent"}, ticks: []},
 };
-PopulationPyramid.parameters = {controls: {include: ["stacked", "xConfig", "yConfig"]}, docs: {description: {story: "A population pyramid: age ranges run up the discrete `y` axis while the `x` accessor negates the female `Population` so the sexes mirror around zero, and `xConfig.tickFormat` restores absolute labels. Use it to read a population's age-and-sex structure at a glance."}}};
+PopulationPyramid.parameters = {
+  controls: {include: ["stacked", "xConfig", "yConfig"]},
+  docs: {
+    description: {
+      story:
+        "A population pyramid: age ranges run up the discrete `y` axis while the `x` accessor negates the female `Population` so the sexes mirror around zero, and `xConfig.tickFormat` restores absolute labels. Use it to read a population's age-and-sex structure at a glance.",
+    },
+  },
+};
 const featureData = [
   {region: "North", quarter: "Q1", revenue: 35},
   {region: "North", quarter: "Q2", revenue: 50},
@@ -380,7 +480,7 @@ const featureData = [
   {region: "South", quarter: "Q1", revenue: 20},
   {region: "South", quarter: "Q2", revenue: 30},
   {region: "South", quarter: "Q3", revenue: 38},
-  {region: "South", quarter: "Q4", revenue: 33}
+  {region: "South", quarter: "Q4", revenue: 33},
 ];
 
 export const RenderingToCanvas = Template.bind({});
@@ -389,11 +489,16 @@ RenderingToCanvas.args = {
   groupBy: "region",
   x: "quarter",
   y: "revenue",
-  renderer: "canvas"
+  renderer: "canvas",
 };
 RenderingToCanvas.parameters = {
   controls: {include: ["renderer"]},
-  docs: {description: {story: "Set `renderer: \"canvas\"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default."}}
+  docs: {
+    description: {
+      story:
+        'Set `renderer: "canvas"` to paint to a `<canvas>` element instead of SVG. Useful for charts with very large numbers of shapes; hover, tooltips, and pointer events still work. SVG is the default.',
+    },
+  },
 };
 
 export const ClickAndHoverEvents = Template.bind({});
@@ -405,17 +510,22 @@ ClickAndHoverEvents.args = {
   on: {
     "click.shape": funcify(
       d => console.log("clicked bar:", d),
-      'd => console.log("clicked bar:", d)'
+      'd => console.log("clicked bar:", d)',
     ),
     "mouseenter.shape": funcify(
       d => console.log("hovered bar:", d),
-      'd => console.log("hovered bar:", d)'
-    )
-  }
+      'd => console.log("hovered bar:", d)',
+    ),
+  },
 };
 ClickAndHoverEvents.parameters = {
   controls: {include: ["on"]},
-  docs: {description: {story: "Register pointer handlers via `on`. Open the browser console, then click or hover a bar. Event names mirror d3-selection; the `.shape` namespace scopes the handler to data marks (use `.legend` for legend entries, or a shape class like `.Bar`). The handler receives the datum."}}
+  docs: {
+    description: {
+      story:
+        "Register pointer handlers via `on`. Open the browser console, then click or hover a bar. Event names mirror d3-selection; the `.shape` namespace scopes the handler to data marks (use `.legend` for legend entries, or a shape class like `.Bar`). The handler receives the datum.",
+    },
+  },
 };
 
 export const CustomTooltip = Template.bind({});
@@ -425,25 +535,41 @@ CustomTooltip.args = {
   x: "quarter",
   y: "revenue",
   tooltipConfig: {
-    title: funcify(d => `${d.region} — ${d.quarter}`, "d => `${d.region} — ${d.quarter}`"),
+    title: funcify(
+      d => `${d.region} — ${d.quarter}`,
+      "d => `${d.region} — ${d.quarter}`",
+    ),
     tbody: [
       ["Region", funcify(d => d.region, "d => d.region")],
-      ["Revenue", funcify(d => `$${d.revenue}M`, "d => `$${d.revenue}M`")]
-    ]
-  }
+      ["Revenue", funcify(d => `$${d.revenue}M`, "d => `$${d.revenue}M`")],
+    ],
+  },
 };
-CustomTooltip.parameters = {controls: {include: ["tooltipConfig"]}, docs: {description: {story: "Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting."}}};
+CustomTooltip.parameters = {
+  controls: {include: ["tooltipConfig"]},
+  docs: {
+    description: {
+      story:
+        "Replace the default hover card with `tooltipConfig`: `title` builds the header from the datum and `tbody` lists label/value rows. Hover a bar to see the custom formatting.",
+    },
+  },
+};
 export const Localized = Template.bind({});
 Localized.args = {
   data: featureData.map(d => ({...d, revenue: d.revenue * 1000000})),
   groupBy: "region",
   x: "quarter",
   y: "revenue",
-  locale: "ar-SA"
+  locale: "ar-SA",
 };
 Localized.parameters = {
   controls: {include: ["locale"]},
-  docs: {description: {story: "Pass a `locale` (here `\"ar-SA\"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`."}}
+  docs: {
+    description: {
+      story:
+        'Pass a `locale` (here `"ar-SA"`) to translate built-in UI text and format numbers for that region. Right-to-left locales also flip layout. Dictionaries live in `@d3plus/locales`.',
+    },
+  },
 };
 
 export const HighlightingASeries = Template.bind({});
@@ -452,20 +578,25 @@ HighlightingASeries.args = {
   groupBy: "region",
   x: "quarter",
   y: "revenue",
-  highlight: funcify(d => d.region === "North", 'd => d.region === "North"')
+  highlight: funcify(d => d.region === "North", 'd => d.region === "North"'),
 };
 HighlightingASeries.parameters = {
   controls: {include: ["highlight"]},
-  docs: {description: {story: "`highlight` keeps the matching marks in color and de-emphasizes the rest to a neutral gray — the \"emphasis\" pattern for pointing at one series without hiding the others. Unlike `hover`/`active` (transient, opacity-based) it is a standing state, so it persists until cleared with `false`."}}
+  docs: {
+    description: {
+      story:
+        '`highlight` keeps the matching marks in color and de-emphasizes the rest to a neutral gray — the "emphasis" pattern for pointing at one series without hiding the others. Unlike `hover`/`active` (transient, opacity-based) it is a standing state, so it persists until cleared with `false`.',
+    },
+  },
 };
 
 // An ordered discrete field (size tiers) — the color should read as the order.
 const tierData = [
   {tier: "XS", sales: 12},
-  {tier: "S",  sales: 28},
-  {tier: "M",  sales: 45},
-  {tier: "L",  sales: 33},
-  {tier: "XL", sales: 19}
+  {tier: "S", sales: 28},
+  {tier: "M", sales: 45},
+  {tier: "L", sales: 33},
+  {tier: "XL", sales: 19},
 ];
 
 export const OrdinalColor = Template.bind({});
@@ -477,13 +608,20 @@ OrdinalColor.args = {
   color: "tier",
   colorOrdinal: true,
   xSort: funcify(
-    (a, b) => ["XS", "S", "M", "L", "XL"].indexOf(a.tier) - ["XS", "S", "M", "L", "XL"].indexOf(b.tier),
-    `(a, b) => ["XS","S","M","L","XL"].indexOf(a.tier) - ["XS","S","M","L","XL"].indexOf(b.tier)`
-  )
+    (a, b) =>
+      ["XS", "S", "M", "L", "XL"].indexOf(a.tier) -
+      ["XS", "S", "M", "L", "XL"].indexOf(b.tier),
+    `(a, b) => ["XS","S","M","L","XL"].indexOf(a.tier) - ["XS","S","M","L","XL"].indexOf(b.tier)`,
+  ),
 };
 OrdinalColor.parameters = {
   controls: {include: ["colorOrdinal"]},
-  docs: {description: {story: "Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark."}}
+  docs: {
+    description: {
+      story:
+        "Set `colorOrdinal: true` to color an *ordered* discrete field with a single-hue light→dark ramp instead of unrelated categorical hues, so the color itself carries the order. The ramp follows the data order (numeric values sort ascending); here the tiers run XS→XL from light to dark.",
+    },
+  },
 };
 
 // Three series with clearly different totals, plotted over a numeric year
@@ -492,12 +630,12 @@ const revenueByYear = [
   {segment: "Enterprise", year: 2021, revenue: 40},
   {segment: "Enterprise", year: 2022, revenue: 46},
   {segment: "Enterprise", year: 2023, revenue: 52},
-  {segment: "Retail",     year: 2021, revenue: 25},
-  {segment: "Retail",     year: 2022, revenue: 28},
-  {segment: "Retail",     year: 2023, revenue: 27},
-  {segment: "Online",     year: 2021, revenue:  8},
-  {segment: "Online",     year: 2022, revenue: 14},
-  {segment: "Online",     year: 2023, revenue: 21}
+  {segment: "Retail", year: 2021, revenue: 25},
+  {segment: "Retail", year: 2022, revenue: 28},
+  {segment: "Retail", year: 2023, revenue: 27},
+  {segment: "Online", year: 2021, revenue: 8},
+  {segment: "Online", year: 2022, revenue: 14},
+  {segment: "Online", year: 2023, revenue: 21},
 ];
 
 export const StackOrderByValue = Template.bind({});
@@ -507,27 +645,43 @@ StackOrderByValue.args = {
   stacked: true,
   stackOrder: "descending",
   x: "year",
-  y: "revenue"
+  y: "revenue",
 };
-StackOrderByValue.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "`stackOrder` accepts named value orders that rank series by their summed total. `\"descending\"` (the default) anchors the largest series — Enterprise — on the baseline with the smallest on top; switch to `\"ascending\"` to flip that and put the largest on top. Unlike the old alphabetical default, this reads by magnitude and works the same whether `x` is a string or a number (see [#527](https://github.com/d3plus/d3plus/issues/527))."}}};
+StackOrderByValue.parameters = {
+  controls: {include: ["stackOrder"]},
+  docs: {
+    description: {
+      story:
+        '`stackOrder` accepts named value orders that rank series by their summed total. `"descending"` (the default) anchors the largest series — Enterprise — on the baseline with the smallest on top; switch to `"ascending"` to flip that and put the largest on top. Unlike the old alphabetical default, this reads by magnitude and works the same whether `x` is a string or a number (see [#527](https://github.com/d3plus/d3plus/issues/527)).',
+    },
+  },
+};
 
 export const StackOrderByField = Template.bind({});
 StackOrderByField.args = {
   data: [
-    {product: "Widgets", quarter: "Q1", units: 50, profit:  5},
-    {product: "Widgets", quarter: "Q2", units: 60, profit:  6},
+    {product: "Widgets", quarter: "Q1", units: 50, profit: 5},
+    {product: "Widgets", quarter: "Q2", units: 60, profit: 6},
     {product: "Gadgets", quarter: "Q1", units: 20, profit: 40},
     {product: "Gadgets", quarter: "Q2", units: 25, profit: 50},
-    {product: "Gizmos",  quarter: "Q1", units: 35, profit: 15},
-    {product: "Gizmos",  quarter: "Q2", units: 30, profit: 18}
+    {product: "Gizmos", quarter: "Q1", units: 35, profit: 15},
+    {product: "Gizmos", quarter: "Q2", units: 30, profit: 18},
   ],
   groupBy: "product",
   stacked: true,
   stackOrder: funcify(d => d.profit, "d => d.profit"),
   x: "quarter",
-  y: "units"
+  y: "units",
 };
-StackOrderByField.parameters = {controls: {include: ["stackOrder"]}, docs: {description: {story: "Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: \"profit\", order: \"ascending\"}` to reverse."}}};
+StackOrderByField.parameters = {
+  controls: {include: ["stackOrder"]},
+  docs: {
+    description: {
+      story:
+        'Pass an accessor (or a `{value, order}` config) to order the stack by *any* field, not just the plotted one. Here bar height is `units`, but the stack is ordered by total `profit` — so low-volume, high-profit Gadgets sinks to the baseline while the tall Widgets band rides on top. Series are ranked by the summed accessor value, descending by default; use `{value: "profit", order: "ascending"}` to reverse.',
+    },
+  },
+};
 
 const housingStarts = [
   {year: 2019, starts: 1290},
@@ -535,7 +689,7 @@ const housingStarts = [
   {year: 2021, starts: 1601},
   {year: 2022, starts: 1553},
   {year: 2023, starts: 1420},
-  {year: 2024, starts: 1367}
+  {year: 2024, starts: 1367},
 ];
 
 export const BaselineBreak = Template.bind({});
@@ -545,9 +699,17 @@ BaselineBreak.args = {
   groupBy: "year",
   x: "year",
   y: "starts",
-  yDomain: [1200, 1700]
+  yDomain: [1200, 1700],
 };
-BaselineBreak.parameters = {controls: {include: ["baselineBreak", "yDomain"]}, docs: {description: {story: "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis, and the break's gap is cut straight across them, as with a `yBreak`. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`, and `mask: false` to leave the bars whole). See [#645](https://github.com/d3plus/d3plus/issues/645)."}}};
+BaselineBreak.parameters = {
+  controls: {include: ["baselineBreak", "yDomain"]},
+  docs: {
+    description: {
+      story:
+        "When a `yDomain` (or `yConfig.domain`) stops short of zero, the axis still ends at a `0` tick, then breaks — two short tilted marks with a gap in the axis line — and resumes at the domain's minimum. Bars start at the `0` tick, so they never spill past the axis, and the break's gap is cut straight across them, as with a `yBreak`. Turn `baselineBreak` off and a `yDomain` stretches back down to `0` (a `yConfig.domain` is kept, with the bars cut off at the axis); style the break with `yConfig.baselineBreakConfig` (`space`, `gap`, `size`, `angle`, `stroke`, and `mask: false` to leave the bars whole). See [#645](https://github.com/d3plus/d3plus/issues/645).",
+    },
+  },
+};
 
 export const HorizontalBaselineBreak = Template.bind({});
 HorizontalBaselineBreak.args = {
@@ -557,11 +719,19 @@ HorizontalBaselineBreak.args = {
   x: "starts",
   xConfig: {
     baselineBreakConfig: {angle: 45, gap: 6, size: 14},
-    domain: [1200, 1700]
+    domain: [1200, 1700],
   },
-  y: "year"
+  y: "year",
 };
-HorizontalBaselineBreak.parameters = {controls: {include: ["xConfig"]}, docs: {description: {story: "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`."}}};
+HorizontalBaselineBreak.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        "Horizontal bars break their x axis the same way, here with a steeper, wider break glyph set through `xConfig.baselineBreakConfig`.",
+    },
+  },
+};
 
 export const Baseline = Template.bind({});
 Baseline.args = {
@@ -569,9 +739,17 @@ Baseline.args = {
   data: housingStarts,
   groupBy: "year",
   x: "year",
-  y: "starts"
+  y: "starts",
 };
-Baseline.parameters = {controls: {include: ["baseline", "baselineBreak"]}, docs: {description: {story: "`baseline(1200)` renders exactly like `yDomain([1200])`: the y axis starts at exactly `1200` (its top is still rounded, just as it is with no domain set), then breaks back to a `0` tick, and the bars still grow from that `0` through the break, which cuts its gap across them. Turn `baselineBreak` off and the axis stretches down to `0`, just as a `yDomain` minimum does. A `yDomain` bound wins over the baseline, and when every value sits below the baseline it ends the axis instead, like `yDomain([undefined, n])`."}}};
+Baseline.parameters = {
+  controls: {include: ["baseline", "baselineBreak"]},
+  docs: {
+    description: {
+      story:
+        "`baseline(1200)` renders exactly like `yDomain([1200])`: the y axis starts at exactly `1200` (its top is still rounded, just as it is with no domain set), then breaks back to a `0` tick, and the bars still grow from that `0` through the break, which cuts its gap across them. Turn `baselineBreak` off and the axis stretches down to `0`, just as a `yDomain` minimum does. A `yDomain` bound wins over the baseline, and when every value sits below the baseline it ends the axis instead, like `yDomain([undefined, n])`.",
+    },
+  },
+};
 
 export const OutlierBarBreak = Template.bind({});
 OutlierBarBreak.args = {
@@ -580,22 +758,30 @@ OutlierBarBreak.args = {
     {region: "South", sales: 58},
     {region: "East", sales: 35},
     {region: "Online", sales: 960},
-    {region: "West", sales: 51}
+    {region: "West", sales: 51},
   ],
   groupBy: "region",
   x: "region",
   y: "sales",
-  yBreak: [80, 900]
+  yBreak: [80, 900],
 };
-OutlierBarBreak.parameters = {controls: {include: ["yBreak"]}, docs: {description: {story: "One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges; a line runs across the plot from each mark, and the gap between the two lines is cut straight across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (`lineConfig` styles the lines, `lines: false` hides them, and `mask: false` leaves the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767)."}}};
+OutlierBarBreak.parameters = {
+  controls: {include: ["yBreak"]},
+  docs: {
+    description: {
+      story:
+        "One outlier would flatten every other bar. `yBreak` removes a value range from the y axis — here 80 to 900 — so the small bars keep a readable scale while the outlier still reaches its real value. The axis shows the break with two short marks and labels both of its edges; a line runs across the plot from each mark, and the gap between the two lines is cut straight across the bar that crosses it. Pass a list of ranges (`[[80, 400], [500, 900]]`) for several breaks, and style them with `yConfig.breakConfig` (`lineConfig` styles the lines, `lines: false` hides them, and `mask: false` leaves the shapes whole). See [#766](https://github.com/d3plus/d3plus/issues/766) and [#767](https://github.com/d3plus/d3plus/issues/767).",
+    },
+  },
+};
 
 const surveyResults = [
   {region: "North", year: "2023", pct: 42, lower: 38.5, upper: 45.6},
   {region: "North", year: "2024", pct: 47, lower: 43.2, upper: 50.9},
   {region: "South", year: "2023", pct: 35, lower: 30.1, upper: 39.8},
   {region: "South", year: "2024", pct: 31, lower: 27.4, upper: 34.7},
-  {region: "West",  year: "2023", pct: 51, lower: 45.0, upper: 56.8},
-  {region: "West",  year: "2024", pct: 55, lower: 50.3, upper: 59.6}
+  {region: "West", year: "2023", pct: 51, lower: 45.0, upper: 56.8},
+  {region: "West", year: "2024", pct: 55, lower: 50.3, upper: 59.6},
 ];
 
 export const ErrorBars = Template.bind({});
@@ -604,9 +790,17 @@ ErrorBars.args = {
   groupBy: "year",
   confidence: ["lower", "upper"],
   x: "region",
-  y: "pct"
+  y: "pct",
 };
-ErrorBars.parameters = {controls: {include: ["confidence", "confidenceConfig"]}, docs: {description: {story: "Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off."}}};
+ErrorBars.parameters = {
+  controls: {include: ["confidence", "confidenceConfig"]},
+  docs: {
+    description: {
+      story:
+        "Supply `confidence` as a `[lower, upper]` pair of data keys (or accessors) to draw an error bar on every bar: a line from the lower to the upper bound, capped at each end and centered on its bar. The value axis widens to fit the bounds, and a bar's tooltip (hover its bar or its error bar) lists its Lower and Upper Bound; set `confidenceConfig.tooltip` to `false` to leave them out, or `confidence` to `false` to turn the interval off.",
+    },
+  },
+};
 
 export const ErrorBarsHorizontal = Template.bind({});
 ErrorBarsHorizontal.args = {
@@ -615,13 +809,21 @@ ErrorBarsHorizontal.args = {
   confidence: ["lower", "upper"],
   confidenceConfig: {
     capWidth: 10,
-    stroke: "#343a40"
+    stroke: "#343a40",
   },
   discrete: "y",
   x: "pct",
-  y: "region"
+  y: "region",
 };
-ErrorBarsHorizontal.parameters = {controls: {include: ["confidence", "confidenceConfig", "discrete"]}, docs: {description: {story: "Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar, 2px wide), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `\"50%\"`)."}}};
+ErrorBarsHorizontal.parameters = {
+  controls: {include: ["confidence", "confidenceConfig", "discrete"]},
+  docs: {
+    description: {
+      story:
+        "Error bars follow the bars' orientation. `confidenceConfig` styles them: `stroke` and `strokeWidth` paint the line (by default a shade darker than its bar, 2px wide), and `capWidth` sets the end caps' length, in pixels or as a percentage of the bar's thickness (default `\"50%\"`).",
+    },
+  },
+};
 
 export const ErrorBarsStacked = Template.bind({});
 ErrorBarsStacked.args = {
@@ -629,10 +831,18 @@ ErrorBarsStacked.args = {
   groupBy: "year",
   confidence: [
     funcify(d => d.lower, "d => d.lower"),
-    funcify(d => d.upper, "d => d.upper")
+    funcify(d => d.upper, "d => d.upper"),
   ],
   stacked: true,
   x: "region",
-  y: "pct"
+  y: "pct",
 };
-ErrorBarsStacked.parameters = {controls: {include: ["confidence", "confidenceConfig", "stacked"]}, docs: {description: {story: "On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's. The shared tooltip lists each segment's own bounds after its value."}}};
+ErrorBarsStacked.parameters = {
+  controls: {include: ["confidence", "confidenceConfig", "stacked"]},
+  docs: {
+    description: {
+      story:
+        "On stacked bars, each segment's error bar sits at the segment's stacked end, keeping its bounds' distance from the segment's own value — so it shows that segment's uncertainty, not the stack total's. The shared tooltip lists each segment's own bounds after its value.",
+    },
+  },
+};

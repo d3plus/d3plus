@@ -13,7 +13,9 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export function defaultSize(this: VizInstance, d: DataPoint): number {
   // When `_size` is unset, `_sizeScaleD3` is the constant `() => sizeMin`,
   // so the `null` argument is ignored (cast to satisfy the scale signature).
-  return this._sizeScaleD3!(this._size ? this._size(d) : (null as unknown as number));
+  return this._sizeScaleD3!(
+    this._size ? this._size(d) : (null as unknown as number),
+  );
 }
 
 /**
@@ -30,7 +32,10 @@ export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
 
   // Run "auto" logic based on available space, against the non-discrete axis.
   const other = this.schema.discrete.charAt(0) === "x" ? "y" : "x";
-  const nonDiscrete = this.schema.discrete.replace(this.schema.discrete.charAt(0), other);
+  const nonDiscrete = this.schema.discrete.replace(
+    this.schema.discrete.charAt(0),
+    other,
+  );
   const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;
   const accessor = nonDiscrete === "y" ? this._y! : this._x!;
   const range = axis._d3Scale!.range();

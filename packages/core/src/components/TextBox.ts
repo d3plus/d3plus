@@ -4,12 +4,7 @@ import {select} from "d3-selection";
 import type {DataPoint} from "@d3plus/data";
 import {fontExists, parseSides, rtl as detectRTL, textWidth} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
-import {
-  fontFamily,
-  strip,
-  textSplit,
-  textWrap,
-} from "@d3plus/text";
+import {fontFamily, strip, textSplit, textWrap} from "@d3plus/text";
 import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
@@ -69,7 +64,8 @@ function parseStyleString(
     const [k, v] = decl.split(":").map(s => s.trim());
     if (!k || !v) continue;
     if (k === "font-weight") out.weight = /^\d+$/.test(v) ? Number(v) : v;
-    else if (k === "font-style") out.style = v === "italic" ? "italic" : "normal";
+    else if (k === "font-style")
+      out.style = v === "italic" ? "italic" : "normal";
   }
   return out.weight === undefined && out.style === undefined ? undefined : out;
 }
@@ -114,7 +110,8 @@ function lineToRuns(
   let lastIndex = 0;
   let m: RegExpExecArray | null;
   while ((m = tagRegex.exec(cleaned)) !== null) {
-    if (m.index > lastIndex) runs.push({text: cleaned.slice(lastIndex, m.index)});
+    if (m.index > lastIndex)
+      runs.push({text: cleaned.slice(lastIndex, m.index)});
     const tag = m[1];
     const inner = m[2];
     const styleStr = htmlLookup[tag];
@@ -138,10 +135,7 @@ function lineToRuns(
 }
 
 /** Builds the per-line LineRun arrays from wrapped lines, carrying open-tag state. */
-function buildLineRuns(
-  box: TextBox,
-  lineData: string[],
-): LineRun[][] | null {
+function buildLineRuns(box: TextBox, lineData: string[]): LineRun[][] | null {
   let lineRuns: LineRun[][] | null = null;
   if (box.schema.html) {
     const lookup = box.schema.html as Record<string, string>;
@@ -211,7 +205,8 @@ function assembleTextBoxDatum(
     padding: {top: number; right: number; bottom: number; left: number};
   },
 ): TextBoxDatum {
-  const {lineData, line, fS, lH, w, h, vA, style, widths, truncated, padding} = layout;
+  const {lineData, line, fS, lH, w, h, vA, style, widths, truncated, padding} =
+    layout;
   const tH = line * lH;
   const r = box.schema.rotate(d, i);
   let yP =
@@ -277,7 +272,11 @@ function computeTextBoxDatum(
     lH = resize ? fS * lHRatio : box.schema.lineHeight(d, i),
     line = 1,
     lineData: string[] = [],
-    wrapResults: { lines: string[]; truncated: boolean; widths: number[] } = { lines: [], truncated: false, widths: [] };
+    wrapResults: {lines: string[]; truncated: boolean; widths: number[]} = {
+      lines: [],
+      truncated: false,
+      widths: [],
+    };
 
   const style: Record<string, string | number> = {
     "font-family": fontExists(box.schema.fontFamily(d, i)) as string,
@@ -375,7 +374,12 @@ const textBoxSchema: ConfigField[] = [
   {key: "ariaHidden", coerce: "const", default: constant("false")},
   {key: "delay", coerce: "identity", default: 0},
   {key: "duration", coerce: "identity", default: 0},
-  {key: "ellipsis", coerce: "const", default: (text: string, line: number) => line ? `${text.replace(/\.|,$/g, "")}...` : ""},
+  {
+    key: "ellipsis",
+    coerce: "const",
+    default: (text: string, line: number) =>
+      line ? `${text.replace(/\.|,$/g, "")}...` : "",
+  },
   {key: "fontColor", coerce: "const", default: constant("black")},
   {key: "fontFamily", coerce: "const", default: constant(fontFamily)},
   {key: "fontMax", coerce: "const", default: constant(50)},
@@ -387,7 +391,11 @@ const textBoxSchema: ConfigField[] = [
   {key: "fontStrokeWidth", coerce: "const", default: constant(0)},
   {key: "fontWeight", coerce: "const", default: constant(400)},
   {key: "height", coerce: "const", default: accessor("height", 200)},
-  {key: "id", coerce: "const", default: (d: DataPoint, i: number) => (d.id as string) || `${i}`},
+  {
+    key: "id",
+    coerce: "const",
+    default: (d: DataPoint, i: number) => (d.id as string) || `${i}`,
+  },
   {key: "lineHeight", coerce: "const"},
   {key: "maxLines", coerce: "const", default: constant(null)},
   {key: "overflow", coerce: "const", default: constant(false)},
@@ -395,14 +403,22 @@ const textBoxSchema: ConfigField[] = [
   {key: "pointerEvents", coerce: "const", default: constant("auto")},
   {key: "renderMode", coerce: "identity", default: "full"},
   {key: "rotate", coerce: "const", default: constant(0)},
-  {key: "rotateAnchor", coerce: "const", default: (d: TextBoxDatum) => [d.w / 2, d.h / 2]},
+  {
+    key: "rotateAnchor",
+    coerce: "const",
+    default: (d: TextBoxDatum) => [d.w / 2, d.h / 2],
+  },
   // Bounding shape for wrapping: "square" (default) fills the full width on
   // every line; "circle" treats width/height as the diameter and shortens
   // lines near the top and bottom to keep text inside the circle. Defaults to
   // the label record's namespaced `__d3plusWrapShape__` (stamped from a shape's
   // `labelBounds`) so Circle labels wrap to the circle without callers
   // configuring anything, while a caller's own `shape` data field is ignored.
-  {key: "shape", coerce: "const", default: (d: DataPoint) => (d.__d3plusWrapShape__ as string) ?? "square"},
+  {
+    key: "shape",
+    coerce: "const",
+    default: (d: DataPoint) => (d.__d3plusWrapShape__ as string) ?? "square",
+  },
   {key: "split", coerce: "identity", default: textSplit},
   {key: "text", coerce: "const", default: accessor("text")},
   {key: "textAnchor", coerce: "const", default: constant("start")},
@@ -430,7 +446,8 @@ export default class TextBox extends BaseClass {
   constructor() {
     super();
     installFluent(this, textBoxSchema);
-    this.schema.lineHeight = (d: DataPoint, i?: number) => this.schema.fontSize(d, i) * 1.2;
+    this.schema.lineHeight = (d: DataPoint, i?: number) =>
+      this.schema.fontSize(d, i) * 1.2;
     this.schema.html = defaultHtmlLookup;
   }
 
@@ -455,7 +472,8 @@ export default class TextBox extends BaseClass {
   toScene(): GroupNode {
     const rtl = detectRTL();
     const children: SceneNode[] = this._textData().map(d => {
-      const anchor = d.tA === "middle" ? "middle" : d.tA === "end" ? "end" : "start";
+      const anchor =
+        d.tA === "middle" ? "middle" : d.tA === "end" ? "end" : "start";
       const lineX =
         d.tA === "middle"
           ? d.w / 2
@@ -471,11 +489,18 @@ export default class TextBox extends BaseClass {
           d.r === 0 || d.vA === "top"
             ? (i + 1) * d.lH - (d.lH - d.fS)
             : d.vA === "middle"
-              ? (d.h + d.fS) / 2 - (d.lH - d.fS) + (i - d.lines.length / 2 + 0.5) * d.lH
-              : d.h - 2 * (d.lH - d.fS) - (d.lines.length - (i + 1)) * d.lH + 2 * Math.cos((Math.PI * d.r) / 180);
-        const width = d.widths ? d.widths[i] ?? 0 : 0;
+              ? (d.h + d.fS) / 2 -
+                (d.lH - d.fS) +
+                (i - d.lines.length / 2 + 0.5) * d.lH
+              : d.h -
+                2 * (d.lH - d.fS) -
+                (d.lines.length - (i + 1)) * d.lH +
+                2 * Math.cos((Math.PI * d.r) / 180);
+        const width = d.widths ? (d.widths[i] ?? 0) : 0;
         const runs = d.lineRuns ? d.lineRuns[i] : undefined;
-        return runs ? {text, x: lineX, y, width, runs} : {text, x: lineX, y, width};
+        return runs
+          ? {text, x: lineX, y, width, runs}
+          : {text, x: lineX, y, width};
       });
       const rotateAnchor = this.schema.rotateAnchor(d, d.i);
       const ariaHidden = d.aH === "true" || (d.aH as unknown) === true;
@@ -502,7 +527,9 @@ export default class TextBox extends BaseClass {
         paint: {
           fill: d.fC,
           opacity: d.fO,
-          ...(d.fStroke && d.fStroke !== "transparent" ? {stroke: d.fStroke} : {}),
+          ...(d.fStroke && d.fStroke !== "transparent"
+            ? {stroke: d.fStroke}
+            : {}),
           ...(d.fSW ? {strokeWidth: d.fSW} : {}),
         },
         transform: {x: d.x, y: d.y, rotate: d.r, rotateAnchor},
@@ -550,13 +577,25 @@ export default class TextBox extends BaseClass {
         // `getBoundingClientRect` is used because the React wrapper sets
         // `width`/`height="100%"`, which `Number("100%")` can't parse (→ NaN,
         // which previously fell back to a hard-coded 400 and cropped boxes).
-        type Edge = {transform?: {x?: number; y?: number}; width?: number; height?: number};
+        type Edge = {
+          transform?: {x?: number; y?: number};
+          width?: number;
+          height?: number;
+        };
         const contentW = root.children.reduce(
-          (m, c) => Math.max(m, ((c as Edge).transform?.x ?? 0) + ((c as Edge).width ?? 0)),
+          (m, c) =>
+            Math.max(
+              m,
+              ((c as Edge).transform?.x ?? 0) + ((c as Edge).width ?? 0),
+            ),
           0,
         );
         const contentH = root.children.reduce(
-          (m, c) => Math.max(m, ((c as Edge).transform?.y ?? 0) + ((c as Edge).height ?? 0)),
+          (m, c) =>
+            Math.max(
+              m,
+              ((c as Edge).transform?.y ?? 0) + ((c as Edge).height ?? 0),
+            ),
           0,
         );
         const rect =
@@ -580,7 +619,8 @@ export default class TextBox extends BaseClass {
         const renderer = new SvgRenderer();
         renderer.mount({container: node, width, height});
         renderer.drawScene(scene);
-        (this as unknown as {_sceneRenderer?: SvgRenderer})._sceneRenderer = renderer;
+        (this as unknown as {_sceneRenderer?: SvgRenderer})._sceneRenderer =
+          renderer;
       }
     }
 

@@ -1,6 +1,12 @@
 import type {DataPoint} from "@d3plus/data";
 import {largestRect, path2polygon, pathBounds} from "@d3plus/math";
-import type {ClipShape, GroupNode, ImageNode, SceneNode, Transform} from "@d3plus/render";
+import type {
+  ClipShape,
+  GroupNode,
+  ImageNode,
+  SceneNode,
+  Transform,
+} from "@d3plus/render";
 
 /** How a backgroundImage fits its shape: `cover` fills the bounding box (cropping
     the overflow, clipped to the shape); `contain` fits the whole image, centered
@@ -63,7 +69,10 @@ function pointsBox(
   points: [number, number][],
 ): {x: number; y: number; width: number; height: number} | null {
   if (!points.length) return null;
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
   for (const [px, py] of points) {
     if (px < minX) minX = px;
     if (py < minY) minY = py;
@@ -104,7 +113,12 @@ export function backgroundImageBox(
 
 /** Rounded-rectangle path `d` (falls back to a plain rect when radii are 0). */
 function roundedRectPath(
-  x: number, y: number, w: number, h: number, rx: number, ry: number,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  rx: number,
+  ry: number,
 ): string {
   rx = Math.min(rx, w / 2);
   ry = Math.min(ry, h / 2);
@@ -132,7 +146,10 @@ export function backgroundImageClip(
     const rx = typeof g.rx === "number" ? g.rx : 0;
     const ry = typeof g.ry === "number" ? g.ry : 0;
     return rx > 0 || ry > 0
-      ? {type: "path", d: roundedRectPath(x, y, g.width, g.height, rx || ry, ry || rx)}
+      ? {
+          type: "path",
+          d: roundedRectPath(x, y, g.width, g.height, rx || ry, ry || rx),
+        }
       : {type: "rect", x, y, width: g.width, height: g.height};
   }
   if (typeof g.r === "number") {
@@ -207,7 +224,12 @@ export function backgroundImageLayout(
     const poly = shapePolygon(g, points);
     const r = poly.length > 2 ? largestRect(poly, {angle: 0}) : null;
     box = r
-      ? {x: r.cx - r.width / 2, y: r.cy - r.height / 2, width: r.width, height: r.height}
+      ? {
+          x: r.cx - r.width / 2,
+          y: r.cy - r.height / 2,
+          width: r.width,
+          height: r.height,
+        }
       : backgroundImageBox(g, points);
   }
   return box ? {box, preserveAspectRatio: "xMidYMid meet"} : null;

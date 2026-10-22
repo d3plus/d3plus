@@ -3,63 +3,61 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   _: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | array.&lt;datapoint&gt; | record"
-    }
+      summary: "string | array.&lt;datapoint&gt; | record",
+    },
   },
   f: {
     control: {},
     description: "Optional formatter function applied to the loaded data.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "dataformatter | undefined"
-    }
+      summary: "dataformatter | undefined",
+    },
   },
   key: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The property name on the instance to store the loaded data.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   this: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "vizcontext"
-    }
-  }
+      summary: "vizcontext",
+    },
+  },
 };

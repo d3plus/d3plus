@@ -73,10 +73,20 @@ export function labelExpansions(
     any panel needs above and to the right (tick labels overhanging the
     plot's top and right ends).
 */
-export function labelGutter(expansions: Record<string, FacetSides>): FacetSides {
+export function labelGutter(
+  expansions: Record<string, FacetSides>,
+): FacetSides {
   const all = Object.values(expansions);
-  const pick = (side: keyof FacetSides, test: (labels: FacetLabels) => boolean): number =>
-    Math.max(0, ...LABEL_COMBOS.filter(test).map(l => expansions[labelKey(l)]?.[side] ?? 0));
+  const pick = (
+    side: keyof FacetSides,
+    test: (labels: FacetLabels) => boolean,
+  ): number =>
+    Math.max(
+      0,
+      ...LABEL_COMBOS.filter(test).map(
+        l => expansions[labelKey(l)]?.[side] ?? 0,
+      ),
+    );
   return {
     top: Math.max(0, ...all.map(s => s.top)),
     right: Math.max(0, ...all.map(s => s.right)),
@@ -89,7 +99,12 @@ export function labelGutter(expansions: Record<string, FacetSides>): FacetSides 
     A panel's base area, the same size for every panel: its cell below the
     title band, less the gutter the grid added to the cell's outer edges.
 */
-export function panelBase(cell: FacetCell, titleHeight: number, gutter: FacetSides, columns: number): FacetArea {
+export function panelBase(
+  cell: FacetCell,
+  titleHeight: number,
+  gutter: FacetSides,
+  columns: number,
+): FacetArea {
   const left = cell.column === 0 ? gutter.left : 0;
   const right = cell.column === columns - 1 ? gutter.right : 0;
   const top = titleHeight + gutter.top;
@@ -111,7 +126,9 @@ export function panelBase(cell: FacetCell, titleHeight: number, gutter: FacetSid
 */
 export function alignInsets(insets: FacetSides[]): FacetSides[] {
   const sides = ["top", "right", "bottom", "left"] as const;
-  const most = Object.fromEntries(sides.map(s => [s, Math.max(...insets.map(i => i[s]))])) as unknown as FacetSides;
+  const most = Object.fromEntries(
+    sides.map(s => [s, Math.max(...insets.map(i => i[s]))]),
+  ) as unknown as FacetSides;
   return insets.map(i => ({
     top: i.top - most.top,
     right: i.right - most.right,
@@ -136,8 +153,16 @@ export function expandArea(area: FacetArea, sides: FacetSides): FacetArea {
     of the next panel's: the most any x-labeled panel overhangs on each side.
 */
 export function labelOverhang(expansions: Record<string, FacetSides>): number {
-  const most = (side: "left" | "right", test: (l: FacetLabels) => boolean): number =>
-    Math.max(0, ...LABEL_COMBOS.filter(test).map(l => expansions[labelKey(l)]?.[side] ?? 0));
+  const most = (
+    side: "left" | "right",
+    test: (l: FacetLabels) => boolean,
+  ): number =>
+    Math.max(
+      0,
+      ...LABEL_COMBOS.filter(test).map(
+        l => expansions[labelKey(l)]?.[side] ?? 0,
+      ),
+    );
   // A y-labeled panel's left room is the y axis, already in the left gutter.
   return most("left", l => l.x && !l.y) + most("right", l => l.x);
 }

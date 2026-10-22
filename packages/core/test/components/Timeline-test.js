@@ -29,7 +29,11 @@ it("Timeline", async () => {
 });
 
 it("Timeline brushing:false snaps the brush visual to a single period on release", async () => {
-  const tl = new Timeline().domain([2012, 2020]).brushing(false).width(400).height(100);
+  const tl = new Timeline()
+    .domain([2012, 2020])
+    .brushing(false)
+    .width(400)
+    .height(100);
   await new Promise(cb => tl.render(cb));
 
   // Spy on the brush's programmatic move — the release handler must snap the
@@ -45,9 +49,15 @@ it("Timeline brushing:false snaps the brush visual to a single period on release
 
   // Simulate d3-brush's "end" after a drag: a real sourceEvent + a pixel-range
   // selection. brushing:false collapses this to a single period in _updateDomain.
-  tl._brushEnd({sourceEvent: {clientX: 200, clientY: 50}, selection: [80, 320]});
+  tl._brushEnd({
+    sourceEvent: {clientX: 200, clientY: 50},
+    selection: [80, 320],
+  });
 
-  assert.ok(moved, "brush.move called on release to snap the visual to one period");
+  assert.ok(
+    moved,
+    "brush.move called on release to snap the visual to one period",
+  );
 });
 
 it("Timeline playback steps once per transition duration", function () {
@@ -60,7 +70,10 @@ it("Timeline playback steps once per transition duration", function () {
     let delay;
     // Capture the delay, then bail out of _togglePlay before its immediate
     // nextYear() advance/render runs — we only care about the scheduled cadence.
-    globalThis.setInterval = (_fn, ms) => { delay = ms; throw new Error("stop"); };
+    globalThis.setInterval = (_fn, ms) => {
+      delay = ms;
+      throw new Error("stop");
+    };
     try {
       tl._togglePlay();
     } catch {
@@ -74,20 +87,36 @@ it("Timeline playback steps once per transition duration", function () {
   // The cadence is read straight off the schema (playButtonInterval + duration),
   // so no render is needed — construct, set both, toggle play.
   const slow = new Timeline().playButtonInterval(1000).duration(2000);
-  assert.strictEqual(captureInterval(slow), 2000, "cadence follows a longer duration");
+  assert.strictEqual(
+    captureInterval(slow),
+    2000,
+    "cadence follows a longer duration",
+  );
 
   const fast = new Timeline().playButtonInterval(1000).duration(600);
-  assert.strictEqual(captureInterval(fast), 600, "duration overrides playButtonInterval, even when shorter");
+  assert.strictEqual(
+    captureInterval(fast),
+    600,
+    "duration overrides playButtonInterval, even when shorter",
+  );
 
   const noAnim = new Timeline().playButtonInterval(1000).duration(0);
-  assert.strictEqual(captureInterval(noAnim), 1000, "playButtonInterval is the fallback when duration is 0");
+  assert.strictEqual(
+    captureInterval(noAnim),
+    1000,
+    "playButtonInterval is the fallback when duration is 0",
+  );
 });
 
 it("Timeline brushing:false shows a single handle, not a resizable range", async () => {
   // Force ticks mode (jsdom measures text at 0 width, which would otherwise
   // resolve to buttons mode where both handles are hidden).
   const tl = new Timeline()
-    .domain([2012, 2020]).brushing(false).buttonBehavior("ticks").width(400).height(100);
+    .domain([2012, 2020])
+    .brushing(false)
+    .buttonBehavior("ticks")
+    .width(400)
+    .height(100);
   await new Promise(cb => tl.render(cb));
 
   const w = document.querySelector(".handle--w");

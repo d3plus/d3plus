@@ -1,7 +1,11 @@
 import {it} from "vitest";
 import assert from "assert";
 import {assign} from "@d3plus/dom";
-import {mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../../src/fluent.ts";
+import {
+  mergeConfigBag,
+  resolvesReset,
+  RESOLVES_RESET,
+} from "../../src/fluent.ts";
 import {default as BaseClass} from "../../src/utils/BaseClass.ts";
 import {default as RESET} from "../../src/utils/RESET.ts";
 
@@ -51,12 +55,24 @@ it("mergeConfigBag returns a fresh object and mutates neither the bag nor the pa
   assert.notStrictEqual(out.a, bag.a, "nested objects are copies");
   assert.notStrictEqual(out.extra, patch.extra, "patch objects are copied in");
   assert.strictEqual(JSON.stringify(bag), before, "stored bag untouched");
-  assert.deepStrictEqual(patch, {a: {b: {c: {d: 5}}}, extra: {x: 1}}, "patch untouched");
-  assert.strictEqual(h.schema.bag, bag, "the caller stores the result, not the helper");
+  assert.deepStrictEqual(
+    patch,
+    {a: {b: {c: {d: 5}}}, extra: {x: 1}},
+    "patch untouched",
+  );
+  assert.strictEqual(
+    h.schema.bag,
+    bag,
+    "the caller stores the result, not the helper",
+  );
 });
 
 it("mergeConfigBag resolves nested RESET from the defaults snapshot", () => {
-  const h = host(mergeConfigBag(host(), "bag", {a: {b: {c: {d: 50, added: true}, f: 60}, g: 70}}));
+  const h = host(
+    mergeConfigBag(host(), "bag", {
+      a: {b: {c: {d: 50, added: true}, f: 60}, g: 70},
+    }),
+  );
   const patch = {a: {b: {c: {d: RESET}}}};
   const out = mergeConfigBag(h, "bag", patch);
   assert.strictEqual(out.a.b.c.d, 1, "restored 4 levels deep");
@@ -65,13 +81,23 @@ it("mergeConfigBag resolves nested RESET from the defaults snapshot", () => {
   assert.strictEqual(patch.a.b.c.d, RESET, "patch untouched");
 
   const whole = mergeConfigBag(h, "bag", {a: {b: RESET}});
-  assert.deepStrictEqual(whole.a.b, {c: {d: 1, e: 2}, f: 3}, "object restored exactly");
+  assert.deepStrictEqual(
+    whole.a.b,
+    {c: {d: 1, e: 2}, f: 3},
+    "object restored exactly",
+  );
   assert.strictEqual(whole.a.g, 70, "parent siblings kept");
 });
 
 it("mergeConfigBag restores falsy defaults and removes keys without one", () => {
   const h = host({off: true, zero: 9, empty: "x", none: 1, custom: 1, a: {}});
-  const out = mergeConfigBag(h, "bag", {off: RESET, zero: RESET, empty: RESET, none: RESET, custom: RESET});
+  const out = mergeConfigBag(h, "bag", {
+    off: RESET,
+    zero: RESET,
+    empty: RESET,
+    none: RESET,
+    custom: RESET,
+  });
   assert.strictEqual(out.off, false);
   assert.strictEqual(out.zero, 0);
   assert.strictEqual(out.empty, "");
@@ -88,12 +114,19 @@ it("mergeConfigBag resolves a top-level RESET to a copy of the snapshot", () => 
   assert.notStrictEqual(out.a, snapshot.a, "restored value is a copy");
 
   const bare = {schema: {bag: {x: 1}}, _defaultConfig: () => ({})};
-  assert.deepStrictEqual(mergeConfigBag(bare, "bag", RESET), {}, "no snapshot entry restores an empty bag");
+  assert.deepStrictEqual(
+    mergeConfigBag(bare, "bag", RESET),
+    {},
+    "no snapshot entry restores an empty bag",
+  );
 });
 
 it("mergeConfigBag reads the snapshot only when the patch holds a RESET", () => {
   let reads = 0;
-  const h = {schema: {bag: {x: 1}}, _defaultConfig: () => (reads++, {bag: {x: 0}})};
+  const h = {
+    schema: {bag: {x: 1}},
+    _defaultConfig: () => (reads++, {bag: {x: 0}}),
+  };
   mergeConfigBag(h, "bag", {x: 2, y: {z: 3}});
   assert.strictEqual(reads, 0);
   mergeConfigBag(h, "bag", {y: {z: RESET}});
@@ -103,12 +136,18 @@ it("mergeConfigBag reads the snapshot only when the patch holds a RESET", () => 
 it("mergeConfigBag merges into an explicit current value and ignores non-object patches", () => {
   const h = host();
   const current = {p: {q: 1, r: 2}};
-  assert.deepStrictEqual(mergeConfigBag(h, "bag", {p: {q: 5}}, current), {p: {q: 5, r: 2}});
+  assert.deepStrictEqual(mergeConfigBag(h, "bag", {p: {q: 5}}, current), {
+    p: {q: 5, r: 2},
+  });
   assert.deepStrictEqual(current, {p: {q: 1, r: 2}});
   const kept = mergeConfigBag(h, "bag", undefined, current);
   assert.deepStrictEqual(kept, current);
   assert.notStrictEqual(kept, current);
-  assert.deepStrictEqual(mergeConfigBag(h, "bag", {a: 1}, undefined), {a: 1}, "missing bag starts empty");
+  assert.deepStrictEqual(
+    mergeConfigBag(h, "bag", {a: 1}, undefined),
+    {a: 1},
+    "missing bag starts empty",
+  );
 });
 
 it("resolvesReset tags setters so config() passes their patch through", () => {
@@ -132,7 +171,11 @@ it("resolvesReset tags setters so config() passes their patch through", () => {
   viz.config({bag: {a: {b: 9}, extra: 1}});
   const patch = {a: {b: RESET}, extra: RESET};
   viz.config({bag: patch});
-  assert.strictEqual(viz.received[1], patch, "the raw patch reaches the setter");
+  assert.strictEqual(
+    viz.received[1],
+    patch,
+    "the raw patch reaches the setter",
+  );
   assert.deepStrictEqual(viz.bag(), {a: {b: 1, c: 2}, keep: true});
 
   viz.config({bag: RESET});
@@ -160,6 +203,14 @@ it("config() restores falsy defaults for setters that leave RESET to it", () => 
   viz.config({opts: {Circle: {trail: true, size: 4}, label: "x"}});
   const patch = {Circle: {trail: RESET, size: RESET}, label: RESET};
   viz.config({opts: patch});
-  assert.deepStrictEqual(viz.opts(), {Circle: {trail: false, size: 0}, label: "", keep: 1});
-  assert.deepStrictEqual(patch, {Circle: {trail: RESET, size: RESET}, label: RESET}, "caller's patch untouched");
+  assert.deepStrictEqual(viz.opts(), {
+    Circle: {trail: false, size: 0},
+    label: "",
+    keep: 1,
+  });
+  assert.deepStrictEqual(
+    patch,
+    {Circle: {trail: RESET, size: RESET}, label: RESET},
+    "caller's patch untouched",
+  );
 });

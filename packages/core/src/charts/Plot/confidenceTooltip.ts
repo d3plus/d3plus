@@ -30,7 +30,11 @@ export function confidenceTooltipEnabled(viz: VizInstance): boolean {
     @param d The source data row.
     @param i The row's index.
 */
-export function rowConfidence(viz: VizInstance, d: DataPoint, i: number): ConfidenceBounds {
+export function rowConfidence(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): ConfidenceBounds {
   const out: ConfidenceBounds = {};
   const confidence = viz._confidence;
   if (!confidence || !d) return out;
@@ -50,13 +54,20 @@ export function rowConfidence(viz: VizInstance, d: DataPoint, i: number): Confid
     @param i The row's index.
     @param format Formats a bound like the row's value.
 */
-export function confidenceRows(viz: VizInstance, d: DataPoint, i: number, format: Format): string[][] {
+export function confidenceRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  format: Format,
+): string[][] {
   if (!confidenceTooltipEnabled(viz)) return [];
   if (confidenceBands(viz).length > 1) return bandRows(viz, d, i, format);
   const {lower, upper} = rowConfidence(viz, d, i);
   const rows: string[][] = [];
-  if (finite(lower)) rows.push([viz.schema.translate("Lower Bound"), format(lower)]);
-  if (finite(upper)) rows.push([viz.schema.translate("Upper Bound"), format(upper)]);
+  if (finite(lower))
+    rows.push([viz.schema.translate("Lower Bound"), format(lower)]);
+  if (finite(upper))
+    rows.push([viz.schema.translate("Upper Bound"), format(upper)]);
   return rows;
 }
 
@@ -68,7 +79,12 @@ export function confidenceRows(viz: VizInstance, d: DataPoint, i: number, format
     @param i The row's index.
     @param format Formats a bound like the row's value.
 */
-export function bandRows(viz: VizInstance, d: DataPoint, i: number, format: Format): string[][] {
+export function bandRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  format: Format,
+): string[][] {
   return rowBands(viz, d, i)
     .map(({label, lower, upper}) => [label, rangeText(lower, upper, format)])
     .filter(([, range]) => range);
@@ -83,7 +99,12 @@ export function bandRows(viz: VizInstance, d: DataPoint, i: number, format: Form
     @param i The row's index.
     @param format Formats a bound like the row's value.
 */
-export function confidenceSuffix(viz: VizInstance, d: DataPoint, i: number, format: Format): string {
+export function confidenceSuffix(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+  format: Format,
+): string {
   if (!confidenceTooltipEnabled(viz)) return "";
   const {lower, upper} = rowConfidence(viz, d, i);
   return rangeSuffix(lower, upper, format);
@@ -96,7 +117,11 @@ export function confidenceSuffix(viz: VizInstance, d: DataPoint, i: number, form
     @param upper The upper bound.
     @param format Formats each bound.
 */
-export function rangeSuffix(lower: number | undefined, upper: number | undefined, format: Format): string {
+export function rangeSuffix(
+  lower: number | undefined,
+  upper: number | undefined,
+  format: Format,
+): string {
   const text = rangeText(lower, upper, format);
   return text ? ` (${text})` : "";
 }
@@ -108,8 +133,13 @@ export function rangeSuffix(lower: number | undefined, upper: number | undefined
     @param upper The upper bound.
     @param format Formats each bound.
 */
-export function rangeText(lower: number | undefined, upper: number | undefined, format: Format): string {
-  const hasLower = finite(lower), hasUpper = finite(upper);
+export function rangeText(
+  lower: number | undefined,
+  upper: number | undefined,
+  format: Format,
+): string {
+  const hasLower = finite(lower),
+    hasUpper = finite(upper);
   if (hasLower && hasUpper) return `${format(lower)} – ${format(upper)}`;
   if (hasLower) return `≥ ${format(lower)}`;
   if (hasUpper) return `≤ ${format(upper)}`;

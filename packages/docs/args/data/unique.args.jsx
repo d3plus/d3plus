@@ -3,34 +3,33 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   accessor: {
     control: {},
     defaultValue: "...",
-    description: "An optional accessor function used to extract data points from an Array of Objects.",
+    description:
+      "An optional accessor function used to extract data points from an Array of Objects.",
     table: {
       defaultValue: {
-        summary: "..."
-      }
+        summary: "...",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   arr: {
     control: {},
     description: "The Array of objects to be filtered.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;t&gt;"
-    }
-  }
+      summary: "array.&lt;t&gt;",
+    },
+  },
 };

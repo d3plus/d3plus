@@ -169,7 +169,11 @@ export const Pack = (props: D3plusComponentProps) => (
 );
 /** React component for rendering a d3plus ParallelCoordinates visualization. */
 export const ParallelCoordinates = (props: D3plusComponentProps) => (
-  <Renderer className="chart" constructor={ParallelCoordinatesClass} {...props} />
+  <Renderer
+    className="chart"
+    constructor={ParallelCoordinatesClass}
+    {...props}
+  />
 );
 /** React component for rendering a d3plus Pie visualization. */
 export const Pie = (props: D3plusComponentProps) => (

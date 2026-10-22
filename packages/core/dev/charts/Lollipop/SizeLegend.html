@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Lollipop Size Legend</title>
-    <meta name="description" content="Lollipop heads sized by a size accessor, keyed by a size legend whose circles match the heads: beside a color legend, on horizontal stems with a sqrt scale and a bottom placement, and shared across small multiples.">
+    <meta
+      name="description"
+      content="Lollipop heads sized by a size accessor, keyed by a size legend whose circles match the heads: beside a color legend, on horizontal stems with a sqrt scale and a bottom placement, and shared across small multiples."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -29,22 +30,33 @@
         height: 440px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="grid">
-      <div><h3>size("growth") with a color legend</h3><div class="viz" id="vertical"></div></div>
-      <div><h3>Horizontal, sizeScale("sqrt"), sizeLegendPosition("bottom"), legend inset off</h3><div class="viz" id="horizontal"></div></div>
-      <div><h3>Small multiples share one size scale (facet: "region")</h3><div class="viz" id="facet"></div></div>
-      <div><h3>sizeMin(3).sizeMax(16), legend inset off</h3><div class="viz" id="margin"></div></div>
+      <div>
+        <h3>size("growth") with a color legend</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>
+          Horizontal, sizeScale("sqrt"), sizeLegendPosition("bottom"), legend
+          inset off
+        </h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+      <div>
+        <h3>Small multiples share one size scale (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div>
+        <h3>sizeMin(3).sizeMax(16), legend inset off</h3>
+        <div class="viz" id="margin"></div>
+      </div>
     </div>
-
   </body>
 
   <script>
-
     const cities = [
       {city: "Tokyo", region: "Asia", population: 37.4, growth: 0.2},
       {city: "Delhi", region: "Asia", population: 31.0, growth: 3.1},
@@ -63,7 +75,12 @@
     const stores = [];
     ["North", "South", "East", "West"].forEach((region, r) => {
       ["Q1", "Q2", "Q3", "Q4"].forEach((quarter, q) => {
-        stores.push({region, quarter, sales: 30 + ((r * 11 + q * 7) % 23), stores: 4 + ((r * 5 + q * 3) % 13) * (r + 1)});
+        stores.push({
+          region,
+          quarter,
+          sales: 30 + ((r * 11 + q * 7) % 23),
+          stores: 4 + ((r * 5 + q * 3) % 13) * (r + 1),
+        });
       });
     });
 
@@ -121,7 +138,5 @@
       .legendInset(false)
       .shapeConfig({Line: {strokeWidth: 1, strokeDasharray: "3 2"}})
       .render();
-
   </script>
-
 </html>

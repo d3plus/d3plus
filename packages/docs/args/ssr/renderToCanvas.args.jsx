@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   opts: {
     control: {},
@@ -12,25 +10,25 @@ export const argTypes = {
     description: "Output size, pixelRatio, fonts, and DOM options.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "rasterrenderoptions"
-    }
+      summary: "rasterrenderoptions",
+    },
   },
   viz: {
     control: {},
     description: "A configured chart instance (data + accessors already set).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "renderableviz"
-    }
-  }
+      summary: "renderableviz",
+    },
+  },
 };

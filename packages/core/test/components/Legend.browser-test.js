@@ -41,8 +41,14 @@ it("a chart's legend composes into its scene (multi-level Treemap)", async () =>
     };
   });
 
-  assert.ok(res.hasLegendInRender, "legend rendered by viz.render() (scene path)");
+  assert.ok(
+    res.hasLegendInRender,
+    "legend rendered by viz.render() (scene path)",
+  );
   assert.ok(res.hasLegendGroup, "legend composed into the scene");
-  assert.ok(res.text.includes("G1") && res.text.includes("G2"), "legend labels present in scene");
+  assert.ok(
+    res.text.includes("G1") && res.text.includes("G2"),
+    "legend labels present in scene",
+  );
   assert.ok(res.cells >= 4, "treemap cells also present");
 });

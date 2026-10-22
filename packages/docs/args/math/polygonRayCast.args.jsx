@@ -3,49 +3,49 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   alpha: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "0",
     description: "The angle in radians of the ray.",
     table: {
       defaultValue: {
-        summary: "0"
-      }
+        summary: "0",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   origin: {
     control: {},
-    description: "The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.",
+    description:
+      "The origin point of the ray to be cast, which should be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
+      summary: "point",
+    },
   },
   poly: {
     control: {},
-    description: "The polygon to test against, which should be an `[x, y]` formatted Array.",
+    description:
+      "The polygon to test against, which should be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
-  }
+      summary: "array.&lt;point&gt;",
+    },
+  },
 };

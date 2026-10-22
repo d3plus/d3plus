@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   options: {
     control: {},
@@ -12,25 +10,25 @@ export const argTypes = {
     description: "The kernel, bandwidth, and evaluation grid.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "kerneldensityoptions"
-    }
+      summary: "kerneldensityoptions",
+    },
   },
   values: {
     control: {},
     description: "The observations.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;number&gt;"
-    }
-  }
+      summary: "array.&lt;number&gt;",
+    },
+  },
 };

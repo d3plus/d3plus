@@ -32,17 +32,21 @@ export interface WaterfallState {
   ySort?: (a: DataPoint, b: DataPoint) => number;
 }
 
-export const waterfallState = (viz: VizInstance): WaterfallState => viz.ctx.waterfall as WaterfallState;
+export const waterfallState = (viz: VizInstance): WaterfallState =>
+  viz.ctx.waterfall as WaterfallState;
 
 /** The axis holding categories: "x" for vertical bars, "y" for horizontal ones. */
-export const categoryAxis = (viz: VizInstance): "x" | "y" => (viz.schema.discrete === "y" ? "y" : "x");
+export const categoryAxis = (viz: VizInstance): "x" | "y" =>
+  viz.schema.discrete === "y" ? "y" : "x";
 
 /** The axis holding values. */
-export const valueAxis = (viz: VizInstance): "x" | "y" => (categoryAxis(viz) === "x" ? "y" : "x");
+export const valueAxis = (viz: VizInstance): "x" | "y" =>
+  categoryAxis(viz) === "x" ? "y" : "x";
 
 /** Unwraps Plot's shape, label, and legend wrappers down to the source row. */
 export function sourceRow(d: DataPoint | undefined): DataPoint | undefined {
-  while (d && (d.__d3plus__ || d.__d3plusShape__) && d.data) d = d.data as DataPoint;
+  while (d && (d.__d3plus__ || d.__d3plusShape__) && d.data)
+    d = d.data as DataPoint;
   return d;
 }
 
@@ -51,14 +55,32 @@ export function sourceRow(d: DataPoint | undefined): DataPoint | undefined {
     drawn depth, within its small-multiples panel and, when every frame is
     laid out at once, its time frame.
 */
-function seriesAccessor(viz: VizInstance, rows: DataPoint[], frames: boolean): RowAccessor {
-  const facet = typeof viz.schema.facet === "function" ? (viz.schema.facet as RowAccessor) : undefined;
-  const time = frames && typeof viz.schema.time === "function" ? (viz.schema.time as RowAccessor) : undefined;
+function seriesAccessor(
+  viz: VizInstance,
+  rows: DataPoint[],
+  frames: boolean,
+): RowAccessor {
+  const facet =
+    typeof viz.schema.facet === "function"
+      ? (viz.schema.facet as RowAccessor)
+      : undefined;
+  const time =
+    frames && typeof viz.schema.time === "function"
+      ? (viz.schema.time as RowAccessor)
+      : undefined;
   const category = waterfallState(viz).accessors[categoryAxis(viz)];
   // A time axis already orders the steps; it splits nothing.
-  const byTime = time && rows.length && time(rows[0], 0) !== category(rows[0], 0) ? time : undefined;
+  const byTime =
+    time && rows.length && time(rows[0], 0) !== category(rows[0], 0)
+      ? time
+      : undefined;
   return (d, i) => {
-    const parts = [viz._ids(d, i).slice(0, (viz._drawDepth ?? 0) + 1).join("_")];
+    const parts = [
+      viz
+        ._ids(d, i)
+        .slice(0, (viz._drawDepth ?? 0) + 1)
+        .join("_"),
+    ];
     if (facet) parts.unshift(`${facet(d, i)}`);
     if (byTime) parts.unshift(`${byTime(d, i)}`);
     return parts.join("|");
@@ -66,26 +88,36 @@ function seriesAccessor(viz: VizInstance, rows: DataPoint[], frames: boolean): R
 }
 
 /** The user's category sort, if any; the chart's own top-down order runs forward. */
-function categorySort(viz: VizInstance): ((a: DataPoint, b: DataPoint) => number) | undefined {
+function categorySort(
+  viz: VizInstance,
+): ((a: DataPoint, b: DataPoint) => number) | undefined {
   const sort = viz.schema[`${categoryAxis(viz)}Sort`];
-  return typeof sort === "function" && sort !== waterfallState(viz).ySort ? sort : undefined;
+  return typeof sort === "function" && sort !== waterfallState(viz).ySort
+    ? sort
+    : undefined;
 }
 
 /** A category's key: dates by time, everything else as text. */
-const categoryKey = (c: unknown): string => (c instanceof Date ? `${+c}` : `${c}`);
+const categoryKey = (c: unknown): string =>
+  c instanceof Date ? `${+c}` : `${c}`;
 
 /**
     Each category's position in waterfall order: first appearance in `rows`,
     with categories that read as numbers (or dates) in ascending order.
 */
-export function categoryRanks(rows: DataPoint[], category: RowAccessor): Map<string, number> {
+export function categoryRanks(
+  rows: DataPoint[],
+  category: RowAccessor,
+): Map<string, number> {
   const seen = new Map<string, unknown>();
   rows.forEach((d, i) => {
     const c = category(d, i);
     const key = categoryKey(c);
     if (!seen.has(key)) seen.set(key, c);
   });
-  const ordered = Array.from(seen.entries()).sort((a, b) => compareCategories(a[1], b[1]));
+  const ordered = Array.from(seen.entries()).sort((a, b) =>
+    compareCategories(a[1], b[1]),
+  );
   return new Map(ordered.map(([key], i) => [key, i]));
 }
 
@@ -110,15 +142,21 @@ export function syncCategorySort(viz: VizInstance): void {
     return;
   }
   if (categoryAxis(viz) === "y") {
-    viz.schema.ySort = state.ySort = topDownSort(categoryRanks(viz._data || [], state.accessors.y), state.accessors.y);
-  }
-  else if (state.ySort) {
+    viz.schema.ySort = state.ySort = topDownSort(
+      categoryRanks(viz._data || [], state.accessors.y),
+      state.accessors.y,
+    );
+  } else if (state.ySort) {
     viz.schema.ySort = state.ySort = undefined;
   }
 }
 
 /** Lays out `rows` as waterfall steps, once per array. */
-function layOut(viz: VizInstance, rows: DataPoint[] | undefined, frames: boolean): void {
+function layOut(
+  viz: VizInstance,
+  rows: DataPoint[] | undefined,
+  frames: boolean,
+): void {
   const state = waterfallState(viz);
   if (!rows || !rows.length || state.laidOut.has(rows)) return;
   state.laidOut.add(rows);
@@ -140,7 +178,10 @@ export function resetSteps(viz: VizInstance): void {
 }
 
 /** The step a row (or a wrapper around one) draws, if any. */
-export function stepOf(viz: VizInstance, d: DataPoint | undefined): WaterfallStep | undefined {
+export function stepOf(
+  viz: VizInstance,
+  d: DataPoint | undefined,
+): WaterfallStep | undefined {
   const row = sourceRow(d);
   if (!row) return undefined;
   layOut(viz, viz._filteredData, false);
@@ -149,23 +190,32 @@ export function stepOf(viz: VizInstance, d: DataPoint | undefined): WaterfallSte
 }
 
 /** The kind a bar or legend entry stands for. */
-export function kindOf(viz: VizInstance, d: DataPoint | undefined): WaterfallKind | undefined {
+export function kindOf(
+  viz: VizInstance,
+  d: DataPoint | undefined,
+): WaterfallKind | undefined {
   const row = sourceRow(d);
   if (!row) return undefined;
   const own = row[KIND_KEY];
-  return typeof own === "string" ? (own as WaterfallKind) : stepOf(viz, row)?.kind;
+  return typeof own === "string"
+    ? (own as WaterfallKind)
+    : stepOf(viz, row)?.kind;
 }
 
 /** A legend entry's kind; undefined for any other row. */
-export function legendKind(d: DataPoint | undefined): WaterfallKind | undefined {
+export function legendKind(
+  d: DataPoint | undefined,
+): WaterfallKind | undefined {
   const own = sourceRow(d)?.[KIND_KEY];
   return typeof own === "string" ? (own as WaterfallKind) : undefined;
 }
 
 /** Formats a value as the value axis does: its `tickFormat`, else abbreviated. */
 export function valueFormat(viz: VizInstance): (n: number) => string {
-  const config = viz[`_${valueAxis(viz)}Config`] as {tickFormat?: (d: number) => string} | undefined;
-  if (config && typeof config.tickFormat === "function") return config.tickFormat;
+  const config = viz[`_${valueAxis(viz)}Config`] as
+    {tickFormat?: (d: number) => string} | undefined;
+  if (config && typeof config.tickFormat === "function")
+    return config.tickFormat;
   return (n: number) => formatAbbreviate(n, viz.schema.locale);
 }
 

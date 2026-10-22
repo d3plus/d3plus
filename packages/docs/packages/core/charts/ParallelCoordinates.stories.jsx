@@ -3,7 +3,10 @@
 
 import React from "react";
 
-import {argTypes, ParallelCoordinates} from "../../../args/core/charts/ParallelCoordinates.args";
+import {
+  argTypes,
+  ParallelCoordinates,
+} from "../../../args/core/charts/ParallelCoordinates.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
@@ -14,14 +17,17 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a parallel coordinates chart from an array of data: one axis per\ndimension and one line per row, crossing each axis at the row's value.\nBrush along an axis to filter the lines; double-click it to clear the brush.",
+        component:
+          "Creates a parallel coordinates chart from an array of data: one axis per\ndimension and one line per row, crossing each axis at the row's value.\nBrush along an axis to filter the lines; double-click it to clear the brush.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <ParallelCoordinates config={configify(args, argTypes)} />;
-  
+const Template = args => (
+  <ParallelCoordinates config={configify(args, argTypes)} />
+);
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -79,7 +85,15 @@ BasicExample.args = {
   data: cars,
   groupBy: ["origin", "name"],
 };
-BasicExample.parameters = {controls: {include: ["dimensions", "lineOpacity", "curve"]}, docs: {description: {story: "Each row is a line crossing one axis per dimension. With no `dimensions` set, every numeric key except the `groupBy` keys gets an axis; lines take the `groupBy` color. Hover a line to follow it, or drag along any axis to brush."}}};
+BasicExample.parameters = {
+  controls: {include: ["dimensions", "lineOpacity", "curve"]},
+  docs: {
+    description: {
+      story:
+        "Each row is a line crossing one axis per dimension. With no `dimensions` set, every numeric key except the `groupBy` keys gets an axis; lines take the `groupBy` color. Hover a line to follow it, or drag along any axis to brush.",
+    },
+  },
+};
 
 export const CategoricalAxes = Template.bind({});
 CategoricalAxes.args = {
@@ -91,11 +105,22 @@ CategoricalAxes.args = {
     horsepower: {title: "Horsepower"},
     mpg: {reverse: true, title: "MPG (reversed)"},
     origin: {title: "Origin"},
-    weight: {title: "Weight", tickFormat: funcify(d => `${d / 1000}k lb`, "d => `${d / 1000}k lb`")},
+    weight: {
+      title: "Weight",
+      tickFormat: funcify(d => `${d / 1000}k lb`, "d => `${d / 1000}k lb`"),
+    },
   },
   curve: "bump",
 };
-CategoricalAxes.parameters = {controls: {include: ["dimensions", "dimensionConfig", "curve"]}, docs: {description: {story: "A key holding text gets a categorical axis, and `scale: \"point\"` turns a numeric key into one. `dimensionConfig` sets each axis's `title`, `domain`, `reverse`, and any Axis option such as `tickFormat`; `curve(\"bump\")` eases each line into and out of every axis."}}};
+CategoricalAxes.parameters = {
+  controls: {include: ["dimensions", "dimensionConfig", "curve"]},
+  docs: {
+    description: {
+      story:
+        'A key holding text gets a categorical axis, and `scale: "point"` turns a numeric key into one. `dimensionConfig` sets each axis\'s `title`, `domain`, `reverse`, and any Axis option such as `tickFormat`; `curve("bump")` eases each line into and out of every axis.',
+    },
+  },
+};
 
 export const Brushing = Template.bind({});
 Brushing.args = {
@@ -104,7 +129,15 @@ Brushing.args = {
   dimensions: ["cylinders", "horsepower", "weight", "acceleration", "mpg"],
   brushes: {horsepower: [60, 100], mpg: [25, 45]},
 };
-Brushing.parameters = {controls: {include: ["brushes", "brushing", "brushConfig"]}, docs: {description: {story: "Drag along an axis to brush it: lines outside the brush gray out, and every brush must match (AND). To clear a brush, click its axis outside the selection, double-click the axis, or press Escape while the brushed axis has keyboard focus; clearing the last one restores every line. `brushes` sets them from code and holds the current selection; `on(\"brush\", fn)` reports each change."}}};
+Brushing.parameters = {
+  controls: {include: ["brushes", "brushing", "brushConfig"]},
+  docs: {
+    description: {
+      story:
+        'Drag along an axis to brush it: lines outside the brush gray out, and every brush must match (AND). To clear a brush, click its axis outside the selection, double-click the axis, or press Escape while the brushed axis has keyboard focus; clearing the last one restores every line. `brushes` sets them from code and holds the current selection; `on("brush", fn)` reports each change.',
+    },
+  },
+};
 
 export const VerticalOrient = Template.bind({});
 VerticalOrient.args = {
@@ -113,7 +146,15 @@ VerticalOrient.args = {
   dimensions: ["mpg", "horsepower", "weight", "acceleration"],
   orient: "vertical",
 };
-VerticalOrient.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "`orient(\"vertical\")` stacks the axes top to bottom, with each dimension's title to its left."}}};
+VerticalOrient.parameters = {
+  controls: {include: ["orient"]},
+  docs: {
+    description: {
+      story:
+        '`orient("vertical")` stacks the axes top to bottom, with each dimension\'s title to its left.',
+    },
+  },
+};
 
 export const DenseData = Template.bind({});
 DenseData.args = {
@@ -121,7 +162,15 @@ DenseData.args = {
   groupBy: ["cluster", "id"],
   renderer: "canvas",
 };
-DenseData.parameters = {controls: {include: ["lineOpacity", "renderer", "dataCutoff"]}, docs: {description: {story: "With many rows the default `lineOpacity(\"auto\")` fades every line so overlaps read as density. The Canvas renderer keeps 1000 lines smooth to hover and brush."}}};
+DenseData.parameters = {
+  controls: {include: ["lineOpacity", "renderer", "dataCutoff"]},
+  docs: {
+    description: {
+      story:
+        'With many rows the default `lineOpacity("auto")` fades every line so overlaps read as density. The Canvas renderer keeps 1000 lines smooth to hover and brush.',
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -131,4 +180,12 @@ SmallMultiples.args = {
   facet: "origin",
   legend: false,
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws a panel per value. Panels share each axis's domain, and brushing an axis in one panel brushes it in all of them."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws a panel per value. Panels share each axis's domain, and brushing an axis in one panel brushes it in all of them.",
+    },
+  },
+};

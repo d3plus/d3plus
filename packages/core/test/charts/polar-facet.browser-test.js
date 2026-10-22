@@ -33,7 +33,10 @@ it("polarSlotTops: each slot's stacked total, in first-appearance order", () => 
     [7, 2, 0],
     "negative and non-finite values take no room",
   );
-  assert.deepStrictEqual(polarSlotTops(valueViz(), [], d => d.s), []);
+  assert.deepStrictEqual(
+    polarSlotTops(valueViz(), [], d => d.s),
+    [],
+  );
 });
 
 it("polarAreaDomainValues: stacked totals per metric, or each row's value without one", () => {
@@ -80,11 +83,23 @@ it("polarFacetPanel: applies the shared extent only when panels share, and undoe
   const undo = polarFacetPanel(viz, {shared: true, scales});
   assert.deepStrictEqual(polarSharedExtent(viz), [0, 40]);
   undo();
-  assert.deepStrictEqual(viz.ctx.polarSharedExtent, ["before"], "undo restores");
+  assert.deepStrictEqual(
+    viz.ctx.polarSharedExtent,
+    ["before"],
+    "undo restores",
+  );
   const undoIndependent = polarFacetPanel(viz, {shared: false, scales});
-  assert.deepStrictEqual(polarSharedExtent(viz), [], "independent panels add nothing");
+  assert.deepStrictEqual(
+    polarSharedExtent(viz),
+    [],
+    "independent panels add nothing",
+  );
   undoIndependent();
-  assert.deepStrictEqual(polarSharedExtent(valueViz()), [], "nothing set, nothing added");
+  assert.deepStrictEqual(
+    polarSharedExtent(valueViz()),
+    [],
+    "nothing set, nothing added",
+  );
 });
 
 it("polarFacetHooks: square panels, independent by default, sharing through the given values", () => {
@@ -92,11 +107,17 @@ it("polarFacetHooks: square panels, independent by default, sharing through the 
   assert.strictEqual(hooks.aspect, 1);
   assert.strictEqual(hooks.scales, "independent");
   assert.strictEqual(hooks.panel, polarFacetPanel);
-  assert.deepStrictEqual(hooks.share(valueViz(), [[{v: 2}], [{v: 6}]]), {extent: [2, 6]});
+  assert.deepStrictEqual(hooks.share(valueViz(), [[{v: 2}], [{v: 6}]]), {
+    extent: [2, 6],
+  });
 });
 
 const panels = ["Small", "Large"].flatMap((panel, p) =>
-  ["a", "b", "c", "d"].map((id, i) => ({panel, id, value: (40 - i * 10) * (p * 4 + 1)})),
+  ["a", "b", "c", "d"].map((id, i) => ({
+    panel,
+    id,
+    value: (40 - i * 10) * (p * 4 + 1),
+  })),
 );
 
 /** Draws `chart` faceted by panel, both ways and on both backends; returns each panel's ring/tick labels and largest mark. */
@@ -116,11 +137,17 @@ const drawBoth = (chart, extra) =>
           const texts = all
             .filter(n => /-(level-labels|ticks)$/.test(n.key))
             .flatMap(n => n.children.map(c => c.lines[0].text));
-          const marks = all.filter(n => n.type === "path" && n.datum && !`${n.key}`.endsWith("::hit"));
+          const marks = all.filter(
+            n => n.type === "path" && n.datum && !`${n.key}`.endsWith("::hit"),
+          );
           return {
             value: p.value,
             texts,
-            reach: Math.max(...marks.map(m => (more.discrete === "radius" ? m.arc.endAngle : m.arc.outerRadius))),
+            reach: Math.max(
+              ...marks.map(m =>
+                more.discrete === "radius" ? m.arc.endAngle : m.arc.outerRadius,
+              ),
+            ),
           };
         });
       const draw = async (renderer, facetConfig) => {
@@ -149,27 +176,67 @@ const drawBoth = (chart, extra) =>
 const checkModes = (out, label) => {
   const [large, small] = out.independent;
   assert.strictEqual(large.value, "Large");
-  assert.notDeepStrictEqual(large.texts, small.texts, `${label}: independent panels label their own domains`);
-  assert.ok(Math.abs(large.reach - small.reach) < 0.01 * large.reach, `${label}: each panel's largest mark fills its own domain`);
+  assert.notDeepStrictEqual(
+    large.texts,
+    small.texts,
+    `${label}: independent panels label their own domains`,
+  );
+  assert.ok(
+    Math.abs(large.reach - small.reach) < 0.01 * large.reach,
+    `${label}: each panel's largest mark fills its own domain`,
+  );
   const [sLarge, sSmall] = out.shared;
-  assert.deepStrictEqual(sLarge.texts, sSmall.texts, `${label}: shared panels label one domain`);
-  assert.ok(sSmall.reach < sLarge.reach * 0.75, `${label}: the smaller panel's marks draw smaller`);
+  assert.deepStrictEqual(
+    sLarge.texts,
+    sSmall.texts,
+    `${label}: shared panels label one domain`,
+  );
+  assert.ok(
+    sSmall.reach < sLarge.reach * 0.75,
+    `${label}: the smaller panel's marks draw smaller`,
+  );
   const round = ps => ps.map(p => ({...p, reach: Math.round(p.reach * 100)}));
-  assert.deepStrictEqual(round(out.canvasIndependent), round(out.independent), `${label}: Canvas lays out the same (independent)`);
-  assert.deepStrictEqual(round(out.canvasShared), round(out.shared), `${label}: Canvas lays out the same (shared)`);
+  assert.deepStrictEqual(
+    round(out.canvasIndependent),
+    round(out.independent),
+    `${label}: Canvas lays out the same (independent)`,
+  );
+  assert.deepStrictEqual(
+    round(out.canvasShared),
+    round(out.shared),
+    `${label}: Canvas lays out the same (shared)`,
+  );
 };
 
-it("PolarArea panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
-  checkModes(await drawBoth("PolarArea", {discrete: "metric"}), "PolarArea");
-});
+it(
+  "PolarArea panels fit their own domain by default and share one with facetConfig scales",
+  {timeout: 180000},
+  async function () {
+    checkModes(await drawBoth("PolarArea", {discrete: "metric"}), "PolarArea");
+  },
+);
 
-it("RadialBar track panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
-  checkModes(await drawBoth("RadialBar", {discrete: "radius"}), "RadialBar tracks");
-});
+it(
+  "RadialBar track panels fit their own domain by default and share one with facetConfig scales",
+  {timeout: 180000},
+  async function () {
+    checkModes(
+      await drawBoth("RadialBar", {discrete: "radius"}),
+      "RadialBar tracks",
+    );
+  },
+);
 
-it("RadialBar circular bar panels fit their own domain by default and share one with facetConfig scales", {timeout: 180000}, async function () {
-  checkModes(
-    await drawBoth("RadialBar", {discrete: "angle", config: {discrete: "angle"}}),
-    "RadialBar angle",
-  );
-});
+it(
+  "RadialBar circular bar panels fit their own domain by default and share one with facetConfig scales",
+  {timeout: 180000},
+  async function () {
+    checkModes(
+      await drawBoth("RadialBar", {
+        discrete: "angle",
+        config: {discrete: "angle"},
+      }),
+      "RadialBar angle",
+    );
+  },
+);

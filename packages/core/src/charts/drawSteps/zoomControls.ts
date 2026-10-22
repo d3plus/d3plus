@@ -56,7 +56,9 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
         click: (e: Event) => {
           // Delegated dispatch: `e.currentTarget` is the host wrapper, so
           // resolve the actual button from the event target.
-          const btn = (e.target as Element).closest(".zoom-brush") as HTMLElement | null;
+          const btn = (e.target as Element).closest(
+            ".zoom-brush",
+          ) as HTMLElement | null;
           if (!btn) return;
           const willBrush = !isBrushing(viz);
           btn.classList.toggle("active", willBrush);
@@ -71,7 +73,9 @@ function buildZoomControlPanel(viz: Viz): FeatureLayout["panel"] {
         if (btn.dataset.zoomBound) return;
         btn.dataset.zoomBound = "1";
         paintZoomButton(viz, btn);
-        btn.addEventListener("mouseenter", () => paintZoomButton(viz, btn, true));
+        btn.addEventListener("mouseenter", () =>
+          paintZoomButton(viz, btn, true),
+        );
         btn.addEventListener("mouseleave", () => paintZoomButton(viz, btn));
         mountCustomIcons(viz, btn);
       });
@@ -137,7 +141,8 @@ export const zoomFeature: FeatureModule = {
       .scaleExtent([1, zoomMax(viz, width, height)])
       .translateExtent(area)
       .on("zoom", (event: {transform: unknown}) => {
-        if (!showsTransform(viz, event.transform)) zoomed.bind(viz)(event.transform);
+        if (!showsTransform(viz, event.transform))
+          zoomed.bind(viz)(event.transform);
       });
 
     viz._zoomToBounds = zoomToBounds.bind(viz);
@@ -161,7 +166,9 @@ export const zoomFeature: FeatureModule = {
     // `Viz._drawSceneToTarget`), not inside `_container` beneath it, so the
     // selection box stays visible over the shapes while dragging. It's
     // offset to the chart area, so selections come out chart-area-relative.
-    const brushGroup = viz._select.selectAll(":scope > g.d3plus-zoom-brush").data([0]);
+    const brushGroup = viz._select
+      .selectAll(":scope > g.d3plus-zoom-brush")
+      .data([0]);
     viz._brushGroup = brushGroup
       .enter()
       .append("g")
@@ -206,7 +213,12 @@ function ensureZoomSurface(viz: Viz): void {
   if (!viz._select) return;
   if (!viz._ssr && (!viz._container || viz._container.classed("d3plus-zoom"))) {
     const {width, height} = chartBounds(viz as never);
-    ensureZoomDom(viz as never, {kind: "generic", width, height, duration: viz.schema.duration});
+    ensureZoomDom(viz as never, {
+      kind: "generic",
+      width,
+      height,
+      duration: viz.schema.duration,
+    });
   }
   if (viz._renderer !== "canvas") retargetZoom(viz, viz._select);
 }
@@ -217,7 +229,10 @@ function ensureZoomSurface(viz: Viz): void {
     gesture is never zoomed twice.
     @private
 */
-function retargetZoom(viz: Viz, target: NonNullable<Viz["_zoomEventTarget"]>): void {
+function retargetZoom(
+  viz: Viz,
+  target: NonNullable<Viz["_zoomEventTarget"]>,
+): void {
   const prev = viz._zoomEventTarget;
   if (prev && prev.node() === target.node()) return;
   if (prev) prev.on(".zoom", null);
@@ -233,11 +248,23 @@ function retargetZoom(viz: Viz, target: NonNullable<Viz["_zoomEventTarget"]>): v
     same element. Called after every canvas paint; a no-op once bound.
 */
 export function bindCanvasZoom(viz: Viz): void {
-  if (!viz.schema.zoom || viz._ssr || !viz._zoomBehavior || !viz._brushGroup) return;
-  const renderer = viz._sceneRenderer as {toCanvas?: () => HTMLCanvasElement | null} | undefined;
-  const canvasNode = renderer && typeof renderer.toCanvas === "function" ? renderer.toCanvas() : null;
-  if (!canvasNode || (viz._zoomEventTarget && viz._zoomEventTarget.node() === canvasNode)) return;
-  retargetZoom(viz, select(canvasNode) as unknown as NonNullable<Viz["_zoomEventTarget"]>);
+  if (!viz.schema.zoom || viz._ssr || !viz._zoomBehavior || !viz._brushGroup)
+    return;
+  const renderer = viz._sceneRenderer as
+    {toCanvas?: () => HTMLCanvasElement | null} | undefined;
+  const canvasNode =
+    renderer && typeof renderer.toCanvas === "function"
+      ? renderer.toCanvas()
+      : null;
+  if (
+    !canvasNode ||
+    (viz._zoomEventTarget && viz._zoomEventTarget.node() === canvasNode)
+  )
+    return;
+  retargetZoom(
+    viz,
+    select(canvasNode) as unknown as NonNullable<Viz["_zoomEventTarget"]>,
+  );
   zoomEvents.bind(viz)(isBrushing(viz));
 }
 
@@ -254,8 +281,10 @@ export function applyZoomPointerEvents(viz: Viz): void {
   const brushing = isBrushing(viz);
   if (viz._select)
     viz._select.style("pointer-events", canvas || brushing ? "none" : null);
-  if (viz._container) viz._container.style("pointer-events", canvas ? "none" : null);
-  if (viz._brushGroup) viz._brushGroup.style("pointer-events", brushing ? "all" : null);
+  if (viz._container)
+    viz._container.style("pointer-events", canvas ? "none" : null);
+  if (viz._brushGroup)
+    viz._brushGroup.style("pointer-events", brushing ? "all" : null);
 }
 
 /**
@@ -342,7 +371,8 @@ function isZoomedIn(viz: Viz): boolean {
 */
 function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
   const modifier = viz.schema.zoomScroll === "modifier";
-  if (event.type === "wheel") return !modifier || event.ctrlKey || event.metaKey;
+  if (event.type === "wheel")
+    return !modifier || event.ctrlKey || event.metaKey;
   if (startsOnBrush(event)) return false;
   if (event.type === "touchstart" && modifier)
     return (event.touches?.length ?? 0) > 1 || isZoomedIn(viz);
@@ -357,8 +387,13 @@ function zoomGestureFilter(viz: Viz, event: MouseEvent & TouchEvent): boolean {
     @private
 */
 function wheelDelta(event: WheelEvent): number {
-  const pinch = event.ctrlKey && event.deltaMode === 0 && Math.abs(event.deltaY) < 50;
-  return -event.deltaY * (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) * (pinch ? 10 : 1);
+  const pinch =
+    event.ctrlKey && event.deltaMode === 0 && Math.abs(event.deltaY) < 50;
+  return (
+    -event.deltaY *
+    (event.deltaMode === 1 ? 0.05 : event.deltaMode ? 1 : 0.002) *
+    (pinch ? 10 : 1)
+  );
 }
 
 /**
@@ -372,7 +407,10 @@ function applyTouchAction(viz: Viz): void {
   const tgt = viz._zoomEventTarget || viz._container;
   if (!tgt) return;
   const modifier = viz.schema.zoomScroll === "modifier" && viz.schema.zoomPan;
-  tgt.style("touch-action", modifier ? (isZoomedIn(viz) ? "none" : "pan-x pan-y") : null);
+  tgt.style(
+    "touch-action",
+    modifier ? (isZoomedIn(viz) ? "none" : "pan-x pan-y") : null,
+  );
 }
 
 /**
@@ -409,7 +447,8 @@ function zoomed(
     recordTransform(this, state);
     // A chart can zoom its own way (Plot rescales its axes); otherwise the
     // transform scales the rendered picture via `Viz.toScene`.
-    if (this._zoomRescale && this._zoomRescale(state, duration)) this._zoomTransform = undefined;
+    if (this._zoomRescale && this._zoomRescale(state, duration))
+      this._zoomTransform = undefined;
     else this._zoomTransform = {x: state.x, y: state.y, scale: state.k};
   } else if (t === false) {
     this._zoomTransform = undefined;
@@ -543,9 +582,7 @@ function brushEnd(this: Viz, event: {selection: number[][] | null}): void {
   // The brush group is offset by the chart margin; shift its selection into
   // the surface space `zoomToBounds` expects.
   const {left, top} = this._margin;
-  zoomToBounds.bind(this)(
-    event.selection.map(([x, y]) => [x + left, y + top]),
-  );
+  zoomToBounds.bind(this)(event.selection.map(([x, y]) => [x + left, y + top]));
 }
 
 /**

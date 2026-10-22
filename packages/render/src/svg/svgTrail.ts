@@ -1,6 +1,12 @@
 import type {Transition} from "d3-transition";
 
-import {coneAt, trailGradient, trailOpacity, trailPartsFromNode, TRAIL_MIN_DISTANCE} from "../animate/trail.js";
+import {
+  coneAt,
+  trailGradient,
+  trailOpacity,
+  trailPartsFromNode,
+  TRAIL_MIN_DISTANCE,
+} from "../animate/trail.js";
 import type {TrailParts} from "../animate/trail.js";
 import {persistTrailFill, persistTrailPath} from "../animate/trailLog.js";
 import type {TrailLog} from "../animate/trailLog.js";
@@ -29,33 +35,50 @@ export function attachSvgTrail(
   node: SceneNode,
   resolveFill: (f?: string) => string | null,
 ): void {
-  const curr = trailPartsFromNode(node), parent = el.parentNode;
+  const curr = trailPartsFromNode(node),
+    parent = el.parentNode;
   if (!curr || prev.shape !== curr.shape || !parent) return;
   const color = curr.color ?? prev.color;
   if (
     typeof color !== "string" ||
     Math.hypot(curr.x - prev.x, curr.y - prev.y) < TRAIL_MIN_DISTANCE
-  ) return;
+  )
+    return;
   const stale = el.previousElementSibling;
   if (stale && stale.classList.contains("d3plus-trail")) stale.remove();
   const tp = document.createElementNS(SVG_NS, "path");
   tp.setAttribute("class", "d3plus-trail");
   tp.setAttribute("pointer-events", "none");
-  tp.setAttribute("fill", resolveFill(trailGradient(curr.x - prev.x, curr.y - prev.y, color)) ?? "none");
+  tp.setAttribute(
+    "fill",
+    resolveFill(trailGradient(curr.x - prev.x, curr.y - prev.y, color)) ??
+      "none",
+  );
   parent.insertBefore(tp, el);
-  const A: [number, number] = [prev.x, prev.y], B: [number, number] = [curr.x, curr.y];
+  const A: [number, number] = [prev.x, prev.y],
+    B: [number, number] = [curr.x, curr.y];
   tsel.tween("d3plus-trail", () => (tt: number) => {
-    tp.setAttribute("d", coneAt(curr.shape, A, prev.dims, B, curr.dims, curr.rotate, tt).d);
+    tp.setAttribute(
+      "d",
+      coneAt(curr.shape, A, prev.dims, B, curr.dims, curr.rotate, tt).d,
+    );
     tp.setAttribute("opacity", String(trailOpacity(tt)));
   });
   tsel.on("end.d3plus-trail interrupt.d3plus-trail", () => tp.remove());
 }
 
 /** Removes a mark's persistent-trail paths from a parent (by its data-tkey). */
-export function removePersistTrail(parent: Element, key: string | number): void {
+export function removePersistTrail(
+  parent: Element,
+  key: string | number,
+): void {
   const k = String(key);
   for (const c of Array.from(parent.children)) {
-    if (c.classList.contains("d3plus-trail-persist") && c.getAttribute("data-tkey") === k) c.remove();
+    if (
+      c.classList.contains("d3plus-trail-persist") &&
+      c.getAttribute("data-tkey") === k
+    )
+      c.remove();
   }
 }
 
@@ -86,7 +109,10 @@ export function attachPersistTrail(
   tp.setAttribute("pointer-events", "none");
   // Stable fill url; the gradient element's absolute endpoints are updated in
   // place each frame (below) so it tracks the head without snapping or leaking.
-  tp.setAttribute("fill", trailGrad(persistTrailFill(target.tail, target.head, target.color)));
+  tp.setAttribute(
+    "fill",
+    trailGrad(persistTrailFill(target.tail, target.head, target.color)),
+  );
   parent.insertBefore(tp, el);
   const frame = (u: number): void => {
     const p = persistTrailPath(log, node.key, u);
@@ -109,7 +135,10 @@ export function attachPersistTrail(
     renderer's (possibly not-yet-mounted) state.
 */
 export class TrailGradients {
-  private map = new Map<string | number, {el: SVGLinearGradientElement; url: string}>();
+  private map = new Map<
+    string | number,
+    {el: SVGLinearGradientElement; url: string}
+  >();
   private seq = 0;
 
   constructor(
@@ -127,7 +156,10 @@ export class TrailGradients {
       const el = document.createElementNS(SVG_NS, "linearGradient");
       el.setAttribute("id", `d3plus-trailgrad-${this.uid()}-${++this.seq}`);
       el.setAttribute("gradientUnits", "userSpaceOnUse");
-      el.append(document.createElementNS(SVG_NS, "stop"), document.createElementNS(SVG_NS, "stop"));
+      el.append(
+        document.createElementNS(SVG_NS, "stop"),
+        document.createElementNS(SVG_NS, "stop"),
+      );
       defs.appendChild(el);
       entry = {el, url: `url(#${el.getAttribute("id")})`};
       this.map.set(key, entry);

@@ -3,7 +3,10 @@
 
 import React from "react";
 
-import {argTypes, Candlestick} from "../../../args/core/charts/Candlestick.args";
+import {
+  argTypes,
+  Candlestick,
+} from "../../../args/core/charts/Candlestick.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
@@ -14,14 +17,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a candlestick (or OHLC bar) chart of financial periods, from rows\nwith a date and open, high, low, and close values. Each row's date is read\nby x (default \"date\"): a Date, a timestamp, or a date string.",
+        component:
+          'Creates a candlestick (or OHLC bar) chart of financial periods, from rows\nwith a date and open, high, low, and close values. Each row\'s date is read\nby x (default "date"): a Date, a timestamp, or a date string.',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Candlestick config={configify(args, argTypes)} />;
-  
+const Template = args => <Candlestick config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -60,14 +64,34 @@ const pricesSource = (symbols, days) => `(() => {
 
 const acme = datafy(pricesSource([["ACME", 120]], 60));
 const acmeYears = datafy(pricesSource([["ACME", 80]], 500));
-const tickers = datafy(pricesSource([["ACME", 120], ["BOLT", 42], ["CORE", 310], ["DYNO", 8]], 90));
+const tickers = datafy(
+  pricesSource(
+    [
+      ["ACME", 120],
+      ["BOLT", 42],
+      ["CORE", 310],
+      ["DYNO", 8],
+    ],
+    90,
+  ),
+);
 
 export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: acme,
   groupBy: "symbol",
 };
-BasicExample.parameters = {controls: {include: ["variant", "hollow", "upColor", "downColor", "bodyWidth"]}, docs: {description: {story: "Each row is one period with a `date`, `open`, `high`, `low`, and `close` (the default keys). The wick runs from the high to the low and the body from the open to the close. Periods that closed at or above their open are drawn as green outlines, and periods that fell are filled red, so direction reads from the fill as well as the color. Hover anywhere over the plot to see the nearest period's values and its change from open to close."}}};
+BasicExample.parameters = {
+  controls: {
+    include: ["variant", "hollow", "upColor", "downColor", "bodyWidth"],
+  },
+  docs: {
+    description: {
+      story:
+        "Each row is one period with a `date`, `open`, `high`, `low`, and `close` (the default keys). The wick runs from the high to the low and the body from the open to the close. Periods that closed at or above their open are drawn as green outlines, and periods that fell are filled red, so direction reads from the fill as well as the color. Hover anywhere over the plot to see the nearest period's values and its change from open to close.",
+    },
+  },
+};
 
 export const OHLCBars = Template.bind({});
 OHLCBars.args = {
@@ -75,11 +99,21 @@ OHLCBars.args = {
   groupBy: "symbol",
   variant: "ohlc",
 };
-OHLCBars.parameters = {controls: {include: ["variant", "bodyWidth"]}, docs: {description: {story: "`variant: \"ohlc\"` draws each period as an OHLC bar: a line from the high to the low, with the open ticked to the left and the close ticked to the right."}}};
+OHLCBars.parameters = {
+  controls: {include: ["variant", "bodyWidth"]},
+  docs: {
+    description: {
+      story:
+        '`variant: "ohlc"` draws each period as an OHLC bar: a line from the high to the low, with the open ticked to the left and the close ticked to the right.',
+    },
+  },
+};
 
 export const CustomAccessors = Template.bind({});
 CustomAccessors.args = {
-  data: datafy(`${acme.__source}.map(d => ({Day: d.date, Open: d.open, High: d.high, Low: d.low, Last: d.close, Ticker: d.symbol}))`),
+  data: datafy(
+    `${acme.__source}.map(d => ({Day: d.date, Open: d.open, High: d.high, Low: d.low, Last: d.close, Ticker: d.symbol}))`,
+  ),
   groupBy: "Ticker",
   x: "Day",
   open: "Open",
@@ -91,15 +125,44 @@ CustomAccessors.args = {
   downColor: "#e8590c",
   yConfig: {tickFormat: funcify(d => `$${d}`, "d => `$${d}`")},
 };
-CustomAccessors.parameters = {controls: {include: ["x", "open", "high", "low", "close", "hollow", "upColor", "downColor"]}, docs: {description: {story: "Point `x`, `open`, `high`, `low`, and `close` at your own keys (or accessor functions). `hollow: false` fills every candle, and `upColor`/`downColor` swap the palette, here for a blue/orange pair that stays distinct for red-green color blindness. A `yConfig.tickFormat` formats the prices in the tooltip as well as on the axis."}}};
+CustomAccessors.parameters = {
+  controls: {
+    include: [
+      "x",
+      "open",
+      "high",
+      "low",
+      "close",
+      "hollow",
+      "upColor",
+      "downColor",
+    ],
+  },
+  docs: {
+    description: {
+      story:
+        "Point `x`, `open`, `high`, `low`, and `close` at your own keys (or accessor functions). `hollow: false` fills every candle, and `upColor`/`downColor` swap the palette, here for a blue/orange pair that stays distinct for red-green color blindness. A `yConfig.tickFormat` formats the prices in the tooltip as well as on the axis.",
+    },
+  },
+};
 
 export const WithVolume = Template.bind({});
 WithVolume.args = {
-  data: datafy(`${acme.__source}.map((d, i) => ({...d, volume: Math.round(1e6 * (1 + (i * 7919 % 13) / 13 + Math.abs(d.close - d.open) / d.open * 60))}))`),
+  data: datafy(
+    `${acme.__source}.map((d, i) => ({...d, volume: Math.round(1e6 * (1 + (i * 7919 % 13) / 13 + Math.abs(d.close - d.open) / d.open * 60))}))`,
+  ),
   groupBy: "symbol",
   volume: "volume",
 };
-WithVolume.parameters = {controls: {include: ["volume", "volumeConfig", "variant", "hollow"]}, docs: {description: {story: "`volume` draws a strip of volume bars under the candles, one per candle in its up or down color, on its own small axis with abbreviated ticks (e.g. 1.2M). The price axis shrinks to make room, the x axis sits under the strip, and the tooltip adds a Volume row. Bars stay filled when candles are hollow, so short bars remain easy to read. `volumeConfig` sets the strip's `height` (a share of the plot, default `0.2`), the `gap` above it, and `axisConfig`/`shapeConfig` for its axis and bars. When rows merge, volumes add up; `aggs` overrides it."}}};
+WithVolume.parameters = {
+  controls: {include: ["volume", "volumeConfig", "variant", "hollow"]},
+  docs: {
+    description: {
+      story:
+        "`volume` draws a strip of volume bars under the candles, one per candle in its up or down color, on its own small axis with abbreviated ticks (e.g. 1.2M). The price axis shrinks to make room, the x axis sits under the strip, and the tooltip adds a Volume row. Bars stay filled when candles are hollow, so short bars remain easy to read. `volumeConfig` sets the strip's `height` (a share of the plot, default `0.2`), the `gap` above it, and `axisConfig`/`shapeConfig` for its axis and bars. When rows merge, volumes add up; `aggs` overrides it.",
+    },
+  },
+};
 
 export const IntradayRollup = Template.bind({});
 IntradayRollup.args = {
@@ -135,7 +198,15 @@ IntradayRollup.args = {
   groupBy: "symbol",
   x: "day",
 };
-IntradayRollup.parameters = {controls: {include: ["x", "aggs"]}, docs: {description: {story: "Rows that share a series and a period merge into one candle: the first row's open, the highest high, the lowest low, and the last row's close. Rows merge in data order, so sort them oldest first. Here seven hourly rows a day, with `x` pointed at their `day`, roll up to daily candles. An `aggs` entry overrides any of the four, keyed by the data key (or, for a function accessor, by the field name: `aggs: {close: (rows, value) => ...}`)."}}};
+IntradayRollup.parameters = {
+  controls: {include: ["x", "aggs"]},
+  docs: {
+    description: {
+      story:
+        "Rows that share a series and a period merge into one candle: the first row's open, the highest high, the lowest low, and the last row's close. Rows merge in data order, so sort them oldest first. Here seven hourly rows a day, with `x` pointed at their `day`, roll up to daily candles. An `aggs` entry overrides any of the four, keyed by the data key (or, for a function accessor, by the field name: `aggs: {close: (rows, value) => ...}`).",
+    },
+  },
+};
 
 export const CalendarGaps = Template.bind({});
 CalendarGaps.args = {
@@ -143,7 +214,15 @@ CalendarGaps.args = {
   groupBy: "symbol",
   skipGaps: false,
 };
-CalendarGaps.parameters = {controls: {include: ["skipGaps"]}, docs: {description: {story: "By default periods are spaced evenly in date order, so weekends and holidays leave no gaps, and the axis ticks the first period of each week, month, quarter, or year. `skipGaps: false` places each period at its date on a continuous time axis instead, which shows the gaps."}}};
+CalendarGaps.parameters = {
+  controls: {include: ["skipGaps"]},
+  docs: {
+    description: {
+      story:
+        "By default periods are spaced evenly in date order, so weekends and holidays leave no gaps, and the axis ticks the first period of each week, month, quarter, or year. `skipGaps: false` places each period at its date on a continuous time axis instead, which shows the gaps.",
+    },
+  },
+};
 
 export const ManyPeriods = Template.bind({});
 ManyPeriods.args = {
@@ -151,7 +230,15 @@ ManyPeriods.args = {
   groupBy: "symbol",
   renderer: "canvas",
 };
-ManyPeriods.parameters = {controls: {include: ["renderer", "skipGaps", "bodyWidth"]}, docs: {description: {story: "Two years of daily candles. The Canvas renderer draws dense charts quickly while keeping the snapped tooltip; candles narrow to fit, down to a single pixel."}}};
+ManyPeriods.parameters = {
+  controls: {include: ["renderer", "skipGaps", "bodyWidth"]},
+  docs: {
+    description: {
+      story:
+        "Two years of daily candles. The Canvas renderer draws dense charts quickly while keeping the snapped tooltip; candles narrow to fit, down to a single pixel.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -161,4 +248,12 @@ SmallMultiples.args = {
   facetConfig: {scales: "independent"},
   height: 600,
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one panel per ticker. With `facetConfig.scales: \"independent\"`, each panel's value axis fits its own price range."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        '`facet` draws one panel per ticker. With `facetConfig.scales: "independent"`, each panel\'s value axis fits its own price range.',
+    },
+  },
+};

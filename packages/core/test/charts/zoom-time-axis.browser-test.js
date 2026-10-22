@@ -75,19 +75,27 @@ const PRELUDE = `
 
 /** Runs `body` in the page after the prelude. */
 function page(body, arg) {
-  return render(box, new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`), arg);
+  return render(
+    box,
+    new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`),
+    arg,
+  );
 }
 
 const span = d => Math.abs(d[1] - d[0]);
 // The typical gap between ticks (the median: an axis may add its domain's ends).
 const step = ticks => {
-  const gaps = ticks.slice(1).map((t, i) => Math.abs(t - ticks[i])).sort((a, b) => a - b);
+  const gaps = ticks
+    .slice(1)
+    .map((t, i) => Math.abs(t - ticks[i]))
+    .sort((a, b) => a - b);
   return gaps[Math.floor(gaps.length / 2)];
 };
 
 for (const renderer of ["svg", "canvas"]) {
   it(`[${renderer}] zooming a time-axis LinePlot narrows its dates and re-ticks; panning shifts them; reset restores`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.LinePlot()
         .data(daily).groupBy("id").x("date").time("date").y("value")
         .timeline(false).legend(false).locale("es-ES").zoomMax(64)
@@ -123,39 +131,87 @@ for (const renderer of ["svg", "canvas"]) {
       await frames();
       const reset = state();
       return {base, zoomed, panned, reset, plotWidth, k: chart._plotZoomBase && Object.keys(chart._plotZoomBase.scales)};
-    `, renderer);
+    `,
+      renderer,
+    );
 
-    assert.deepStrictEqual(r.k, ["x", "y"], "the time x axis is zoomable, like the linear y axis");
+    assert.deepStrictEqual(
+      r.k,
+      ["x", "y"],
+      "the time x axis is zoomable, like the linear y axis",
+    );
     // 16× narrows the visible dates to a sixteenth, inside the original range.
-    assert.ok(Math.abs(span(r.zoomed.domain) - span(r.base.domain) / 16) < DAY, "the date range narrows 16×");
-    assert.ok(r.zoomed.domain[0] > r.base.domain[0] && r.zoomed.domain[1] < r.base.domain[1], "inside the original dates");
-    assert.ok(Math.abs(span(r.zoomed.y) - span(r.base.y) / 16) < 1e-6, "the value axis zooms with it");
+    assert.ok(
+      Math.abs(span(r.zoomed.domain) - span(r.base.domain) / 16) < DAY,
+      "the date range narrows 16×",
+    );
+    assert.ok(
+      r.zoomed.domain[0] > r.base.domain[0] &&
+        r.zoomed.domain[1] < r.base.domain[1],
+      "inside the original dates",
+    );
+    assert.ok(
+      Math.abs(span(r.zoomed.y) - span(r.base.y) / 16) < 1e-6,
+      "the value axis zooms with it",
+    );
     // Re-ticked for the window: every tick inside it, at a finer interval.
     assert.ok(r.zoomed.ticks.length >= 3, "the zoomed axis has ticks");
-    assert.ok(r.zoomed.ticks.every(t => t >= r.zoomed.domain[0] && t <= r.zoomed.domain[1]), "ticks fall inside the zoomed dates");
-    assert.ok(step(r.base.ticks) >= 28 * DAY, `unzoomed ticks are months apart (${step(r.base.ticks) / DAY} days)`);
-    assert.ok(step(r.zoomed.ticks) <= 7 * DAY, `zoomed ticks step down to days (${step(r.zoomed.ticks) / DAY} days)`);
+    assert.ok(
+      r.zoomed.ticks.every(
+        t => t >= r.zoomed.domain[0] && t <= r.zoomed.domain[1],
+      ),
+      "ticks fall inside the zoomed dates",
+    );
+    assert.ok(
+      step(r.base.ticks) >= 28 * DAY,
+      `unzoomed ticks are months apart (${step(r.base.ticks) / DAY} days)`,
+    );
+    assert.ok(
+      step(r.zoomed.ticks) <= 7 * DAY,
+      `zoomed ticks step down to days (${step(r.zoomed.ticks) / DAY} days)`,
+    );
     // Labels stay in the chart's locale.
     const spanish = /\b(ene|feb|mar|abr|may|jun|jul|ago|sep|oct|nov|dic)\b/;
     const english = /\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\b/;
-    assert.ok(r.zoomed.labels.some(l => spanish.test(l)), `zoomed labels are Spanish (${r.zoomed.labels})`);
+    assert.ok(
+      r.zoomed.labels.some(l => spanish.test(l)),
+      `zoomed labels are Spanish (${r.zoomed.labels})`,
+    );
     assert.ok(!r.zoomed.labels.some(l => english.test(l)), "and not English");
-    assert.notDeepStrictEqual(r.zoomed.labels, r.base.labels, "the labels re-tick");
+    assert.notDeepStrictEqual(
+      r.zoomed.labels,
+      r.base.labels,
+      "the labels re-tick",
+    );
     // The line stretches with the zoom.
-    assert.ok(span(r.zoomed.line) > span(r.base.line) * 15, `the line stretches 16× ${JSON.stringify([r.base.line, r.zoomed.line])}`);
+    assert.ok(
+      span(r.zoomed.line) > span(r.base.line) * 15,
+      `the line stretches 16× ${JSON.stringify([r.base.line, r.zoomed.line])}`,
+    );
     // Dragging right by 120px shows earlier dates, by 120px worth of them.
     const shift = r.zoomed.domain[0] - r.panned.domain[0];
-    const expected = 120 * span(r.zoomed.domain) / r.plotWidth;
-    assert.ok(Math.abs(shift - expected) < DAY, `panning shifts the dates (${shift / DAY} vs ${expected / DAY} days)`);
-    assert.ok(Math.abs(span(r.panned.domain) - span(r.zoomed.domain)) < 1, "panning keeps the window's length");
+    const expected = (120 * span(r.zoomed.domain)) / r.plotWidth;
+    assert.ok(
+      Math.abs(shift - expected) < DAY,
+      `panning shifts the dates (${shift / DAY} vs ${expected / DAY} days)`,
+    );
+    assert.ok(
+      Math.abs(span(r.panned.domain) - span(r.zoomed.domain)) < 1,
+      "panning keeps the window's length",
+    );
     // Reset puts everything back.
-    assert.deepStrictEqual(r.reset.domain, r.base.domain, "reset restores the dates");
+    assert.deepStrictEqual(
+      r.reset.domain,
+      r.base.domain,
+      "reset restores the dates",
+    );
     assert.deepStrictEqual(r.reset.ticks, r.base.ticks, "and the ticks");
     assert.deepStrictEqual(r.reset.labels, r.base.labels, "and the labels");
   });
 
   it(`[${renderer}] a BarChart on a time axis widens its bars as it zooms, also at the plot's edge`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.BarChart()
         .data(monthly).groupBy("id").x("date").time("date").y("value")
         .timeline(false).legend(false).zoomMax(16)
@@ -183,21 +239,36 @@ for (const renderer of ["svg", "canvas"]) {
         groupPadding: chart._groupPadding, mid: mid.date, picked,
         latest: Math.max(...monthly.map(d => +d.date)), lastDate: last.date,
       };
-    `, renderer);
+    `,
+      renderer,
+    );
 
     const base = r.base[0];
-    assert.ok(r.base.every(w => Math.abs(w - base) < 0.5), "unzoomed bars share a width");
+    assert.ok(
+      r.base.every(w => Math.abs(w - base) < 0.5),
+      "unzoomed bars share a width",
+    );
     // Bar spacing scales 4×; the group padding between bars stays fixed.
     const expected = 4 * (base + r.groupPadding) - r.groupPadding;
-    assert.ok(r.zoomed.length && r.zoomed.every(w => Math.abs(w - expected) < 2), `zoomed bars widen 4× (${r.zoomed[0]} vs ${expected})`);
+    assert.ok(
+      r.zoomed.length && r.zoomed.every(w => Math.abs(w - expected) < 2),
+      `zoomed bars widen 4× (${r.zoomed[0]} vs ${expected})`,
+    );
     assert.strictEqual(r.lastDate, r.latest, "the drag reaches the last bar");
-    assert.ok(Math.abs(r.lastRight - r.plotRight) < r.end[0], "which sits against the plot's right edge");
-    assert.ok(r.end.every(w => Math.abs(w - expected) < 2), "and keeps its width there");
+    assert.ok(
+      Math.abs(r.lastRight - r.plotRight) < r.end[0],
+      "which sits against the plot's right edge",
+    );
+    assert.ok(
+      r.end.every(w => Math.abs(w - expected) < 2),
+      "and keeps its width there",
+    );
     assert.strictEqual(r.picked, r.mid, "the zoomed bar picks");
   });
 
   it(`[${renderer}] a zoomed time-axis BarChart keeps to its xDomain, not the visible window`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const lo = +new Date(2022, 2, 1), hi = +new Date(2023, 9, 1);
       const chart = new d3plus.BarChart()
         .data(monthly).groupBy("id").x("date").time("date").y("value")
@@ -214,21 +285,30 @@ for (const renderer of ["svg", "canvas"]) {
         zoomed: zoomed.map(b => b.date), widths: zoomed.map(b => b.width),
         window: domainOf(chart._xAxis), groupPadding: chart._groupPadding,
       };
-    `, renderer);
+    `,
+      renderer,
+    );
 
     const within = d => d >= r.lo && d <= r.hi;
     assert.strictEqual(r.base.length, 20, "the xDomain's 20 months draw");
     assert.ok(r.base.every(within), "and no others");
     const [w0, w1] = r.window;
     assert.ok(w1 - w0 < (r.hi - r.lo) * 0.75, "the view zoomed in");
-    assert.deepStrictEqual(r.zoomed.slice().sort(), r.base.slice().sort(),
-      "zoomed, the same bars draw, also those past the visible window");
+    assert.deepStrictEqual(
+      r.zoomed.slice().sort(),
+      r.base.slice().sort(),
+      "zoomed, the same bars draw, also those past the visible window",
+    );
     const expected = 2 * (r.baseWidth + r.groupPadding) - r.groupPadding;
-    assert.ok(r.widths.every(w => Math.abs(w - expected) < 2), `and keep their scaled width (${r.widths[0]} vs ${expected})`);
+    assert.ok(
+      r.widths.every(w => Math.abs(w - expected) < 2),
+      `and keep their scaled width (${r.widths[0]} vs ${expected})`,
+    );
   });
 
   it(`[${renderer}] brushing a time-axis selection zooms to its dates`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.LinePlot()
         .data(daily).groupBy("id").x("date").time("date").y("value")
         .timeline(false).legend(false).zoomMax(64)
@@ -258,19 +338,31 @@ for (const renderer of ["svg", "canvas"]) {
         selected: [+scale.invert(x0 - ct.x), +scale.invert(x1 - ct.x)],
         ticks: chart._xAxis._visibleTicks.map(Number),
       };
-    `, renderer);
+    `,
+      renderer,
+    );
 
     // A brushed selection fills the chart area (as on a linear axis), which
     // takes in the axes' margins too: the plot shows nearly all of it.
     const selected = span(r.selected);
-    assert.ok(span(r.zoomed) > selected * 0.8 && span(r.zoomed) < selected * 1.05, `the brushed dates fill the axis (${span(r.zoomed) / selected})`);
+    assert.ok(
+      span(r.zoomed) > selected * 0.8 && span(r.zoomed) < selected * 1.05,
+      `the brushed dates fill the axis (${span(r.zoomed) / selected})`,
+    );
     const mid = (r.selected[0] + r.selected[1]) / 2;
-    assert.ok(Math.abs((r.zoomed[0] + r.zoomed[1]) / 2 - mid) < selected * 0.05, "centered on the selection");
-    assert.ok(r.ticks.every(t => t >= r.zoomed[0] && t <= r.zoomed[1]), "re-ticked inside the window");
+    assert.ok(
+      Math.abs((r.zoomed[0] + r.zoomed[1]) / 2 - mid) < selected * 0.05,
+      "centered on the selection",
+    );
+    assert.ok(
+      r.ticks.every(t => t >= r.zoomed[0] && t <= r.zoomed[1]),
+      "re-ticked inside the window",
+    );
   });
 
   it(`[${renderer}] a horizontal BarChart zooms its time y axis`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.BarChart()
         .data(monthly).groupBy("id").discrete("y").y("date").time("date").x("value")
         .timeline(false).legend(false).zoomMax(16)
@@ -287,14 +379,30 @@ for (const renderer of ["svg", "canvas"]) {
         ticks: chart._yAxis._visibleTicks.map(Number),
       };
       return {base, zoomed, axes: Object.keys(chart._plotZoomBase.scales), groupPadding: chart._groupPadding};
-    `, renderer);
+    `,
+      renderer,
+    );
 
     assert.deepStrictEqual(r.axes, ["x", "y"], "both axes zoom");
-    assert.ok(Math.abs(span(r.zoomed.y) - span(r.base.y) / 4) < DAY, "the time y axis narrows 4×");
-    assert.ok(r.zoomed.y[0] > r.zoomed.y[1], "keeping its orientation (latest at the top)");
-    const lo = Math.min(...r.zoomed.y), hi = Math.max(...r.zoomed.y);
-    assert.ok(r.zoomed.ticks.every(t => t >= lo && t <= hi), "re-ticked inside the window");
+    assert.ok(
+      Math.abs(span(r.zoomed.y) - span(r.base.y) / 4) < DAY,
+      "the time y axis narrows 4×",
+    );
+    assert.ok(
+      r.zoomed.y[0] > r.zoomed.y[1],
+      "keeping its orientation (latest at the top)",
+    );
+    const lo = Math.min(...r.zoomed.y),
+      hi = Math.max(...r.zoomed.y);
+    assert.ok(
+      r.zoomed.ticks.every(t => t >= lo && t <= hi),
+      "re-ticked inside the window",
+    );
     const expected = 4 * (r.base.bars[0] + r.groupPadding) - r.groupPadding;
-    assert.ok(r.zoomed.bars.length && r.zoomed.bars.every(h => Math.abs(h - expected) < 2), `bars thicken 4× (${r.zoomed.bars[0]} vs ${expected})`);
+    assert.ok(
+      r.zoomed.bars.length &&
+        r.zoomed.bars.every(h => Math.abs(h - expected) < 2),
+      `bars thicken 4× (${r.zoomed.bars[0]} vs ${expected})`,
+    );
   });
 }

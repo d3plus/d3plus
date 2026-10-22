@@ -30,7 +30,8 @@ export function patternTileSvg(
     return null;
   }
   const textureClass = config.texture;
-  if (!textureClass || typeof textures[textureClass] !== "function") return null;
+  if (!textureClass || typeof textures[textureClass] !== "function")
+    return null;
   delete config.texture;
 
   const t = textures[textureClass]();
@@ -47,7 +48,11 @@ export function patternTileSvg(
 
   // A tile-sized rect filled with the pattern is the one repeating unit.
   svg.attr("width", width).attr("height", height);
-  svg.append("rect").attr("width", width).attr("height", height).attr("fill", t.url());
+  svg
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", t.url());
 
   // Resolve XMLSerializer from the document's own window so this works under
   // both a real browser and jsdom (where it isn't a bare global).

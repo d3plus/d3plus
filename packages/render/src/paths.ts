@@ -83,7 +83,8 @@ export function flattenPath(d: string, axis: "x" | "y", at: number): string {
       const relative = command === lower;
       const flattened = segments.map((segment, s) => {
         // A relative moveto's first pair is absolute when it opens the path.
-        const value = relative && !(c === 0 && lower === "m" && s === 0) ? 0 : at;
+        const value =
+          relative && !(c === 0 && lower === "m" && s === 0) ? 0 : at;
         return segment.map((n, j) => {
           if (lower === "h") return axis === "x" ? value : n;
           if (lower === "v") return axis === "y" ? value : n;

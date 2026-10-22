@@ -115,7 +115,12 @@ export default function (
       } else {
         // Sentence style: capitalize the first word; lower the rest only when
         // shouting (otherwise preserve the writer's casing, e.g. proper nouns).
-        out = i === first ? capitalize(core, shouting) : shouting ? core.toLowerCase() : core;
+        out =
+          i === first
+            ? capitalize(core, shouting)
+            : shouting
+              ? core.toLowerCase()
+              : core;
       }
 
       return acc + out + trail;

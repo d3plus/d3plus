@@ -23,7 +23,8 @@ export const applyPieLayout: TransformStage = ({viz}) => {
   // possible stroke (centered on the wedge's outline) overflows past the
   // outer radius. A function-valued strokeWidth can't be resolved without a
   // datum, so it falls back to Pie's own default (2) rather than guessing.
-  const baseStrokeWidth = typeof sc.strokeWidth === "number" ? sc.strokeWidth : 2;
+  const baseStrokeWidth =
+    typeof sc.strokeWidth === "number" ? sc.strokeWidth : 2;
   const strokeBuffer = (baseStrokeWidth * 3) / 2;
   const outerRadius = Math.max(0, Math.min(width, height) / 2 - strokeBuffer);
 
@@ -37,10 +38,12 @@ export const applyPieLayout: TransformStage = ({viz}) => {
   const pieData = pie
     .padAngle(padAngle || padPixel / outerRadius)
     .sort(sortFn)
-    .value(valueFn)(viz._filteredData as DataPoint[]) as (PieArcDatum<DataPoint> & {
-      __d3plus__?: true;
-      i?: number;
-    })[];
+    .value(valueFn)(
+    viz._filteredData as DataPoint[],
+  ) as (PieArcDatum<DataPoint> & {
+    __d3plus__?: true;
+    i?: number;
+  })[];
 
   const total = pieData.reduce((sum, d) => sum + d.value, 0);
   pieData.forEach((d, i) => {
@@ -54,14 +57,17 @@ export const applyPieLayout: TransformStage = ({viz}) => {
   });
 
   const innerRadius = viz.schema.innerRadius as
-    | number
-    | ((d: DataPoint, i: number) => number);
+    number | ((d: DataPoint, i: number) => number);
 
-  viz.ctx.arcData = d3Shape.arc<PieArcDatum<DataPoint>>()
+  viz.ctx.arcData = d3Shape
+    .arc<PieArcDatum<DataPoint>>()
     .innerRadius(
       (typeof innerRadius === "function"
         ? innerRadius
-        : () => innerRadius) as unknown as (d: PieArcDatum<DataPoint>, i: number) => number,
+        : () => innerRadius) as unknown as (
+        d: PieArcDatum<DataPoint>,
+        i: number,
+      ) => number,
     )
     .outerRadius(outerRadius);
 

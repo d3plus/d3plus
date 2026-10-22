@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   val: {
     control: {},
     description: "Any config value.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "unknown"
-    }
-  }
+      summary: "unknown",
+    },
+  },
 };

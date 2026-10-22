@@ -29,28 +29,53 @@ const key = k => d => d[k];
 it("Pyramid finite keeps only finite numbers", () => {
   assert.strictEqual(finite(3), 3);
   assert.strictEqual(finite(-2.5), -2.5);
-  [NaN, Infinity, "3", null, undefined, [1]].forEach(v => assert.strictEqual(finite(v), undefined));
+  [NaN, Infinity, "3", null, undefined, [1]].forEach(v =>
+    assert.strictEqual(finite(v), undefined),
+  );
 });
 
 it("Pyramid pyramidSides orders configured sides first, then by first appearance", () => {
   const data = [{s: "F"}, {s: "M"}, {s: "X"}, {s: "F"}];
   assert.deepStrictEqual(pyramidSides(data, key("s")), ["F", "M", "X"]);
   assert.deepStrictEqual(pyramidSides(data, key("s"), ["M"]), ["M", "F", "X"]);
-  assert.deepStrictEqual(pyramidSides(data, key("s"), ["M", "Q"]), ["M", "Q", "F", "X"]);
-  assert.deepStrictEqual(pyramidSides(data, key("s"), "M"), ["F", "M", "X"], "a non-array is ignored");
-  assert.deepStrictEqual(pyramidSides([{s: 1}, {s: 2}], key("s"), [2]), ["2", "1"], "values compare as strings");
+  assert.deepStrictEqual(pyramidSides(data, key("s"), ["M", "Q"]), [
+    "M",
+    "Q",
+    "F",
+    "X",
+  ]);
+  assert.deepStrictEqual(
+    pyramidSides(data, key("s"), "M"),
+    ["F", "M", "X"],
+    "a non-array is ignored",
+  );
+  assert.deepStrictEqual(
+    pyramidSides([{s: 1}, {s: 2}], key("s"), [2]),
+    ["2", "1"],
+    "values compare as strings",
+  );
 });
 
 it("Pyramid sideSign mirrors only the first side", () => {
   assert.strictEqual(sideSign(["M", "F"], "M"), -1);
   assert.strictEqual(sideSign(["M", "F"], "F"), 1);
-  assert.strictEqual(sideSign(["M", "F"], "X"), 1, "unlisted sides draw on the right");
+  assert.strictEqual(
+    sideSign(["M", "F"], "X"),
+    1,
+    "unlisted sides draw on the right",
+  );
   assert.strictEqual(sideSign([], "M"), 1);
   assert.strictEqual(sideSign(["1"], 1), -1);
 });
 
 it("Pyramid pyramidTotal and frameTotals sum finite values", () => {
-  const data = [{v: 2, t: 1}, {v: 3, t: 2}, {v: NaN, t: 2}, {v: "x", t: 1}, {v: 5, t: 2}];
+  const data = [
+    {v: 2, t: 1},
+    {v: 3, t: 2},
+    {v: NaN, t: 2},
+    {v: "x", t: 1},
+    {v: 5, t: 2},
+  ];
   assert.strictEqual(pyramidTotal(data, key("v")), 10);
   assert.strictEqual(pyramidTotal([], key("v")), 0);
   const totals = frameTotals(data, key("v"), key("t"));
@@ -60,18 +85,34 @@ it("Pyramid pyramidTotal and frameTotals sum finite values", () => {
 
 it("Pyramid pyramidExtent is the largest single-side category total", () => {
   const data = [
-    {c: "a", s: "M", v: 3}, {c: "a", s: "M", v: 4}, {c: "a", s: "F", v: 6},
+    {c: "a", s: "M", v: 3},
+    {c: "a", s: "M", v: 4},
+    {c: "a", s: "F", v: 6},
     {c: "b", s: "F", v: -9, cmp: 2},
   ];
   const base = {category: key("c"), side: key("s"), value: key("v")};
-  assert.strictEqual(pyramidExtent(data, base), 9, "magnitudes, summed per side and category");
   assert.strictEqual(
-    pyramidExtent(data, {...base, comparison: d => (d.c === "a" ? 12 : undefined)}),
+    pyramidExtent(data, base),
+    9,
+    "magnitudes, summed per side and category",
+  );
+  assert.strictEqual(
+    pyramidExtent(data, {
+      ...base,
+      comparison: d => (d.c === "a" ? 12 : undefined),
+    }),
     24,
     "comparison values count too",
   );
-  const framed = [{c: "a", s: "M", v: 3, t: 1}, {c: "a", s: "M", v: 4, t: 2}];
-  assert.strictEqual(pyramidExtent(framed, {...base, frame: key("t")}), 4, "frames never stack");
+  const framed = [
+    {c: "a", s: "M", v: 3, t: 1},
+    {c: "a", s: "M", v: 4, t: 2},
+  ];
+  assert.strictEqual(
+    pyramidExtent(framed, {...base, frame: key("t")}),
+    4,
+    "frames never stack",
+  );
   assert.strictEqual(pyramidExtent(framed, base), 7);
   assert.strictEqual(pyramidExtent([], base), 0);
 });
@@ -97,7 +138,11 @@ const series = (id, value, sub) => {
 
 it("Pyramid pyramidStackOrder mirrors sub-groups, largest nearest the center", () => {
   const order = pyramidStackOrder(d => d.sub);
-  assert.strictEqual(order.__d3plusStackOrder, true, "tagged as a resolved order");
+  assert.strictEqual(
+    order.__d3plusStackOrder,
+    true,
+    "tagged as a resolved order",
+  );
   const stack = [
     series("M_rural", -2, "rural"),
     series("F_urban", 6, "urban"),
@@ -111,9 +156,21 @@ it("Pyramid pyramidStackOrder mirrors sub-groups, largest nearest the center", (
 });
 
 it("Pyramid comparisonOutline steps around each row from the center line", () => {
-  const points = comparisonOutline([{y: 30, x: 80}, {y: 10, x: 60}], 100, 20);
+  const points = comparisonOutline(
+    [
+      {y: 30, x: 80},
+      {y: 10, x: 60},
+    ],
+    100,
+    20,
+  );
   assert.deepStrictEqual(points, [
-    [100, 0], [60, 0], [60, 20], [80, 20], [80, 40], [100, 40],
+    [100, 0],
+    [60, 0],
+    [60, 20],
+    [80, 20],
+    [80, 40],
+    [100, 40],
   ]);
   assert.deepStrictEqual(comparisonOutline([], 100, 20), []);
 });
@@ -134,20 +191,51 @@ it("Pyramid dashArray normalizes strings and numbers", () => {
 });
 
 it("Pyramid sideTitleBoxes centers a box over each half", () => {
-  const boxes = sideTitleBoxes(["Male", "Female", "Extra"], {left: 10, right: 110, inner: [70, 70], top: -20, height: 18});
+  const boxes = sideTitleBoxes(["Male", "Female", "Extra"], {
+    left: 10,
+    right: 110,
+    inner: [70, 70],
+    top: -20,
+    height: 18,
+  });
   assert.deepStrictEqual(boxes, [
     {text: "Male", x: 10, y: -20, width: 60, height: 18},
     {text: "Female", x: 70, y: -20, width: 40, height: 18},
   ]);
-  const gutter = sideTitleBoxes(["Male", "Female"], {left: 0, right: 100, inner: [40, 60], top: 0, height: 10});
-  assert.deepStrictEqual(gutter.map(b => [b.x, b.width]), [[0, 40], [60, 40]], "each half ends at its gutter edge");
-  const clamped = sideTitleBoxes(["A", "B"], {left: 0, right: 100, inner: [150, 150], top: 0, height: 10});
-  assert.deepStrictEqual(clamped.map(b => b.width), [100, 0], "the center is clamped to the axis");
+  const gutter = sideTitleBoxes(["Male", "Female"], {
+    left: 0,
+    right: 100,
+    inner: [40, 60],
+    top: 0,
+    height: 10,
+  });
+  assert.deepStrictEqual(
+    gutter.map(b => [b.x, b.width]),
+    [
+      [0, 40],
+      [60, 40],
+    ],
+    "each half ends at its gutter edge",
+  );
+  const clamped = sideTitleBoxes(["A", "B"], {
+    left: 0,
+    right: 100,
+    inner: [150, 150],
+    top: 0,
+    height: 10,
+  });
+  assert.deepStrictEqual(
+    clamped.map(b => b.width),
+    [100, 0],
+    "the center is clamped to the axis",
+  );
 });
 
 it("Pyramid comparisonNodes traces each side's comparison totals", () => {
   const data = [
-    {c: "a", s: "M", cmp: 2}, {c: "a", s: "M", cmp: 1}, {c: "b", s: "M", cmp: 4},
+    {c: "a", s: "M", cmp: 2},
+    {c: "a", s: "M", cmp: 1},
+    {c: "b", s: "M", cmp: 4},
     {c: "a", s: "F", cmp: 5},
   ];
   const nodes = comparisonNodes({
@@ -161,29 +249,74 @@ it("Pyramid comparisonNodes traces each side's comparison totals", () => {
     x: v => 100 + v * 10,
     y: c => (c === "a" ? 10 : 30),
     fallbackStep: 50,
-    config: {stroke: (side, i) => `${side}${i}`, strokeWidth: 2, strokeDasharray: "4 3"},
+    config: {
+      stroke: (side, i) => `${side}${i}`,
+      strokeWidth: 2,
+      strokeDasharray: "4 3",
+    },
   });
   assert.strictEqual(nodes.length, 2);
-  assert.deepStrictEqual(nodes[0].points, [[100, 0], [70, 0], [70, 20], [60, 20], [60, 40], [100, 40]]);
-  assert.deepStrictEqual(nodes[1].points, [[100, 0], [150, 0], [150, 20], [100, 20], [100, 40], [100, 40]]);
+  assert.deepStrictEqual(nodes[0].points, [
+    [100, 0],
+    [70, 0],
+    [70, 20],
+    [60, 20],
+    [60, 40],
+    [100, 40],
+  ]);
+  assert.deepStrictEqual(nodes[1].points, [
+    [100, 0],
+    [150, 0],
+    [150, 20],
+    [100, 20],
+    [100, 40],
+    [100, 40],
+  ]);
   assert.strictEqual(nodes[0].paint.stroke, "M0");
   assert.strictEqual(nodes[1].paint.stroke, "F1");
   assert.deepStrictEqual(nodes[0].paint.strokeDasharray, [4, 3]);
   assert.strictEqual(nodes[0].interactive, false);
   const empty = comparisonNodes({
-    sides: ["M"], categories: ["a"], data: [{c: "a", s: "M"}], category: key("c"), side: key("s"),
-    comparison: key("cmp"), divisor: 1, x: v => v, y: () => 0, fallbackStep: 10, config: {},
+    sides: ["M"],
+    categories: ["a"],
+    data: [{c: "a", s: "M"}],
+    category: key("c"),
+    side: key("s"),
+    comparison: key("cmp"),
+    divisor: 1,
+    x: v => v,
+    y: () => 0,
+    fallbackStep: 10,
+    config: {},
   });
-  assert.deepStrictEqual(empty, [], "a side with no comparison values draws nothing");
+  assert.deepStrictEqual(
+    empty,
+    [],
+    "a side with no comparison values draws nothing",
+  );
 });
 
 /** A minimal painted scene: chart cells → zoom → body. */
 const sceneWith = bodyChildren => ({
-  root: {type: "group", key: "root", children: [{
-    type: "group", key: "viz-chart-cells", children: [{
-      type: "group", key: "viz-zoom", children: [{type: "group", key: "viz-chart-body", children: bodyChildren}],
-    }],
-  }]},
+  root: {
+    type: "group",
+    key: "root",
+    children: [
+      {
+        type: "group",
+        key: "viz-chart-cells",
+        children: [
+          {
+            type: "group",
+            key: "viz-zoom",
+            children: [
+              {type: "group", key: "viz-chart-body", children: bodyChildren},
+            ],
+          },
+        ],
+      },
+    ],
+  },
 });
 const bodyOf = scene => scene.root.children[0].children[0].children[0];
 
@@ -192,15 +325,37 @@ it("Pyramid withPyramidNodes layers the outline and titles into the chart body",
   const title = {type: "group", key: "titles"};
   const bars = [{type: "rect", key: "bar"}];
   const plain = withPyramidNodes(sceneWith(bars), [outline], [title]);
-  assert.deepStrictEqual(bodyOf(plain).children.map(n => n.key), ["bar", "outline", "titles"]);
+  assert.deepStrictEqual(
+    bodyOf(plain).children.map(n => n.key),
+    ["bar", "outline", "titles"],
+  );
   assert.strictEqual(bars.length, 1, "the chart scene array is not mutated");
 
-  const content = {type: "group", key: "plot-zoom-content", children: [{type: "rect", key: "bar"}]};
-  const zoomable = withPyramidNodes(sceneWith([content, {type: "group", key: "axis"}]), [outline], [title]);
+  const content = {
+    type: "group",
+    key: "plot-zoom-content",
+    children: [{type: "rect", key: "bar"}],
+  };
+  const zoomable = withPyramidNodes(
+    sceneWith([content, {type: "group", key: "axis"}]),
+    [outline],
+    [title],
+  );
   const body = bodyOf(zoomable);
-  assert.deepStrictEqual(body.children.map(n => n.key), ["plot-zoom-content", "axis", "titles"]);
-  assert.deepStrictEqual(body.children[0].children.map(n => n.key), ["bar", "outline"], "outline clips with the plot");
-  assert.strictEqual(content.children.length, 1, "the content group is copied, not mutated");
+  assert.deepStrictEqual(
+    body.children.map(n => n.key),
+    ["plot-zoom-content", "axis", "titles"],
+  );
+  assert.deepStrictEqual(
+    body.children[0].children.map(n => n.key),
+    ["bar", "outline"],
+    "outline clips with the plot",
+  );
+  assert.strictEqual(
+    content.children.length,
+    1,
+    "the content group is copied, not mutated",
+  );
 
   const untouched = sceneWith(bars);
   assert.strictEqual(withPyramidNodes(untouched, [], []), untouched);
@@ -218,10 +373,18 @@ it("Pyramid declares its defaults", () => {
   assert.strictEqual(viz.sides(), undefined);
   assert.strictEqual(viz.comparison(), undefined);
   assert.strictEqual(viz.groupPadding(), 1);
-  assert.strictEqual(viz.baselineBreak(), false, "the halves always meet at zero");
+  assert.strictEqual(
+    viz.baselineBreak(),
+    false,
+    "the halves always meet at zero",
+  );
   assert.strictEqual(viz.sideTitleConfig().fontSize, 14);
   assert.strictEqual(viz.comparisonConfig().strokeDasharray, "4 3");
-  assert.strictEqual(viz.shapeConfig().Bar.label, false, "rows are read off the axis, not bar labels");
+  assert.strictEqual(
+    viz.shapeConfig().Bar.label,
+    false,
+    "rows are read off the axis, not bar labels",
+  );
 });
 
 it("Pyramid mirrors the left side's values and keeps x() as the source accessor", () => {
@@ -229,17 +392,37 @@ it("Pyramid mirrors the left side's values and keeps x() as the source accessor"
   viz.ctx.pyramid.sides = ["M", "F"];
   assert.strictEqual(viz._x({sex: "M", pop: 5}, 0), -5);
   assert.strictEqual(viz._x({sex: "F", pop: 5}, 0), 5);
-  assert.strictEqual(viz._x({sex: "M", pop: -5}, 0), -5, "negative input data still draws left");
-  assert.strictEqual(viz._x({sex: "M", pop: "n/a"}, 0), "n/a", "non-numbers pass through");
+  assert.strictEqual(
+    viz._x({sex: "M", pop: -5}, 0),
+    -5,
+    "negative input data still draws left",
+  );
+  assert.strictEqual(
+    viz._x({sex: "M", pop: "n/a"}, 0),
+    "n/a",
+    "non-numbers pass through",
+  );
   viz.x(viz.x());
-  assert.strictEqual(viz._x({sex: "M", pop: 5}, 0), -5, "re-setting the mirrored getter is a no-op");
+  assert.strictEqual(
+    viz._x({sex: "M", pop: 5}, 0),
+    -5,
+    "re-setting the mirrored getter is a no-op",
+  );
   viz.x("other");
   assert.strictEqual(viz._x({sex: "F", other: 7}, 0), 7);
   viz.percent(true);
   viz.ctx.pyramid.total = 20;
-  assert.strictEqual(viz._x({sex: "M", other: 5}, 0), -0.25, "percent mode divides by the total");
+  assert.strictEqual(
+    viz._x({sex: "M", other: 5}, 0),
+    -0.25,
+    "percent mode divides by the total",
+  );
   viz.ctx.pyramid.total = 0;
-  assert.strictEqual(viz._x({sex: "M", other: 5}, 0), -0, "an empty total maps to zero");
+  assert.strictEqual(
+    viz._x({sex: "M", other: 5}, 0),
+    -0,
+    "an empty total maps to zero",
+  );
 });
 
 it("Pyramid comparison accepts a data key or an accessor", () => {
@@ -252,7 +435,11 @@ it("Pyramid comparison accepts a data key or an accessor", () => {
 
 it("Pyramid tooltip rows show the share of the total, or the value in percent mode", () => {
   const viz = new Pyramid().groupBy("sex").x("pop").comparison("before");
-  Object.assign(viz.ctx.pyramid, {sides: ["M", "F"], total: 200, comparisonTotal: 100});
+  Object.assign(viz.ctx.pyramid, {
+    sides: ["M", "F"],
+    total: 200,
+    comparisonTotal: 100,
+  });
   const tbody = viz.tooltipConfig().tbody;
   assert.deepStrictEqual(tbody({sex: "M", pop: 50, before: 40}, 0), [
     ["Percent of Total", "25%"],
@@ -263,9 +450,16 @@ it("Pyramid tooltip rows show the share of the total, or the value in percent mo
     ["pop", "50"],
     ["before", "40%"],
   ]);
-  assert.deepStrictEqual(tbody({sex: "M", pop: [1, 2]}, 0), [], "legend aggregates get no rows");
+  assert.deepStrictEqual(
+    tbody({sex: "M", pop: [1, 2]}, 0),
+    [],
+    "legend aggregates get no rows",
+  );
   viz.comparison(d => d.before);
-  assert.strictEqual(tbody({sex: "M", pop: 50, before: 40}, 0)[1][0], "Comparison");
+  assert.strictEqual(
+    tbody({sex: "M", pop: 50, before: 40}, 0)[1][0],
+    "Comparison",
+  );
 });
 
 it("Pyramid sideTitleConfig and comparisonConfig deep-merge, and RESET restores the defaults", () => {
@@ -277,17 +471,29 @@ it("Pyramid sideTitleConfig and comparisonConfig deep-merge, and RESET restores 
   assert.strictEqual(viz.sideTitleConfig().fontWeight, 600, "siblings kept");
   assert.strictEqual(viz.sideTitleConfig().fontColor, color);
   viz.config({sideTitleConfig: {fontSize: RESET}});
-  assert.strictEqual(viz.sideTitleConfig().fontSize, 14, "RESET restores the chart default");
+  assert.strictEqual(
+    viz.sideTitleConfig().fontSize,
+    14,
+    "RESET restores the chart default",
+  );
   assert.strictEqual(viz.sideTitleConfig().fontWeight, 600);
 
   viz.comparisonConfig({strokeWidth: 3});
   assert.strictEqual(viz.comparisonConfig().strokeWidth, 3);
-  assert.strictEqual(viz.comparisonConfig().strokeDasharray, "4 3", "siblings kept");
+  assert.strictEqual(
+    viz.comparisonConfig().strokeDasharray,
+    "4 3",
+    "siblings kept",
+  );
   viz.config({comparisonConfig: RESET});
   assert.strictEqual(viz.comparisonConfig().strokeWidth, 1.5);
 
   const other = new Pyramid();
-  assert.strictEqual(other.sideTitleConfig().fontSize, 14, "instances don't share config");
+  assert.strictEqual(
+    other.sideTitleConfig().fontSize,
+    14,
+    "instances don't share config",
+  );
   assert.notStrictEqual(other.sideTitleConfig(), viz.sideTitleConfig());
 });
 
@@ -295,14 +501,27 @@ it("Pyramid tooltipConfig keeps its rows through nested sets, and RESET restores
   const viz = new Pyramid().groupBy("sex").x("pop");
   const tbody = viz.tooltipConfig().tbody;
   viz.config({tooltipConfig: {titleStyle: {color: "red"}}});
-  assert.strictEqual(viz.tooltipConfig().tbody, tbody, "a sibling set keeps the Pyramid rows");
+  assert.strictEqual(
+    viz.tooltipConfig().tbody,
+    tbody,
+    "a sibling set keeps the Pyramid rows",
+  );
   assert.strictEqual(viz.tooltipConfig().titleStyle.color, "red");
-  assert.ok(viz.tooltipConfig().titleStyle["max-width"], "nested siblings kept");
+  assert.ok(
+    viz.tooltipConfig().titleStyle["max-width"],
+    "nested siblings kept",
+  );
   viz.tooltipConfig({tbody: []});
   assert.deepStrictEqual(viz.tooltipConfig().tbody, []);
   viz.config({tooltipConfig: {tbody: RESET}});
-  assert.strictEqual(typeof viz.tooltipConfig().tbody, "function", "RESET restores the Pyramid rows");
+  assert.strictEqual(
+    typeof viz.tooltipConfig().tbody,
+    "function",
+    "RESET restores the Pyramid rows",
+  );
   viz.ctx.pyramid.sides = ["M", "F"];
   viz.ctx.pyramid.total = 10;
-  assert.deepStrictEqual(viz.tooltipConfig().tbody({sex: "M", pop: 5}, 0), [["Percent of Total", "50%"]]);
+  assert.deepStrictEqual(viz.tooltipConfig().tbody({sex: "M", pop: 5}, 0), [
+    ["Percent of Total", "50%"],
+  ]);
 });

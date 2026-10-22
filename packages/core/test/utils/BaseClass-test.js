@@ -39,7 +39,10 @@ it("BaseClass", () => {
   assert.strictEqual(inst.parent().test, true, "parent setter");
 
   // translate getter/setter
-  assert.ok(typeof inst.translate() === "function", "translate() returns function");
+  assert.ok(
+    typeof inst.translate() === "function",
+    "translate() returns function",
+  );
   const customTranslate = d => d.toUpperCase();
   inst.translate(customTranslate);
   assert.strictEqual(inst.translate()("hello"), "HELLO", "custom translate");
@@ -49,7 +52,11 @@ it("BaseClass", () => {
   assert.strictEqual(inst.shapeConfig().fill, "red", "shapeConfig setter");
   inst.shapeConfig({stroke: "blue"});
   assert.strictEqual(inst.shapeConfig().fill, "red", "shapeConfig merges");
-  assert.strictEqual(inst.shapeConfig().stroke, "blue", "shapeConfig merges new keys");
+  assert.strictEqual(
+    inst.shapeConfig().stroke,
+    "blue",
+    "shapeConfig merges new keys",
+  );
 
   // RESET via config
   const r = new BaseClass();
@@ -86,5 +93,8 @@ it("BaseClass", () => {
   // default translate uses built-in dictionary
   const r3 = new BaseClass();
   const translated = r3.translate()("Back");
-  assert.ok(typeof translated === "string", "built-in translate returns string");
+  assert.ok(
+    typeof translated === "string",
+    "built-in translate returns string",
+  );
 });

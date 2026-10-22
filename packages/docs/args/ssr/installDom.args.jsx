@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   opts: {
     control: {},
@@ -12,12 +10,12 @@ export const argTypes = {
     description: "",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "domenvoptions"
-    }
-  }
+      summary: "domenvoptions",
+    },
+  },
 };

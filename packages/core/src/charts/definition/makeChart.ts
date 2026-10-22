@@ -46,14 +46,21 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       (super._draw as (...args: unknown[]) => unknown)(callback);
       // A small-multiples chrome pass lays out the chrome only.
       if (def.layoutStage && this._facetStep !== "chrome") {
-        runChartDraw(this as unknown as VizInstance, def, def.layoutStage, def.chartTransform);
+        runChartDraw(
+          this as unknown as VizInstance,
+          def,
+          def.layoutStage,
+          def.chartTransform,
+        );
       }
       return this;
     }
 
     toScene(): Scene {
       const scene = super.toScene() as Scene;
-      return def.decorateScene ? def.decorateScene(this as unknown as VizInstance, scene) : scene;
+      return def.decorateScene
+        ? def.decorateScene(this as unknown as VizInstance, scene)
+        : scene;
     }
 
     _sizeLegendScale(available: {width: number; height: number}) {
@@ -69,7 +76,9 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
     }
 
     _facetHooks() {
-      return def.facet ? {...super._facetHooks(), ...def.facet} : super._facetHooks();
+      return def.facet
+        ? {...super._facetHooks(), ...def.facet}
+        : super._facetHooks();
     }
 
     _thresholdFunction(data: unknown[]) {

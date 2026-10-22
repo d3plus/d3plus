@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.",
+        component:
+          "An extension to d3's [formatDefaultLocale](https://github.com/d3/d3-format#api-reference) function that allows setting the locale globally for formatters.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -26,7 +27,12 @@ import {format} from "@d3plus/format";
 import CallGrid from "../../helpers/CallGrid.jsx";
 
 const enUS = {decimal: ".", thousands: ",", grouping: [3], currency: ["$", ""]};
-const deDE = {decimal: ",", thousands: ".", grouping: [3], currency: ["", " €"]};
+const deDE = {
+  decimal: ",",
+  thousands: ".",
+  grouping: [3],
+  currency: ["", " €"],
+};
 
 // formatDefaultLocale changes the global default for every formatter, so the
 // demo applies the German definition, formats, and restores en-US in the same
@@ -61,7 +67,8 @@ ${calls
       language: "jsx",
     },
     description: {
-      story: "Sets the decimal mark, thousands separator, digit grouping, and currency affixes that every subsequent `format` call uses, the same way d3's `formatDefaultLocale` does. It is global state: the German definition flips the separators for all formatters until another definition replaces it.",
+      story:
+        "Sets the decimal mark, thousands separator, digit grouping, and currency affixes that every subsequent `format` call uses, the same way d3's `formatDefaultLocale` does. It is global state: the German definition flips the separators for all formatters until another definition replaces it.",
     },
   },
 };

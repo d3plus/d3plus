@@ -3,46 +3,47 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   p: {
     control: {},
-    description: "The point to be checked, which should always be an `[x, y]` formatted Array.",
+    description:
+      "The point to be checked, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
+      summary: "point",
+    },
   },
   s1: {
     control: {},
-    description: "The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
+    description:
+      "The first point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
+      summary: "point",
+    },
   },
   s2: {
     control: {},
-    description: "The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
+    description:
+      "The second point of the line segment to be used for the bounding box, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
-  }
+      summary: "point",
+    },
+  },
 };

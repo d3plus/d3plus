@@ -10,7 +10,13 @@ import {
   valueAxisExtent,
 } from "../../internal.ts";
 import {buildXConfig} from "../../src/charts/features/xAxisConfig.ts";
-import {AreaPlot, BarChart, Histogram, LinePlot, StackedArea} from "../../index.ts";
+import {
+  AreaPlot,
+  BarChart,
+  Histogram,
+  LinePlot,
+  StackedArea,
+} from "../../index.ts";
 
 useJsdom();
 
@@ -20,7 +26,9 @@ useJsdom();
     clamp that keeps bars inside the plot area.
 */
 
-const stub = schema => ({schema: {baseline: 0, baselineBreak: true, discrete: "x", ...schema}});
+const stub = schema => ({
+  schema: {baseline: 0, baselineBreak: true, discrete: "x", ...schema},
+});
 
 it("valueAxis is the non-discrete axis", () => {
   assert.strictEqual(valueAxis(stub({discrete: "x"})), "y");
@@ -30,8 +38,14 @@ it("valueAxis is the non-discrete axis", () => {
 
 it("baselineBreakAxisConfig turns the break on for the value axis only", () => {
   const viz = stub({baseline: 5});
-  assert.deepStrictEqual(baselineBreakAxisConfig(viz, "y"), {baseline: 5, baselineBreak: true});
-  assert.deepStrictEqual(baselineBreakAxisConfig(viz, "x"), {baseline: 5, baselineBreak: false});
+  assert.deepStrictEqual(baselineBreakAxisConfig(viz, "y"), {
+    baseline: 5,
+    baselineBreak: true,
+  });
+  assert.deepStrictEqual(baselineBreakAxisConfig(viz, "x"), {
+    baseline: 5,
+    baselineBreak: false,
+  });
   assert.deepStrictEqual(
     baselineBreakAxisConfig(stub({baselineBreak: false}), "y"),
     {baseline: 0, baselineBreak: false},
@@ -45,28 +59,77 @@ it("baselineBreakAxisConfig turns the break on for the value axis only", () => {
 });
 
 it("userDomainBreaksBaseline only when a user bound stops short of the baseline", () => {
-  const check = (schema, axis = "y", scale = "linear") => userDomainBreaksBaseline(stub(schema), axis, scale);
-  assert.strictEqual(check({yDomain: [1100, 2100]}), true, "positive domain above 0");
-  assert.strictEqual(check({yDomain: [-2100, -1100]}), true, "negative domain below 0");
-  assert.strictEqual(check({yDomain: [1100, undefined]}), true, "only the min given");
-  assert.strictEqual(check({yDomain: [undefined, 2100]}), false, "min left to the data");
-  assert.strictEqual(check({yDomain: [0, 2100]}), false, "domain reaches the baseline");
+  const check = (schema, axis = "y", scale = "linear") =>
+    userDomainBreaksBaseline(stub(schema), axis, scale);
+  assert.strictEqual(
+    check({yDomain: [1100, 2100]}),
+    true,
+    "positive domain above 0",
+  );
+  assert.strictEqual(
+    check({yDomain: [-2100, -1100]}),
+    true,
+    "negative domain below 0",
+  );
+  assert.strictEqual(
+    check({yDomain: [1100, undefined]}),
+    true,
+    "only the min given",
+  );
+  assert.strictEqual(
+    check({yDomain: [undefined, 2100]}),
+    false,
+    "min left to the data",
+  );
+  assert.strictEqual(
+    check({yDomain: [0, 2100]}),
+    false,
+    "domain reaches the baseline",
+  );
   assert.strictEqual(check({}), false, "no user domain");
-  assert.strictEqual(check({yDomain: [1100, 2100], baselineBreak: false}), false, "opted out");
-  assert.strictEqual(check({yDomain: [1100, 2100]}, "y", "log"), false, "log scales never break");
-  assert.strictEqual(check({xDomain: [1100, 2100]}, "x"), false, "x is discrete here");
-  assert.strictEqual(check({discrete: "y", xDomain: [1100, 2100]}, "x"), true, "horizontal bars");
+  assert.strictEqual(
+    check({yDomain: [1100, 2100], baselineBreak: false}),
+    false,
+    "opted out",
+  );
+  assert.strictEqual(
+    check({yDomain: [1100, 2100]}, "y", "log"),
+    false,
+    "log scales never break",
+  );
+  assert.strictEqual(
+    check({xDomain: [1100, 2100]}, "x"),
+    false,
+    "x is discrete here",
+  );
+  assert.strictEqual(
+    check({discrete: "y", xDomain: [1100, 2100]}, "x"),
+    true,
+    "horizontal bars",
+  );
 });
 
 it("valueAxisExtent reads the value axis range in shape coordinates", () => {
   const axis = range => ({_getRange: () => range});
   const vertical = {schema: {discrete: "x"}, _yAxis: axis([0, 400])};
-  assert.deepStrictEqual(valueAxisExtent(vertical, {x2Height: 10, yOffset: 0.5}), [-10.5, 390]);
+  assert.deepStrictEqual(
+    valueAxisExtent(vertical, {x2Height: 10, yOffset: 0.5}),
+    [-10.5, 390],
+  );
   const horizontal = {schema: {discrete: "y"}, _xAxis: axis([400, 50])};
-  assert.deepStrictEqual(valueAxisExtent(horizontal, {x2Height: 10, yOffset: 0.5}), [50, 400]);
-  assert.strictEqual(valueAxisExtent({schema: {discrete: "x"}}, {x2Height: 0, yOffset: 0}), undefined);
+  assert.deepStrictEqual(
+    valueAxisExtent(horizontal, {x2Height: 10, yOffset: 0.5}),
+    [50, 400],
+  );
   assert.strictEqual(
-    valueAxisExtent({schema: {discrete: "x"}, _yAxis: axis([NaN, 4])}, {x2Height: 0, yOffset: 0}),
+    valueAxisExtent({schema: {discrete: "x"}}, {x2Height: 0, yOffset: 0}),
+    undefined,
+  );
+  assert.strictEqual(
+    valueAxisExtent(
+      {schema: {discrete: "x"}, _yAxis: axis([NaN, 4])},
+      {x2Height: 0, yOffset: 0},
+    ),
     undefined,
   );
 });
@@ -75,21 +138,72 @@ it("outsideBaselineBreak moves points inside the baseline break onto its domain 
   // y: 0 sits at 400, the domain starts (1100) at 364.
   const brk = {value: 0, edge: 1100, position: 400, edgePosition: 364};
   const y = v => (v === 0 ? 400 : v === 1100 ? 364 : NaN);
-  const vertical = {schema: {discrete: "x"}, _yAxis: {_baselineBreak: brk}, _yFunc: y};
-  const pts = [[0, 400], [10, 380], [10, 364], [10, 100], [0, 100]];
-  assert.deepStrictEqual(outsideBaselineBreak(vertical, pts), [[0, 364], [10, 364], [10, 364], [10, 100], [0, 100]]);
+  const vertical = {
+    schema: {discrete: "x"},
+    _yAxis: {_baselineBreak: brk},
+    _yFunc: y,
+  };
+  const pts = [
+    [0, 400],
+    [10, 380],
+    [10, 364],
+    [10, 100],
+    [0, 100],
+  ];
+  assert.deepStrictEqual(outsideBaselineBreak(vertical, pts), [
+    [0, 364],
+    [10, 364],
+    [10, 364],
+    [10, 100],
+    [0, 100],
+  ]);
   // Horizontal: 0 sits at x 0, the domain starts at 36.
   const x = v => (v === 0 ? 0 : 36);
-  const horizontal = {schema: {discrete: "y"}, _xAxis: {_baselineBreak: brk}, _xFunc: x};
-  assert.deepStrictEqual(outsideBaselineBreak(horizontal, [[0, 5], [20, 5], [200, 5]]), [[36, 5], [36, 5], [200, 5]]);
+  const horizontal = {
+    schema: {discrete: "y"},
+    _xAxis: {_baselineBreak: brk},
+    _xFunc: x,
+  };
+  assert.deepStrictEqual(
+    outsideBaselineBreak(horizontal, [
+      [0, 5],
+      [20, 5],
+      [200, 5],
+    ]),
+    [
+      [36, 5],
+      [36, 5],
+      [200, 5],
+    ],
+  );
   const none = [[0, 400]];
-  assert.strictEqual(outsideBaselineBreak({schema: {discrete: "x"}, _yAxis: {_baselineBreak: null}, _yFunc: y}, none), none, "no break");
-  assert.strictEqual(outsideBaselineBreak({schema: {discrete: "x"}, _yAxis: {_baselineBreak: brk}}, none), none, "no positions yet");
+  assert.strictEqual(
+    outsideBaselineBreak(
+      {schema: {discrete: "x"}, _yAxis: {_baselineBreak: null}, _yFunc: y},
+      none,
+    ),
+    none,
+    "no break",
+  );
+  assert.strictEqual(
+    outsideBaselineBreak(
+      {schema: {discrete: "x"}, _yAxis: {_baselineBreak: brk}},
+      none,
+    ),
+    none,
+    "no positions yet",
+  );
 });
 
 it("clampBarConfig clamps the value-axis accessors and leaves the rest", () => {
   const discreteFn = d => d.x * 1000;
-  const config = {x: discreteFn, y: d => d.v, y0: 500, y1: d => d.v, label: "keep"};
+  const config = {
+    x: discreteFn,
+    y: d => d.v,
+    y0: 500,
+    y1: d => d.v,
+    label: "keep",
+  };
   const clamped = clampBarConfig(config, "y", [0, 400]);
   assert.strictEqual(clamped.y0, 400, "constant base clamps");
   assert.strictEqual(clamped.y1({v: -20}), 0, "accessor clamps low");
@@ -98,17 +212,47 @@ it("clampBarConfig clamps the value-axis accessors and leaves the rest", () => {
   assert.strictEqual(clamped.x, discreteFn, "discrete accessor untouched");
   assert.strictEqual(clamped.label, "keep");
   assert.strictEqual(config.y0, 500, "the input config isn't mutated");
-  assert.strictEqual(clampBarConfig(config, "y", undefined), config, "no extent, no change");
+  assert.strictEqual(
+    clampBarConfig(config, "y", undefined),
+    config,
+    "no extent, no change",
+  );
   const ctx = {scale: 2};
-  const withThis = clampBarConfig({x0: function (d) { return this.scale * d; }}, "x", [0, 100]);
-  assert.strictEqual(withThis.x0.call(ctx, 80), 100, "accessors keep their `this`");
+  const withThis = clampBarConfig(
+    {
+      x0: function (d) {
+        return this.scale * d;
+      },
+    },
+    "x",
+    [0, 100],
+  );
+  assert.strictEqual(
+    withThis.x0.call(ctx, 80),
+    100,
+    "accessors keep their `this`",
+  );
 });
 
 it("buildXConfig carries the x break settings into the shared x-axis config", () => {
-  const inputs = {xTicks: null, showX: true, showY: true, xData: [], xScalePadding: 0};
+  const inputs = {
+    xTicks: null,
+    showX: true,
+    showY: true,
+    xData: [],
+    xScalePadding: 0,
+  };
   const horizontal = new BarChart().discrete("y");
-  assert.strictEqual(buildXConfig(horizontal, inputs).baselineBreak, true, "horizontal bars break on x");
-  assert.strictEqual(buildXConfig(new BarChart(), inputs).baselineBreak, false, "vertical bars don't break x");
+  assert.strictEqual(
+    buildXConfig(horizontal, inputs).baselineBreak,
+    true,
+    "horizontal bars break on x",
+  );
+  assert.strictEqual(
+    buildXConfig(new BarChart(), inputs).baselineBreak,
+    false,
+    "vertical bars don't break x",
+  );
 });
 
 it("BarChart, AreaPlot, StackedArea, and Histogram default baselineBreak on; other Plots leave it off", () => {
@@ -117,14 +261,26 @@ it("BarChart, AreaPlot, StackedArea, and Histogram default baselineBreak on; oth
   assert.strictEqual(new StackedArea().baselineBreak(), true);
   assert.strictEqual(new Histogram().baselineBreak(), true);
   assert.ok(!new LinePlot().baselineBreak(), "LinePlot does not break");
-  assert.strictEqual(new BarChart().baselineBreak(false).baselineBreak(), false, "opt out");
+  assert.strictEqual(
+    new BarChart().baselineBreak(false).baselineBreak(),
+    false,
+    "opt out",
+  );
 });
 
 it("withAxisInk inks the break marks along with the axis line", async () => {
   const {withAxisInk} = await import("../../src/charts/Plot/axisInk.ts");
   const viz = new BarChart();
   const config = withAxisInk(viz, {breakConfig: {stroke: "red"}});
-  assert.strictEqual(typeof config.baselineBreakConfig.stroke, "function", "baseline break marks inked");
-  assert.strictEqual(config.baselineBreakConfig.stroke(), config.barConfig.stroke(), "same ink as the axis line");
+  assert.strictEqual(
+    typeof config.baselineBreakConfig.stroke,
+    "function",
+    "baseline break marks inked",
+  );
+  assert.strictEqual(
+    config.baselineBreakConfig.stroke(),
+    config.barConfig.stroke(),
+    "same ink as the axis line",
+  );
   assert.strictEqual(config.breakConfig.stroke, "red", "a user stroke wins");
 });

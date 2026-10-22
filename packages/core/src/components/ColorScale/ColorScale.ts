@@ -33,7 +33,8 @@ const colorScaleSchema: ConfigField[] = [
   {
     key: "bucketJoiner",
     coerce: "identity",
-    default: (a: string, b: string): string => (a !== b ? `${a} - ${b}` : `${a}`),
+    default: (a: string, b: string): string =>
+      a !== b ? `${a} - ${b}` : `${a}`,
   },
   {key: "centered", coerce: "identity", default: true},
   // No default palette: an unset `color` falls through to the single-hue
@@ -104,11 +105,13 @@ export default class ColorScale extends BaseClass {
       ticks: number[],
       allValues: number[],
     ): string => {
-      const format = (this.schema.axisConfig.tickFormat
-        ? this.schema.axisConfig.tickFormat
-        : isYearLike(allValues)
-          ? (v: number) => formatYear(v, this.schema.locale)
-          : formatAbbreviate) as (v: number | undefined) => string;
+      const format = (
+        this.schema.axisConfig.tickFormat
+          ? this.schema.axisConfig.tickFormat
+          : isYearLike(allValues)
+            ? (v: number) => formatYear(v, this.schema.locale)
+            : formatAbbreviate
+      ) as (v: number | undefined) => string;
 
       const next = ticks[i + 1];
       const prev = i ? ticks[i - 1] : false;
@@ -155,7 +158,9 @@ export default class ColorScale extends BaseClass {
     this._labelClass = new TextBox();
     this.schema.labelConfig = {
       fontColor: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
+        const bg = this._select
+          ? backgroundColor(this._select.node())
+          : "rgb(255, 255, 255)";
         return colorContrast(bg, this.schema.colorDefaults);
       },
       fontSize: 12,
@@ -187,7 +192,9 @@ export default class ColorScale extends BaseClass {
     // renderer into an <svg> container would nest a second one. Skipped in
     // compute mode, where the caller reads `toScene()` and no DOM is created.
     if (this._select === void 0 && this.schema.renderMode !== "compute")
-      this.select(select("body").append("div").node() as unknown as HTMLElement);
+      this.select(
+        select("body").append("div").node() as unknown as HTMLElement,
+      );
 
     // Shape <g> Group
     this._group = elem("g.d3plus-ColorScale", {parent: this._select});
@@ -258,9 +265,7 @@ export default class ColorScale extends BaseClass {
       this.schema.bucketAxis ||
       !["buckets", "jenks", "quantile"].includes(this.schema.scale);
 
-    const pushScene = (
-      cls: {toScene?: () => GroupNode} | undefined,
-    ): void => {
+    const pushScene = (cls: {toScene?: () => GroupNode} | undefined): void => {
       if (cls && typeof cls.toScene === "function") {
         const s = cls.toScene();
         if (s) children.push(s);
@@ -325,7 +330,8 @@ export default class ColorScale extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)),
+        this)
       : this.schema.labelConfig;
   }
 
@@ -354,7 +360,8 @@ export default class ColorScale extends BaseClass {
   legendConfig(_: Record<string, unknown>): this;
   legendConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)), this)
+      ? ((this.schema.legendConfig = mergeConfigBag(this, "legendConfig", _)),
+        this)
       : this.schema.legendConfig;
   }
 
@@ -390,4 +397,10 @@ export default class ColorScale extends BaseClass {
   }
 }
 
-resolvesReset(ColorScale.prototype, "axisConfig", "labelConfig", "legendConfig", "rectConfig");
+resolvesReset(
+  ColorScale.prototype,
+  "axisConfig",
+  "labelConfig",
+  "legendConfig",
+  "rectConfig",
+);

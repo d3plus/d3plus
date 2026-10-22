@@ -34,7 +34,10 @@ export const applyPackLayout: TransformStage = ({viz}) => {
     viz.schema.groupBy.slice(0, viz._drawDepth + 1),
   ) as unknown as Branch;
 
-  const packOpacityFn = viz.schema.packOpacity as (d: DataPoint, i: number) => number;
+  const packOpacityFn = viz.schema.packOpacity as (
+    d: DataPoint,
+    i: number,
+  ) => number;
 
   interface PackGenerator {
     padding: (n: number) => PackGenerator;
@@ -51,14 +54,21 @@ export const applyPackLayout: TransformStage = ({viz}) => {
       d => d.values as Branch[] | undefined,
     )
       .sum(viz.schema.sum as (d: DataPoint) => number)
-      .sort(viz.schema.sort as (a: HierarchyNode<Branch>, b: HierarchyNode<Branch>) => number),
+      .sort(
+        viz.schema.sort as (
+          a: HierarchyNode<Branch>,
+          b: HierarchyNode<Branch>,
+        ) => number,
+      ),
   )
     .descendants()
     .filter((d, i) => {
       const node = d as unknown as PackLeaf;
       node.__d3plus__ = true;
       node.i = i;
-      node.id = node.parent ? (node.parent.data.key as string | number) : "root";
+      node.id = node.parent
+        ? (node.parent.data.key as string | number)
+        : "root";
       const data = node.data as DataPoint & {
         __d3plusOpacity__?: number;
         __d3plusTooltip__?: boolean;

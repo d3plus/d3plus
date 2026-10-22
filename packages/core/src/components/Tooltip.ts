@@ -1,5 +1,11 @@
 import {select} from "d3-selection";
-import {computePosition, arrow as arrowMiddleware, offset, flip, shift} from "@floating-ui/dom";
+import {
+  computePosition,
+  arrow as arrowMiddleware,
+  offset,
+  flip,
+  shift,
+} from "@floating-ui/dom";
 import type {VirtualElement} from "@floating-ui/dom";
 
 import {colorContrast} from "@d3plus/color";
@@ -16,9 +22,17 @@ import type {ConfigField} from "../fluent.js";
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
 const tooltipSchema: ConfigField[] = [
   {key: "arrow", coerce: "const", default: accessor("arrow", "")},
-  {key: "background", coerce: "const", factory: t => () => t.schema.colorDefaults.light},
+  {
+    key: "background",
+    coerce: "const",
+    factory: t => () => t.schema.colorDefaults.light,
+  },
   {key: "body", coerce: "const", default: accessor("body", "")},
-  {key: "border", coerce: "const", default: constant("1px solid rgba(0, 0, 0, 0.25)")},
+  {
+    key: "border",
+    coerce: "const",
+    default: constant("1px solid rgba(0, 0, 0, 0.25)"),
+  },
   {key: "borderRadius", coerce: "const", default: constant("4px")},
   {key: "className", coerce: "identity", default: "d3plus-tooltip"},
   {key: "footer", coerce: "const", default: accessor("footer", "")},
@@ -40,10 +54,8 @@ const tooltipSchema: ConfigField[] = [
  * Creates a virtual reference element for Floating UI.
  * @param {Number[]} position
  * @private
-*/
-function generateReference(
-  position: number[] = [0, 0],
-): VirtualElement {
+ */
+function generateReference(position: number[] = [0, 0]): VirtualElement {
   return {
     getBoundingClientRect: () => ({
       width: 0,
@@ -70,20 +82,24 @@ async function positionTooltip(
   arrowDistance: number,
   arrowHeight: number,
 ) {
-  const {x, y, placement, middlewareData} = await computePosition(reference, tooltip, {
-    // `fixed` positions the tooltip against the viewport, so it can overflow
-    // its chart's bounds and `flip`/`shift` keep it inside the viewport
-    // (not the chart container). Pairs with the body-level portal in
-    // `resolvePortal` and `position: fixed` below.
-    strategy: "fixed",
-    placement: "top",
-    middleware: [
-      offset(offsetVal + arrowDistance),
-      flip({fallbackPlacements: ["bottom"], padding: 5}),
-      shift({padding: 5}),
-      arrowMiddleware({element: arrowEl}),
-    ],
-  });
+  const {x, y, placement, middlewareData} = await computePosition(
+    reference,
+    tooltip,
+    {
+      // `fixed` positions the tooltip against the viewport, so it can overflow
+      // its chart's bounds and `flip`/`shift` keep it inside the viewport
+      // (not the chart container). Pairs with the body-level portal in
+      // `resolvePortal` and `position: fixed` below.
+      strategy: "fixed",
+      placement: "top",
+      middleware: [
+        offset(offsetVal + arrowDistance),
+        flip({fallbackPlacements: ["bottom"], padding: 5}),
+        shift({padding: 5}),
+        arrowMiddleware({element: arrowEl}),
+      ],
+    },
+  );
 
   Object.assign(tooltip.style, {
     position: "fixed",
@@ -103,7 +119,8 @@ async function positionTooltip(
     arrowEl.style.bottom = `-${arrowHeight / 2 + border}px`;
     arrowEl.style.top = "";
   }
-  arrowEl.style.left = middlewareData.arrow?.x != null ? `${middlewareData.arrow.x}px` : "";
+  arrowEl.style.left =
+    middlewareData.arrow?.x != null ? `${middlewareData.arrow.x}px` : "";
 }
 
 /**
@@ -161,7 +178,12 @@ function resolvePortal(that: Tooltip): D3Selection {
     per datum by the `id` accessor.
     @private
 */
-function elementId(that: Tooltip, d: DataPoint, i: number, cat?: string): string {
+function elementId(
+  that: Tooltip,
+  d: DataPoint,
+  i: number,
+  cat?: string,
+): string {
   const prefix = cat ? `d3plus-tooltip-${cat}` : "d3plus-tooltip";
   return `${prefix}-${that._uuid}-${d ? that.schema.id(d, i) : ""}`;
 }
@@ -179,25 +201,20 @@ function divElement(
   enter
     .append("div")
     .attr("class", `d3plus-tooltip-${cat}`)
-    .attr("id", ((d: DataPoint, i: number) => elementId(that, d, i, cat)) as never);
+    .attr("id", ((d: DataPoint, i: number) =>
+      elementId(that, d, i, cat)) as never);
 
   const div = update
     .select(`.d3plus-tooltip-${cat}`)
     .html(
       ((d: DataPoint, i: number) =>
-        (
-          that.schema as Record<
-            string,
-            (d: DataPoint, i: number) => unknown
-          >
-        )[cat](d, i) as string) as never,
+        (that.schema as Record<string, (d: DataPoint, i: number) => unknown>)[
+          cat
+        ](d, i) as string) as never,
     )
     .style("display", ((d: DataPoint, i: number) => {
       const val = (
-        that.schema as Record<
-          string,
-          (d: DataPoint, i: number) => unknown
-        >
+        that.schema as Record<string, (d: DataPoint, i: number) => unknown>
       )[cat](d, i);
       const visible = val !== false && val !== undefined && val !== null;
       return visible ? "block" : "none";
@@ -205,9 +222,7 @@ function divElement(
 
   stylize(
     div,
-    (that.schema as Record<string, Record<string, string>>)[
-      `${cat}Style`
-    ],
+    (that.schema as Record<string, Record<string, string>>)[`${cat}Style`],
   );
 }
 
@@ -251,9 +266,13 @@ function buildTable(
   const theadTrEnter = theadTr.enter().append("tr");
   theadTr.exit().remove();
   const theadTrUpdate = theadTr.merge(theadTrEnter as never);
-  stylize(theadTrUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  stylize(
+    theadTrUpdate as never,
+    that.schema.trStyle as Record<string, string | number | boolean | null>,
+  );
   const th = theadTrUpdate.selectAll("th").data(that.schema.thead);
-  const thUpdate = th.enter()
+  const thUpdate = th
+    .enter()
     .append("th")
     .merge(th as never)
     .html(cellContent as never);
@@ -267,9 +286,13 @@ function buildTable(
   const trEnter = tr.enter().append("tr");
   tr.exit().remove();
   const trUpdate = tr.merge(trEnter as never);
-  stylize(trUpdate as never, that.schema.trStyle as Record<string, string | number | boolean | null>);
+  stylize(
+    trUpdate as never,
+    that.schema.trStyle as Record<string, string | number | boolean | null>,
+  );
   const td = trUpdate.selectAll("td").data((d: unknown) => d as unknown[]);
-  const tdUpdate = td.enter()
+  const tdUpdate = td
+    .enter()
     .append("td")
     .merge(td as never)
     .html(cellContent as never);
@@ -296,7 +319,9 @@ function bindTooltips(
       // Read the entered node and its own arrow, never a document-wide id
       // lookup: another Tooltip's element could answer to the same id.
       const tooltip = this;
-      const arrowEl = tooltip.querySelector<HTMLElement>(".d3plus-tooltip-arrow")!;
+      const arrowEl = tooltip.querySelector<HTMLElement>(
+        ".d3plus-tooltip-arrow",
+      )!;
       const arrowHeight = arrowEl.offsetHeight;
       const arrowDistance = arrowEl.getBoundingClientRect().height / 2;
       arrowEl.style.bottom = `-${arrowHeight / 2}px`;
@@ -304,10 +329,23 @@ function bindTooltips(
       const position = that.schema.position(d, i);
       const reference: VirtualElement | HTMLElement = Array.isArray(position)
         ? generateReference(position)
-        : position as HTMLElement;
+        : (position as HTMLElement);
 
-      that._tooltipRefs[id] = {reference, arrowEl, tooltip, arrowHeight, arrowDistance};
-      positionTooltip(reference, tooltip, arrowEl, that.schema.offset(d, i), arrowDistance, arrowHeight);
+      that._tooltipRefs[id] = {
+        reference,
+        arrowEl,
+        tooltip,
+        arrowHeight,
+        arrowDistance,
+      };
+      positionTooltip(
+        reference,
+        tooltip,
+        arrowEl,
+        that.schema.offset(d, i),
+        arrowDistance,
+        arrowHeight,
+      );
     } as never);
 
   update
@@ -319,8 +357,15 @@ function bindTooltips(
       if (ref) {
         ref.reference = Array.isArray(position)
           ? generateReference(position as number[])
-          : position as HTMLElement;
-        positionTooltip(ref.reference, ref.tooltip, ref.arrowEl, that.schema.offset(d, i), ref.arrowDistance, ref.arrowHeight);
+          : (position as HTMLElement);
+        positionTooltip(
+          ref.reference,
+          ref.tooltip,
+          ref.arrowEl,
+          that.schema.offset(d, i),
+          ref.arrowDistance,
+          ref.arrowHeight,
+        );
       }
     } as never)
     .call(box => boxStyles(that, box as never));
@@ -352,7 +397,16 @@ export default class Tooltip extends BaseClass {
    * sibling Tooltip's.
    */
   _portalEl?: HTMLElement;
-  _tooltipRefs: Record<string, {reference: VirtualElement | HTMLElement; arrowEl: HTMLElement; tooltip: HTMLElement; arrowHeight: number; arrowDistance: number}>;
+  _tooltipRefs: Record<
+    string,
+    {
+      reference: VirtualElement | HTMLElement;
+      arrowEl: HTMLElement;
+      tooltip: HTMLElement;
+      arrowHeight: number;
+      arrowDistance: number;
+    }
+  >;
 
   /**
       Invoked when creating a new class instance, and sets any default parameters.
@@ -405,11 +459,15 @@ export default class Tooltip extends BaseClass {
       "font-size": "14px",
       "font-weight": "600",
       "margin-bottom": "5px",
-      "text-align": "center"
+      "text-align": "center",
     };
     this.schema.tooltipStyle = {
       "box-shadow": "0 1px 5px rgba(0, 0, 0, 0.25)",
-      color: ((d: DataPoint, i: number) => colorContrast(this.schema.background(d, i) as string, this.schema.colorDefaults)) as unknown as string,
+      color: ((d: DataPoint, i: number) =>
+        colorContrast(
+          this.schema.background(d, i) as string,
+          this.schema.colorDefaults,
+        )) as unknown as string,
       "font-family": fontFamilyStringify(fontFamily),
     };
     this.schema.trStyle = {
@@ -441,7 +499,10 @@ export default class Tooltip extends BaseClass {
       })
       .data(this._data, this.schema.id) as unknown as D3Selection;
 
-    const enter = tooltips.enter().append("div").attr("class", this.schema.className) as unknown as D3Selection;
+    const enter = tooltips
+      .enter()
+      .append("div")
+      .attr("class", this.schema.className) as unknown as D3Selection;
 
     const update = tooltips.merge(enter as never) as unknown as D3Selection;
     stylize(update, this.schema.tooltipStyle);
@@ -539,7 +600,8 @@ export default class Tooltip extends BaseClass {
   footerStyle(_: Record<string, string>): this;
   footerStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.footerStyle = mergeConfigBag(this, "footerStyle", _)), this)
+      ? ((this.schema.footerStyle = mergeConfigBag(this, "footerStyle", _)),
+        this)
       : this.schema.footerStyle;
   }
 
@@ -634,7 +696,8 @@ export default class Tooltip extends BaseClass {
   tooltipStyle(_: Record<string, string>): this;
   tooltipStyle(_?: Record<string, string>): unknown {
     return arguments.length
-      ? ((this.schema.tooltipStyle = mergeConfigBag(this, "tooltipStyle", _)), this)
+      ? ((this.schema.tooltipStyle = mergeConfigBag(this, "tooltipStyle", _)),
+        this)
       : this.schema.tooltipStyle;
   }
 

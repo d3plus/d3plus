@@ -11,7 +11,12 @@ import type {SceneNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig, textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
+import {
+  userLabelConfig,
+  textureFill,
+  shapeConfigFor,
+  resolveAccessor,
+} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
@@ -84,7 +89,12 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       if (sh < fontMin) sh = 0;
       return [
         {width: w, height: h - sh, x: -w / 2, y: -h / 2},
-        {width: w, height: sh + padding * 2, x: -w / 2, y: h / 2 - sh - padding * 2},
+        {
+          width: w,
+          height: sh + padding * 2,
+          x: -w / 2,
+          y: h / 2 - sh - padding * 2,
+        },
       ];
     },
     labelConfig: {
@@ -96,7 +106,9 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
       fontColor: (d: DataPoint & {data?: DataPoint; i?: number}) => {
         const src = (d && d.data ? d.data : d) as DataPoint & {i?: number};
         const fillVal = resolveAccessor<string>(sc.fill, src, src.i);
-        return typeof fillVal === "string" ? colorContrast(fillVal, viz.schema.colorDefaults) : undefined;
+        return typeof fillVal === "string"
+          ? colorContrast(fillVal, viz.schema.colorDefaults)
+          : undefined;
       },
       ...userLabelConfig(viz, "Rect"),
     },
@@ -108,7 +120,10 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
   // which is never stamped this way and so never flip-morphs.
   for (const n of labelNodes) (n as {shapeType?: string}).shapeType = "Label";
 
-  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [nodes[k].data, nodes[k].i]);
+  const imageNodes = backgroundImageNodes(sc, rectNodes, k => [
+    nodes[k].data,
+    nodes[k].i,
+  ]);
 
   return [...rectNodes, ...imageNodes, ...labelNodes];
 };

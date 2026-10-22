@@ -24,15 +24,23 @@ import {axisValue} from "./sharedTooltip.js";
 /** Builds the `Area` shape config; `self` is the Plot instance. */
 function areaConfig(self: VizInstance) {
   return {
-    label: (d: DataPoint, i: number) => (self.schema.stacked ? self._drawLabel(d, i) : false),
-    labelBounds: (d: DataPoint, i: number, aes: {points: [number, number][]}) => {
+    label: (d: DataPoint, i: number) =>
+      self.schema.stacked ? self._drawLabel(d, i) : false,
+    labelBounds: (
+      d: DataPoint,
+      i: number,
+      aes: {points: [number, number][]},
+    ) => {
       // The label fits the area's plotted part, clear of any baseline break.
       const points = outsideBaselineBreak(self, aes.points);
       let r = largestRect(points, {angle: range(-20, 20, 5)});
       if (!r || r.height < 20 || r.width < 50)
         r = largestRect(points, {angle: range(-80, 80, 5)});
       if (!r) return null;
-      const x = min(aes.points, (p: [number, number]) => p[0]) as unknown as number;
+      const x = min(
+        aes.points,
+        (p: [number, number]) => p[0],
+      ) as unknown as number;
       const y = max(
         aes.points.filter((p: [number, number]) => p[0] === x),
         (p: [number, number]) => p[1],
@@ -56,10 +64,12 @@ function areaConfig(self: VizInstance) {
 /** Builds the top-level `ariaLabel` accessor; `self` is the Plot instance. */
 function ariaLabelConfig(self: VizInstance) {
   // Dates read as their axis labels them (see `axisValue`), other values as given.
-  const value = (k: "x" | "y", v: unknown) => (isValidDate(v) ? axisValue(self, k, v) : v);
+  const value = (k: "x" | "y", v: unknown) =>
+    isValidDate(v) ? axisValue(self, k, v) : v;
   return (d: DataPoint, i: number) => {
     let ariaLabelStr: string;
-    if (d.nested) ariaLabelStr = `${self._drawLabel(d.data as DataPoint, d.i as number)}`;
+    if (d.nested)
+      ariaLabelStr = `${self._drawLabel(d.data as DataPoint, d.i as number)}`;
     else {
       ariaLabelStr = `${self._drawLabel(d, i)}`;
       if (self._x!(d, i) !== undefined)
@@ -83,9 +93,11 @@ function barLabelConfig() {
     fontResize: true,
     fontColor(this: VizInstance, d: DataPoint, i: number) {
       if (outside.bind(this)(d, i)) {
-        const bg = (this._backgroundConfig!.fill === "transparent"
-          ? backgroundColor(this._select!.node())
-          : this._backgroundConfig!.fill) as string;
+        const bg = (
+          this._backgroundConfig!.fill === "transparent"
+            ? backgroundColor(this._select!.node())
+            : this._backgroundConfig!.fill
+        ) as string;
         return colorContrast(bg, this.schema.colorDefaults);
       }
       return colorContrast(
@@ -97,9 +109,11 @@ function barLabelConfig() {
     },
     fontStroke(this: VizInstance, d: DataPoint, i: number) {
       if (outside.bind(this)(d, i)) {
-        const bg = (this._backgroundConfig!.fill === "transparent"
-          ? backgroundColor(this._select!.node())
-          : this._backgroundConfig!.fill) as string;
+        const bg = (
+          this._backgroundConfig!.fill === "transparent"
+            ? backgroundColor(this._select!.node())
+            : this._backgroundConfig!.fill
+        ) as string;
         return colorContrast(bg, this.schema.colorDefaults);
       }
       return "transparent";
@@ -115,7 +129,8 @@ function barLabelConfig() {
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative =
+        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
       const anchor = invert
         ? "middle"
         : outside.bind(this)(d, i)
@@ -140,7 +155,8 @@ function barLabelConfig() {
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative =
+        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
       return invert
         ? outside.bind(this)(d, i)
           ? negative
@@ -157,7 +173,12 @@ function barLabelConfig() {
 /** Builds the `Bar` shape config (dynamic-`this` `labelBounds` preserved). */
 function barConfig() {
   return {
-    labelBounds(this: VizInstance, d: DataPoint, i: number, s: {width: number; height: number}) {
+    labelBounds(
+      this: VizInstance,
+      d: DataPoint,
+      i: number,
+      s: {width: number; height: number},
+    ) {
       const padding = 1;
 
       const width = this.schema.discrete === "y" ? "width" : "height";
@@ -172,7 +193,8 @@ function barConfig() {
       const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;
       const range = axis._d3Scale!.range();
       const space = Math.abs(range[1] - range[0]);
-      const negative = ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative =
+        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
 
       if (outside.bind(this)(d, i)) {
         return {

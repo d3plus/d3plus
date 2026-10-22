@@ -195,7 +195,9 @@ function lineage(name, stories) {
 export function configInterfaceDocs(name, stories, interfaceDocs) {
   const byName = interfaceDocs.byName || {};
   if (byName[`${name}Config`]) return byName[`${name}Config`];
-  return lineage(name, stories).includes("Viz") ? byName.D3plusConfig || {} : {};
+  return lineage(name, stories).includes("Viz")
+    ? byName.D3plusConfig || {}
+    : {};
 }
 
 // A paragraph that opens with documented class names and a colon
@@ -644,12 +646,17 @@ function chartArgTypes(
   const ownConfig = configDefaults[story.name] || {};
   const parentName = hasParent(story);
   const parentConfig = (parentName && configDefaults[parentName]) || {};
-  const typed = (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
+  const typed =
+    (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
   const merged = interfaceDocs.merged || {};
   const byName = name => stories.find(d => d.name === name);
   const chartDoc = (s, key) => {
     const field = s.chartDef.fields.find(f => f.key === key);
-    return (field && field.description) || (s.chartDef.accessors[key] || {}).description || "";
+    return (
+      (field && field.description) ||
+      (s.chartDef.accessors[key] || {}).description ||
+      ""
+    );
   };
   // Whether a class's parent (or an ancestor) has `key`: an installFluent
   // accessor, a documented method, or a chart's own config.
@@ -659,7 +666,8 @@ function chartArgTypes(
     if (key in (configDefaults[parent.name] || {})) return true;
     for (let a = parent; a; a = byName(hasParent(a))) {
       if (a.chartDef && a.chartDef.fields.some(f => f.key === key)) return true;
-      if (allMethods.some(d => d.memberof === a.name && d.name === key)) return true;
+      if (allMethods.some(d => d.memberof === a.name && d.name === key))
+        return true;
     }
     return false;
   };
@@ -674,16 +682,21 @@ function chartArgTypes(
       const inherited = describe(parent, key);
       return own ? [inherited, own].filter(Boolean).join("\n\n") : inherited;
     }
-    const method = allMethods.find(d => d.memberof === s.name && d.name === key);
+    const method = allMethods.find(
+      d => d.memberof === s.name && d.name === key,
+    );
     if (method && method.description) return method.description;
     const parent = byName(hasParent(s));
     return parent ? describe(parent, key) : sharedDoc(key);
   };
   const sharedDoc = key =>
-    (scopedDoc(typed[key] || merged[key], story.name, stories) || {}).description || "";
+    (scopedDoc(typed[key] || merged[key], story.name, stories) || {})
+      .description || "";
 
   const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
-  const keys = [...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)])];
+  const keys = [
+    ...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)]),
+  ];
   const out = {};
   for (const key of keys) {
     if (hideRe && hideRe.test(key)) continue;

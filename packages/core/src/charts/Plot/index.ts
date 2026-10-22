@@ -2,10 +2,7 @@
 
 import {zoomTransform} from "d3-zoom";
 
-import {
-  colorAssign,
-  colorGray,
-} from "@d3plus/color";
+import {colorAssign, colorGray} from "@d3plus/color";
 import {assign} from "@d3plus/dom";
 
 import {
@@ -35,7 +32,11 @@ const plotSchema = [
   {key: "sizeScale", coerce: "identity" as const},
   {key: "stacked", coerce: "identity" as const},
   {key: "swarm", coerce: "identity" as const, default: "auto"},
-  {key: "swarmConfig", merge: true, factory: () => ({padding: 1, overflow: "shrink"})},
+  {
+    key: "swarmConfig",
+    merge: true,
+    factory: () => ({padding: 1, overflow: "shrink"}),
+  },
   {key: "tooltipShared", coerce: "identity" as const},
   {key: "xBreak", coerce: "identity" as const},
   {key: "xCutoff", coerce: "identity" as const},
@@ -66,7 +67,10 @@ import {
 import type {PlotPaintContext} from "../features/plotPaint.js";
 import {paintZoomablePlot, zoomPlot, type ZoomState} from "./plotZoom.js";
 import {validateConfidenceConfig} from "./confidenceConfig.js";
-import {resolveConfidenceBands, type ConfidenceBand} from "./confidenceBands.js";
+import {
+  resolveConfidenceBands,
+  type ConfidenceBand,
+} from "./confidenceBands.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {forecastDefaults} from "./forecast.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
@@ -76,7 +80,13 @@ import {gridStroke} from "../../components/Axis/gridStroke.js";
 import {plotInsetRegion} from "./insetRegion.js";
 import {plotFacetHooks} from "./plotFacet.js";
 
-import type {InteractionPoint, PickResult, Scene, SceneEvent, SceneNode} from "@d3plus/render";
+import type {
+  InteractionPoint,
+  PickResult,
+  Scene,
+  SceneEvent,
+  SceneNode,
+} from "@d3plus/render";
 import type {DataPoint} from "@d3plus/data";
 import {linkedColorDefaults} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -91,7 +101,9 @@ import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 /** A y-axis config patch with its `domain` array reversed (y scales run top-down). */
 function reverseDomain(patch: unknown): unknown {
   const domain = (patch as {domain?: unknown} | undefined)?.domain;
-  return Array.isArray(domain) ? {...(patch as object), domain: domain.slice().reverse()} : patch;
+  return Array.isArray(domain)
+    ? {...(patch as object), domain: domain.slice().reverse()}
+    : patch;
 }
 
 /**
@@ -146,14 +158,18 @@ export default class Plot extends Viz {
     };
     this._labelPosition = constant("auto");
     this._lineMarkerConfig = {
-      fill: (d: DataPoint, i: number) => colorAssign(this._id(d, i), linkedColorDefaults(this)),
+      fill: (d: DataPoint, i: number) =>
+        colorAssign(this._id(d, i), linkedColorDefaults(this)),
       r: constant(3),
     };
     this._lineMarkers = defaults.lineMarkers as boolean;
     this._previousAnnotations = {back: [], front: []};
     this._previousShapes = [];
     this.schema.shape = defaults.shape;
-    this.schema.shapeConfig = assign(this.schema.shapeConfig, plotShapeDefaults.call(this as unknown as VizInstance));
+    this.schema.shapeConfig = assign(
+      this.schema.shapeConfig,
+      plotShapeDefaults.call(this as unknown as VizInstance),
+    );
     this._shapeOrder = ["Area", "Path", "Bar", "Box", "Line", "Rect", "Circle"];
     this.schema.shapeSort = (a: string, b: string) =>
       this._shapeOrder.indexOf(a) - this._shapeOrder.indexOf(b);
@@ -179,7 +195,10 @@ export default class Plot extends Viz {
     this._xConfig = {
       gridConfig: {
         stroke: (d: {id: string}) => {
-          if (this.schema.discrete?.charAt(0) === "x" || this._swarm?.cross === "x")
+          if (
+            this.schema.discrete?.charAt(0) === "x" ||
+            this._swarm?.cross === "x"
+          )
             return "transparent";
           const range = this._xAxis.range();
           const position = this._xAxis._getPosition.bind(this._xAxis)(d.id);
@@ -202,7 +221,10 @@ export default class Plot extends Viz {
     this._yConfig = {
       gridConfig: {
         stroke: (d: {id: string}) => {
-          if (this.schema.discrete?.charAt(0) === "y" || this._swarm?.cross === "y")
+          if (
+            this.schema.discrete?.charAt(0) === "y" ||
+            this._swarm?.cross === "y"
+          )
             return "transparent";
           const range = this._yAxis.range();
           const position = this._yAxis._getPosition.bind(this._yAxis)(d.id);
@@ -232,7 +254,10 @@ export default class Plot extends Viz {
 
         // if axis is discrete and numerical, do not sum values
         if (!this.schema.aggs[str] && this.schema.discrete === k) {
-          this.schema.aggs[str] = (a: DataPoint[], c: (d: DataPoint) => unknown) => {
+          this.schema.aggs[str] = (
+            a: DataPoint[],
+            c: (d: DataPoint) => unknown,
+          ) => {
             const v = Array.from(new Set(a.map(c)));
             return v.length === 1 ? v[0] : v;
           };
@@ -286,7 +311,11 @@ export default class Plot extends Viz {
       ) {
         // Wrap in a uniquely-keyed group so sibling axes never collide (axis
         // snapshots reuse a per-call key counter).
-        axisNodes.push({type: "group", key: `plot-${name}`, children: [axis.toScene()]});
+        axisNodes.push({
+          type: "group",
+          key: `plot-${name}`,
+          children: [axis.toScene()],
+        });
       }
     }
     // Axes are drawn behind the shapes.
@@ -321,7 +350,12 @@ export default class Plot extends Viz {
     const shapeEvents = events.filter(e => e.includes(".shape"));
     const forward =
       (evt: string) =>
-      (d: {data: DataPoint; i: number}, i: number, x: unknown, event: unknown) =>
+      (
+        d: {data: DataPoint; i: number},
+        i: number,
+        x: unknown,
+        event: unknown,
+      ) =>
         this.schema.on[evt](d.data, d.i, x, event);
     for (const evt of globalEvents) shape.on(evt, forward(evt));
     for (const evt of shapeEvents) shape.on(evt, forward(evt));
@@ -507,16 +541,26 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 */
-  backgroundConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+  backgroundConfig(
+    _?: Record<string, unknown>,
+  ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._backgroundConfig = mergeConfigBag(this, "backgroundConfig", _, this._backgroundConfig)), this)
+      ? ((this._backgroundConfig = mergeConfigBag(
+          this,
+          "backgroundConfig",
+          _,
+          this._backgroundConfig,
+        )),
+        this)
       : this._backgroundConfig;
   }
 
   /**
       Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 */
-  buffer(_?: boolean | Record<string, boolean>): this | Record<string, unknown> {
+  buffer(
+    _?: boolean | Record<string, boolean>,
+  ): this | Record<string, unknown> {
     if (arguments.length) {
       if (!_) this._buffer = {};
       else if (_ === true) this._buffer = defaultBuffers;
@@ -524,7 +568,8 @@ Additionally, each config object can also contain an optional "layer" key, which
         this._buffer = assign({}, this._buffer, _);
         for (const key in this._buffer) {
           const buf = this._buffer as Record<string, unknown>;
-          if (buf[key] === true) buf[key] = (defaultBuffers as Record<string, unknown>)[key];
+          if (buf[key] === true)
+            buf[key] = (defaultBuffers as Record<string, unknown>)[key];
         }
       }
       return this;
@@ -549,9 +594,13 @@ Additionally, each config object can also contain an optional "layer" key, which
        // Or nested bands, outermost first
        .confidence([["p5", "p95", "90%"], ["p25", "p75", "50%"]])
 */
-  confidence(_?: unknown): this | VizInstance["_confidence"] | ConfidenceBand[] {
+  confidence(
+    _?: unknown,
+  ): this | VizInstance["_confidence"] | ConfidenceBand[] {
     if (!arguments.length)
-      return this._confidenceBands && this._confidenceBands.length > 1 ? this._confidenceBands : this._confidence;
+      return this._confidenceBands && this._confidenceBands.length > 1
+        ? this._confidenceBands
+        : this._confidence;
     const bands = (this._confidenceBands = resolveConfidenceBands(_));
     this._confidence = bands.length ? [bands[0].lower, bands[0].upper] : false;
     return this;
@@ -563,10 +612,17 @@ Additionally, each config object can also contain an optional "layer" key, which
 @example
        .confidenceConfig({Bar: {stroke: "#333", capWidth: 8}, tooltip: false})
 */
-  confidenceConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+  confidenceConfig(
+    _?: Record<string, unknown>,
+  ): this | Record<string, unknown> {
     if (!arguments.length) return this._confidenceConfig;
     validateConfidenceConfig(this.constructor.name, _);
-    this._confidenceConfig = mergeConfigBag(this, "confidenceConfig", _, this._confidenceConfig);
+    this._confidenceConfig = mergeConfigBag(
+      this,
+      "confidenceConfig",
+      _,
+      this._confidenceConfig,
+    );
     return this;
   }
 
@@ -591,9 +647,16 @@ Additionally, each config object can also contain an optional "layer" key, which
   /**
        The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 */
-  labelConnectorConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+  labelConnectorConfig(
+    _?: Record<string, unknown>,
+  ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._labelConnectorConfig = mergeConfigBag(this, "labelConnectorConfig", _, this._labelConnectorConfig)),
+      ? ((this._labelConnectorConfig = mergeConfigBag(
+          this,
+          "labelConnectorConfig",
+          _,
+          this._labelConnectorConfig,
+        )),
         this)
       : this._labelConnectorConfig;
   }
@@ -617,7 +680,13 @@ Additionally, each config object can also contain an optional "layer" key, which
 */
   crosshairConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._crosshairConfig = mergeConfigBag(this, "crosshairConfig", _, this._crosshairConfig)), this)
+      ? ((this._crosshairConfig = mergeConfigBag(
+          this,
+          "crosshairConfig",
+          _,
+          this._crosshairConfig,
+        )),
+        this)
       : this._crosshairConfig;
   }
 
@@ -646,16 +715,30 @@ Stacked charts always fit one line to the stack totals.
 */
   trendLineConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._trendLineConfig = mergeConfigBag(this, "trendLineConfig", _, this._trendLineConfig)), this)
+      ? ((this._trendLineConfig = mergeConfigBag(
+          this,
+          "trendLineConfig",
+          _,
+          this._trendLineConfig,
+        )),
+        this)
       : this._trendLineConfig;
   }
 
   /**
       Shape config for the Circle shapes drawn by the lineMarkers method.
 */
-  lineMarkerConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
+  lineMarkerConfig(
+    _?: Record<string, unknown>,
+  ): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._lineMarkerConfig = mergeConfigBag(this, "lineMarkerConfig", _, this._lineMarkerConfig)), this)
+      ? ((this._lineMarkerConfig = mergeConfigBag(
+          this,
+          "lineMarkerConfig",
+          _,
+          this._lineMarkerConfig,
+        )),
+        this)
       : this._lineMarkerConfig;
   }
 
@@ -744,7 +827,8 @@ Stacked charts always fit one line to the stack totals.
 */
   xConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._xConfig = mergeConfigBag(this, "xConfig", _, this._xConfig)), this)
+      ? ((this._xConfig = mergeConfigBag(this, "xConfig", _, this._xConfig)),
+        this)
       : this._xConfig;
   }
 
@@ -753,7 +837,8 @@ Stacked charts always fit one line to the stack totals.
 */
   x2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._x2Config = mergeConfigBag(this, "x2Config", _, this._x2Config)), this)
+      ? ((this._x2Config = mergeConfigBag(this, "x2Config", _, this._x2Config)),
+        this)
       : this._x2Config;
   }
 
@@ -792,7 +877,13 @@ Stacked charts always fit one line to the stack totals.
 */
   yConfig(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._yConfig = mergeConfigBag(this, "yConfig", reverseDomain(_), this._yConfig)), this)
+      ? ((this._yConfig = mergeConfigBag(
+          this,
+          "yConfig",
+          reverseDomain(_),
+          this._yConfig,
+        )),
+        this)
       : this._yConfig;
   }
 
@@ -801,13 +892,28 @@ Stacked charts always fit one line to the stack totals.
 */
   y2Config(_?: Record<string, unknown>): this | Record<string, unknown> {
     return arguments.length
-      ? ((this._y2Config = mergeConfigBag(this, "y2Config", reverseDomain(_), this._y2Config)), this)
+      ? ((this._y2Config = mergeConfigBag(
+          this,
+          "y2Config",
+          reverseDomain(_),
+          this._y2Config,
+        )),
+        this)
       : this._y2Config;
   }
-
 }
 
 resolvesReset(
-  Plot.prototype, "backgroundConfig", "baseline", "confidenceConfig", "crosshairConfig", "labelConnectorConfig",
-  "lineMarkerConfig", "trendLineConfig", "xConfig", "x2Config", "yConfig", "y2Config",
+  Plot.prototype,
+  "backgroundConfig",
+  "baseline",
+  "confidenceConfig",
+  "crosshairConfig",
+  "labelConnectorConfig",
+  "lineMarkerConfig",
+  "trendLineConfig",
+  "xConfig",
+  "x2Config",
+  "yConfig",
+  "y2Config",
 );

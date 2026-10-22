@@ -15,9 +15,9 @@ export default {
         component: "Removes all non ASCII characters from a string.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -36,17 +36,29 @@ const calls = rows =>
   }));
 
 const params = (rows, story) => ({
-  docs: {...sourceSnippet("text", "strip", calls(rows)).docs, description: {story}},
+  docs: {
+    ...sourceSnippet("text", "strip", calls(rows)).docs,
+    description: {story},
+  },
 });
 
-const basicRows = [["Héllo Wörld!"], ["São Paulo"], ["naïve café"], ["Crème brûlée (2024)"]];
+const basicRows = [
+  ["Héllo Wörld!"],
+  ["São Paulo"],
+  ["naïve café"],
+  ["Crème brûlée (2024)"],
+];
 export const BasicExample = () => <CallGrid calls={calls(basicRows)} />;
 BasicExample.parameters = params(
   basicRows,
   "Accented letters are folded to their plain ASCII equivalent, every space becomes the spacer (`-` by default), and anything else that is not a letter, digit, hyphen, or underscore is dropped, which makes the result safe for ids, class names, and file names.",
 );
 
-const spacerRows = [["São Paulo", "_"], ["New York City", "+"], ["a b c", ""]];
+const spacerRows = [
+  ["São Paulo", "_"],
+  ["New York City", "+"],
+  ["a b c", ""],
+];
 export const CustomSpacer = () => <CallGrid calls={calls(spacerRows)} />;
 CustomSpacer.parameters = params(
   spacerRows,

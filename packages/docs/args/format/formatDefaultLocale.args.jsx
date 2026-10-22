@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   definition: {
     control: {},
     description: "The localization definition.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "formatlocaledefinition"
-    }
-  }
+      summary: "formatlocaledefinition",
+    },
+  },
 };

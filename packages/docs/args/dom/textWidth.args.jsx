@@ -3,35 +3,33 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   style: {
     control: {},
     description: "CSS style properties to apply when measuring.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   text: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The text string to measure.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

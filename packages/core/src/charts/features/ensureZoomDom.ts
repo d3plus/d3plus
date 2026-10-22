@@ -59,14 +59,22 @@ function hostElement(viz: Viz): HTMLElement | null {
     on it; they mount instead in an underlay <svg> stacked beneath the canvas
     (the canvas is transparent wherever there is no geography).
 */
-function zoomDomParent(viz: Viz, kind: ZoomDomKind): NonNullable<Viz["_select"]> {
-  const host = kind === "geomap" && viz._renderer === "canvas" && !viz._ssr ? hostElement(viz) : null;
+function zoomDomParent(
+  viz: Viz,
+  kind: ZoomDomKind,
+): NonNullable<Viz["_select"]> {
+  const host =
+    kind === "geomap" && viz._renderer === "canvas" && !viz._ssr
+      ? hostElement(viz)
+      : null;
   if (!host) return viz._select!;
   // `isolation` makes the host a stacking context, so the underlay's
   // negative z-index puts it beneath the (in-flow) canvas but not beneath
   // the host's own background.
   host.style.isolation = "isolate";
-  const underlay = select(host).selectAll<SVGSVGElement, number>(":scope > svg.d3plus-geomap-underlay").data([0]);
+  const underlay = select(host)
+    .selectAll<SVGSVGElement, number>(":scope > svg.d3plus-geomap-underlay")
+    .data([0]);
   return underlay
     .enter()
     .insert("svg", ":first-child")
@@ -79,7 +87,9 @@ function zoomDomParent(viz: Viz, kind: ZoomDomKind): NonNullable<Viz["_select"]>
     .style("pointer-events", "none")
     .merge(underlay)
     .attr("width", viz.schema.width)
-    .attr("height", viz.schema.height) as unknown as NonNullable<Viz["_select"]>;
+    .attr("height", viz.schema.height) as unknown as NonNullable<
+    Viz["_select"]
+  >;
 }
 
 /** Drops a canvas-mode tile underlay once the chart renders to SVG again. */
@@ -95,10 +105,14 @@ export function ensureZoomDom(viz: Viz, opts: SetupOpts): void {
 
   const parent = zoomDomParent(viz, kind);
   // Adopt a container mounted under the other parent (the renderer changed).
-  const existing = viz._container && viz._container.classed(cls) ? viz._container.node() : null;
+  const existing =
+    viz._container && viz._container.classed(cls)
+      ? viz._container.node()
+      : null;
   if (existing && existing.parentNode !== parent.node())
     parent.node().insertBefore(existing, parent.node().firstChild);
-  if (parent !== viz._select) viz._select!.selectAll(":scope > svg.d3plus-geomap").remove();
+  if (parent !== viz._select)
+    viz._select!.selectAll(":scope > svg.d3plus-geomap").remove();
   else removeTileUnderlay(viz);
 
   let container = parent.selectAll(`:scope > svg.${cls}`).data([0]);

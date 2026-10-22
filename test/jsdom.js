@@ -26,8 +26,7 @@ function augmentWindow(window) {
   if (!proto.getTotalLength) proto.getTotalLength = () => 0;
   if (!proto.getPointAtLength) proto.getPointAtLength = () => ({x: 0, y: 0});
   if (!proto.getComputedTextLength) proto.getComputedTextLength = () => 0;
-  if (!proto.getBBox)
-    proto.getBBox = () => ({x: 0, y: 0, width: 0, height: 0});
+  if (!proto.getBBox) proto.getBBox = () => ({x: 0, y: 0, width: 0, height: 0});
 }
 
 // Globals (beyond KEYS) that some dependencies read off the global scope.

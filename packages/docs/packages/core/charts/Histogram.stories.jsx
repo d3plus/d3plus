@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a histogram from an array of raw observations: the value of each\nrow is binned along a linear x axis, and bar heights show each bin's\ncount (or density / relative frequency via binNormalize). Series set by\ngroupBy share bin edges and are stacked.",
+        component:
+          "Creates a histogram from an array of raw observations: the value of each\nrow is binned along a linear x axis, and bar heights show each bin's\ncount (or density / relative frequency via binNormalize). Series set by\ngroupBy share bin edges and are stacked.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Histogram config={configify(args, argTypes)} />;
-  
+const Template = args => <Histogram config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -50,7 +51,15 @@ BasicExample.args = {
   data: heights,
   value: "Height (cm)",
 };
-BasicExample.parameters = {controls: {include: ["value", "binThresholds"]}, docs: {description: {story: "Pass raw observations and name the numeric field with `value`. The values are binned along a linear x axis (Sturges' rule by default) and each bar's height is the number of observations in its bin."}}};
+BasicExample.parameters = {
+  controls: {include: ["value", "binThresholds"]},
+  docs: {
+    description: {
+      story:
+        "Pass raw observations and name the numeric field with `value`. The values are binned along a linear x axis (Sturges' rule by default) and each bar's height is the number of observations in its bin.",
+    },
+  },
+};
 
 export const StackedGroups = Template.bind({});
 StackedGroups.args = {
@@ -58,7 +67,15 @@ StackedGroups.args = {
   groupBy: "Sex",
   value: "Height (cm)",
 };
-StackedGroups.parameters = {controls: {include: ["groupBy", "stackOrder"]}, docs: {description: {story: "Every `groupBy` series is binned on the same edges and stacked within each bin, so the full bar is the overall distribution."}}};
+StackedGroups.parameters = {
+  controls: {include: ["groupBy", "stackOrder"]},
+  docs: {
+    description: {
+      story:
+        "Every `groupBy` series is binned on the same edges and stacked within each bin, so the full bar is the overall distribution.",
+    },
+  },
+};
 
 export const BinWidth = Template.bind({});
 BinWidth.args = {
@@ -66,7 +83,15 @@ BinWidth.args = {
   value: "Height (cm)",
   binWidth: 2.5,
 };
-BinWidth.parameters = {controls: {include: ["binWidth", "binDomain"]}, docs: {description: {story: "`binWidth` sets a uniform bin size, with edges at multiples of the width. `binThresholds` (a count, an array of edges, or a d3-array threshold function) and `binDomain` give finer control."}}};
+BinWidth.parameters = {
+  controls: {include: ["binWidth", "binDomain"]},
+  docs: {
+    description: {
+      story:
+        "`binWidth` sets a uniform bin size, with edges at multiples of the width. `binThresholds` (a count, an array of edges, or a d3-array threshold function) and `binDomain` give finer control.",
+    },
+  },
+};
 
 export const Density = Template.bind({});
 Density.args = {
@@ -75,4 +100,12 @@ Density.args = {
   value: "Height (cm)",
   binNormalize: "density",
 };
-Density.parameters = {controls: {include: ["binNormalize"]}, docs: {description: {story: "`binNormalize(\"density\")` scales heights so the bars' total area is 1, making the histogram comparable to a probability density curve; `\"relative\"` makes the heights sum to 1 instead."}}};
+Density.parameters = {
+  controls: {include: ["binNormalize"]},
+  docs: {
+    description: {
+      story:
+        '`binNormalize("density")` scales heights so the bars\' total area is 1, making the histogram comparable to a probability density curve; `"relative"` makes the heights sum to 1 instead.',
+    },
+  },
+};

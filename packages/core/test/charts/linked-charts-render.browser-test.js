@@ -8,7 +8,9 @@ const boxes = `
 
 /** Builds a Treemap (#a) and BarChart (#b) linked under one group, then runs `body` in the page. */
 function linkedCharts(body) {
-  return render(boxes, new Function(`return (async () => {
+  return render(
+    boxes,
+    new Function(`return (async () => {
     const data = [
       {country: "Brazil", value: 10},
       {country: "Chile", value: 5},
@@ -26,7 +28,8 @@ function linkedCharts(body) {
     const bars = () => Array.from(document.querySelectorAll("#b svg rect.d3plus-render-rect"))
       .map(el => +(el.getAttribute("opacity") ?? 1)).sort();
     ${body}
-  })()`));
+  })()`),
+  );
 }
 
 it("hovering a Treemap tile dims the other bars in a linked BarChart", async function () {
@@ -39,10 +42,26 @@ it("hovering a Treemap tile dims the other bars in a linked BarChart", async fun
     await frame();
     return {hovered, dimmed, cleared: b._hover, restored: bars()};
   `);
-  assert.deepStrictEqual(result.hovered, [true, false], "the BarChart hovers only Brazil");
-  assert.deepStrictEqual(result.dimmed, [0.5, 0.5, 1], "the painted BarChart dims Chile and France");
-  assert.deepStrictEqual(result.restored, [1, 1, 1], "…and restores them on clear");
-  assert.strictEqual(result.cleared, false, "clearing the Treemap hover clears the BarChart");
+  assert.deepStrictEqual(
+    result.hovered,
+    [true, false],
+    "the BarChart hovers only Brazil",
+  );
+  assert.deepStrictEqual(
+    result.dimmed,
+    [0.5, 0.5, 1],
+    "the painted BarChart dims Chile and France",
+  );
+  assert.deepStrictEqual(
+    result.restored,
+    [1, 1, 1],
+    "…and restores them on clear",
+  );
+  assert.strictEqual(
+    result.cleared,
+    false,
+    "clearing the Treemap hover clears the BarChart",
+  );
 });
 
 it("hiding a legend item in one chart hides it in the linked chart", async function () {
@@ -56,7 +75,11 @@ it("hiding a legend item in one chart hides it in the linked chart", async funct
     };
   `);
   assert.deepStrictEqual(result.hidden, ["Chile"]);
-  assert.deepStrictEqual(result.drawn, ["Brazil", "France"], "the BarChart re-rendered without Chile");
+  assert.deepStrictEqual(
+    result.drawn,
+    ["Brazil", "France"],
+    "the BarChart re-rendered without Chile",
+  );
 });
 
 it("linked charts give each value the same color", async function () {
@@ -69,16 +92,34 @@ it("linked charts give each value the same color", async function () {
       {region: "Americas", country: "Chile", value: 20},
     ];
     const a = new window.d3plus.Treemap()
-      .select("#a").data([...data].reverse()).groupBy(["region", "country"]).sum("value")
-      .link("dash").width(400).height(300).duration(0);
+      .select("#a")
+      .data([...data].reverse())
+      .groupBy(["region", "country"])
+      .sum("value")
+      .link("dash")
+      .width(400)
+      .height(300)
+      .duration(0);
     const b = new window.d3plus.BarChart()
-      .select("#b").data(data).groupBy("country").color("region").x("country").y("value")
-      .link("dash").width(400).height(300).duration(0);
+      .select("#b")
+      .data(data)
+      .groupBy("country")
+      .color("region")
+      .x("country")
+      .y("value")
+      .link("dash")
+      .width(400)
+      .height(300)
+      .duration(0);
     await new Promise(r => a.render(r));
     await new Promise(r => b.render(r));
     const fill = (viz, row) => viz.schema.shapeConfig.fill(row, 0);
     return data.map(row => [fill(a, row), fill(b, row)]);
   });
   result.forEach(([a, b]) => assert.strictEqual(a, b));
-  assert.notStrictEqual(result[0][0], result[1][0], "the two regions still differ");
+  assert.notStrictEqual(
+    result[0][0],
+    result[1][0],
+    "the two regions still differ",
+  );
 });

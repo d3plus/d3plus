@@ -3,76 +3,76 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   callback: {
     control: {},
     description: "Optional function called with the error and loaded data.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "function"
-    }
+      summary: "function",
+    },
   },
   formatter: {
     control: {},
     description: "Optional function to transform the loaded data.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "dataformatter"
-    }
+      summary: "dataformatter",
+    },
   },
   key: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The key in the `this` context to save the resulting data to.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   path: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.",
+    description:
+      "The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | array.&lt;datapoint&gt; | array.&lt;string | array.&lt;datapoint&gt; | loadrequestconfig&gt;"
-    }
+      summary:
+        "string | array.&lt;datapoint&gt; | array.&lt;string | array.&lt;datapoint&gt; | loadrequestconfig&gt;",
+    },
   },
   this: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "vizcontext"
-    }
-  }
+      summary: "vizcontext",
+    },
+  },
 };

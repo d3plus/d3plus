@@ -15,9 +15,9 @@ export default {
         component: "A deeply recursive version of Object.assign.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -29,7 +29,10 @@ const example = (code, result, story) => {
   const Story = () => <FunctionExample input={code} output={show(result)} />;
   Story.parameters = {
     docs: {
-      source: {code: `import {assign} from "@d3plus/dom";\n\n${code};\n// → ${show(result).replace(/\n/g, "\n//   ")}`, language: "jsx"},
+      source: {
+        code: `import {assign} from "@d3plus/dom";\n\n${code};\n// → ${show(result).replace(/\n/g, "\n//   ")}`,
+        language: "jsx",
+      },
       description: {story},
     },
   };
@@ -44,7 +47,10 @@ export const BasicExample = example(
 
 export const ArraysReplaced = example(
   `assign({tags: ["a", "b"], deep: {list: [1]}}, {tags: ["c"], deep: {list: [2, 3]}})`,
-  assign({tags: ["a", "b"], deep: {list: [1]}}, {tags: ["c"], deep: {list: [2, 3]}}),
+  assign(
+    {tags: ["a", "b"], deep: {list: [1]}},
+    {tags: ["c"], deep: {list: [2, 3]}},
+  ),
   "Arrays are copied, not merged: a source array replaces the target's array at that key wholesale, which is what you want for a new `data` or `groupBy` list.",
 );
 

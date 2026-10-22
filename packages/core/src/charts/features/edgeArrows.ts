@@ -22,8 +22,7 @@ export type ArrowEndValue = boolean | "target" | "source" | "both";
 
 /** The `arrows` config: a fixed value or a per-edge accessor. */
 export type ArrowValue =
-  | ArrowEndValue
-  | ((d: DataPoint, i: number) => ArrowEndValue);
+  ArrowEndValue | ((d: DataPoint, i: number) => ArrowEndValue);
 
 /** Resolved per-edge arrow ends. */
 export interface ArrowEnds {
@@ -32,7 +31,11 @@ export interface ArrowEnds {
 }
 
 /** Normalize an `arrows` config value for one edge into `{source, target}` flags. */
-export function arrowEnds(arrows: ArrowValue, d: DataPoint, i: number): ArrowEnds {
+export function arrowEnds(
+  arrows: ArrowValue,
+  d: DataPoint,
+  i: number,
+): ArrowEnds {
   const v = typeof arrows === "function" ? arrows(d, i) : arrows;
   if (v === true || v === "target") return {source: false, target: true};
   if (v === "source") return {source: true, target: false};
@@ -128,11 +131,31 @@ export function straightEdgeArrows(opts: {
   const out: SceneNode[] = [];
   if (ends.target) {
     const tip = straightArrowTip(s.x, s.y, t.x, t.y, t.r ?? 0, 1);
-    out.push(arrowNode({key: `${keyPrefix}-t`, datum, x: tip.x, y: tip.y, angle: tip.angle, size, fill}));
+    out.push(
+      arrowNode({
+        key: `${keyPrefix}-t`,
+        datum,
+        x: tip.x,
+        y: tip.y,
+        angle: tip.angle,
+        size,
+        fill,
+      }),
+    );
   }
   if (ends.source) {
     const tip = straightArrowTip(t.x, t.y, s.x, s.y, s.r ?? 0, 1);
-    out.push(arrowNode({key: `${keyPrefix}-s`, datum, x: tip.x, y: tip.y, angle: tip.angle, size, fill}));
+    out.push(
+      arrowNode({
+        key: `${keyPrefix}-s`,
+        datum,
+        x: tip.x,
+        y: tip.y,
+        angle: tip.angle,
+        size,
+        fill,
+      }),
+    );
   }
   return out;
 }

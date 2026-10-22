@@ -18,12 +18,22 @@ const PAD = POLAR_LABEL_PADDING;
 it("polar labels: polarLabelPlacement: pushes each box away from the circle", () => {
   const top = polarLabelPlacement(0, 100, 40, 10);
   near(top.x, -20, 1e-6, "centered over 12 o'clock");
-  near(top.y + top.height, -(100 + PAD), 1e-6, "bottom edge meets the label point");
+  near(
+    top.y + top.height,
+    -(100 + PAD),
+    1e-6,
+    "bottom edge meets the label point",
+  );
   const right = polarLabelPlacement(Math.PI / 2, 100, 40, 10);
   near(right.x, 100 + PAD, 1e-6, "left edge meets the label point");
   near(right.y, -5, 1e-6, "vertically centered at 3 o'clock");
   const left = polarLabelPlacement(-Math.PI / 2, 100, 40, 10);
-  near(left.x + left.width, -(100 + PAD), 1e-6, "right edge meets the label point");
+  near(
+    left.x + left.width,
+    -(100 + PAD),
+    1e-6,
+    "right edge meets the label point",
+  );
 });
 
 it("polar labels: polarLabelFitRadius: the largest radius whose labels stay inside", () => {
@@ -58,7 +68,12 @@ it("polar labels: polarLabelFitRadius: the largest radius whose labels stay insi
 });
 
 it("polar labels: polarLabelRoom: width left beside the circle", () => {
-  near(polarLabelRoom(Math.PI / 2, 100, 400), 200 - 100 - PAD, 1e-6, "at 3 o'clock");
+  near(
+    polarLabelRoom(Math.PI / 2, 100, 400),
+    200 - 100 - PAD,
+    1e-6,
+    "at 3 o'clock",
+  );
   assert.strictEqual(
     polarLabelRoom(0, 100, 400),
     400,
@@ -71,7 +86,12 @@ it("polar labels: polarLabelRoom: width left beside the circle", () => {
   );
   const diag = polarLabelRoom(Math.PI / 4, 100, 400);
   const p = polarLabelPlacement(Math.PI / 4, 100, diag, 10);
-  near(p.x + p.width, 200, 1e-6, "a label of exactly that width reaches the edge");
+  near(
+    p.x + p.width,
+    200,
+    1e-6,
+    "a label of exactly that width reaches the edge",
+  );
 });
 
 it("polar labels: polarLabelsCollide: neighbors that overlap", () => {
@@ -174,9 +194,27 @@ it("polar labels: radarLevelLabels: toRadius places labels on a custom scale", (
 
 it("polar labels: polarBoxesOverlap: overlapping boxes, or boxes closer than the gap", () => {
   const a = {x: 0, y: 0, width: 10, height: 10};
-  assert.strictEqual(polarBoxesOverlap(a, {x: 5, y: 5, width: 10, height: 10}), true);
-  assert.strictEqual(polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}), true, "1px apart is inside the default 2px gap");
-  assert.strictEqual(polarBoxesOverlap(a, {x: 13, y: 0, width: 10, height: 10}), false);
-  assert.strictEqual(polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}, 0), false, "no gap");
-  assert.strictEqual(polarBoxesOverlap(a, {x: 0, y: 20, width: 10, height: 10}), false, "apart vertically");
+  assert.strictEqual(
+    polarBoxesOverlap(a, {x: 5, y: 5, width: 10, height: 10}),
+    true,
+  );
+  assert.strictEqual(
+    polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}),
+    true,
+    "1px apart is inside the default 2px gap",
+  );
+  assert.strictEqual(
+    polarBoxesOverlap(a, {x: 13, y: 0, width: 10, height: 10}),
+    false,
+  );
+  assert.strictEqual(
+    polarBoxesOverlap(a, {x: 11, y: 0, width: 10, height: 10}, 0),
+    false,
+    "no gap",
+  );
+  assert.strictEqual(
+    polarBoxesOverlap(a, {x: 0, y: 20, width: 10, height: 10}),
+    false,
+    "apart vertically",
+  );
 });

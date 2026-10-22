@@ -1,13 +1,24 @@
 import React from "react";
 
-const labelStyle = {fontFamily: "ui-monospace, monospace", fontSize: 12, color: "#444"};
+const labelStyle = {
+  fontFamily: "ui-monospace, monospace",
+  fontSize: 12,
+  color: "#444",
+};
 
 /**
  * A color square with its value (or a custom `label`) underneath.
  */
 export function Swatch({color, label, size = 48}) {
   return (
-    <div style={{display: "inline-flex", flexDirection: "column", alignItems: "center", gap: 4}}>
+    <div
+      style={{
+        display: "inline-flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 4,
+      }}
+    >
       <div
         title={String(color)}
         style={{
@@ -19,7 +30,9 @@ export function Swatch({color, label, size = 48}) {
           boxSizing: "border-box",
         }}
       />
-      <span style={labelStyle}>{label === undefined ? String(color) : label}</span>
+      <span style={labelStyle}>
+        {label === undefined ? String(color) : label}
+      </span>
     </div>
   );
 }
@@ -29,15 +42,28 @@ export function Swatch({color, label, size = 48}) {
  * strings drawn between neighbouring swatches (e.g. ["+", "="] for an
  * arithmetic demo).
  */
-export function SwatchRow({colors, labels = [], separators = [], size, gap = 12}) {
+export function SwatchRow({
+  colors,
+  labels = [],
+  separators = [],
+  size,
+  gap = 12,
+}) {
   return (
-    <div style={{display: "flex", alignItems: "flex-start", gap, flexWrap: "wrap"}}>
+    <div
+      style={{display: "flex", alignItems: "flex-start", gap, flexWrap: "wrap"}}
+    >
       {colors.map((color, i) => (
         <React.Fragment key={`${color}-${i}`}>
           {i > 0 && separators[i - 1] !== undefined ? (
             <span
               aria-hidden="true"
-              style={{alignSelf: "center", marginTop: -16, color: "#999", fontSize: 18}}
+              style={{
+                alignSelf: "center",
+                marginTop: -16,
+                color: "#999",
+                fontSize: 18,
+              }}
             >
               {separators[i - 1]}
             </span>
@@ -58,7 +84,9 @@ export function SwatchRow({colors, labels = [], separators = [], size, gap = 12}
 export function SwatchRows({rows, separators = [], size = 48, gap = 12}) {
   const columns = Math.max(0, ...rows.map(row => row.colors.length));
   const template = Array.from({length: columns}, (_, i) =>
-    i < columns - 1 && separators[i] !== undefined ? "max-content max-content" : "max-content",
+    i < columns - 1 && separators[i] !== undefined
+      ? "max-content max-content"
+      : "max-content",
   ).join(" ");
   const separatorStyle = {
     height: size,

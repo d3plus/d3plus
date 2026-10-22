@@ -24,9 +24,13 @@ export function measureLegendTitle(legend: Legend): void {
   legend._titleHeight = 0;
   legend._titleWidth = 0;
   if (legend.schema.title) {
-    const f = (legend.schema.titleConfig.fontFamily || legend._titleClass.fontFamily()()) as string,
-      s = (legend.schema.titleConfig.fontSize || legend._titleClass.fontSize()()) as number;
-    let lH = (legend.schema.titleConfig.lineHeight || legend._titleClass.lineHeight()) as ((...args: unknown[]) => number) | number | undefined;
+    const f = (legend.schema.titleConfig.fontFamily ||
+        legend._titleClass.fontFamily()()) as string,
+      s = (legend.schema.titleConfig.fontSize ||
+        legend._titleClass.fontSize()()) as number;
+    let lH = (legend.schema.titleConfig.lineHeight ||
+      legend._titleClass.lineHeight()) as
+      ((...args: unknown[]) => number) | number | undefined;
     lH = typeof lH === "function" ? lH() : (lH ?? s * 1.4);
 
     const res = textWrap()
@@ -59,7 +63,11 @@ export function computeLegendLineData(
       shapeR: r,
       // A Line swatch fills a square, like a Rect's, so swatches line up.
       shapeWidth:
-        shape === "Circle" ? r * 2 : shape === "Line" ? height : legend._fetchConfig("width", d, i),
+        shape === "Circle"
+          ? r * 2
+          : shape === "Line"
+            ? height
+            : legend._fetchConfig("width", d, i),
       shapeHeight: shape === "Circle" ? r * 2 : height,
       y: 0,
     };
@@ -76,7 +84,8 @@ export function computeLegendLineData(
       lh = legend._fetchConfig("lineHeight", d, i) as number,
       s = legend._fetchConfig("fontSize", d, i) as number;
 
-    const h = availableHeight - (legend._data.length + 1) * legend.schema.padding,
+    const h =
+        availableHeight - (legend._data.length + 1) * legend.schema.padding,
       w = legend.schema.width;
 
     const newRes = textWrap()
@@ -90,15 +99,16 @@ export function computeLegendLineData(
 
     // A label with no room for even one line (e.g. a chart only a few pixels
     // wide) measures as zero, so row packing falls back to swatches alone.
-    res.width = !(res.lines as string[]).length ? 0 :
-      Math.ceil(
-        max(
-          (res.lines as string[]).map((t: string) =>
-            textWidth(t, {"font-family": f, "font-size": s}),
-          ),
-        ) as unknown as number,
-      ) +
-      padding * 2;
+    res.width = !(res.lines as string[]).length
+      ? 0
+      : Math.ceil(
+          max(
+            (res.lines as string[]).map((t: string) =>
+              textWidth(t, {"font-family": f, "font-size": s}),
+            ),
+          ) as unknown as number,
+        ) +
+        padding * 2;
     res.height = Math.ceil((res.lines as string[]).length * (lh + 1));
     res.og = {height: res.height, width: res.width};
     res.f = f;
@@ -126,7 +136,9 @@ function tryWrapLines(
       : legend._lineData
           .filter(
             (d: Record<string, unknown>) =>
-              (d.width as number) + (d.shapeWidth as number) + legend.schema.padding * (d.width ? 2 : 1) >
+              (d.width as number) +
+                (d.shapeWidth as number) +
+                legend.schema.padding * (d.width ? 2 : 1) >
                 availableWidth && (d.words as unknown[]).length >= state.lines,
           )
           .sort(
@@ -134,7 +146,10 @@ function tryWrapLines(
               (b.sentence as string).length - (a.sentence as string).length,
           );
 
-  if (wrappable.length && availableHeight > (wrappable[0].height as number) * state.lines) {
+  if (
+    wrappable.length &&
+    availableHeight > (wrappable[0].height as number) * state.lines
+  ) {
     let truncated = false;
     for (let x = 0; x < wrappable.length; x++) {
       const label = wrappable[x];
@@ -184,7 +199,10 @@ function buildRows(
     rowWidth = 0;
   for (let i = 0; i < legend._lineData.length; i++) {
     const d = legend._lineData[i],
-      w = (d.width as number) + legend.schema.padding * (d.width ? 2 : 1) + (d.shapeWidth as number);
+      w =
+        (d.width as number) +
+        legend.schema.padding * (d.width ? 2 : 1) +
+        (d.shapeWidth as number);
     if (
       sum(
         state.newRows.map((row: Record<string, unknown>[]) =>
@@ -230,11 +248,15 @@ export function wrapLegendRows(
     lines: 1,
     newRows: [],
     maxLines: max(
-      legend._lineData.map((d: Record<string, unknown>) => (d.words as unknown[]).length),
+      legend._lineData.map(
+        (d: Record<string, unknown>) => (d.words as unknown[]).length,
+      ),
     ),
   };
-  legend._wrapLines = () => tryWrapLines(legend, state, availableWidth, availableHeight);
-  legend._wrapRows = () => buildRows(legend, state, availableWidth, availableHeight);
+  legend._wrapLines = () =>
+    tryWrapLines(legend, state, availableWidth, availableHeight);
+  legend._wrapRows = () =>
+    buildRows(legend, state, availableWidth, availableHeight);
 
   legend._wrapRows();
 
@@ -283,7 +305,10 @@ export function computeLegendBounds(legend: Legend, spaceNeeded: number): void {
       max(
         legend._lineData,
         (d: Record<string, unknown>, i: number) =>
-          max([d.height as number, legend._fetchConfig("height", d.data as DataPoint, i) as number])! + (d.y as number),
+          max([
+            d.height as number,
+            legend._fetchConfig("height", d.data as DataPoint, i) as number,
+          ])! + (d.y as number),
       )! + legend._titleHeight,
     innerWidth = max([spaceNeeded, legend._titleWidth])!;
 
@@ -292,7 +317,8 @@ export function computeLegendBounds(legend: Legend, spaceNeeded: number): void {
 
   let xOffset = legend.schema.padding,
     yOffset = legend.schema.padding;
-  if (legend.schema.align === "center") xOffset = (legend.schema.width - innerWidth) / 2;
+  if (legend.schema.align === "center")
+    xOffset = (legend.schema.width - innerWidth) / 2;
   else if (legend.schema.align === "right")
     xOffset = legend.schema.width - legend.schema.padding - innerWidth;
   if (legend.schema.verticalAlign === "middle")
@@ -310,7 +336,14 @@ export function renderLegendTitle(legend: Legend): void {
     .data(legend.schema.title ? [{text: legend.schema.title}] : [])
     .duration(legend.schema.duration)
     .select(legend._titleGroup.node())
-    .textAnchor(({left: "start", center: "middle", right: "end"} as Record<string, string>)[legend.schema.align])
+    .textAnchor(
+      (
+        {left: "start", center: "middle", right: "end"} as Record<
+          string,
+          string
+        >
+      )[legend.schema.align],
+    )
     .width(legend.schema.width - legend.schema.padding * 2)
     .x(legend.schema.padding)
     .y(legend._outerBounds.y)
@@ -329,27 +362,39 @@ const LINE_STROKE = 2;
     short stroke (in the Rect group, which also carries the item's label and
     hover target) through a small dot (in the Circle group).
 */
-function lineSwatchConfig(legend: Legend, shapeName: string): Record<string, unknown> {
+function lineSwatchConfig(
+  legend: Legend,
+  shapeName: string,
+): Record<string, unknown> {
   type Wrapped = {shape?: unknown; data: DataPoint; i: number};
   const isLine = (d: Wrapped) => d.shape === "Line";
-  const fetch = (key: string, d: Wrapped) => legend._fetchConfig(key, d.data, d.i);
+  const fetch = (key: string, d: Wrapped) =>
+    legend._fetchConfig(key, d.data, d.i);
   const line = (d: Wrapped) => legend._lineData[d.i];
   return shapeName === "Rect"
     ? {
-      width: (d: Wrapped) => (isLine(d) ? line(d).shapeWidth : fetch("width", d)),
-      height: (d: Wrapped) => (isLine(d) ? LINE_STROKE : fetch("height", d)),
-    }
+        width: (d: Wrapped) =>
+          isLine(d) ? line(d).shapeWidth : fetch("width", d),
+        height: (d: Wrapped) => (isLine(d) ? LINE_STROKE : fetch("height", d)),
+      }
     : {
-      r: (d: Wrapped) => (isLine(d) ? (line(d).shapeHeight as number) * LINE_DOT : fetch("r", d)),
-      label: (d: Wrapped & {label?: unknown}) => (isLine(d) ? false : d.label),
-      hitArea: (d: Wrapped) => (isLine(d) ? null : fetch("hitArea", d)),
-    };
+        r: (d: Wrapped) =>
+          isLine(d)
+            ? (line(d).shapeHeight as number) * LINE_DOT
+            : fetch("r", d),
+        label: (d: Wrapped & {label?: unknown}) =>
+          isLine(d) ? false : d.label,
+        hitArea: (d: Wrapped) => (isLine(d) ? null : fetch("hitArea", d)),
+      };
 }
 
 /** Builds the per-shape data and renders the Circle/Rect swatch groups (Line entries draw in both). */
 export function renderLegendShapes(legend: Legend): void {
   legend._shapes = [];
-  const baseConfig = configPrep.bind(legend as unknown as ConfigPrepHost)(legend.schema.shapeConfig, "legend"),
+  const baseConfig = configPrep.bind(legend as unknown as ConfigPrepHost)(
+      legend.schema.shapeConfig,
+      "legend",
+    ),
     config = {
       id: (d: Record<string, unknown>) => d.id,
       label: (d: Record<string, unknown>) => d.label,
@@ -376,7 +421,12 @@ export function renderLegendShapes(legend: Legend): void {
       new (shapes as unknown as Record<string, new () => Shape>)[shapeName]()
         .renderMode("compute")
         .parent(legend)
-        .data(data.filter((d: Record<string, unknown>) => d.shape === shapeName || d.shape === "Line"))
+        .data(
+          data.filter(
+            (d: Record<string, unknown>) =>
+              d.shape === shapeName || d.shape === "Line",
+          ),
+        )
         .duration(legend.schema.duration)
         .labelConfig({padding: 0})
         .select(legend._shapeGroup.node())

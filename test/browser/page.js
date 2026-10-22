@@ -13,9 +13,16 @@ const entry = new URL("../../packages/core/umd-entry.ts", import.meta.url).href;
 
 // The same functions Playwright's clock fakes.
 const toFake = [
-  "Date", "setTimeout", "clearTimeout", "setInterval", "clearInterval",
-  "requestAnimationFrame", "cancelAnimationFrame", "requestIdleCallback",
-  "cancelIdleCallback", "performance",
+  "Date",
+  "setTimeout",
+  "clearTimeout",
+  "setInterval",
+  "clearInterval",
+  "requestAnimationFrame",
+  "cancelAnimationFrame",
+  "requestIdleCallback",
+  "cancelIdleCallback",
+  "performance",
 ];
 
 /**
@@ -28,11 +35,14 @@ export function setUpPage(win) {
   // Element ids come from crypto.randomUUID; a counter that restarts with
   // each page keeps them the same from run to run.
   let ids = 0;
-  win.crypto.randomUUID = () => `00000000-0000-4000-8000-${String(ids++).padStart(12, "0")}`;
+  win.crypto.randomUUID = () =>
+    `00000000-0000-4000-8000-${String(ids++).padStart(12, "0")}`;
 
   const errors = [];
   win.addEventListener("error", e => errors.push(e.message));
-  win.addEventListener("unhandledrejection", e => errors.push(String(e.reason?.message ?? e.reason)));
+  win.addEventListener("unhandledrejection", e =>
+    errors.push(String(e.reason?.message ?? e.reason)),
+  );
 
   // In an iframe the implicit root is the top page's viewport, clipped to the
   // iframe, so a rootMargin never reaches past the iframe's edge. The page's
@@ -60,7 +70,8 @@ export function setUpPage(win) {
  */
 export async function openPage(bodyHtml, {clock = false} = {}) {
   const frame = document.createElement("iframe");
-  frame.style.cssText = "position:fixed;left:0;top:0;width:100vw;height:100vh;border:0;background:#fff";
+  frame.style.cssText =
+    "position:fixed;left:0;top:0;width:100vw;height:100vh;border:0;background:#fff";
   frame.srcdoc = `<!doctype html><html><head></head><body>${bodyHtml}</body></html>`;
   await new Promise(resolve => {
     frame.addEventListener("load", resolve, {once: true});
@@ -68,13 +79,16 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
   });
   const win = frame.contentWindow;
   const {errors} = setUpPage(win);
-  const fake = clock ? FakeTimers.withGlobal(win).install({now: 0, toFake}) : undefined;
+  const fake = clock
+    ? FakeTimers.withGlobal(win).install({now: 0, toFake})
+    : undefined;
   const close = async () => {
     fake?.uninstall();
     frame.remove();
   };
   const page = {
-    evaluate: async (fn, arg) => toEvaluateResult(await win.eval(`(${fn})`)(toEvaluateResult(arg))),
+    evaluate: async (fn, arg) =>
+      toEvaluateResult(await win.eval(`(${fn})`)(toEvaluateResult(arg))),
     // Imports a module into the page as the global `name`.
     loadModule: async (name, url) => {
       win[name] = {...(await win.eval(`import(${JSON.stringify(url)})`))};

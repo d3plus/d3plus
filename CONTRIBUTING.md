@@ -16,16 +16,17 @@ export const NameOfExample = Template.bind({});
 NameOfExample.args = {
   // config options go here
 };
-// The following line is optional, and is what allows UI 
+// The following line is optional, and is what allows UI
 // controls to be present underneath the source code.
 NameOfExample.parameters = {controls: {include: [/* method list */]}};
 ```
 
 When writing examples, please try to follow the following guidelines:
-* The name of the Component you create will become the name in the UI, so in this case "NameOfExample" will become "Name Of Example" (more information on Storybook's auto-titles can be found [here](https://storybook.js.org/docs/configure/user-interface/sidebar-and-urls#csf-30-auto-titles)).
-* Only include config methods that are pertanent to the example (ie. don't change things like the "legendPosition" because of personal preference). 
-* If possible, do not use external API links for things like "data" and "topojson". Wherever you can, either use a simple/small inline data Array or reference a static file added to the `/static/data` directory.
-* When using accessor functions in your config, wrap them in the `funcify` helper function, which accepts 2 arguments: the _Function_ itself, and a _String_ representation of that Function. JavaScript does not have an ability to "stringify" Functions, which we need in order to show them in the code snippets, so this helper explicitly sets how they are to be displayed to the user. In most cases, the _String_ representation should just be a copy of your _Function_ surrounded by backticks (``).
+
+- The name of the Component you create will become the name in the UI, so in this case "NameOfExample" will become "Name Of Example" (more information on Storybook's auto-titles can be found [here](https://storybook.js.org/docs/configure/user-interface/sidebar-and-urls#csf-30-auto-titles)).
+- Only include config methods that are pertanent to the example (ie. don't change things like the "legendPosition" because of personal preference).
+- If possible, do not use external API links for things like "data" and "topojson". Wherever you can, either use a simple/small inline data Array or reference a static file added to the `/static/data` directory.
+- When using accessor functions in your config, wrap them in the `funcify` helper function, which accepts 2 arguments: the _Function_ itself, and a _String_ representation of that Function. JavaScript does not have an ability to "stringify" Functions, which we need in order to show them in the code snippets, so this helper explicitly sets how they are to be displayed to the user. In most cases, the _String_ representation should just be a copy of your _Function_ surrounded by backticks (``).
 
 ### Submitting a Pull Request
 
@@ -42,7 +43,9 @@ git clone https://github.com/d3plus/d3plus.git
 ### Setting up your Environment
 
 1. Install Node, if not already installed.
+
 > <sub>If on a Mac, we suggest using [Homebrew](http://brew.sh/) to install packages on your machine. Once that's installed, you can install node (which includes npm) by running: `brew install node`</sub>
+
 2. Move into the newly cloned root directory, and install dependencies: `pnpm install`
 
 And that's it! Your environment should be all set up and ready to start coding.
@@ -52,6 +55,7 @@ And that's it! Your environment should be all set up and ready to start coding.
 The codebase is split up into a series of smaller packages/modules, which allows users to install only the dependencies that they need. This repo uses [pnpm workspaces](https://pnpm.io/workspaces) to manage these packages, which lets them share common dependencies and scripts. Each package lives in the `packages/<package_name>` directory, and are released as scoped npm packages (ie. `@d3plus/<package_name>`).
 
 Within each package directory, you will notice the following folder structure:
+
 - :open_file_folder: `dev/`
 - :open_file_folder: `src/`
 - :open_file_folder: `test/` (optional)
@@ -77,18 +81,14 @@ Most packages contain HTML files to copy/modify for testing, but here is the min
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>MyTopic</title>
-    <meta name="description" content="What this page tests, in one line.">
+    <meta name="description" content="What this page tests, in one line." />
     <script src="/umd/d3plus-<package_name>.full.js"></script>
   </head>
-  <body>
-
-  </body>
+  <body></body>
   <script>
-
     console.log(d3plus);
-
   </script>
 </html>
 ```
@@ -97,7 +97,7 @@ The development server will recreate the `umd` directory any time the current pa
 
 ### Code Documentation
 
-All of the code documentation you see in the `README.md` file is generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To regenerate the documentation at any time, simply run: 
+All of the code documentation you see in the `README.md` file is generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To regenerate the documentation at any time, simply run:
 
 ```sh
 pnpm --filter @d3plus/<package_name> run docs
@@ -127,11 +127,8 @@ import {useJsdom} from "~test/jsdom.js"; // optional: a fresh JSDOM document for
 useJsdom();
 
 it("example test title", () => {
-
   assert.strictEqual(true, true, "the truth test");
-
 });
-
 ```
 
 ### Submitting a Pull Request

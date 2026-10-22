@@ -92,8 +92,13 @@ export const priestleyDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => ({
         ariaLabel: (d: DataPoint, i: number) => {
-          const start = (viz.schema.start as (d: DataPoint, i: number) => unknown)(d, i);
-          const end = (viz.schema.end as (d: DataPoint, i: number) => unknown)(d, i);
+          const start = (
+            viz.schema.start as (d: DataPoint, i: number) => unknown
+          )(d, i);
+          const end = (viz.schema.end as (d: DataPoint, i: number) => unknown)(
+            d,
+            i,
+          );
           return `${viz._drawLabel(d, i)}, ${start} - ${end}.`;
         },
       }),

@@ -1,132 +1,191 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Nested Bands · LinePlot</title>
+    <meta
+      name="description"
+      content="LinePlot with nested confidence bands: labeled bands, a fan that opens partway, bandOpacity styling, a single band, a missing bound, and a vertical plot."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 340px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Two labeled bands around each line</h3>
+        <div class="viz" id="nested"></div>
+      </div>
+      <div>
+        <h3>Three bands that open partway (time axis)</h3>
+        <div class="viz" id="fan"></div>
+      </div>
+      <div>
+        <h3>bandOpacity ramp, outermost to innermost</h3>
+        <div class="viz" id="ramp"></div>
+      </div>
+      <div>
+        <h3>A single [lower, upper] pair draws as before</h3>
+        <div class="viz" id="single"></div>
+      </div>
+      <div>
+        <h3>A row without bounds pins the bands to its line</h3>
+        <div class="viz" id="missing"></div>
+      </div>
+      <div>
+        <h3>Vertical plot (discrete y axis)</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>Nested Bands · LinePlot</title>
-  <meta name="description" content="LinePlot with nested confidence bands: labeled bands, a fan that opens partway, bandOpacity styling, a single band, a missing bound, and a vertical plot.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <style>
-    body { font-family: sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .viz { height: 340px; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-  </style>
+  <script>
+    const growth = [];
+    ["alpha", "beta"].forEach((id, s) => {
+      for (let year = 2010; year <= 2024; year++) {
+        const t = year - 2010,
+          value = 20 + s * 25 + t * (1.5 - s * 0.6) + 4 * Math.sin(t / 2 + s);
+        const w = 3 + t * 0.4;
+        growth.push({
+          id,
+          year,
+          value,
+          p10: value - 2 * w,
+          p90: value + 2 * w,
+          p25: value - w,
+          p75: value + w,
+        });
+      }
+    });
 
-</head>
+    new d3plus.LinePlot()
+      .select("#nested")
+      .data(growth)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .confidence([
+        ["p10", "p90", "80%"],
+        ["p25", "p75", "50%"],
+      ])
+      .render();
 
-<body>
-  <div class="grid">
-    <div><h3>Two labeled bands around each line</h3><div class="viz" id="nested"></div></div>
-    <div><h3>Three bands that open partway (time axis)</h3><div class="viz" id="fan"></div></div>
-    <div><h3>bandOpacity ramp, outermost to innermost</h3><div class="viz" id="ramp"></div></div>
-    <div><h3>A single [lower, upper] pair draws as before</h3><div class="viz" id="single"></div></div>
-    <div><h3>A row without bounds pins the bands to its line</h3><div class="viz" id="missing"></div></div>
-    <div><h3>Vertical plot (discrete y axis)</h3><div class="viz" id="vertical"></div></div>
-  </div>
-</body>
+    // Quarterly values whose bands open after the last observed quarter.
+    const quarters = [];
+    for (let year = 2020; year <= 2026; year++)
+      for (let q = 0; q < 4; q++)
+        quarters.push(`${year}-${String(q * 3 + 1).padStart(2, "0")}-01`);
+    const last = quarters.indexOf("2024-01-01");
+    const fan = quarters.map((date, k) => {
+      const h = k - last;
+      const value =
+        Math.round((3 + Math.sin(k / 3) * 0.6 - Math.max(h, 0) * 0.05) * 100) /
+        100;
+      const row = {id: "Inflation", date, value};
+      if (h >= 0) {
+        const w = 0.5 * Math.sqrt(h);
+        [
+          ["p05", "p95", 1.645],
+          ["p20", "p80", 0.842],
+          ["p35", "p65", 0.385],
+        ].forEach(([lo, hi, z]) => {
+          row[lo] = Math.round((value - z * w) * 100) / 100;
+          row[hi] = Math.round((value + z * w) * 100) / 100;
+        });
+      }
+      return row;
+    });
+    const bands = [
+      ["p05", "p95", "90%"],
+      ["p20", "p80", "60%"],
+      ["p35", "p65", "30%"],
+    ];
 
-<script>
+    new d3plus.LinePlot()
+      .select("#fan")
+      .data(fan)
+      .groupBy("id")
+      .x("date")
+      .time("date")
+      .y("value")
+      .confidence(bands)
+      .legend(false)
+      .timeline(false)
+      .render();
 
-  const growth = [];
-  ["alpha", "beta"].forEach((id, s) => {
-    for (let year = 2010; year <= 2024; year++) {
-      const t = year - 2010, value = 20 + s * 25 + t * (1.5 - s * 0.6) + 4 * Math.sin(t / 2 + s);
-      const w = 3 + t * 0.4;
-      growth.push({id, year, value, p10: value - 2 * w, p90: value + 2 * w, p25: value - w, p75: value + w});
-    }
-  });
+    new d3plus.LinePlot()
+      .select("#ramp")
+      .data(fan)
+      .groupBy("id")
+      .x("date")
+      .time("date")
+      .y("value")
+      .color(() => "#c0392b")
+      .confidence(bands)
+      .confidenceConfig({bandOpacity: [0.08, 0.3, 0.75]})
+      .legend(false)
+      .timeline(false)
+      .render();
 
-  new d3plus.LinePlot()
-    .select("#nested")
-    .data(growth)
-    .groupBy("id")
-    .x("year")
-    .y("value")
-    .confidence([["p10", "p90", "80%"], ["p25", "p75", "50%"]])
-    .render();
+    new d3plus.LinePlot()
+      .select("#single")
+      .data(growth)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .confidence(["p25", "p75"])
+      .render();
 
-  // Quarterly values whose bands open after the last observed quarter.
-  const quarters = [];
-  for (let year = 2020; year <= 2026; year++)
-    for (let q = 0; q < 4; q++) quarters.push(`${year}-${String(q * 3 + 1).padStart(2, "0")}-01`);
-  const last = quarters.indexOf("2024-01-01");
-  const fan = quarters.map((date, k) => {
-    const h = k - last;
-    const value = Math.round((3 + Math.sin(k / 3) * 0.6 - Math.max(h, 0) * 0.05) * 100) / 100;
-    const row = {id: "Inflation", date, value};
-    if (h >= 0) {
-      const w = 0.5 * Math.sqrt(h);
-      [["p05", "p95", 1.645], ["p20", "p80", 0.842], ["p35", "p65", 0.385]].forEach(([lo, hi, z]) => {
-        row[lo] = Math.round((value - z * w) * 100) / 100;
-        row[hi] = Math.round((value + z * w) * 100) / 100;
-      });
-    }
-    return row;
-  });
-  const bands = [["p05", "p95", "90%"], ["p20", "p80", "60%"], ["p35", "p65", "30%"]];
+    // 2017 has no bounds: the bands narrow onto the line there.
+    const gappy = growth
+      .filter(d => d.id === "alpha")
+      .map(d =>
+        d.year === 2017 ? {id: d.id, year: d.year, value: d.value} : d,
+      );
+    new d3plus.LinePlot()
+      .select("#missing")
+      .data(gappy)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .confidence([
+        {lower: "p10", upper: "p90", label: "80%"},
+        {lower: "p25", upper: "p75", label: "50%"},
+      ])
+      .legend(false)
+      .render();
 
-  new d3plus.LinePlot()
-    .select("#fan")
-    .data(fan)
-    .groupBy("id")
-    .x("date")
-    .time("date")
-    .y("value")
-    .confidence(bands)
-    .legend(false)
-    .timeline(false)
-    .render();
-
-  new d3plus.LinePlot()
-    .select("#ramp")
-    .data(fan)
-    .groupBy("id")
-    .x("date")
-    .time("date")
-    .y("value")
-    .color(() => "#c0392b")
-    .confidence(bands)
-    .confidenceConfig({bandOpacity: [0.08, 0.3, 0.75]})
-    .legend(false)
-    .timeline(false)
-    .render();
-
-  new d3plus.LinePlot()
-    .select("#single")
-    .data(growth)
-    .groupBy("id")
-    .x("year")
-    .y("value")
-    .confidence(["p25", "p75"])
-    .render();
-
-  // 2017 has no bounds: the bands narrow onto the line there.
-  const gappy = growth.filter(d => d.id === "alpha").map(d => d.year === 2017
-    ? {id: d.id, year: d.year, value: d.value}
-    : d);
-  new d3plus.LinePlot()
-    .select("#missing")
-    .data(gappy)
-    .groupBy("id")
-    .x("year")
-    .y("value")
-    .confidence([{lower: "p10", upper: "p90", label: "80%"}, {lower: "p25", upper: "p75", label: "50%"}])
-    .legend(false)
-    .render();
-
-  new d3plus.LinePlot()
-    .select("#vertical")
-    .data(growth)
-    .groupBy("id")
-    .y("year")
-    .x("value")
-    .discrete("y")
-    .confidence([["p10", "p90", "80%"], ["p25", "p75", "50%"]])
-    .render();
-
-</script>
-
+    new d3plus.LinePlot()
+      .select("#vertical")
+      .data(growth)
+      .groupBy("id")
+      .y("year")
+      .x("value")
+      .discrete("y")
+      .confidence([
+        ["p10", "p90", "80%"],
+        ["p25", "p75", "50%"],
+      ])
+      .render();
+  </script>
 </html>

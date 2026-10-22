@@ -56,10 +56,7 @@ export function thresholdFunction(
     }
 
     if (depth === drawDepth) {
-      const thresholdPercent = Math.min(
-        1,
-        Math.max(0, threshold(branchData)),
-      );
+      const thresholdPercent = Math.min(1, Math.max(0, threshold(branchData)));
 
       if (!isFinite(thresholdPercent) || isNaN(thresholdPercent)) return null;
 

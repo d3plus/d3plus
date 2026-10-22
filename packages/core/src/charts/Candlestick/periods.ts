@@ -22,7 +22,13 @@ import type {VizInstance} from "../viz/vizTypes.js";
 export type PeriodUnit = "day" | "week" | "month" | "quarter" | "year";
 
 /** Units from finest to coarsest. */
-export const PERIOD_UNITS: PeriodUnit[] = ["day", "week", "month", "quarter", "year"];
+export const PERIOD_UNITS: PeriodUnit[] = [
+  "day",
+  "week",
+  "month",
+  "quarter",
+  "year",
+];
 
 /** Year intervals tried, in order, when a tick per year is too many. */
 const YEAR_STEPS = [2, 5, 10, 20, 50, 100, 200, 500, 1000];
@@ -56,13 +62,19 @@ export function formatPeriod(d: Date): string {
 
 /** The calendar `unit` a date falls in, as a comparable number. */
 export function unitIndex(d: Date, unit: PeriodUnit): number {
-  const year = d.getFullYear(), month = d.getMonth();
+  const year = d.getFullYear(),
+    month = d.getMonth();
   switch (unit) {
-    case "day": return (year * 12 + month) * 31 + d.getDate();
-    case "week": return +timeMonday.floor(d);
-    case "month": return year * 12 + month;
-    case "quarter": return year * 4 + Math.floor(month / 3);
-    default: return year;
+    case "day":
+      return (year * 12 + month) * 31 + d.getDate();
+    case "week":
+      return +timeMonday.floor(d);
+    case "month":
+      return year * 12 + month;
+    case "quarter":
+      return year * 4 + Math.floor(month / 3);
+    default:
+      return year;
   }
 }
 
@@ -75,7 +87,8 @@ export function unitIndex(d: Date, unit: PeriodUnit): number {
 export function periodBoundaries(dates: Date[], unit: PeriodUnit): Date[] {
   const out: Date[] = [];
   for (let k = 1; k < dates.length; k++)
-    if (unitIndex(dates[k], unit) !== unitIndex(dates[k - 1], unit)) out.push(dates[k]);
+    if (unitIndex(dates[k], unit) !== unitIndex(dates[k - 1], unit))
+      out.push(dates[k]);
   return out;
 }
 
@@ -96,12 +109,19 @@ export function periodTickSets(dates: Date[], maxTicks: number): Date[][] {
   const most = Math.max(1, Math.floor(maxTicks));
   const units = PERIOD_UNITS.map(unit => periodBoundaries(dates, unit));
   const years = units[units.length - 1];
-  const lists = units.concat(YEAR_STEPS.map(step => years.filter(d => d.getFullYear() % step === 0)))
-    .filter((list, k, all) => list.length && !(k && sameDates(list, all[k - 1])));
+  const lists = units
+    .concat(
+      YEAR_STEPS.map(step => years.filter(d => d.getFullYear() % step === 0)),
+    )
+    .filter(
+      (list, k, all) => list.length && !(k && sameDates(list, all[k - 1])),
+    );
   const fitting = lists.filter(list => list.length <= most);
   const offered = fitting.length ? fitting : lists.slice(-1);
   if (!offered.length) return [[dates[0]]];
-  return offered.flatMap(list => list.length > 1 ? [[dates[0], ...list], list] : [[dates[0], ...list]]);
+  return offered.flatMap(list =>
+    list.length > 1 ? [[dates[0], ...list], list] : [[dates[0], ...list]],
+  );
 }
 
 /** Whether two lists hold the same dates. */
@@ -118,10 +138,15 @@ function sameDates(a: Date[], b: Date[]): boolean {
     @param prev The previous tick's date, if any.
     @param unit The calendar unit the ticks mark.
 */
-export function periodLabel(d: Date, prev: Date | undefined, unit: PeriodUnit): string {
+export function periodLabel(
+  d: Date,
+  prev: Date | undefined,
+  unit: PeriodUnit,
+): string {
   const newYear = !prev || prev.getFullYear() !== d.getFullYear();
   if (unit === "year") return timeFormat("%Y")(d);
-  if (unit === "day" || unit === "week") return timeFormat(newYear ? "%b %-d, %Y" : "%b %-d")(d);
+  if (unit === "day" || unit === "week")
+    return timeFormat(newYear ? "%b %-d, %Y" : "%b %-d")(d);
   if (!prev) return timeFormat("%b %Y")(d);
   return timeFormat(newYear ? "%Y" : "%b")(d);
 }
@@ -132,7 +157,10 @@ export function periodLabel(d: Date, prev: Date | undefined, unit: PeriodUnit): 
     @param shown The shown ticks' dates, ascending.
     @param opens Whether a date is the first period of its unit.
 */
-export function shownUnit(shown: Date[], opens: (d: Date, unit: PeriodUnit) => boolean): PeriodUnit {
+export function shownUnit(
+  shown: Date[],
+  opens: (d: Date, unit: PeriodUnit) => boolean,
+): PeriodUnit {
   const units = PERIOD_UNITS.slice().reverse();
   return units.find(unit => shown.slice(1).every(d => opens(d, unit))) ?? "day";
 }
@@ -145,11 +173,16 @@ export function shownUnit(shown: Date[], opens: (d: Date, unit: PeriodUnit) => b
     it formats the period in full.
     @param dates The periods' dates, ascending.
 */
-export function periodTickFormat(dates: Date[]): (this: Axis | void, d: unknown) => string {
+export function periodTickFormat(
+  dates: Date[],
+): (this: Axis | void, d: unknown) => string {
   const index = new Map(dates.map((d, k) => [+d, k]));
   const opens = (d: Date, unit: PeriodUnit) => {
     const k = index.get(+d);
-    return Boolean(k) && unitIndex(dates[k!], unit) !== unitIndex(dates[k! - 1], unit);
+    return (
+      Boolean(k) &&
+      unitIndex(dates[k!], unit) !== unitIndex(dates[k! - 1], unit)
+    );
   };
   const units = new WeakMap<Date[], PeriodUnit>();
   return function (this: Axis | void, d: unknown): string {
@@ -184,7 +217,8 @@ function rowDates(viz: VizInstance): Date[] {
 */
 export function bandAxisDefaults(viz: VizInstance): Record<string, unknown> {
   const dates = rowDates(viz);
-  const width = viz.schema.width - viz._margin.left - viz._margin.right - VALUE_AXIS_ROOM;
+  const width =
+    viz.schema.width - viz._margin.left - viz._margin.right - VALUE_AXIS_ROOM;
   return {
     labels: periodTickSets(dates, width / MIN_TICK_SPACING),
     tickFormat: periodTickFormat(dates),

@@ -13,10 +13,10 @@ const data = [
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
 
 it("renderToStaticPNG returns valid PNG bytes", async () => {
-  const png = await renderToStaticPNG(
-    new Treemap().data(data).groupBy("id"),
-    {width: 400, height: 300},
-  );
+  const png = await renderToStaticPNG(new Treemap().data(data).groupBy("id"), {
+    width: 400,
+    height: 300,
+  });
   assert.ok(png.length > 1000, "non-trivial size");
   PNG_SIGNATURE.forEach((byte, i) =>
     assert.strictEqual(png[i], byte, `PNG signature byte ${i}`),
@@ -43,8 +43,16 @@ it("renderToCanvas returns an encodable canvas sized by pixelRatio", async () =>
     height: 200,
     pixelRatio: 2,
   });
-  assert.strictEqual(canvas.width, 600, "backing-store width = width * pixelRatio");
-  assert.strictEqual(canvas.height, 400, "backing-store height = height * pixelRatio");
+  assert.strictEqual(
+    canvas.width,
+    600,
+    "backing-store width = width * pixelRatio",
+  );
+  assert.strictEqual(
+    canvas.height,
+    400,
+    "backing-store height = height * pixelRatio",
+  );
   const buf = await canvas.encode("png");
   assert.ok(buf.length > 500, "encodes to PNG");
 });

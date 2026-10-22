@@ -53,7 +53,11 @@ type NetworkViz = VizInstance & NetworkFluent;
     margin-origin transform and the current zoom, so they're mapped to their
     on-screen position first — the space `_zoomToBounds` expects.
 */
-function zoomToNodeBounds(viz: VizInstance, xDomain: number[], yDomain: number[]) {
+function zoomToNodeBounds(
+  viz: VizInstance,
+  xDomain: number[],
+  yDomain: number[],
+) {
   const t = zoomTransform((viz._zoomEventTarget || viz._container)!.node());
   const {x: cx = 0, y: cy = 0} = viz._chartTransform || {};
   viz._zoomToBounds!([
@@ -64,7 +68,12 @@ function zoomToNodeBounds(viz: VizInstance, xDomain: number[], yDomain: number[]
 
 /** Installs the `click.shape` handler that focuses/zooms a node + its links. */
 function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
-  viz.schema.on["click.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+  viz.schema.on["click.shape"] = (
+    d: DataPoint,
+    i: number,
+    x: unknown,
+    event: MouseEvent,
+  ) => {
     viz._tooltipClass!.data([]).render();
 
     if (viz._drawDepth >= viz.schema.groupBy.length - 1) {
@@ -77,7 +86,8 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
         viz._zoomToBounds!(null);
       } else {
         v.hover(false);
-        const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
+        const links =
+          (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
         const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
         const filterIds: string[] = [id];
         const xDomain = [node.x - node.r, node.x + node.r];
@@ -93,7 +103,10 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
 
         v.active((h: DataPoint & LinkDatum, hi: number) => {
           if (h.source && h.target)
-            return (h.source as DataPoint).id === id || (h.target as DataPoint).id === id;
+            return (
+              (h.source as DataPoint).id === id ||
+              (h.target as DataPoint).id === id
+            );
           return filterIds.includes(getNodeId(viz, h, hi));
         });
 
@@ -106,7 +119,12 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
 
 /** Installs the `click.legend` handler that focuses/zooms a legend group. */
 function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
-  viz.schema.on["click.legend"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+  viz.schema.on["click.legend"] = (
+    d: DataPoint,
+    i: number,
+    x: unknown,
+    event: MouseEvent,
+  ) => {
     const idList = viz._ids(d, i);
     const id = idList[idList.length - 1];
     const ids = viz._id(d, i) as string | number | (string | number)[];
@@ -119,7 +137,10 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
       } else {
         v.hover(false);
         const idArr = Array.isArray(ids) ? ids : [ids];
-        const nodes = idArr.map(nid => (viz.ctx.nodeLookup as Record<string, NodeRecord>)[String(nid)]);
+        const nodes = idArr.map(
+          nid =>
+            (viz.ctx.nodeLookup as Record<string, NodeRecord>)[String(nid)],
+        );
         const filterIds = [`${id}`];
         const xDomain = [nodes[0].x - nodes[0].r, nodes[0].x + nodes[0].r];
         const yDomain = [nodes[0].y - nodes[0].r, nodes[0].y + nodes[0].r];
@@ -134,8 +155,10 @@ function setupNetworkClickLegend(viz: VizInstance, v: NetworkViz) {
 
         v.active((h: DataPoint & LinkDatum, hi: number) => {
           if (h.source && h.target)
-            return filterIds.includes((h.source as DataPoint).id as string)
-              && filterIds.includes((h.target as DataPoint).id as string);
+            return (
+              filterIds.includes((h.source as DataPoint).id as string) &&
+              filterIds.includes((h.target as DataPoint).id as string)
+            );
           const myIds = viz._ids(h, hi);
           return filterIds.includes(`${myIds[myIds.length - 1]}`);
         });
@@ -157,10 +180,16 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
     v.hover(false);
   };
   const defaultMouseMove = viz.schema.on["mousemove.shape"];
-  viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+  viz.schema.on["mousemove.shape"] = (
+    d: DataPoint,
+    i: number,
+    x: unknown,
+    event: MouseEvent,
+  ) => {
     defaultMouseMove(d, i, x, event);
     const id = getNodeId(viz, d, i);
-    const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
+    const links =
+      (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
     const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
     const filterIds: string[] = [id];
     const xDomain = [node.x - node.r, node.x + node.r];
@@ -175,7 +204,10 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
     });
 
     v.hover((h: DataPoint & LinkDatum, hi: number) => {
-      if (h.source && h.target) return (h.source as DataPoint).id === id || (h.target as DataPoint).id === id;
+      if (h.source && h.target)
+        return (
+          (h.source as DataPoint).id === id || (h.target as DataPoint).id === id
+        );
       return filterIds.includes(`${viz._ids(h, hi)[viz._drawDepth]}`);
     });
   };
@@ -201,9 +233,13 @@ function setupNetworkFluent(v: NetworkViz) {
       receives the loaded data and returns the final links array.
       @type {object[] | string}
   */
-  v.links = function(this: VizInstance, _: unknown, f?: unknown) {
+  v.links = function (this: VizInstance, _: unknown, f?: unknown) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "links");
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+        _,
+        f,
+        "links",
+      );
       return this;
     }
     return this.schema.links;
@@ -215,9 +251,13 @@ function setupNetworkFluent(v: NetworkViz) {
       nodes array.
       @type {object[] | string}
   */
-  v.nodes = function(this: VizInstance, _: unknown, f?: unknown) {
+  v.nodes = function (this: VizInstance, _: unknown, f?: unknown) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "nodes");
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+        _,
+        f,
+        "nodes",
+      );
       return this;
     }
     return this.schema.nodes;
@@ -228,21 +268,31 @@ function setupNetworkFluent(v: NetworkViz) {
       data doesn't cover. Defaults to each node's `id`.
       @type {string | function | (string | function)[]}
   */
-  v.nodeGroupBy = function(this: VizInstance, _?: unknown) {
+  v.nodeGroupBy = function (this: VizInstance, _?: unknown) {
     if (!arguments.length) return this.schema.nodeGroupBy;
     const keys = (_ instanceof Array ? _ : [_]) as unknown[];
     // `_nodeGroupBy` is typed as `(d: DataPoint, i: number) => string | number | Date` —
     // we historically install (d) => d[k] returning broader types; cast.
     this.schema.nodeGroupBy = keys.map(k => {
-      if (typeof k === "function") return k as unknown as (d: DataPoint, i: number) => string | number | Date;
+      if (typeof k === "function")
+        return k as unknown as (
+          d: DataPoint,
+          i: number,
+        ) => string | number | Date;
       const key = k as string;
       if (!this.schema.aggs[key]) {
-        this.schema.aggs[key] = (((a: DataPoint[], c: (d: DataPoint) => unknown) => {
+        this.schema.aggs[key] = ((
+          a: DataPoint[],
+          c: (d: DataPoint) => unknown,
+        ) => {
           const vv = Array.from(new Set(a.map(c)));
           return vv.length === 1 ? vv[0] : vv;
-        }) as unknown) as Aggregator;
+        }) as unknown as Aggregator;
       }
-      return accessor(key) as unknown as (d: DataPoint, i: number) => string | number | Date;
+      return accessor(key) as unknown as (
+        d: DataPoint,
+        i: number,
+      ) => string | number | Date;
     });
     return this;
   };
@@ -252,11 +302,10 @@ function setupNetworkFluent(v: NetworkViz) {
       every node is drawn at the same size.
       @type {string | function}
   */
-  v.size = function(this: VizInstance, _?: unknown) {
+  v.size = function (this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._size;
-    this._size = ((typeof _ === "function" || !_)
-      ? _
-      : accessor(_ as string)) as ((d: DataPoint, i?: number) => number) | undefined;
+    this._size = (typeof _ === "function" || !_ ? _ : accessor(_ as string)) as
+      ((d: DataPoint, i?: number) => number) | undefined;
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
@@ -266,14 +315,21 @@ function setupNetworkFluent(v: NetworkViz) {
       position, every node is placed by a force simulation instead.
       @type {string | function}
   */
-  v.x = function(this: VizInstance, _?: unknown) {
+  v.x = function (this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._x;
     if (typeof _ === "function") {
-      this._x = _ as unknown as (d: DataPoint, i: number) => string | number | Date;
+      this._x = _ as unknown as (
+        d: DataPoint,
+        i: number,
+      ) => string | number | Date;
     } else {
       const key = _ as string;
-      this._x = accessor(key) as unknown as (d: DataPoint, i: number) => string | number | Date;
-      if (!this.schema.aggs[key]) this.schema.aggs[key] = mean as unknown as Aggregator;
+      this._x = accessor(key) as unknown as (
+        d: DataPoint,
+        i: number,
+      ) => string | number | Date;
+      if (!this.schema.aggs[key])
+        this.schema.aggs[key] = mean as unknown as Aggregator;
     }
     return this;
   };
@@ -283,14 +339,21 @@ function setupNetworkFluent(v: NetworkViz) {
       position, every node is placed by a force simulation instead.
       @type {string | function}
   */
-  v.y = function(this: VizInstance, _?: unknown) {
+  v.y = function (this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._y;
     if (typeof _ === "function") {
-      this._y = _ as unknown as (d: DataPoint, i: number) => string | number | Date;
+      this._y = _ as unknown as (
+        d: DataPoint,
+        i: number,
+      ) => string | number | Date;
     } else {
       const key = _ as string;
-      this._y = accessor(key) as unknown as (d: DataPoint, i: number) => string | number | Date;
-      if (!this.schema.aggs[key]) this.schema.aggs[key] = mean as unknown as Aggregator;
+      this._y = accessor(key) as unknown as (
+        d: DataPoint,
+        i: number,
+      ) => string | number | Date;
+      if (!this.schema.aggs[key])
+        this.schema.aggs[key] = mean as unknown as Aggregator;
     }
     return this;
   };
@@ -301,7 +364,8 @@ export const networkDef: ChartDefinition = {
   name: "Network",
 
   layoutStage: applyNetworkLayout,
-  sizeLegendScale: (viz, {width, height}) => networkSizeLegendScale(viz, width, height),
+  sizeLegendScale: (viz, {width, height}) =>
+    networkSizeLegendScale(viz, width, height),
   emit: networkEmit,
   insetRegion: sceneInsetRegion,
 
@@ -323,10 +387,15 @@ export const networkDef: ChartDefinition = {
 
     // Wrap _draw to also call ensureZoomDom (Network needs a DOM zoom group).
     const supDraw = v._draw.bind(viz);
-    v._draw = function(callback?: () => void) {
+    v._draw = function (callback?: () => void) {
       const result = supDraw(callback);
       const {width, height} = chartBounds(viz);
-      ensureZoomDom(viz, {kind: "network", width, height, duration: viz.schema.duration});
+      ensureZoomDom(viz, {
+        kind: "network",
+        width,
+        height,
+        duration: viz.schema.duration,
+      });
       return result;
     };
   },
@@ -377,7 +446,11 @@ export const networkDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => ({
         title: (
-          d: DataPoint & {source?: {id: string | number}; target?: {id: string | number}; i?: number},
+          d: DataPoint & {
+            source?: {id: string | number};
+            target?: {id: string | number};
+            i?: number;
+          },
         ) =>
           d && d.source && d.target
             ? `${d.source.id} → ${d.target.id}`
@@ -404,7 +477,8 @@ export const networkDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => ({
         ariaLabel: (d: DataPoint, i: number) => {
-          const sizeFn = viz._size as ((d: DataPoint, i: number) => unknown) | undefined;
+          const sizeFn = viz._size as
+            ((d: DataPoint, i: number) => unknown) | undefined;
           const validSize = sizeFn ? `, ${sizeFn(d, i)}` : "";
           return `${viz._drawLabel(d, i)}${validSize}.`;
         },

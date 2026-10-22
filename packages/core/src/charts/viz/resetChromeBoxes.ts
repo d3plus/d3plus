@@ -14,7 +14,8 @@ import type Viz from "./Viz.js";
     margin, padding and box-sizing, and a `*ClassName` option hands their
     styling to the page's own button CSS (bare `button` rules included).
 */
-const PANELS = ":where(.d3plus-render-overlays, .d3plus-zoom-control, .d3plus-top-left-controls)";
+const PANELS =
+  ":where(.d3plus-render-overlays, .d3plus-zoom-control, .d3plus-top-left-controls)";
 export const CHROME_SELECTORS = [
   ".d3plus-zoom-control",
   ".d3plus-top-left-controls",

@@ -6,253 +6,265 @@ import {argTypes as axisArgTypes} from "./Axis.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {AxisLeft as D3plusAxisLeft} from "@d3plus/react";
-export const AxisLeft = ({ config }) => <D3plusAxisLeft config={config} />;
+export const AxisLeft = ({config}) => <D3plusAxisLeft config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Axis primitive and
    * overrides any defaults that have been changed in AxisLeft
    */
-  Object.keys(axisArgTypes)
-    .reduce((obj, k) => (obj[k] = axisArgTypes[k], obj), {}),
+  Object.keys(axisArgTypes).reduce(
+    (obj, k) => ((obj[k] = axisArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * AxisLeft-specific methods
    */
-  
+
   {
     barConfig: {
       control: {},
       description: "Axis line style.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     baselineBreakConfig: {
       control: {},
-      description: "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the shapes, default `true`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
+      description:
+        "Style of the break drawn when `baselineBreak` is on and the domain stops\nshort of `baseline`: `space` (pixels of axis between the baseline tick\nand the first tick after the break), `gap` (pixels between the two\nbreak marks, where the axis line is not drawn), `size` (length of each\nmark, drawn outward from the axis line on the tick side so it never\nreaches into the plot), `angle` (degrees each mark tilts from\nperpendicular), `lines` and `lineConfig` (the lines a Plot runs across\nthe plot from each mark, as in `breakConfig`), `mask` (whether a Plot\ncuts the gap between those lines across the shapes, default `true`),\nplus `stroke`/`stroke-width` and other line styles for the marks.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     breakConfig: {
       control: {},
-      description: "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `lines` (whether a Plot\nruns a line across the plot from each mark, default `true`),\n`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over\nthe axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the\nlines across the shapes, default `true`), plus `stroke`/`stroke-width`\nand other line styles for the marks.",
+      description:
+        "Style of the breaks set with `break`: `space` (pixels of axis each break\noccupies), `gap` (pixels between its two marks, where the axis line is\nnot drawn), `size` (length of each mark, drawn outward from the axis\nline on the tick side so it never reaches into the plot), `angle`\n(degrees each mark tilts from perpendicular), `lines` (whether a Plot\nruns a line across the plot from each mark, default `true`),\n`lineConfig` (those lines' style — `stroke`, `stroke-width`, … — over\nthe axis line's `barConfig` style), `mask` (whether a Plot cuts the gap between the\nlines across the shapes, default `true`), plus `stroke`/`stroke-width`\nand other line styles for the marks.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     config: {
       control: {},
-      description: "Methods that correspond to the key/value pairs and returns this class.",
+      description:
+        "Methods that correspond to the key/value pairs and returns this class.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     data: {
       control: {},
-      description: "An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.",
+      description:
+        "An array of data points, which helps determine which ticks should be shown and which time resolution should be displayed.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "array.&lt;unknown&gt;"
-      }
+        summary: "array.&lt;unknown&gt;",
+      },
     },
     gridConfig: {
       control: {},
       description: "Grid config of the axis.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     labelRotation: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
-      description: "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
+      description:
+        "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "boolean | undefined"
-      }
+        summary: "boolean | undefined",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     orient: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "left",
       description: "The orientation of the shape.",
       table: {
         defaultValue: {
-          summary: "left"
-        }
+          summary: "left",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     render: {
       control: {},
       description: "Renders the current Axis to the page.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The SVG container element as a d3 selector or DOM element.\n\nPassing `null` or `undefined` deliberately leaves the axis unmounted\n— `renderMode(\"compute\")` plus `select(null)` produces a\nscene-only axis (no detached SVG fallback). This is the formal\ncontract callers in `plotPaint` use to compute axis layout without\nmounting DOM.",
+      description:
+        'The SVG container element as a d3 selector or DOM element.\n\nPassing `null` or `undefined` deliberately leaves the axis unmounted\n— `renderMode("compute")` plus `select(null)` produces a\nscene-only axis (no detached SVG fallback). This is the formal\ncontract callers in `plotPaint` use to compute axis layout without\nmounting DOM.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | htmlelement | null | undefined"
-      }
+        summary: "string | htmlelement | null | undefined",
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     titleConfig: {
       control: {},
       description: "Title configuration of the axis.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
-    }
-  }
+        summary: "function",
+      },
+    },
+  },
 );

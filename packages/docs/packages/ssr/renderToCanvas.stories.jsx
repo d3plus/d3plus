@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Renders a d3plus chart to a native canvas in Node using @napi-rs/canvas,\nwith no browser. Returns the canvas so callers can encode to any supported\nformat (canvas.encode(\"png\"), .toBuffer(\"image/jpeg\"), …) or pipe it.\n\nPrefer renderToStaticPNG when you just want PNG bytes.",
+        component:
+          'Renders a d3plus chart to a native canvas in Node using @napi-rs/canvas,\nwith no browser. Returns the canvas so callers can encode to any supported\nformat (canvas.encode("png"), .toBuffer("image/jpeg"), …) or pipe it.\n\nPrefer renderToStaticPNG when you just want PNG bytes.',
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -49,7 +50,8 @@ Example.parameters = {
   docs: {
     source: {code, language: "js"},
     description: {
-      story: "The step beneath `renderToStaticPNG`: renders the chart onto a native canvas and returns it, so you can encode to JPEG, WebP, or AVIF (with a quality setting), get a synchronous buffer, or draw more onto the surface before saving. Takes the same options as `renderToStaticPNG`. Node only; the snippet is not executed here.",
+      story:
+        "The step beneath `renderToStaticPNG`: renders the chart onto a native canvas and returns it, so you can encode to JPEG, WebP, or AVIF (with a quality setting), get a synchronous buffer, or draw more onto the surface before saving. Takes the same options as `renderToStaticPNG`. Node only; the snippet is not executed here.",
     },
   },
 };

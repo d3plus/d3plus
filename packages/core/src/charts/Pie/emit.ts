@@ -12,7 +12,12 @@ import type {ArcGeometry, SceneNode, TextNode} from "@d3plus/render";
 
 import constant from "../../utils/constant.js";
 import {emitLabels} from "../../shapes/emitLabels.js";
-import {userLabelConfig, textureFill, shapeConfigFor, resolveAccessor} from "../features/emitHelpers.js";
+import {
+  userLabelConfig,
+  textureFill,
+  shapeConfigFor,
+  resolveAccessor,
+} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 
@@ -44,10 +49,28 @@ interface PathNodeCtx {
     own comments for what `flipFromArc`/`reunionFromArc` are and why.
 */
 function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
-  const {viz, arcMaker, resolveInnerRadius, resolveOuterRadius, sc, value, sharePct, flipSource, isReunionDraw} = ctx;
+  const {
+    viz,
+    arcMaker,
+    resolveInnerRadius,
+    resolveOuterRadius,
+    sc,
+    value,
+    sharePct,
+    flipSource,
+    isReunionDraw,
+  } = ctx;
   const fill = resolveAccessor<string>(sc.fill, d.data as DataPoint, d.i ?? 0);
-  const stroke = resolveAccessor<string>(sc.stroke, d.data as DataPoint, d.i ?? 0);
-  const strokeWidth = resolveAccessor<number>(sc.strokeWidth, d.data as DataPoint, d.i ?? 0);
+  const stroke = resolveAccessor<string>(
+    sc.stroke,
+    d.data as DataPoint,
+    d.i ?? 0,
+  );
+  const strokeWidth = resolveAccessor<number>(
+    sc.strokeWidth,
+    d.data as DataPoint,
+    d.i ?? 0,
+  );
   const arc: ArcGeometry = {
     innerRadius: resolveInnerRadius(d, d.i ?? 0),
     outerRadius: resolveOuterRadius(d, d.i ?? 0),
@@ -58,7 +81,8 @@ function buildPathNode(d: Slice, rank: number, ctx: PathNodeCtx): SceneNode {
   const flipFromArc: ArcGeometry | undefined = flipSource
     ? {
         ...arc,
-        startAngle: flipSource.start + (d.startAngle / FULL_TURN) * flipSource.span,
+        startAngle:
+          flipSource.start + (d.startAngle / FULL_TURN) * flipSource.span,
         endAngle: flipSource.start + (d.endAngle / FULL_TURN) * flipSource.span,
       }
     : undefined;
@@ -133,14 +157,19 @@ function stampLabelFlip(
     tn.shapeType = "Label";
     if (!flipSource) continue;
     const tr = tn.transform ?? {};
-    const x = tr.x ?? 0, y = tr.y ?? 0;
+    const x = tr.x ?? 0,
+      y = tr.y ?? 0;
     const radius = Math.hypot(x, y);
     // d3's angle convention: 0 rad = straight up, increasing clockwise —
     // atan2(x, -y) inverts the x = r·sin(θ), y = -r·cos(θ) used below.
     const angle = Math.atan2(x, -y);
     const normalized = angle < 0 ? angle + FULL_TURN : angle;
-    const mapped = flipSource.start + (normalized / FULL_TURN) * flipSource.span;
-    tn.flipFromTransform = {x: radius * Math.sin(mapped), y: -radius * Math.cos(mapped)};
+    const mapped =
+      flipSource.start + (normalized / FULL_TURN) * flipSource.span;
+    tn.flipFromTransform = {
+      x: radius * Math.sin(mapped),
+      y: -radius * Math.cos(mapped),
+    };
   }
 }
 
@@ -161,13 +190,13 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   // full final radius" start shape, using the actual arc generator (the
   // render layer has none of its own, so it can't reconstruct this).
   const origin = viz._pendingEnterOrigin as
-    | {parentStartAngle?: number; parentEndAngle?: number}
-    | undefined;
+    {parentStartAngle?: number; parentEndAngle?: number} | undefined;
   const parentStart = origin?.parentStartAngle;
   const parentEnd = origin?.parentEndAngle;
-  const flipSource = parentStart !== undefined && parentEnd !== undefined
-    ? {start: parentStart, span: parentEnd - parentStart}
-    : undefined;
+  const flipSource =
+    parentStart !== undefined && parentEnd !== undefined
+      ? {start: parentStart, span: parentEnd - parentStart}
+      : undefined;
 
   // A Back click armed this draw — every entering wedge gets a "full circle,
   // at my own real radii" start built here (the render layer has no arc
@@ -178,11 +207,22 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
 
   const value = viz.schema.value as (d: DataPoint, i: number) => number;
   const locale = viz.schema.locale;
-  const sharePct = (d: Slice) => `${formatAbbreviate((d.share ?? 0) * 100, locale)}%`;
+  const sharePct = (d: Slice) =>
+    `${formatAbbreviate((d.share ?? 0) * 100, locale)}%`;
   const pathCtx: PathNodeCtx = {
-    viz, arcMaker, resolveInnerRadius, resolveOuterRadius, sc, value, sharePct, flipSource, isReunionDraw,
+    viz,
+    arcMaker,
+    resolveInnerRadius,
+    resolveOuterRadius,
+    sc,
+    value,
+    sharePct,
+    flipSource,
+    isReunionDraw,
   };
-  const pathNodes: SceneNode[] = slices.map((d, rank) => buildPathNode(d, rank, pathCtx));
+  const pathNodes: SceneNode[] = slices.map((d, rank) =>
+    buildPathNode(d, rank, pathCtx),
+  );
 
   // Each label sits in its slice's largest inscribed rectangle: the name
   // above and the share percentage below, meeting at the rectangle's center.
@@ -194,7 +234,8 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
     if (!r) return false;
     const x = r.cx - r.width / 2;
     const y = r.cy - r.height / 2;
-    if (r.height < 50) return [{angle: r.angle, width: r.width, height: r.height, x, y}];
+    if (r.height < 50)
+      return [{angle: r.angle, width: r.width, height: r.height, x, y}];
     const padding = 5;
     const band = Math.min(32, (r.height - padding * 2) * 0.3) + padding * 2;
     return [
@@ -206,7 +247,10 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
   const labelNodes = emitLabels({
     data: slices as unknown as DataPoint[],
     label: (_d, i) => {
-      const name = viz._drawLabel(slices[i].data as DataPoint, slices[i].i ?? i);
+      const name = viz._drawLabel(
+        slices[i].data as DataPoint,
+        slices[i].i ?? i,
+      );
       const box = labelBoxes[i];
       return box && box.length > 1 ? [name, sharePct(slices[i])] : [name];
     },
@@ -226,7 +270,10 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
           slice.data as DataPoint,
           slice.i ?? 0,
         );
-        return colorContrast(typeof fill === "string" ? fill : "rgb(255, 255, 255)", viz.schema.colorDefaults);
+        return colorContrast(
+          typeof fill === "string" ? fill : "rgb(255, 255, 255)",
+          viz.schema.colorDefaults,
+        );
       },
       fontResize: true,
       textAnchor: "middle",
@@ -241,7 +288,10 @@ export const pieEmit: ChartEmit = ({viz, shapeData}) => {
 
   stampLabelFlip(labelNodes, flipSource);
 
-  const imageNodes = backgroundImageNodes(sc, pathNodes, k => [slices[k].data as DataPoint, slices[k].i ?? 0]);
+  const imageNodes = backgroundImageNodes(sc, pathNodes, k => [
+    slices[k].data as DataPoint,
+    slices[k].i ?? 0,
+  ]);
 
   return [...pathNodes, ...imageNodes, ...labelNodes];
 };

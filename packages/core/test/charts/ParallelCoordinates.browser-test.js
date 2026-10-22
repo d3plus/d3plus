@@ -17,9 +17,30 @@ const cars = [
   {name: "Charlie", origin: "USA", cylinders: 4, hp: 88, weight: 2600, mpg: 27},
   {name: "Delta", origin: "Japan", cylinders: 4, hp: 70, weight: 2100, mpg: 34},
   {name: "Echo", origin: "Japan", cylinders: 4, hp: 95, weight: 2400, mpg: 30},
-  {name: "Foxtrot", origin: "Europe", cylinders: 4, hp: 78, weight: 2300, mpg: 31},
-  {name: "Golf", origin: "Europe", cylinders: 5, hp: 103, weight: 2900, mpg: 24},
-  {name: "Hotel", origin: "Europe", cylinders: 6, hp: 125, weight: 3100, mpg: null},
+  {
+    name: "Foxtrot",
+    origin: "Europe",
+    cylinders: 4,
+    hp: 78,
+    weight: 2300,
+    mpg: 31,
+  },
+  {
+    name: "Golf",
+    origin: "Europe",
+    cylinders: 5,
+    hp: 103,
+    weight: 2900,
+    mpg: 24,
+  },
+  {
+    name: "Hotel",
+    origin: "Europe",
+    cylinders: 6,
+    hp: 125,
+    weight: 3100,
+    mpg: null,
+  },
 ];
 
 it("ParallelCoordinates draws a line per row and an axis + title per numeric dimension", async function () {
@@ -34,7 +55,9 @@ it("ParallelCoordinates draws a line per row and an axis + title per numeric dim
       await new Promise(r => viz.render(r));
       const scene = viz._chartScene;
       const svg = document.querySelector("#viz svg");
-      const lines = scene.filter(n => n.key.startsWith("pc-line-") && !n.key.endsWith("::hit"));
+      const lines = scene.filter(
+        n => n.key.startsWith("pc-line-") && !n.key.endsWith("::hit"),
+      );
       const hits = scene.filter(n => n.key.endsWith("::hit"));
       const axes = scene.filter(n => n.key.startsWith("pc-axis-"));
       const hotel = lines.find(n => n.key === "pc-line-Hotel");
@@ -44,37 +67,70 @@ it("ParallelCoordinates draws a line per row and an axis + title per numeric dim
         hits: hits.length,
         hitPaint: hits[0].paint,
         axes: axes.map(a => a.key),
-        axisChrome: axes.every(a => a.interactionGroup === "axis" && a.interactive === false),
-        lastIsAxis: scene[scene.length - 1].key.startsWith("pc-") && !scene[scene.length - 1].key.startsWith("pc-line"),
+        axisChrome: axes.every(
+          a => a.interactionGroup === "axis" && a.interactive === false,
+        ),
+        lastIsAxis:
+          scene[scene.length - 1].key.startsWith("pc-") &&
+          !scene[scene.length - 1].key.startsWith("pc-line"),
         texts: [...svg.querySelectorAll("text")].map(t => t.textContent),
-        nan: [...svg.querySelectorAll("*")].filter(n => [...n.attributes].some(a => a.value.includes("NaN"))).length,
+        nan: [...svg.querySelectorAll("*")].filter(n =>
+          [...n.attributes].some(a => a.value.includes("NaN")),
+        ).length,
         aria: lines[0].aria.label,
         hotelMoves: (hotel.d.match(/M/g) || []).length,
         opacity: lines[0].paint.strokeOpacity,
         stroke: lines[0].paint.stroke,
         zoom: viz.zoom(),
         tooltip: viz.schema.tooltipConfig.tbody(data[0]),
-        strips: document.querySelectorAll("#viz g.d3plus-viz-brush g.d3plus-parallel-brush").length,
+        strips: document.querySelectorAll(
+          "#viz g.d3plus-viz-brush g.d3plus-parallel-brush",
+        ).length,
       };
     },
     cars,
   );
-  assert.deepStrictEqual(out.dims, ["cylinders:numeric", "hp:numeric", "weight:numeric", "mpg:numeric"], "numeric keys, minus groupBy");
+  assert.deepStrictEqual(
+    out.dims,
+    ["cylinders:numeric", "hp:numeric", "weight:numeric", "mpg:numeric"],
+    "numeric keys, minus groupBy",
+  );
   assert.strictEqual(out.lines, 8);
   assert.strictEqual(out.hits, 8, "each line has a hit path");
   assert.strictEqual(out.hitPaint.stroke, "transparent");
-  assert.ok(out.hitPaint.strokeWidth >= 6, "the hit path is wider than the line");
-  assert.deepStrictEqual(out.axes, ["pc-axis-cylinders", "pc-axis-hp", "pc-axis-weight", "pc-axis-mpg"]);
+  assert.ok(
+    out.hitPaint.strokeWidth >= 6,
+    "the hit path is wider than the line",
+  );
+  assert.deepStrictEqual(out.axes, [
+    "pc-axis-cylinders",
+    "pc-axis-hp",
+    "pc-axis-weight",
+    "pc-axis-mpg",
+  ]);
   assert.ok(out.axisChrome, "axes are chrome: no pointer, no dimming");
   assert.ok(out.lastIsAxis, "axes and titles draw over the lines");
-  for (const t of ["cylinders", "hp", "weight", "mpg"]) assert.ok(out.texts.includes(t), `title "${t}"`);
+  for (const t of ["cylinders", "hp", "weight", "mpg"])
+    assert.ok(out.texts.includes(t), `title "${t}"`);
   assert.strictEqual(out.nan, 0, "no NaN attributes");
-  assert.strictEqual(out.aria, "Alpha: cylinders 8, hp 190, weight 4.3k, mpg 13.");
-  assert.strictEqual(out.hotelMoves, 1, "a trailing missing value just ends the line");
+  assert.strictEqual(
+    out.aria,
+    "Alpha: cylinders 8, hp 190, weight 4.3k, mpg 13.",
+  );
+  assert.strictEqual(
+    out.hotelMoves,
+    1,
+    "a trailing missing value just ends the line",
+  );
   assert.strictEqual(out.opacity, 1, "few lines draw opaque");
   assert.ok(/^#|^rgb/.test(out.stroke), "lines take the row's color");
   assert.strictEqual(out.zoom, false, "zoom is off by default");
-  assert.deepStrictEqual(out.tooltip, [["cylinders", "8"], ["hp", "190"], ["weight", "4.3k"], ["mpg", "13"]]);
+  assert.deepStrictEqual(out.tooltip, [
+    ["cylinders", "8"],
+    ["hp", "190"],
+    ["weight", "4.3k"],
+    ["mpg", "13"],
+  ]);
   assert.strictEqual(out.strips, 4, "one brush strip per axis");
 });
 
@@ -95,12 +151,18 @@ it("ParallelCoordinates reads categorical axes and per-dimension domain, format,
         })
         .curve("bump");
       await new Promise(r => viz.render(r));
-      const texts = [...document.querySelectorAll("#viz svg text")].map(t => t.textContent);
-      const line = name => viz._chartScene.find(n => n.key === `pc-line-${name}`);
-      const yAt = (d, k) => Number(d.split(/[MCL]/).filter(Boolean)[k].split(",").pop());
+      const texts = [...document.querySelectorAll("#viz svg text")].map(
+        t => t.textContent,
+      );
+      const line = name =>
+        viz._chartScene.find(n => n.key === `pc-line-${name}`);
+      const yAt = (d, k) =>
+        Number(d.split(/[MCL]/).filter(Boolean)[k].split(",").pop());
       const lastY = d => Number(d.split(",").pop());
       return {
-        dims: viz.ctx.dimensions.map(d => `${d.key}:${d.type}:${d.domain.join("|")}`),
+        dims: viz.ctx.dimensions.map(
+          d => `${d.key}:${d.type}:${d.domain.join("|")}`,
+        ),
         texts,
         bump: /C/.test(line("Alpha").d),
         // mpg is reversed: the lowest mpg (Alpha, 13) sits nearer the top than the highest (Delta, 34).
@@ -119,7 +181,8 @@ it("ParallelCoordinates reads categorical axes and per-dimension domain, format,
     "weight:numeric:2100|4300",
     "mpg:numeric:0|40",
   ]);
-  for (const t of ["Europe", "Japan", "USA", "Miles per Gallon", "4.3t"]) assert.ok(out.texts.includes(t), `renders "${t}"`);
+  for (const t of ["Europe", "Japan", "USA", "Miles per Gallon", "4.3t"])
+    assert.ok(out.texts.includes(t), `renders "${t}"`);
   assert.ok(out.bump, "bump curves draw cubic segments");
   assert.ok(out.alphaMpg < out.deltaMpg, "reversed mpg puts low values on top");
   assert.ok(out.golfOrigin < out.alphaOrigin, "Europe sits above USA");
@@ -138,18 +201,32 @@ it("ParallelCoordinates stacks horizontal axes in the vertical orient", async fu
         .orient("vertical");
       await new Promise(r => viz.render(r));
       const d = viz._chartScene.find(n => n.key === "pc-line-Alpha").d;
-      const pts = d.slice(1).split("L").map(p => p.split(",").map(Number));
-      const strips = [...document.querySelectorAll("#viz g.d3plus-parallel-brush")].map(g => {
+      const pts = d
+        .slice(1)
+        .split("L")
+        .map(p => p.split(",").map(Number));
+      const strips = [
+        ...document.querySelectorAll("#viz g.d3plus-parallel-brush"),
+      ].map(g => {
         const r = g.querySelector("rect.overlay");
-        return {w: Number(r.getAttribute("width")), h: Number(r.getAttribute("height"))};
+        return {
+          w: Number(r.getAttribute("width")),
+          h: Number(r.getAttribute("height")),
+        };
       });
       return {pts, strips};
     },
     cars,
   );
   assert.strictEqual(out.pts.length, 3);
-  assert.ok(out.pts[0][1] < out.pts[1][1] && out.pts[1][1] < out.pts[2][1], "axes run top to bottom");
-  assert.ok(out.strips.every(s => s.w > s.h), "brush strips lie along the horizontal axes");
+  assert.ok(
+    out.pts[0][1] < out.pts[1][1] && out.pts[1][1] < out.pts[2][1],
+    "axes run top to bottom",
+  );
+  assert.ok(
+    out.strips.every(s => s.w > s.h),
+    "brush strips lie along the horizontal axes",
+  );
 });
 
 it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered line opaque", async function () {
@@ -159,7 +236,12 @@ it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered li
       const linesOf = root => {
         const found = [];
         for (const n of sceneNodes(root)) {
-          if (typeof n.key === "string" && n.key.includes("pc-line-") && !n.key.endsWith("::hit")) found.push(n);
+          if (
+            typeof n.key === "string" &&
+            n.key.includes("pc-line-") &&
+            !n.key.endsWith("::hit")
+          )
+            found.push(n);
         }
         return found;
       };
@@ -170,7 +252,9 @@ it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered li
         .data(data)
         .groupBy(["origin", "name"]);
       await new Promise(r => viz.render(r));
-      const before = linesOf(viz._paintedScene.root).map(n => n.paint.strokeOpacity);
+      const before = linesOf(viz._paintedScene.root).map(
+        n => n.paint.strokeOpacity,
+      );
       viz.schema.on.mouseenter(data[1], 1);
       await new Promise(r => requestAnimationFrame(() => setTimeout(r, 20)));
       const after = linesOf(viz._paintedScene.root);
@@ -178,13 +262,21 @@ it("ParallelCoordinates shows a tooltip row per dimension and draws a hovered li
       const other = after.find(n => n.key === "pc-line-Alpha");
       return {
         before: [...new Set(before)],
-        bravo: {so: bravo.paint.strokeOpacity, z: bravo.z, sw: bravo.paint.strokeWidth},
+        bravo: {
+          so: bravo.paint.strokeOpacity,
+          z: bravo.z,
+          sw: bravo.paint.strokeWidth,
+        },
         other: {so: other.paint.strokeOpacity, op: other.paint.opacity},
       };
     },
     cars,
   );
-  assert.deepStrictEqual(out.before, [0.4], "lineOpacity sets every line's stroke opacity");
+  assert.deepStrictEqual(
+    out.before,
+    [0.4],
+    "lineOpacity sets every line's stroke opacity",
+  );
   assert.strictEqual(out.bravo.so, 1, "the hovered line is opaque");
   assert.ok(out.bravo.z > 0, "and raised");
   assert.ok(out.bravo.sw > 1.5, "with a wider stroke");

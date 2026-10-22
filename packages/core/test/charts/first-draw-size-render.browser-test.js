@@ -15,7 +15,10 @@ const DURATION = 20000;
 
 /** Renders a chart, waits a few frames into its first draw, and measures it. */
 const firstDraw = async ({chart, renderer, width, height, duration}) => {
-  const data = Array.from({length: 12}, (_, i) => ({id: `item ${i}`, value: (i + 1) * 10}));
+  const data = Array.from({length: 12}, (_, i) => ({
+    id: `item ${i}`,
+    value: (i + 1) * 10,
+  }));
   const viz = new window.d3plus[chart]()
     .select("#viz")
     .renderer(renderer)
@@ -41,7 +44,13 @@ const firstDraw = async ({chart, renderer, width, height, duration}) => {
     const nx = x + (node.transform?.x || 0);
     const ny = y + (node.transform?.y || 0);
     if (node.type === "rect" && node.width > 4 && node.height > 4)
-      marks.push({key: String(node.key), left: nx + node.x, top: ny + node.y, right: nx + node.x + node.width, bottom: ny + node.y + node.height});
+      marks.push({
+        key: String(node.key),
+        left: nx + node.x,
+        top: ny + node.y,
+        right: nx + node.x + node.width,
+        bottom: ny + node.y + node.height,
+      });
     for (const child of node.children || []) walk(child, nx, ny);
   };
   walk(viz._paintedScene.root, box.left, box.top);
@@ -50,14 +59,24 @@ const firstDraw = async ({chart, renderer, width, height, duration}) => {
   // Drawn: its element exists. Visible: the point just inside its corner is
   // inside the SVG's painted box, so a hit there lands in the SVG rather than
   // falling through the clip to the page behind it.
-  const drawn = !!corner && !!svg.querySelector(`[data-key="${CSS.escape(corner.key)}"]`);
-  const hit = corner ? document.elementFromPoint(corner.right - 2, corner.bottom - 2) : null;
+  const drawn =
+    !!corner && !!svg.querySelector(`[data-key="${CSS.escape(corner.key)}"]`);
+  const hit = corner
+    ? document.elementFromPoint(corner.right - 2, corner.bottom - 2)
+    : null;
   return {
     size: [Math.round(box.width), Math.round(box.height)],
     final: [viz.width(), viz.height()],
     contentVisibility: getComputedStyle(svg).contentVisibility,
-    canvas: canvasBox ? [Math.round(canvasBox.width), Math.round(canvasBox.height)] : null,
-    corner: corner ? [Math.round(corner.right - box.left), Math.round(corner.bottom - box.top)] : null,
+    canvas: canvasBox
+      ? [Math.round(canvasBox.width), Math.round(canvasBox.height)]
+      : null,
+    corner: corner
+      ? [
+          Math.round(corner.right - box.left),
+          Math.round(corner.bottom - box.top),
+        ]
+      : null,
     drawn,
     hit: !!hit && svg.contains(hit),
   };
@@ -80,7 +99,8 @@ for (const chart of ["Treemap", "BarChart"]) {
       assert.deepStrictEqual(result.size, result.final);
       assert.ok(result.corner, "the chart has a mark");
       assert.ok(
-        result.corner[0] > result.final[0] / 2 && result.corner[1] > result.final[1] / 2,
+        result.corner[0] > result.final[0] / 2 &&
+          result.corner[1] > result.final[1] / 2,
         `the corner mark sits in the bottom-right quadrant (${result.corner})`,
       );
       assert.ok(result.drawn, "the bottom-right mark is drawn");
@@ -93,7 +113,13 @@ it("first draw: the canvas renderer paints at full size early in the transition"
   const result = await render(
     "<div id='viz' style='width:800px;height:600px'></div>",
     firstDraw,
-    {chart: "Treemap", renderer: "canvas", width: 600, height: 400, duration: DURATION},
+    {
+      chart: "Treemap",
+      renderer: "canvas",
+      width: 600,
+      height: 400,
+      duration: DURATION,
+    },
   );
   assert.deepStrictEqual(result.size, [600, 400]);
   assert.deepStrictEqual(result.canvas, [600, 400]);
@@ -106,19 +132,27 @@ it("first draw: a later size change still transitions", async () => {
       const viz = new window.d3plus.Treemap()
         .select("#viz")
         .duration(duration)
-        .data([{id: "a", value: 1}, {id: "b", value: 2}])
+        .data([
+          {id: "a", value: 1},
+          {id: "b", value: 2},
+        ])
         .groupBy("id")
         .sum("value")
         .width(400)
         .height(300);
       viz.render();
-      for (let i = 0; i < 3; i++) await new Promise(r => requestAnimationFrame(r));
+      for (let i = 0; i < 3; i++)
+        await new Promise(r => requestAnimationFrame(r));
       const svg = document.querySelector("#viz svg.d3plus-viz");
       const first = svg.getBoundingClientRect();
       viz.width(600).height(400).render();
-      for (let i = 0; i < 3; i++) await new Promise(r => requestAnimationFrame(r));
+      for (let i = 0; i < 3; i++)
+        await new Promise(r => requestAnimationFrame(r));
       const resized = svg.getBoundingClientRect();
-      return {first: [first.width, first.height], resized: [resized.width, resized.height]};
+      return {
+        first: [first.width, first.height],
+        resized: [resized.width, resized.height],
+      };
     },
     {duration: DURATION},
   );

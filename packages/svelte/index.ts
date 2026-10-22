@@ -34,7 +34,10 @@ export interface D3plusActionParams {
     <div use:d3plus={{constructor: Treemap, config}} style="height: 400px"></div>
     ```
 */
-export const d3plus: Action<HTMLElement, D3plusActionParams> = (node, params) => {
+export const d3plus: Action<HTMLElement, D3plusActionParams> = (
+  node,
+  params,
+) => {
   const svg = document.createElementNS(SVG_NS, "svg");
   svg.setAttribute("width", "100%");
   svg.setAttribute("height", "100%");

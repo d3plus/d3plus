@@ -117,7 +117,10 @@ export const Network = createD3plusComponent(NetworkClass, "chart");
 /** Vue component for rendering a d3plus Pack visualization. */
 export const Pack = createD3plusComponent(PackClass, "chart");
 /** Vue component for rendering a d3plus ParallelCoordinates visualization. */
-export const ParallelCoordinates = createD3plusComponent(ParallelCoordinatesClass, "chart");
+export const ParallelCoordinates = createD3plusComponent(
+  ParallelCoordinatesClass,
+  "chart",
+);
 /** Vue component for rendering a d3plus Pie visualization. */
 export const Pie = createD3plusComponent(PieClass, "chart");
 /** Vue component for rendering a d3plus Plot visualization. */

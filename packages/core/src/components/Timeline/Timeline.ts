@@ -73,7 +73,7 @@ export default class Timeline extends Axis {
       Triggered on brush "brush".
       @private
 */
-   
+
   _brushBrush(event: Record<string, unknown>): void {
     if (
       event.sourceEvent &&
@@ -118,7 +118,10 @@ export default class Timeline extends Axis {
           .attr("x", (p[0][0] as number) - this.schema.handleSize / 2);
     }
 
-    if (this.schema.on.brush) (this.schema.on.brush as (...args: unknown[]) => unknown)(this.schema.selection);
+    if (this.schema.on.brush)
+      (this.schema.on.brush as (...args: unknown[]) => unknown)(
+        this.schema.selection,
+      );
   }
 
   /**
@@ -138,9 +141,11 @@ export default class Timeline extends Axis {
       .attr("width", limit[1] - limit[0]);
     this._brushGroup
       .selectAll<SVGGElement, {type: string}>(".handle")
-      .attr("x", (d: {type: string}) =>
-        (d.type[d.type.length - 1] === "e" ? limit[1] : limit[0]) -
-        handleSize / 2,
+      .attr(
+        "x",
+        (d: {type: string}) =>
+          (d.type[d.type.length - 1] === "e" ? limit[1] : limit[0]) -
+          handleSize / 2,
       );
   }
 
@@ -148,7 +153,7 @@ export default class Timeline extends Axis {
       Triggered on brush "end".
       @private
 */
-   
+
   _brushEnd(event: Record<string, unknown>): void {
     if (!event.sourceEvent) return; // Only transition after input.
 
@@ -171,16 +176,22 @@ export default class Timeline extends Axis {
     if (!this.schema.brushing) move.duration(0);
     move.call(this._brush.move as never, this._updateBrushLimit(domain));
 
-    if (this.schema.on.end) (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
+    if (this.schema.on.end)
+      (this.schema.on.end as (...args: unknown[]) => unknown)(
+        this.schema.selection,
+      );
   }
 
   /**
       Triggered on brush "start".
       @private
 */
-   
+
   _brushStart(event: Record<string, unknown>): void {
-    if (event.sourceEvent !== null && (!this.schema.brushing || this.schema.snapping)) {
+    if (
+      event.sourceEvent !== null &&
+      (!this.schema.brushing || this.schema.snapping)
+    ) {
       // Interacting with the brush cancels playback.
       if (this._playTimer) clearInterval(this._playTimer);
       this._playTimer = false;
@@ -197,7 +208,8 @@ export default class Timeline extends Axis {
     }
 
     this._brushStyle();
-    if (this.schema.on.start) (this.schema.on.start as (...args: unknown[]) => unknown)(event);
+    if (this.schema.on.start)
+      (this.schema.on.start as (...args: unknown[]) => unknown)(event);
   }
 
   /**
@@ -301,7 +313,9 @@ export default class Timeline extends Axis {
           ? this.schema.height / 2 - this.schema.buttonHeight / 2
           : this.schema.align === "start"
             ? this._margin.top
-            : this.schema.height - this.schema.buttonHeight - this._margin.bottom;
+            : this.schema.height -
+              this.schema.buttonHeight -
+              this._margin.bottom;
 
       brushHandle.attr("y", yTransform);
       brushSelection.attr("y", yTransform);
@@ -312,7 +326,7 @@ export default class Timeline extends Axis {
       Updates domain of the timeline used in brush functions.
       @private
 */
-   
+
   _updateDomain(event: Record<string, unknown>): unknown[] {
     const x = pointers(event, this._select.node());
     let domain: unknown[] =
@@ -381,20 +395,17 @@ export default class Timeline extends Axis {
             : domain
           : single
             ? date(
-                this._availableTicks[
-                  ticks.indexOf(domain[0] as number)
-                ] as string | number | false,
+                this._availableTicks[ticks.indexOf(domain[0] as number)] as
+                  string | number | false,
               )
             : [
                 date(
-                  this._availableTicks[
-                    ticks.indexOf(domain[0] as number)
-                  ] as string | number | false,
+                  this._availableTicks[ticks.indexOf(domain[0] as number)] as
+                    string | number | false,
                 ),
                 date(
-                  this._availableTicks[
-                    ticks.indexOf(domain[1] as number)
-                  ] as string | number | false,
+                  this._availableTicks[ticks.indexOf(domain[1] as number)] as
+                    string | number | false,
                 ),
               ];
     }
@@ -406,14 +417,14 @@ export default class Timeline extends Axis {
       Updates limits of the brush.
       @private
 */
-   
+
   _updateBrushLimit(domain: unknown[]): unknown[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
-        ? (domain as (string | number | false | undefined)[])
+        ? ((domain as (string | number | false | undefined)[])
             .map(date)
-            .map(d => this._d3Scale!(d as Date)) as number[]
-        : domain as number[];
+            .map(d => this._d3Scale!(d as Date)) as number[])
+        : (domain as number[]);
 
     if (selection[0] === selection[1]) {
       selection[0] -= 0.1;
@@ -460,7 +471,9 @@ export default class Timeline extends Axis {
     const advance = (sel: unknown[]): void => {
       this.selection(sel).render();
       if (this.schema.on.end)
-        (this.schema.on.end as (...args: unknown[]) => unknown)(this.schema.selection);
+        (this.schema.on.end as (...args: unknown[]) => unknown)(
+          this.schema.selection,
+        );
     };
 
     let firstTime = true;
@@ -475,11 +488,15 @@ export default class Timeline extends Axis {
         this.schema.domain[this.schema.domain.length - 1],
       ]) as unknown[];
       if (!(selection instanceof Array)) selection = [selection];
-      selection = (selection as (string | number | false | undefined)[]).map(date).map(Number);
+      selection = (selection as (string | number | false | undefined)[])
+        .map(date)
+        .map(Number);
       if (selection.length === 1) selection.push(selection[0]);
       const ticks = periods.map(Number);
       const firstIndex = ticks.indexOf(selection[0] as number);
-      const lastIndex = ticks.indexOf(selection[selection.length - 1] as number);
+      const lastIndex = ticks.indexOf(
+        selection[selection.length - 1] as number,
+      );
       if (lastIndex === ticks.length - 1) {
         if (!firstTime) {
           if (this._playTimer) clearInterval(this._playTimer);
@@ -505,7 +522,8 @@ export default class Timeline extends Axis {
     // no interruption. `duration` overrides `playButtonInterval`, which is the
     // fallback cadence only when there's no animation (`duration` 0).
     const stepDuration = Number(this.schema.duration) || 0;
-    const interval = stepDuration > 0 ? stepDuration : this.schema.playButtonInterval;
+    const interval =
+      stepDuration > 0 ? stepDuration : this.schema.playButtonInterval;
     this._playTimer = setInterval(nextYear, interval);
     nextYear();
     // Reflect the now-playing state immediately, even when the selection was
@@ -559,7 +577,13 @@ export default class Timeline extends Axis {
       toScene?: () => GroupNode;
       _data?: unknown[];
     };
-    if (this.schema.playButton && pb && typeof pb.toScene === "function" && pb._data && pb._data.length) {
+    if (
+      this.schema.playButton &&
+      pb &&
+      typeof pb.toScene === "function" &&
+      pb._data &&
+      pb._data.length
+    ) {
       scene.children.push(pb.toScene());
     }
 
@@ -577,7 +601,8 @@ export default class Timeline extends Axis {
     measureTicksWidth(this, ticks, tickFormat);
 
     const playButtonWidth: number = this.schema.playButton
-      ? (this.schema.playButtonConfig.width as number) || this.schema.buttonHeight
+      ? (this.schema.playButtonConfig.width as number) ||
+        this.schema.buttonHeight
       : 0;
 
     const hiddenHandles = configureScale(this, ticks, playButtonWidth);
@@ -603,7 +628,12 @@ export default class Timeline extends Axis {
       if (this._group) {
         const parent = this._select.node();
         const group = this._group.node();
-        if (parent instanceof Element && group instanceof Element && group.parentNode === parent) parent.appendChild(group);
+        if (
+          parent instanceof Element &&
+          group instanceof Element &&
+          group.parentNode === parent
+        )
+          parent.appendChild(group);
       }
     }
 
@@ -617,14 +647,15 @@ export default class Timeline extends Axis {
   handleConfig(_: Record<string, unknown>): this;
   handleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.handleConfig = mergeConfigBag(this, "handleConfig", _)), this)
+      ? ((this.schema.handleConfig = mergeConfigBag(this, "handleConfig", _)),
+        this)
       : this.schema.handleConfig;
   }
 
   /**
       Event listener for the specified brush event *typename*. Mirrors the core [d3-brush](https://github.com/d3/d3-brush#brush_on) behavior.
 */
-   
+
   on(): Record<string, (...args: unknown[]) => unknown>;
   on(_: string): ((...args: unknown[]) => unknown) | undefined;
   on(_: string, f: (...args: unknown[]) => unknown): this;
@@ -632,13 +663,22 @@ export default class Timeline extends Axis {
   on(
     _?: string | Record<string, (...args: unknown[]) => unknown>,
     f?: (...args: unknown[]) => unknown,
-  ): Record<string, (...args: unknown[]) => unknown> | ((...args: unknown[]) => unknown) | undefined | this {
+  ):
+    | Record<string, (...args: unknown[]) => unknown>
+    | ((...args: unknown[]) => unknown)
+    | undefined
+    | this {
     return arguments.length === 2
       ? ((this.schema.on[_ as string] = f!), this)
       : arguments.length
         ? typeof _ === "string"
           ? this.schema.on[_]
-          : ((this.schema.on = assign({} as Record<string, unknown>, this.schema.on, _ as Record<string, unknown>) as Record<string, (...args: unknown[]) => unknown>), this)
+          : ((this.schema.on = assign(
+              {} as Record<string, unknown>,
+              this.schema.on,
+              _ as Record<string, unknown>,
+            ) as Record<string, (...args: unknown[]) => unknown>),
+            this)
         : this.schema.on;
   }
 
@@ -649,7 +689,12 @@ export default class Timeline extends Axis {
   playButtonConfig(_: Record<string, unknown>): this;
   playButtonConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.playButtonConfig = mergeConfigBag(this, "playButtonConfig", _)), this)
+      ? ((this.schema.playButtonConfig = mergeConfigBag(
+          this,
+          "playButtonConfig",
+          _,
+        )),
+        this)
       : this.schema.playButtonConfig;
   }
 
@@ -660,9 +705,19 @@ export default class Timeline extends Axis {
   selectionConfig(_: Record<string, unknown>): this;
   selectionConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.selectionConfig = mergeConfigBag(this, "selectionConfig", _)), this)
+      ? ((this.schema.selectionConfig = mergeConfigBag(
+          this,
+          "selectionConfig",
+          _,
+        )),
+        this)
       : this.schema.selectionConfig;
   }
 }
 
-resolvesReset(Timeline.prototype, "handleConfig", "playButtonConfig", "selectionConfig");
+resolvesReset(
+  Timeline.prototype,
+  "handleConfig",
+  "playButtonConfig",
+  "selectionConfig",
+);

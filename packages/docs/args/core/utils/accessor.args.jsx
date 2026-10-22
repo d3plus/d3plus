@@ -3,37 +3,36 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   def: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "A default value to be returned if the key is not present.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string | number | boolean | datapoint"
-    }
+      summary: "string | number | boolean | datapoint",
+    },
   },
   key: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "The key to be returned from each Object passed to the function.",
+    description:
+      "The key to be returned from each Object passed to the function.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

@@ -58,7 +58,13 @@ export function lerpArc(a: ArcGeometry, b: ArcGeometry): Interp<ArcGeometry> {
   const sa = lerpNum(a.startAngle, b.startAngle);
   const ea = lerpNum(a.endAngle, b.endAngle);
   const pa = lerpNum(a.padAngle ?? 0, b.padAngle ?? 0);
-  return t => ({innerRadius: ir(t), outerRadius: or(t), startAngle: sa(t), endAngle: ea(t), padAngle: pa(t)});
+  return t => ({
+    innerRadius: ir(t),
+    outerRadius: or(t),
+    startAngle: sa(t),
+    endAngle: ea(t),
+    padAngle: pa(t),
+  });
 }
 
 /**
@@ -85,7 +91,8 @@ export function cubicInOut(t: number): number {
 */
 function flatAreaPath(rect: TransitionRect): string {
   const midY = rect.y + rect.height / 2;
-  const x0 = rect.x, x1 = rect.x + rect.width;
+  const x0 = rect.x,
+    x1 = rect.x + rect.width;
   return `M${x0},${midY}L${x1},${midY}L${x1},${midY}L${x0},${midY}Z`;
 }
 
@@ -100,9 +107,15 @@ function flatAreaPath(rect: TransitionRect): string {
     collapses it to a point at its own center, mirroring how a circle
     collapses to `r: 0`.
 */
-function fitTransform(own: TransitionRect, target: TransitionRect, scale: number): Transform {
-  const ownCx = own.x + own.width / 2, ownCy = own.y + own.height / 2;
-  const targetCx = target.x + target.width / 2, targetCy = target.y + target.height / 2;
+function fitTransform(
+  own: TransitionRect,
+  target: TransitionRect,
+  scale: number,
+): Transform {
+  const ownCx = own.x + own.width / 2,
+    ownCy = own.y + own.height / 2;
+  const targetCx = target.x + target.width / 2,
+    targetCy = target.y + target.height / 2;
   return {x: targetCx - scale * ownCx, y: targetCy - scale * ownCy, scale};
 }
 
@@ -122,9 +135,12 @@ function proportionalRect(
   body: TransitionRect,
   target: TransitionRect,
 ): Pick<RectNode, "x" | "y" | "width" | "height"> {
-  const bw = body.width || 1e-6, bh = body.height || 1e-6;
-  const fx = (node.x - body.x) / bw, fy = (node.y - body.y) / bh;
-  const fw = node.width / bw, fh = node.height / bh;
+  const bw = body.width || 1e-6,
+    bh = body.height || 1e-6;
+  const fx = (node.x - body.x) / bw,
+    fy = (node.y - body.y) / bh;
+  const fw = node.width / bw,
+    fh = node.height / bh;
   return {
     x: target.x + fx * target.width,
     y: target.y + fy * target.height,
@@ -144,9 +160,11 @@ function proportionalCircle(
   body: TransitionRect,
   target: TransitionRect,
 ): Pick<CircleNode, "cx" | "cy" | "r"> {
-  const bw = body.width || 1e-6, bh = body.height || 1e-6;
+  const bw = body.width || 1e-6,
+    bh = body.height || 1e-6;
   const scale = Math.min(target.width / bw, target.height / bh);
-  const fx = (node.cx - body.x) / bw, fy = (node.cy - body.y) / bh;
+  const fx = (node.cx - body.x) / bw,
+    fy = (node.cy - body.y) / bh;
   return {
     cx: target.x + fx * target.width,
     cy: target.y + fy * target.height,
@@ -168,8 +186,10 @@ function proportionalPoint(
   body: TransitionRect,
   target: TransitionRect,
 ): {x: number; y: number} {
-  const bw = body.width || 1e-6, bh = body.height || 1e-6;
-  const fx = (x - body.x) / bw, fy = (y - body.y) / bh;
+  const bw = body.width || 1e-6,
+    bh = body.height || 1e-6;
+  const fx = (x - body.x) / bw,
+    fy = (y - body.y) / bh;
   return {x: target.x + fx * target.width, y: target.y + fy * target.height};
 }
 
@@ -205,9 +225,14 @@ function lerpPoints(
 function interpPaint(a: Paint = {}, b: Paint = {}): Interp<Paint> {
   const fill = lerpColor(a.fill, b.fill);
   const stroke = lerpColor(a.stroke, b.stroke);
-  const fillOpacity = b.fillOpacity === undefined ? null : lerpNum(a.fillOpacity, b.fillOpacity);
-  const strokeOpacity = b.strokeOpacity === undefined ? null : lerpNum(a.strokeOpacity, b.strokeOpacity);
-  const strokeWidth = b.strokeWidth === undefined ? null : lerpNum(a.strokeWidth, b.strokeWidth);
+  const fillOpacity =
+    b.fillOpacity === undefined ? null : lerpNum(a.fillOpacity, b.fillOpacity);
+  const strokeOpacity =
+    b.strokeOpacity === undefined
+      ? null
+      : lerpNum(a.strokeOpacity, b.strokeOpacity);
+  const strokeWidth =
+    b.strokeWidth === undefined ? null : lerpNum(a.strokeWidth, b.strokeWidth);
   // Opacity defaults to 1 (the SVG default) when either endpoint sets it, so that
   // collapse()'s opacity:0 fades a node fully in on enter and fully out on exit.
   const opacity =
@@ -226,7 +251,10 @@ function interpPaint(a: Paint = {}, b: Paint = {}): Interp<Paint> {
 }
 
 /** Builds an interpolator for the affine Transform fields. */
-function interpTransform(a: Transform = {}, b: Transform = {}): Interp<Transform> {
+function interpTransform(
+  a: Transform = {},
+  b: Transform = {},
+): Interp<Transform> {
   const x = lerpNum(a.x ?? 0, b.x ?? 0);
   const y = lerpNum(a.y ?? 0, b.y ?? 0);
   const scale = lerpNum(a.scale ?? 1, b.scale ?? 1);
@@ -241,26 +269,45 @@ function interpTransform(a: Transform = {}, b: Transform = {}): Interp<Transform
     @param from The starting node.
     @param to The target node.
 */
-export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNode> {
+export function interpolateNode(
+  from: SceneNode,
+  to: SceneNode,
+): Interp<SceneNode> {
   if (from.type !== to.type) return () => to;
 
   const paint = interpPaint(from.paint, to.paint);
   const hasTransform = Boolean(from.transform || to.transform);
-  const transform = hasTransform ? interpTransform(from.transform, to.transform) : null;
+  const transform = hasTransform
+    ? interpTransform(from.transform, to.transform)
+    : null;
 
   const base = (t: number): SceneNode =>
-    ({...to, paint: paint(t), ...(transform ? {transform: transform(t)} : {})}) as SceneNode;
+    ({
+      ...to,
+      paint: paint(t),
+      ...(transform ? {transform: transform(t)} : {}),
+    }) as SceneNode;
 
   switch (to.type) {
     case "rect": {
       const f = from as RectNode;
-      const x = lerpNum(f.x, to.x), y = lerpNum(f.y, to.y);
-      const w = lerpNum(f.width, to.width), h = lerpNum(f.height, to.height);
-      return t => ({...(base(t) as RectNode), x: x(t), y: y(t), width: w(t), height: h(t)});
+      const x = lerpNum(f.x, to.x),
+        y = lerpNum(f.y, to.y);
+      const w = lerpNum(f.width, to.width),
+        h = lerpNum(f.height, to.height);
+      return t => ({
+        ...(base(t) as RectNode),
+        x: x(t),
+        y: y(t),
+        width: w(t),
+        height: h(t),
+      });
     }
     case "circle": {
       const f = from as CircleNode;
-      const cx = lerpNum(f.cx, to.cx), cy = lerpNum(f.cy, to.cy), r = lerpNum(f.r, to.r);
+      const cx = lerpNum(f.cx, to.cx),
+        cy = lerpNum(f.cy, to.cy),
+        r = lerpNum(f.r, to.r);
       return t => ({...(base(t) as CircleNode), cx: cx(t), cy: cy(t), r: r(t)});
     }
     case "line": {
@@ -272,10 +319,15 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
       const f = from as AreaNode;
       const top = lerpPoints(f.topline, to.topline);
       const bot = lerpPoints(f.baseline, to.baseline);
-      return t => ({...(base(t) as AreaNode), topline: top(t), baseline: bot(t)});
+      return t => ({
+        ...(base(t) as AreaNode),
+        topline: top(t),
+        baseline: bot(t),
+      });
     }
     case "path": {
-      const f = from as PathNode, n = to as PathNode;
+      const f = from as PathNode,
+        n = to as PathNode;
       // Both endpoints carry real polar parameters (Pie/Donut) — interpolate
       // those numbers and rebuild `d` every frame instead of morphing the
       // `d` STRING via generic point-resampling, which has no notion of
@@ -296,22 +348,35 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
       // The scale pivots about the NEW visual center (anchor-aware); we glide
       // that center's position old→new and place the origin at `pos − scale·c`.
       // `base(t)` is still used for rotation interpolation.
-      const f = from as TextNode, n = to as TextNode;
-      const fromSize = f.font?.size, toSize = n.font?.size;
+      const f = from as TextNode,
+        n = to as TextNode;
+      const fromSize = f.font?.size,
+        toSize = n.font?.size;
       if (fromSize && toSize && fromSize !== toSize) {
         const baseScale = to.transform?.scale ?? 1;
         const [nvcx, nvcy] = textVisualCenter(n);
         const [ovcx, ovcy] = textVisualCenter(f);
         const si = lerpNum(fromSize / toSize, 1);
-        const pxI = lerpNum((f.transform?.x ?? 0) + ovcx, (n.transform?.x ?? 0) + nvcx);
-        const pyI = lerpNum((f.transform?.y ?? 0) + ovcy, (n.transform?.y ?? 0) + nvcy);
+        const pxI = lerpNum(
+          (f.transform?.x ?? 0) + ovcx,
+          (n.transform?.x ?? 0) + nvcx,
+        );
+        const pyI = lerpNum(
+          (f.transform?.y ?? 0) + ovcy,
+          (n.transform?.y ?? 0) + nvcy,
+        );
         return t => {
           const b = base(t);
           const tr = b.transform ?? to.transform ?? {};
           const scale = baseScale * si(t);
           return {
             ...b,
-            transform: {...tr, scale, x: pxI(t) - scale * nvcx, y: pyI(t) - scale * nvcy},
+            transform: {
+              ...tr,
+              scale,
+              x: pxI(t) - scale * nvcx,
+              y: pyI(t) - scale * nvcy,
+            },
           } as SceneNode;
         };
       }
@@ -332,15 +397,27 @@ export function interpolateNode(from: SceneNode, to: SceneNode): Interp<SceneNod
 */
 /** Whether two text nodes draw the same text at the same place and size. */
 export function sameTextLayout(a: TextNode, b: TextNode): boolean {
-  const ta = a.transform ?? {}, tb = b.transform ?? {};
+  const ta = a.transform ?? {},
+    tb = b.transform ?? {};
   if ((ta.x ?? 0) !== (tb.x ?? 0) || (ta.y ?? 0) !== (tb.y ?? 0)) return false;
-  if ((ta.rotate ?? 0) !== (tb.rotate ?? 0) || (ta.scale ?? 1) !== (tb.scale ?? 1)) return false;
+  if (
+    (ta.rotate ?? 0) !== (tb.rotate ?? 0) ||
+    (ta.scale ?? 1) !== (tb.scale ?? 1)
+  )
+    return false;
   if (a.x !== b.x || a.y !== b.y) return false;
-  const fa = a.font ?? {}, fb = b.font ?? {};
-  if (fa.size !== fb.size || fa.family !== fb.family || fa.weight !== fb.weight) return false;
-  const la = a.lines ?? [], lb = b.lines ?? [];
-  return la.length === lb.length &&
-    la.every((l, i) => l.text === lb[i].text && l.x === lb[i].x && l.y === lb[i].y);
+  const fa = a.font ?? {},
+    fb = b.font ?? {};
+  if (fa.size !== fb.size || fa.family !== fb.family || fa.weight !== fb.weight)
+    return false;
+  const la = a.lines ?? [],
+    lb = b.lines ?? [];
+  return (
+    la.length === lb.length &&
+    la.every(
+      (l, i) => l.text === lb[i].text && l.x === lb[i].x && l.y === lb[i].y,
+    )
+  );
 }
 
 /**
@@ -362,12 +439,20 @@ export function fadeSwapOpacity(
   to: number,
   phase: "update" | "enter" | "exit",
 ): {opacity: number; swapped: boolean} {
-  const out = Math.max(1e-6, swap.out), back = Math.max(1e-6, swap.in);
-  if (t >= 1) return phase === "exit" ? {opacity: 0, swapped: false} : {opacity: to, swapped: true};
+  const out = Math.max(1e-6, swap.out),
+    back = Math.max(1e-6, swap.in);
+  if (t >= 1)
+    return phase === "exit"
+      ? {opacity: 0, swapped: false}
+      : {opacity: to, swapped: true};
   const fading = phase === "enter" ? 0 : from * Math.max(0, 1 - t / out);
   if (phase === "exit") return {opacity: fading, swapped: false};
-  if (t > 1 - back) return {opacity: to * Math.min(1, (t - (1 - back)) / back), swapped: true};
-  return {opacity: t < out ? fading : 0, swapped: phase === "enter" || t >= out};
+  if (t > 1 - back)
+    return {opacity: to * Math.min(1, (t - (1 - back)) / back), swapped: true};
+  return {
+    opacity: t < out ? fading : 0,
+    swapped: phase === "enter" || t >= out,
+  };
 }
 
 /**
@@ -381,7 +466,8 @@ export function fadeSwapOpacity(
 */
 export function enterWindowProgress(t: number, window?: EnterWindow): number {
   if (!window) return t;
-  const start = clamp(window.start, 0, 1), end = clamp(window.end, 0, 1);
+  const start = clamp(window.start, 0, 1),
+    end = clamp(window.end, 0, 1);
   if (t >= 1) return 1;
   if (t < start) return 0;
   if (end <= start) return 1;
@@ -470,10 +556,16 @@ export function collapse(node: SceneNode): SceneNode {
       // Collapse to a flat line at the shape's own vertical center, keeping
       // each point's x — the band grows out of/into that centerline.
       const f = node as AreaNode;
-      const midY = f.topline.reduce((s, p) => s + p[1], 0) / (f.topline.length || 1);
+      const midY =
+        f.topline.reduce((s, p) => s + p[1], 0) / (f.topline.length || 1);
       const flat = (pts: [number, number][]): [number, number][] =>
         pts.map(([x]): [number, number] => [x, midY]);
-      return {...node, paint, topline: flat(f.topline), baseline: flat(f.baseline)};
+      return {
+        ...node,
+        paint,
+        topline: flat(f.topline),
+        baseline: flat(f.baseline),
+      };
     }
     case "path":
       // A Sankey link encodes its flow magnitude as stroke-width, so it grows
@@ -508,7 +600,11 @@ export function collapse(node: SceneNode): SceneNode {
         if (f.arc) {
           const mid = (f.arc.startAngle + f.arc.endAngle) / 2;
           const targetAngle = mid > Math.PI ? FULL_TURN : 0;
-          const collapsed: ArcGeometry = {...f.arc, startAngle: targetAngle, endAngle: targetAngle};
+          const collapsed: ArcGeometry = {
+            ...f.arc,
+            startAngle: targetAngle,
+            endAngle: targetAngle,
+          };
           return {...node, paint, arc: collapsed, d: arcPath(collapsed)};
         }
         const own = pathBounds(node.d);
@@ -540,8 +636,11 @@ export function collapse(node: SceneNode): SceneNode {
 export function isFlipEligible(node: SceneNode): boolean {
   return (
     node.interactionGroup == null &&
-    (node.type === "rect" || node.type === "circle" || node.type === "area" ||
-      (node.type === "path" && (node.shapeType === "Area" || node.shapeType === "Pie")) ||
+    (node.type === "rect" ||
+      node.type === "circle" ||
+      node.type === "area" ||
+      (node.type === "path" &&
+        (node.shapeType === "Area" || node.shapeType === "Pie")) ||
       (node.type === "text" && node.shapeType === "Label"))
   );
 }
@@ -587,7 +686,10 @@ export function collapseTo(
   body?: TransitionRect,
   entering?: boolean,
 ): SceneNode {
-  const paint: Paint = {...node.paint, opacity: entering ? (node.paint?.opacity ?? 1) : 0};
+  const paint: Paint = {
+    ...node.paint,
+    opacity: entering ? (node.paint?.opacity ?? 1) : 0,
+  };
   switch (node.type) {
     case "rect": {
       // Bars keep the plain "become the box" behavior — an axis-based
@@ -595,7 +697,14 @@ export function collapseTo(
       // space-filling Treemap does.
       if (body && node.shapeType !== "Bar")
         return {...node, paint, ...proportionalRect(node, body, rect)};
-      return {...node, paint, x: rect.x, y: rect.y, width: rect.width, height: rect.height};
+      return {
+        ...node,
+        paint,
+        x: rect.x,
+        y: rect.y,
+        width: rect.width,
+        height: rect.height,
+      };
     }
     case "circle": {
       // A Plot scatter point (shapeType "Circle") keeps the plain "become
@@ -603,7 +712,13 @@ export function collapseTo(
       if (body && node.shapeType === "Pack")
         return {...node, paint, ...proportionalCircle(node, body, rect)};
       const r = Math.min(rect.width, rect.height) / 2;
-      return {...node, paint, cx: rect.x + rect.width / 2, cy: rect.y + rect.height / 2, r};
+      return {
+        ...node,
+        paint,
+        cx: rect.x + rect.width / 2,
+        cy: rect.y + rect.height / 2,
+        r,
+      };
     }
     case "area": {
       // Remap topline/baseline into a flat line down the rect's vertical
@@ -616,7 +731,12 @@ export function collapseTo(
           rect.x + (n > 1 ? (i / (n - 1)) * rect.width : rect.width / 2),
           midY,
         ]);
-      return {...node, paint, topline: line(f.topline), baseline: line(f.baseline)};
+      return {
+        ...node,
+        paint,
+        topline: line(f.topline),
+        baseline: line(f.baseline),
+      };
     }
     case "path":
       // Only reached for shapeType "Area"/"Pie" — isFlipEligible excludes
@@ -637,7 +757,13 @@ export function collapseTo(
         // render layer has no arc generator of its own, so it can't
         // reconstruct this from `d`/a bounding box.
         if (entering && node.flipFromArc)
-          return {...node, paint, transform: undefined, arc: node.flipFromArc, d: arcPath(node.flipFromArc)};
+          return {
+            ...node,
+            paint,
+            transform: undefined,
+            arc: node.flipFromArc,
+            d: arcPath(node.flipFromArc),
+          };
         // The reappearing reunion wedge (drill-UP): the chart layer already
         // built a full-circle start at this wedge's own real radii — it
         // "instantly" shows the full layout its children currently occupy
@@ -646,7 +772,13 @@ export function collapseTo(
         // (which would read as an awkward resize/reposition rather than a
         // clean angular sweep).
         if (entering && node.reunionFromArc)
-          return {...node, paint, transform: undefined, arc: node.reunionFromArc, d: arcPath(node.reunionFromArc)};
+          return {
+            ...node,
+            paint,
+            transform: undefined,
+            arc: node.reunionFromArc,
+            d: arcPath(node.reunionFromArc),
+          };
         // Fallback (neither flipFromArc nor reunionFromArc — a plain, non-
         // morph exit, which isn't re-emitted so has no fresh arc generator
         // to call): the WHOLE pie (body), not this wedge's own bbox, is the
@@ -654,7 +786,10 @@ export function collapseTo(
         // pie scales as one rigid, non-overlapping unit (a miniature of the
         // full pie) instead of each wedge individually filling rect.
         const source = body ?? pathBounds(node.d);
-        const scale = Math.min(rect.width / (source.width || 1e-6), rect.height / (source.height || 1e-6));
+        const scale = Math.min(
+          rect.width / (source.width || 1e-6),
+          rect.height / (source.height || 1e-6),
+        );
         return {...node, paint, transform: fitTransform(source, rect, scale)};
       }
       return {...node, paint, d: flatAreaPath(rect)};
@@ -672,7 +807,15 @@ export function collapseTo(
       // confinement) — use it verbatim instead of the generic Cartesian
       // fallback below, which has no notion of e.g. a circular layout.
       if (entering && f.flipFromTransform)
-        return {...node, paint, transform: {...tr, x: f.flipFromTransform.x, y: f.flipFromTransform.y}};
+        return {
+          ...node,
+          paint,
+          transform: {
+            ...tr,
+            x: f.flipFromTransform.x,
+            y: f.flipFromTransform.y,
+          },
+        };
       // Generic fallback: move the label's own position proportionally
       // within `body` into `rect`, same as a Treemap cell's own geometry —
       // so a label reads as moving along with its shape instead of fading

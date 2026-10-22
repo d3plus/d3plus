@@ -1,9 +1,5 @@
 export type RegressionType =
-  | "linear"
-  | "exponential"
-  | "logarithmic"
-  | "power"
-  | "polynomial";
+  "linear" | "exponential" | "logarithmic" | "power" | "polynomial";
 
 export interface RegressionResult {
   /** The type of regression that was fit. */
@@ -74,7 +70,7 @@ function solve(A: number[][], b: number[]): number[] | null {
 /** Binomial coefficient C(n, k). */
 function choose(n: number, k: number): number {
   let r = 1;
-  for (let i = 1; i <= k; i++) r = r * (n - k + i) / i;
+  for (let i = 1; i <= k; i++) r = (r * (n - k + i)) / i;
   return r;
 }
 
@@ -109,7 +105,7 @@ function polyfit(
   const coefficients = new Array(size).fill(0);
   beta.forEach((bk, k) => {
     for (let j = 0; j <= k; j++)
-      coefficients[j] += bk * choose(k, j) * (-mx) ** (k - j) / sd ** k;
+      coefficients[j] += (bk * choose(k, j) * (-mx) ** (k - j)) / sd ** k;
   });
   const predict = (x: number) => {
     const u = (x - mx) / sd;
@@ -129,7 +125,8 @@ export default function regression(
   type: RegressionType = "linear",
   options: RegressionOptions = {},
 ): RegressionResult | null {
-  const order = type === "polynomial" ? Math.max(1, Math.round(options.order ?? 2)) : 1;
+  const order =
+    type === "polynomial" ? Math.max(1, Math.round(options.order ?? 2)) : 1;
   const usable = (points || []).filter(([x, y]) => {
     if (!Number.isFinite(x) || !Number.isFinite(y)) return false;
     if ((type === "exponential" || type === "power") && y <= 0) return false;
@@ -146,26 +143,24 @@ export default function regression(
     const fit = polyfit(xs, ys, order);
     if (!fit) return null;
     ({coefficients, predict} = fit);
-  }
-  else {
-    const tx = type === "logarithmic" || type === "power" ? xs.map(Math.log) : xs;
-    const ty = type === "exponential" || type === "power" ? ys.map(Math.log) : ys;
+  } else {
+    const tx =
+      type === "logarithmic" || type === "power" ? xs.map(Math.log) : xs;
+    const ty =
+      type === "exponential" || type === "power" ? ys.map(Math.log) : ys;
     const fit = ols(tx, ty);
     if (!fit) return null;
     const [a, b] = fit;
     if (type === "exponential") {
       coefficients = [Math.exp(a), b];
       predict = x => Math.exp(a + b * x);
-    }
-    else if (type === "logarithmic") {
+    } else if (type === "logarithmic") {
       coefficients = [a, b];
       predict = x => a + b * Math.log(x);
-    }
-    else if (type === "power") {
+    } else if (type === "power") {
       coefficients = [Math.exp(a), b];
       predict = x => Math.exp(a) * x ** b;
-    }
-    else {
+    } else {
       coefficients = [a, b];
       predict = x => a + b * x;
     }

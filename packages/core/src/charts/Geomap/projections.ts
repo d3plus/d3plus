@@ -27,7 +27,9 @@ import {warnConfig} from "../../utils/configWarnings.js";
 export const projections: Readonly<Record<string, () => GeoProjection>> = {
   geoAlbers,
   geoAlbersUsa: composite.geoAlbersUsa ?? geoAlbersUsa,
-  ...(composite.geoAlbersUsaTerritories && {geoAlbersUsaTerritories: composite.geoAlbersUsaTerritories}),
+  ...(composite.geoAlbersUsaTerritories && {
+    geoAlbersUsaTerritories: composite.geoAlbersUsaTerritories,
+  }),
   geoAzimuthalEqualArea,
   geoAzimuthalEquidistant,
   geoConicConformal,

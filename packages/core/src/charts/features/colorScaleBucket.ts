@@ -16,11 +16,9 @@ interface BucketCtx {
 */
 function bucketCtx(viz: VizInstance): BucketCtx | null {
   const cs = viz._colorScaleClass as unknown as
-    | {_data?: DataPoint[]; _colorScale?: (v: unknown) => unknown}
-    | undefined;
+    {_data?: DataPoint[]; _colorScale?: (v: unknown) => unknown} | undefined;
   const value = viz.schema.colorScale as
-    | ((d: DataPoint, i: number) => unknown)
-    | undefined;
+    ((d: DataPoint, i: number) => unknown) | undefined;
   if (!cs || typeof cs._colorScale !== "function" || !value) return null;
   const colorScale = cs._colorScale;
   const colorOf = (d: DataPoint, i: number): unknown => {
@@ -86,7 +84,12 @@ export function colorScaleBucketOf(
   d: unknown,
 ): (DataPoint & {color?: unknown}) | null {
   let bucket = d as
-    | (DataPoint & {__d3plus__?: boolean; data?: DataPoint; _isColorScaleBucket?: boolean; color?: unknown})
+    | (DataPoint & {
+        __d3plus__?: boolean;
+        data?: DataPoint;
+        _isColorScaleBucket?: boolean;
+        color?: unknown;
+      })
     | undefined;
   while (bucket && bucket.__d3plus__ && bucket.data)
     bucket = bucket.data as typeof bucket;

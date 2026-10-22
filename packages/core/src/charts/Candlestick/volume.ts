@@ -20,7 +20,11 @@ import type {SceneNode} from "@d3plus/render";
 import {AxisLeft} from "../../components/index.js";
 import configPrep from "../../utils/configPrep.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
-import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  collectComputed,
+  makeShape,
+  shapeConfigFor,
+} from "../features/emitHelpers.js";
 import type {PlotDatum} from "../features/plotPaint.js";
 import {withAxisInk} from "../Plot/axisInk.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
@@ -41,7 +45,9 @@ export interface VolumeConfig {
 }
 
 /** `volumeConfig`'s defaults. */
-export const VOLUME_DEFAULTS: Required<Omit<VolumeConfig, "axisConfig">> & {axisConfig: Record<string, unknown>} = {
+export const VOLUME_DEFAULTS: Required<Omit<VolumeConfig, "axisConfig">> & {
+  axisConfig: Record<string, unknown>;
+} = {
   height: 0.2,
   gap: 16,
   axisConfig: {},
@@ -59,11 +65,14 @@ const TICK_COUNT = 2;
     @param value The setter's argument.
 */
 export function volumeAccessor(value: unknown): unknown {
-  return value === undefined || value === null || value === false ? undefined : keyedAccessor(value);
+  return value === undefined || value === null || value === false
+    ? undefined
+    : keyedAccessor(value);
 }
 
 /** Whether the chart draws a volume strip. */
-export const volumeEnabled = (viz: VizInstance): boolean => typeof viz.schema.volume === "function";
+export const volumeEnabled = (viz: VizInstance): boolean =>
+  typeof viz.schema.volume === "function";
 
 /** The chart's `volumeConfig`, over its defaults. */
 export function volumeConfig(viz: VizInstance): typeof VOLUME_DEFAULTS {
@@ -72,8 +81,14 @@ export function volumeConfig(viz: VizInstance): typeof VOLUME_DEFAULTS {
 }
 
 /** A row's volume, or undefined when it has none. */
-export function readVolume(viz: VizInstance, d: DataPoint, i: number): number | undefined {
-  return volumeEnabled(viz) ? finiteValue(fieldAccessor(viz, "volume")(d, i)) : undefined;
+export function readVolume(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): number | undefined {
+  return volumeEnabled(viz)
+    ? finiteValue(fieldAccessor(viz, "volume")(d, i))
+    : undefined;
 }
 
 /**
@@ -83,12 +98,23 @@ export function readVolume(viz: VizInstance, d: DataPoint, i: number): number | 
     @param config The chart's `volumeConfig`.
     @param plotHeight The plot's height, strip included.
 */
-export function stripSize(config: VolumeConfig, plotHeight: number): {height: number; gap: number} {
+export function stripSize(
+  config: VolumeConfig,
+  plotHeight: number,
+): {height: number; gap: number} {
   if (!(plotHeight > 0)) return {height: 0, gap: 0};
   const raw = Number(config.height);
   const share = Number.isFinite(raw) && raw > 0 ? raw : VOLUME_DEFAULTS.height;
-  const height = Math.min(share <= 1 ? share * plotHeight : share, plotHeight * MAX_SHARE);
-  const gap = Math.max(0, Number.isFinite(Number(config.gap)) ? Number(config.gap) : VOLUME_DEFAULTS.gap);
+  const height = Math.min(
+    share <= 1 ? share * plotHeight : share,
+    plotHeight * MAX_SHARE,
+  );
+  const gap = Math.max(
+    0,
+    Number.isFinite(Number(config.gap))
+      ? Number(config.gap)
+      : VOLUME_DEFAULTS.gap,
+  );
   return {height: Math.round(height), gap};
 }
 
@@ -97,9 +123,17 @@ export function stripSize(config: VolumeConfig, plotHeight: number): {height: nu
     a nice value at or above it.
     @param top The largest volume.
 */
-export function volumeScale(top: number): {domain: [number, number]; ticks: number[]} {
-  const scale = scaleLinear().domain([0, top > 0 ? top : 1]).nice(TICK_COUNT);
-  return {domain: scale.domain() as [number, number], ticks: scale.ticks(TICK_COUNT)};
+export function volumeScale(top: number): {
+  domain: [number, number];
+  ticks: number[];
+} {
+  const scale = scaleLinear()
+    .domain([0, top > 0 ? top : 1])
+    .nice(TICK_COUNT);
+  return {
+    domain: scale.domain() as [number, number],
+    ticks: scale.ticks(TICK_COUNT),
+  };
 }
 
 /** The largest volume over `rows`, or 0. */
@@ -122,7 +156,9 @@ export function noteVolumeTop(viz: VizInstance): void {
 /** The largest volume the strip spans: every panel's when facet panels share scales, else the rows drawn. */
 function stripTop(viz: VizInstance): number {
   const shared = viz._facetStep === "panel" && viz._plotFacetScales;
-  return shared ? (allTops.get(viz) ?? 0) : largestVolume(viz, viz._filteredData || []);
+  return shared
+    ? (allTops.get(viz) ?? 0)
+    : largestVolume(viz, viz._filteredData || []);
 }
 
 /** Whether the price axis shows its labels (a facet panel off the grid's left edge doesn't). */
@@ -133,7 +169,10 @@ function labelsShown(viz: VizInstance): boolean {
 
 /** Abbreviates a volume, e.g. `1.2M`, in the chart's locale. */
 export function formatVolume(viz: VizInstance, value: number): string {
-  return formatAbbreviate(value, viz.schema.locale as Parameters<typeof formatAbbreviate>[1]);
+  return formatAbbreviate(
+    value,
+    viz.schema.locale as Parameters<typeof formatAbbreviate>[1],
+  );
 }
 
 /**
@@ -143,26 +182,31 @@ export function formatVolume(viz: VizInstance, value: number): string {
     @param viz The chart.
     @param range The strip's top and bottom.
 */
-export function volumeAxis(viz: VizInstance, range: [number, number]): AxisLeft {
+export function volumeAxis(
+  viz: VizInstance,
+  range: [number, number],
+): AxisLeft {
   const {domain, ticks} = volumeScale(stripTop(viz));
   const show = labelsShown(viz);
   return new AxisLeft()
     .renderMode("compute")
     .select(null)
-    .config(withAxisInk(viz, {
-      locale: viz.schema.locale,
-      scale: "linear",
-      domain: [domain[1], domain[0]],
-      range,
-      ticks,
-      labels: show ? ticks.filter(t => t > 0) : [],
-      tickFormat: (v: number) => formatVolume(viz, v),
-      gridSize: 0,
-      rounding: "none",
-      title: false,
-      height: range[1],
-      width: range[1],
-    }))
+    .config(
+      withAxisInk(viz, {
+        locale: viz.schema.locale,
+        scale: "linear",
+        domain: [domain[1], domain[0]],
+        range,
+        ticks,
+        labels: show ? ticks.filter(t => t > 0) : [],
+        tickFormat: (v: number) => formatVolume(viz, v),
+        gridSize: 0,
+        rounding: "none",
+        title: false,
+        height: range[1],
+        width: range[1],
+      }),
+    )
     .config(volumeConfig(viz).axisConfig) as AxisLeft;
 }
 
@@ -202,13 +246,20 @@ export interface VolumeStrip {
     the price axis's range to the x axis. Undefined when no room was reserved.
     @param ctx The Plot shape-emit context.
 */
-export function volumeStripRect(ctx: ShapeEmitContext): VolumeStrip | undefined {
+export function volumeStripRect(
+  ctx: ShapeEmitContext,
+): VolumeStrip | undefined {
   const inset = ctx.insetBottom ?? 0;
   if (!(inset > 0)) return undefined;
   const priceBottom = ctx.yRange[1] - (ctx.x2Height ?? 0);
   const {gap} = volumeConfig(ctx.viz);
   const top = priceBottom + Math.min(gap, inset);
-  return {top, bottom: priceBottom + inset, left: ctx.xRange[0], right: ctx.xRange[ctx.xRange.length - 1]};
+  return {
+    top,
+    bottom: priceBottom + inset,
+    left: ctx.xRange[0],
+    right: ctx.xRange[ctx.xRange.length - 1],
+  };
 }
 
 /**
@@ -240,7 +291,10 @@ export interface VolumeBar {
 */
 export function emitVolume(
   ctx: ShapeEmitContext,
-  candles: Map<PlotDatum, {cx: number; width: number; interactionPoints: unknown[]}>,
+  candles: Map<
+    PlotDatum,
+    {cx: number; width: number; interactionPoints: unknown[]}
+  >,
   style: Record<string, unknown>,
   shapeKey: string,
   texture: (texture: unknown, fill: unknown) => unknown,
@@ -263,7 +317,11 @@ export function emitVolume(
     .renderMode("compute")
     .config(shapeConfigFor(viz, shapeKey))
     .config(style)
-    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(config.shapeConfig as Parameters<typeof configPrep>[0]))
+    .config(
+      configPrep.bind(viz as unknown as ConfigPrepHost)(
+        config.shapeConfig as Parameters<typeof configPrep>[0],
+      ),
+    )
     .config({
       d: (d: PlotDatum) => {
         const {cx, width, top} = bars.get(d)!;
@@ -283,12 +341,18 @@ export function emitVolume(
   const fillOf = path.schema.fill as (d: PlotDatum, i: number) => unknown;
   const textureOf = path.schema.texture as (d: PlotDatum, i: number) => unknown;
   path
-    .config({texture: (d: PlotDatum, i: number) => texture(textureOf(d, i), fillOf(d, i))})
+    .config({
+      texture: (d: PlotDatum, i: number) =>
+        texture(textureOf(d, i), fillOf(d, i)),
+    })
     .data(Array.from(bars.keys()));
   viz._wirePlotShapeEvents!(path, shapeKey, ctx.events);
   const nodes = collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
-    const point = d && snapsToPeriod(node) ? {interactionPoints: candles.get(d)?.interactionPoints} : {};
+    const point =
+      d && snapsToPeriod(node)
+        ? {interactionPoints: candles.get(d)?.interactionPoints}
+        : {};
     return {...node, shapeType: shapeKey, ...point} as SceneNode;
   });
 
@@ -306,7 +370,8 @@ export function emitVolume(
 /** Where an axis drew its domain line, in its own space: its bar, else its outer bounds' right edge. */
 function axisLineX(axis: AxisLeft, scene: SceneNode): number {
   const kids = (scene as {children?: SceneNode[]}).children || [];
-  const bar = kids.find(n => n.key === "bar" && n.type === "line") as {points?: [number, number][]} | undefined;
+  const bar = kids.find(n => n.key === "bar" && n.type === "line") as
+    {points?: [number, number][]} | undefined;
   const x = bar?.points?.[0]?.[0];
   if (Number.isFinite(x)) return x as number;
   const bounds = axis.outerBounds() as {x: number; width: number};

@@ -47,7 +47,13 @@ it("colorCategory names categorical values and skips CSS colors", () => {
   assert.strictEqual(colorCategory("Americas"), "Americas");
   assert.strictEqual(colorCategory(3), "3");
   assert.strictEqual(colorCategory(false), "false");
-  for (const css of ["#ff0000", "red", "rgb(1, 2, 3)", "hsl(120, 50%, 50%)", "transparent"])
+  for (const css of [
+    "#ff0000",
+    "red",
+    "rgb(1, 2, 3)",
+    "hsl(120, 50%, 50%)",
+    "transparent",
+  ])
     assert.strictEqual(colorCategory(css), undefined, css);
   for (const none of ["", undefined, null, {a: 1}, ["x"]])
     assert.strictEqual(colorCategory(none), undefined, JSON.stringify(none));
@@ -55,28 +61,54 @@ it("colorCategory names categorical values and skips CSS colors", () => {
 
 it("legendMergesIds is true only when an entry merges several ids", () => {
   const viz = {_legendDepth: 0, schema: {groupBy: [d => d.country]}};
-  assert.strictEqual(legendMergesIds(viz, [{country: ["Brazil", "Chile"]}, {country: "France"}]), true);
-  assert.strictEqual(legendMergesIds(viz, [{country: "Brazil"}, {country: "France"}]), false);
-  assert.strictEqual(legendMergesIds(viz, [{country: ["Brazil"]}]), false, "a one-id array merges nothing");
-  assert.strictEqual(legendMergesIds({schema: {groupBy: []}}, [{country: ["a", "b"]}]), false);
+  assert.strictEqual(
+    legendMergesIds(viz, [{country: ["Brazil", "Chile"]}, {country: "France"}]),
+    true,
+  );
+  assert.strictEqual(
+    legendMergesIds(viz, [{country: "Brazil"}, {country: "France"}]),
+    false,
+  );
+  assert.strictEqual(
+    legendMergesIds(viz, [{country: ["Brazil"]}]),
+    false,
+    "a one-id array merges nothing",
+  );
+  assert.strictEqual(
+    legendMergesIds({schema: {groupBy: []}}, [{country: ["a", "b"]}]),
+    false,
+  );
 });
 
 it("legendCategories maps each entry to its category, or returns undefined", () => {
-  const a = {id: 1}, b = {id: 2};
-  const map = legendCategories([{datum: a, color: "Americas"}, {datum: b, color: "Europe"}]);
+  const a = {id: 1},
+    b = {id: 2};
+  const map = legendCategories([
+    {datum: a, color: "Americas"},
+    {datum: b, color: "Europe"},
+  ]);
   assert.strictEqual(map.get(a), "Americas");
   assert.strictEqual(map.get(b), "Europe");
   assert.strictEqual(
-    legendCategories([{datum: a, color: "#ff0000"}, {datum: b, color: "Europe"}]),
+    legendCategories([
+      {datum: a, color: "#ff0000"},
+      {datum: b, color: "Europe"},
+    ]),
     undefined,
     "a CSS color names no category",
   );
   assert.strictEqual(
-    legendCategories([{datum: a, color: "Europe"}, {datum: b, color: "Europe"}]),
+    legendCategories([
+      {datum: a, color: "Europe"},
+      {datum: b, color: "Europe"},
+    ]),
     undefined,
     "two entries can't share a category label",
   );
-  assert.strictEqual(legendCategories([{datum: a, color: undefined}]), undefined);
+  assert.strictEqual(
+    legendCategories([{datum: a, color: undefined}]),
+    undefined,
+  );
 });
 
 it("legendCategoryOf unwraps legend wrappers and needs a category map", () => {
@@ -98,7 +130,10 @@ it("legendLabel reads a category entry as its category, and others by groupBy", 
     _drawLabel: x => `label:${x.country}`,
   };
   assert.strictEqual(legendLabel.call(viz, d, 0), "Americas");
-  assert.strictEqual(legendLabel.call(viz, {country: "France"}, 1), "label:France");
+  assert.strictEqual(
+    legendLabel.call(viz, {country: "France"}, 1),
+    "label:France",
+  );
 });
 
 it("buildLegendData labels entries by a color key outside groupBy", () => {

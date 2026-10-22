@@ -6,37 +6,36 @@ import {argTypes as areaPlotArgTypes} from "./AreaPlot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {StackedArea as D3plusStackedArea} from "@d3plus/react";
-export const StackedArea = ({ config }) => <D3plusStackedArea config={config} />;
+export const StackedArea = ({config}) => <D3plusStackedArea config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the AreaPlot primitive and
    * overrides any defaults that have been changed in StackedArea
    */
   Object.keys(areaPlotArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = areaPlotArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = areaPlotArgTypes[k]), obj), {}),
 
   /**
    * StackedArea-specific methods
    */
-  
+
   {
     stacked: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "stackShareTooltipConfig"
-        }
-      }
-    }
-  }
+          summary: "stackShareTooltipConfig",
+        },
+      },
+    },
+  },
 );

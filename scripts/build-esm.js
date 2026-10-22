@@ -13,7 +13,10 @@ fs.mkdirSync("es", {recursive: true});
 
 function collectFiles(dir, pattern) {
   const results = [];
-  for (const entry of fs.readdirSync(dir, {withFileTypes: true, recursive: true})) {
+  for (const entry of fs.readdirSync(dir, {
+    withFileTypes: true,
+    recursive: true,
+  })) {
     const full = path.join(entry.parentPath || entry.path, entry.name);
     if (entry.isFile() && pattern.test(full) && !full.endsWith(".d.ts")) {
       results.push(path.relative(".", full));
@@ -29,7 +32,13 @@ const srcFiles = fs.existsSync("src") ? collectFiles("src", srcPattern) : [];
 // `umd-entry.ts` only feeds the UMD bundle, so it has no ESM output.
 const rootFiles = fs
   .readdirSync(".", {withFileTypes: true})
-  .filter(e => e.isFile() && srcPattern.test(e.name) && !e.name.endsWith(".d.ts") && e.name !== "umd-entry.ts")
+  .filter(
+    e =>
+      e.isFile() &&
+      srcPattern.test(e.name) &&
+      !e.name.endsWith(".d.ts") &&
+      e.name !== "umd-entry.ts",
+  )
   .map(e => e.name);
 const files = srcFiles.concat(rootFiles);
 
@@ -59,4 +68,6 @@ files.forEach(file => {
   if (verbose) log.done();
 });
 
-log.exit(`transpiled ${name} es/ (${files.length} files in ${Math.round(performance.now() - start)}ms)`);
+log.exit(
+  `transpiled ${name} es/ (${files.length} files in ${Math.round(performance.now() - start)}ms)`,
+);

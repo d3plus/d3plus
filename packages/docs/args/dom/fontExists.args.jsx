@@ -3,22 +3,21 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   font: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names.",
+    description:
+      "Can be either a valid CSS font-family string (single or comma-separated names) or an Array of string names.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | array.&lt;string&gt;"
-    }
-  }
+      summary: "string | array.&lt;string&gt;",
+    },
+  },
 };

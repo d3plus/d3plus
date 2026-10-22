@@ -117,7 +117,11 @@ export interface BaseShapeConfig {
   label?: ConstOrAccessor<string | string[] | false>;
   /** Label-bounds accessor (where to mount the label). */
   labelBounds?:
-    | ((d: DataPoint, i: number, aes: unknown) => Record<string, unknown> | Record<string, unknown>[])
+    | ((
+        d: DataPoint,
+        i: number,
+        aes: unknown,
+      ) => Record<string, unknown> | Record<string, unknown>[])
     | Record<string, unknown>;
   /** Label TextBox config (font, padding, etc.). */
   labelConfig?: Record<string, unknown>;

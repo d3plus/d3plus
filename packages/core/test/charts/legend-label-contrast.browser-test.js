@@ -12,26 +12,33 @@ import {render} from "~test/browser/render.js";
 
 /** Renders a three-group Plot inside a parent with `background`, and returns its legend label fills. */
 const labelFills = (background, extra = "") =>
-  render(`<div id="viz" style="width:800px;height:400px;background:${background}"></div>`, src =>
-    new Promise((resolve, reject) => {
-      const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus).duration(0).select("#viz");
-      viz.render(() => {
-        try {
-          const fills = [];
-          const walk = (n, inLegend) => {
-            const here = inLegend || n.key === "viz-legend";
-            if (here && n.type === "text") fills.push(n.paint && n.paint.fill);
-            (n.children || []).forEach(c => walk(c, here));
-          };
-          walk(viz.toScene().root, false);
-          resolve(fills);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }), `lib => new lib.Plot()
+  render(
+    `<div id="viz" style="width:800px;height:400px;background:${background}"></div>`,
+    src =>
+      new Promise((resolve, reject) => {
+        const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          try {
+            const fills = [];
+            const walk = (n, inLegend) => {
+              const here = inLegend || n.key === "viz-legend";
+              if (here && n.type === "text")
+                fills.push(n.paint && n.paint.fill);
+              (n.children || []).forEach(c => walk(c, here));
+            };
+            walk(viz.toScene().root, false);
+            resolve(fills);
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }),
+    `lib => new lib.Plot()
       .data([{id: "alpha", x: 1, y: 2}, {id: "beta", x: 2, y: 1}, {id: "gamma", x: 3, y: 3}])
-      .groupBy("id").x("x").y("y")${extra}`);
+      .groupBy("id").x("x").y("y")${extra}`,
+  );
 
 const lightness = color => {
   const {r, g, b} = rgb(color);
@@ -51,7 +58,10 @@ it("legend labels are light on a dark background", async () => {
 });
 
 it("a legend label fontColor the user sets still wins", async () => {
-  const fills = await labelFills("#212529", `.legendConfig({shapeConfig: {labelConfig: {fontColor: "#ff0000"}}})`);
+  const fills = await labelFills(
+    "#212529",
+    `.legendConfig({shapeConfig: {labelConfig: {fontColor: "#ff0000"}}})`,
+  );
   assert.ok(fills.length >= 3);
   for (const f of fills) assert.strictEqual(rgb(f).formatHex(), "#ff0000");
 });

@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   value: {
     control: {},
     description: "The value to wrap in a return function.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "t"
-    }
-  }
+      summary: "t",
+    },
+  },
 };

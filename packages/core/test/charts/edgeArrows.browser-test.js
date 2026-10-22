@@ -1,19 +1,42 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 
-import {arrowEnds, arrowPathD, arrowSizeFor, straightArrowTip} from "../../src/charts/features/edgeArrows.ts";
+import {
+  arrowEnds,
+  arrowPathD,
+  arrowSizeFor,
+  straightArrowTip,
+} from "../../src/charts/features/edgeArrows.ts";
 import {render} from "~test/browser/render.js";
 
 const box = "<div id='viz' style='width:420px;height:420px'></div>";
 
 it("arrowEnds normalizes every accepted value", () => {
-  assert.deepStrictEqual(arrowEnds(false, {}, 0), {source: false, target: false});
+  assert.deepStrictEqual(arrowEnds(false, {}, 0), {
+    source: false,
+    target: false,
+  });
   assert.deepStrictEqual(arrowEnds(true, {}, 0), {source: false, target: true});
-  assert.deepStrictEqual(arrowEnds("target", {}, 0), {source: false, target: true});
-  assert.deepStrictEqual(arrowEnds("source", {}, 0), {source: true, target: false});
-  assert.deepStrictEqual(arrowEnds("both", {}, 0), {source: true, target: true});
-  assert.deepStrictEqual(arrowEnds(d => d.dir, {dir: "both"}, 0), {source: true, target: true});
-  assert.deepStrictEqual(arrowEnds(d => d.dir, {dir: false}, 0), {source: false, target: false});
+  assert.deepStrictEqual(arrowEnds("target", {}, 0), {
+    source: false,
+    target: true,
+  });
+  assert.deepStrictEqual(arrowEnds("source", {}, 0), {
+    source: true,
+    target: false,
+  });
+  assert.deepStrictEqual(arrowEnds("both", {}, 0), {
+    source: true,
+    target: true,
+  });
+  assert.deepStrictEqual(
+    arrowEnds(d => d.dir, {dir: "both"}, 0),
+    {source: true, target: true},
+  );
+  assert.deepStrictEqual(
+    arrowEnds(d => d.dir, {dir: false}, 0),
+    {source: false, target: false},
+  );
 });
 
 it("arrowPathD builds a closed triangle with the tip at (x,y)", () => {
@@ -28,7 +51,10 @@ it("arrowPathD builds a closed triangle with the tip at (x,y)", () => {
 
 it("arrowSizeFor honors a number, an accessor, and the stroke-width fallback", () => {
   assert.strictEqual(arrowSizeFor(12, {}, 0, 1), 12);
-  assert.strictEqual(arrowSizeFor(d => d.s, {s: 9}, 0, 1), 9);
+  assert.strictEqual(
+    arrowSizeFor(d => d.s, {s: 9}, 0, 1),
+    9,
+  );
   assert.strictEqual(arrowSizeFor(undefined, {}, 0, 4), 12); // max(6, 4*3)
   assert.strictEqual(arrowSizeFor(undefined, {}, 0, 1), 6); // max(6, 3)
 });
@@ -42,18 +68,34 @@ it("straightArrowTip insets the tip to the node boundary and points at the targe
 
 it("Network draws arrow triangles at the selected ends, and none when off", async function () {
   const r = await render(box, async () => {
-    const count = arrows => new Promise(res => {
-      document.querySelector("#viz").innerHTML = "";
-      const viz = new window.d3plus.Network().select("#viz").arrows(arrows)
-        .nodes([{id: "a"}, {id: "b"}, {id: "c"}])
-        .links([{source: "a", target: "b"}, {source: "a", target: "c"}, {source: "b", target: "c"}])
-        .width(420).height(420).duration(0);
-      viz.render(() => {
-        const paths = Array.from(document.querySelectorAll("#viz svg path"));
-        res(paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z")).length);
+    const count = arrows =>
+      new Promise(res => {
+        document.querySelector("#viz").innerHTML = "";
+        const viz = new window.d3plus.Network()
+          .select("#viz")
+          .arrows(arrows)
+          .nodes([{id: "a"}, {id: "b"}, {id: "c"}])
+          .links([
+            {source: "a", target: "b"},
+            {source: "a", target: "c"},
+            {source: "b", target: "c"},
+          ])
+          .width(420)
+          .height(420)
+          .duration(0);
+        viz.render(() => {
+          const paths = Array.from(document.querySelectorAll("#viz svg path"));
+          res(
+            paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z"))
+              .length,
+          );
+        });
       });
-    });
-    return {off: await count(false), target: await count("target"), both: await count("both")};
+    return {
+      off: await count(false),
+      target: await count("target"),
+      both: await count("both"),
+    };
   });
   assert.strictEqual(r.off, 0, "no arrows by default");
   assert.strictEqual(r.target, 3, "one arrow per link at the target end");
@@ -62,16 +104,27 @@ it("Network draws arrow triangles at the selected ends, and none when off", asyn
 
 it("Sankey draws an arrow triangle per link end", async function () {
   const r = await render(box, async () => {
-    const count = arrows => new Promise(res => {
-      document.querySelector("#viz").innerHTML = "";
-      const viz = new window.d3plus.Sankey().select("#viz").arrows(arrows)
-        .links([{source: "a", target: "b", value: 4}, {source: "b", target: "c", value: 2}])
-        .width(420).height(420).duration(0);
-      viz.render(() => {
-        const paths = Array.from(document.querySelectorAll("#viz svg path"));
-        res(paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z")).length);
+    const count = arrows =>
+      new Promise(res => {
+        document.querySelector("#viz").innerHTML = "";
+        const viz = new window.d3plus.Sankey()
+          .select("#viz")
+          .arrows(arrows)
+          .links([
+            {source: "a", target: "b", value: 4},
+            {source: "b", target: "c", value: 2},
+          ])
+          .width(420)
+          .height(420)
+          .duration(0);
+        viz.render(() => {
+          const paths = Array.from(document.querySelectorAll("#viz svg path"));
+          res(
+            paths.filter(p => (p.getAttribute("d") || "").trim().endsWith("Z"))
+              .length,
+          );
+        });
       });
-    });
     return {off: await count(false), both: await count("both")};
   });
   assert.strictEqual(r.off, 0, "no arrows by default");

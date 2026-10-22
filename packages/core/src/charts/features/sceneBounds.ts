@@ -12,13 +12,20 @@ import type {SceneNode, TextNode, Transform} from "@d3plus/render";
 type Point = [number, number];
 
 /** Maps a point through a node transform: rotate (about its anchor), scale, then translate. */
-export function applyTransform([px, py]: Point, t: Transform | undefined): Point {
+export function applyTransform(
+  [px, py]: Point,
+  t: Transform | undefined,
+): Point {
   if (!t) return [px, py];
-  let x = px, y = py;
+  let x = px,
+    y = py;
   if (t.rotate) {
     const [ax, ay] = t.rotateAnchor ?? [0, 0];
-    const a = (t.rotate * Math.PI) / 180, cos = Math.cos(a), sin = Math.sin(a);
-    const dx = x - ax, dy = y - ay;
+    const a = (t.rotate * Math.PI) / 180,
+      cos = Math.cos(a),
+      sin = Math.sin(a);
+    const dx = x - ax,
+      dy = y - ay;
     x = ax + dx * cos - dy * sin;
     y = ay + dx * sin + dy * cos;
   }
@@ -37,12 +44,23 @@ function textBoxes(node: TextNode): Bounds[] {
   const size = node.font?.size ?? 0;
   const anchor = node.font?.anchor ?? "start";
   const baseline = node.font?.baseline ?? "alphabetic";
-  const above = baseline === "hanging" ? 0 : baseline === "middle" ? size / 2 : size * 0.8;
+  const above =
+    baseline === "hanging" ? 0 : baseline === "middle" ? size / 2 : size * 0.8;
   return (node.lines || [])
     .filter(line => line.text && line.width)
     .map(line => {
-      const shift = anchor === "middle" ? line.width / 2 : anchor === "end" ? line.width : 0;
-      return {x: node.x + line.x - shift, y: node.y + line.y - above, width: line.width, height: size};
+      const shift =
+        anchor === "middle"
+          ? line.width / 2
+          : anchor === "end"
+            ? line.width
+            : 0;
+      return {
+        x: node.x + line.x - shift,
+        y: node.y + line.y - above,
+        width: line.width,
+        height: size,
+      };
     });
 }
 
@@ -53,7 +71,14 @@ function ownBoxes(node: SceneNode): Bounds[] {
     case "image":
       return [{x: node.x, y: node.y, width: node.width, height: node.height}];
     case "circle":
-      return [{x: node.cx - node.r, y: node.cy - node.r, width: node.r * 2, height: node.r * 2}];
+      return [
+        {
+          x: node.cx - node.r,
+          y: node.cy - node.r,
+          width: node.r * 2,
+          height: node.r * 2,
+        },
+      ];
     case "path": {
       // Its outline, so a curved shape (a pie wedge, a map region) doesn't
       // claim the empty corners of its bounding box.
@@ -79,11 +104,15 @@ function mapper(chain: Transform[]): (p: Point) => Point {
 /** The axis-aligned box around a box mapped through `map`. */
 function mapBox(b: Bounds, map: (p: Point) => Point): Bounds {
   const corners = [
-    map([b.x, b.y]), map([b.x + b.width, b.y]),
-    map([b.x, b.y + b.height]), map([b.x + b.width, b.y + b.height]),
+    map([b.x, b.y]),
+    map([b.x + b.width, b.y]),
+    map([b.x, b.y + b.height]),
+    map([b.x + b.width, b.y + b.height]),
   ];
-  const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]);
-  const x = Math.min(...xs), y = Math.min(...ys);
+  const xs = corners.map(c => c[0]),
+    ys = corners.map(c => c[1]);
+  const x = Math.min(...xs),
+    y = Math.min(...ys);
   return {x, y, width: Math.max(...xs) - x, height: Math.max(...ys) - y};
 }
 
@@ -116,7 +145,8 @@ export function markBoxes(
       if (!all && node.datum === undefined) continue;
       const map = mapper(next);
       for (const b of ownBoxes(node)) {
-        if ([b.x, b.y, b.width, b.height].every(Number.isFinite)) out.push(mapBox(b, map));
+        if ([b.x, b.y, b.width, b.height].every(Number.isFinite))
+          out.push(mapBox(b, map));
       }
     }
   };

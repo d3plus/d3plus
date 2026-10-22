@@ -3,7 +3,10 @@
 
 import React from "react";
 
-import {argTypes, AxisBottom} from "../../../args/core/components/AxisBottom.args";
+import {
+  argTypes,
+  AxisBottom,
+} from "../../../args/core/components/AxisBottom.args";
 import configify from "../../../helpers/configify";
 import funcify from "../../../helpers/funcify";
 
@@ -14,14 +17,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does.",
+        component:
+          "Axis preset whose ticks are drawn below the horizontal domain path. Accepts everything the base Axis class does.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <AxisBottom config={configify(args, argTypes)} />;
-  
+const Template = args => <AxisBottom config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -30,6 +34,14 @@ BasicExample.args = {
   domain: [0, 100],
   width: 600,
   height: 120,
-  title: "Bottom Axis"
+  title: "Bottom Axis",
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "A horizontal `[0, 100]` domain across the 600px width with ticks and labels below the path, the usual placement for a chart's x-axis."}}};
+BasicExample.parameters = {
+  controls: {include: ["domain", "ticks", "title"]},
+  docs: {
+    description: {
+      story:
+        "A horizontal `[0, 100]` domain across the 600px width with ticks and labels below the path, the usual placement for a chart's x-axis.",
+    },
+  },
+};

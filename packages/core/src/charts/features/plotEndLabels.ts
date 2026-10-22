@@ -83,7 +83,9 @@ interface LabelConfig {
     chart is that short too.
 */
 export function labelsXEnds(viz: Viz, showX: boolean, showY: boolean): boolean {
-  const short = !showY && !(swarmHidesAxis(viz, "y") && viz.schema.height > viz.schema.yCutoff);
+  const short =
+    !showY &&
+    !(swarmHidesAxis(viz, "y") && viz.schema.height > viz.schema.yCutoff);
   return showX && short && viz._xConfig?.labels === undefined;
 }
 

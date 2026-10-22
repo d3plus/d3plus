@@ -1,66 +1,68 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Geomap</title>
+    <meta
+      name="description"
+      content="US state choropleth of diabetes prevalence with a basemap tile switcher."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
-
-  <meta charset="utf-8">
-  <title>Geomap</title>
-  <meta name="description" content="US state choropleth of diabetes prevalence with a basemap tile switcher.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-
-  <style>
-
-    body {
-      margin: 0;
-    }
-
-    #tile-switcher {
-      font-size: 14px;
-      position: absolute;
-      right: 120px;
-      top: 6px;
-      z-index: 1;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-  <select id="tile-switcher">
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}">Esri Light Gray Canvas (default)</option>
-    <option value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}">Esri Terrain</option>
-  </select>
-
-</body>
-
-<script>
-
-  var chart = new d3plus.Geomap()
-    .config({
-      fontFamily: "Comic Sans MS",
-      colorScale: "Diabetes Prevalence",
-      data: "./diabetes.json",
-      groupBy: "State ID",
-      label: d => d.State,
-      height: 600,
-      projection: "geoAlbersUsa",
-      topojson: "./State.json",
-      shapeConfig: {
-        Path: {
-          ariaLabel: d => d.State || d.id
-        }
+    <style>
+      body {
+        margin: 0;
       }
-    })
-    .render();
 
-  document.querySelector("#tile-switcher")
-    .addEventListener("change", function(event) {
-      chart.tileUrl(event.target.value).render();
-    });
+      #tile-switcher {
+        font-size: 14px;
+        position: absolute;
+        right: 120px;
+        top: 6px;
+        z-index: 1;
+      }
+    </style>
+  </head>
 
-</script>
+  <body>
+    <select id="tile-switcher">
+      <option
+        value="https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
+      >
+        Esri Light Gray Canvas (default)
+      </option>
+      <option
+        value="https://server.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer/tile/{z}/{y}/{x}"
+      >
+        Esri Terrain
+      </option>
+    </select>
+  </body>
 
+  <script>
+    var chart = new d3plus.Geomap()
+      .config({
+        fontFamily: "Comic Sans MS",
+        colorScale: "Diabetes Prevalence",
+        data: "./diabetes.json",
+        groupBy: "State ID",
+        label: d => d.State,
+        height: 600,
+        projection: "geoAlbersUsa",
+        topojson: "./State.json",
+        shapeConfig: {
+          Path: {
+            ariaLabel: d => d.State || d.id,
+          },
+        },
+      })
+      .render();
+
+    document
+      .querySelector("#tile-switcher")
+      .addEventListener("change", function (event) {
+        chart.tileUrl(event.target.value).render();
+      });
+  </script>
 </html>

@@ -7,7 +7,9 @@ import {alignOverlayHost} from "../src/overlay.ts";
 
 useJsdom({augment: false});
 
-const resetStyles = root => [...root.querySelectorAll("style[data-d3plus-box-reset]")];
+const resetStyles = root => [
+  ...root.querySelectorAll("style[data-d3plus-box-reset]"),
+];
 
 it("resetInjectedBoxes puts one reset sheet first in <head>", () => {
   const page = document.createElement("style");
@@ -20,10 +22,19 @@ it("resetInjectedBoxes puts one reset sheet first in <head>", () => {
 
   const styles = resetStyles(document);
   assert.strictEqual(styles.length, 1, "a single sheet, shared by every call");
-  assert.strictEqual(document.head.firstChild, styles[0], "ahead of the page's stylesheets");
+  assert.strictEqual(
+    document.head.firstChild,
+    styles[0],
+    "ahead of the page's stylesheets",
+  );
   const css = styles[0].textContent;
-  for (const s of [".a", ".b", ".c"]) assert.ok(css.includes(s), `registers ${s}`);
-  assert.strictEqual(css.match(/\.b/g).length, 1, "a selector registered twice is listed once");
+  for (const s of [".a", ".b", ".c"])
+    assert.ok(css.includes(s), `registers ${s}`);
+  assert.strictEqual(
+    css.match(/\.b/g).length,
+    1,
+    "a selector registered twice is listed once",
+  );
   for (const prop of ["margin", "padding", "border", "box-sizing"])
     assert.ok(css.includes(`${prop}: revert`), `reverts ${prop}`);
 });
@@ -43,9 +54,21 @@ it("resetInjectedBoxes goes into the shadow root holding the node", () => {
   const shadow = holder.attachShadow({mode: "open"});
   const node = shadow.appendChild(document.createElement("div"));
   resetInjectedBoxes(node, [".a"]);
-  assert.strictEqual(resetStyles(shadow).length, 1, "the shadow root gets its own sheet");
-  assert.strictEqual(shadow.firstChild, resetStyles(shadow)[0], "first in the shadow root");
-  assert.strictEqual(resetStyles(document).length, 0, "the document's head is untouched");
+  assert.strictEqual(
+    resetStyles(shadow).length,
+    1,
+    "the shadow root gets its own sheet",
+  );
+  assert.strictEqual(
+    shadow.firstChild,
+    resetStyles(shadow)[0],
+    "first in the shadow root",
+  );
+  assert.strictEqual(
+    resetStyles(document).length,
+    0,
+    "the document's head is untouched",
+  );
 });
 
 it("resetInjectedBoxes ignores a detached node", () => {
@@ -80,14 +103,22 @@ for (const Renderer of [SvgRenderer, CanvasRenderer]) {
     const host = container.querySelector(".d3plus-render-overlays");
     const css = resetStyles(document)[0]?.textContent || "";
     assert.ok(css.includes(".d3plus-render-overlays"), "the host is guarded");
-    assert.ok(css.includes(".d3plus-render-overlay,") || css.includes(".d3plus-render-overlay "), "each overlay is guarded");
+    assert.ok(
+      css.includes(".d3plus-render-overlay,") ||
+        css.includes(".d3plus-render-overlay "),
+      "each overlay is guarded",
+    );
     assert.strictEqual(host.style.top, "0px");
 
     container.style.padding = "12px";
     renderer.drawScene({
       width: 200,
       height: 100,
-      root: {type: "group", key: "root", children: [{type: "htmlOverlay", key: "o", x: 0, y: 0, html: "x"}]},
+      root: {
+        type: "group",
+        key: "root",
+        children: [{type: "htmlOverlay", key: "o", x: 0, y: 0, html: "x"}],
+      },
     });
     assert.strictEqual(host.style.top, "12px", "aligned to the new padding");
     assert.strictEqual(host.style.left, "12px");

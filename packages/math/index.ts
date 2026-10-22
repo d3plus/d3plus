@@ -27,8 +27,20 @@ export {default as segmentBoxContains} from "./src/segmentBoxContains.js";
 export {default as segmentsIntersect} from "./src/segmentsIntersect.js";
 export {default as shapeEdgePoint} from "./src/shapeEdgePoint.js";
 export {default as simplify} from "./src/simplify.js";
-export {default as studentTQuantile, studentTCdf} from "./src/studentTQuantile.js";
-export type {RegressionOptions, RegressionResult, RegressionType} from "./src/regression.js";
+export {
+  default as studentTQuantile,
+  studentTCdf,
+} from "./src/studentTQuantile.js";
+export type {
+  RegressionOptions,
+  RegressionResult,
+  RegressionType,
+} from "./src/regression.js";
 export type {Bounds, NegativeSpaceOptions} from "./src/negativeSpace.js";
 export type {PathCommand} from "./src/pathParse.js";
-export type {DensityPoint, Kernel, KernelDensityOptions, KernelName} from "./src/kernelDensity.js";
+export type {
+  DensityPoint,
+  Kernel,
+  KernelDensityOptions,
+  KernelName,
+} from "./src/kernelDensity.js";

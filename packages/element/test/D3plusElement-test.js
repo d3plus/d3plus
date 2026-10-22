@@ -14,13 +14,32 @@ let tagCounter = 0;
     the element plus the recorded state.
 */
 function makeElement({data = false} = {}) {
-  const state = {instances: 0, configs: [], renders: 0, destroys: 0, dataArgs: null};
+  const state = {
+    instances: 0,
+    configs: [],
+    renders: 0,
+    destroys: 0,
+    dataArgs: null,
+  };
   class MockViz {
-    constructor() { state.instances++; }
-    config(c) { state.configs.push(c); return this; }
-    render(cb) { state.renders++; if (cb) cb(); return this; }
-    destroy() { state.destroys++; }
-    data(d, f) { state.dataArgs = [d, f]; }
+    constructor() {
+      state.instances++;
+    }
+    config(c) {
+      state.configs.push(c);
+      return this;
+    }
+    render(cb) {
+      state.renders++;
+      if (cb) cb();
+      return this;
+    }
+    destroy() {
+      state.destroys++;
+    }
+    data(d, f) {
+      state.dataArgs = [d, f];
+    }
   }
   if (!data) delete MockViz.prototype.data;
   const tag = `d3plus-mock-${tagCounter++}`;
@@ -32,11 +51,22 @@ function makeElement({data = false} = {}) {
 }
 
 beforeAll(async () => {
-  const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
+  const dom = new JSDOM("<!doctype html><html><body></body></html>", {
+    url: "http://localhost",
+  });
   global.window = dom.window;
   global.document = dom.window.document;
-  ["HTMLElement", "Element", "SVGElement", "Node", "customElements", "CustomEvent", "Event"]
-    .forEach(key => { global[key] = dom.window[key]; });
+  [
+    "HTMLElement",
+    "Element",
+    "SVGElement",
+    "Node",
+    "customElements",
+    "CustomEvent",
+    "Event",
+  ].forEach(key => {
+    global[key] = dom.window[key];
+  });
   ({D3plusElement, setGlobalConfig} = await import("../src/D3plusElement.ts"));
 });
 
@@ -53,7 +83,11 @@ it("renders an <svg> and calls config()/render() on connect", () => {
 it("passes the element's own <svg> as the `select` config", () => {
   const {el, state} = makeElement();
   document.body.appendChild(el);
-  assert.strictEqual(state.configs[0].select, el.querySelector("svg"), "select is the element's svg");
+  assert.strictEqual(
+    state.configs[0].select,
+    el.querySelector("svg"),
+    "select is the element's svg",
+  );
 });
 
 it("destroys the instance and removes the svg on disconnect", () => {
@@ -71,7 +105,11 @@ it("re-renders on config change WITHOUT a new instance or destroy (so it can twe
   el.config = {a: 2};
   assert.strictEqual(state.instances, 1, "reuses the single instance");
   assert.strictEqual(state.renders, 2, "re-renders on the change");
-  assert.strictEqual(state.destroys, 0, "does not destroy between config changes");
+  assert.strictEqual(
+    state.destroys,
+    0,
+    "does not destroy between config changes",
+  );
 });
 
 it("does not re-render when the config is structurally unchanged", () => {
@@ -87,7 +125,11 @@ it("diffs function-valued config by source", () => {
   el.config = {x: d => d.a};
   document.body.appendChild(el);
   el.config = {x: d => d.a};
-  assert.strictEqual(state.renders, 1, "identical function source does not re-render");
+  assert.strictEqual(
+    state.renders,
+    1,
+    "identical function source does not re-render",
+  );
   el.config = {x: d => d.b};
   assert.strictEqual(state.renders, 2, "changed function source re-renders");
 });
@@ -98,7 +140,11 @@ it("forceUpdate bypasses config diffing", () => {
   el.config = {a: 1};
   document.body.appendChild(el);
   el.config = {a: 1};
-  assert.strictEqual(state.renders, 2, "renders again despite unchanged config");
+  assert.strictEqual(
+    state.renders,
+    2,
+    "renders again despite unchanged config",
+  );
 });
 
 it("routes data + dataFormat to data() and strips them from the config payload", () => {
@@ -106,9 +152,16 @@ it("routes data + dataFormat to data() and strips them from the config payload",
   const fmt = d => d;
   el.config = {data: [1, 2], dataFormat: fmt, keep: "yes"};
   document.body.appendChild(el);
-  assert.deepStrictEqual(state.dataArgs, [[1, 2], fmt], "data() receives the data + formatter");
+  assert.deepStrictEqual(
+    state.dataArgs,
+    [[1, 2], fmt],
+    "data() receives the data + formatter",
+  );
   const cfg = state.configs[0];
-  assert.ok(!("data" in cfg) && !("dataFormat" in cfg), "data/dataFormat stripped");
+  assert.ok(
+    !("data" in cfg) && !("dataFormat" in cfg),
+    "data/dataFormat stripped",
+  );
   assert.strictEqual(cfg.keep, "yes", "unrelated keys preserved");
 });
 

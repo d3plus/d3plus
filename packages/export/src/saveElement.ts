@@ -50,7 +50,9 @@ export function resolveSaveOptions(
     Pure (checks `tagName` only), so it's unit-testable without a DOM.
 */
 export function isSvgTarget(elem: {tagName?: string}): boolean {
-  return typeof elem?.tagName === "string" && elem.tagName.toLowerCase() === "svg";
+  return (
+    typeof elem?.tagName === "string" && elem.tagName.toLowerCase() === "svg"
+  );
 }
 
 /**
@@ -81,7 +83,10 @@ export default function (
   renderOptions: SaveElementRenderOptions = {},
 ): void {
   if (!elem) return;
-  const {filename, type, renderOpts} = resolveSaveOptions(options, renderOptions);
+  const {filename, type, renderOpts} = resolveSaveOptions(
+    options,
+    renderOptions,
+  );
 
   function done(error?: Error): void {
     if (options.callback) options.callback(error);
@@ -109,14 +114,16 @@ export default function (
 
   // html-to-image is only needed to rasterize (or wrap) an HTML element, so
   // it loads on first use.
-  import("html-to-image").then(({toBlob, toSvg}) =>
-    type === "svg"
-      ? toSvg(elem as HTMLElement, renderOpts)
-          .then(dataUrl => fetch(dataUrl))
-          .then(response => response.blob())
-          .then(finish)
-      : toBlob(elem as HTMLElement, renderOpts).then(blob =>
-          blob ? finish(blob) : fail(blob),
-        ),
-  ).catch(fail);
+  import("html-to-image")
+    .then(({toBlob, toSvg}) =>
+      type === "svg"
+        ? toSvg(elem as HTMLElement, renderOpts)
+            .then(dataUrl => fetch(dataUrl))
+            .then(response => response.blob())
+            .then(finish)
+        : toBlob(elem as HTMLElement, renderOpts).then(blob =>
+            blob ? finish(blob) : fail(blob),
+          ),
+    )
+    .catch(fail);
 }

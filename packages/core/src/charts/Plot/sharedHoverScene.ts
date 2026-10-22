@@ -37,19 +37,25 @@ function inert(node: SceneNode): SceneNode {
     spanning the continuous axis's current domain, styled by `crosshairConfig`
     and rendered through the same path as user `annotations`.
 */
-function crosshairAnnotation(viz: VizInstance, state: HoverState): SceneNode | null {
+function crosshairAnnotation(
+  viz: VizInstance,
+  state: HoverState,
+): SceneNode | null {
   // The discrete-axis position is the snapped pixel itself — a column's
   // position, or a side-by-side bar's own center within its band.
   const snapped: PlotAxisFn = () => state.px;
-  const x = state.axis === "x" ? snapped : viz._xFunc as PlotAxisFn | undefined;
-  const y = state.axis === "y" ? snapped : viz._yFunc as PlotAxisFn | undefined;
+  const x =
+    state.axis === "x" ? snapped : (viz._xFunc as PlotAxisFn | undefined);
+  const y =
+    state.axis === "y" ? snapped : (viz._yFunc as PlotAxisFn | undefined);
   const xDomain = viz._plotAxisDomains?.x;
   const yDomain = viz._plotAxisDomains?.y;
   if (!x || !y || !xDomain?.length || !yDomain?.length) return null;
   const span = (state.axis === "x" ? yDomain : xDomain) as unknown[];
   const ends = [span[0], span[span.length - 1]];
   const data = ends.map(v =>
-    state.axis === "x" ? {x: state.value, y: v} : {x: v, y: state.value});
+    state.axis === "x" ? {x: state.value, y: v} : {x: v, y: state.value},
+  );
   const inst = renderPlotAnnotation(
     viz,
     {shape: "Line", data, id: () => "crosshair", ...viz._crosshairConfig},
@@ -76,16 +82,26 @@ function hoverMarkers(viz: VizInstance, state: HoverState): SceneNode[] {
     .y((d: DataPoint) => at.get(d)!.y)
     .id((d: DataPoint) => `${d.id}_shared`);
   markers.render();
-  return [{type: "group", key: "plot-shared-markers", children: collectComputed(markers)} as SceneNode]
-    .map(inert);
+  return [
+    {
+      type: "group",
+      key: "plot-shared-markers",
+      children: collectComputed(markers),
+    } as SceneNode,
+  ].map(inert);
 }
 
 /** Whether a node is a data mark (vs. background, grid, connectors, chrome). */
 const isMark = (node: SceneNode): boolean => {
   const n = node as ShapeNode;
   const datum = n.datum as {id?: unknown} | undefined;
-  return !!n.shapeType && !n.interactionGroup && n.interactive !== false &&
-    !!datum && datum.id !== undefined;
+  return (
+    !!n.shapeType &&
+    !n.interactionGroup &&
+    n.interactive !== false &&
+    !!datum &&
+    datum.id !== undefined
+  );
 };
 
 /**
@@ -93,10 +109,18 @@ const isMark = (node: SceneNode): boolean => {
     mark ("front"), then the markers on top. Returns a fresh array — `nodes` may
     be `_chartScene` itself, which must not accumulate per-paint nodes.
 */
-function layer(nodes: SceneNode[], crosshair: SceneNode | null, markers: SceneNode[], side: "back" | "front"): SceneNode[] {
+function layer(
+  nodes: SceneNode[],
+  crosshair: SceneNode | null,
+  markers: SceneNode[],
+  side: "back" | "front",
+): SceneNode[] {
   const out = [...nodes];
   if (crosshair) {
-    const first = out.findIndex(n => isMark(n) || (isDomainClip(n) && (n as Parent).children!.some(isMark)));
+    const first = out.findIndex(
+      n =>
+        isMark(n) || (isDomainClip(n) && (n as Parent).children!.some(isMark)),
+    );
     if (side === "back" && first >= 0) out.splice(first, 0, crosshair);
     else out.push(crosshair);
   }
@@ -122,19 +146,27 @@ function decorateBody(
   if (!area) return nodes;
   // The surface is only needed for shared hovers over empty space; a single
   // hover (tooltipShared off) needs the pointer on a mark anyway.
-  const surface = viz.schema.tooltipShared && hasSharedMarks(viz) ? [{
-    type: "rect",
-    key: key("plot-hover-surface"),
-    ...area,
-    interactionGroup: "axis",
-    paint: {fill: "transparent"},
-  } as SceneNode] : [];
+  const surface =
+    viz.schema.tooltipShared && hasSharedMarks(viz)
+      ? [
+          {
+            type: "rect",
+            key: key("plot-hover-surface"),
+            ...area,
+            interactionGroup: "axis",
+            paint: {fill: "transparent"},
+          } as SceneNode,
+        ]
+      : [];
   let children = nodes;
   if (state) {
-    const rekey = (n: SceneNode | null): SceneNode | null => n && prefixKeys([n], key)[0];
+    const rekey = (n: SceneNode | null): SceneNode | null =>
+      n && prefixKeys([n], key)[0];
     const crosshair = rekey(crosshairAnnotation(viz, state));
     const markers = prefixKeys(hoverMarkers(viz, state), key);
-    const content = children.findIndex(n => n.key === key(PLOT_ZOOM_CONTENT_KEY));
+    const content = children.findIndex(
+      n => n.key === key(PLOT_ZOOM_CONTENT_KEY),
+    );
     if (content >= 0) {
       const group = children[content] as Parent;
       children = [...children];
@@ -142,8 +174,7 @@ function decorateBody(
         ...group,
         children: layer(group.children || [], crosshair, markers, state.layer),
       } as SceneNode;
-    }
-    else children = layer(children, crosshair, markers, state.layer);
+    } else children = layer(children, crosshair, markers, state.layer);
   }
   return [...surface, ...children];
 }
@@ -153,7 +184,11 @@ function decorateBody(
     reading that panel's state. Returns new nodes: the panel groups are the
     chart's own `_chartScene`, which must not accumulate per-paint nodes.
 */
-function decoratePanel(viz: VizInstance, group: SceneNode, panel: FacetPanelState): SceneNode {
+function decoratePanel(
+  viz: VizInstance,
+  group: SceneNode,
+  panel: FacetPanelState,
+): SceneNode {
   const kids = (group as Parent).children || [];
   const index = kids.findIndex(n => n.key === `${panel.key}/cells`);
   const cells = kids[index] as Parent | undefined;
@@ -161,9 +196,18 @@ function decoratePanel(viz: VizInstance, group: SceneNode, panel: FacetPanelStat
   if (!cells || !body || !body.children) return group;
   const state = viz._sharedHoverState;
   const children = withFacetPanel(viz, panel, () =>
-    decorateBody(viz, body.children!, state && state.panel === panel.key ? state : null, k => `${panel.key}/${k}`));
+    decorateBody(
+      viz,
+      body.children!,
+      state && state.panel === panel.key ? state : null,
+      k => `${panel.key}/${k}`,
+    ),
+  );
   const next = [...kids];
-  next[index] = {...cells, children: [{...body, children} as SceneNode, ...cells.children!.slice(1)]} as SceneNode;
+  next[index] = {
+    ...cells,
+    children: [{...body, children} as SceneNode, ...cells.children!.slice(1)],
+  } as SceneNode;
   return {...group, children: next} as SceneNode;
 }
 
@@ -175,7 +219,9 @@ function decoratePanel(viz: VizInstance, group: SceneNode, panel: FacetPanelStat
 export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
   const discrete = viz.schema.discrete;
   if (discrete !== "x" && discrete !== "y") return;
-  const cells = (scene.root.children as Parent[]).find(n => n.key === "viz-chart-cells");
+  const cells = (scene.root.children as Parent[]).find(
+    n => n.key === "viz-chart-cells",
+  );
   const zoom = cells && cells.children && (cells.children[0] as Parent);
   const body = zoom && zoom.children && (zoom.children[0] as Parent);
   if (!body || !body.children) return;
@@ -185,6 +231,11 @@ export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
       const panel = panels.find(p => p.key === group.key);
       return panel ? decoratePanel(viz, group, panel) : group;
     });
-  }
-  else body.children = decorateBody(viz, body.children, viz._sharedHoverState, k => k);
+  } else
+    body.children = decorateBody(
+      viz,
+      body.children,
+      viz._sharedHoverState,
+      k => k,
+    );
 }

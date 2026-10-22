@@ -7,7 +7,10 @@
 import type {DataPoint} from "@d3plus/data";
 import {textWidth} from "@d3plus/dom";
 import type {SceneNode} from "@d3plus/render";
-import {fontFamily as d3plusFontFamily, fontFamilyStringify} from "@d3plus/text";
+import {
+  fontFamily as d3plusFontFamily,
+  fontFamilyStringify,
+} from "@d3plus/text";
 
 import type TextBox from "../../components/TextBox.js";
 import {stackOffsetDiverging} from "../Plot/stackHelpers.js";
@@ -57,7 +60,11 @@ export interface LabelFont {
 }
 
 /** Resolves a (possibly accessor-valued) axis `labelConfig` for one label. */
-export function labelFont(config: Record<string, unknown>, d: unknown, i: number): LabelFont {
+export function labelFont(
+  config: Record<string, unknown>,
+  d: unknown,
+  i: number,
+): LabelFont {
   const read = (key: string) => {
     const v = config[key];
     return typeof v === "function" ? v(d, i) : v;
@@ -72,12 +79,20 @@ export function labelFont(config: Record<string, unknown>, d: unknown, i: number
 }
 
 /** The gutter's width: the widest label plus its padding on both sides. */
-export function gutterWidth(texts: string[], fonts: LabelFont[], measure = textWidth): number {
+export function gutterWidth(
+  texts: string[],
+  fonts: LabelFont[],
+  measure = textWidth,
+): number {
   let widest = 0;
   let padding = 0;
   texts.forEach((text, i) => {
     const f = fonts[i];
-    const w = measure(text, {"font-family": f.family, "font-size": f.size, "font-weight": f.weight}) as number;
+    const w = measure(text, {
+      "font-family": f.family,
+      "font-size": f.size,
+      "font-weight": f.weight,
+    }) as number;
     widest = Math.max(widest, w);
     padding = Math.max(padding, f.padding);
   });
@@ -102,7 +117,12 @@ export function thinBands(positions: number[], height: number): boolean[] {
   const end = positions.length - 1;
   if (end > 0 && !keep[end]) {
     keep[end] = true;
-    for (let i = end - 1; i >= 0 && Math.abs(positions[end] - positions[i]) < height; i--) keep[i] = false;
+    for (
+      let i = end - 1;
+      i >= 0 && Math.abs(positions[end] - positions[i]) < height;
+      i--
+    )
+      keep[i] = false;
   }
   return keep;
 }
@@ -119,7 +139,11 @@ export interface GutterLabel {
 }
 
 /** Lays out the gutter labels as scene text nodes. */
-export function gutterLabelNodes(box: TextBox, labels: GutterLabel[], color: string): SceneNode[] {
+export function gutterLabelNodes(
+  box: TextBox,
+  labels: GutterLabel[],
+  color: string,
+): SceneNode[] {
   box
     .renderMode("compute")
     .select(undefined as unknown as HTMLElement)
@@ -134,13 +158,23 @@ export function gutterLabelNodes(box: TextBox, labels: GutterLabel[], color: str
     })
     .render();
   const group = box.toScene();
-  return [{type: "group", key: "pyramid-categories", interactionGroup: "axis", children: group.children ?? []} as SceneNode];
+  return [
+    {
+      type: "group",
+      key: "pyramid-categories",
+      interactionGroup: "axis",
+      children: group.children ?? [],
+    } as SceneNode,
+  ];
 }
 
 /** The category axis's label config: its own defaults under the user's `yConfig` labels. */
 export function categoryLabelConfig(viz: VizInstance): Record<string, unknown> {
-  const own = (viz._yAxis?.shapeConfig() as {labelConfig?: Record<string, unknown>})?.labelConfig ?? {};
-  const user = ((viz._yConfig?.shapeConfig as Record<string, unknown>)?.labelConfig ?? {}) as Record<string, unknown>;
+  const own =
+    (viz._yAxis?.shapeConfig() as {labelConfig?: Record<string, unknown>})
+      ?.labelConfig ?? {};
+  const user = ((viz._yConfig?.shapeConfig as Record<string, unknown>)
+    ?.labelConfig ?? {}) as Record<string, unknown>;
   return {...own, ...user};
 }
 
@@ -153,17 +187,24 @@ export function categoryText(viz: VizInstance, category: unknown): string {
 /** Every category in the data, for a gutter that keeps its width across frames. */
 export function allCategories(viz: VizInstance): unknown[] {
   const y = viz._y as (d: DataPoint, i: number) => unknown;
-  return Array.from(new Set(viz._data.map((d: DataPoint, i: number) => y(d, i))));
+  return Array.from(
+    new Set(viz._data.map((d: DataPoint, i: number) => y(d, i))),
+  );
 }
 
 /** A label's height for thinning: one line plus its padding above and below. */
-export const labelHeight = (font: LabelFont): number => font.size * 1.2 + font.padding * 2;
+export const labelHeight = (font: LabelFont): number =>
+  font.size * 1.2 + font.padding * 2;
 
 /**
     The category labels centered in the gutter between `edges` (pixels), one
     per band that has room, as scene nodes.
 */
-export function gutterLabels(viz: VizInstance, box: TextBox, edges: [number, number]): SceneNode[] {
+export function gutterLabels(
+  viz: VizInstance,
+  box: TextBox,
+  edges: [number, number],
+): SceneNode[] {
   const y = viz._yFunc as ((v: unknown) => number) | undefined;
   const [left, right] = edges;
   if (!y || !viz._yAxis || !(right > left)) return [];
@@ -177,9 +218,22 @@ export function gutterLabels(viz: VizInstance, box: TextBox, edges: [number, num
     if (!keep[i]) return [];
     // The box must be taller than one line for TextBox to fill it.
     const height = Math.max(step, fonts[i].size * 1.5);
-    return [{id: `pyramid-category-${i}`, text: categoryText(viz, c), x: left, y: positions[i] - height / 2, width: right - left, height, font: fonts[i]}];
+    return [
+      {
+        id: `pyramid-category-${i}`,
+        text: categoryText(viz, c),
+        x: left,
+        y: positions[i] - height / 2,
+        width: right - left,
+        height,
+        font: fonts[i],
+      },
+    ];
   });
-  const color = typeof config.fontColor === "string" ? config.fontColor : backgroundInk(viz);
+  const color =
+    typeof config.fontColor === "string"
+      ? config.fontColor
+      : backgroundInk(viz);
   return gutterLabelNodes(box, labels, color);
 }
 
@@ -192,7 +246,10 @@ export interface AxisRestore {
 /** Captures the axes' own styles before the center layout changes them. */
 export function captureAxisStyles(viz: VizInstance): AxisRestore {
   return {
-    y: {barConfig: {...viz._yAxis!.barConfig()}, tickSize: viz._yAxis!.tickSize()},
+    y: {
+      barConfig: {...viz._yAxis!.barConfig()},
+      tickSize: viz._yAxis!.tickSize(),
+    },
     x: {breakConfig: {...viz._xAxis!.breakConfig()}},
   };
 }
@@ -210,11 +267,22 @@ export function gutterAxisDefaults(
   restore: AxisRestore,
 ): {x: Record<string, unknown>; y: Record<string, unknown>} {
   if (position !== "center") return {x: {...restore.x}, y: {...restore.y}};
-  const user = Array.isArray(userBreak) ? (Array.isArray(userBreak[0]) ? userBreak : [userBreak]) : [];
+  const user = Array.isArray(userBreak)
+    ? Array.isArray(userBreak[0])
+      ? userBreak
+      : [userBreak]
+    : [];
   return {
     x: {
       break: [[-inset, inset], ...user],
-      breakConfig: {gap: width, lines: false, mask: false, size: 0, space: width, stroke: "transparent"},
+      breakConfig: {
+        gap: width,
+        lines: false,
+        mask: false,
+        size: 0,
+        space: width,
+        stroke: "transparent",
+      },
     },
     y: {barConfig: {stroke: "transparent"}, tickSize: 0, ticks: []},
   };

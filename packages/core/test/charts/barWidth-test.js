@@ -55,7 +55,10 @@ it("barWidth: labelBarWidth names an accessor and returns it", () => {
 });
 
 it("barWidth: barWidthLabel prefers the data key, else a translated name", () => {
-  assert.strictEqual(barWidthLabel(fakeViz({barWidth: barWidthAccessor("Market Size")})), "Market Size");
+  assert.strictEqual(
+    barWidthLabel(fakeViz({barWidth: barWidthAccessor("Market Size")})),
+    "Market Size",
+  );
   assert.strictEqual(barWidthLabel(fakeViz({barWidth: d => d.v})), "t:Width");
   assert.strictEqual(barWidthLabel(fakeViz()), "t:Width");
 });
@@ -68,9 +71,20 @@ it("barWidth: measureBars groups rows by category and measures the merged rows",
     {x: "C"},
   ];
   const summed = measureBars(rows, "x", d => d.v);
-  assert.deepStrictEqual(summed.map(b => [b.value, b.size]), [["A", 5], ["B", 5]]);
-  const max = measureBars(rows, "x", d => d.size, {size: (a, c) => Math.max(...a.map(c))});
-  assert.deepStrictEqual(max.map(b => b.size), [10, 30]);
+  assert.deepStrictEqual(
+    summed.map(b => [b.value, b.size]),
+    [
+      ["A", 5],
+      ["B", 5],
+    ],
+  );
+  const max = measureBars(rows, "x", d => d.size, {
+    size: (a, c) => Math.max(...a.map(c)),
+  });
+  assert.deepStrictEqual(
+    max.map(b => b.size),
+    [10, 30],
+  );
   assert.strictEqual(max[1].data.g, "a", "a single row is its own datum");
 });
 
@@ -99,7 +113,11 @@ it("barWidth: applyBarWidths places rows at their bar centers and spans the axis
   ];
   const [placed, axis] = applyBarWidths(viz, data, data);
   assert.strictEqual(placed, axis, "a shared array is placed once");
-  assert.deepStrictEqual(placed.map(r => r.x), [2, 2, 6], "zero-width bar Z is dropped");
+  assert.deepStrictEqual(
+    placed.map(r => r.x),
+    [2, 2, 6],
+    "zero-width bar Z is dropped",
+  );
   assert.strictEqual(viz._barSpans.total, 8);
   assert.strictEqual(viz._barSpans.axis, "x");
   assert.strictEqual(viz._xTime, false);
@@ -108,20 +126,42 @@ it("barWidth: applyBarWidths places rows at their bar centers and spans the axis
 });
 
 it("barWidth: applyBarWidths follows xSort and places persisted axis rows", () => {
-  const viz = fakeViz({barWidth: barWidthAccessor("v"), xSort: (a, b) => b.v - a.v});
+  const viz = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    xSort: (a, b) => b.v - a.v,
+  });
   const shown = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 4})];
-  const all = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 4}), row("C", {g: "a", v: 2})];
+  const all = [
+    row("A", {g: "a", v: 1}),
+    row("B", {g: "a", v: 4}),
+    row("C", {g: "a", v: 2}),
+  ];
   const [placed, axis] = applyBarWidths(viz, shown, all);
-  assert.deepStrictEqual(viz._barSpans.spans.map(s => s.value), ["B", "C", "A"]);
-  assert.deepStrictEqual(placed.map(r => r.x), [6.5, 2]);
-  assert.deepStrictEqual(axis.map(r => r.x), [6.5, 2, 5]);
+  assert.deepStrictEqual(
+    viz._barSpans.spans.map(s => s.value),
+    ["B", "C", "A"],
+  );
+  assert.deepStrictEqual(
+    placed.map(r => r.x),
+    [6.5, 2],
+  );
+  assert.deepStrictEqual(
+    axis.map(r => r.x),
+    [6.5, 2, 5],
+  );
 });
 
 it("barWidth: applyBarWidths spans a horizontal (discrete y) chart", () => {
   const viz = fakeViz({barWidth: barWidthAccessor("v"), discrete: "y"});
-  const data = [{y: "A", data: {v: 2}}, {y: "B", data: {v: 2}}];
+  const data = [
+    {y: "A", data: {v: 2}},
+    {y: "B", data: {v: 2}},
+  ];
   applyBarWidths(viz, data, data);
-  assert.deepStrictEqual(data.map(r => r.y), [1, 3]);
+  assert.deepStrictEqual(
+    data.map(r => r.y),
+    [1, 3],
+  );
   assert.strictEqual(viz._barSpans.axis, "y");
   assert.strictEqual(viz._yTime, false);
 });
@@ -142,7 +182,11 @@ it("barWidth: applyBarWidths clears its own layout when off and leaves other ext
   histogram._discreteExtent = extent;
   const rows = [row("A", {g: "a", v: 1})];
   applyBarWidths(histogram, rows, rows);
-  assert.strictEqual(histogram._discreteExtent, extent, "a chart's own span extent wins");
+  assert.strictEqual(
+    histogram._discreteExtent,
+    extent,
+    "a chart's own span extent wins",
+  );
   assert.strictEqual(rows[0].x, "A");
 });
 
@@ -177,11 +221,19 @@ it("barWidth: plotAxisConfig puts the category labels beneath the user's axis co
   applyBarWidths(viz, data, data);
   viz._xConfig = {labels: undefined, title: "Region"};
   const config = plotAxisConfig(viz, "x");
-  assert.deepStrictEqual(config.labels, [1], "an unset user key keeps the chart's labels");
+  assert.deepStrictEqual(
+    config.labels,
+    [1],
+    "an unset user key keeps the chart's labels",
+  );
   assert.strictEqual(config.title, "Region");
   assert.strictEqual(config.break, false);
   viz._xConfig = {labels: []};
-  assert.deepStrictEqual(plotAxisConfig(viz, "x").labels, [], "a user's own labels win");
+  assert.deepStrictEqual(
+    plotAxisConfig(viz, "x").labels,
+    [],
+    "a user's own labels win",
+  );
   viz._yConfig = {title: "v"};
   assert.deepStrictEqual(plotAxisConfig(viz, "y"), {break: false, title: "v"});
 });
@@ -195,14 +247,25 @@ it("barWidth: applyBarWidths shares widths of the panel's own total, even with s
   const again = [row("A", {g: "a", v: 1}), row("B", {g: "a", v: 3})];
   applyBarWidths(viz, again, again);
   assert.strictEqual(viz._barSpans.total, 4);
-  assert.deepStrictEqual(barWidthTooltipRows(viz, again[1].data), [["v", "3 (75%)"]]);
+  assert.deepStrictEqual(barWidthTooltipRows(viz, again[1].data), [
+    ["v", "3 (75%)"],
+  ]);
 });
 
 it("barWidth: widthShareText formats a bar's share of the layout's total", () => {
   const span = {value: "A", size: 1, start: 0, end: 1, mid: 0.5};
-  assert.strictEqual(widthShareText({total: 3, spans: [span]}, span, "en-US"), "33.3%");
-  assert.strictEqual(widthShareText({total: 4, spans: [span]}, span, "en-US"), "25%");
-  assert.strictEqual(widthShareText({total: 0, spans: [span]}, span, "en-US"), "");
+  assert.strictEqual(
+    widthShareText({total: 3, spans: [span]}, span, "en-US"),
+    "33.3%",
+  );
+  assert.strictEqual(
+    widthShareText({total: 4, spans: [span]}, span, "en-US"),
+    "25%",
+  );
+  assert.strictEqual(
+    widthShareText({total: 0, spans: [span]}, span, "en-US"),
+    "",
+  );
 });
 
 it("barWidth: shareLabel puts the share beneath a horizontal axis label and after a vertical one", () => {
@@ -219,9 +282,21 @@ it("barWidth: barSpanAxisConfig ticks and labels each bar's center alone", () =>
   assert.deepStrictEqual(config.ticks, [0.5, 2.5], "no ticks between the bars");
   assert.deepStrictEqual(config.labels, [0.5, 2.5]);
   assert.strictEqual(config.tickFormat(0.5), "A");
-  assert.strictEqual(config.tickFormat(1), "", "nothing labels a value off the bar centers");
-  assert.strictEqual(config.rotatedTickFormat, undefined, "the name alone, rotated or not");
-  assert.deepStrictEqual(barSpanAxisConfig(viz, "y"), {}, "only the variable-width axis");
+  assert.strictEqual(
+    config.tickFormat(1),
+    "",
+    "nothing labels a value off the bar centers",
+  );
+  assert.strictEqual(
+    config.rotatedTickFormat,
+    undefined,
+    "the name alone, rotated or not",
+  );
+  assert.deepStrictEqual(
+    barSpanAxisConfig(viz, "y"),
+    {},
+    "only the variable-width axis",
+  );
 });
 
 it("barWidth: barSpanAxisConfig adds width shares with barWidthShare, but not to rotated labels", () => {
@@ -234,8 +309,15 @@ it("barWidth: barSpanAxisConfig adds width shares with barWidthShare, but not to
   assert.strictEqual(config.rotatedTickFormat(0.5), "A");
   assert.strictEqual(config.rotatedTickFormat(2.5), "B");
 
-  const vertical = fakeViz({barWidth: barWidthAccessor("v"), barWidthShare: true, discrete: "y"});
-  const rows = [{y: "A", data: {v: 1}}, {y: "B", data: {v: 3}}];
+  const vertical = fakeViz({
+    barWidth: barWidthAccessor("v"),
+    barWidthShare: true,
+    discrete: "y",
+  });
+  const rows = [
+    {y: "A", data: {v: 1}},
+    {y: "B", data: {v: 3}},
+  ];
   applyBarWidths(vertical, rows, rows);
   const y = barSpanAxisConfig(vertical, "y");
   assert.strictEqual(y.tickFormat(0.5), "A (25%)");
@@ -250,14 +332,37 @@ it("barWidth: barSeries lists side-by-side series only when a bar holds more tha
     {x: 3, group: "c"},
   ];
   assert.deepStrictEqual(barSeries(rows, "x"), ["a", "b", "c"]);
-  assert.deepStrictEqual(barSeries([{x: 1, group: "s"}, {x: 3, group: "s"}], "x"), [], "one stack per bar");
-  assert.deepStrictEqual(barSeries([{y: 1, group: "a"}, {y: 3, group: "b"}], "y"), [], "one series per bar");
+  assert.deepStrictEqual(
+    barSeries(
+      [
+        {x: 1, group: "s"},
+        {x: 3, group: "s"},
+      ],
+      "x",
+    ),
+    [],
+    "one stack per bar",
+  );
+  assert.deepStrictEqual(
+    barSeries(
+      [
+        {y: 1, group: "a"},
+        {y: 3, group: "b"},
+      ],
+      "y",
+    ),
+    [],
+    "one series per bar",
+  );
   assert.deepStrictEqual(barSeries([], "x"), []);
 });
 
 it("barWidth: seriesSlot splits a bar like grouped bars split a band", () => {
   // 100px for 2 series with 4px padding: (100 - 8 - 1) / 2 = 45.5 each, flush with both edges.
-  assert.deepStrictEqual(seriesSlot(100, 2, 0, 4), {size: 45.5, offset: -27.25});
+  assert.deepStrictEqual(seriesSlot(100, 2, 0, 4), {
+    size: 45.5,
+    offset: -27.25,
+  });
   assert.deepStrictEqual(seriesSlot(100, 2, 1, 4), {size: 45.5, offset: 27.25});
   const middle = seriesSlot(91, 3, 1, 0);
   assert.strictEqual(middle.size, 30);

@@ -22,18 +22,27 @@ export interface FacetTitle {
     the same series keep distinct keys: the renderers key clip paths,
     overlays, and hover state by node key.
 */
-export function prefixKeys(nodes: SceneNode[], prefix: string | ((key: string) => string)): SceneNode[] {
-  const rekey = typeof prefix === "function" ? prefix : (key: string) => `${prefix}/${key}`;
+export function prefixKeys(
+  nodes: SceneNode[],
+  prefix: string | ((key: string) => string),
+): SceneNode[] {
+  const rekey =
+    typeof prefix === "function" ? prefix : (key: string) => `${prefix}/${key}`;
   return nodes.map(node => {
     const kids = (node as {children?: SceneNode[]}).children;
     const next = {...node, key: rekey(`${node.key}`)} as SceneNode;
-    if (kids) (next as {children: SceneNode[]}).children = prefixKeys(kids, rekey);
+    if (kids)
+      (next as {children: SceneNode[]}).children = prefixKeys(kids, rekey);
     return next;
   });
 }
 
 /** A TextBox configured for panel titles. */
-function titleBox(titles: FacetTitle[], config: Record<string, unknown>, locale?: string): TextBox {
+function titleBox(
+  titles: FacetTitle[],
+  config: Record<string, unknown>,
+  locale?: string,
+): TextBox {
   const box = new TextBox()
     .data(titles.map((t, i) => ({id: `facet-title-${i}`, text: t.text})))
     .x((_: unknown, i: number) => titles[i].x)
@@ -73,10 +82,19 @@ export function facetTitleNodes(
 ): SceneNode[] {
   if (!titles.length) return [];
   const padding = typeof config.padding === "number" ? config.padding : 0;
-  const shifted = titles.map(t => ({...t, x: t.x + padding, y: t.y + padding, width: t.width - padding * 2}));
+  const shifted = titles.map(t => ({
+    ...t,
+    x: t.x + padding,
+    y: t.y + padding,
+    width: t.width - padding * 2,
+  }));
   const group = titleBox(shifted, {...config, padding: 0}, locale).toScene();
   return group.children.map(node => {
-    const next = {...node, interactive: false, interactionGroup: "facet"} as SceneNode;
+    const next = {
+      ...node,
+      interactive: false,
+      interactionGroup: "facet",
+    } as SceneNode;
     delete next.datum;
     delete next.index;
     return next;
@@ -94,8 +112,18 @@ export function facetBodyNode(
   transform?: Transform,
   clip?: ClipShape,
 ): SceneNode {
-  const body: SceneNode = {type: "group", key: `${key}/body`, ...(transform ? {transform} : {}), children: nodes};
-  return {type: "group", key: `${key}/cells`, ...(clip ? {clip} : {}), children: [body]};
+  const body: SceneNode = {
+    type: "group",
+    key: `${key}/body`,
+    ...(transform ? {transform} : {}),
+    children: nodes,
+  };
+  return {
+    type: "group",
+    key: `${key}/cells`,
+    ...(clip ? {clip} : {}),
+    children: [body],
+  };
 }
 
 /** A panel's group: its chart nodes, then its title, with the panel title as its accessible name. */
@@ -108,5 +136,10 @@ export function facetPanelNode(
   const children: SceneNode[] = [];
   if (body) children.push(body);
   if (title) children.push(title);
-  return {type: "group", key, children, ...(label ? {aria: {role: "group", label}} : {})};
+  return {
+    type: "group",
+    key,
+    children,
+    ...(label ? {aria: {role: "group", label}} : {}),
+  };
 }

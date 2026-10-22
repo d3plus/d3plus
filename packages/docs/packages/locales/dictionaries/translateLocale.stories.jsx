@@ -12,16 +12,19 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as en-US or es-ES. Each entry maps the English string to its translation.",
+        component:
+          "Translations of the strings d3plus renders in its own UI (legend and timeline controls, zoom buttons, the table view, tooltip hints), keyed by locale code such as en-US or es-ES. Each entry maps the English string to its translation.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-import DictionaryExample, {dictionaryParams} from "../../../helpers/DictionaryExample.jsx";
+import DictionaryExample, {
+  dictionaryParams,
+} from "../../../helpers/DictionaryExample.jsx";
 
 const strings = ["Back", "Click to Expand", "Zoom Out", "Count"];
 const preview = entry => (
@@ -39,12 +42,24 @@ const preview = entry => (
   </table>
 );
 
-export const BasicExample = () => <DictionaryExample dictionary={translateLocale} initial="es-ES" preview={preview} />;
+export const BasicExample = () => (
+  <DictionaryExample
+    dictionary={translateLocale}
+    initial="es-ES"
+    preview={preview}
+  />
+);
 BasicExample.parameters = {
   docs: {
-    ...dictionaryParams("locales", "translateLocale", "es-ES", translateLocale["es-ES"]).docs,
+    ...dictionaryParams(
+      "locales",
+      "translateLocale",
+      "es-ES",
+      translateLocale["es-ES"],
+    ).docs,
     description: {
-      story: "Every string a chart renders in its own interface (the back button, legend and zoom controls, the table view, tooltip hints) keyed by the English original. Setting a chart's `locale` picks the matching dictionary; add your own entry to support another language.",
+      story:
+        "Every string a chart renders in its own interface (the back button, legend and zoom controls, the table view, tooltip hints) keyed by the English original. Setting a chart's `locale` picks the matching dictionary; add your own entry to support another language.",
     },
   },
 };

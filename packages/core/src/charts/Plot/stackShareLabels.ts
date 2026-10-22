@@ -24,7 +24,11 @@ interface Box {
 }
 
 type LabelFn = (d: DataPoint, i: number) => unknown;
-type BoundsFn = (d: DataPoint, i: number, aes: unknown) => Box | Box[] | false | null;
+type BoundsFn = (
+  d: DataPoint,
+  i: number,
+  aes: unknown,
+) => Box | Box[] | false | null;
 type RecordFn = (d: DataPoint, i: number) => unknown;
 
 /** Largest share-line font; the name keeps its own (larger) sizing. */
@@ -57,17 +61,22 @@ export function applyStackShareLabels(viz: VizInstance, s: Shape): void {
   const label = s.label() as LabelFn;
   const bounds = s.labelBounds() as BoundsFn | undefined;
   const labelConfig = s.labelConfig() as Record<string, unknown>;
-  const padding = typeof labelConfig.padding === "number" ? labelConfig.padding : 0;
+  const padding =
+    typeof labelConfig.padding === "number" ? labelConfig.padding : 0;
   const verticalAlign = labelConfig.verticalAlign;
   if (typeof bounds !== "function") return;
 
   // Which data points got the two-line layout, keyed the way each label
   // record's `data` resolves (a shape-wrapped datum unwraps to its row).
   const splitData = new WeakSet<object>();
-  const recordKey = (d: DataPoint) => (d.__d3plusShape__ ? d.data : d) as object;
+  const recordKey = (d: DataPoint) =>
+    (d.__d3plusShape__ ? d.data : d) as object;
   const withShare = (d: DataPoint, i: number) => {
     const text = label(d, i);
-    return text === false || text == null || Array.isArray(text) || !Number.isFinite(shareOf(d))
+    return text === false ||
+      text == null ||
+      Array.isArray(text) ||
+      !Number.isFinite(shareOf(d))
       ? false
       : text;
   };

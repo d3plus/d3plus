@@ -64,9 +64,15 @@ it("applyTreemapLayout produces shapeData laid out within the chart box", () => 
     assert.ok(node.x0 >= 0 && node.x1 <= viz.schema.width, "x in [0, width]");
     assert.ok(node.y0 >= 0 && node.y1 <= viz.schema.height, "y in [0, height]");
     assert.ok(typeof node.share === "number", "share is computed");
-    assert.ok(node.share > 0 && node.share <= 1, "share is a normalized fraction");
+    assert.ok(
+      node.share > 0 && node.share <= 1,
+      "share is a normalized fraction",
+    );
     assert.ok(node.__d3plus__, "node tagged with __d3plus__");
-    assert.ok(typeof node.data.rank === "number", "rank attached to source datum");
+    assert.ok(
+      typeof node.data.rank === "number",
+      "rank attached to source datum",
+    );
   }
 
   const totalShare = partial.shapeData.reduce((s, n) => s + n.share, 0);
@@ -101,8 +107,17 @@ it("treemapDef.emit converts shapeData into rect SceneNodes", () => {
   const rects = nodes.filter(n => n.type === "rect");
   assert.strictEqual(rects.length, 2, "one rect per laid-out cell");
   for (const node of rects) {
-    assert.ok(typeof node.width === "number" && node.width > 0, "non-zero width");
-    assert.ok(typeof node.height === "number" && node.height > 0, "non-zero height");
-    assert.ok(node.aria && typeof node.aria.label === "string", "aria label set");
+    assert.ok(
+      typeof node.width === "number" && node.width > 0,
+      "non-zero width",
+    );
+    assert.ok(
+      typeof node.height === "number" && node.height > 0,
+      "non-zero height",
+    );
+    assert.ok(
+      node.aria && typeof node.aria.label === "string",
+      "aria label set",
+    );
   }
 });

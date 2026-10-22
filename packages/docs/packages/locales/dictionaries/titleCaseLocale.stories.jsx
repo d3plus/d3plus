@@ -12,18 +12,21 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Per-language rules used by titleCase, keyed by two-letter language code plus a default fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.",
+        component:
+          "Per-language rules used by titleCase, keyed by two-letter language code plus a default fallback: the minor words kept lowercase mid-title and the acronyms forced uppercase.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 import {titleCase} from "@d3plus/text";
 
-import DictionaryExample, {dictionaryParams} from "../../../helpers/DictionaryExample.jsx";
+import DictionaryExample, {
+  dictionaryParams,
+} from "../../../helpers/DictionaryExample.jsx";
 
 const samples = {
   default: "the lord of the rings",
@@ -40,16 +43,29 @@ const samples = {
 };
 const preview = (entry, key) => (
   <span style={{fontFamily: "ui-monospace, monospace"}}>
-    titleCase({JSON.stringify(samples[key])}, rules) → <strong>{titleCase(samples[key], entry)}</strong>
+    titleCase({JSON.stringify(samples[key])}, rules) →{" "}
+    <strong>{titleCase(samples[key], entry)}</strong>
   </span>
 );
 
-export const BasicExample = () => <DictionaryExample dictionary={titleCaseLocale} initial="en" preview={preview} />;
+export const BasicExample = () => (
+  <DictionaryExample
+    dictionary={titleCaseLocale}
+    initial="en"
+    preview={preview}
+  />
+);
 BasicExample.parameters = {
   docs: {
-    ...dictionaryParams("locales", "titleCaseLocale", "en", titleCaseLocale["en"]).docs,
+    ...dictionaryParams(
+      "locales",
+      "titleCaseLocale",
+      "en",
+      titleCaseLocale["en"],
+    ).docs,
     description: {
-      story: "The rules `titleCase` applies per language, keyed by two-letter code: the minor words that stay lowercase in the middle of a title and the acronyms that are always uppercased. `default` capitalizes every word and is used for languages without an entry.",
+      story:
+        "The rules `titleCase` applies per language, keyed by two-letter code: the minor words that stay lowercase in the middle of a title and the acronyms that are always uppercased. `default` capitalizes every word and is used for languages without an entry.",
     },
   },
 };

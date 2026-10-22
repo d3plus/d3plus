@@ -46,7 +46,11 @@ it("Tooltip.render() with parent() mounts a per-instance portal on <body>, not i
     portal && portal.classList.contains("d3plus-tooltip-portal"),
     "instance owns a portal",
   );
-  assert.strictEqual(portal.parentNode, document.body, "portal mounted on <body>");
+  assert.strictEqual(
+    portal.parentNode,
+    document.body,
+    "portal mounted on <body>",
+  );
   assert.ok(
     portal.querySelector(".d3plus-tooltip"),
     "tooltip rendered inside the body-level portal",
@@ -58,9 +62,7 @@ it("Tooltip.render() with parent() mounts a per-instance portal on <body>, not i
 });
 
 it("Tooltip.render() without parent() falls back to body #d3plus-portal", () => {
-  const tip = new Tooltip()
-    .data([{id: "fallback-test", title: "x"}])
-    .render();
+  const tip = new Tooltip().data([{id: "fallback-test", title: "x"}]).render();
 
   const bodyPortal = document.body.querySelector("#d3plus-portal");
   assert.ok(bodyPortal, "global portal still works when parent is unset");
@@ -80,11 +82,22 @@ it("Tooltip.parent() leaves no orphan portal when switched to a different parent
     .render();
   const portalA = tip._portalEl;
   assert.ok(portalA && portalA.isConnected, "portal exists after first render");
-  assert.strictEqual(portalA.parentNode, document.body, "portal mounted on <body>");
+  assert.strictEqual(
+    portalA.parentNode,
+    document.body,
+    "portal mounted on <body>",
+  );
 
   // Switch to B — the first portal should be torn down (no orphan).
-  tip.parent(containerB).data([{id: "switch-test", title: "in B"}]).render();
-  assert.strictEqual(portalA.isConnected, false, "stale portal removed when parent switched");
+  tip
+    .parent(containerB)
+    .data([{id: "switch-test", title: "in B"}])
+    .render();
+  assert.strictEqual(
+    portalA.isConnected,
+    false,
+    "stale portal removed when parent switched",
+  );
   const portalB = tip._portalEl;
   assert.ok(
     portalB && portalB.isConnected && portalB !== portalA,
@@ -120,10 +133,14 @@ it("Two charts on a page maintain isolated tooltip portals", () => {
 
   // Each portal contains ONLY its own tooltip.
   assert.strictEqual(
-    portalA.querySelectorAll(".d3plus-tooltip").length, 1, "A has exactly 1 tooltip",
+    portalA.querySelectorAll(".d3plus-tooltip").length,
+    1,
+    "A has exactly 1 tooltip",
   );
   assert.strictEqual(
-    portalB.querySelectorAll(".d3plus-tooltip").length, 1, "B has exactly 1 tooltip",
+    portalB.querySelectorAll(".d3plus-tooltip").length,
+    1,
+    "B has exactly 1 tooltip",
   );
 
   // Dismiss A; B's portal should still have its tooltip.
@@ -158,14 +175,26 @@ it("Two Tooltip instances each own a distinct portal", () => {
     portal1 && portal2 && portal1 !== portal2,
     "two Tooltip instances → two distinct portal divs",
   );
-  assert.strictEqual(portal1.parentNode, document.body, "tip1 portal on <body>");
-  assert.strictEqual(portal2.parentNode, document.body, "tip2 portal on <body>");
+  assert.strictEqual(
+    portal1.parentNode,
+    document.body,
+    "tip1 portal on <body>",
+  );
+  assert.strictEqual(
+    portal2.parentNode,
+    document.body,
+    "tip2 portal on <body>",
+  );
 
   // Switching tip1's parent must tear down only tip1's portal.
   const newParent = document.createElement("div");
   document.body.appendChild(newParent);
   tip1.parent(newParent);
-  assert.strictEqual(portal1.isConnected, false, "tip1's portal removed on switch");
+  assert.strictEqual(
+    portal1.isConnected,
+    false,
+    "tip1's portal removed on switch",
+  );
   assert.ok(portal2.isConnected, "tip2's portal left intact");
 
   tip1.data([]).render();

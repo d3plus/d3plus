@@ -19,15 +19,23 @@ import type {VizInstance} from "../viz/vizTypes.js";
     domain with that end filled and rounded (see `openDomainEnds.ts`), so the
     axis gets no `rounding` or one-sided `domain` of the user's.
 */
-export function plotAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
+export function plotAxisConfig(
+  viz: VizInstance,
+  axis: "x" | "y",
+): Record<string, unknown> {
   const brk = viz.schema[`${axis}Break`];
   const base = {break: brk === undefined ? false : brk};
   const user = openEndAxisConfig(viz, axis);
-  const own = {...barSpanAxisConfig(viz, axis), ...viz._plotAxisDefaults?.[axis]};
+  const own = {
+    ...barSpanAxisConfig(viz, axis),
+    ...viz._plotAxisDefaults?.[axis],
+  };
   if (!Object.keys(own).length) return {...base, ...user};
   // The user's config deep-merges over the chart's, so a nested key keeps its
   // siblings; an unset (undefined) user key leaves the chart's value in place.
-  const set = Object.fromEntries(Object.entries(user).filter(([, v]) => v !== undefined));
+  const set = Object.fromEntries(
+    Object.entries(user).filter(([, v]) => v !== undefined),
+  );
   return mergeConfig({...base, ...own}, set);
 }
 
@@ -38,10 +46,15 @@ export {valueAxis};
     axis can break; every other axis is told explicitly not to, so a reused
     axis instance never keeps a stale setting.
 */
-export function baselineBreakAxisConfig(viz: VizInstance, axis: "x" | "y"): Record<string, unknown> {
+export function baselineBreakAxisConfig(
+  viz: VizInstance,
+  axis: "x" | "y",
+): Record<string, unknown> {
   const on = Boolean(viz.schema.baselineBreak) && valueAxis(viz) === axis;
   const {baseline} = viz.schema;
-  return typeof baseline === "number" ? {baseline, baselineBreak: on} : {baselineBreak: on};
+  return typeof baseline === "number"
+    ? {baseline, baselineBreak: on}
+    : {baselineBreak: on};
 }
 
 /**
@@ -57,11 +70,19 @@ export function userDomainBreaksBaseline(
   configScale: string,
   domain: unknown[] | undefined = viz.schema[`${axis}Domain`],
 ): boolean {
-  if (!viz.schema.baselineBreak || axis !== valueAxis(viz) || configScale !== "linear") return false;
+  if (
+    !viz.schema.baselineBreak ||
+    axis !== valueAxis(viz) ||
+    configScale !== "linear"
+  )
+    return false;
   const {baseline} = viz.schema;
   if (typeof baseline !== "number" || !Array.isArray(domain)) return false;
   const [lo, hi] = domain;
-  return (typeof lo === "number" && lo > baseline) || (typeof hi === "number" && hi < baseline);
+  return (
+    (typeof lo === "number" && lo > baseline) ||
+    (typeof hi === "number" && hi < baseline)
+  );
 }
 
 /**
@@ -71,10 +92,14 @@ export function userDomainBreaksBaseline(
     than across the break. Returns `points` itself when there's no baseline
     break.
 */
-export function outsideBaselineBreak(viz: VizInstance, points: [number, number][]): [number, number][] {
+export function outsideBaselineBreak(
+  viz: VizInstance,
+  points: [number, number][],
+): [number, number][] {
   const vertical = valueAxis(viz) === "y";
   const brk = (vertical ? viz._yAxis : viz._xAxis)?._baselineBreak;
-  const position = (vertical ? viz._yFunc : viz._xFunc) as ((v: unknown) => number) | undefined;
+  const position = (vertical ? viz._yFunc : viz._xFunc) as
+    ((v: unknown) => number) | undefined;
   if (!brk || !position) return points;
   const edge = position(brk.edge);
   const base = position(brk.value);
@@ -99,7 +124,8 @@ export function valueAxisExtent(
   const axis = vertical ? viz._yAxis : viz._xAxis;
   if (!axis || typeof axis._getRange !== "function") return undefined;
   const range = (axis._getRange() as number[]).map(Number);
-  if (range.length < 2 || range.some(r => !Number.isFinite(r))) return undefined;
+  if (range.length < 2 || range.some(r => !Number.isFinite(r)))
+    return undefined;
   // Bars nudge their ends up by `yOffset` (half the x-axis stroke) while
   // stacked segments don't, so the span allows both.
   const shift = vertical ? offsets.x2Height : 0;
@@ -125,7 +151,9 @@ export function clampBarConfig(
   if (!extent) return config;
   const [lo, hi] = extent;
   const clamp = (v: unknown): unknown =>
-    typeof v === "number" && Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : v;
+    typeof v === "number" && Number.isFinite(v)
+      ? Math.min(hi, Math.max(lo, v))
+      : v;
   const out = Object.assign({}, config);
   for (const key of [axis, `${axis}0`, `${axis}1`]) {
     const value = out[key];

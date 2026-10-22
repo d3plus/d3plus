@@ -19,8 +19,16 @@ it("assign", () => {
     "value scale",
   );
 
-  assert.strictEqual(assign("#ff0000"), "#ff0000", "valid hex color passthrough");
-  assert.strictEqual(assign("rgb(0, 128, 255)"), "rgb(0, 128, 255)", "valid rgb color passthrough");
+  assert.strictEqual(
+    assign("#ff0000"),
+    "#ff0000",
+    "valid hex color passthrough",
+  );
+  assert.strictEqual(
+    assign("rgb(0, 128, 255)"),
+    "rgb(0, 128, 255)",
+    "valid rgb color passthrough",
+  );
   assert.strictEqual(assign("red"), "red", "valid named color passthrough");
 
   const customMissing = assign(null, {missing: "#000"});

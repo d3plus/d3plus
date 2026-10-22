@@ -8,8 +8,16 @@ import {autoZoomMax} from "../../src/charts/features/zoomExtent.ts";
     need little zoom while a detailed map can zoom into its smallest path.
 */
 
-const rect = (key, width, height, extra = {}) =>
-  ({type: "rect", key, x: 0, y: 0, width, height, datum: {id: key}, ...extra});
+const rect = (key, width, height, extra = {}) => ({
+  type: "rect",
+  key,
+  x: 0,
+  y: 0,
+  width,
+  height,
+  datum: {id: key},
+  ...extra,
+});
 
 it("autoZoomMax fits the smallest data shape to the padded chart area", () => {
   const nodes = [rect("big", 200, 200), rect("small", 10, 20)];
@@ -36,7 +44,10 @@ it("autoZoomMax ignores decorations, labels, hit areas, and non-data nodes", () 
 it("autoZoomMax measures circles and paths, and honors node and chart scale", () => {
   const circle = {type: "circle", key: "c", cx: 0, cy: 0, r: 5, datum: {}};
   assert.strictEqual(autoZoomMax([circle], 400, 300, 0), 30);
-  assert.strictEqual(autoZoomMax([{...circle, transform: {scale: 2}}], 400, 300, 0), 15);
+  assert.strictEqual(
+    autoZoomMax([{...circle, transform: {scale: 2}}], 400, 300, 0),
+    15,
+  );
   assert.strictEqual(autoZoomMax([circle], 400, 300, 0, 3), 10);
   const path = {type: "path", key: "p", d: "M0,0L30,0L30,10Z", datum: {}};
   assert.strictEqual(autoZoomMax([path], 300, 300, 0), 10);

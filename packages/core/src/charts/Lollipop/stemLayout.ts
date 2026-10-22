@@ -61,19 +61,29 @@ export interface StemPoint {
     @param discrete The category axis.
     @param valuePx The row's value, in pixels.
 */
-export function stemFromBar(bar: BarBox, discrete: "x" | "y", valuePx: number): StemLayout {
+export function stemFromBar(
+  bar: BarBox,
+  discrete: "x" | "y",
+  valuePx: number,
+): StemLayout {
   const left = (bar.transform?.x ?? 0) + bar.x;
   const top = (bar.transform?.y ?? 0) + bar.y;
   const right = left + bar.width;
   const bottom = top + bar.height;
   if (discrete === "x") {
     const x = left + bar.width / 2;
-    const atTop = !finite(valuePx) || Math.abs(top - valuePx) <= Math.abs(bottom - valuePx);
-    return atTop ? {x, y: top, x0: x, y0: bottom} : {x, y: bottom, x0: x, y0: top};
+    const atTop =
+      !finite(valuePx) || Math.abs(top - valuePx) <= Math.abs(bottom - valuePx);
+    return atTop
+      ? {x, y: top, x0: x, y0: bottom}
+      : {x, y: bottom, x0: x, y0: top};
   }
   const y = top + bar.height / 2;
-  const atRight = !finite(valuePx) || Math.abs(right - valuePx) <= Math.abs(left - valuePx);
-  return atRight ? {x: right, y, x0: left, y0: y} : {x: left, y, x0: right, y0: y};
+  const atRight =
+    !finite(valuePx) || Math.abs(right - valuePx) <= Math.abs(left - valuePx);
+  return atRight
+    ? {x: right, y, x0: left, y0: y}
+    : {x: left, y, x0: right, y0: y};
 }
 
 /**
@@ -94,13 +104,13 @@ export function stemPoints(rows: PlotDatum[]): StemPoint[] {
     @param rows The plotted rows.
     @param r The head radius: a number, or an accessor of the source row.
 */
-export function largestRadius(
-  rows: PlotDatum[],
-  r: unknown,
-): number {
+export function largestRadius(rows: PlotDatum[], r: unknown): number {
   let out = 0;
   for (const d of rows) {
-    const v = typeof r === "function" ? (r as (d: DataPoint, i: number) => unknown)(d.data, d.i) : r;
+    const v =
+      typeof r === "function"
+        ? (r as (d: DataPoint, i: number) => unknown)(d.data, d.i)
+        : r;
     if (finite(v) && v > out) out = v;
   }
   return out;
@@ -119,8 +129,16 @@ interface BufferArgs {
     Lollipop's value-axis buffer: the bar buffer, widened so the head drawn at
     each extreme value stays inside the plot.
 */
-export function lollipopBuffer(this: Plot, args: BufferArgs): [unknown, unknown] {
-  const circle = (this.schema.shapeConfig as Record<string, Record<string, unknown> | undefined>).Circle;
+export function lollipopBuffer(
+  this: Plot,
+  args: BufferArgs,
+): [unknown, unknown] {
+  const circle = (
+    this.schema.shapeConfig as Record<
+      string,
+      Record<string, unknown> | undefined
+    >
+  ).Circle;
   const r = largestRadius(args.data as unknown as PlotDatum[], circle?.r);
   return BarBuffer.call(this, {...args, buffer: r + 2});
 }

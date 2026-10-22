@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Log · Axis</title>
-    <meta name="description" content="Log scale axes across a domain that spans zero.">
+    <meta
+      name="description"
+      content="Log scale axes across a domain that spans zero."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <!-- <script src="https://d3plus.org/js/d3plus-axis.v0.5.full.min.js"></script> -->
 
     <style>
-
       body {
         background-color: gray;
         margin: 0;
@@ -30,22 +30,17 @@
         pointer-events: none;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
     <script>
-
       var index = {horizontal: 0, vertical: 0};
       var width = 400;
       var height = 100;
       var border = 1;
 
       function makeAxis(config, vertical = false) {
-
         var orient = vertical ? "vertical" : "horizontal";
         var i = index[orient];
         var w = orient === "horizontal" ? width : height;
@@ -55,10 +50,16 @@
         svg.id = "axis" + orient + i;
         svg.setAttribute("width", w + "px");
         svg.setAttribute("height", h + "px");
-        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttributeNS(
+          "http://www.w3.org/2000/xmlns/",
+          "xmlns:xlink",
+          "http://www.w3.org/1999/xlink",
+        );
         document.body.appendChild(svg);
         // config.domain = config.domain.reverse();
-        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+        var axis = new d3plus[
+          orient === "horizontal" ? "AxisBottom" : "AxisLeft"
+        ]()
           .select("#axis" + orient + i)
           .width(w)
           .height(h)
@@ -93,7 +94,6 @@
         // // console.log(index, bounds);
         // console.log("\n");
         index[orient]++;
-
       }
 
       const labelRotation = undefined;
@@ -133,9 +133,6 @@
       // makeAxis({domain: [20, -200]});
       // makeAxis({domain: [-1, -200]});
       // makeAxis({domain: [0.1, 0.001]});
-
     </script>
-
   </body>
-
 </html>

@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a waterfall chart: one bar per category (x, or y with\ndiscrete(\"y\") for horizontal bars) whose value is the change it makes\nto a running total. Each bar floats from where the previous bar ended;\nrows marked by subtotal draw from zero to the running total. Bars are\ncolored as increases, decreases, or totals, and labeled with their change.\nEach groupBy series keeps its own running total, drawn side by side.\n\nThe value axis includes zero by default. To zoom in on a bridge between\nlarge totals (say 1,000 to 1,020), set a yDomain (xDomain for\nhorizontal bars) that stops short of zero, e.g. yDomain([980]): the\naxis keeps zero behind a break, as BarChart does, and subtotal bars rise\nfrom zero through it.",
+        component:
+          'Creates a waterfall chart: one bar per category (x, or y with\ndiscrete("y") for horizontal bars) whose value is the change it makes\nto a running total. Each bar floats from where the previous bar ended;\nrows marked by subtotal draw from zero to the running total. Bars are\ncolored as increases, decreases, or totals, and labeled with their change.\nEach groupBy series keeps its own running total, drawn side by side.\n\nThe value axis includes zero by default. To zoom in on a bridge between\nlarge totals (say 1,000 to 1,020), set a yDomain (xDomain for\nhorizontal bars) that stops short of zero, e.g. yDomain([980]): the\naxis keeps zero behind a break, as BarChart does, and subtotal bars rise\nfrom zero through it.',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Waterfall config={configify(args, argTypes)} />;
-  
+const Template = args => <Waterfall config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -91,7 +92,15 @@ BasicExample.args = {
   y: "amount",
   subtotal: "subtotal",
 };
-BasicExample.parameters = {controls: {include: ["subtotal", "connectors", "connectorConfig"]}, docs: {description: {story: "Each row's value is a change: its bar floats from where the running total stood to where it ends, green when it rises and red when it falls. Rows marked by `subtotal` draw from zero to the running total; a subtotal with its own value (here Revenue) sets the running total to it, and one without (Gross Profit, Operating Income, Net Income) shows the running total. Thin connectors carry each bar's end across to the next."}}};
+BasicExample.parameters = {
+  controls: {include: ["subtotal", "connectors", "connectorConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each row's value is a change: its bar floats from where the running total stood to where it ends, green when it rises and red when it falls. Rows marked by `subtotal` draw from zero to the running total; a subtotal with its own value (here Revenue) sets the running total to it, and one without (Gross Profit, Operating Income, Net Income) shows the running total. Thin connectors carry each bar's end across to the next.",
+    },
+  },
+};
 
 export const Horizontal = Template.bind({});
 Horizontal.args = {
@@ -101,7 +110,15 @@ Horizontal.args = {
   y: "item",
   subtotal: "subtotal",
 };
-Horizontal.parameters = {controls: {include: ["discrete", "x", "y"]}, docs: {description: {story: "`discrete(\"y\")` lays the bars along the y axis, reading from the top down, with each change labeled past the end of its bar."}}};
+Horizontal.parameters = {
+  controls: {include: ["discrete", "x", "y"]},
+  docs: {
+    description: {
+      story:
+        '`discrete("y")` lays the bars along the y axis, reading from the top down, with each change labeled past the end of its bar.',
+    },
+  },
+};
 
 export const CashFlow = Template.bind({});
 CashFlow.args = {
@@ -111,7 +128,15 @@ CashFlow.args = {
   subtotal: "subtotal",
   connectorConfig: {strokeDasharray: "3 2"},
 };
-CashFlow.parameters = {controls: {include: ["connectorConfig"]}, docs: {description: {story: "A month-by-month cash flow between an opening and a closing balance, with dashed connectors from `connectorConfig`."}}};
+CashFlow.parameters = {
+  controls: {include: ["connectorConfig"]},
+  docs: {
+    description: {
+      story:
+        "A month-by-month cash flow between an opening and a closing balance, with dashed connectors from `connectorConfig`.",
+    },
+  },
+};
 
 export const BrokenAxis = Template.bind({});
 BrokenAxis.args = {
@@ -121,7 +146,15 @@ BrokenAxis.args = {
   subtotal: "subtotal",
   yDomain: [980],
 };
-BrokenAxis.parameters = {controls: {include: ["yDomain", "baselineBreak"]}, docs: {description: {story: "The value axis includes zero by default, which flattens a bridge between large totals. A `yDomain` (`xDomain` for horizontal bars) that stops short of zero zooms in: the axis starts at `980`, keeps a `0` tick behind a break, and the subtotal bars rise from that `0` through the break. As in BarChart, the break's gap is cut out of every bar, totals included; `yConfig({baselineBreakConfig: {mask: false}})` lets the bars run solid through it. Turn `baselineBreak` off and the axis stretches back down to `0`."}}};
+BrokenAxis.parameters = {
+  controls: {include: ["yDomain", "baselineBreak"]},
+  docs: {
+    description: {
+      story:
+        "The value axis includes zero by default, which flattens a bridge between large totals. A `yDomain` (`xDomain` for horizontal bars) that stops short of zero zooms in: the axis starts at `980`, keeps a `0` tick behind a break, and the subtotal bars rise from that `0` through the break. As in BarChart, the break's gap is cut out of every bar, totals included; `yConfig({baselineBreakConfig: {mask: false}})` lets the bars run solid through it. Turn `baselineBreak` off and the axis stretches back down to `0`.",
+    },
+  },
+};
 
 export const SideBySideSeries = Template.bind({});
 SideBySideSeries.args = {
@@ -131,7 +164,15 @@ SideBySideSeries.args = {
   y: "change",
   subtotal: "subtotal",
 };
-SideBySideSeries.parameters = {controls: {include: ["groupBy"]}, docs: {description: {story: "Each `groupBy` series keeps its own running total, drawn side by side within each category. Bars stay colored by increase, decrease, and total, so name the series in the tooltip, or use `facet` to give each series its own panel."}}};
+SideBySideSeries.parameters = {
+  controls: {include: ["groupBy"]},
+  docs: {
+    description: {
+      story:
+        "Each `groupBy` series keeps its own running total, drawn side by side within each category. Bars stay colored by increase, decrease, and total, so name the series in the tooltip, or use `facet` to give each series its own panel.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -141,7 +182,15 @@ SmallMultiples.args = {
   y: "value",
   subtotal: "subtotal",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one waterfall per value, each with its own running total, on a shared value axis."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws one waterfall per value, each with its own running total, on a shared value axis.",
+    },
+  },
+};
 
 export const CustomColors = Template.bind({});
 CustomColors.args = {
@@ -154,4 +203,14 @@ CustomColors.args = {
   totalColor: "#495057",
   connectors: false,
 };
-CustomColors.parameters = {controls: {include: ["increaseColor", "decreaseColor", "totalColor", "connectors"]}, docs: {description: {story: "`increaseColor`, `decreaseColor`, and `totalColor` set each kind's fill, and the legend follows. `connectors(false)` drops the connector lines."}}};
+CustomColors.parameters = {
+  controls: {
+    include: ["increaseColor", "decreaseColor", "totalColor", "connectors"],
+  },
+  docs: {
+    description: {
+      story:
+        "`increaseColor`, `decreaseColor`, and `totalColor` set each kind's fill, and the legend follows. `connectors(false)` drops the connector lines.",
+    },
+  },
+};

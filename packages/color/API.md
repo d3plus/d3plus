@@ -1,32 +1,32 @@
 # @d3plus/color API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`colorAdd`](#coloradd) | Adds two colors together. |
-| [`colorAssign`](#colorassign) | Assigns a color to a value using a predefined set of defaults. |
-| [`colorContrast`](#colorcontrast) | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color. |
+| Functions                           | Description                                                                                                                                                      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`colorAdd`](#coloradd)             | Adds two colors together.                                                                                                                                        |
+| [`colorAssign`](#colorassign)       | Assigns a color to a value using a predefined set of defaults.                                                                                                   |
+| [`colorContrast`](#colorcontrast)   | Based on the color provided, this function will return a "white" or "black" color that is suitable for text placed on top of that provided color.                |
 | [`colorGrayscale`](#colorgrayscale) | Strips a color's saturation while keeping its lightness and alpha, so a de-emphasized mark keeps the contrast it had (and a transparent fill stays transparent). |
-| [`colorLegible`](#colorlegible) | Darkens a color so that it will appear legible on a white background. |
-| [`colorLighter`](#colorlighter) | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon. |
-| [`colorRamp`](#colorramp) | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next. |
-| [`colorSubtract`](#colorsubtract) | Subtracts one color from another. |
-| [`colorValidate`](#colorvalidate) | Validates a chart color palette against the computable accessibility checks. |
+| [`colorLegible`](#colorlegible)     | Darkens a color so that it will appear legible on a white background.                                                                                            |
+| [`colorLighter`](#colorlighter)     | Similar to d3.color.brighter, except that this also reduces saturation so that colors don't appear neon.                                                         |
+| [`colorRamp`](#colorramp)           | Builds an `n`-step single-hue ramp from a pale tint to the given base color, stepped evenly in OKLab so each step looks equally far from the next.               |
+| [`colorSubtract`](#colorsubtract)   | Subtracts one color from another.                                                                                                                                |
+| [`colorValidate`](#colorvalidate)   | Validates a chart color palette against the computable accessibility checks.                                                                                     |
 
-| Variables | Description |
-| --- | --- |
-| [`colorDefaults`](#colordefaults) | A set of default color values used when assigning colors based on data. |
-| [`colorGray`](#colorgray) | The gray scale d3plus uses for neutral ink (axes, gridlines, missing data), keyed by lightness step from 50 (lightest) to 900 (darkest). |
+| Variables                         | Description                                                                                                                              |
+| --------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| [`colorDefaults`](#colordefaults) | A set of default color values used when assigning colors based on data.                                                                  |
+| [`colorGray`](#colorgray)         | The gray scale d3plus uses for neutral ink (axes, gridlines, missing data), keyed by lightness step from 50 (lightest) to 900 (darkest). |
 
-| Interfaces | Description |
-| --- | --- |
-| [`ColorCheck`](#colorcheck) | One computed check in a palette validation report. |
-| [`ColorDefaults`](#colordefaults) |  |
-| [`ColorRampOptions`](#colorrampoptions) | Options for colorRamp. |
-| [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate. |
-| [`ColorValidation`](#colorvalidation) | The result of validating a palette. |
+| Interfaces                                      | Description                                        |
+| ----------------------------------------------- | -------------------------------------------------- |
+| [`ColorCheck`](#colorcheck)                     | One computed check in a palette validation report. |
+| [`ColorDefaults`](#colordefaults)               |                                                    |
+| [`ColorRampOptions`](#colorrampoptions)         | Options for colorRamp.                             |
+| [`ColorValidateOptions`](#colorvalidateoptions) | Options for colorValidate.                         |
+| [`ColorValidation`](#colorvalidation)           | The result of validating a palette.                |
 
-| Type Aliases | Description |
-| --- | --- |
+| Type Aliases                | Description                  |
+| --------------------------- | ---------------------------- |
 | [`CheckState`](#checkstate) | The state of a single check. |
 
 ## Functions
@@ -43,18 +43,18 @@ Adds two colors together.
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `c1` | `string` | *required* | The first color, a valid CSS color string. |
-| `c2` | `string` | *required* | The second color, also a valid CSS color string. |
-| `o1` | `number` | `1` | Value from 0 to 1 of the first color's opacity. |
-| `o2` | `number` | `1` | Value from 0 to 1 of the first color's opacity. |
+| Parameter | Type     | Default    | Description                                      |
+| --------- | -------- | ---------- | ------------------------------------------------ |
+| `c1`      | `string` | _required_ | The first color, a valid CSS color string.       |
+| `c2`      | `string` | _required_ | The second color, also a valid CSS color string. |
+| `o1`      | `number` | `1`        | Value from 0 to 1 of the first color's opacity.  |
+| `o2`      | `number` | `1`        | Value from 0 to 1 of the first color's opacity.  |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorassign"></a>
 
@@ -68,16 +68,16 @@ Assigns a color to a value using a predefined set of defaults.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `c` | `string` \| `boolean` \| `null` \| *required* | A valid CSS color string. |
-| `u` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
+| Parameter | Type                                           | Description                                           |
+| --------- | ---------------------------------------------- | ----------------------------------------------------- |
+| `c`       | `string` \| `boolean` \| `null` \| _required_  | A valid CSS color string.                             |
+| `u`       | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorcontrast"></a>
 
@@ -91,16 +91,16 @@ Based on the color provided, this function will return a "white" or "black" colo
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `c` | `string` | A valid CSS color string. |
-| `u` | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
+| Parameter | Type                                           | Description                                           |
+| --------- | ---------------------------------------------- | ----------------------------------------------------- |
+| `c`       | `string`                                       | A valid CSS color string.                             |
+| `u`       | `Partial`\<[`ColorDefaults`](#colordefaults)\> | An object containing overrides of the default colors. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorgrayscale"></a>
 
@@ -117,15 +117,15 @@ unchanged.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `c` | `string` | A CSS color string. |
+| Parameter | Type     | Description         |
+| --------- | -------- | ------------------- |
+| `c`       | `string` | A CSS color string. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorlegible"></a>
 
@@ -139,15 +139,15 @@ Darkens a color so that it will appear legible on a white background.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `c` | `string` | A valid CSS color string. |
+| Parameter | Type     | Description               |
+| --------- | -------- | ------------------------- |
+| `c`       | `string` | A valid CSS color string. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorlighter"></a>
 
@@ -161,16 +161,16 @@ Similar to d3.color.brighter, except that this also reduces saturation so that c
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `c` | `string` | *required* | A valid CSS color string. |
-| `i` | `number` | `0.5` | Strength of the lightening effect, from 0 to 1. |
+| Parameter | Type     | Default    | Description                                     |
+| --------- | -------- | ---------- | ----------------------------------------------- |
+| `c`       | `string` | _required_ | A valid CSS color string.                       |
+| `i`       | `number` | `0.5`      | Strength of the lightening effect, from 0 to 1. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorramp"></a>
 
@@ -193,17 +193,17 @@ continuous ramp.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `base` | `string` | The saturated dark anchor of the ramp — a valid CSS color. |
-| `n` | `number` | How many steps to produce. |
-| `options` | [`ColorRampOptions`](#colorrampoptions) | Ramp shaping options. |
+| Parameter | Type                                    | Description                                                |
+| --------- | --------------------------------------- | ---------------------------------------------------------- |
+| `base`    | `string`                                | The saturated dark anchor of the ramp — a valid CSS color. |
+| `n`       | `number`                                | How many steps to produce.                                 |
+| `options` | [`ColorRampOptions`](#colorrampoptions) | Ramp shaping options.                                      |
 
 #### Returns
 
 `string`[]
 
-***
+---
 
 <a id="colorsubtract"></a>
 
@@ -217,18 +217,18 @@ Subtracts one color from another.
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `c1` | `string` | *required* | The base color, a valid CSS color string. |
-| `c2` | `string` | *required* | The color to remove from the base color, also a valid CSS color string. |
-| `o1` | `number` | `1` | Value from 0 to 1 of the first color's opacity. |
-| `o2` | `number` | `1` | Value from 0 to 1 of the first color's opacity. |
+| Parameter | Type     | Default    | Description                                                             |
+| --------- | -------- | ---------- | ----------------------------------------------------------------------- |
+| `c1`      | `string` | _required_ | The base color, a valid CSS color string.                               |
+| `c2`      | `string` | _required_ | The color to remove from the base color, also a valid CSS color string. |
+| `o1`      | `number` | `1`        | Value from 0 to 1 of the first color's opacity.                         |
+| `o2`      | `number` | `1`        | Value from 0 to 1 of the first color's opacity.                         |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="colorvalidate"></a>
 
@@ -242,9 +242,9 @@ Validates a chart color palette against the computable accessibility checks.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `palette` | `string`[] | An array of CSS color strings, in slot order. |
+| Parameter | Type                                            | Description                                    |
+| --------- | ----------------------------------------------- | ---------------------------------------------- |
+| `palette` | `string`[]                                      | An array of CSS color strings, in slot order.  |
 | `options` | [`ColorValidateOptions`](#colorvalidateoptions) | Mode, surface, pair scope, and ordinal toggle. |
 
 #### Returns
@@ -294,7 +294,7 @@ are a lighter second ring of the same hues, for high-cardinality fallback
 }
 ```
 
-***
+---
 
 <a id="colorgray"></a>
 
@@ -310,13 +310,13 @@ keyed by lightness step from 50 (lightest) to 900 (darkest). Values are the
 
 #### Type Declaration
 
-| Name | Type | Default | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-100"></a> `100` | `"#f1f3f5"` | `"#f1f3f5"` | [gray.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L8) |
-| <a id="property-200"></a> `200` | `"#e9ecef"` | `"#e9ecef"` | [gray.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L9) |
+| Name                            | Type        | Default     | Defined in                                                                              |
+| ------------------------------- | ----------- | ----------- | --------------------------------------------------------------------------------------- |
+| <a id="property-100"></a> `100` | `"#f1f3f5"` | `"#f1f3f5"` | [gray.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L8)   |
+| <a id="property-200"></a> `200` | `"#e9ecef"` | `"#e9ecef"` | [gray.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L9)   |
 | <a id="property-300"></a> `300` | `"#dee2e6"` | `"#dee2e6"` | [gray.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L10) |
 | <a id="property-400"></a> `400` | `"#ced4da"` | `"#ced4da"` | [gray.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L11) |
-| <a id="property-50"></a> `50` | `"#f8f9fa"` | `"#f8f9fa"` | [gray.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L7) |
+| <a id="property-50"></a> `50`   | `"#f8f9fa"` | `"#f8f9fa"` | [gray.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L7)   |
 | <a id="property-500"></a> `500` | `"#adb5bd"` | `"#adb5bd"` | [gray.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L12) |
 | <a id="property-600"></a> `600` | `"#868e96"` | `"#868e96"` | [gray.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L13) |
 | <a id="property-700"></a> `700` | `"#495057"` | `"#495057"` | [gray.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/color/src/gray.ts#L14) |
@@ -335,13 +335,13 @@ One computed check in a palette validation report.
 
 #### Properties
 
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-detail"></a> `detail` | `string` | [validate.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L98) |
-| <a id="property-name"></a> `name` | `string` | [validate.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L96) |
-| <a id="property-state"></a> `state` | [`CheckState`](#checkstate) | [validate.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L97) |
+| Property                              | Type                        | Defined in                                                                                      |
+| ------------------------------------- | --------------------------- | ----------------------------------------------------------------------------------------------- |
+| <a id="property-detail"></a> `detail` | `string`                    | [validate.ts:98](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L98) |
+| <a id="property-name"></a> `name`     | `string`                    | [validate.ts:96](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L96) |
+| <a id="property-state"></a> `state`   | [`CheckState`](#checkstate) | [validate.ts:97](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L97) |
 
-***
+---
 
 <a id="colordefaults"></a>
 
@@ -351,17 +351,17 @@ Defined in: [defaults.ts:4](https://github.com/d3plus/d3plus/blob/main/packages/
 
 #### Properties
 
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
-| <a id="property-dark"></a> `dark` | `string` | [defaults.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L5) |
-| <a id="property-light"></a> `light` | `string` | [defaults.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L6) |
-| <a id="property-missing"></a> `missing` | `string` | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L7) |
-| <a id="property-off"></a> `off` | `string` | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L8) |
-| <a id="property-on"></a> `on` | `string` | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L9) |
-| <a id="property-scale"></a> `scale` | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L10) |
-| <a id="property-sequential"></a> `sequential` | `string` | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L11) |
+| Property                                      | Type                                 | Defined in                                                                                      |
+| --------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------- |
+| <a id="property-dark"></a> `dark`             | `string`                             | [defaults.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L5)   |
+| <a id="property-light"></a> `light`           | `string`                             | [defaults.ts:6](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L6)   |
+| <a id="property-missing"></a> `missing`       | `string`                             | [defaults.ts:7](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L7)   |
+| <a id="property-off"></a> `off`               | `string`                             | [defaults.ts:8](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L8)   |
+| <a id="property-on"></a> `on`                 | `string`                             | [defaults.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L9)   |
+| <a id="property-scale"></a> `scale`           | `ScaleOrdinal`\<`string`, `string`\> | [defaults.ts:10](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L10) |
+| <a id="property-sequential"></a> `sequential` | `string`                             | [defaults.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/color/src/defaults.ts#L11) |
 
-***
+---
 
 <a id="colorrampoptions"></a>
 
@@ -373,11 +373,11 @@ Options for [colorRamp](#colorramp).
 
 #### Properties
 
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
+| Property                                 | Type      | Description                                                                                                                                                                                                                                                                                                                                           | Defined in                                                                              |
+| ---------------------------------------- | --------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
 | <a id="property-ordinal"></a> `ordinal?` | `boolean` | Build an ordered/ordinal ramp rather than a continuous sequential one. Ordinal ramps hold the palest step darker (so it still reads against the surface) and keep more chroma across the range, since every step is a discrete mark a reader must tell apart. Continuous ramps let the light end fade nearly into the surface (it means "near zero"). | [ramp.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/color/src/ramp.ts#L12) |
 
-***
+---
 
 <a id="colorvalidateoptions"></a>
 
@@ -389,14 +389,14 @@ Options for [colorValidate](#colorvalidate).
 
 #### Properties
 
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-mode"></a> `mode?` | `"light"` \| `"dark"` | Surface mode — sets the lightness band and default surface. | [validate.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L110) |
-| <a id="property-ordinal-1"></a> `ordinal?` | `boolean` | Validate as an ordered one-hue ramp instead of a categorical palette. | [validate.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L116) |
-| <a id="property-pairs"></a> `pairs?` | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps). | [validate.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L114) |
-| <a id="property-surface"></a> `surface?` | `string` | Chart surface color the marks are drawn on. | [validate.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L112) |
+| Property                                   | Type                    | Description                                                           | Defined in                                                                                        |
+| ------------------------------------------ | ----------------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| <a id="property-mode"></a> `mode?`         | `"light"` \| `"dark"`   | Surface mode — sets the lightness band and default surface.           | [validate.ts:110](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L110) |
+| <a id="property-ordinal-1"></a> `ordinal?` | `boolean`               | Validate as an ordered one-hue ramp instead of a categorical palette. | [validate.ts:116](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L116) |
+| <a id="property-pairs"></a> `pairs?`       | `"adjacent"` \| `"all"` | `adjacent` (bars/lines/stacks) or `all` (scatter/bubble/maps).        | [validate.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L114) |
+| <a id="property-surface"></a> `surface?`   | `string`                | Chart surface color the marks are drawn on.                           | [validate.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L112) |
 
-***
+---
 
 <a id="colorvalidation"></a>
 
@@ -408,10 +408,10 @@ The result of validating a palette. `ok` is true when no check hard-fails.
 
 #### Properties
 
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
+| Property                              | Type                          | Defined in                                                                                        |
+| ------------------------------------- | ----------------------------- | ------------------------------------------------------------------------------------------------- |
 | <a id="property-checks"></a> `checks` | [`ColorCheck`](#colorcheck)[] | [validate.ts:104](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L104) |
-| <a id="property-ok"></a> `ok` | `boolean` | [validate.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L103) |
+| <a id="property-ok"></a> `ok`         | `boolean`                     | [validate.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/color/src/validate.ts#L103) |
 
 ## Type Aliases
 

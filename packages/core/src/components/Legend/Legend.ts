@@ -8,7 +8,12 @@ import type {GroupNode, SceneNode, Transform} from "@d3plus/render";
 import type {SvgRenderer} from "@d3plus/render";
 
 import {TextBox} from "../index.js";
-import {accessor, BaseClass, constant, paintComponentScene} from "../../utils/index.js";
+import {
+  accessor,
+  BaseClass,
+  constant,
+  paintComponentScene,
+} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
@@ -95,14 +100,17 @@ export default class Legend extends BaseClass {
     @private
   */
   _fetchConfig(key: string, d: DataPoint, i: number): unknown {
-    const labelConfig = this.schema.shapeConfig.labelConfig as Record<string, unknown> | undefined;
+    const labelConfig = this.schema.shapeConfig.labelConfig as
+      Record<string, unknown> | undefined;
     const val =
       this.schema.shapeConfig[key] !== undefined
         ? this.schema.shapeConfig[key]
         : labelConfig?.[key];
     if (!val && key === "lineHeight")
       return (this._fetchConfig("fontSize", d, i) as number) * 1.4;
-    return typeof val === "function" ? (val as (d: DataPoint, i: number) => unknown)(d, i) : val;
+    return typeof val === "function"
+      ? (val as (d: DataPoint, i: number) => unknown)(d, i)
+      : val;
   }
 
   /**
@@ -114,7 +122,9 @@ export default class Legend extends BaseClass {
       max(
         row
           .map((d: Record<string, unknown>) => d.height as number)
-          .concat(row.map((d: Record<string, unknown>) => d.shapeHeight as number)),
+          .concat(
+            row.map((d: Record<string, unknown>) => d.shapeHeight as number),
+          ),
       )! + this.schema.padding
     );
   }
@@ -126,7 +136,8 @@ export default class Legend extends BaseClass {
   _rowWidth(row: Record<string, unknown>[]): number {
     return sum(
       row.map((d: Record<string, unknown>, i: number) => {
-        const p = this.schema.padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
+        const p =
+          this.schema.padding * (i === row.length - 1 ? 0 : d.width ? 2 : 1);
         return (d.shapeWidth as number) + (d.width as number) + p;
       }),
     );
@@ -162,7 +173,12 @@ export default class Legend extends BaseClass {
         // the canonical aggregator); legend composes labels per shape
         // here so swatch text still appears.
         const lbl = s._labelClass;
-        if (lbl && typeof lbl.toScene === "function" && lbl._data && lbl._data.length) {
+        if (
+          lbl &&
+          typeof lbl.toScene === "function" &&
+          lbl._data &&
+          lbl._data.length
+        ) {
           const lblScene = lbl.toScene();
           if (lblScene && Array.isArray(lblScene.children))
             children.push(...(lblScene.children as SceneNode[]));
@@ -294,7 +310,8 @@ export default class Legend extends BaseClass {
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)),
+        this)
       : this.schema.shapeConfig;
   }
 
@@ -305,7 +322,8 @@ export default class Legend extends BaseClass {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)),
+        this)
       : this.schema.titleConfig;
   }
 }

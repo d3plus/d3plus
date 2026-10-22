@@ -15,9 +15,9 @@ export default {
         component: "Applies each key/value in an object as an attr.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -25,7 +25,13 @@ import {select} from "d3-selection";
 
 import DomExample from "../../helpers/DomExample.jsx";
 
-const attrs = {width: 120, height: 40, rx: 6, fill: "#1c7ed6", "data-label": "attrized"};
+const attrs = {
+  width: 120,
+  height: 40,
+  rx: 6,
+  fill: "#1c7ed6",
+  "data-label": "attrized",
+};
 
 export const BasicExample = () => (
   <DomExample
@@ -47,7 +53,8 @@ attrize(select("rect"), ${JSON.stringify(attrs, null, 2)});`,
       language: "jsx",
     },
     description: {
-      story: "Applies every key of an object as an attribute on a d3 selection, one `.attr()` call per entry. `elem` uses it for its `enter`, `update`, and `exit` attribute sets; `stylize` is the same idea for inline styles.",
+      story:
+        "Applies every key of an object as an attribute on a d3 selection, one `.attr()` call per entry. `elem` uses it for its `enter`, `update`, and `exit` attribute sets; `stylize` is the same idea for inline styles.",
     },
   },
 };

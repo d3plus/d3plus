@@ -4,7 +4,15 @@ import {fileURLToPath} from "node:url";
 
 import {useJsdom} from "~test/jsdom.js";
 import {
-  BarChart, LinePlot, Network, Pack, Pie, Rings, Sankey, Tree, Treemap,
+  BarChart,
+  LinePlot,
+  Network,
+  Pack,
+  Pie,
+  Rings,
+  Sankey,
+  Tree,
+  Treemap,
 } from "../index.ts";
 import {
   applyNetworkLayout,
@@ -58,25 +66,38 @@ const here = path.dirname(fileURLToPath(import.meta.url));
 const snapDir = path.join(here, "snapshots", "pipeline");
 
 const barData = [
-  {group: "Alpha", x: "Q1", y: 35}, {group: "Alpha", x: "Q2", y: 50},
-  {group: "Beta", x: "Q1", y: 20}, {group: "Beta", x: "Q2", y: 30},
+  {group: "Alpha", x: "Q1", y: 35},
+  {group: "Alpha", x: "Q2", y: 50},
+  {group: "Beta", x: "Q1", y: 20},
+  {group: "Beta", x: "Q2", y: 30},
 ];
 const lineData = [
-  {group: "S1", x: 1, y: 10}, {group: "S1", x: 2, y: 22}, {group: "S1", x: 3, y: 15},
-  {group: "S2", x: 1, y: 25}, {group: "S2", x: 2, y: 18}, {group: "S2", x: 3, y: 32},
+  {group: "S1", x: 1, y: 10},
+  {group: "S1", x: 2, y: 22},
+  {group: "S1", x: 3, y: 15},
+  {group: "S2", x: 1, y: 25},
+  {group: "S2", x: 2, y: 18},
+  {group: "S2", x: 3, y: 32},
 ];
 const treemapData = [
-  {group: "Tech", id: "Alpha", value: 30}, {group: "Tech", id: "Beta", value: 25},
-  {group: "Health", id: "Gamma", value: 22}, {group: "Health", id: "Delta", value: 16},
+  {group: "Tech", id: "Alpha", value: 30},
+  {group: "Tech", id: "Beta", value: 25},
+  {group: "Health", id: "Gamma", value: 22},
+  {group: "Health", id: "Delta", value: 16},
   {group: "Energy", id: "Epsilon", value: 14},
 ];
 const pieData = [
-  {id: "Alpha", value: 30}, {id: "Beta", value: 22}, {id: "Gamma", value: 18},
-  {id: "Delta", value: 15}, {id: "Epsilon", value: 10},
+  {id: "Alpha", value: 30},
+  {id: "Beta", value: 22},
+  {id: "Gamma", value: 18},
+  {id: "Delta", value: 15},
+  {id: "Epsilon", value: 10},
 ];
 const packData = [
-  {group: "A", id: "1", value: 10}, {group: "A", id: "2", value: 20},
-  {group: "B", id: "3", value: 8}, {group: "B", id: "4", value: 18},
+  {group: "A", id: "1", value: 10},
+  {group: "A", id: "2", value: 20},
+  {group: "B", id: "3", value: 8},
+  {group: "B", id: "4", value: 18},
 ];
 
 // Round to 3 decimals to absorb float jitter; non-numbers pass through.
@@ -87,7 +108,8 @@ const round = n =>
 function scaleInfo(scale) {
   if (typeof scale !== "function") return scale ?? null;
   const out = {};
-  if (typeof scale.domain === "function") out.domain = scale.domain().map(round);
+  if (typeof scale.domain === "function")
+    out.domain = scale.domain().map(round);
   if (typeof scale.range === "function") out.range = scale.range().map(round);
   return out;
 }
@@ -120,8 +142,14 @@ function summarizeShell(viz) {
 }
 
 const shellCharts = [
-  ["shell-bar", () => new BarChart().groupBy("group").data(barData).x("x").y("y")],
-  ["shell-treemap", () => new Treemap().groupBy(["group", "id"]).data(treemapData).sum("value")],
+  [
+    "shell-bar",
+    () => new BarChart().groupBy("group").data(barData).x("x").y("y"),
+  ],
+  [
+    "shell-treemap",
+    () => new Treemap().groupBy(["group", "id"]).data(treemapData).sum("value"),
+  ],
   ["shell-pie", () => new Pie().groupBy("id").data(pieData)],
 ];
 
@@ -136,9 +164,24 @@ for (const [name, build] of shellCharts) {
 // ---- Layer 2: per-chart layout stages --------------------------------------
 
 const GEO_FIELDS = [
-  "x", "y", "x0", "x1", "y0", "y1", "r",
-  "startAngle", "endAngle", "padAngle", "innerRadius", "outerRadius",
-  "value", "depth", "share", "width", "height", "index",
+  "x",
+  "y",
+  "x0",
+  "x1",
+  "y0",
+  "y1",
+  "r",
+  "startAngle",
+  "endAngle",
+  "padAngle",
+  "innerRadius",
+  "outerRadius",
+  "value",
+  "depth",
+  "share",
+  "width",
+  "height",
+  "index",
 ];
 
 function summarizeNode(node) {
@@ -162,37 +205,69 @@ function summarizeLayout(shapeData) {
 }
 
 const sankeyLinks = [
-  {source: "alpha", target: "beta"}, {source: "alpha", target: "gamma"},
-  {source: "beta", target: "delta"}, {source: "beta", target: "epsilon"},
-  {source: "zeta", target: "gamma"}, {source: "theta", target: "gamma"},
+  {source: "alpha", target: "beta"},
+  {source: "alpha", target: "gamma"},
+  {source: "beta", target: "delta"},
+  {source: "beta", target: "epsilon"},
+  {source: "zeta", target: "gamma"},
+  {source: "theta", target: "gamma"},
   {source: "eta", target: "gamma"},
 ];
 const treeData = [
-  {parent: "Group 1", id: "alpha"}, {parent: "Group 1", id: "beta"},
-  {parent: "Group 1", id: "gamma"}, {parent: "Group 2", id: "delta"},
+  {parent: "Group 1", id: "alpha"},
+  {parent: "Group 1", id: "beta"},
+  {parent: "Group 1", id: "gamma"},
+  {parent: "Group 2", id: "delta"},
   {parent: "Group 2", id: "eta"},
 ];
 // Explicit node x/y pin the force layout so geometry is deterministic (no
 // simulation jitter) — mirrors the network visual-regression fixture.
 const networkNodes = [
-  {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0},
-  {id: "C", x: 0, y: -50}, {id: "D", x: 0, y: 50},
-  {id: "E", x: -100, y: -50}, {id: "F", x: 100, y: 50},
+  {id: "A", x: -50, y: 0},
+  {id: "B", x: 50, y: 0},
+  {id: "C", x: 0, y: -50},
+  {id: "D", x: 0, y: 50},
+  {id: "E", x: -100, y: -50},
+  {id: "F", x: 100, y: 50},
 ];
 const networkLinks = [
-  {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "A", target: "D"},
-  {source: "B", target: "D"}, {source: "C", target: "B"}, {source: "E", target: "A"},
+  {source: "A", target: "B"},
+  {source: "A", target: "C"},
+  {source: "A", target: "D"},
+  {source: "B", target: "D"},
+  {source: "C", target: "B"},
+  {source: "E", target: "A"},
   {source: "F", target: "B"},
 ];
 
 const layoutCharts = [
-  ["layout-treemap", () => new Treemap().groupBy(["group", "id"]).data(treemapData).sum("value"), applyTreemapLayout],
+  [
+    "layout-treemap",
+    () => new Treemap().groupBy(["group", "id"]).data(treemapData).sum("value"),
+    applyTreemapLayout,
+  ],
   ["layout-pie", () => new Pie().groupBy("id").data(pieData), applyPieLayout],
-  ["layout-pack", () => new Pack().groupBy(["group", "id"]).data(packData).sum("value"), applyPackLayout],
+  [
+    "layout-pack",
+    () => new Pack().groupBy(["group", "id"]).data(packData).sum("value"),
+    applyPackLayout,
+  ],
   ["layout-sankey", () => new Sankey().links(sankeyLinks), applySankeyLayout],
-  ["layout-rings", () => new Rings().center("alpha").links(sankeyLinks), applyRingsLayout],
-  ["layout-tree", () => new Tree().groupBy(["parent", "id"]).data(treeData), applyTreeLayout],
-  ["layout-network", () => new Network().nodes(networkNodes).links(networkLinks), applyNetworkLayout],
+  [
+    "layout-rings",
+    () => new Rings().center("alpha").links(sankeyLinks),
+    applyRingsLayout,
+  ],
+  [
+    "layout-tree",
+    () => new Tree().groupBy(["parent", "id"]).data(treeData),
+    applyTreeLayout,
+  ],
+  [
+    "layout-network",
+    () => new Network().nodes(networkNodes).links(networkLinks),
+    applyNetworkLayout,
+  ],
 ];
 // Radar, Priestley, and Matrix are intentionally absent: their layout stages
 // emit geometry to the scene rather than returning it on `shapeData`, so the
@@ -262,8 +337,14 @@ function summarizePlot(ctx) {
 }
 
 const plotCharts = [
-  ["plot-line", () => new LinePlot().groupBy("group").data(lineData).x("x").y("y")],
-  ["plot-bar", () => new BarChart().groupBy("group").data(barData).x("x").y("y")],
+  [
+    "plot-line",
+    () => new LinePlot().groupBy("group").data(lineData).x("x").y("y"),
+  ],
+  [
+    "plot-bar",
+    () => new BarChart().groupBy("group").data(barData).x("x").y("y"),
+  ],
 ];
 
 for (const [name, build] of plotCharts) {

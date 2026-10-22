@@ -16,9 +16,13 @@ import {syncGapSort, type GapSortState} from "./gapSort.js";
 
 /** The default connector color: a quiet gray that reads on light and dark pages. */
 export function connectorStroke(viz: VizInstance): string {
-  const node = viz._select && typeof viz._select.node === "function" ? viz._select.node() : null;
+  const node =
+    viz._select && typeof viz._select.node === "function"
+      ? viz._select.node()
+      : null;
   const bg = node ? backgroundColor(node) : "rgb(255, 255, 255)";
-  return colorContrast(bg, viz.schema.colorDefaults) === viz.schema.colorDefaults.dark
+  return colorContrast(bg, viz.schema.colorDefaults) ===
+    viz.schema.colorDefaults.dark
     ? colorGray[500]
     : colorGray[700];
 }
@@ -68,7 +72,11 @@ export const dumbbellDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => ({
         Circle: {label: false, trail: false},
-        Line: {label: false, stroke: () => connectorStroke(viz), strokeWidth: 3},
+        Line: {
+          label: false,
+          stroke: () => connectorStroke(viz),
+          strokeWidth: 3,
+        },
       }),
     },
   ],

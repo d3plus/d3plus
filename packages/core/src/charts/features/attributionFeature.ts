@@ -25,7 +25,10 @@ import type {D3Selection} from "@d3plus/dom";
 
 import type {FeatureModule} from "./features.js";
 import {chartBounds} from "./chartGeometry.js";
-import {attributionStyleDarkDefault, attributionStyleDefault} from "../viz/vizDefaults.js";
+import {
+  attributionStyleDarkDefault,
+  attributionStyleDefault,
+} from "../viz/vizDefaults.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** An "i" in a circle, drawn like the zoom-control icons (see `zoomControlsMarkup.ts`). */
@@ -73,11 +76,14 @@ function setExpanded(node: HTMLElement, open: boolean): void {
 }
 
 /** Swaps each entry still at its light default for the dark default. */
-function darkAttributionStyle(style: Record<string, unknown>): Record<string, unknown> {
+function darkAttributionStyle(
+  style: Record<string, unknown>,
+): Record<string, unknown> {
   const light: Record<string, unknown> = attributionStyleDefault;
   const dark: Record<string, unknown> = attributionStyleDarkDefault;
   const out = {...style};
-  for (const key of Object.keys(dark)) if (out[key] === light[key]) out[key] = dark[key];
+  for (const key of Object.keys(dark))
+    if (out[key] === light[key]) out[key] = dark[key];
   return out;
 }
 
@@ -116,17 +122,18 @@ export const attributionFeature: FeatureModule = {
     const html =
       `<span class="d3plus-attribution-text">${viz.schema.attribution}</span>` +
       `<button type="button" class="d3plus-attribution-toggle" aria-label="${viz.schema.translate("Attribution")}" aria-expanded="true">${toggleIcon(viz)}</button>`;
-    const rewriteNode = attr.node() as (HTMLElement & {__d3plusHTML?: string}) | null;
+    const rewriteNode = attr.node() as
+      (HTMLElement & {__d3plusHTML?: string}) | null;
     if (rewriteNode && rewriteNode.__d3plusHTML !== html) {
       rewriteNode.innerHTML = html;
       rewriteNode.__d3plusHTML = html;
-      rewriteNode
-        .querySelectorAll<HTMLElement>("a")
-        .forEach(a => {
-          a.style.color = "inherit";
-          a.style.textDecoration = "none";
-        });
-      const toggleEl = rewriteNode.querySelector<HTMLElement>(".d3plus-attribution-toggle");
+      rewriteNode.querySelectorAll<HTMLElement>("a").forEach(a => {
+        a.style.color = "inherit";
+        a.style.textDecoration = "none";
+      });
+      const toggleEl = rewriteNode.querySelector<HTMLElement>(
+        ".d3plus-attribution-toggle",
+      );
       if (toggleEl) {
         toggleEl.style.border = "0";
         toggleEl.style.background = "transparent";
@@ -148,7 +155,9 @@ export const attributionFeature: FeatureModule = {
     text.style.whiteSpace = "nowrap";
     const compact = text.getBoundingClientRect().width > width * COMPACT_SHARE;
     text.style.whiteSpace = "";
-    const toggle = select(node).select(".d3plus-attribution-toggle").style("display", compact ? "" : "none");
+    const toggle = select(node)
+      .select(".d3plus-attribution-toggle")
+      .style("display", compact ? "" : "none");
 
     if (!compact) {
       select(node).on(".compact", null);
@@ -157,10 +166,18 @@ export const attributionFeature: FeatureModule = {
     }
 
     // Hover or focus previews the credit; a click pins it open (or closed).
-    const show = () => setExpanded(node, Boolean(viz._attributionPinned || node.matches(":hover, :focus-within")));
+    const show = () =>
+      setExpanded(
+        node,
+        Boolean(
+          viz._attributionPinned || node.matches(":hover, :focus-within"),
+        ),
+      );
     select(node)
       .on("mouseenter.compact focusin.compact", () => setExpanded(node, true))
-      .on("mouseleave.compact focusout.compact", () => window.setTimeout(show, 0));
+      .on("mouseleave.compact focusout.compact", () =>
+        window.setTimeout(show, 0),
+      );
     toggle.on("click.compact", () => {
       viz._attributionPinned = !viz._attributionPinned;
       setExpanded(node, viz._attributionPinned);

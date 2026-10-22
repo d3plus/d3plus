@@ -6,30 +6,29 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {LinePlot as D3plusLinePlot} from "@d3plus/react";
-export const LinePlot = ({ config }) => <D3plusLinePlot config={config} />;
+export const LinePlot = ({config}) => <D3plusLinePlot config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in LinePlot
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * LinePlot-specific methods
    */
-  
+
   {
     discrete: {
       defaultValue: "x",
       table: {
         defaultValue: {
-          summary: "x"
-        }
-      }
-    }
-  }
+          summary: "x",
+        },
+      },
+    },
+  },
 );

@@ -84,7 +84,8 @@ export const radarDef: ChartDefinition = {
         barConfig: {stroke: () => backgroundInk(viz), strokeWidth: 1},
         // The inner rings: Plot's gridlines.
         gridConfig: {
-          stroke: () => gridStroke(viz._select?.node(), viz.schema.colorDefaults),
+          stroke: () =>
+            gridStroke(viz._select?.node(), viz.schema.colorDefaults),
           strokeWidth: 1,
         },
         // The spokes and metric labels: Plot's ticks.
