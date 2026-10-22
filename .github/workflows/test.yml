@@ -55,17 +55,35 @@ jobs:
         node-version: [22.x, 24.x, 26.x]
 
     steps:
+      # A pull request checks out its merge commit, whose first parent is the
+      # base branch, so two commits are enough to list what it changes.
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
       - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node-version }}
           cache: pnpm
       - run: pnpm install
+      # A pull request tests only the packages it changes and their
+      # dependents (everything, if it changes shared config, test helpers,
+      # scripts or the lockfile); a push to main tests everything. Codecov
+      # carries the skipped packages' coverage forward.
+      - name: Pick the packages to test
+        id: affected
+        run: |
+          if [ "${{ github.event_name }}" = pull_request ]; then
+            node scripts/affected.js HEAD^1 | tee -a "$GITHUB_OUTPUT"
+          else
+            printf 'packages=all\nbrowser=true\n' | tee -a "$GITHUB_OUTPUT"
+          fi
       - name: Get Playwright version
+        if: steps.affected.outputs.browser == 'true'
         id: playwright-version
         run: echo "version=$(pnpm exec playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
+        if: steps.affected.outputs.browser == 'true'
         id: playwright-cache
         uses: actions/cache@v6
         with:
@@ -75,7 +93,7 @@ jobs:
       # intermittently on the runners (install-deps has exited 100 mid-release),
       # so retry each a few times before failing the job.
       - name: Install Playwright Chromium
-        if: steps.playwright-cache.outputs.cache-hit != 'true'
+        if: steps.affected.outputs.browser == 'true' && steps.playwright-cache.outputs.cache-hit != 'true'
         run: |
           n=0
           until pnpm exec playwright install chromium; do
@@ -84,6 +102,7 @@ jobs:
             echo "playwright install chromium failed (attempt $n); retrying in 15s..."; sleep 15
           done
       - name: Install Playwright system dependencies
+        if: steps.affected.outputs.browser == 'true'
         run: |
           n=0
           until pnpm exec playwright install-deps chromium; do
@@ -95,11 +114,25 @@ jobs:
       # coverage, instead of a plain pass followed by a coverage pass. Tests
       # import each package's source, so nothing is built first.
       - name: Run tests
-        if: matrix.node-version != '22.x'
-        run: pnpm vitest run
+        if: matrix.node-version != '22.x' && steps.affected.outputs.packages != 'none'
+        env:
+          PACKAGES: ${{ steps.affected.outputs.packages }}
+        run: |
+          if [ "$PACKAGES" = all ]; then
+            pnpm vitest run
+          else
+            pnpm $(printf -- '--filter=%s ' $PACKAGES) --if-present run test
+          fi
       - name: Run tests with coverage
-        if: matrix.node-version == '22.x'
-        run: pnpm test:coverage
+        if: matrix.node-version == '22.x' && steps.affected.outputs.packages != 'none'
+        env:
+          PACKAGES: ${{ steps.affected.outputs.packages }}
+        run: |
+          if [ "$PACKAGES" = all ]; then
+            pnpm test:coverage
+          else
+            pnpm $(printf -- '--filter=%s ' $PACKAGES) --if-present run test:coverage
+          fi
       # One upload per package, flagged with its directory name to match the
       # flags in codecov.yml; lcov paths are relative to the repo root. The
       # commit, PR and branch are passed explicitly (as codecov-action does)
@@ -107,7 +140,7 @@ jobs:
       # commit; a fork's branch is sent as "owner:branch" for a tokenless
       # upload. Upload failures warn without failing the job.
       - name: Upload coverage
-        if: matrix.node-version == '22.x'
+        if: matrix.node-version == '22.x' && steps.affected.outputs.packages != 'none'
         env:
           CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
           SHA: ${{ github.event.pull_request.head.sha || github.sha }}
