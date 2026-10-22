@@ -11,6 +11,13 @@ function isBreakable(str: string): boolean {
   return cjkRange.test(str) || emojiRange.test(str);
 }
 
+const wordSegmenter = new Intl.Segmenter(undefined, {granularity: "word"});
+
+/** Whether a segment is a run of word characters, which pretext can break between letters. */
+function isWordRun(str: string): boolean {
+  return str.length > 1 && Array.from(wordSegmenter.segment(str)).some(s => s.isWordLike);
+}
+
 const minHyphenLength = 8;
 
 /**
@@ -45,13 +52,14 @@ export default function (sentence: string): string[] {
   const prepared = prepareWithSegments(sentence, "10px sans-serif", {
     whiteSpace: "pre-wrap",
   });
-  const {segments, kinds, breakableFitAdvances} = prepared;
+  const {segments, kinds} = prepared;
 
   const words: string[] = [];
   let prevKind: string | null = null;
   let wordHasBreakable = false;
 
   for (let i = 0; i < segments.length; i++) {
+    const wordRun = isWordRun(segments[i]);
     if (
       (kinds[i] === "space" || kinds[i] === "preserved-space") &&
       words.length > 0
@@ -63,13 +71,13 @@ export default function (sentence: string): string[] {
       words.length > 0 &&
       !isBreakable(segments[i]) &&
       !isBreakable(segments[i - 1]) &&
-      !(breakableFitAdvances[i] !== null && wordHasBreakable)
+      !(wordRun && wordHasBreakable)
     ) {
       words[words.length - 1] += segments[i];
-      if (breakableFitAdvances[i] !== null) wordHasBreakable = true;
+      if (wordRun) wordHasBreakable = true;
     } else {
       words.push(segments[i]);
-      wordHasBreakable = breakableFitAdvances[i] !== null;
+      wordHasBreakable = wordRun;
     }
     prevKind = kinds[i];
   }

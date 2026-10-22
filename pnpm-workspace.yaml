@@ -3,7 +3,7 @@ packages:
 # Versions shared by more than one package; manifests reference them as
 # "catalog:" and pnpm writes the range in at publish time.
 catalog:
-  "@chenglou/pretext": ^0.0.5
+  "@chenglou/pretext": ^1.0.0
   "@types/react": ^19.1.0
   "@vitejs/plugin-react": ^6.1.2
   "d3-array": ^3.2.4
