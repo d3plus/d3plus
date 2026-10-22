@@ -4,10 +4,8 @@ import {
   labelMisses,
   rotatesLabels,
 } from "../../src/components/Axis/axisLayout.ts";
-import {
-  isDiscreteScale,
-  thinEvenly,
-} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {thinEvenly} from "../../src/components/Axis/axisLabelThinning.ts";
+import {isDiscreteScale} from "../../src/components/Axis/axisLayoutLabels.ts";
 import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 
 /** A measured horizontal label `width` wide, centered at `position`. */

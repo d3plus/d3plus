@@ -1,10 +1,8 @@
 import {it} from "vitest";
 import assert from "assert";
 import {AxisBottom} from "../../index.ts";
-import {
-  thinEvenly,
-  wholeLineLabels,
-} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {thinEvenly} from "../../src/components/Axis/axisLabelThinning.ts";
+import {wholeLineLabels} from "../../src/components/Axis/axisLayoutLabels.ts";
 import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 import {
   axisDateCategories,

@@ -8,7 +8,7 @@
 import type {SceneNode, Transform} from "@d3plus/render";
 
 import {Axis} from "../../components/index.js";
-import {barLinePoints} from "../../components/Axis/axisRender.js";
+import {barLinePoints} from "../../components/Axis/axisScene.js";
 import {withAxisInk} from "../Plot/axisInk.js";
 import {backgroundInk} from "../viz/backgroundInk.js";
 import type {VizInstance} from "../viz/vizTypes.js";

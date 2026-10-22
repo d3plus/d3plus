@@ -2,8 +2,7 @@ import {extent, min} from "d3-array";
 import {select} from "d3-selection";
 import type {transition} from "d3-transition";
 
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor, elem, rtl as detectRTL} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import type {GroupNode} from "@d3plus/render";
@@ -12,18 +11,24 @@ import type {SvgRenderer} from "@d3plus/render";
 import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
-import {gridStroke} from "./gridStroke.js";
+import {
+  axisBarConfig,
+  axisBreakConfig,
+  axisGridConfig,
+  axisShapeConfig,
+  axisTitleConfig,
+} from "./axisDefaults.js";
 import {timeDataInDomain} from "./timeValues.js";
 import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
+import {axisToScene} from "./axisScene.js";
 import {
-  axisToScene,
   buildTickData,
   calculateTicks,
   configureTickShape,
   renderAxisTitle,
 } from "./axisRender.js";
 import {isNegative} from "./axisRounding.js";
-import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
+import {BaseClass, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
@@ -147,106 +152,16 @@ export default class Axis extends BaseClass {
     this._data = [];
     this._labelRotation = false;
     this._labelRotationSetting = undefined;
-    this.schema.barConfig = {
-      stroke: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      "stroke-width": 1,
-    };
-    const breakDefaults = () => ({
-      angle: 30,
-      gap: 5,
-      lineConfig: {},
-      lines: true,
-      mask: true,
-      size: 10,
-      space: 36,
-      stroke: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      "stroke-width": 1,
-    });
-    this.schema.baselineBreakConfig = breakDefaults();
-    this.schema.breakConfig = breakDefaults();
-    this.schema.gridConfig = {
-      stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
-      "stroke-width": 1,
-    };
+    this.schema.barConfig = axisBarConfig(this);
+    this.schema.baselineBreakConfig = axisBreakConfig(this);
+    this.schema.breakConfig = axisBreakConfig(this);
+    this.schema.gridConfig = axisGridConfig(this);
     this.orient("bottom");
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
-    this.schema.shapeConfig = {
-      fill: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      height: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
-      label: (d: Record<string, unknown>) => d.text,
-      labelBounds: (d: Record<string, unknown>) => d.labelBounds,
-      labelConfig: {
-        fontColor: () => {
-          const bg = this._select
-            ? backgroundColor(this._select.node())
-            : "rgb(255, 255, 255)";
-          return colorContrast(bg, this.schema.colorDefaults);
-        },
-        fontResize: false,
-        fontSize: constant(12),
-        padding: 5,
-        textAnchor: () => {
-          const rtl = detectRTL();
-          return this.schema.orient === "left"
-            ? rtl
-              ? "start"
-              : "end"
-            : this.schema.orient === "right"
-              ? rtl
-                ? "end"
-                : "start"
-              : this._labelRotation
-                ? this.schema.orient === "bottom"
-                  ? "end"
-                  : "start"
-                : "middle";
-        },
-        verticalAlign: () =>
-          this.schema.orient === "bottom"
-            ? "top"
-            : this.schema.orient === "top"
-              ? this._labelRotation
-                ? "top"
-                : "bottom"
-              : "middle",
-      },
-      r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
-      stroke: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      strokeWidth: 1,
-      width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
-    };
+    this.schema.shapeConfig = axisShapeConfig(this);
     this._tickUnit = 0;
     this._titleClass = new TextBox();
-    this.schema.titleConfig = {
-      fontColor: () => {
-        const bg = this._select
-          ? backgroundColor(this._select.node())
-          : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      fontSize: 12,
-      textAnchor: "middle",
-    };
+    this.schema.titleConfig = axisTitleConfig(this);
     this._margin = {top: 0, right: 0, bottom: 0, left: 0};
     this._availableTicks = [];
     this._visibleTicks = [];

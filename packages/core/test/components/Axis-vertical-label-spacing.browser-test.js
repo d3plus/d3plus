@@ -1,6 +1,6 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
-import {labelExtent} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {labelExtent} from "../../src/components/Axis/axisLabelThinning.ts";
 import {render} from "~test/browser/render.js";
 
 /**

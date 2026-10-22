@@ -4,11 +4,15 @@ import type {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {getSize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
-import {SvgRenderer} from "@d3plus/render";
-import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
+import type {
+  GroupNode,
+  Paint,
+  SceneNode,
+  SvgRenderer,
+  Transform,
+} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
@@ -18,6 +22,7 @@ import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import {hitAreaNode} from "./hitAreaNode.js";
 import {interactionPoints} from "./interactionPoints.js";
+import {paintStandalone} from "./shapeStandalone.js";
 import {textureKey} from "./textureKey.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
@@ -510,7 +515,7 @@ export default class Shape extends BaseClass {
     // too would emit them twice in every chart that calls collectComputed
     // (Pie/Donut/Pack/Treemap/Network/Priestley/Radar/RadialMatrix/Geomap…).
     // Standalone shape.render() consumers (no collectComputed wrapper) get
-    // labels through Shape.render's own SvgRenderer path below.
+    // labels through Shape.render's own SvgRenderer path (`paintStandalone`).
     return {type: "group", key: `${this._name}-group`, children};
   }
 
@@ -561,65 +566,7 @@ export default class Shape extends BaseClass {
           ? (sel.node() as Element | null)
           : (sel as unknown as Element | null);
       if (node) {
-        const tag = (node.tagName || "").toLowerCase();
-        const isSvg = tag === "svg";
-        // Explicit numeric size first: an <svg>'s width/height attribute, or a
-        // non-svg container's client box.
-        const rawW = isSvg
-          ? Number(node.getAttribute("width"))
-          : (node as HTMLElement).clientWidth;
-        const rawH = isSvg
-          ? Number(node.getAttribute("height"))
-          : (node as HTMLElement).clientHeight;
-        // When that isn't a usable number — e.g. width="100%" (Number → NaN)
-        // or a 0-size box — measure the container's real rendered size,
-        // walking up to the first constrained ancestor. Only fall back to the
-        // static 400x300 when nothing is measurable (e.g. no layout in jsdom).
-        const [measuredW, measuredH] =
-          rawW && rawH ? [rawW, rawH] : getSize(node as HTMLElement);
-        const width = rawW || measuredW || 400;
-        const height = rawH || measuredH || 300;
-        // Combine the shape's scene + label children. toScene() deliberately
-        // omits labels (collectComputed is the canonical aggregator for the
-        // chart pipeline); for the standalone render() path we add them here
-        // so `new Rect().data(...).render()` still produces label text.
-        const shapeGroup = this.toScene();
-        const labelChildren: SceneNode[] = [];
-        if (
-          this._labelClass &&
-          typeof (this._labelClass as {toScene?: unknown}).toScene ===
-            "function" &&
-          this._labelClass._data &&
-          this._labelClass._data.length
-        ) {
-          labelChildren.push(
-            ...(this._labelClass.toScene().children as SceneNode[]),
-          );
-        }
-        const root: GroupNode = {
-          ...shapeGroup,
-          children: [...shapeGroup.children, ...labelChildren],
-        };
-        const scene = {root, width, height};
-        // Tear down any previous SvgRenderer so its DOM listeners + timers
-        // are cleared instead of leaking on every re-render.
-        const prev = this._sceneRenderer;
-        if (prev && typeof prev.destroy === "function") prev.destroy();
-        // Caller's element is preserved (downstream selectors still find it);
-        // we mount SvgRenderer INSIDE it. When `node` is a <g> the result is
-        // a nested <svg>-in-<g>, which is valid SVG but visually unusual —
-        // chart code reaches this path only via the Box/Whisker full-mode
-        // fallback, which is not the recommended flow (compute mode is).
-        // Only wipe children when this is the FIRST time we're mounting
-        // here — re-renders into the same node would otherwise destroy any
-        // labels/auxiliary DOM the caller put alongside.
-        if (!prev) {
-          while (node.firstChild) node.removeChild(node.firstChild);
-        }
-        const renderer = new SvgRenderer();
-        renderer.mount({container: node, width, height});
-        renderer.drawScene(scene);
-        this._sceneRenderer = renderer;
+        paintStandalone(this, node);
       }
     }
 

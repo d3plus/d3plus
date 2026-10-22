@@ -1,10 +1,8 @@
 import {it} from "vitest";
 import assert from "~test/browser/assert.js";
 import {render} from "~test/browser/render.js";
-import {
-  fitOwnSpaces,
-  ownLabelSpaces,
-} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {fitOwnSpaces} from "../../src/components/Axis/axisLabelThinning.ts";
+import {ownLabelSpaces} from "../../src/components/Axis/axisLayoutLabels.ts";
 
 /**
     Marimekko's category labels at the Storybook canvas size (958 × 350): each

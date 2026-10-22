@@ -17,7 +17,7 @@ import type {GroupNode, LineNode, Paint, SceneNode} from "@d3plus/render";
 import type Axis from "../../components/Axis/Axis.js";
 import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
-import {configToPaint} from "../../components/Axis/axisRender.js";
+import {configToPaint} from "../../components/Axis/axisScene.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Whether a node is a value or line label, which the mask leaves whole. */

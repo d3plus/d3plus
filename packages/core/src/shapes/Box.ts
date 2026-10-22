@@ -228,6 +228,38 @@ function computeBoxGroup(
 }
 
 /**
+    Groups the data into one box per orientation value, computes each box
+    (appending outliers to `outlierData`), and records which box owns each
+    record in `box._owned`.
+*/
+function computeBoxes(box: Box, outlierData: DataPoint[]): DataPoint[] {
+  const boxGroups = groups(box._data, (d: DataPoint, i: number) =>
+    box.schema.orient(d, i) === "vertical"
+      ? box.schema.x(d, i)
+      : box.schema.y(d, i),
+  );
+  // Each box's id: the `id` accessor on its first row, else its group key.
+  const ids = uniqueIds(
+    boxGroups.map(([key, groupData]) => {
+      const first = groupData[0];
+      const id = box.schema.id
+        ? box.schema.id(first, box._data.indexOf(first))
+        : undefined;
+      return `${id ?? key}`;
+    }),
+  );
+  box._owned = new Map();
+  return boxGroups.map((group, i) => {
+    const start = outlierData.length;
+    const d = computeBoxGroup(box, group, ids[i], outlierData);
+    const owned = {datum: d, index: i};
+    for (const record of [d, ...outlierData.slice(start)])
+      box._owned.set(record, owned);
+    return d;
+  });
+}
+
+/**
     Builds the whisker startpoint coordinates (two per box) from the computed
     box geometry.
 */
@@ -367,30 +399,7 @@ export default class Box extends BaseClass {
 
     const outlierData: DataPoint[] = [];
 
-    const boxGroups = groups(this._data, (d: DataPoint, i: number) =>
-      this.schema.orient(d, i) === "vertical"
-        ? this.schema.x(d, i)
-        : this.schema.y(d, i),
-    );
-    // Each box's id: the `id` accessor on its first row, else its group key.
-    const ids = uniqueIds(
-      boxGroups.map(([key, groupData]) => {
-        const first = groupData[0];
-        const id = this.schema.id
-          ? this.schema.id(first, this._data.indexOf(first))
-          : undefined;
-        return `${id ?? key}`;
-      }),
-    );
-    this._owned = new Map();
-    const filteredData = boxGroups.map((group, i) => {
-      const start = outlierData.length;
-      const d = computeBoxGroup(this, group, ids[i], outlierData);
-      const owned = {datum: d, index: i};
-      for (const record of [d, ...outlierData.slice(start)])
-        this._owned.set(record, owned);
-      return d;
-    });
+    const filteredData = computeBoxes(this, outlierData);
 
     // Draw box.
     this._box = new Rect()

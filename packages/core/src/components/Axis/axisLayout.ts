@@ -143,47 +143,19 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     textData = layoutLabels(axis, rescale(), labelCtx);
   }
 
-  // Left to decide, a horizontal axis of categories rotates its labels when
-  // that leaves fewer of them cut short or hidden. Dates and numbers thin
-  // instead, and rotate only when even their first label alone can't lie
-  // flat on one line.
-  if (setting === undefined && horizontal) {
-    const rotate = rotatesLabels(axis, labels, tickFormat)
-      ? (data: AxisTextDatum[]) => labelMisses(data)
-      : wholeLineLabels(axis, labels)
-        ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
-        : undefined;
-    const misses = rotate ? rotate(textData) : 0;
-    // Labels in their own shares rotate only as a last resort: a label that
-    // can't fit is hidden, and the rest stay flat (each with its share line,
-    // which a rotated label leaves out) unless half or more are hidden.
-    if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
-      axis._labelRotation = true;
-      textData = layoutLabels(axis, rescale(), labelCtx);
-      if (rotate(textData) >= misses) {
-        axis._labelRotation = false;
-        textData = layoutLabels(axis, rescale(), labelCtx);
-      }
-    }
-  }
+  if (setting === undefined && horizontal)
+    textData = autoRotateLabels(axis, textData, {
+      labels,
+      tickFormat,
+      ownSpace,
+      relayout: () => layoutLabels(axis, rescale(), labelCtx),
+    });
 
-  // The ticks whose labels the layout hides no longer count as visible.
-  const hidden = new Set(
-    textData
-      .filter((t: AxisTextDatum) => t.truncated)
-      .map((t: AxisTextDatum) => t.d),
-  );
-  if (hidden.size)
-    axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
+  hideTruncatedTicks(axis, textData, ticks);
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 
-  const globalOffset = axis.schema.labelOffset
-    ? max(textData, (d: AxisTextDatum) => d.offset || 0)
-    : 0;
-  textData.forEach(
-    (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
-  );
+  alignLabelOffsets(axis, textData);
 
   const bounds = computeAxisBounds(axis, {
     textData,
@@ -211,6 +183,72 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     labelHeight,
     bounds,
   };
+}
+
+/** The ticks whose labels the layout hides no longer count as visible. */
+function hideTruncatedTicks(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ticks: unknown[],
+): void {
+  const hidden = new Set(
+    textData
+      .filter((t: AxisTextDatum) => t.truncated)
+      .map((t: AxisTextDatum) => t.d),
+  );
+  if (hidden.size)
+    axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
+}
+
+/**
+    Moves every offset label to the same offset (the largest), or back in
+    line when `labelOffset` is off.
+*/
+function alignLabelOffsets(axis: Axis, textData: AxisTextDatum[]): void {
+  const globalOffset = axis.schema.labelOffset
+    ? max(textData, (d: AxisTextDatum) => d.offset || 0)
+    : 0;
+  textData.forEach(
+    (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
+  );
+}
+
+/**
+    Left to decide, a horizontal axis of categories rotates its labels when
+    that leaves fewer of them cut short or hidden. Dates and numbers thin
+    instead, and rotate only when even their first label alone can't lie
+    flat on one line. Sets `axis._labelRotation` and returns the labels laid
+    out as they end up.
+*/
+function autoRotateLabels(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: {
+    labels: unknown[];
+    tickFormat: (d: unknown) => string;
+    ownSpace: boolean;
+    relayout: () => AxisTextDatum[];
+  },
+): AxisTextDatum[] {
+  const {labels, tickFormat, ownSpace, relayout} = ctx;
+  const rotate = rotatesLabels(axis, labels, tickFormat)
+    ? (data: AxisTextDatum[]) => labelMisses(data)
+    : wholeLineLabels(axis, labels)
+      ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
+      : undefined;
+  const misses = rotate ? rotate(textData) : 0;
+  // Labels in their own shares rotate only as a last resort: a label that
+  // can't fit is hidden, and the rest stay flat (each with its share line,
+  // which a rotated label leaves out) unless half or more are hidden.
+  if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
+    axis._labelRotation = true;
+    textData = relayout();
+    if (rotate(textData) >= misses) {
+      axis._labelRotation = false;
+      textData = relayout();
+    }
+  }
+  return textData;
 }
 
 /**

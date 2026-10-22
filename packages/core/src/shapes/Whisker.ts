@@ -35,6 +35,77 @@ const whiskerSchema: ConfigField[] = [
 ];
 
 /**
+    The whisker lines' data: two points per datum, from the datum's position
+    to its endpoint `length` away toward `orient`.
+*/
+function whiskerLineData(whisker: Whisker, ids: string[]): DataPoint[] {
+  const lineData: DataPoint[] = [];
+  whisker._data.forEach((d: DataPoint, i: number) => {
+    const orient = whisker.schema.orient(d, i) as string;
+    const x = whisker.schema.x(d, i) as number;
+    const y = whisker.schema.y(d, i) as number;
+
+    let endpointX = x;
+    if (orient === "left") endpointX -= whisker.schema.length(d, i) as number;
+    else if (orient === "right")
+      endpointX += whisker.schema.length(d, i) as number;
+
+    let endpointY = y;
+    if (orient === "top") endpointY -= whisker.schema.length(d, i) as number;
+    else if (orient === "bottom")
+      endpointY += whisker.schema.length(d, i) as number;
+
+    lineData.push({
+      __d3plus__: true,
+      data: d,
+      i,
+      id: ids[i],
+      x,
+      y,
+    } as unknown as DataPoint);
+    lineData.push({
+      __d3plus__: true,
+      data: d,
+      i,
+      id: ids[i],
+      x: endpointX,
+      y: endpointY,
+    } as unknown as DataPoint);
+  });
+  return lineData;
+}
+
+/** Each whisker's endpoint shape datum, placed at the end of its line. */
+function whiskerEndpointData(whisker: Whisker, ids: string[]): DataPoint[] {
+  return whisker._data.map((d: DataPoint, i: number) => {
+    const dataObj: DataPoint = {} as DataPoint;
+    (dataObj as Record<string, unknown>).__d3plus__ = true;
+    (dataObj as Record<string, unknown>).data = d;
+    (dataObj as Record<string, unknown>).i = i;
+    (dataObj as Record<string, unknown>).id = `${ids[i]}-end`;
+    (dataObj as Record<string, unknown>).endpoint = whisker.schema.endpoint(
+      d,
+      i,
+    );
+    (dataObj as Record<string, unknown>).length = whisker.schema.length(d, i);
+    (dataObj as Record<string, unknown>).orient = whisker.schema.orient(d, i);
+
+    let endpointX = whisker.schema.x(d, i) as number;
+    if (dataObj.orient === "left") endpointX -= dataObj.length as number;
+    else if (dataObj.orient === "right") endpointX += dataObj.length as number;
+
+    let endpointY = whisker.schema.y(d, i) as number;
+    if (dataObj.orient === "top") endpointY -= dataObj.length as number;
+    else if (dataObj.orient === "bottom") endpointY += dataObj.length as number;
+
+    (dataObj as Record<string, unknown>).x = endpointX;
+    (dataObj as Record<string, unknown>).y = endpointY;
+
+    return dataObj;
+  });
+}
+
+/**
     Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.
 */
 export default class Whisker extends BaseClass {
@@ -94,39 +165,7 @@ export default class Whisker extends BaseClass {
       this._data.map((d: DataPoint, i: number) => `${d.id ?? i}`),
     );
 
-    const lineData: DataPoint[] = [];
-    this._data.forEach((d: DataPoint, i: number) => {
-      const orient = this.schema.orient(d, i) as string;
-      const x = this.schema.x(d, i) as number;
-      const y = this.schema.y(d, i) as number;
-
-      let endpointX = x;
-      if (orient === "left") endpointX -= this.schema.length(d, i) as number;
-      else if (orient === "right")
-        endpointX += this.schema.length(d, i) as number;
-
-      let endpointY = y;
-      if (orient === "top") endpointY -= this.schema.length(d, i) as number;
-      else if (orient === "bottom")
-        endpointY += this.schema.length(d, i) as number;
-
-      lineData.push({
-        __d3plus__: true,
-        data: d,
-        i,
-        id: ids[i],
-        x,
-        y,
-      } as unknown as DataPoint);
-      lineData.push({
-        __d3plus__: true,
-        data: d,
-        i,
-        id: ids[i],
-        x: endpointX,
-        y: endpointY,
-      } as unknown as DataPoint);
-    });
+    const lineData = whiskerLineData(this, ids);
 
     // Draw whisker line. Don't pass `callback` to the inner Line —
     // doing so would fire the caller's done-callback after the LINE
@@ -143,34 +182,7 @@ export default class Whisker extends BaseClass {
       )
       .render();
 
-    const whiskerData = this._data.map((d: DataPoint, i: number) => {
-      const dataObj: DataPoint = {} as DataPoint;
-      (dataObj as Record<string, unknown>).__d3plus__ = true;
-      (dataObj as Record<string, unknown>).data = d;
-      (dataObj as Record<string, unknown>).i = i;
-      (dataObj as Record<string, unknown>).id = `${ids[i]}-end`;
-      (dataObj as Record<string, unknown>).endpoint = this.schema.endpoint(
-        d,
-        i,
-      );
-      (dataObj as Record<string, unknown>).length = this.schema.length(d, i);
-      (dataObj as Record<string, unknown>).orient = this.schema.orient(d, i);
-
-      let endpointX = this.schema.x(d, i) as number;
-      if (dataObj.orient === "left") endpointX -= dataObj.length as number;
-      else if (dataObj.orient === "right")
-        endpointX += dataObj.length as number;
-
-      let endpointY = this.schema.y(d, i) as number;
-      if (dataObj.orient === "top") endpointY -= dataObj.length as number;
-      else if (dataObj.orient === "bottom")
-        endpointY += dataObj.length as number;
-
-      (dataObj as Record<string, unknown>).x = endpointX;
-      (dataObj as Record<string, unknown>).y = endpointY;
-
-      return dataObj;
-    });
+    const whiskerData = whiskerEndpointData(this, ids);
 
     // Draw whisker endpoint.
     this._whiskerEndpoint = [];
