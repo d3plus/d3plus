@@ -30,11 +30,11 @@
     "@types/react": "catalog:",
     "d3-selection": "catalog:",
     "d3-time-format": "catalog:",
-    "eslint-plugin-storybook": "10.3.4",
+    "eslint-plugin-storybook": "10.6.2",
     "react": "catalog:",
     "react-dom": "catalog:",
     "remark-gfm": "^4.0.1",
-    "storybook": "10.3.4",
+    "storybook": "10.6.2",
     "typescript": "catalog:",
     "vite": "catalog:"
   }
