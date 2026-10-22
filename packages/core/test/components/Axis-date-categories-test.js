@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
-import {AxisBottom} from "../../es/index.js";
-import {thinEvenly, wholeLineLabels} from "../../es/src/components/Axis/axisLayoutLabels.js";
-import {buildTickFormat} from "../../es/src/components/Axis/axisLayoutScale.js";
+import {AxisBottom} from "../../index.ts";
+import {thinEvenly, wholeLineLabels} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {buildTickFormat} from "../../src/components/Axis/axisLayoutScale.ts";
 import {
   axisDateCategories,
   axisDateLabel,
@@ -11,8 +12,10 @@ import {
   isCategoryAxis,
   isValidDate,
   resetAxisDates,
-} from "../../es/src/components/Axis/timeValues.js";
-import it from "../jsdom.js";
+} from "../../src/components/Axis/timeValues.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     Dates on a category (band, ordinal, or point) axis label like a time

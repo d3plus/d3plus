@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
 import {createCanvas} from "@napi-rs/canvas";
 import {Pie, Treemap} from "@d3plus/core";
-import {renderToCanvas, renderToStaticSVG} from "../es/index.js";
+import {renderToCanvas, renderToStaticSVG} from "../index.ts";
 
 const data = [
   {id: "a", value: 5},

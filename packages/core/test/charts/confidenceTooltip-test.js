@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, LinePlot} from "../../index.ts";
 import {
   bandRows,
   confidenceRows,
@@ -9,7 +10,9 @@ import {
   rangeSuffix,
   rangeText,
   rowConfidence,
-} from "../../es/src/charts/Plot/confidenceTooltip.js";
+} from "../../src/charts/Plot/confidenceTooltip.ts";
+
+useJsdom();
 
 // #781: tooltips list a Plot's `confidence` bounds.
 

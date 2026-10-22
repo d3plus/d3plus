@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Area, Circle, Line, Path, Rect} from "../../es/index.js";
+import {Area, Circle, Line, Path, Rect} from "../../index.ts";
 
 // Finds the shape geometry node, wrapping group + inner <image> for a shape's
 // background image.

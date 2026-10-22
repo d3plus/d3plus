@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   hasFullConfigDomain,
   plotAxisRounding,
   secondaryAxisRounding,
   xAxisRounding,
-} from "../../es/internal.js";
+} from "../../internal.ts";
+
+useJsdom();
 
 /**
     A full `domain` in a Plot's axis config is drawn as given, like an Axis

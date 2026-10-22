@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import * as napi from "@napi-rs/canvas";
 
-import it from "./jsdom.js";
-import {CanvasRenderer, getCanvasBackend, setCanvasBackend} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {CanvasRenderer, getCanvasBackend, setCanvasBackend} from "../index.ts";
+
+useJsdom({augment: false});
 
 // Paint coverage through a real 2D context: `@napi-rs/canvas` supplies the
 // headless backend (and the global Path2D the paint path builds), so path,

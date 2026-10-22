@@ -31,8 +31,6 @@ jobs:
         run: pnpm lint
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
-      - name: Test docs generator
-        run: pnpm test:docs
       - name: Build docs site (Storybook)
         run: pnpm --filter @d3plus/docs build
 
@@ -66,7 +64,7 @@ jobs:
       - run: pnpm install
       - name: Get Playwright version
         id: playwright-version
-        run: echo "version=$(pnpm --filter @d3plus/core exec playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
+        run: echo "version=$(pnpm exec playwright --version | sed 's/Version //')" >> "$GITHUB_OUTPUT"
       - name: Cache Playwright browsers
         id: playwright-cache
         uses: actions/cache@v6
@@ -80,7 +78,7 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: |
           n=0
-          until pnpm --filter @d3plus/core exec playwright install chromium; do
+          until pnpm exec playwright install chromium; do
             n=$((n + 1))
             if [ "$n" -ge 3 ]; then echo "playwright install chromium failed after $n attempts"; exit 1; fi
             echo "playwright install chromium failed (attempt $n); retrying in 15s..."; sleep 15
@@ -88,26 +86,26 @@ jobs:
       - name: Install Playwright system dependencies
         run: |
           n=0
-          until pnpm --filter @d3plus/core exec playwright install-deps chromium; do
+          until pnpm exec playwright install-deps chromium; do
             n=$((n + 1))
             if [ "$n" -ge 3 ]; then echo "playwright install-deps chromium failed after $n attempts"; exit 1; fi
             echo "playwright install-deps chromium failed (attempt $n); retrying in 15s..."; sleep 15
           done
-      # Linting runs in the check job. 22.x runs the suites once, under c8,
-      # instead of a plain pass followed by a coverage pass.
+      # Linting runs in the check job. 22.x runs the suites once, with
+      # coverage, instead of a plain pass followed by a coverage pass. Tests
+      # import each package's source, so nothing is built first.
       - name: Run tests
         if: matrix.node-version != '22.x'
-        run: pnpm -r --if-present run build:esm && pnpm -r --if-present run test
+        run: pnpm vitest run
       - name: Run tests with coverage
         if: matrix.node-version == '22.x'
         run: pnpm test:coverage
       # One upload per package, flagged with its directory name to match the
-      # flags in codecov.yml. lcov paths are relative to each package, so they
-      # are prefixed with its directory first. The commit, PR and branch are
-      # passed explicitly (as codecov-action does) because the shallow checkout
-      # leaves the CLI only the PR's merge commit; a fork's branch is sent as
-      # "owner:branch" for a tokenless upload. Upload failures warn without
-      # failing the job.
+      # flags in codecov.yml; lcov paths are relative to the repo root. The
+      # commit, PR and branch are passed explicitly (as codecov-action does)
+      # because the shallow checkout leaves the CLI only the PR's merge
+      # commit; a fork's branch is sent as "owner:branch" for a tokenless
+      # upload. Upload failures warn without failing the job.
       - name: Upload coverage
         if: matrix.node-version == '22.x'
         env:
@@ -118,9 +116,7 @@ jobs:
         run: |
           pipx install codecov-cli==11.3.1
           for lcov in packages/*/coverage/lcov.info; do
-            pkg_dir=$(dirname "$(dirname "$lcov")")
-            flag=$(basename "$pkg_dir")
-            sed -i "s|^SF:|SF:${pkg_dir}/|" "$lcov"
+            flag=$(basename "$(dirname "$(dirname "$lcov")")")
             codecovcli upload-coverage \
               ${CODECOV_TOKEN:+--token "$CODECOV_TOKEN"} \
               --git-service github --slug "$GITHUB_REPOSITORY" \

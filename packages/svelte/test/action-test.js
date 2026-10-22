@@ -1,8 +1,9 @@
+import {it, beforeAll} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
-import {d3plus} from "../es/index.js";
+import {d3plus} from "../index.ts";
 
-before(() => {
+beforeAll(() => {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
   global.window = dom.window;
   global.document = dom.window.document;

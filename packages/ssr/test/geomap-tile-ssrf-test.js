@@ -1,15 +1,16 @@
+import {it} from "vitest";
 import assert from "assert";
 import http from "node:http";
 import {Geomap} from "@d3plus/core";
 import {createCanvas} from "@napi-rs/canvas";
-import {renderToStaticSVG} from "../es/index.js";
+import {renderToStaticSVG} from "../index.ts";
 import {
   createTileLookup,
   defaultTileFetch,
   fetchTileFollowingRedirects,
   isBlockedAddress,
   isSafeTileUrl,
-} from "../es/src/geomapTiles.js";
+} from "../src/geomapTiles.ts";
 
 const cities = [
   {city: "NYC", coords: [-74, 40.7]},
@@ -71,7 +72,7 @@ for (const address of allowedAddresses) {
   it(`isBlockedAddress allows ${address}`, () => assert.strictEqual(isBlockedAddress(address), false));
 }
 
-it("createTileLookup blocks a hostname that resolves to a disallowed address (DNS rebinding)", done => {
+it("createTileLookup blocks a hostname that resolves to a disallowed address (DNS rebinding)", () => new Promise(done => {
   const fakeResolve = (hostname, options, callback) => {
     callback(null, [{address: "169.254.169.254", family: 4}]);
   };
@@ -81,9 +82,9 @@ it("createTileLookup blocks a hostname that resolves to a disallowed address (DN
     assert.ok(/disallowed address/.test(err.message));
     done();
   });
-});
+}));
 
-it("createTileLookup allows a hostname that resolves to a public address", done => {
+it("createTileLookup allows a hostname that resolves to a public address", () => new Promise(done => {
   const fakeResolve = (hostname, options, callback) => {
     callback(null, [{address: "93.184.216.34", family: 4}]);
   };
@@ -93,9 +94,9 @@ it("createTileLookup allows a hostname that resolves to a public address", done 
     assert.strictEqual(address, "93.184.216.34");
     done();
   });
-});
+}));
 
-it("createTileLookup blocks when only one of several resolved addresses is disallowed", done => {
+it("createTileLookup blocks when only one of several resolved addresses is disallowed", () => new Promise(done => {
   const fakeResolve = (hostname, options, callback) => {
     callback(null, [
       {address: "93.184.216.34", family: 4},
@@ -107,7 +108,7 @@ it("createTileLookup blocks when only one of several resolved addresses is disal
     assert.ok(err instanceof Error, "expected the lookup to error");
     done();
   });
-});
+}));
 
 it("fetchTileFollowingRedirects follows an http-to-https style redirect and releases the redirect's body", async () => {
   const calls = [];

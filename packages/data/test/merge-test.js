@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as merge} from "../es/src/merge.js";
+import {default as merge} from "../src/merge.ts";
 
 it("merge", () => {
   const obj = merge(

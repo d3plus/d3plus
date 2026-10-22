@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   emitRadarLevelLabels,
   radarLevelLabels,
   radarLevels,
   radarRadius,
-} from "../../es/src/charts/Radar/levels.js";
+} from "../../src/charts/Radar/levels.ts";
 
 const close = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} ≉ ${b}`);
 

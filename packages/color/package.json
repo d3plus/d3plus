@@ -37,8 +37,8 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project color",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project color --coverage --coverage.exclude='packages/!(color)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/color/coverage"
   },
   "dependencies": {
     "d3-color": "catalog:",

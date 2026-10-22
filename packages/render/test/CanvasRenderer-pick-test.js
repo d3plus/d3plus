@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {CanvasRenderer} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {CanvasRenderer} from "../index.ts";
+
+useJsdom({augment: false});
 
 // Picking coverage that the jsdom canvas shim supports faithfully: rect,
 // circle, line and image hit-testing are pure geometry (no Path2D), and the

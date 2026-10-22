@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Plot, Treemap} from "../../es/index.js";
-import {autoPosition, sanitizePosition} from "../../es/src/charts/features/features.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Plot, Treemap} from "../../index.ts";
+import {autoPosition, sanitizePosition} from "../../src/charts/features/features.ts";
+
+useJsdom();
 
 // `legendPosition`/`colorScalePosition` default to "auto": the chart chooses
 // (inside the chart when it fits, else right on wide charts, bottom on others).

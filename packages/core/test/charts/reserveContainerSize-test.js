@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {reserveContainerSize} from "../../es/src/charts/viz/reserveContainerSize.js";
+import {useJsdom} from "~test/jsdom.js";
+import {reserveContainerSize} from "../../src/charts/viz/reserveContainerSize.ts";
+
+useJsdom();
 
 /**
     `reserveContainerSize(viz)` keeps one invisible, in-flow spacer next to the

@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Pyramid, RESET} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Pyramid, RESET} from "../../index.ts";
 import {
   absoluteFormat,
   finite,
@@ -10,8 +11,8 @@ import {
   pyramidTotal,
   sideSign,
   symmetricDomain,
-} from "../../es/src/charts/Pyramid/pyramidData.js";
-import {pyramidStackOrder} from "../../es/src/charts/Pyramid/stackOrder.js";
+} from "../../src/charts/Pyramid/pyramidData.ts";
+import {pyramidStackOrder} from "../../src/charts/Pyramid/stackOrder.ts";
 import {
   bandStep,
   comparisonNodes,
@@ -19,7 +20,9 @@ import {
   dashArray,
   sideTitleBoxes,
   withPyramidNodes,
-} from "../../es/src/charts/Pyramid/scene.js";
+} from "../../src/charts/Pyramid/scene.ts";
+
+useJsdom();
 
 const key = k => d => d[k];
 

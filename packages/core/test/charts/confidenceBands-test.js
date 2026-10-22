@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, LinePlot, RESET} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, LinePlot, RESET} from "../../index.ts";
 
 import {
   bandOpacityTargets,
@@ -11,7 +12,9 @@ import {
   layerOpacities,
   resolveConfidenceBands,
   rowBands,
-} from "../../es/src/charts/Plot/confidenceBands.js";
+} from "../../src/charts/Plot/confidenceBands.ts";
+
+useJsdom();
 
 // #212: `confidence` takes several nested bands, outermost first.
 

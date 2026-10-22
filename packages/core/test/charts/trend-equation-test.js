@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {trendEquation, trendTooltipRows, trendTypeNames} from "../../es/src/charts/Plot/trendTooltip.js";
+import {useJsdom} from "~test/jsdom.js";
+import {trendEquation, trendTooltipRows, trendTypeNames} from "../../src/charts/Plot/trendTooltip.ts";
+
+useJsdom();
 
 it("trendEquation — linear", () => {
   assert.strictEqual(trendEquation({type: "linear", coefficients: [3, 2]}), "y = 2x + 3");

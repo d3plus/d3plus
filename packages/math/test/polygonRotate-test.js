@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as polygonRotate} from "../es/src/polygonRotate.js";
+import {default as polygonRotate} from "../src/polygonRotate.ts";
 
 it("geom/polygonRotate", () => {
   const def = polygonRotate(

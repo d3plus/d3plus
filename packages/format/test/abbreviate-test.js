@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as abbreviate} from "../es/src/formatAbbreviate.js";
+import {default as abbreviate} from "../src/formatAbbreviate.ts";
 
 it("abbreviate", () => {
   assert.strictEqual("1.23Q", abbreviate(1234567890000000000), "quintillion");

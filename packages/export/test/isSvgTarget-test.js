@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {isSvgTarget} from "../es/src/saveElement.js";
+import {isSvgTarget} from "../src/saveElement.ts";
 
 it("isSvgTarget is true for an <svg> element", () => {
   assert.strictEqual(isSvgTarget({tagName: "svg"}), true);

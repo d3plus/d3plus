@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {color} from "d3-color";
-import {textureKey} from "../../es/src/shapes/textureKey.js";
-import {Rect} from "../../es/index.js";
-import it from "../jsdom.js";
+import {textureKey} from "../../src/shapes/textureKey.ts";
+import {Rect} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 const parse = key => JSON.parse(key);
 

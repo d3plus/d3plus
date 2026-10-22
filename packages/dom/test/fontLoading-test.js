@@ -1,10 +1,13 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   noteMeasured,
   onFontsLoaded,
   watchFonts,
-} from "../es/src/fontLoading.js";
-import it from "./jsdom.js";
+} from "../src/fontLoading.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 /**
  * Installs a fake FontFaceSet on the current jsdom document (jsdom has none)

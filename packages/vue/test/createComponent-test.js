@@ -1,3 +1,4 @@
+import {it, beforeAll} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
 
@@ -6,13 +7,13 @@ import {JSDOM} from "jsdom";
 // than static top-level ones.
 let createApp, h, nextTick, reactive, createD3plusComponent, D3plusConfigKey;
 
-before(async () => {
+beforeAll(async () => {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
   global.window = dom.window;
   global.document = dom.window.document;
   ["Element", "SVGElement", "Node", "Event"].forEach(key => { global[key] = dom.window[key]; });
   ({createApp, h, nextTick, reactive} = await import("vue"));
-  ({createD3plusComponent, D3plusConfigKey} = await import("../es/src/createComponent.js"));
+  ({createD3plusComponent, D3plusConfigKey} = await import("../src/createComponent.ts"));
 });
 
 /** A tracking mock visualization class plus the state it records. */

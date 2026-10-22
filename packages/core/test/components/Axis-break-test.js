@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../es/index.js";
-import {applyAxisBreaks, breakGap, breakStyle, isBrokenScale} from "../../es/internal.js";
-import it from "../jsdom.js";
+import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
+import {applyAxisBreaks, breakGap, breakStyle, isBrokenScale} from "../../internal.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     Explicit axis breaks (#766): `break` removes value ranges from a linear

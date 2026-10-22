@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Circle} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Circle} from "../../index.ts";
+
+useJsdom();
 
 /**
     Circle labels wrap to the circle interior (issue #736): lines near the top

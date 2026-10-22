@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Area, Line} from "../../es/index.js";
+import {Area, Line} from "../../index.ts";
 
 // #785: every accessor on a multi-point shape (Line/Area) must receive the same
 // representative datum — the merged aggregate `d.data` — rather than some

@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applyConfig, hash} from "../es/src/renderer.js";
-import it from "./jsdom.js";
+import {applyConfig, hash} from "../src/renderer.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("applyConfig passes select + left-to-right merged config to config()", () => {
   const node = document.createElement("svg");

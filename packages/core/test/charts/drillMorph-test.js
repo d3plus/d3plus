@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {resolveDrillMorph} from "../../es/src/charts/pipeline/drillMorph.js";
+import {resolveDrillMorph} from "../../src/charts/pipeline/drillMorph.ts";
 
 /**
     `resolveDrillMorph(viz)` resolves the one-shot drill-down morph state

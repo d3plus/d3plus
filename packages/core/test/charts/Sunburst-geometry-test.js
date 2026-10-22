@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   degrees,
@@ -6,7 +7,7 @@ import {
   sunburstPadAngle,
   sunburstRadii,
   tangentialRotation,
-} from "../../es/src/charts/Sunburst/geometry.js";
+} from "../../src/charts/Sunburst/geometry.ts";
 
 const TAU = Math.PI * 2;
 const close = (a, b, msg) =>

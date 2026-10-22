@@ -1,12 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
 import {selectAll} from "d3-selection";
-import {Message} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Message} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
 
-it("Message", function* () {
+useJsdom();
+
+it("Message", async () => {
   const msg = new Message();
 
-  yield callback => msg.render({callback});
+  await new Promise(callback => msg.render({callback}));
   assert.ok(selectAll(".d3plus-Mask").size() === 1, "adds Mask to DOM");
   assert.ok(selectAll(".d3plus-Message").size() === 1, "adds Message to DOM");
 

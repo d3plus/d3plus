@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applyIcicleLayout} from "../../es/src/charts/Icicle/applyLayout.js";
+import {applyIcicleLayout} from "../../src/charts/Icicle/applyLayout.ts";
 import {
   icicleInteraction,
   icicleNodeOf,
   icicleZoomOrigin,
-} from "../../es/src/charts/Icicle/interaction.js";
+} from "../../src/charts/Icicle/interaction.ts";
 import {
   partitionClickable,
   partitionDefaultTbody,
@@ -15,7 +16,7 @@ import {
   partitionParentShareRow,
   partitionZoomIn,
   partitionZoomOut,
-} from "../../es/src/charts/partition/interaction.js";
+} from "../../src/charts/partition/interaction.ts";
 
 const key = k => d => d[k];
 const rows = () => [

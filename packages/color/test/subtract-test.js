@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as subtract} from "../es/src/subtract.js";
+import {default as subtract} from "../src/subtract.ts";
 
 it("subtract", () => {
   assert.strictEqual("rgb(254, 255, 0)", subtract("#ff8000", "#ff0000"));

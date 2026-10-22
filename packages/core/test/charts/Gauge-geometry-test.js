@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   arcExtent,
@@ -11,17 +12,17 @@ import {
   toDegrees,
   toRadians,
   unionBox,
-} from "../../es/src/charts/Gauge/gaugeGeometry.js";
+} from "../../src/charts/Gauge/gaugeGeometry.ts";
 import {
   dialBox,
   dialLayout,
   dialRings,
-} from "../../es/src/charts/Gauge/dialLayout.js";
+} from "../../src/charts/Gauge/dialLayout.ts";
 import {
   applyGaugeLayout,
   hasName,
-} from "../../es/src/charts/Gauge/applyLayout.js";
-import {gaugeDef} from "../../es/src/charts/Gauge/index.js";
+} from "../../src/charts/Gauge/applyLayout.ts";
+import {gaugeDef} from "../../src/charts/Gauge/index.ts";
 
 const close = (a, b, msg, eps = 1e-9) =>
   assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);

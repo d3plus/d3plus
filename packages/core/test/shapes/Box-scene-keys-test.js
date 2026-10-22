@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Box, Whisker} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Box, Whisker} from "../../index.ts";
+
+useJsdom();
 
 /**
     Box draws each box's rect, median, whiskers, whisker ends and outliers as

@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {colorScaleBucketOf} from "../../es/src/charts/features/colorScaleBucket.js";
-import {buildLabelData} from "../../es/src/shapes/buildLabelData.js";
+import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts";
+import {buildLabelData} from "../../src/shapes/buildLabelData.ts";
 
 it("colorScaleBucketOf unwraps wrapped bucket data and ignores non-buckets", () => {
   const bucket = {_isColorScaleBucket: true, color: "#abc"};

@@ -1,9 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {textSplit} from "@d3plus/text";
-import {wholeWordFit, wholeWords, wholeWordSplit} from "../../es/src/utils/wholeWords.js";
-import jsdomIt from "../jsdom.js";
+import {wholeWordFit, wholeWords, wholeWordSplit} from "../../src/utils/wholeWords.ts";
+import {jsdomit} from "~test/jsdom.js";
 
-jsdomIt("wholeWordSplit — keeps hyphenatable words whole", () => {
+jsdomit("wholeWordSplit — keeps hyphenatable words whole", () => {
   const sentence = "Kinshasa Democratic Republic";
   assert.ok(textSplit(sentence).some(w => w.endsWith("­")), "TextBox's split breaks words into syllables");
   const words = wholeWordSplit(sentence);

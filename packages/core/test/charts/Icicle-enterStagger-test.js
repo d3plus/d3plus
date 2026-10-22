@@ -1,9 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {cubicInOut} from "@d3plus/render";
 import {
   icicleRootEdge,
   icicleStagger,
-} from "../../es/src/charts/Icicle/enterStagger.js";
+} from "../../src/charts/Icicle/enterStagger.ts";
 
 const rect = {x: 100, y: 40, width: 50, height: 80};
 

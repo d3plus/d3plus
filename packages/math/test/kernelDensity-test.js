@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   default as kernelDensity,
   epanechnikovKernel,
   gaussianKernel,
   silvermanBandwidth,
-} from "../es/src/kernelDensity.js";
+} from "../src/kernelDensity.ts";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) <= tol, `${msg}: ${actual} vs ${expected}`);

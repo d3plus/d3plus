@@ -1,13 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import {buildLegendData} from "../../es/src/charts/features/featuresLegend.js";
+import {buildLegendData} from "../../src/charts/features/featuresLegend.ts";
 import {
   colorCategory,
   legendCategories,
   legendCategoryOf,
   legendMergesIds,
-} from "../../es/src/charts/features/legendCategory.js";
-import {legendLabel} from "../../es/src/charts/features/legendLabel.js";
+} from "../../src/charts/features/legendCategory.ts";
+import {legendLabel} from "../../src/charts/features/legendLabel.ts";
 
 /**
     Legend entries that stand for a color category: `color` is a categorical

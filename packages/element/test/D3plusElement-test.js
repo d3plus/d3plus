@@ -1,3 +1,4 @@
+import {it, beforeAll} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
 
@@ -30,13 +31,13 @@ function makeElement({data = false} = {}) {
   return {el, state, tag};
 }
 
-before(async () => {
+beforeAll(async () => {
   const dom = new JSDOM("<!doctype html><html><body></body></html>", {url: "http://localhost"});
   global.window = dom.window;
   global.document = dom.window.document;
   ["HTMLElement", "Element", "SVGElement", "Node", "customElements", "CustomEvent", "Event"]
     .forEach(key => { global[key] = dom.window[key]; });
-  ({D3plusElement, setGlobalConfig} = await import("../es/src/D3plusElement.js"));
+  ({D3plusElement, setGlobalConfig} = await import("../src/D3plusElement.ts"));
 });
 
 it("renders an <svg> and calls config()/render() on connect", () => {

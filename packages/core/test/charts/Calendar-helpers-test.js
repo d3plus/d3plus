@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   calendarDateFormat,
@@ -6,11 +7,11 @@ import {
   calendarPeriod,
   rowDate,
   rowsExtent,
-} from "../../es/src/charts/Calendar/applyLayout.js";
-import {calendarPalette, colorValue, hasColorValue} from "../../es/src/charts/Calendar/emit.js";
-import {calendarDef, defaultCalendarDate} from "../../es/src/charts/Calendar/index.js";
-import {calendarDayKey} from "../../es/src/charts/Calendar/calendarDates.js";
-import {calendarInsetRegion} from "../../es/src/charts/Calendar/calendarInset.js";
+} from "../../src/charts/Calendar/applyLayout.ts";
+import {calendarPalette, colorValue, hasColorValue} from "../../src/charts/Calendar/emit.ts";
+import {calendarDef, defaultCalendarDate} from "../../src/charts/Calendar/index.ts";
+import {calendarDayKey} from "../../src/charts/Calendar/calendarDates.ts";
+import {calendarInsetRegion} from "../../src/charts/Calendar/calendarInset.ts";
 
 const field = key => calendarDef.fields.find(f => f.key === key);
 const mockViz = (schema = {}) => ({

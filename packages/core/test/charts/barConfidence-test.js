@@ -1,12 +1,13 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, RESET} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, RESET} from "../../index.ts";
+import {runStages} from "../../internal.ts";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,
   formatPlotData,
-} from "../../es/src/charts/Plot/pipeline.js";
+} from "../../src/charts/Plot/pipeline.ts";
 import {
   capLength,
   clampErrorBar,
@@ -16,8 +17,10 @@ import {
   errorBarPath,
   stackedBound,
   stackedConfidenceValues,
-} from "../../es/src/charts/Plot/barConfidence.js";
-import {nodeColor, ownerNode} from "../../es/src/charts/features/tooltipSwatch.js";
+} from "../../src/charts/Plot/barConfidence.ts";
+import {nodeColor, ownerNode} from "../../src/charts/features/tooltipSwatch.ts";
+
+useJsdom();
 
 // #781: `confidence` draws error bars on a BarChart's bars.
 

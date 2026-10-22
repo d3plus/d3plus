@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   POLAR_LABEL_PADDING,
@@ -8,8 +9,8 @@ import {
   polarLabelRoom,
   polarLabelsCollide,
   polarSpokeRotation,
-} from "../../es/src/charts/polar/labels.js";
-import {radarLevelLabels} from "../../es/src/charts/Radar/levels.js";
+} from "../../src/charts/polar/labels.ts";
+import {radarLevelLabels} from "../../src/charts/Radar/levels.ts";
 
 const close = (a, b, msg) =>
   assert.ok(Math.abs(a - b) < 1e-6, `${msg}: ${a} vs ${b}`);

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as legible} from "../es/src/legible.js";
+import {default as legible} from "../src/legible.ts";
 
 it("legible", () => {
   assert.strictEqual("rgb(207, 23, 23)", legible("#ffaaaa"));

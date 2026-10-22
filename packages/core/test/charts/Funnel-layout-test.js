@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   applyFunnelLayout,
@@ -8,22 +9,22 @@ import {
   sharedScaleMax,
   stageRates,
   STROKE_BUFFER,
-} from "../../es/src/charts/Funnel/applyLayout.js";
+} from "../../src/charts/Funnel/applyLayout.ts";
 import {
   neckConfig,
   neckPaint,
   stageAria,
-} from "../../es/src/charts/Funnel/emit.js";
+} from "../../src/charts/Funnel/emit.ts";
 import {
   funnelFacetHooks,
   funnelFacetPanel,
   shareFunnelLabelSize,
   shareFunnelScale,
-} from "../../es/src/charts/Funnel/funnelFacet.js";
+} from "../../src/charts/Funnel/funnelFacet.ts";
 import {
   funnelDef,
   funnelTooltipRows,
-} from "../../es/src/charts/Funnel/index.js";
+} from "../../src/charts/Funnel/index.ts";
 
 const field = k => funnelDef.fields.find(f => f.key === k);
 

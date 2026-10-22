@@ -1,8 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {createJsdomWindow} from "../es/src/env.js";
-import {fetchOne} from "../es/src/geomapTiles.js";
-import {installMeasureContext} from "../es/src/measure.js";
-import {loadNapiCanvas} from "../es/src/napiBackend.js";
+import {createJsdomWindow} from "../src/env.ts";
+import {fetchOne} from "../src/geomapTiles.ts";
+import {installMeasureContext} from "../src/measure.ts";
+import {loadNapiCanvas} from "../src/napiBackend.ts";
 
 const missing = () => Promise.reject(new Error("Cannot find package"));
 

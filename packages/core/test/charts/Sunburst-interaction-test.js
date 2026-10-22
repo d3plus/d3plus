@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
-import {applySunburstLayout} from "../../es/src/charts/Sunburst/applyLayout.js";
+import {applySunburstLayout} from "../../src/charts/Sunburst/applyLayout.ts";
 import {
   sunburstHandlers,
   sunburstNodeOf,
   sunburstZoomIn,
-} from "../../es/src/charts/Sunburst/interaction.js";
+} from "../../src/charts/Sunburst/interaction.ts";
 import {
   partitionClickable,
   partitionDefaultTbody,
@@ -12,7 +13,7 @@ import {
   partitionHoverRows,
   partitionParentShareRow,
   partitionZoomOut,
-} from "../../es/src/charts/partition/interaction.js";
+} from "../../src/charts/partition/interaction.ts";
 
 const key = k => d => d[k];
 const rows = () => [

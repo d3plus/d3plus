@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {growFromLine, growRectsFromCenter} from "../../es/src/charts/helpers/densityEnter.js";
+import {growFromLine, growRectsFromCenter} from "../../src/charts/helpers/densityEnter.ts";
 
 it("growFromLine flattens each named path onto its line, in its own frame", () => {
   const area = {type: "path", key: "density-a", d: "M5,0L8,10L-8,10L-5,0Z", transform: {x: 100, y: 50}};

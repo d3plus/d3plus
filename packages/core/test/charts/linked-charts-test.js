@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Network, Treemap} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Network, Treemap} from "../../index.ts";
 import {
   broadcastLegend,
   broadcastLink,
@@ -14,7 +15,9 @@ import {
   registerLink,
   resolveLink,
   unregisterLink,
-} from "../../es/internal.js";
+} from "../../internal.ts";
+
+useJsdom();
 
 /**
     Linked charts (#110): charts sharing a `link` group mirror each other's

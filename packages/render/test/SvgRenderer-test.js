@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {SvgRenderer} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {SvgRenderer} from "../index.ts";
+
+useJsdom({augment: false});
 
 /** Builds a minimal scene from a flat list of child nodes. */
 function scene(children) {

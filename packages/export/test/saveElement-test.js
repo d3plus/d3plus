@@ -1,8 +1,14 @@
+import {it, beforeAll, afterAll, vi} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
-import saveElement from "../es/src/saveElement.js";
+import saveElement from "../src/saveElement.ts";
 import {saved} from "./fakes/saveBlob.js";
 import {calls, results} from "./fakes/html-to-image.js";
+
+// saveElement renders through the html-to-image fake and records its
+// downloads instead of saving them.
+vi.mock("html-to-image", () => import("./fakes/html-to-image.js"));
+vi.mock("../src/saveBlob.ts", () => import("./fakes/saveBlob.js"));
 
 const dom = new JSDOM(
   `<!doctype html><html><body>
@@ -14,11 +20,11 @@ const {document} = dom.window;
 const container = document.getElementById("container");
 const svg = document.getElementById("chart");
 
-before(() => {
+beforeAll(() => {
   global.XMLSerializer = dom.window.XMLSerializer;
 });
 
-after(() => {
+afterAll(() => {
   delete global.XMLSerializer;
 });
 

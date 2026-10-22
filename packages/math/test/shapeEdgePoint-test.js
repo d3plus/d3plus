@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as shapeEdgePoint} from "../es/src/shapeEdgePoint.js";
+import {default as shapeEdgePoint} from "../src/shapeEdgePoint.ts";
 
 it("geom/shapeEdgePoint", () => {
   assert.strictEqual(

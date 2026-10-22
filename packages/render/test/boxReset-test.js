@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {SvgRenderer, CanvasRenderer, resetInjectedBoxes} from "../es/index.js";
-import {alignOverlayHost} from "../es/src/overlay.js";
+import {useJsdom} from "~test/jsdom.js";
+import {SvgRenderer, CanvasRenderer, resetInjectedBoxes} from "../index.ts";
+import {alignOverlayHost} from "../src/overlay.ts";
+
+useJsdom({augment: false});
 
 const resetStyles = root => [...root.querySelectorAll("style[data-d3plus-box-reset]")];
 

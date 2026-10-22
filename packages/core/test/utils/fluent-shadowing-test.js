@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import * as core from "../../es/index.js";
-import {isFluentAccessor} from "../../es/src/fluent.js";
+import {useJsdom} from "~test/jsdom.js";
+import * as core from "../../index.ts";
+import {isFluentAccessor} from "../../src/fluent.ts";
+
+useJsdom();
 
 /**
     A chart def's field whose key matches a hand-written method on a base class
@@ -69,7 +72,7 @@ it("chart def fields on hand-written keys are reviewed and declare no onSet", as
   const unreviewed = [];
   let defs = 0;
   for (const [name, C] of charts) {
-    const module = await import(`../../es/src/charts/${name}/index.js`);
+    const module = await import(`../../src/charts/${name}/index.ts`);
     const def = module[`${name[0].toLowerCase()}${name.slice(1)}Def`];
     assert.ok(def, `${name} exports its ChartDefinition`);
     defs++;

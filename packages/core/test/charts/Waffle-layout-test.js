@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   largestRemainder,
@@ -5,7 +6,7 @@ import {
   waffleCellPosition,
   waffleCounts,
   waffleGrid,
-} from "../../es/src/charts/Waffle/waffleLayout.js";
+} from "../../src/charts/Waffle/waffleLayout.ts";
 
 const total = arr => arr.reduce((a, b) => a + b, 0);
 

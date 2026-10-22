@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Axis} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Axis} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 it("Axis", () => {
   // jsdom does not implement SVG path geometry, used when drawing the bar.

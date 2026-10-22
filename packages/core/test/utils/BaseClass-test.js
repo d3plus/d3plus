@@ -1,8 +1,9 @@
 /* global console */
+import {it} from "vitest";
 import assert from "assert";
-import {default as BaseClass} from "../../es/src/utils/BaseClass.js";
-import {default as RESET} from "../../es/src/utils/RESET.js";
-import {markSharedConfig} from "../../es/src/utils/configWarnings.js";
+import {default as BaseClass} from "../../src/utils/BaseClass.ts";
+import {default as RESET} from "../../src/utils/RESET.ts";
+import {markSharedConfig} from "../../src/utils/configWarnings.ts";
 
 it("BaseClass", () => {
   const one = new BaseClass(),

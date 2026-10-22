@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {ceilPow, fixFloat, floorPow, isNegative} from "../../es/src/components/Axis/axisRounding.js";
+import {ceilPow, fixFloat, floorPow, isNegative} from "../../src/components/Axis/axisRounding.ts";
 
 it("isNegative — catches -0", () => {
   assert.strictEqual(isNegative(-1), true);

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {labeledMark} from "../../es/src/charts/Plot/sharedHover.js";
+import {labeledMark} from "../../src/charts/Plot/sharedHover.ts";
 
 const datum = {id: "b_A", data: {g: "b"}};
 const bar = {type: "rect", key: "b_A", shapeType: "Bar", datum};

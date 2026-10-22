@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {JSDOM} from "jsdom";
-import saveBlob from "../es/src/saveBlob.js";
+import saveBlob from "../src/saveBlob.ts";
 
 it("saveBlob downloads through a temporary link and revokes its URL later", () => {
   const dom = new JSDOM("<!doctype html><html><body></body></html>");

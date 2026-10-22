@@ -33,8 +33,8 @@
     "build:esm": "node ../../scripts/build-esm.js",
     "build:types": "tsc",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:coverage": "c8 -r text -r lcov --src src mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project vue",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project vue --coverage --coverage.exclude='packages/!(vue)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/vue/coverage"
   },
   "dependencies": {
     "@d3plus/core": "workspace:*",

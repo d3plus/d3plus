@@ -1,11 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Pyramid} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
-import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
-import {plotAxisConfig} from "../../es/src/charts/Plot/baselineBreak.js";
-import {absoluteFormat, snapMagnitude} from "../../es/src/charts/Pyramid/pyramidData.js";
-import {comparisonNodes} from "../../es/src/charts/Pyramid/scene.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Pyramid} from "../../index.ts";
+import {runStages} from "../../internal.ts";
+import {computePlotAxisValues, computePlotInitialDomains, formatPlotData} from "../../src/charts/Plot/pipeline.ts";
+import {plotAxisConfig} from "../../src/charts/Plot/baselineBreak.ts";
+import {absoluteFormat, snapMagnitude} from "../../src/charts/Pyramid/pyramidData.ts";
+import {comparisonNodes} from "../../src/charts/Pyramid/scene.ts";
 import {
   allCategories,
   captureAxisStyles,
@@ -18,7 +19,9 @@ import {
   labelFont,
   labelHeight,
   thinBands,
-} from "../../es/src/charts/Pyramid/gutter.js";
+} from "../../src/charts/Pyramid/gutter.ts";
+
+useJsdom();
 
 /**
     Pyramid's center gutter: the value axis breaks around zero, as wide as

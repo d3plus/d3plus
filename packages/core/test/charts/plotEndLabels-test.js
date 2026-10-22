@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   allotEndLabelWidths,
@@ -6,12 +7,12 @@ import {
   endLabelSpace,
   labelsXEnds,
   layoutEndLabels,
-} from "../../es/src/charts/features/plotEndLabels.js";
+} from "../../src/charts/features/plotEndLabels.ts";
 
 /**
     The pure helpers behind a short Plot's x-axis end labels. The browser-side
     pieces (measuring, emitting, and aligning against a real Axis) are covered
-    in `plot-short-x-axis-test.js`.
+    in `plot-short-x-axis.browser-test.js`.
 */
 
 const measure = (labels, padding = 5, height = 17) => ({

@@ -1,12 +1,11 @@
-import assert from "assert";
-import fs from "node:fs";
+import {expect, it} from "vitest";
 import path from "node:path";
 import {fileURLToPath} from "node:url";
 
-import it from "./jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   BarChart, LinePlot, Network, Pack, Pie, Rings, Sankey, Tree, Treemap,
-} from "../es/index.js";
+} from "../index.ts";
 import {
   applyNetworkLayout,
   applyPackLayout,
@@ -17,13 +16,15 @@ import {
   applyTreemapLayout,
   runStages,
   vizPreDraw,
-} from "../es/internal.js";
+} from "../internal.ts";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,
   computePlotScales,
   formatPlotData,
-} from "../es/src/charts/Plot/pipeline.js";
+} from "../src/charts/Plot/pipeline.ts";
+
+useJsdom();
 
 /**
     Pipeline-parity safety net. Each representative chart drives a pure
@@ -50,12 +51,11 @@ import {
 
     Regenerate intended changes with:
 
-      UPDATE_SNAPSHOTS=1 npx mocha test/pipeline-parity-test.js
+      pnpm vitest run packages/core/test/pipeline-parity-test.js -u
 */
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const snapDir = path.join(here, "snapshots", "pipeline");
-const UPDATE = ["1", "true"].includes(process.env.UPDATE_SNAPSHOTS || "");
 
 const barData = [
   {group: "Alpha", x: "Q1", y: 35}, {group: "Alpha", x: "Q2", y: 50},
@@ -93,23 +93,10 @@ function scaleInfo(scale) {
 }
 
 function compare(name, actual) {
-  const file = path.join(snapDir, `${name}.json`);
-  const serialized = `${JSON.stringify(actual, null, 2)}\n`;
-  if (UPDATE) {
-    fs.mkdirSync(snapDir, {recursive: true});
-    fs.writeFileSync(file, serialized);
-    return;
-  }
-  assert.ok(
-    fs.existsSync(file),
-    `no baseline for "${name}" — generate with UPDATE_SNAPSHOTS=1`,
-  );
-  const expected = fs.readFileSync(file, "utf8");
-  assert.strictEqual(
-    serialized,
-    expected,
-    `pipeline snapshot mismatch for "${name}". If intended, regenerate with UPDATE_SNAPSHOTS=1.`,
-  );
+  return expect(
+    `${JSON.stringify(actual, null, 2)}\n`,
+    `pipeline snapshot mismatch for "${name}". If intended, regenerate with \`vitest run -u\`.`,
+  ).toMatchFileSnapshot(path.join(snapDir, `${name}.json`));
 }
 
 // ---- Layer 1: shared chart-shell prep (vizPreDraw) -------------------------
@@ -139,10 +126,10 @@ const shellCharts = [
 ];
 
 for (const [name, build] of shellCharts) {
-  it(`pipeline snapshot: ${name}`, () => {
+  it(`pipeline snapshot: ${name}`, async () => {
     const viz = build();
     vizPreDraw(viz);
-    compare(name, summarizeShell(viz));
+    await compare(name, summarizeShell(viz));
   });
 }
 
@@ -213,7 +200,7 @@ const layoutCharts = [
 // by the visual-regression suite instead.
 
 for (const [name, build, stage] of layoutCharts) {
-  it(`pipeline snapshot: ${name}`, () => {
+  it(`pipeline snapshot: ${name}`, async () => {
     const chart = build().width(400).height(300);
     chart._preDraw();
     // Layout stages read margin-adjusted bounds; pin a zero margin/padding
@@ -221,7 +208,7 @@ for (const [name, build, stage] of layoutCharts) {
     chart._margin = {top: 0, right: 0, bottom: 0, left: 0};
     chart._padding = {top: 0, right: 0, bottom: 0, left: 0};
     const ctx = runStages({viz: chart}, [stage]);
-    compare(name, summarizeLayout(ctx.shapeData ?? []));
+    await compare(name, summarizeLayout(ctx.shapeData ?? []));
   });
 }
 
@@ -280,7 +267,7 @@ const plotCharts = [
 ];
 
 for (const [name, build] of plotCharts) {
-  it(`pipeline snapshot: ${name}`, () => {
+  it(`pipeline snapshot: ${name}`, async () => {
     const chart = build().width(400).height(300);
     chart._preDraw();
     chart._margin = {top: 0, right: 0, bottom: 0, left: 0};
@@ -290,6 +277,6 @@ for (const [name, build] of plotCharts) {
       computePlotInitialDomains,
       computePlotScales,
     ]);
-    compare(name, summarizePlot(ctx));
+    await compare(name, summarizePlot(ctx));
   });
 }

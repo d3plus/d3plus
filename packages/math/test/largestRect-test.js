@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as largestRect} from "../es/src/largestRect.js";
+import {default as largestRect} from "../src/largestRect.ts";
 
 it("geom/largestRect", () => {
   const poly = [

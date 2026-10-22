@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   conversionRates,
@@ -10,7 +11,7 @@ import {
   slicePath,
   stageSpans,
   stageWidths,
-} from "../../es/src/charts/Funnel/funnelGeometry.js";
+} from "../../src/charts/Funnel/funnelGeometry.ts";
 
 const close = (a, b, msg, eps = 1e-9) =>
   assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);

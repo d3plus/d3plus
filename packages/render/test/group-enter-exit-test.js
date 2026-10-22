@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {interpolateScene, SvgRenderer} from "../es/index.js";
-import {groupEnterStart, isWrapperGroup} from "../es/src/animate/interpolate.js";
-import {enterStart} from "../es/src/svg/svgFlip.js";
+import {useJsdom} from "~test/jsdom.js";
+import {interpolateScene, SvgRenderer} from "../index.ts";
+import {groupEnterStart, isWrapperGroup} from "../src/animate/interpolate.ts";
+import {enterStart} from "../src/svg/svgFlip.ts";
+
+useJsdom({augment: false});
 
 /** Builds a minimal scene from a list of root children. */
 const scene = children => ({width: 200, height: 100, root: {type: "group", key: "root", children}});

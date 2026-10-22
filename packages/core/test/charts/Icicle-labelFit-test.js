@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {fitsBox, icicleLabelBox} from "../../es/src/charts/Icicle/labelFit.js";
-import {icicleLabel} from "../../es/src/charts/Icicle/emit.js";
+import {fitsBox, icicleLabelBox} from "../../src/charts/Icicle/labelFit.ts";
+import {icicleLabel} from "../../src/charts/Icicle/emit.ts";
 
 // Two words, 4 and 6 units wide at 1px, with a 1-unit space.
 const metrics = {words: [4, 6], space: 1};

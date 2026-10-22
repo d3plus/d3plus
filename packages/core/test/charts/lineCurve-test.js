@@ -1,8 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {curveLinear, curveMonotoneX, curveStep} from "d3-shape";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
-import {curveFactory, lineCurve} from "../../es/src/charts/Plot/lineCurve.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
+import {curveFactory, lineCurve} from "../../src/charts/Plot/lineCurve.ts";
+
+useJsdom();
 
 // The curve a Plot's lines draw with, shared by the shapes that follow them.
 

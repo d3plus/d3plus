@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {delayTransitions, trackTransition} from "../es/src/svg/svgClock.js";
+import {delayTransitions, trackTransition} from "../src/svg/svgClock.ts";
 
 it("svgClock: delayTransitions delays every transition and skips one already started", () => {
   const delays = [];

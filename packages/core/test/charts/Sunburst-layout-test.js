@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   applySunburstLayout,
@@ -6,12 +7,12 @@ import {
   sunburstReturning,
   sunburstZoomOutFocus,
   sunburstGhosts,
-} from "../../es/src/charts/Sunburst/applyLayout.js";
+} from "../../src/charts/Sunburst/applyLayout.ts";
 import {
   sunburstArcGeometry,
   sunburstLabel,
-} from "../../es/src/charts/Sunburst/emit.js";
-import {sunburstDef} from "../../es/src/charts/Sunburst/index.js";
+} from "../../src/charts/Sunburst/emit.ts";
+import {sunburstDef} from "../../src/charts/Sunburst/index.ts";
 
 const TAU = Math.PI * 2;
 const key = k => d => d[k];

@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Bar, Circle, Rect} from "../../es/index.js";
+import {Bar, Circle, Rect} from "../../index.ts";
 
 // A standalone shape given string accessors (`.x("x")`, `.width("width")`) must
 // read that data key — not treat the string as a literal. Regression: these

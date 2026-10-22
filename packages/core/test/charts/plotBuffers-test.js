@@ -1,8 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear} from "d3-scale";
 
-import discreteBuffer from "../../es/src/charts/plotBuffers/discreteBuffer.js";
-import numericBuffer from "../../es/src/charts/plotBuffers/numericBuffer.js";
+import discreteBuffer from "../../src/charts/plotBuffers/discreteBuffer.ts";
+import numericBuffer from "../../src/charts/plotBuffers/numericBuffer.ts";
 
 it("charts/numericBuffer returns the domain untouched when the value is undefined", () => {
   const ax = scaleLinear().domain([0, 50]).range([0, 100]);

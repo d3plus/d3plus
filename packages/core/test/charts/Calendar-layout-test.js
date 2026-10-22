@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   blockGrid,
@@ -7,20 +8,20 @@ import {
   monthOutlinePath,
   slotPosition,
   weekdayLabelSlots,
-} from "../../es/src/charts/Calendar/calendarGrid.js";
+} from "../../src/charts/Calendar/calendarGrid.ts";
 import {
   calendarInsets,
   calendarLayout,
   labelPadding,
   weekdayNames,
-} from "../../es/src/charts/Calendar/calendarLayout.js";
+} from "../../src/charts/Calendar/calendarLayout.ts";
 import {
   calendarDateSpecifier,
   calendarFormatter,
   calendarTimeLocale,
   narrowName,
-} from "../../es/src/charts/Calendar/calendarFormat.js";
-import {calendarDayKey} from "../../es/src/charts/Calendar/calendarDates.js";
+} from "../../src/charts/Calendar/calendarFormat.ts";
+import {calendarDayKey} from "../../src/charts/Calendar/calendarDates.ts";
 
 const close = (a, b, msg, eps = 1e-6) =>
   assert.ok(Math.abs(a - b) <= eps, `${msg}: ${a} ≈ ${b}`);

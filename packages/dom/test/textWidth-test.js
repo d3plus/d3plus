@@ -1,10 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
-import {onFontsLoaded} from "../es/src/fontLoading.js";
-import {default as textWidth} from "../es/src/textWidth.js";
-import it from "./jsdom.js";
+import {onFontsLoaded} from "../src/fontLoading.ts";
+import {default as textWidth} from "../src/textWidth.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("textWidth", () => {
-  const font = "Verdana";
+  // Verdana is missing on Linux, where Skia falls back to a face without a
+  // bold weight; list faces that ship one.
+  const font = "Verdana, DejaVu Sans, Liberation Sans";
 
   const base = textWidth("Test", {"font-family": font, "font-size": 14}),
     bigger = textWidth("Test", {"font-family": font, "font-size": 28}),
@@ -15,7 +20,8 @@ it("textWidth", () => {
     }),
     longer = textWidth("TestTest", {"font-family": font, "font-size": 14});
 
-  assert.ok(base * 2 === longer, "string length");
+  // Skia reports widths in single precision, so doubling a word drifts by ~0.01px.
+  assert.ok(Math.abs(base * 2 - longer) < 0.05, "string length");
   assert.ok(base < bigger, "font-size");
   assert.ok(base < bolder, "font-weight");
 

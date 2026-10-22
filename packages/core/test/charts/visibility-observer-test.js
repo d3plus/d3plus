@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {setTimeout as wait} from "node:timers/promises";
 import {StubIO, withIO} from "./stubIntersectionObserver.js";
 import {
   canObserveVisibility,
   observeVisibility,
-} from "../../es/src/charts/viz/vizVisibility.js";
+} from "../../src/charts/viz/vizVisibility.ts";
 
 it("visibility observer: is unavailable without IntersectionObserver", () => {
   assert.strictEqual(canObserveVisibility(), false);

@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import VizBaseConfig from "../../es/src/charts/viz/VizBaseConfig.js";
+import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
 
 /**
     `hover(predicate)` expands the predicate to every id prefix of the rows it

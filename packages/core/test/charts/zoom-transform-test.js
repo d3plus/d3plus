@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart} from "../../index.ts";
+
+useJsdom();
 
 /**
     v4 zoom-transform threading: `zoomed()` writes `viz._zoomTransform`

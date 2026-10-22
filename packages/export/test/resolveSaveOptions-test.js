@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {resolveSaveOptions} from "../es/src/saveElement.js";
+import {resolveSaveOptions} from "../src/saveElement.ts";
 
 it("resolveSaveOptions applies filename/type defaults", () => {
   const {filename, type} = resolveSaveOptions();

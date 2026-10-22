@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Pyramid, TextBox} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Pyramid, TextBox} from "../../index.ts";
 import {
   pyramidNodes,
   pyramidPanelScene,
   withPyramidChildren,
-} from "../../es/src/charts/Pyramid/scene.js";
+} from "../../src/charts/Pyramid/scene.ts";
+
+useJsdom();
 
 /**
     The pieces a faceted Pyramid draws each panel's own chrome with: the

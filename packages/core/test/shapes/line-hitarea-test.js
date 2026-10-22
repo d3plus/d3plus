@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Line} from "../../es/index.js";
+import {Line} from "../../index.ts";
 
 // v3 drew an invisible thick stroke behind each line so the hover target
 // extended past the ~1px visible stroke. The v4 scene rewrite dropped it

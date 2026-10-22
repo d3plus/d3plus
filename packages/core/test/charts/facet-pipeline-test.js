@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Bullet, Pie, RESET, Sunburst, Treemap, Waffle} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Bullet, Pie, RESET, Sunburst, Treemap, Waffle} from "../../index.ts";
 import {
   computeFilteredData,
   computeTimeFilter,
@@ -8,7 +9,9 @@ import {
   facetTimeFilter,
   vizDraw,
   vizPreDraw,
-} from "../../es/internal.js";
+} from "../../internal.ts";
+
+useJsdom();
 
 /**
     The pipeline seams small multiples hook into: the `facet` / `facetConfig`

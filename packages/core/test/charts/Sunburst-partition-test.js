@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   isAggregatedBranch,
@@ -6,8 +7,8 @@ import {
   sunburstLayout,
   sunburstLineage,
   sunburstSort,
-} from "../../es/src/charts/Sunburst/partition.js";
-import {sunburstRadii} from "../../es/src/charts/Sunburst/geometry.js";
+} from "../../src/charts/Sunburst/partition.ts";
+import {sunburstRadii} from "../../src/charts/Sunburst/geometry.ts";
 
 const TAU = Math.PI * 2;
 const close = (a, b, msg) =>

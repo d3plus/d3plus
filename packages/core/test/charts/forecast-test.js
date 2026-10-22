@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, LinePlot} from "../../index.ts";
 import {
   autoForecastStart,
   discreteOrder,
@@ -10,7 +11,9 @@ import {
   forecastStart,
   seriesForecastStarts,
   trendForecastStart,
-} from "../../es/src/charts/Plot/forecast.js";
+} from "../../src/charts/Plot/forecast.ts";
+
+useJsdom();
 
 // Where a Plot's `forecast` begins: an explicit value, rows flagged by a
 // predicate, "auto" (where confidence bands spread), or a trend projection.

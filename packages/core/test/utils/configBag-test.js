@@ -1,8 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
 import {assign} from "@d3plus/dom";
-import {mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../../es/src/fluent.js";
-import {default as BaseClass} from "../../es/src/utils/BaseClass.js";
-import {default as RESET} from "../../es/src/utils/RESET.js";
+import {mergeConfigBag, resolvesReset, RESOLVES_RESET} from "../../src/fluent.ts";
+import {default as BaseClass} from "../../src/utils/BaseClass.ts";
+import {default as RESET} from "../../src/utils/RESET.ts";
 
 const defaults = () => ({
   a: {b: {c: {d: 1, e: 2}, f: 3}, g: 4},

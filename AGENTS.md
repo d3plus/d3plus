@@ -149,7 +149,7 @@ packages/<name>/
   es/               # Build output: transpiled ESM (gitignored, generated)
   umd/              # Build output: UMD bundles (gitignored, generated)
   types/            # Build output: .d.ts (gitignored, generated)
-  test/             # Mocha tests (*-test.js, run against es/)
+  test/             # Vitest tests (*-test.js; core's *.browser-test.js run in Chromium)
   dev/              # Dev HTML pages (committed — shared manual test harnesses)
   package.json
 ```
@@ -231,7 +231,7 @@ packages/core/dev/
 ### Building
 
 ```bash
-# Build ESM for all packages (run before testing)
+# Build ESM for all packages
 pnpm -r --if-present run build:esm
 
 # A single package's ESM / UMD / types
@@ -243,14 +243,32 @@ pnpm --filter @d3plus/core run build:types   # tsc (emits .d.ts)
 ### Testing
 
 ```bash
-pnpm test                          # all packages (pretest builds ESM first)
+pnpm test                          # lint, then every Vitest project
 pnpm --filter @d3plus/core test    # a single package
+pnpm vitest run packages/core/test/charts/Treemap.browser-test.js  # one file
+pnpm test:coverage                 # per-package coverage → packages/<pkg>/coverage/
+pnpm test:built                    # a few suites against the built es/ output
+pnpm test:dev-pages                # every core dev page in Chromium (minutes)
 ```
 
 `pnpm lint` runs ESLint once over the whole repo (`eslint --cache .`); `pnpm
-test` runs it, then each package's Mocha suite on `test/**/*-test.js`. Tests
-import from `es/` (generated) and use JSDOM; some core tests drive a real
-browser via Playwright/Chromium (visual-regression snapshots, render parity).
+test` runs it, then `vitest run` with the root `vitest.config.ts`, which has
+one project per package (core has two). Tests import TypeScript source
+(`../src/x.ts`, and `@d3plus/*` resolves to each package's source through
+`test/aliases.js`), so nothing needs building first.
+
+- **Node tests** (`*-test.js`) import `vitest` explicitly. `useJsdom()` from
+  `~test/jsdom.js` gives each test in a file a fresh JSDOM document (or
+  `jsdomit()` for a single test); dom/text/render/core text measurement runs
+  on `@napi-rs/canvas`.
+- **Browser tests** (core's `*.browser-test.js`) run in Vitest browser mode
+  (Playwright Chromium, 1280×720). `render(bodyHtml, fn, arg)` from
+  `~test/browser/render.js` resets the page and runs `fn` with d3plus on
+  `window.d3plus`; `openPage`/`withPage` from `~test/browser/page.js` give a
+  fresh page with a real mouse and an optional fake clock. Use
+  `~test/browser/assert.js` in place of `node:assert`.
+- **Snapshots**: `vitest run -u` regenerates the pipeline and visual
+  snapshots under `packages/core/test/snapshots/`.
 
 ### Documentation
 
@@ -293,16 +311,14 @@ Pass `VERBOSE=1` to any build script for per-file output; by default piped
 3. Export the class from `packages/core/index.ts`. Export any reusable
    stage/def from `packages/core/internal.ts` (not `index.ts`).
 4. Add a Storybook story under `packages/docs/`.
-5. Add a Mocha test in `packages/core/test/` (`*-test.js`).
+5. Add a Vitest test in `packages/core/test/` (`*-test.js`, or
+   `*.browser-test.js` when it needs a real layout engine).
 
 To specialize an existing chart, pass a `Base` to `makeChart` (e.g.
 `makeChart(myDef, Plot)`).
 
 ## Common Pitfalls
 
-- **Always build ESM before running tests.** Tests import from `es/` (generated).
-  The root `pretest` does this; for a single isolated package run
-  `pnpm --filter @d3plus/<pkg> run build:esm` first.
 - **`es/`, `umd/`, and `types/` are gitignored.** Do not commit build output.
 - **`dev/` HTML pages are committed** as shared manual test harnesses — unlike
   build output, they are tracked.

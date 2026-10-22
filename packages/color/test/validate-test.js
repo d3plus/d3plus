@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as validate} from "../es/src/validate.js";
-import {default as ramp} from "../es/src/ramp.js";
-import {default as defaults} from "../es/src/defaults.js";
+import {default as validate} from "../src/validate.ts";
+import {default as ramp} from "../src/ramp.ts";
+import {default as defaults} from "../src/defaults.ts";
 
 const state = (result, name) => result.checks.find(c => c.name === name).state;
 

@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear} from "d3-scale";
 import {
@@ -5,7 +6,7 @@ import {
   brokenScaleTicks,
   isBrokenScale,
   normalizeBreaks,
-} from "../../es/internal.js";
+} from "../../internal.ts";
 
 /**
     Piecewise scales behind axis breaks (#766): removed value ranges collapse

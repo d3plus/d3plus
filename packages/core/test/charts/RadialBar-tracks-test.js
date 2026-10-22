@@ -1,14 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   radialBarFootprint,
   radialBarLabelRoom,
   radialBarTracks,
-} from "../../es/src/charts/RadialBar/tracks.js";
+} from "../../src/charts/RadialBar/tracks.ts";
 import {
   RADIAL_BAR_MIN_LABEL_GAP,
   radialBarSweep,
   radialBarTrackLabels,
-} from "../../es/src/charts/RadialBar/trackLayout.js";
+} from "../../src/charts/RadialBar/trackLayout.ts";
 
 const close = (a, b, msg) =>
   assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);

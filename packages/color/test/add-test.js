@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as add} from "../es/src/add.js";
+import {default as add} from "../src/add.ts";
 
 it("add", () => {
   assert.strictEqual("rgb(255, 128, 0)", add("#ff0000", "#ffff00"));

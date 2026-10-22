@@ -1,12 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart} from "../../index.ts";
 import {
   vizPreDraw,
   vizPostThresholdCtx,
   vizDraw,
   runVizPipeline,
-} from "../../es/internal.js";
+} from "../../internal.ts";
+
+useJsdom();
 
 /**
     Output-correctness tests for the pipeline functions: these lock the

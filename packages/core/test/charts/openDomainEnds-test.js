@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear} from "d3-scale";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   configOpenDomain,
   hasOpenUserEnd,
@@ -12,8 +13,10 @@ import {
   roundOpenEnd,
   roundPlotOpenEnds,
   userAxisDomain,
-} from "../../es/internal.js";
-import {Axis} from "../../es/index.js";
+} from "../../internal.ts";
+import {Axis} from "../../index.ts";
+
+useJsdom();
 
 /**
     A one-sided user domain pins only the end the user set; Plot fills the

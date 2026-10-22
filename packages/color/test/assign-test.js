@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as assign} from "../es/src/assign.js";
-import {default as defaults} from "../es/src/defaults.js";
+import {default as assign} from "../src/assign.ts";
+import {default as defaults} from "../src/defaults.ts";
 
 it("assign", () => {
   assert.strictEqual(defaults.missing, assign(null), "null");

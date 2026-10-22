@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {uniqueIds} from "../../es/src/shapes/uniqueIds.js";
+import {uniqueIds} from "../../src/shapes/uniqueIds.ts";
 
 it("uniqueIds leaves unique ids alone", () => {
   assert.deepStrictEqual(uniqueIds(["a", "b", "c"]), ["a", "b", "c"]);

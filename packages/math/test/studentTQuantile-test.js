@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as studentTQuantile, studentTCdf} from "../es/src/studentTQuantile.js";
+import {default as studentTQuantile, studentTCdf} from "../src/studentTQuantile.ts";
 
 const close = (actual, expected, tol, msg) =>
   assert.ok(Math.abs(actual - expected) < tol, `${msg}: ${actual} vs ${expected}`);

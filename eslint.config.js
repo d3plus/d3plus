@@ -126,29 +126,43 @@ export default [
     },
   },
   {
+    // Test functions come from explicit `vitest` imports.
     files: ["**/test/**/*.js", "**/test/**/*.mjs"],
-    languageOptions: {
-      globals: {
-        describe: "readonly",
-        it: "readonly",
-        before: "readonly",
-        after: "readonly",
-        beforeEach: "readonly",
-        afterEach: "readonly",
-        global: "readonly",
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
-        process: "readonly",
-        MouseEvent: "readonly",
-      },
-    },
     rules: {
       "max-lines": "off",
       "max-lines-per-function": "off",
       // Tests may name the globals they rely on in a `/* global … */` comment
       // even when the environment already provides them.
       "no-redeclare": ["error", {builtinGlobals: false}],
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "CallExpression[callee.name=/^(it|test|jsdomit)$/] > FunctionExpression[generator=true]",
+          message: "Vitest does not drive generator test bodies; use an async function.",
+        },
+        {
+          selector: "CallExpression[callee.object.type='ThisExpression'][callee.property.name='timeout']",
+          message: "Pass {timeout} in the test's options instead of calling this.timeout().",
+        },
+      ],
+    },
+  },
+  {
+    // Browser tests run in the page, without Node's modules.
+    files: ["**/*.browser-test.js"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {regex: "^node:", message: "Browser tests run in the page; use a server command."},
+            {
+              regex: "^(assert|fs|path|url|child_process)$",
+              message: "Browser tests run in the page; use ~test/browser/assert.js or a server command.",
+            },
+          ],
+        },
+      ],
     },
   },
 ];

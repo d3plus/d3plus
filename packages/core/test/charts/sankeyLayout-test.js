@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   sankey,
@@ -6,7 +7,7 @@ import {
   sankeyLeft,
   sankeyLinkHorizontal,
   sankeyRight,
-} from "../../es/src/charts/Sankey/sankeyLayout.js";
+} from "../../src/charts/Sankey/sankeyLayout.ts";
 
 const round = v => +v.toFixed(3);
 

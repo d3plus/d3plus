@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
 import {select} from "d3-selection";
 import "d3-transition";
 
-import it from "./jsdom.js";
-import {SvgRenderer} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {SvgRenderer} from "../index.ts";
+
+useJsdom({augment: false});
 
 const scene = cx => ({
   width: 200,

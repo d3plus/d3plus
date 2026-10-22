@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as isObject} from "../es/src/isObject.js";
-import it from "./jsdom.js";
+import {default as isObject} from "../src/isObject.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("isObject", () => {
   assert.strictEqual(isObject("id"), false, "String");

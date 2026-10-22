@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Gauge, Matrix, Pie, Priestley, Radar, RadialMatrix, RESET, Treemap} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Gauge, Matrix, Pie, Priestley, Radar, RadialMatrix, RESET, Treemap} from "../../index.ts";
+
+useJsdom();
 
 const fontColorOf = viz => viz.axisConfig().shapeConfig.labelConfig.fontColor;
 

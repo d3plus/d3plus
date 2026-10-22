@@ -1,10 +1,11 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   applySwarmLanes,
   resolveSwarm,
   swarmHidesAxis,
   swarmPlacements,
-} from "../../es/src/charts/Plot/swarm.js";
+} from "../../src/charts/Plot/swarm.ts";
 
 const circles = (rows, shape = "Circle") => rows.map(d => ({shape, ...d}));
 

@@ -1,8 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
 import {Geomap} from "@d3plus/core";
 import {createCanvas} from "@napi-rs/canvas";
-import {renderToStaticPNG, renderToStaticSVG} from "../es/index.js";
-import {fetchOne} from "../es/src/geomapTiles.js";
+import {renderToStaticPNG, renderToStaticSVG} from "../index.ts";
+import {fetchOne} from "../src/geomapTiles.ts";
 
 const cities = [
   {city: "NYC", coords: [-74, 40.7]},

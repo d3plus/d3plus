@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Rect} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Rect} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
 
-it("Shape/Rect", function* () {
-  yield cb => {
+useJsdom();
+
+it("Shape/Rect", async () => {
+  await new Promise(cb => {
     new Rect()
       .data([{id: "test"}])
       .duration(0)
@@ -13,12 +16,12 @@ it("Shape/Rect", function* () {
       .x(100)
       .y(50)
       .render(cb);
-  };
+  });
 
   // v4: standalone Shape.render() auto-routes through @d3plus/render's
   // SvgRenderer — the user gets `svg.d3plus-render-svg` with scene-class
   // children, not the legacy d3plus-Rect DOM.
-  yield cb => global.setTimeout(cb, 50);
+  await new Promise(cb => global.setTimeout(cb, 50));
 
   assert.strictEqual(
     document.querySelectorAll("svg.d3plus-render-svg").length,

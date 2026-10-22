@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import it from "./jsdom.js";
-import {SvgRenderer} from "../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {SvgRenderer} from "../index.ts";
+
+useJsdom({augment: false});
 
 function scene(children) {
   return {width: 200, height: 100, root: {type: "group", key: "root", children}};

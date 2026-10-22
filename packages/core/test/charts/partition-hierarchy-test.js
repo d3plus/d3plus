@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   isAggregatedBranch,
@@ -6,7 +7,7 @@ import {
   partitionLayout,
   partitionLineage,
   partitionSort,
-} from "../../es/src/charts/partition/hierarchy.js";
+} from "../../src/charts/partition/hierarchy.ts";
 
 const key = k => d => d[k];
 const sum = d => d.value;

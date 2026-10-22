@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, LinePlot} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
-import {formatPlotData} from "../../es/src/charts/Plot/pipeline.js";
-import {discreteDomainCategories} from "../../es/src/charts/Plot/discreteDomain.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, LinePlot} from "../../index.ts";
+import {runStages} from "../../internal.ts";
+import {formatPlotData} from "../../src/charts/Plot/pipeline.ts";
+import {discreteDomainCategories} from "../../src/charts/Plot/discreteDomain.ts";
+
+useJsdom();
 
 /**
     A user domain on a discrete axis (`xDomain`, or `xConfig.domain`, on a

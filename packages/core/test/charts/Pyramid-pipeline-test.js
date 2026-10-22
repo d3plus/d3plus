@@ -1,12 +1,15 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Pyramid} from "../../es/index.js";
-import {runStages} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Pyramid} from "../../index.ts";
+import {runStages} from "../../internal.ts";
 import {
   computePlotAxisValues,
   computePlotInitialDomains,
   formatPlotData,
-} from "../../es/src/charts/Plot/pipeline.js";
+} from "../../src/charts/Plot/pipeline.ts";
+
+useJsdom();
 
 /**
     Pyramid's pre-draw resolves its sides, totals, and value axis on top of

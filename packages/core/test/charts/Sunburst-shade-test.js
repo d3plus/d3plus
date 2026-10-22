@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {colorLighter} from "@d3plus/color";
 import {
@@ -5,7 +6,7 @@ import {
   partitionShadeAmount,
   partitionShadeDefaults,
   partitionShadeFill,
-} from "../../es/src/charts/partition/shade.js";
+} from "../../src/charts/partition/shade.ts";
 
 const close = (a, b, msg) =>
   assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);

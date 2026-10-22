@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {rowLegend, shareRow} from "../../es/src/charts/features/sharedFields.js";
+import {rowLegend, shareRow} from "../../src/charts/features/sharedFields.ts";
 
 function mockViz(extra = {}) {
   return {

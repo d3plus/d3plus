@@ -1,5 +1,0 @@
-{
-  "timeout": 60000,
-  "parallel": true,
-  "require": ["test/setup.js"]
-}

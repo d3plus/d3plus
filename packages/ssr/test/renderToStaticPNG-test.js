@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {Treemap} from "@d3plus/core";
-import {renderToCanvas, renderToStaticPNG} from "../es/index.js";
+import {renderToCanvas, renderToStaticPNG} from "../index.ts";
 
 const data = [
   {id: "a", value: 5},

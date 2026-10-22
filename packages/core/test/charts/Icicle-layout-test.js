@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   applyIcicleLayout,
@@ -5,10 +6,10 @@ import {
   icicleOrient,
   icicleRenderBase,
   icicleReturning,
-} from "../../es/src/charts/Icicle/applyLayout.js";
-import {icicleBands} from "../../es/src/charts/Icicle/geometry.js";
-import {icicleLayout} from "../../es/src/charts/Icicle/layout.js";
-import {icicleDef} from "../../es/src/charts/Icicle/index.js";
+} from "../../src/charts/Icicle/applyLayout.ts";
+import {icicleBands} from "../../src/charts/Icicle/geometry.ts";
+import {icicleLayout} from "../../src/charts/Icicle/layout.ts";
+import {icicleDef} from "../../src/charts/Icicle/index.ts";
 
 const key = k => d => d[k];
 const sum = d => d.value;

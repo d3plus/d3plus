@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as lineIntersection} from "../es/src/lineIntersection.js";
+import {default as lineIntersection} from "../src/lineIntersection.ts";
 
 it("geom/lineIntersection", () => {
   const point = JSON.stringify([2, 2]);

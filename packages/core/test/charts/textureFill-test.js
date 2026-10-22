@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {textureFill, paintFromShapeConfig} from "../../es/src/charts/features/emitHelpers.js";
-import it from "../jsdom.js";
+import {textureFill, paintFromShapeConfig} from "../../src/charts/features/emitHelpers.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 it("textureFill: returns a string fill when no texture is set", () => {
   assert.strictEqual(textureFill({}, {id: "a"}, 0, "red"), "red");

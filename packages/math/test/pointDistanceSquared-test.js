@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as pointDistanceSquared} from "../es/src/pointDistanceSquared.js";
+import {default as pointDistanceSquared} from "../src/pointDistanceSquared.ts";
 
 it("geom/pointDistanceSquared", () => {
   assert.strictEqual(

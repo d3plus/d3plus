@@ -1,6 +1,9 @@
 coverage:
   status:
     project:
+      # Vitest's v8 coverage counts only executable lines (not comments,
+      # blank lines or type declarations); the targets sit a few points under
+      # each package's measured coverage.
       default:
         target: auto
         threshold: 1%
@@ -8,19 +11,19 @@ coverage:
         target: 95%
         flags: [angular]
       color:
-        target: 95%
+        target: 90%
         flags: [color]
       core:
-        target: 85%
+        target: 80%
         flags: [core]
       data:
-        target: 95%
+        target: 90%
         flags: [data]
       dom:
-        target: 95%
+        target: 90%
         flags: [dom]
       element:
-        target: 90%
+        target: 75%
         flags: [element]
       export:
         target: 95%
@@ -38,10 +41,10 @@ coverage:
         target: 65%
         flags: [react]
       render:
-        target: 85%
+        target: 80%
         flags: [render]
       ssr:
-        target: 95%
+        target: 80%
         flags: [ssr]
       svelte:
         target: 95%
@@ -50,7 +53,7 @@ coverage:
         target: 85%
         flags: [text]
       vue:
-        target: 95%
+        target: 85%
         flags: [vue]
     patch:
       default:

@@ -1,15 +1,18 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Plot} from "../../es/index.js";
-import {projectionPositions, trendStep} from "../../es/src/charts/Plot/trendProjection.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Plot} from "../../index.ts";
+import {projectionPositions, trendStep} from "../../src/charts/Plot/trendProjection.ts";
 import {
   computePlotTrendFits,
   computeTrendFits,
   trendLineDefaults,
   trendProjectionPositions,
-} from "../../es/src/charts/Plot/trendLines.js";
-import {emitTrendLines} from "../../es/src/charts/Plot/trendScene.js";
-import {nearestProjectedSample, trendTooltipRows} from "../../es/src/charts/Plot/trendTooltip.js";
+} from "../../src/charts/Plot/trendLines.ts";
+import {emitTrendLines} from "../../src/charts/Plot/trendScene.ts";
+import {nearestProjectedSample, trendTooltipRows} from "../../src/charts/Plot/trendTooltip.ts";
+
+useJsdom();
 
 /** #289: trend lines projected past the end of the data. */
 

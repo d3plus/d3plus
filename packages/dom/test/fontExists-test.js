@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as fontExists} from "../es/src/fontExists.js";
-import it from "./jsdom.js";
+import {default as fontExists} from "../src/fontExists.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("fontExists", () => {
   const missing = "Missing",

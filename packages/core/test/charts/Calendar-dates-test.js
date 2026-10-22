@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   addDays,
@@ -13,7 +14,7 @@ import {
   startOfDay,
   weekIndex,
   weekdaySlot,
-} from "../../es/src/charts/Calendar/calendarDates.js";
+} from "../../src/charts/Calendar/calendarDates.ts";
 
 const day = (y, m, d) => new Date(y, m - 1, d);
 const key = d => (d ? calendarDayKey(d) : d);

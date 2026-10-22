@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import {ColorScale} from "../../es/index.js";
-import it from "../jsdom.js";
+import {ColorScale} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
 
-it("ColorScale", function* () {
-  yield cb => {
+useJsdom();
+
+it("ColorScale", async () => {
+  await new Promise(cb => {
     new ColorScale().render(cb);
-  };
+  });
 
   assert.strictEqual(
     document.getElementsByTagName("svg").length,

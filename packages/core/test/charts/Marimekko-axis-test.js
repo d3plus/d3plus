@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   isExpandOffset,
@@ -5,8 +6,8 @@ import {
   marimekkoFacetAxes,
   marimekkoFixedAxes,
   percentText,
-} from "../../es/src/charts/Marimekko/axis.js";
-import {resolveStackOffset} from "../../es/src/charts/Plot/stackHelpers.js";
+} from "../../src/charts/Marimekko/axis.ts";
+import {resolveStackOffset} from "../../src/charts/Plot/stackHelpers.ts";
 
 const fakeViz = (offset, schema = {}) => ({
   _stackOffset: resolveStackOffset(offset),

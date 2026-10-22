@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {emitTrendLines} from "../../es/src/charts/Plot/trendScene.js";
-import {trendLineDefaults} from "../../es/src/charts/Plot/trendLines.js";
+import {useJsdom} from "~test/jsdom.js";
+import {emitTrendLines} from "../../src/charts/Plot/trendScene.ts";
+import {trendLineDefaults} from "../../src/charts/Plot/trendLines.ts";
+
+useJsdom();
 
 const linear = (x0, x1) => ({type: "linear", coefficients: [0, 1], r2: 1, n: 3, extent: [x0, x1]});
 const fit = (id, extra = {}) => ({

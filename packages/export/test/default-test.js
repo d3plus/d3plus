@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as saveElement} from "../es/src/saveElement.js";
+import {default as saveElement} from "../src/saveElement.ts";
 
 it("default", () => {
   // early return when elem is falsy

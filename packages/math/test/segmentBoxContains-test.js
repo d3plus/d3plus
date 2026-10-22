@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as segmentBoxContains} from "../es/src/segmentBoxContains.js";
+import {default as segmentBoxContains} from "../src/segmentBoxContains.ts";
 
 it("geom/segmentBoxContains", () => {
   assert.strictEqual(

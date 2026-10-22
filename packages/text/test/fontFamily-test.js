@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {fontFamilyStringify} from "../es/src/fontFamily.js";
+import {fontFamilyStringify} from "../src/fontFamily.ts";
 
 it("fontFamily", () => {
   assert.strictEqual(

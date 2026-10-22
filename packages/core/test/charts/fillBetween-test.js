@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {LinePlot} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {LinePlot} from "../../index.ts";
 import {
   betweenPoints,
   emitFillBetween,
@@ -10,7 +11,9 @@ import {
   inheritedFillStyle,
   sideClip,
   valueDirection,
-} from "../../es/src/charts/Plot/fillBetween.js";
+} from "../../src/charts/Plot/fillBetween.ts";
+
+useJsdom();
 
 // #283: fill the area between two series' lines.
 

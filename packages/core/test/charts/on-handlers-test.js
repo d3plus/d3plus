@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {BarChart, Network, Pack, Treemap} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {BarChart, Network, Pack, Treemap} from "../../index.ts";
+
+useJsdom();
 
 /**
     `on(typename, handler)` behaves the same on every chart, including charts

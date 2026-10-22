@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {AxisBottom, AxisLeft} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {AxisBottom, AxisLeft} from "../../index.ts";
 import {
   bandPolygon,
   breakGap,
@@ -10,7 +11,9 @@ import {
   maskPath,
   plotAxisConfig,
   unwrapBreakMasks,
-} from "../../es/internal.js";
+} from "../../internal.ts";
+
+useJsdom();
 
 /**
     A Plot's side of axis breaks (#766, #767): two lines across the plot from

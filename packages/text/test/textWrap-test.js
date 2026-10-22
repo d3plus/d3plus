@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as textWrap} from "../es/src/textWrap.js";
-import {default as textWidth} from "../../dom/es/src/textWidth.js";
-import it from "./jsdom.js";
+import {default as textWrap} from "../src/textWrap.ts";
+import {default as textWidth} from "../../dom/src/textWidth.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("textWrap", () => {
   const font = "Verdana";

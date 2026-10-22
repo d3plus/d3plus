@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as segmentsIntersect} from "../es/src/segmentsIntersect.js";
+import {default as segmentsIntersect} from "../src/segmentsIntersect.ts";
 
 it("geom/segmentsIntersect", () => {
   assert.strictEqual(

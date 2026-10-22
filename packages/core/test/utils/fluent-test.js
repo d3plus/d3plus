@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {installFluent, isFluentAccessor} from "../../es/src/fluent.js";
+import {installFluent, isFluentAccessor} from "../../src/fluent.ts";
 
 it("installFluent accessors coerce values per field with arguments.length getter/setter semantics", () => {
   class Chart {}

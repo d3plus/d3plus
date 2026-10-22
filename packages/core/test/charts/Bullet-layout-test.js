@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Bullet} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Bullet} from "../../index.ts";
 import {
   applyBulletLayout,
   bulletExtents,
@@ -11,23 +12,25 @@ import {
   rowNumber,
   rowValues,
   SUB_FONT_SIZE,
-} from "../../es/src/charts/Bullet/applyLayout.js";
+} from "../../src/charts/Bullet/applyLayout.ts";
 import {
   bulletEmit,
   bulletStatics,
   bulletText,
-} from "../../es/src/charts/Bullet/emit.js";
+} from "../../src/charts/Bullet/emit.ts";
 import {
   bulletStyle,
   TICK_FONT_SIZE,
-} from "../../es/src/charts/Bullet/bulletStyle.js";
+} from "../../src/charts/Bullet/bulletStyle.ts";
 import {
   bulletDef,
   bulletFacet,
   bulletTooltipRows,
   MEASURE_OUTLINE,
   rowAccessor,
-} from "../../es/src/charts/Bullet/index.js";
+} from "../../src/charts/Bullet/index.ts";
+
+useJsdom();
 
 const kpis = [
   {id: "Revenue", unit: "US$", value: 270, target: 250, forecast: 290},

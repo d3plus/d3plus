@@ -1,4 +1,4 @@
-/* global describe */
+import {describe, it} from "vitest";
 import assert from "assert";
 import {
   alignInsets,
@@ -39,13 +39,13 @@ import {
   toFacetValue,
   withFacetPanel,
   clearPanelSlots,
-} from "../../es/internal.js";
+} from "../../internal.ts";
 
 /**
     The pure helpers behind small multiples (`facet` / `facetConfig`): config
     resolution, grouping and ordering facet values, the panel grid, the panel
     scene nodes, and the per-panel state restored at interaction time. (Title
-    measurement needs a canvas, so it's covered in facet-render-test.js.)
+    measurement needs a canvas, so it's covered in facet-render.browser-test.js.)
 */
 
 const cell = (extra = {}) => ({

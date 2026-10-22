@@ -1,8 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear} from "d3-scale";
-import BarBuffer from "../../es/src/charts/plotBuffers/Bar.js";
-import BoxBuffer from "../../es/src/charts/plotBuffers/Box.js";
-import {rectLikeBuffer} from "../../es/src/charts/plotBuffers/rectLikeBuffer.js";
+import BarBuffer from "../../src/charts/plotBuffers/Bar.ts";
+import BoxBuffer from "../../src/charts/plotBuffers/Box.ts";
+import {rectLikeBuffer} from "../../src/charts/plotBuffers/rectLikeBuffer.ts";
 
 const chart = (stacked = false) => ({schema: {discrete: "x", stacked}});
 const scales = () => ({

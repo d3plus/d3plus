@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as stylize} from "../es/src/stylize.js";
+import {default as stylize} from "../src/stylize.ts";
 import {select} from "d3-selection";
-import it from "./jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom({augment: false});
 
 it("stylize", () => {
   const styles = {

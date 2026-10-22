@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {plotPaint} from "../../es/internal.js";
+import {useJsdom} from "~test/jsdom.js";
+import {plotPaint} from "../../internal.ts";
+
+useJsdom();
 
 /**
     `plotPaint(viz, pCtx)` is the architectural seam for the

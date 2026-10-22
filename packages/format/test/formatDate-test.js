@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as formatDate, dateFormatter, dateFullFormatter, formatDateFull} from "../es/src/formatDate.js";
+import {default as formatDate, dateFormatter, dateFullFormatter, formatDateFull} from "../src/formatDate.ts";
 import {timeFormat, timeFormatDefaultLocale, timeFormatLocale} from "d3-time-format";
 
 const spanish = {

@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Timeline} from "../../es/index.js";
-import it from "../jsdom.js";
+import {Timeline} from "../../index.ts";
+import {useJsdom} from "~test/jsdom.js";
 
-it("Timeline", function* () {
-  yield cb => {
+useJsdom();
+
+it("Timeline", async () => {
+  await new Promise(cb => {
     new Timeline().render(cb);
-  };
+  });
 
   assert.ok(
     document.getElementsByTagName("svg").length >= 1,
@@ -25,9 +28,9 @@ it("Timeline", function* () {
   );
 });
 
-it("Timeline brushing:false snaps the brush visual to a single period on release", function* () {
+it("Timeline brushing:false snaps the brush visual to a single period on release", async () => {
   const tl = new Timeline().domain([2012, 2020]).brushing(false).width(400).height(100);
-  yield cb => tl.render(cb);
+  await new Promise(cb => tl.render(cb));
 
   // Spy on the brush's programmatic move — the release handler must snap the
   // dragged range back to the committed single period. Before the fix,
@@ -80,12 +83,12 @@ it("Timeline playback steps once per transition duration", function () {
   assert.strictEqual(captureInterval(noAnim), 1000, "playButtonInterval is the fallback when duration is 0");
 });
 
-it("Timeline brushing:false shows a single handle, not a resizable range", function* () {
+it("Timeline brushing:false shows a single handle, not a resizable range", async () => {
   // Force ticks mode (jsdom measures text at 0 width, which would otherwise
   // resolve to buttons mode where both handles are hidden).
   const tl = new Timeline()
     .domain([2012, 2020]).brushing(false).buttonBehavior("ticks").width(400).height(100);
-  yield cb => tl.render(cb);
+  await new Promise(cb => tl.render(cb));
 
   const w = document.querySelector(".handle--w");
   const e = document.querySelector(".handle--e");

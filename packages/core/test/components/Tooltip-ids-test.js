@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Tooltip} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Tooltip} from "../../index.ts";
+
+useJsdom();
 
 /**
     Tooltip element ids are prefixed with the Tooltip instance's uuid, then

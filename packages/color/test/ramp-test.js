@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as ramp} from "../es/src/ramp.js";
-import {colorToOklch} from "../es/src/oklab.js";
+import {default as ramp} from "../src/ramp.ts";
+import {colorToOklch} from "../src/oklab.ts";
 
 it("ramp", () => {
   // Length + edge cases.

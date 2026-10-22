@@ -41,9 +41,9 @@
     "build:types": "tsc",
     "build:umd": "node ../../scripts/build-umd.js",
     "dev": "node ../../scripts/dev.js",
-    "test": "mocha 'test/**/*-test.js'",
-    "test:dev-pages": "mocha test/dev-pages.js",
-    "test:coverage": "c8 -r text -r lcov --src src --exclude-after-remap --include 'src/**' --include '*.ts' mocha 'test/**/*-test.js'"
+    "test": "vitest run --config ../../vitest.config.ts --project core --project core-browser",
+    "test:dev-pages": "vitest run --config ../../vitest.dev-pages.config.ts",
+    "test:coverage": "vitest run --config ../../vitest.config.ts --project core --project core-browser --coverage --coverage.exclude='packages/!(core)/**' --coverage.exclude='test/**' --coverage.reportsDirectory=packages/core/coverage"
   },
   "dependencies": {
     "@d3plus/color": "workspace:*",
@@ -75,9 +75,5 @@
     "d3-transition": "catalog:",
     "d3-zoom": "^3.0.0",
     "topojson-client": "^3.1.0"
-  },
-  "devDependencies": {
-    "@bcoe/v8-coverage": "^1.0.2",
-    "playwright": "1.59.1"
   }
 }

@@ -1,7 +1,8 @@
+import {it} from "vitest";
 import assert from "assert";
 
-import VizBaseConfig from "../../es/src/charts/viz/VizBaseConfig.js";
-import {shapeHoverEnabled} from "../../es/src/charts/viz/shapeHover.js";
+import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
+import {shapeHoverEnabled} from "../../src/charts/viz/shapeHover.ts";
 
 /**
     Regression guard for the colorScale-bucket hover fix. Geomap disables

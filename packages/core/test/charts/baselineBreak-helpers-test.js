@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {
   baselineBreakAxisConfig,
   clampBarConfig,
@@ -7,9 +8,11 @@ import {
   userDomainBreaksBaseline,
   valueAxis,
   valueAxisExtent,
-} from "../../es/internal.js";
-import {buildXConfig} from "../../es/src/charts/features/xAxisConfig.js";
-import {AreaPlot, BarChart, Histogram, LinePlot, StackedArea} from "../../es/index.js";
+} from "../../internal.ts";
+import {buildXConfig} from "../../src/charts/features/xAxisConfig.ts";
+import {AreaPlot, BarChart, Histogram, LinePlot, StackedArea} from "../../index.ts";
+
+useJsdom();
 
 /**
     Plot's side of the baseline axis break (#645): which axis breaks, the axis
@@ -118,7 +121,7 @@ it("BarChart, AreaPlot, StackedArea, and Histogram default baselineBreak on; oth
 });
 
 it("withAxisInk inks the break marks along with the axis line", async () => {
-  const {withAxisInk} = await import("../../es/src/charts/Plot/axisInk.js");
+  const {withAxisInk} = await import("../../src/charts/Plot/axisInk.ts");
   const viz = new BarChart();
   const config = withAxisInk(viz, {breakConfig: {stroke: "red"}});
   assert.strictEqual(typeof config.baselineBreakConfig.stroke, "function", "baseline break marks inked");

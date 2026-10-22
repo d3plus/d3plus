@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   conversionModes,
@@ -5,14 +6,14 @@ import {
   lineBoxes,
   planFunnelLabels,
   planLabel,
-} from "../../es/src/charts/Funnel/funnelLabels.js";
+} from "../../src/charts/Funnel/funnelLabels.ts";
 import {
   labelSizeCap,
   OUTSIDE_GAP,
   percentText,
   stageBoxes,
   stageLines,
-} from "../../es/src/charts/Funnel/labelNodes.js";
+} from "../../src/charts/Funnel/labelNodes.ts";
 
 // Every character is 0.5em wide.
 const measure = (text, size) => text.length * size * 0.5;

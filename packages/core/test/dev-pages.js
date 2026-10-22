@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import fs from "node:fs";
 import http from "node:http";
@@ -7,7 +8,6 @@ import {fileURLToPath} from "node:url";
 import {chromium} from "playwright";
 
 import {buildIndex, devPages, pageMeta} from "../../../scripts/dev-index.js";
-import {bundle} from "./playwright.js";
 
 /**
     Loads every page under packages/core/dev in headless Chromium (as the dev
@@ -20,8 +20,8 @@ import {bundle} from "./playwright.js";
     are answered with empty stand-ins, so the check never needs the network:
     a page that depends on remote data shows up as an error.
 
-    Run with `pnpm --filter @d3plus/core run test:dev-pages` (it takes a few
-    minutes, so it is not part of `test`).
+    Run with `pnpm test:dev-pages` (it takes a few minutes, so it is not part
+    of `test`); its global setup builds the UMD bundle first.
 */
 
 const coreDir = path.resolve(
@@ -186,9 +186,8 @@ it("every dev page has a title and description, and dev/index.html is current", 
   );
 });
 
-it("every dev page renders without errors or warnings", async function () {
-  this.timeout(10 * 60 * 1000);
-  const umd = await bundle();
+it("every dev page renders without errors or warnings", {timeout: 10 * 60 * 1000}, async function () {
+  const umd = fs.readFileSync(path.join(coreDir, "umd", "d3plus-core.full.js"), "utf8");
   const server = await serve(umd);
   const origin = `http://127.0.0.1:${server.address().port}`;
   const browser = await chromium.launch();

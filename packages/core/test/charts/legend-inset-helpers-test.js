@@ -1,3 +1,4 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   fitInset,
@@ -10,7 +11,7 @@ import {
   isInsetPending,
   markBoxes,
   sceneInsetRegion,
-} from "../../es/internal.js";
+} from "../../internal.ts";
 
 /**
     The pure helpers behind drawing a legend inside a chart's negative space

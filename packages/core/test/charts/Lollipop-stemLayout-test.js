@@ -1,18 +1,21 @@
+import {it} from "vitest";
 import assert from "assert";
 import {scaleLinear, scalePoint} from "d3-scale";
-import it from "../jsdom.js";
-import {Lollipop} from "../../es/index.js";
-import {lollipopDef} from "../../es/internal.js";
-import {lollipopEmit} from "../../es/src/charts/Lollipop/emit.js";
-import {emitShape} from "../../es/src/charts/features/shapeEmit.js";
-import {nodeColor, ownerNode} from "../../es/src/charts/features/tooltipSwatch.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Lollipop} from "../../index.ts";
+import {lollipopDef} from "../../internal.ts";
+import {lollipopEmit} from "../../src/charts/Lollipop/emit.ts";
+import {emitShape} from "../../src/charts/features/shapeEmit.ts";
+import {nodeColor, ownerNode} from "../../src/charts/features/tooltipSwatch.ts";
 import {
   largestRadius,
   lollipopBuffer,
   STEM_KEY_SUFFIX,
   stemFromBar,
   stemPoints,
-} from "../../es/src/charts/Lollipop/stemLayout.js";
+} from "../../src/charts/Lollipop/stemLayout.ts";
+
+useJsdom();
 
 it("stemFromBar — a vertical bar's head sits at the end nearer its value", () => {
   const bar = {x: -4, y: 0, width: 8, height: 60, transform: {x: 100, y: 40}};

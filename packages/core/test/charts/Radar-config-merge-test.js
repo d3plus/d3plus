@@ -1,6 +1,9 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
-import {Radar, RESET} from "../../es/index.js";
+import {useJsdom} from "~test/jsdom.js";
+import {Radar, RESET} from "../../index.ts";
+
+useJsdom();
 
 /**
     Radar's ring styles (`axisConfig.gridConfig` / `barConfig`) and

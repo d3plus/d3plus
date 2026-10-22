@@ -1,9 +1,12 @@
+import {it} from "vitest";
 import assert from "assert";
 import {SvgRenderer} from "@d3plus/render";
-import {Circle} from "../../es/index.js";
-import configPrep from "../../es/src/utils/configPrep.js";
-import {sortRanks} from "../../es/src/shapes/sceneSort.js";
-import it from "../jsdom.js";
+import {Circle} from "../../index.ts";
+import configPrep from "../../src/utils/configPrep.ts";
+import {sortRanks} from "../../src/shapes/sceneSort.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     A `sort` comparator on a shape must NOT reorder the data array — it maps to

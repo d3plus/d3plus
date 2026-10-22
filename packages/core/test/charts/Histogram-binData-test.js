@@ -1,6 +1,7 @@
+import {it} from "vitest";
 import assert from "assert";
 import {thresholdScott} from "d3-array";
-import binData from "../../es/src/charts/Histogram/binData.js";
+import binData from "../../src/charts/Histogram/binData.ts";
 
 const rows = values => values.map(value => ({value}));
 const value = d => d.value;

@@ -1,9 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
 import {
   curvePolyline,
   splitDash,
   splitLength,
-} from "../../es/src/charts/Plot/curveLength.js";
+} from "../../src/charts/Plot/curveLength.ts";
 
 // Path-length helpers behind the forecast's part-dashed lines.
 

@@ -21,7 +21,7 @@ export class StubIO {
 }
 
 // IntersectionObserver is stubbed only for the duration of each test so other
-// suites in the same mocha process don't see it.
+// tests on the same page don't see it.
 export function withIO(fn) {
   return () => {
     globalThis.IntersectionObserver = StubIO;

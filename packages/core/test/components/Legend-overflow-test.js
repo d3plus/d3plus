@@ -1,11 +1,14 @@
+import {it} from "vitest";
 import assert from "assert";
-import {Legend} from "../../es/index.js";
+import {Legend} from "../../index.ts";
 import {
   clearLegend,
   computeLegendLineData,
   wrapLegendRows,
-} from "../../es/src/components/Legend/legendRender.js";
-import it from "../jsdom.js";
+} from "../../src/components/Legend/legendRender.ts";
+import {useJsdom} from "~test/jsdom.js";
+
+useJsdom();
 
 /**
     A legend whose swatches can't fit its box, even with labels dropped, used to

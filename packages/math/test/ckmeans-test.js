@@ -1,5 +1,6 @@
+import {it} from "vitest";
 import assert from "assert";
-import {default as ckmeans} from "../es/src/ckmeans.js";
+import {default as ckmeans} from "../src/ckmeans.ts";
 
 it("math/ckmeans clusters well-separated data into the optimal grouping", () => {
   assert.deepStrictEqual(

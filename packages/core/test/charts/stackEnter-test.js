@@ -1,7 +1,10 @@
+import {it} from "vitest";
 import assert from "assert";
-import it from "../jsdom.js";
+import {useJsdom} from "~test/jsdom.js";
 import {cubicInOut} from "@d3plus/render";
-import {levelWindow, showsBars, stackEnterWindows, stackLevels} from "../../es/src/charts/Plot/stackEnter.js";
+import {levelWindow, showsBars, stackEnterWindows, stackLevels} from "../../src/charts/Plot/stackEnter.ts";
+
+useJsdom();
 
 /**
     A d3-stack result for `rows` ({id, discrete, y}): one series per id, in
