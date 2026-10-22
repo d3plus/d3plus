@@ -215,9 +215,9 @@ export function resolvesReset<T extends object>(proto: T, ...keys: (keyof T & st
   }
 }
 
+/** A config-bag field's new value: `RESET` restores its default, anything else merges like `mergeConfigBag`. */
 function mergeFieldValue(host: FluentHost, key: string, value: unknown): unknown {
   if (value === RESET) return cloneConfig(host._defaultConfig?.()[key]);
-  if (!isPlainObject(value)) return value;
   return mergeConfigBag(host, key, value);
 }
 
