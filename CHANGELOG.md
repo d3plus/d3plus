@@ -54,6 +54,7 @@ All notable changes to D3plus are documented here. This project adheres to [Sema
 - `@d3plus/render` exports `arcPath` and `FULL_TURN`, and `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels.
 - `@d3plus/core/internal` drops `createFluent` and `FluentInstance` (use `installFluent`), `vizPreDrawPure` and `vizDrawPure` (use `vizPreDraw` and `vizDraw`), `polarLegend` (use `rowLegend`), ParallelCoordinates' `grayscale` (use `colorGrayscale`), and `sunburstShadeAmount` (use `partitionShadeAmount`). Its `VizContext` type is the pipeline stage context.
 - `ChartDefinition` drops its unread `features` field.
+- **npm publishing runs in CI.** Publishing a GitHub release (which `pnpm run release` does) runs the "Publish to npm" workflow, which publishes every package through npm trusted publishing (OIDC, no npm token) with provenance, dependencies first. `pnpm run release` no longer needs an npm login.
 
 ## 4.8.0
 

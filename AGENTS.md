@@ -335,8 +335,9 @@ To specialize an existing chart, pass a `Base` to `makeChart` (e.g.
   API surface curated.
 - **Circular dependency warnings from Rollup are suppressed** in the build
   config. Don't introduce new cross-package circular dependencies.
-- **Releases need the GitHub CLI and an npm login.** `pnpm run release`
-  checks both (`gh auth status`, `npm whoami`) before changing anything.
+- **Releases need the GitHub CLI.** `pnpm run release` checks
+  `gh auth status` before changing anything. npm publishing runs in CI, with
+  no npm login or token.
 
 ## Running a Release
 
@@ -349,7 +350,42 @@ pnpm run release
 
 The script checks that `main` is clean and in sync with origin, prompts for the
 new version, writes it into every package, rebuilds everything and the docs,
-optionally runs the tests, then commits, tags, publishes all packages to npm
-(`--tag next` for a prerelease), pushes, and creates the GitHub release with
-`gh`. Each step prints one line; a failing step prints its captured output, and
-a failure or abort before the commit restores the working tree.
+optionally runs the tests, then commits, tags, pushes, and creates the GitHub
+release with `gh`. CHANGELOG.md's `## Unreleased` section is retitled with the
+new version in the release commit and becomes the release notes. Each step
+prints one line; a failing step prints its captured output, and a failure or
+abort before the commit restores the working tree.
+
+Publishing the GitHub release starts the **Publish to npm** workflow
+(`.github/workflows/publish.yml`). It rebuilds the tagged commit and publishes
+every public package through npm trusted publishing (OIDC, with provenance;
+`--tag next` for a prerelease), dependencies first, skipping versions already
+on npm. If it fails, fix the cause and run the workflow again by hand with the
+release tag.
+
+npm trusts the workflow per package. Setting that up takes npm 11.15+, 2FA and
+write access to every package, and a new trust expires unless it publishes
+within 2 days, so set it up right before a release:
+
+```bash
+for pkg in $(node -e 'const fs = require("fs");
+for (const d of fs.readdirSync("packages")) {
+  const file = `./packages/${d}/package.json`;
+  if (!fs.existsSync(file)) continue;
+  const p = require(file);
+  if (!p.private) console.log(p.name);
+}'); do
+  npm trust github "$pkg" --repo d3plus/d3plus --file publish.yml --allow-publish --yes
+  sleep 2
+done
+```
+
+npm asks for 2FA on the first package (a one-time password or a browser
+login), then skips it for about five minutes, long enough for the rest. Keep
+the loop reading from the terminal: piping the package names into it leaves
+npm no terminal to ask on, and it fails with `EOTP`. A package that already
+trusts the workflow fails the same command harmlessly; `npm trust list <pkg>`
+shows what a package trusts.
+
+A brand-new package has to be published once by hand before npm can trust a
+workflow for it.
