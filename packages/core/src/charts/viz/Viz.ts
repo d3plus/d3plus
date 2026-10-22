@@ -356,59 +356,7 @@ export default class Viz extends VizBase {
     this._paintedScene = scene;
     const w = this.schema.width || 400;
     const h = this.schema.height || 300;
-    // Reuse the renderer instance if it matches the kind, to avoid mount
-    // churn. `target()` is the public Renderer-interface method (no
-    // reaching into renderer-private slots). It's optional on the
-    // interface; third-party renderers without it fall through to
-    // remount on every draw — correct but with mount churn.
-    const currentContainer = this._sceneRenderer?.target
-      ? this._sceneRenderer.target()?.container
-      : undefined;
-    const containerChanged = this._sceneRenderer?.target
-      ? currentContainer !== mountTarget
-      : false;
-    if (
-      !this._sceneRenderer ||
-      this._sceneRenderer.kind !== kind ||
-      containerChanged
-    ) {
-      // Tear down the outgoing renderer before mounting a fresh one. It owns
-      // its own DOM (canvas/svg + overlay host), pointer listeners, and
-      // transition timers; without this, switching kind (svg<->canvas) or
-      // container orphans that DOM in the user's element, stacking the old
-      // mode's output behind the new one and accumulating on every switch.
-      if (
-        this._sceneRenderer &&
-        typeof this._sceneRenderer.destroy === "function"
-      )
-        this._sceneRenderer.destroy();
-      const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
-      this._sceneRenderer = new Ctor();
-      // `_scenePixelRatio`, when set (e.g. by @d3plus/ssr for hi-res PNG output),
-      // fixes the canvas backing-store scale; otherwise the renderer falls back
-      // to `devicePixelRatio`.
-      this._sceneRenderer.mount({
-        container: mountTarget,
-        width: w,
-        height: h,
-        pixelRatio: this._scenePixelRatio,
-      });
-      // Bridge renderer pointer events → viz.schema.on handlers. Without this,
-      // tooltips never fire on the v4 scene-rendered path because
-      // `shape.on(evt, fn)` in plotPaint only wires d3-selection
-      // listeners on DOM nodes the scene renderer doesn't create.
-      // Renderer events carry the picked scene node; the routing lives in
-      // `_routeSceneEvent` (kept out of this method so the mount path stays
-      // readable). `_lastScenePick` remembers the most recently hovered node
-      // so `mouseleave` — fired with a null pick — can still tell the matching
-      // handlers which shape/legend item was left (so the tooltip clears).
-      this._lastScenePick = null;
-      this._sceneRenderer.on((event: SceneEvent) =>
-        this._routeSceneEvent(event),
-      );
-    } else {
-      this._sceneRenderer.resize(w, h);
-    }
+    this._ensureSceneRenderer(kind, mountTarget, w, h);
     // `durationOverride` defaults to the chart's `_duration` for normal
     // re-renders. Interaction handlers (zoomed, hover, etc.) pass 0 to
     // skip the transition machinery — animating every wheel/drag tick
@@ -570,6 +518,73 @@ export default class Viz extends VizBase {
   */
   _facetHooks(): FacetHooks {
     return {};
+  }
+
+  /**
+      Reuses the scene renderer when it matches `kind` and `mountTarget`
+      (resizing it to `w` × `h`), or tears it down and mounts a fresh one
+      bridged to the chart's pointer handlers.
+      @private
+  */
+  _ensureSceneRenderer(
+    kind: "svg" | "canvas",
+    mountTarget: Element,
+    w: number,
+    h: number,
+  ): void {
+    // Reuse the renderer instance if it matches the kind, to avoid mount
+    // churn. `target()` is the public Renderer-interface method (no
+    // reaching into renderer-private slots). It's optional on the
+    // interface; third-party renderers without it fall through to
+    // remount on every draw — correct but with mount churn.
+    const currentContainer = this._sceneRenderer?.target
+      ? this._sceneRenderer.target()?.container
+      : undefined;
+    const containerChanged = this._sceneRenderer?.target
+      ? currentContainer !== mountTarget
+      : false;
+    if (
+      !this._sceneRenderer ||
+      this._sceneRenderer.kind !== kind ||
+      containerChanged
+    ) {
+      // Tear down the outgoing renderer before mounting a fresh one. It owns
+      // its own DOM (canvas/svg + overlay host), pointer listeners, and
+      // transition timers; without this, switching kind (svg<->canvas) or
+      // container orphans that DOM in the user's element, stacking the old
+      // mode's output behind the new one and accumulating on every switch.
+      if (
+        this._sceneRenderer &&
+        typeof this._sceneRenderer.destroy === "function"
+      )
+        this._sceneRenderer.destroy();
+      const Ctor = kind === "canvas" ? CanvasRenderer : SvgRenderer;
+      this._sceneRenderer = new Ctor();
+      // `_scenePixelRatio`, when set (e.g. by @d3plus/ssr for hi-res PNG output),
+      // fixes the canvas backing-store scale; otherwise the renderer falls back
+      // to `devicePixelRatio`.
+      this._sceneRenderer.mount({
+        container: mountTarget,
+        width: w,
+        height: h,
+        pixelRatio: this._scenePixelRatio,
+      });
+      // Bridge renderer pointer events → viz.schema.on handlers. Without this,
+      // tooltips never fire on the v4 scene-rendered path because
+      // `shape.on(evt, fn)` in plotPaint only wires d3-selection
+      // listeners on DOM nodes the scene renderer doesn't create.
+      // Renderer events carry the picked scene node; the routing lives in
+      // `_routeSceneEvent` (kept out of this method so the mount path stays
+      // readable). `_lastScenePick` remembers the most recently hovered node
+      // so `mouseleave` — fired with a null pick — can still tell the matching
+      // handlers which shape/legend item was left (so the tooltip clears).
+      this._lastScenePick = null;
+      this._sceneRenderer.on((event: SceneEvent) =>
+        this._routeSceneEvent(event),
+      );
+    } else {
+      this._sceneRenderer.resize(w, h);
+    }
   }
 
   /**

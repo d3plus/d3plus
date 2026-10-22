@@ -49,6 +49,32 @@ export interface ChordCtx {
 type RawLink = Record<string, unknown>;
 
 /**
+    Infer the node set from link endpoints, ordered-distinct by first
+    appearance (mirrors Sankey).
+*/
+function inferChordNodes(
+  links: RawLink[],
+  sourceKey: string,
+  targetKey: string,
+): DataPoint[] {
+  const seen = new Set<unknown>();
+  const ids: unknown[] = [];
+  for (const link of links) {
+    const src = link[sourceKey];
+    if (!seen.has(src)) {
+      seen.add(src);
+      ids.push(src);
+    }
+    const tgt = link[targetKey];
+    if (!seen.has(tgt)) {
+      seen.add(tgt);
+      ids.push(tgt);
+    }
+  }
+  return ids.map(id => ({id}) as DataPoint);
+}
+
+/**
     Compute each node's label geometry — a tangential label just outside the
     outer arc, rotated to read radially, flipped upright on the left half
     (mirrors Rings' label placement). Mutates each node in place.
@@ -104,28 +130,14 @@ export const applyChordLayout: TransformStage = ({viz}) => {
     return {viz};
   }
 
-  // Resolve the node set — explicit, or inferred (ordered-distinct) from the
-  // link endpoints, mirroring Sankey.
-  let rawNodes: DataPoint[];
-  if (hasNodes) {
-    rawNodes = v.schema.nodes as DataPoint[];
-  } else {
-    const seen = new Set<unknown>();
-    const ids: unknown[] = [];
-    for (const link of v.schema.links as RawLink[]) {
-      const src = link[v.schema.linksSource as string];
-      if (!seen.has(src)) {
-        seen.add(src);
-        ids.push(src);
-      }
-      const tgt = link[v.schema.linksTarget as string];
-      if (!seen.has(tgt)) {
-        seen.add(tgt);
-        ids.push(tgt);
-      }
-    }
-    rawNodes = ids.map(id => ({id}) as DataPoint);
-  }
+  // Resolve the node set — explicit, or inferred from the link endpoints.
+  const rawNodes: DataPoint[] = hasNodes
+    ? (v.schema.nodes as DataPoint[])
+    : inferChordNodes(
+        v.schema.links as RawLink[],
+        v.schema.linksSource as string,
+        v.schema.linksTarget as string,
+      );
 
   const nodes: ChordNode[] = rawNodes.map((n, i) => ({
     __d3plus__: true,

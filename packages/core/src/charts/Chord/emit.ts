@@ -23,17 +23,20 @@ import {
   backgroundImageNodes,
 } from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
-export const chordEmit: ChartEmit = ({viz}) => {
-  const c = viz.ctx.chordCtx as ChordCtx | undefined;
-  if (!c) return [];
-  const out: SceneNode[] = [];
-
-  const pathCfg = shapeConfigFor(viz, "Path");
-  const chordOpacity = (viz.schema.chordOpacity as number) ?? 0.6;
-
-  // Ribbons (chords) first.
+/**
+    Ribbon Paths for every chord, followed by their background images. Each
+    ribbon's paint resolves against its source node.
+*/
+function emitChordRibbons(
+  viz: VizInstance,
+  c: ChordCtx,
+  pathCfg: Record<string, unknown>,
+  chordOpacity: number,
+): SceneNode[] {
+  const ribbons: SceneNode[] = [];
   const ribbonImages: SceneNode[] = [];
   for (let i = 0; i < c.chords.length; i++) {
     const ch = c.chords[i];
@@ -72,7 +75,7 @@ export const chordEmit: ChartEmit = ({viz}) => {
         label: `${viz._drawLabel(src.data, src.i)} to ${viz._drawLabel(tgt.data, tgt.i)}, ${ch.source.value}.`,
       },
     } as SceneNode;
-    out.push(ribbon);
+    ribbons.push(ribbon);
     // The image is as see-through as the ribbon's fill, so crossing ribbons
     // still show through each other.
     const image = backgroundImageNode(
@@ -89,7 +92,19 @@ export const chordEmit: ChartEmit = ({viz}) => {
     );
     if (image) ribbonImages.push(image);
   }
-  out.push(...ribbonImages);
+  return [...ribbons, ...ribbonImages];
+}
+
+export const chordEmit: ChartEmit = ({viz}) => {
+  const c = viz.ctx.chordCtx as ChordCtx | undefined;
+  if (!c) return [];
+  const out: SceneNode[] = [];
+
+  const pathCfg = shapeConfigFor(viz, "Path");
+  const chordOpacity = (viz.schema.chordOpacity as number) ?? 0.6;
+
+  // Ribbons (chords) first.
+  out.push(...emitChordRibbons(viz, c, pathCfg, chordOpacity));
 
   // Arcs (groups).
   const arcNodes: SceneNode[] = [];

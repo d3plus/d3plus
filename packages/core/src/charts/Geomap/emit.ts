@@ -11,6 +11,7 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
 import type {Themed} from "./basemapTheme.js";
 
@@ -29,9 +30,11 @@ interface GeomapCtx {
   pointSort?: (a: DataPoint, b: DataPoint) => number;
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
-  const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
-  if (!c) return [];
+/**
+    The ocean rect and basemap tiles, for a server render or a small-multiples
+    panel (empty otherwise).
+*/
+function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   const out: SceneNode[] = [];
 
   // The ocean rect and basemap tiles normally live in the imperative geomap
@@ -64,7 +67,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   // linked by URL in a small-multiples panel). Placed above the ocean and
   // below the geography, at the positions `_computeTileList` derives from the
   // fitted projection (same math as the live `_renderTiles`).
-  const ssrTiles = viz._ssrTiles as Map<string, string> | undefined;
+  const ssrTiles = viz._ssrTiles;
   const sceneTiles = (ssrTiles && ssrTiles.size) || (panel && !viz._ssr);
   if (sceneTiles && typeof viz._computeTileList === "function") {
     for (const t of viz._computeTileList()) {
@@ -83,6 +86,13 @@ export const geomapEmit: ChartEmit = ({viz}) => {
       } as SceneNode);
     }
   }
+  return out;
+}
+
+export const geomapEmit: ChartEmit = ({viz}) => {
+  const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
+  if (!c) return [];
+  const out: SceneNode[] = emitGeomapBasemap(viz);
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");

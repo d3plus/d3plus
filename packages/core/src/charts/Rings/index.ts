@@ -5,6 +5,8 @@
     Implementation files in this folder:
       - `applyLayout.ts` — focus + ring placement + link bezier paths.
       - `emit.ts` — link Paths + per-shape-type node groups.
+      - `ringsGraph.ts` — node set + link resolution.
+      - `ringsSizing.ts` — ring geometry + node sizing.
 */
 
 import {addToQueue} from "@d3plus/data";

@@ -16,6 +16,7 @@ import {
 } from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 
 interface SankeyLink {
   source: SankeyNode;
@@ -41,6 +42,58 @@ interface SankeyCtx {
   links: SankeyLink[];
   nodeGroups: [string, SankeyNode[]][];
   pathFn: (d: SankeyLink) => string;
+}
+
+/**
+    Optional directional arrowheads for one link. Flow runs source(left) →
+    target(right): the target arrow points right into the target, the source
+    arrow points left into the source (bidirectional when both are set).
+*/
+function emitSankeyArrows(
+  viz: VizInstance,
+  link: SankeyLink,
+  datum: DataPoint,
+  i: number,
+  paint: ReturnType<typeof paintFromShapeConfig>,
+): SceneNode[] {
+  const arrows: SceneNode[] = [];
+  const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
+  if (ends.source || ends.target) {
+    const width = typeof link.width === "number" ? link.width : 2;
+    const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
+    const size =
+      typeof sizeCfg === "number" ? sizeCfg : Math.max(8, Math.min(width, 28));
+    const fill = typeof paint.stroke === "string" ? paint.stroke : undefined;
+    if (ends.target && typeof link.y1 === "number") {
+      arrows.push(
+        arrowNode({
+          key: `sankey-arrow-t-${link.source.id}-${link.target.id}`,
+          datum,
+          x: link.target.x0,
+          y: link.y1,
+          angle: 0,
+          size,
+          fill,
+          opacity: 1,
+        }),
+      );
+    }
+    if (ends.source && typeof link.y0 === "number") {
+      arrows.push(
+        arrowNode({
+          key: `sankey-arrow-s-${link.source.id}-${link.target.id}`,
+          datum,
+          x: link.source.x1,
+          y: link.y0,
+          angle: Math.PI,
+          size,
+          fill,
+          opacity: 1,
+        }),
+      );
+    }
+  }
+  return arrows;
 }
 
 export const sankeyEmit: ChartEmit = ({viz}) => {
@@ -71,48 +124,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
         },
       } as SceneNode);
 
-      // Optional directional arrowheads. Flow runs source(left) → target(right):
-      // the target arrow points right into the target, the source arrow points
-      // left into the source (bidirectional when both are set).
-      const ends = arrowEnds(viz.schema.arrows as ArrowValue, datum, i);
-      if (ends.source || ends.target) {
-        const width = typeof link.width === "number" ? link.width : 2;
-        const sizeCfg = resolveAccessor<number>(viz.schema.arrowSize, datum, i);
-        const size =
-          typeof sizeCfg === "number"
-            ? sizeCfg
-            : Math.max(8, Math.min(width, 28));
-        const fill =
-          typeof paint.stroke === "string" ? paint.stroke : undefined;
-        if (ends.target && typeof link.y1 === "number") {
-          out.push(
-            arrowNode({
-              key: `sankey-arrow-t-${link.source.id}-${link.target.id}`,
-              datum,
-              x: link.target.x0,
-              y: link.y1,
-              angle: 0,
-              size,
-              fill,
-              opacity: 1,
-            }),
-          );
-        }
-        if (ends.source && typeof link.y0 === "number") {
-          out.push(
-            arrowNode({
-              key: `sankey-arrow-s-${link.source.id}-${link.target.id}`,
-              datum,
-              x: link.source.x1,
-              y: link.y0,
-              angle: Math.PI,
-              size,
-              fill,
-              opacity: 1,
-            }),
-          );
-        }
-      }
+      out.push(...emitSankeyArrows(viz, link, datum, i, paint));
     }
   }
 

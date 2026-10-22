@@ -102,6 +102,114 @@ function gridLines(
 }
 
 /**
+    Which cells of the grid overlap the hull or an excluded box:
+    `occupied[j][i]` is 1 when the cell between xs[i..i+1] and ys[j..j+1] does.
+*/
+function occupancyGrid(
+  xs: number[],
+  ys: number[],
+  hull: Point[],
+  blocks: Bounds[],
+): Uint8Array[] {
+  const nx = xs.length - 1,
+    ny = ys.length - 1;
+  const hullBox: [number, number, number, number] = hull.length
+    ? [
+        Math.min(...hull.map(p => p[0])),
+        Math.min(...hull.map(p => p[1])),
+        Math.max(...hull.map(p => p[0])),
+        Math.max(...hull.map(p => p[1])),
+      ]
+    : [0, 0, 0, 0];
+  const axes = hullAxes(hull);
+  const hitsBlock = (x0: number, y0: number, x1: number, y1: number): boolean =>
+    blocks.some(
+      b => x0 < b.x + b.width && b.x < x1 && y0 < b.y + b.height && b.y < y1,
+    );
+  const occupied: Uint8Array[] = [];
+  for (let j = 0; j < ny; j++) {
+    const row = new Uint8Array(nx);
+    for (let i = 0; i < nx; i++) {
+      const [x0, y0, x1, y1] = [xs[i], ys[j], xs[i + 1], ys[j + 1]];
+      row[i] =
+        (hull.length && rectHitsConvex(x0, y0, x1, y1, hullBox, axes)) ||
+        hitsBlock(x0, y0, x1, y1)
+          ? 1
+          : 0;
+    }
+    occupied.push(row);
+  }
+  return occupied;
+}
+
+/**
+    Every maximal empty rectangle of an occupancy grid at least `minWidth` ×
+    `minHeight`, in grid coordinates mapped back through `xs`/`ys`, unsorted.
+*/
+function maximalEmptyRects(
+  occupied: Uint8Array[],
+  xs: number[],
+  ys: number[],
+  minWidth: number,
+  minHeight: number,
+): Bounds[] {
+  const nx = xs.length - 1,
+    ny = ys.length - 1;
+  // Row-wise prefix sums, to test whether a span of the next row is empty.
+  const prefix = occupied.map(row => {
+    const p = new Uint32Array(nx + 1);
+    for (let i = 0; i < nx; i++) p[i + 1] = p[i] + row[i];
+    return p;
+  });
+  const spanEmpty = (j: number, i0: number, i1: number): boolean =>
+    prefix[j][i1 + 1] - prefix[j][i0] === 0;
+
+  // Histogram sweep: for each row as the bottom edge, every bar's widest
+  // rectangle at its own height. Every maximal empty rectangle is one of
+  // these; the ones that could still grow downward are dropped.
+  const seen = new Set<string>();
+  const results: Bounds[] = [];
+  const heights = new Uint32Array(nx);
+  for (let j = 0; j < ny; j++) {
+    for (let i = 0; i < nx; i++)
+      heights[i] = occupied[j][i] ? 0 : heights[i] + 1;
+    const left = new Int32Array(nx),
+      right = new Int32Array(nx);
+    const stack: number[] = [];
+    for (let i = 0; i < nx; i++) {
+      while (stack.length && heights[stack[stack.length - 1]] >= heights[i])
+        stack.pop();
+      left[i] = stack.length ? stack[stack.length - 1] + 1 : 0;
+      stack.push(i);
+    }
+    stack.length = 0;
+    for (let i = nx - 1; i >= 0; i--) {
+      while (stack.length && heights[stack[stack.length - 1]] >= heights[i])
+        stack.pop();
+      right[i] = stack.length ? stack[stack.length - 1] - 1 : nx - 1;
+      stack.push(i);
+    }
+    for (let i = 0; i < nx; i++) {
+      const h = heights[i];
+      if (!h) continue;
+      const i0 = left[i],
+        i1 = right[i];
+      if (j + 1 < ny && spanEmpty(j + 1, i0, i1)) continue;
+      const key = `${i0},${i1},${j - h + 1},${j}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      const x = xs[i0],
+        y = ys[j - h + 1];
+      const width = xs[i1 + 1] - x,
+        height = ys[j + 1] - y;
+      if (width >= minWidth && height >= minHeight)
+        results.push({x, y, width, height});
+    }
+  }
+  return results;
+}
+
+/**
     Finds the open, axis-aligned rectangles inside `bounds` that lie entirely
     outside the marks described by `obstacles`. The marks are treated as a single
     solid region — the convex hull of every (padded) obstacle box — so a hole in
@@ -165,15 +273,6 @@ export default function negativeSpace(
       [x0, y1],
     ];
   }
-  const hullBox: [number, number, number, number] = hull.length
-    ? [
-        Math.min(...hull.map(p => p[0])),
-        Math.min(...hull.map(p => p[1])),
-        Math.max(...hull.map(p => p[0])),
-        Math.max(...hull.map(p => p[1])),
-      ]
-    : [0, 0, 0, 0];
-  const axes = hullAxes(hull);
 
   const xs = gridLines(
     [...hull.map(p => p[0]), ...blocks.flatMap(b => [b.x, b.x + b.width])],
@@ -187,79 +286,8 @@ export default function negativeSpace(
     by1,
     divisions,
   );
-  const nx = xs.length - 1,
-    ny = ys.length - 1;
-
-  // occupied[j][i]: cell between xs[i..i+1] and ys[j..j+1] overlaps the hull or an excluded box.
-  const hitsBlock = (x0: number, y0: number, x1: number, y1: number): boolean =>
-    blocks.some(
-      b => x0 < b.x + b.width && b.x < x1 && y0 < b.y + b.height && b.y < y1,
-    );
-  const occupied: Uint8Array[] = [];
-  for (let j = 0; j < ny; j++) {
-    const row = new Uint8Array(nx);
-    for (let i = 0; i < nx; i++) {
-      const [x0, y0, x1, y1] = [xs[i], ys[j], xs[i + 1], ys[j + 1]];
-      row[i] =
-        (hull.length && rectHitsConvex(x0, y0, x1, y1, hullBox, axes)) ||
-        hitsBlock(x0, y0, x1, y1)
-          ? 1
-          : 0;
-    }
-    occupied.push(row);
-  }
-
-  // Row-wise prefix sums, to test whether a span of the next row is empty.
-  const prefix = occupied.map(row => {
-    const p = new Uint32Array(nx + 1);
-    for (let i = 0; i < nx; i++) p[i + 1] = p[i] + row[i];
-    return p;
-  });
-  const spanEmpty = (j: number, i0: number, i1: number): boolean =>
-    prefix[j][i1 + 1] - prefix[j][i0] === 0;
-
-  // Histogram sweep: for each row as the bottom edge, every bar's widest
-  // rectangle at its own height. Every maximal empty rectangle is one of
-  // these; the ones that could still grow downward are dropped.
-  const seen = new Set<string>();
-  const results: Bounds[] = [];
-  const heights = new Uint32Array(nx);
-  for (let j = 0; j < ny; j++) {
-    for (let i = 0; i < nx; i++)
-      heights[i] = occupied[j][i] ? 0 : heights[i] + 1;
-    const left = new Int32Array(nx),
-      right = new Int32Array(nx);
-    const stack: number[] = [];
-    for (let i = 0; i < nx; i++) {
-      while (stack.length && heights[stack[stack.length - 1]] >= heights[i])
-        stack.pop();
-      left[i] = stack.length ? stack[stack.length - 1] + 1 : 0;
-      stack.push(i);
-    }
-    stack.length = 0;
-    for (let i = nx - 1; i >= 0; i--) {
-      while (stack.length && heights[stack[stack.length - 1]] >= heights[i])
-        stack.pop();
-      right[i] = stack.length ? stack[stack.length - 1] - 1 : nx - 1;
-      stack.push(i);
-    }
-    for (let i = 0; i < nx; i++) {
-      const h = heights[i];
-      if (!h) continue;
-      const i0 = left[i],
-        i1 = right[i];
-      if (j + 1 < ny && spanEmpty(j + 1, i0, i1)) continue;
-      const key = `${i0},${i1},${j - h + 1},${j}`;
-      if (seen.has(key)) continue;
-      seen.add(key);
-      const x = xs[i0],
-        y = ys[j - h + 1];
-      const width = xs[i1 + 1] - x,
-        height = ys[j + 1] - y;
-      if (width >= minWidth && height >= minHeight)
-        results.push({x, y, width, height});
-    }
-  }
+  const occupied = occupancyGrid(xs, ys, hull, blocks);
+  const results = maximalEmptyRects(occupied, xs, ys, minWidth, minHeight);
 
   return results.sort(
     (a, b) => b.width * b.height - a.width * a.height || a.y - b.y || a.x - b.x,
