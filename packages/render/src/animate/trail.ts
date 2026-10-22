@@ -1,4 +1,5 @@
 import {rgb} from "d3-color";
+import {polygonHull} from "d3-polygon";
 
 import {gradientToken} from "../scene.js";
 import type {CircleNode, RectNode, SceneNode} from "../scene.js";
@@ -118,24 +119,6 @@ function rectCorners(
   ).map(([x, y]) => [cx + x * c - y * s, cy + x * s + y * c] as Pt);
 }
 
-/** Convex hull (monotone chain, CCW) of a small point set; drops collinear points. */
-function convexHull(points: Pt[]): Pt[] {
-  const pts = points.slice().sort((a, b) => a[0] - b[0] || a[1] - b[1]);
-  const cross = (o: Pt, a: Pt, b: Pt) =>
-    (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
-  const half = (seq: Pt[]): Pt[] => {
-    const h: Pt[] = [];
-    for (const p of seq) {
-      while (h.length >= 2 && cross(h[h.length - 2], h[h.length - 1], p) <= 0)
-        h.pop();
-      h.push(p);
-    }
-    h.pop();
-    return h;
-  };
-  return half(pts).concat(half(pts.slice().reverse()));
-}
-
 /**
     The cone path + bbox at transition progress `t` — the mark's swept silhouette
     from its previous size at the tail to its current interpolated size at the head.
@@ -180,12 +163,12 @@ export function coneAt(
     const back: Pt = [A[0] - mx * aR, A[1] - my * aR];
     return {d, box: bbox([tp, hp, hm, tm, back])};
   }
-  return pathBox(
-    convexHull([
-      ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),
-      ...rectCorners(hx, hy, hDims[0], hDims[1], rotate),
-    ]),
-  );
+  const corners = [
+    ...rectCorners(A[0], A[1], aDims[0], aDims[1], rotate),
+    ...rectCorners(hx, hy, hDims[0], hDims[1], rotate),
+  ];
+  // A zero-size rect that hasn't moved has no hull; its corners trace nothing.
+  return pathBox((polygonHull(corners) as Pt[] | null) ?? corners);
 }
 
 /**
