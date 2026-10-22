@@ -19,8 +19,11 @@ import type {Axis} from "../../components/index.js";
 import * as shapes from "../../shapes/index.js";
 import type {D3Scale} from "../../utils/index.js";
 
-import {measureAxes} from "../features/axes.js";
-import type {LineLabelMeasurement} from "../features/axes.js";
+import {measureAxes} from "../features/axesMeasure.js";
+import type {
+  AxisMeasureInputs,
+  LineLabelMeasurement,
+} from "../features/axesMeasure.js";
 import type {LabelWidth, PlotPaintContext} from "../features/plotPaint.js";
 import Viz from "../viz/Viz.js";
 import {runStages} from "../pipeline/stages.js";
@@ -176,21 +179,67 @@ function runPlotAxisPrep(
     [preparePlotAxisLayout],
   );
   return {
-    plotDefaultConfig: prepCtx.plotDefaultConfig!,
-    plotDefaultX2Config: prepCtx.plotDefaultX2Config!,
-    plotDefaultY2Config: prepCtx.plotDefaultY2Config!,
-    plotShowX: prepCtx.plotShowX!,
-    plotShowY: prepCtx.plotShowY!,
-    plotYC: prepCtx.plotYC!,
-    plotBarLabels: prepCtx.plotBarLabels!,
-    plotXTicks: prepCtx.plotXTicks!,
-    plotX2Ticks: prepCtx.plotX2Ticks!,
-    plotYTicks: prepCtx.plotYTicks!,
-    plotY2Ticks: prepCtx.plotY2Ticks!,
-    plotXDomain: prepCtx.plotXDomain!,
-    plotX2Domain: prepCtx.plotX2Domain!,
-    plotYDomain: prepCtx.plotYDomain!,
-    plotY2Domain: prepCtx.plotY2Domain!,
+    xDomain: prepCtx.plotXDomain! as number[],
+    x2Domain: prepCtx.plotX2Domain! as number[],
+    yDomain: prepCtx.plotYDomain! as number[],
+    y2Domain: prepCtx.plotY2Domain! as number[],
+    defaultConfig: prepCtx.plotDefaultConfig!,
+    defaultX2Config: prepCtx.plotDefaultX2Config!,
+    defaultY2Config: prepCtx.plotDefaultY2Config!,
+    showX: prepCtx.plotShowX!,
+    showY: prepCtx.plotShowY!,
+    yC: prepCtx.plotYC!,
+    xTicks: prepCtx.plotXTicks!,
+    x2Ticks: prepCtx.plotX2Ticks!,
+    yTicks: prepCtx.plotYTicks!,
+    y2Ticks: prepCtx.plotY2Ticks!,
+    barLabels: prepCtx.plotBarLabels!,
+  };
+}
+
+/** The four throwaway measure-only test axes. */
+type TestAxes = {xTest: Axis; x2Test: Axis; yTest: Axis; y2Test: Axis};
+
+/** Assembles the joint axis solve's inputs (see `measureAxes`). */
+function plotAxisMeasureInputs(
+  testAxes: TestAxes,
+  prep: ReturnType<typeof runPlotAxisPrep>,
+  configScales: PlotConfigScales,
+  frame: {
+    x2Exists: boolean;
+    y2Exists: boolean;
+    height: number;
+    width: number;
+    xData: unknown[];
+    x: D3Scale;
+  },
+): AxisMeasureInputs {
+  const {x2Exists, y2Exists, height, width, xData, x} = frame;
+  return {
+    ...testAxes,
+    xDomain: prep.xDomain,
+    x2Domain: prep.x2Domain,
+    yDomain: prep.yDomain,
+    y2Domain: prep.y2Domain,
+    xTicks: prep.xTicks,
+    x2Ticks: prep.x2Ticks,
+    yTicks: prep.yTicks,
+    y2Ticks: prep.y2Ticks,
+    xConfigScale: configScales.xConfigScale,
+    x2ConfigScale: configScales.x2ConfigScale,
+    yConfigScale: configScales.yConfigScale,
+    y2ConfigScale: configScales.y2ConfigScale,
+    defaultX2Config: prep.defaultX2Config,
+    defaultY2Config: prep.defaultY2Config,
+    yC: prep.yC,
+    showX: prep.showX,
+    showY: prep.showY,
+    x2Exists,
+    y2Exists,
+    height,
+    width,
+    xData,
+    xScalePadding: x.padding ? x.padding() : 0,
   };
 }
 
@@ -245,26 +294,20 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
   // owns long-lived Axis instances just to compute layout. gridSize(0)
   // signals "labels-only" measure: the production axes (`_xAxis`,
   // `_yAxis`, …) handle grid rendering with their default gridSize.
-  const xTest = new AxisBottom().align("end").gridSize(0);
-  const x2Test = new AxisTop().align("start").gridSize(0);
-  const yTest = new AxisLeft().align("start").gridSize(0);
-  const y2Test = new AxisLeft().align("end").gridSize(0);
+  const testAxes: TestAxes = {
+    xTest: new AxisBottom().align("end").gridSize(0),
+    x2Test: new AxisTop().align("start").gridSize(0),
+    yTest: new AxisLeft().align("start").gridSize(0),
+    y2Test: new AxisLeft().align("end").gridSize(0),
+  };
 
   // Plot's data-format + time-axis + sizeScale prep extracted to the
   // `formatPlotData` TransformStage, and per-axis values extracted to
   // `computePlotAxisValues`. Both run here; downstream paint code reads
   // their outputs from the returned context.
-  const {
-    data,
-    axisData,
-    x2Exists,
-    y2Exists,
-    xData,
-    x2Data,
-    yData,
-    y2Data,
-    stackGroup,
-  } = runPlotDataStages(viz);
+  const dataStages = runPlotDataStages(viz);
+  const {data, axisData, x2Exists, y2Exists, xData, x2Data, yData, y2Data} =
+    dataStages;
 
   const height = viz.schema.height - viz._margin.top - viz._margin.bottom,
     opp = viz.schema.discrete
@@ -274,62 +317,39 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
       : undefined,
     width = viz.schema.width - viz._margin.left - viz._margin.right;
 
-  // xData/x2Data/yData/y2Data computed by `computePlotAxisValues` stage.
-
-  const layoutCtx = runPlotLayoutStages(viz, data, axisData, stackGroup, {
-    xData,
-    x2Data,
-    yData,
-    y2Data,
-  });
-  const domains = layoutCtx.plotDomains;
-  const discreteKeys = layoutCtx.plotDiscreteKeys;
-  const stackData = layoutCtx.plotStackData;
-  const stackKeys = layoutCtx.plotStackKeys;
-  let {x, y, x2, y2} = layoutCtx.plotScales;
-  const {xScale, yScale} = layoutCtx.plotScales;
-  const {xConfigScale, yConfigScale, x2ConfigScale, y2ConfigScale} =
-    layoutCtx.plotConfigScales;
+  const layoutCtx = runPlotLayoutStages(
+    viz,
+    data,
+    axisData,
+    dataStages.stackGroup,
+    {xData, x2Data, yData, y2Data},
+  );
+  const {x, y, x2, y2, xScale, yScale} = layoutCtx.plotScales;
 
   const shapeData = groups(data, (d: Row) => d.shape as string).sort(
     ([a], [b]) => viz.schema.shapeSort(a, b),
   );
 
-  ({x, y, x2, y2} = runPlotExtendScales(viz, data, axisData, layoutCtx, {
+  const scales = runPlotExtendScales(viz, data, axisData, layoutCtx, {
     x,
     y,
     x2,
     y2,
-  }));
+  });
 
-  const prepCtx = runPlotAxisPrep(
+  const prep = runPlotAxisPrep(
     viz,
     axisData,
     layoutCtx,
-    {x, y, x2, y2},
+    scales,
     {x2Exists, y2Exists},
     {x2Data, y2Data, yData},
   );
-  const xDomain = prepCtx.plotXDomain as number[];
-  const x2Domain = prepCtx.plotX2Domain as number[];
-  const yDomain = prepCtx.plotYDomain as number[];
-  const y2Domain = prepCtx.plotY2Domain as number[];
-  const defaultConfig = prepCtx.plotDefaultConfig;
-  const defaultX2Config = prepCtx.plotDefaultX2Config;
-  const defaultY2Config = prepCtx.plotDefaultY2Config;
-  const showX = prepCtx.plotShowX;
-  const showY = prepCtx.plotShowY;
-  const yC = prepCtx.plotYC;
-  const xTicks = prepCtx.plotXTicks;
-  const x2Ticks = prepCtx.plotX2Ticks;
-  const yTicks = prepCtx.plotYTicks;
-  const y2Ticks = prepCtx.plotY2Ticks;
-  const barLabels = prepCtx.plotBarLabels;
 
   // Test axes use `.measure()` instead of `.select(testGroup).render()` —
   // pure layout pass, zero DOM creation. The coupled four-axis margin
-  // solve lives in `measureAxes` (charts/axes.ts); the line-label width
-  // measure (Plot-pipeline-specific) interleaves mid-solve via the
+  // solve lives in `measureAxes` (charts/axesMeasure.ts); the line-label
+  // width measure (Plot-pipeline-specific) interleaves mid-solve via the
   // injected callback. `showLineLabels` is read by the shape-emission
   // block downstream.
   const showLineLabels = viz.schema.lineLabels && !y2Exists;
@@ -338,57 +358,19 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
     data,
     layoutCtx,
     y2Exists,
-    {xTest, yTest},
+    testAxes,
   );
 
-  const {
-    yBounds,
-    y2Bounds,
-    yWidth,
-    y2Width,
-    xC,
-    xRangeMax,
-    labelWidths,
-    largestLabel,
-    xTestRange,
-    x2TestRange,
-    x2Height,
-    xOffsetLeft,
-    xOffsetRight,
-    topOffset,
-    xHeight,
-    xLabelMode,
-  } = measureAxes(
+  const measured = measureAxes(
     viz,
-    {
-      xTest,
-      yTest,
-      x2Test,
-      y2Test,
-      xDomain,
-      x2Domain,
-      yDomain,
-      y2Domain,
-      xTicks,
-      x2Ticks,
-      yTicks,
-      y2Ticks,
-      xConfigScale,
-      x2ConfigScale,
-      yConfigScale,
-      y2ConfigScale,
-      defaultX2Config,
-      defaultY2Config,
-      yC,
-      showX,
-      showY,
+    plotAxisMeasureInputs(testAxes, prep, layoutCtx.plotConfigScales, {
       x2Exists,
       y2Exists,
       height,
       width,
       xData,
-      xScalePadding: x.padding ? x.padding() : 0,
-    },
+      x: scales.x,
+    }),
     measureLineLabels,
   );
 
@@ -406,69 +388,23 @@ export function drawPlot(viz: VizInstance, callback?: () => void) {
   // keyed rows) are broader than PlotPaintContext's; the emit reads each field
   // as the concrete type its producer guaranteed, so bridge at this boundary.
   const pCtx = {
-    domains,
+    ...dataStages,
+    domains: layoutCtx.plotDomains,
     shapeData,
-    axisData,
-    data,
-    discreteKeys,
-    stackData,
-    stackKeys,
-    x,
-    y,
-    x2,
-    y2,
+    discreteKeys: layoutCtx.plotDiscreteKeys,
+    stackData: layoutCtx.plotStackData,
+    stackKeys: layoutCtx.plotStackKeys,
+    ...scales,
     xScale,
     yScale,
-    xConfigScale,
-    yConfigScale,
-    x2ConfigScale,
-    y2ConfigScale,
-    xDomain,
-    yDomain,
-    x2Domain,
-    y2Domain,
-    xData,
-    yData,
-    x2Data,
-    y2Data,
-    x2Exists,
-    y2Exists,
-    showX,
-    showY,
-    defaultConfig,
-    defaultX2Config,
-    defaultY2Config,
-    yC,
-    xC,
-    xTicks,
-    yTicks,
-    x2Ticks,
-    y2Ticks,
-    labelWidths,
-    largestLabel,
-    xRangeMax,
-    xTest,
-    yTest,
-    x2Test,
-    y2Test,
-    yBounds,
-    y2Bounds,
-    yWidth,
-    y2Width,
-    xHeight,
-    x2Height,
-    xOffsetLeft,
-    xOffsetRight,
-    topOffset,
-    xTestRange,
-    x2TestRange,
+    ...layoutCtx.plotConfigScales,
+    ...prep,
+    ...measured,
+    ...testAxes,
     height,
     width,
-    xLabelMode,
     opp,
-    barLabels,
     showLineLabels,
-    stackGroup,
     horizontalMargin,
     verticalMargin,
   } as unknown as PlotPaintContext;

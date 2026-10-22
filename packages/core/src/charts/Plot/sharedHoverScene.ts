@@ -8,11 +8,10 @@ import type {Scene, SceneNode} from "@d3plus/render";
 
 import {collectComputed, makeShape} from "../features/emitHelpers.js";
 import {
-  PLOT_ZOOM_CONTENT_KEY,
   collectAnnotationGroup,
   renderPlotAnnotation,
-  type PlotAxisFn,
-} from "../features/plotPaint.js";
+} from "../features/plotAnnotations.js";
+import {PLOT_ZOOM_CONTENT_KEY, type PlotAxisFn} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
 import {isDomainClip} from "./domainClip.js";

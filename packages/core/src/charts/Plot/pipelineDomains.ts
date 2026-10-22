@@ -122,13 +122,15 @@ function stampStackShares(data: Row[], opp: string | undefined): void {
   }
 }
 
-/** Stacked branch: d3-stack + extent-derived domains. */
-function computeStackedDomains(
+/**
+    Sorts the axis data for stacking: by the discrete axis (or its user sort),
+    then by each stack group's summed value, then by value. Mutates `axisData`.
+*/
+function sortStackedAxisData(
   viz: VizInstance,
-  ctx: StackedCtx,
-): Partial<VizContext> {
-  const {data, axisData, xData, yData, opp, stackGroup} = ctx;
-
+  axisData: Row[],
+  opp: string | undefined,
+): void {
   const stackedData = axisData.filter((d: Row) =>
     ["Area", "Bar"].includes(d.shape as string),
   );
@@ -155,6 +157,50 @@ function computeStackedDomains(
       return groupValues[b.group as string] - groupValues[a.group as string];
     return (b[opp as string] as number) - (a[opp as string] as number);
   });
+}
+
+/**
+    Runs d3-stack over the discrete groups with the configured order and
+    offset. Sorts `stackKeys` in place when the order is an explicit key array.
+*/
+function runStack(
+  viz: VizInstance,
+  stackKeys: unknown[],
+  stackGroupsData: Row[][],
+  opp: string | undefined,
+): number[][][] {
+  const order = viz._stackOrder;
+
+  // An explicit key array orders `stackKeys` directly (then d3-stack keeps
+  // that order via `stackOrderNone`); every other order is a comparator that
+  // reranks the series d3-stack builds, so `stackKeys` is left in input order.
+  if (Array.isArray(order))
+    stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+
+  // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
+  // order/offset/value accessors are cast (`as never`) at the boundary, and
+  // the configured stack is invoked as a `Row[][] -> number[][][]` function.
+  return (
+    d3Shape
+      .stack()
+      .keys(stackKeys as string[])
+      .offset(viz._stackOffset as never)
+      .order((Array.isArray(order) ? d3Shape.stackOrderNone : order) as never)
+      .value(((group: Row[], key: string) => {
+        const d = group.filter((g: Row) => g.id === key);
+        return d.length ? (d[0][opp as string] as number) : 0;
+      }) as never) as unknown as (data: Row[][]) => number[][][]
+  )(stackGroupsData);
+}
+
+/** Stacked branch: d3-stack + extent-derived domains. */
+function computeStackedDomains(
+  viz: VizInstance,
+  ctx: StackedCtx,
+): Partial<VizContext> {
+  const {data, axisData, xData, yData, opp, stackGroup} = ctx;
+
+  sortStackedAxisData(viz, axisData, opp);
 
   const discreteKeys = Array.from(
     new Set(axisData.map((d: Row) => d.discrete)),
@@ -186,28 +232,7 @@ function computeStackedDomains(
     );
   }
 
-  const order = viz._stackOrder;
-
-  // An explicit key array orders `stackKeys` directly (then d3-stack keeps
-  // that order via `stackOrderNone`); every other order is a comparator that
-  // reranks the series d3-stack builds, so `stackKeys` is left in input order.
-  if (Array.isArray(order))
-    stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
-
-  // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
-  // order/offset/value accessors are cast (`as never`) at the boundary, and
-  // the configured stack is invoked as a `Row[][] -> number[][][]` function.
-  const stackData = (
-    d3Shape
-      .stack()
-      .keys(stackKeys as string[])
-      .offset(viz._stackOffset as never)
-      .order((Array.isArray(order) ? d3Shape.stackOrderNone : order) as never)
-      .value(((group: Row[], key: string) => {
-        const d = group.filter((g: Row) => g.id === key);
-        return d.length ? (d[0][opp as string] as number) : 0;
-      }) as never) as unknown as (data: Row[][]) => number[][][]
-  )(stackGroupsData);
+  const stackData = runStack(viz, stackKeys, stackGroupsData, opp);
 
   const discreteData = (
     viz.schema.discrete === "x" ? xData : yData

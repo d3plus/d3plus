@@ -111,6 +111,98 @@ function measureLineLabel(
   };
 }
 
+/** A measured line label (see `measureLineLabel`). */
+type LineLabel = ReturnType<typeof measureLineLabel>;
+
+/**
+    Whether another line passes through the space `label` would occupy to the
+    right of its line's last point.
+*/
+function labelOverlapsLine(label: LineLabel, labels: LineLabel[]): boolean {
+  const {fontSize, id, labelWidth, maxX, yEstimate} = label;
+  const closeLabels = labels.filter(
+    l =>
+      l.id !== id &&
+      l.coords.some(
+        (c: number[]) =>
+          (c[0] > maxX || (c[0] === maxX && l.maxX !== maxX)) &&
+          c[0] <= maxX + labelWidth &&
+          c[1] <= yEstimate + fontSize * 0.75 &&
+          c[1] >= yEstimate - fontSize * 0.75,
+      ),
+  );
+  return closeLabels.length !== 0;
+}
+
+/**
+    The Line labels' text and style accessors. Each falls back from the Line
+    shape's labelConfig to the test TextBox's getter; both yield a d3plus
+    config value (constant or accessor).
+*/
+function lineLabelStyle(
+  viz: Parameters<TransformStage>[0]["viz"],
+  testLineShape: Shape,
+  testTextBox: TextBox,
+): Omit<LineLabelCtx, "xEstimate" | "yEstimate"> {
+  const userConfig = shapeConfigFor(viz, "Line");
+  testLineShape.config(userConfig);
+  const lineLabelConfig = testLineShape.labelConfig();
+  const fontColorAccessor = (
+    lineLabelConfig.fontColor !== undefined
+      ? lineLabelConfig.fontColor
+      : testTextBox.fontColor()
+  ) as ConfigAccessor<string>;
+  const fontSizeAccessor = (
+    lineLabelConfig.fontSize !== undefined
+      ? lineLabelConfig.fontSize
+      : testTextBox.fontSize()
+  ) as ConfigAccessor<number>;
+  const fontWeightAccessor = (
+    lineLabelConfig.fontWeight !== undefined
+      ? lineLabelConfig.fontWeight
+      : testTextBox.fontWeight()
+  ) as ConfigAccessor<number | string>;
+  const fontFamilyAccessor = (
+    lineLabelConfig.fontFamily !== undefined
+      ? lineLabelConfig.fontFamily
+      : testTextBox.fontFamily()
+  ) as ConfigAccessor<string | string[]>;
+  const paddingAccessor = (
+    lineLabelConfig.padding !== undefined
+      ? lineLabelConfig.padding
+      : testTextBox.padding()
+  ) as ConfigAccessor<number>;
+  const labelFunction = (userConfig.label ||
+    viz._drawLabel) as ConfigAccessor<string>;
+  return {
+    labelFunction,
+    fontColorAccessor,
+    fontSizeAccessor,
+    fontWeightAccessor,
+    fontFamilyAccessor,
+    paddingAccessor,
+  };
+}
+
+/**
+    A test axis's pixel position for a value. On a log axis a `0` value maps
+    to the scale's nearest end instead.
+*/
+function axisEstimate(
+  test: Axis,
+  configScale: string,
+  domain: unknown[],
+): (d: unknown) => number {
+  return (d: unknown): number => {
+    if (configScale === "log" && d === 0)
+      d =
+        (domain[0] as number) < 0
+          ? test._d3Scale!.domain()[1]
+          : test._d3Scale!.domain()[0];
+    return test._getPosition.bind(test)(d);
+  };
+}
+
 export const measurePlotLineLabels: TransformStage = ({
   viz,
   plotFormattedData,
@@ -154,65 +246,10 @@ export const measurePlotLineLabels: TransformStage = ({
   const yConfigScale = plotConfigScales!.yConfigScale;
   const width = viz.schema.width - viz._margin.left - viz._margin.right;
 
-  const userConfig = shapeConfigFor(viz, "Line");
-  testLineShape.config(userConfig);
-  const lineLabelConfig = testLineShape.labelConfig();
-  // Each accessor falls back from the Line shape's labelConfig to the test
-  // TextBox's getter; both yield a d3plus config value (constant or accessor).
-  const fontColorAccessor = (
-    lineLabelConfig.fontColor !== undefined
-      ? lineLabelConfig.fontColor
-      : testTextBox.fontColor()
-  ) as ConfigAccessor<string>;
-  const fontSizeAccessor = (
-    lineLabelConfig.fontSize !== undefined
-      ? lineLabelConfig.fontSize
-      : testTextBox.fontSize()
-  ) as ConfigAccessor<number>;
-  const fontWeightAccessor = (
-    lineLabelConfig.fontWeight !== undefined
-      ? lineLabelConfig.fontWeight
-      : testTextBox.fontWeight()
-  ) as ConfigAccessor<number | string>;
-  const fontFamilyAccessor = (
-    lineLabelConfig.fontFamily !== undefined
-      ? lineLabelConfig.fontFamily
-      : testTextBox.fontFamily()
-  ) as ConfigAccessor<string | string[]>;
-  const paddingAccessor = (
-    lineLabelConfig.padding !== undefined
-      ? lineLabelConfig.padding
-      : testTextBox.padding()
-  ) as ConfigAccessor<number>;
-  const labelFunction = (userConfig.label ||
-    viz._drawLabel) as ConfigAccessor<string>;
-
-  const xEstimate = (d: unknown): number => {
-    if (xConfigScale === "log" && d === 0)
-      d =
-        (xDomain[0] as number) < 0
-          ? xTest._d3Scale!.domain()[1]
-          : xTest._d3Scale!.domain()[0];
-    return xTest._getPosition.bind(xTest)(d);
-  };
-  const yEstimate = (d: unknown): number => {
-    if (yConfigScale === "log" && d === 0)
-      d =
-        (yDomain[0] as number) < 0
-          ? yTest._d3Scale!.domain()[1]
-          : yTest._d3Scale!.domain()[0];
-    return yTest._getPosition.bind(yTest)(d);
-  };
-
   const labelCtx: LineLabelCtx = {
-    labelFunction,
-    fontColorAccessor,
-    fontSizeAccessor,
-    fontWeightAccessor,
-    fontFamilyAccessor,
-    paddingAccessor,
-    xEstimate,
-    yEstimate,
+    ...lineLabelStyle(viz, testLineShape, testTextBox),
+    xEstimate: axisEstimate(xTest, xConfigScale, xDomain),
+    yEstimate: axisEstimate(yTest, yConfigScale, yDomain),
   };
 
   const labelWidths = lineData
@@ -224,21 +261,7 @@ export const measurePlotLineLabels: TransformStage = ({
         ? (a.value as number) - (b.value as number)
         : (b.value as number) - (a.value as number),
     )
-    .filter((d, _i, arr) => {
-      const {fontSize, id, labelWidth, maxX, yEstimate} = d;
-      const closeLabels = arr.filter(
-        l =>
-          l.id !== id &&
-          l.coords.some(
-            (c: number[]) =>
-              (c[0] > maxX || (c[0] === maxX && l.maxX !== maxX)) &&
-              c[0] <= maxX + labelWidth &&
-              c[1] <= yEstimate + fontSize * 0.75 &&
-              c[1] >= yEstimate - fontSize * 0.75,
-          ),
-      );
-      return closeLabels.length === 0;
-    });
+    .filter((d, _i, arr) => !labelOverlapsLine(d, arr));
 
   const maxX = max(labelWidths, d => d.maxX);
   const largestLabel = max(labelWidths.map(d => d.labelWidth));
