@@ -1,0 +1,49 @@
+name: Publish to npm
+
+# Publishing a GitHub release (`pnpm run release` creates one) publishes every
+# package at that version through npm trusted publishing: npm trusts this
+# workflow (OIDC), so there's no npm token, and each package gets provenance.
+# Run it by hand with the release tag to retry a failed publish; versions
+# already on npm are skipped.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag to publish (e.g. v4.9.0)
+        required: true
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ env.TAG }}
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 26.x
+          cache: pnpm
+      # Trusted publishing needs npm 11.5.1 or later.
+      - run: npm install --global npm@^11.5.1
+      - run: pnpm install --frozen-lockfile
+      - name: Build
+        run: |
+          pnpm -r --if-present run build:types
+          pnpm -r --if-present run build:esm
+          pnpm -r --if-present run build:umd
+      - name: Publish
+        run: node scripts/publish.js "$TAG"

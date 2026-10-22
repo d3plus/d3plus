@@ -150,23 +150,11 @@ try {
   }
   log.done();
 
-  log.timer("checking GitHub and npm sessions");
+  log.timer("checking the GitHub session");
   if (spawnSync("gh", ["auth", "status"], {stdio: "ignore"}).status !== 0) {
     throw new Error("the GitHub CLI is not logged in (run `gh auth login`)");
   }
   log.done();
-  while (spawnSync("npm", ["whoami"], {stdio: "ignore"}).status !== 0) {
-    console.log("\nNot logged in to npm.");
-    rl.pause();
-    const result = spawnSync("npm", ["login"], {stdio: "inherit"});
-    rl.resume();
-    if (
-      result.status !== 0 &&
-      !(await confirm("npm login failed. Try again?"))
-    ) {
-      throw new Error("npm login required to publish");
-    }
-  }
 
   // ── Version ──────────────────────────────────────────────────────────────
   const packageJSON = JSON.parse(fs.readFileSync("package.json", "utf8"));
@@ -239,11 +227,11 @@ try {
     notes = editInEditor(notes);
   }
 
-  // ── Commit, publish, push, release ─────────────────────────────────────
+  // ── Commit, push, release ──────────────────────────────────────────────
   const tag = prerelease ? "next" : "latest";
   console.log(
-    `v${version} will be committed and tagged, published to npm under "${tag}",` +
-      " pushed to origin, and released on GitHub.",
+    `v${version} will be committed, tagged, pushed to origin and released on` +
+      ` GitHub, which publishes it to npm under "${tag}".`,
   );
   if (!(await confirm("Proceed?"))) {
     log.warn("aborted by user");
@@ -260,17 +248,15 @@ try {
   );
   dirty = false;
   await run("tagging release", `git tag v${version}`);
-  // npm first: if publishing fails, nothing is public yet and the local
-  // commit + tag can be dropped and retried.
-  await run(
-    "publishing npm packages",
-    `pnpm -r publish --access=public --tag ${tag}`,
-  );
   await run("pushing commit and tag", "git push origin --follow-tags");
+  // Publishing the release starts the "Publish to npm" workflow.
   await run(
     "creating GitHub release",
     `gh release create v${version} --title v${version} --notes-file - --verify-tag${prerelease ? " --prerelease" : ""}`,
     {input: notes},
+  );
+  console.log(
+    "npm publishing runs in GitHub Actions: https://github.com/d3plus/d3plus/actions/workflows/publish.yml",
   );
 
   log.exit();
