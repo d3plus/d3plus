@@ -1,27 +1,20 @@
 import {type BaseType, select, type Selection} from "d3-selection";
-import type {Transition} from "d3-transition";
 import textures from "textures";
 
 import type {FlipTransition} from "../animate/diff.js";
-import {trailPartsFromNode} from "../animate/trail.js";
-import type {TrailParts} from "../animate/trail.js";
 import {
   commitTrailCatchups,
   commitTrailScene,
-  isPersistTrail,
   TrailLog,
 } from "../animate/trailLog.js";
-import {
-  attachPersistTrail,
-  attachSvgTrail,
-  removePersistTrail,
-  TrailGradients,
-} from "./svgTrail.js";
+import {removePersistTrail, TrailGradients} from "./svgTrail.js";
 import {enterStart, reconcileExit} from "./svgFlip.js";
-import {clockedTransition, trackTransition} from "./svgClock.js";
-import {fadeSwapText} from "./svgFade.js";
-import {enterWindowed, markEntering} from "./svgWindow.js";
-import type {GroupNode, Scene, SceneNode, TextNode} from "../scene.js";
+import {clockedTransition} from "./svgClock.js";
+import type {RenderTransition} from "./svgClock.js";
+import {markEntering} from "./svgWindow.js";
+import {svgChildOrder, updateNode} from "./svgUpdate.js";
+import type {UpdateContext} from "./svgUpdate.js";
+import type {GroupNode, Scene, SceneNode} from "../scene.js";
 import {parseGradient} from "../scene.js";
 import {configureTexture} from "../textureConfig.js";
 import {
@@ -31,13 +24,11 @@ import {
   walkOverlays,
 } from "../overlay.js";
 import {
-  type SvgSelection,
   applyGeometry,
   applyStatic,
   buildIndex,
   SVG_NS,
   tagFor,
-  textFontTween,
 } from "./svgNodeAttrs.js";
 import type {
   DrawOptions,
@@ -48,8 +39,6 @@ import type {
   SceneEvent,
 } from "../Renderer.js";
 
-/** The transition `drawScene` threads through the reconcile recursion. */
-type RenderTransition = Transition<BaseType, unknown, null, undefined>;
 /** One walked overlay row: its node plus accumulated ancestor offset. */
 type OverlayItem = ReturnType<typeof walkOverlays>[number];
 
@@ -320,31 +309,7 @@ export default class SvgRenderer implements Renderer {
     t: RenderTransition,
     flip?: FlipTransition,
   ): void {
-    // HtmlOverlay nodes live outside the SVG; they're reconciled separately
-    // by `_reconcileOverlays` against the sibling overlay host. Skip the
-    // filter+slice allocations when no overlays are present (the common
-    // case for deeply-nested chart groups). Skip the sort when no node
-    // has `z` set — matches the CanvasRenderer fast path.
-    let svgChildren: SceneNode[] = children;
-    let hasOverlay = false;
-    for (let i = 0; i < children.length; i++) {
-      if (children[i].type === "htmlOverlay") {
-        hasOverlay = true;
-        break;
-      }
-    }
-    if (hasOverlay)
-      svgChildren = children.filter(c => c.type !== "htmlOverlay");
-    let needsSort = false;
-    for (let i = 0; i < svgChildren.length; i++) {
-      if (svgChildren[i].z !== undefined) {
-        needsSort = true;
-        break;
-      }
-    }
-    const ordered = needsSort
-      ? [...svgChildren].sort((a, b) => (a.z ?? 0) - (b.z ?? 0))
-      : svgChildren;
+    const ordered = svgChildOrder(children);
     const sel = parent
       // Exclude transient motion-trail paths: they're created/removed inside a
       // circle's transition, not part of the keyed scene data, so they must not
@@ -352,6 +317,14 @@ export default class SvgRenderer implements Renderer {
       .selectChildren<Element, SceneNode>("*:not(.d3plus-trail)")
       .data(ordered, (d: SceneNode) => d.key);
     const resolveFill = (f?: string): string | null => this._resolveFill(f);
+    const ctx: UpdateContext = {
+      duration,
+      t,
+      resolveFill,
+      trailLog: this._trailLog,
+      trailActive: this._trailActive,
+      trailGrads: this._trailGrads,
+    };
 
     const exit = sel.exit<SceneNode>();
     // Free any clipPath entries owned by exiting groups so they don't
@@ -389,78 +362,10 @@ export default class SvgRenderer implements Renderer {
     merged.order();
 
     merged.each(function (this: Element, d: SceneNode) {
-      const s = select(this);
-      // A text label whose font-size changed eases into its new size/place
-      // instead of snapping. `__d3plusTextPrev__` is the node this element drew
-      // last time; comparing font sizes detects a resize. (The layout/tspans
-      // are already at the new size — the tween scales the painted glyphs.)
-      // `__d3plusTrailPrev__` similarly remembers a trailed point's last
-      // position so its motion trail can sweep from there on the next move.
-      const stash = this as Element & {
-        __d3plusTextPrev__?: TextNode;
-        __d3plusTrailPrev__?: TrailParts;
-      };
-      const windowed = enterWindowed(this, d);
-      const canTrail = d.trail && (d.type === "circle" || d.type === "rect");
-      const persistTrail = canTrail && isPersistTrail(d) && self._trailActive;
-      const prevText =
-        duration && d.type === "text" ? stash.__d3plusTextPrev__ : undefined;
-      const trailPrev =
-        duration && canTrail && !persistTrail
-          ? stash.__d3plusTrailPrev__
-          : undefined;
-      const draw = (el: SvgSelection) => {
-        applyStatic(el, d);
-        applyGeometry(el, d, false, resolveFill);
-      };
-      // A fade-swap label (TextNode.fadeSwap) fades instead of gliding.
-      if (
-        duration &&
-        fadeSwapText(
-          s,
-          d,
-          prevText,
-          () => windowed(trackTransition(s.transition(t), t)),
-          draw,
-        )
-      ) {
-        // Its tween does the rest.
-      } else if (duration) {
-        applyStatic(s, d);
-        const tsel = trackTransition(s.transition(t), t);
-        applyGeometry(windowed(tsel), d, true, resolveFill);
-        const font = d.type === "text" ? (d as TextNode).font : undefined;
-        if (prevText?.font && font && prevText.font.size !== font.size) {
-          // Override the transform tween: glide position/rotation and ease the
-          // scale (old/new → 1) about the box center.
-          tsel.attrTween("transform", textFontTween(prevText, d as TextNode));
-        }
-        // Sweep a motion-trail cone from the mark's previous position to its
-        // current one, beneath the mark (parity with the Canvas backend). A
-        // persistent trail draws its whole history from the log instead.
-        if (persistTrail)
-          attachPersistTrail(this, tsel, self._trailLog, d, f =>
-            self._trailGrads.apply(d.key, f),
-          );
-        else if (trailPrev)
-          attachSvgTrail(this, tsel, trailPrev, d, resolveFill);
-      } else {
-        draw(s);
-        // Redraw the persistent trail on non-animated repaints (e.g. hover) so
-        // it doesn't vanish; static geometry, no tween.
-        if (persistTrail)
-          attachPersistTrail(this, null, self._trailLog, d, f =>
-            self._trailGrads.apply(d.key, f),
-          );
-      }
-      if (d.type === "text") stash.__d3plusTextPrev__ = d;
-      if (canTrail && !persistTrail) {
-        const parts = trailPartsFromNode(d);
-        if (parts) stash.__d3plusTrailPrev__ = parts;
-      }
+      updateNode(this, d, ctx);
       if (d.type === "group") {
         self._applyGroupClip(this as SVGGElement, d as GroupNode);
-        self._reconcile(s, (d as GroupNode).children, duration, t, flip);
+        self._reconcile(select(this), d.children, duration, t, flip);
       }
     });
   }

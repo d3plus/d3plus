@@ -5,13 +5,7 @@ import {
   commitTrailScene,
   TrailLog,
 } from "../animate/trailLog.js";
-import type {
-  ClipShape,
-  LineNode,
-  Scene,
-  SceneNode,
-  TextNode,
-} from "../scene.js";
+import type {Scene, SceneNode} from "../scene.js";
 import {
   applyOverlayToElement,
   alignOverlayHost,
@@ -29,17 +23,14 @@ import type {
 import SvgRenderer from "../svg/SvgRenderer.js";
 import {apply, invert, multiply, nodeMatrix} from "./transform.js";
 import type {Mat} from "./transform.js";
-import {paint, pathFor, pathHit, solidFill} from "./canvasNodePaint.js";
+import {paint, pathFor} from "./canvasNodePaint.js";
+import {drawImage, drawText} from "./canvasDraw.js";
+import {hitTest, inClip} from "./canvasHit.js";
+import type {ClipEntry} from "./canvasHit.js";
 import {getCanvasBackend} from "./backend.js";
 import {CanvasResources} from "./resources.js";
 
 type Ctx = CanvasRenderingContext2D;
-
-/** An ancestor group's clip, with the inverse of that group's accumulated transform. */
-interface ClipEntry {
-  clip: ClipShape;
-  inverse: Mat;
-}
 
 /** A pickable leaf, captured in paint order with its accumulated transform. */
 interface PickEntry {
@@ -358,7 +349,7 @@ export default class CanvasRenderer implements Renderer {
         this._drawImage(ctx, node, a);
         break;
       case "text":
-        this._drawText(ctx, node, a);
+        drawText(ctx, node, a);
         break;
       case "group": {
         if (node.clip) {
@@ -430,47 +421,6 @@ export default class CanvasRenderer implements Renderer {
     }
   }
 
-  private _drawText(ctx: Ctx, node: TextNode, alpha: number): void {
-    const f = node.font || {};
-    const baseStyle = f.style ?? "normal";
-    const baseWeight = f.weight ?? "normal";
-    const size = f.size ?? 12;
-    const family = f.family ?? "sans-serif";
-    ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
-    ctx.textAlign =
-      f.anchor === "middle" ? "center" : f.anchor === "end" ? "right" : "left";
-    ctx.textBaseline =
-      f.baseline === "middle"
-        ? "middle"
-        : f.baseline === "hanging"
-          ? "hanging"
-          : "alphabetic";
-    const p = node.paint || {};
-    ctx.globalAlpha = alpha * (p.fillOpacity ?? 1);
-    ctx.fillStyle = solidFill(p.fill) ?? "#000";
-    for (const ln of node.lines) {
-      if (ln.runs && ln.runs.length) {
-        // Paint runs left-to-right with per-run weight/style. textAlign is
-        // forced to "left" within the line — the line's own x already encodes
-        // anchor placement at layout time.
-        const prevAlign: CanvasTextAlign = ctx.textAlign;
-        ctx.textAlign = "left";
-        let cursor = ln.x;
-        for (const run of ln.runs) {
-          const w = run.style?.weight ?? baseWeight;
-          const s = run.style?.style ?? baseStyle;
-          ctx.font = `${s} ${w} ${size}px ${family}`;
-          ctx.fillText(run.text, cursor, ln.y);
-          cursor += ctx.measureText(run.text).width;
-        }
-        ctx.font = `${baseStyle} ${baseWeight} ${size}px ${family}`;
-        ctx.textAlign = prevAlign;
-      } else {
-        ctx.fillText(ln.text, ln.x, ln.y);
-      }
-    }
-  }
-
   /**
       Resolves once all in-flight image/texture decodes settle and a final frame
       repaints. Server-side callers await this before reading pixels; the browser
@@ -486,43 +436,7 @@ export default class CanvasRenderer implements Renderer {
     alpha: number,
   ): void {
     const img = this._res.imageFor(node.href);
-    if (!img) return;
-    ctx.globalAlpha = alpha;
-    const par = node.preserveAspectRatio;
-    const iw = img.naturalWidth || img.width,
-      ih = img.naturalHeight || img.height;
-    if (par && par.includes("slice")) {
-      // CSS `cover`: scale the image to fill the box, cropping the overflow
-      // (centered), via drawImage's source-rect crop.
-      const scale = Math.max(node.width / iw, node.height / ih);
-      const sw = node.width / scale,
-        sh = node.height / scale;
-      ctx.drawImage(
-        img,
-        (iw - sw) / 2,
-        (ih - sh) / 2,
-        sw,
-        sh,
-        node.x,
-        node.y,
-        node.width,
-        node.height,
-      );
-    } else if (par && par !== "none" && par.includes("meet")) {
-      // CSS `contain`: fit the whole image inside the box (centered).
-      const scale = Math.min(node.width / iw, node.height / ih);
-      const dw = iw * scale,
-        dh = ih * scale;
-      ctx.drawImage(
-        img,
-        node.x + (node.width - dw) / 2,
-        node.y + (node.height - dh) / 2,
-        dw,
-        dh,
-      );
-    } else {
-      ctx.drawImage(img, node.x, node.y, node.width, node.height);
-    }
+    if (img) drawImage(ctx, node, img, alpha);
   }
 
   pick(point: [number, number]): PickResult | null {
@@ -533,105 +447,12 @@ export default class CanvasRenderer implements Renderer {
     ];
     for (let i = this._pickIndex.length - 1; i >= 0; i--) {
       const {node, inverse, clips} = this._pickIndex[i];
-      if (!clips.every(c => this._inClip(c, device))) continue;
+      if (!clips.every(c => inClip(this._ctx, c, device))) continue;
       const [lx, ly] = apply(inverse, device);
-      if (this._hitTest(node, lx, ly))
+      if (hitTest(this._ctx, node, lx, ly))
         return {node, datum: node.datum, index: node.index};
     }
     return null;
-  }
-
-  /** Whether a device-space point falls inside a group's clip (which paints nothing outside it). */
-  private _inClip(
-    {clip, inverse}: ClipEntry,
-    device: [number, number],
-  ): boolean {
-    const [lx, ly] = apply(inverse, device);
-    if (clip.type === "rect")
-      return (
-        lx >= clip.x &&
-        lx <= clip.x + clip.width &&
-        ly >= clip.y &&
-        ly <= clip.y + clip.height
-      );
-    return this._ctx
-      ? this._ctx.isPointInPath(new Path2D(clip.d), lx, ly)
-      : true;
-  }
-
-  private _hitTest(node: SceneNode, lx: number, ly: number): boolean {
-    switch (node.type) {
-      case "rect":
-        return (
-          lx >= node.x &&
-          lx <= node.x + node.width &&
-          ly >= node.y &&
-          ly <= node.y + node.height
-        );
-      case "circle":
-        return (lx - node.cx) ** 2 + (ly - node.cy) ** 2 <= node.r ** 2;
-      case "path":
-        return this._ctx ? pathHit(this._ctx, node, lx, ly) : false;
-      case "area":
-        if (!this._ctx) return false;
-        pathFor(this._ctx, node);
-        return this._ctx.isPointInPath(lx, ly);
-      case "line":
-        return this._hitLine(node, lx, ly);
-      case "image":
-        return (
-          lx >= node.x &&
-          lx <= node.x + node.width &&
-          ly >= node.y &&
-          ly <= node.y + node.height
-        );
-      case "text":
-        return this._hitText(node, lx, ly);
-      default:
-        return false;
-    }
-  }
-
-  /** Hits a polyline when the point is within (strokeWidth/2 + 2px) of any segment. */
-  private _hitLine(node: LineNode, lx: number, ly: number): boolean {
-    const tol = (node.paint?.strokeWidth ?? 1) / 2 + 2;
-    const pts = node.points;
-    for (let i = 1; i < pts.length; i++) {
-      const [x1, y1] = pts[i - 1];
-      const [x2, y2] = pts[i];
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const len2 = dx * dx + dy * dy;
-      const t = len2
-        ? Math.max(0, Math.min(1, ((lx - x1) * dx + (ly - y1) * dy) / len2))
-        : 0;
-      const px = x1 + t * dx;
-      const py = y1 + t * dy;
-      if ((lx - px) ** 2 + (ly - py) ** 2 <= tol * tol) return true;
-    }
-    return false;
-  }
-
-  /** Loose bounding-box hit test over a text node's laid-out lines. */
-  private _hitText(node: TextNode, lx: number, ly: number): boolean {
-    const size = node.font?.size ?? 12;
-    const anchor = node.font?.anchor;
-    for (const ln of node.lines) {
-      const left =
-        anchor === "middle"
-          ? ln.x - ln.width / 2
-          : anchor === "end"
-            ? ln.x - ln.width
-            : ln.x;
-      if (
-        lx >= left &&
-        lx <= left + ln.width &&
-        ly >= ln.y - size &&
-        ly <= ln.y + size * 0.3
-      )
-        return true;
-    }
-    return false;
   }
 
   on(handler: (event: SceneEvent) => void): () => void {
