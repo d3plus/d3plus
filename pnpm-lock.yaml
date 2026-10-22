@@ -161,9 +161,6 @@ importers:
       '@vitest/coverage-v8':
         specifier: 5.0.5
         version: 5.0.5(@vitest/browser@5.0.5)(vitest@5.0.5)
-      chokidar:
-        specifier: ^5.0.0
-        version: 5.0.0
       eslint:
         specifier: ^10.13.0
         version: 10.13.0(jiti@2.6.1)

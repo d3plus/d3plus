@@ -201,7 +201,10 @@ pnpm --filter @d3plus/react run dev   # Vite on :4000
 pnpm --filter @d3plus/docs run dev    # Storybook on :4000
 ```
 
-The `scripts/dev.js` watcher rebuilds ESM and UMD outputs when source changes.
+`scripts/dev.js` serves a package's `dev/` folder with Vite (`/umd/` is
+`dev/umd/`, where Rollup's watch writes the bundles) and reloads open pages when
+a bundle rebuilds or a dev page changes; it also rebuilds other packages' ESM
+output when their source changes.
 
 ### Dev pages
 

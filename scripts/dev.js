@@ -1,9 +1,8 @@
 import fs from "node:fs";
-import {join, relative} from "node:path";
+import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {spawn} from "node:child_process";
-import http from "node:http";
-import chokidar from "chokidar";
+import {createServer} from "vite";
 import {writeIndex} from "./dev-index.js";
 import rollup from "./utils/rollup.js";
 import Logger from "./utils/log.js";
@@ -21,95 +20,69 @@ const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split(
 )[1];
 
 const activeBuilds = new Map();
-
-// Connected browser tabs listening for live-reload events (Server-Sent Events).
-// Each entry: {res, path} — `path` is the URL the tab is showing, so the
-// HTML-only reload signal can skip tabs viewing unrelated pages.
-const reloadClients = new Set();
+const pendingBuilds = new Map();
 
 /**
-    Tells every connected dev page to reload itself. Pass `htmlPath` to
-    target ONLY tabs viewing that exact HTML file (used when an .html /
-    .css file changes — no point reloading unrelated tabs). Omit to
-    broadcast (used when the UMD bundle rebuilds — every tab loads it).
+    Rebuilds another package's ESM output, cancelling any build of it that is
+    still running.
     @private
 */
-function triggerReload(htmlPath) {
-  for (const c of reloadClients) {
-    if (htmlPath && c.path !== htmlPath) continue;
-    c.res.write("data: reload\n\n");
-  }
+function buildEsm(folder) {
+  const prev = activeBuilds.get(folder);
+  if (prev) prev.kill();
+
+  const child = spawn(
+    "pnpm",
+    ["--filter", `@d3plus/${folder}`, "run", "build:esm"],
+    {
+      env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"},
+      shell: true,
+      stdio: "pipe",
+    },
+  );
+  activeBuilds.set(folder, child);
+  let buildErr = "";
+  child.stderr.on("data", d => (buildErr += d));
+  child.on("close", code => {
+    if (activeBuilds.get(folder) === child) activeBuilds.delete(folder);
+    if (code !== 0 && buildErr)
+      log.fail(`@d3plus/${folder} build failed\n${buildErr.trim()}`);
+    else log.done();
+    log.timer("watching for changes...");
+  });
 }
 
-// Snippet injected into served HTML so pages reconnect and reload on rebuild.
-// `?p=<pathname>` lets the server scope HTML/CSS reloads to just the
-// matching tab. `visibilitychange` closes the SSE while the tab is hidden
-// — Chrome enforces a 6-connection-per-host limit on HTTP/1.1, so 6+
-// open tabs each holding an SSE would block new requests for tab loads.
-// Closing while hidden frees the slot; the connection re-opens when the
-// tab is visible again (or before the user navigates away).
-const liveReloadSnippet = `
-<script>
-(function () {
-  var es = null;
-  var connect = function () {
-    if (es || document.hidden) return;
-    es = new EventSource("/__livereload?p=" + encodeURIComponent(location.pathname));
-    es.onmessage = function () { location.reload(); };
-    es.onerror = function () { es && es.close(); es = null; setTimeout(connect, 1000); };
-  };
-  var disconnect = function () {
-    if (es) { es.close(); es = null; }
-  };
-  document.addEventListener("visibilitychange", function () {
-    if (document.hidden) disconnect();
-    else connect();
+/**
+    Queues an ESM rebuild of `folder`, so the burst of events a single save
+    fires starts one build.
+    @private
+*/
+function onSourceChange(folder, file) {
+  log.update(`change detected in ${path.join(folder, file)}`);
+  clearTimeout(pendingBuilds.get(folder));
+  pendingBuilds.set(
+    folder,
+    setTimeout(() => {
+      pendingBuilds.delete(folder);
+      buildEsm(folder);
+    }, 100),
+  );
+}
+
+// Every other package's ESM output is rebuilt when its source (`src/` or its
+// `index` entry) changes.
+for (const folder of fs.readdirSync(packagesDir)) {
+  const dir = path.join(packagesDir, folder);
+  if (folder === name || !fs.statSync(dir).isDirectory()) continue;
+  const src = path.join(dir, "src");
+  if (fs.existsSync(src))
+    fs.watch(src, {recursive: true}, (event, file) => {
+      if (file) onSourceChange(folder, path.join("src", file));
+    });
+  fs.watch(dir, (event, file) => {
+    if (file && /^index\.(js|ts|tsx)$/.test(file)) onSourceChange(folder, file);
   });
-  window.addEventListener("pagehide", disconnect);
-  connect();
-})();
-</script>`;
-
-chokidar
-  .watch(packagesDir, {
-    ignored: (path, stats) =>
-      path.includes("node_modules") ||
-      (stats?.isFile() &&
-        !path.match(/packages\/[a-z]+\/src\//) &&
-        !path.match(/packages\/[a-z]+\/index\.(js|ts|tsx)/)), // only watch js/ts files
-  })
-  .on("all", (event, path) => {
-    if (event === "change") {
-      const folder = path.match(/packages\/([a-z]+)\//)[1];
-      if (folder !== name) {
-        const filename = relative(packagesDir, path);
-        log.update(`change detected in ${filename}`);
-
-        const prev = activeBuilds.get(folder);
-        if (prev) prev.kill();
-
-        const child = spawn(
-          "pnpm",
-          ["--filter", `@d3plus/${folder}`, "run", "build:esm"],
-          {
-            env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"},
-            shell: true,
-            stdio: "pipe",
-          },
-        );
-        activeBuilds.set(folder, child);
-        let buildErr = "";
-        child.stderr.on("data", d => (buildErr += d));
-        child.on("close", code => {
-          if (activeBuilds.get(folder) === child) activeBuilds.delete(folder);
-          if (code !== 0 && buildErr)
-            log.fail(`@d3plus/${folder} build failed\n${buildErr.trim()}`);
-          else log.done();
-          log.timer("watching for changes...");
-        });
-      }
-    }
-  });
+}
 
 function pipeServer(child) {
   let ready = false;
@@ -130,6 +103,67 @@ function pipeServer(child) {
   child.on("close", code => {
     if (code !== 0) log.fail(`server exited with code ${code}`);
   });
+}
+
+/**
+    Lists a dev/ folder that has no index.html of its own.
+    @private
+*/
+function directoryListing(dir, url) {
+  const entries = fs
+    .readdirSync(dir, {withFileTypes: true})
+    .sort((a, b) => a.name.localeCompare(b.name));
+  const items = [
+    ...(url === "/" ? [] : [`<li><a href="..">..</a></li>`]),
+    ...entries
+      .filter(e => e.isDirectory())
+      .map(e => `<li><a href="${e.name}/">${e.name}/</a></li>`),
+    ...entries
+      .filter(e => e.isFile())
+      .map(e => `<li><a href="${e.name}">${e.name}</a></li>`),
+  ].join("\n        ");
+  return `<!doctype html>
+<html><head><meta charset="utf-8"><title>Index of ${url}</title>
+<style>body{font-family:monospace;max-width:800px;margin:2rem auto}a{text-decoration:none;color:#0366d6}a:hover{text-decoration:underline}ul{list-style:none;padding:0}li{padding:0.15rem 0}</style>
+</head><body><h2>Index of ${url}</h2><ul>
+        ${items}
+</ul></body></html>`;
+}
+
+/**
+    Serves a package's static dev/ pages with Vite. Pages load their scripts
+    (the UMD bundles in dev/umd/ and core's dev.js) as classic scripts, so
+    those are sent as they are on disk instead of through Vite's module
+    transform, and a folder without an index.html gets a file listing.
+    @private
+*/
+function staticDevPages(devDir) {
+  return {
+    name: "d3plus-dev-pages",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = decodeURIComponent(req.url.split("?")[0]);
+        const file = path.join(devDir, url);
+        if (!file.startsWith(devDir) || !fs.existsSync(file)) return next();
+        const stat = fs.statSync(file);
+        if (stat.isFile() && file.endsWith(".js")) {
+          res.writeHead(200, {
+            "Content-Type": "text/javascript",
+            "Cache-Control": "no-cache",
+          });
+          return fs.createReadStream(file).pipe(res);
+        }
+        if (!stat.isDirectory() || fs.existsSync(path.join(file, "index.html")))
+          return next();
+        if (!url.endsWith("/")) {
+          res.writeHead(301, {Location: `${url}/`});
+          return res.end();
+        }
+        res.writeHead(200, {"Content-Type": "text/html"});
+        return res.end(directoryListing(file, url));
+      });
+    },
+  };
 }
 
 if (name === "docs") {
@@ -156,171 +190,55 @@ if (name === "docs") {
   );
 } else {
   log.timer(`running dev server on port ${port}`);
-
-  const mimeTypes = {
-    ".html": "text/html",
-    ".js": "application/javascript",
-    ".css": "text/css",
-    ".json": "application/json",
-    ".map": "application/json",
-    ".svg": "image/svg+xml",
-    ".png": "image/png",
-    ".jpg": "image/jpeg",
-    ".csv": "text/csv",
-    ".woff2": "font/woff2",
-  };
-
-  /**
-      Appends the live-reload snippet to an HTML buffer before sending.
-      @private
-  */
-  const sendHtml = (res, data) => {
-    let html = data.toString();
-    html = html.includes("</body>")
-      ? html.replace("</body>", `${liveReloadSnippet}\n</body>`)
-      : html + liveReloadSnippet;
-    res.writeHead(200, {"Content-Type": "text/html"});
-    res.end(html);
-  };
-
-  const server = http.createServer((req, res) => {
-    const url = decodeURIComponent(req.url.split("?")[0]);
-
-    // live-reload event stream: held open, written to on each rebuild.
-    // The `?p=...` query is the tab's pathname so HTML/CSS-change
-    // reloads can be scoped to the matching tab(s) only.
-    if (url.startsWith("/__livereload")) {
-      const qIdx = req.url.indexOf("?");
-      const path =
-        qIdx >= 0
-          ? new URLSearchParams(req.url.slice(qIdx + 1)).get("p") || null
-          : null;
-      res.writeHead(200, {
-        "Content-Type": "text/event-stream",
-        "Cache-Control": "no-cache",
-        Connection: "keep-alive",
-        // Tell intermediaries (and proxies in dev setups) that this
-        // response isn't compressible.
-        "X-Accel-Buffering": "no",
-      });
-      res.write("retry: 1000\n\n");
-      const client = {res, path};
-      reloadClients.add(client);
-      req.on("close", () => reloadClients.delete(client));
-      return;
-    }
-
-    const filePath = join("dev", url);
-
-    // serve file if it exists
-    try {
-      const stat = fs.statSync(filePath);
-      if (stat.isFile()) {
-        const ext = filePath.slice(filePath.lastIndexOf("."));
-        if (ext === ".html") return sendHtml(res, fs.readFileSync(filePath));
-        res.writeHead(200, {
-          "Content-Type": mimeTypes[ext] || "application/octet-stream",
-        });
-        res.end(fs.readFileSync(filePath));
-        return;
-      }
-    } catch {
-      /* fall through */
-    }
-
-    // serve index.html inside directory if it exists
-    try {
-      const indexPath = join(filePath, "index.html");
-      const data = fs.readFileSync(indexPath);
-      sendHtml(res, data);
-      return;
-    } catch {
-      /* fall through */
-    }
-
-    // generate directory listing if path is a directory
-    try {
-      const stat = fs.statSync(filePath);
-      if (stat.isDirectory()) {
-        const entries = fs
-          .readdirSync(filePath, {withFileTypes: true})
-          .sort((a, b) => a.name.localeCompare(b.name));
-        const dirs = entries.filter(e => e.isDirectory());
-        const files = entries.filter(e => e.isFile());
-        const parent = url === "/" ? "" : `<li><a href="..">..</a></li>`;
-        const items = [
-          ...dirs.map(e => `<li><a href="${e.name}/">${e.name}/</a></li>`),
-          ...files.map(e => `<li><a href="${e.name}">${e.name}</a></li>`),
-        ].join("\n        ");
-        res.writeHead(200, {"Content-Type": "text/html"});
-        res.end(`<!doctype html>
-<html><head><meta charset="utf-8"><title>Index of ${url}</title>
-<style>body{font-family:monospace;max-width:800px;margin:2rem auto}a{text-decoration:none;color:#0366d6}a:hover{text-decoration:underline}ul{list-style:none;padding:0}li{padding:0.15rem 0}</style>
-</head><body><h2>Index of ${url}</h2><ul>
-        ${parent}
-        ${items}
-</ul></body></html>`);
-        return;
-      }
-    } catch {
-      /* fall through */
-    }
-
-    res.writeHead(404);
-    res.end("Not found");
-  });
+  const devDir = path.resolve("dev");
+  const indexFile = path.join(devDir, "index.html");
 
   // dev/index.html lists every page with its description; regenerate it now
   // and whenever a page is added, removed or edited.
   writeIndex(process.cwd());
 
-  // reload the browser whenever a dev page (HTML/CSS/JS) is edited directly.
-  // Only the tab(s) viewing that exact path get the reload signal for an
-  // HTML change, so editing dev/charts/Treemap/Treemap.html doesn't
-  // unnecessarily reload every other open chart dev page.
-  chokidar
-    .watch("dev", {
-      ignoreInitial: true,
-      ignored: (path, stats) =>
-        path.includes("/umd/") ||
-        (stats?.isFile() && !/\.(html|css|js)$/.test(path)),
-    })
-    .on("all", (event, path) => {
-      if (path === join("dev", "index.html")) return;
-      log.update(`change detected in ${path}`);
-      if (path.endsWith(".html")) writeIndex(process.cwd());
-      // Normalize disk path → URL path. Files live under `dev/`; the URL
-      // is the path relative to dev/. CSS and JS changes don't carry a clean
-      // "which HTML page imports this" hint so they still broadcast.
-      const isShared = !path.endsWith(".html");
-      if (isShared) {
-        triggerReload();
-      } else {
-        const rel = path.replace(/^dev/, "");
-        triggerReload(rel);
-      }
-      log.timer("watching for changes...");
-    });
+  // Vite reloads the tabs viewing an edited dev page. The UMD bundles reload
+  // every tab once Rollup finishes writing them, and the generated index is
+  // left out so regenerating it doesn't reload every tab.
+  const server = await createServer({
+    configFile: false,
+    root: devDir,
+    publicDir: false,
+    appType: "mpa",
+    clearScreen: false,
+    logLevel: "warn",
+    optimizeDeps: {noDiscovery: true, entries: []},
+    server: {
+      port,
+      strictPort: true,
+      watch: {ignored: ["**/umd/**", indexFile]},
+    },
+    plugins: [staticDevPages(devDir)],
+  });
 
-  server.listen(port, () => {
-    log.done();
-    // bump the maxConnections + keep-alive so multiple open dev tabs
-    // (each holding an EventSource) don't exhaust the per-host
-    // connection budget. Chrome limits HTTP/1.1 to 6 connections per
-    // host; we can't lift that browser-side, but keep-alive timeouts
-    // long enough that pending requests resolve before SSE eats the
-    // budget helps. The server itself has unlimited maxConnections by
-    // default but some sysctl defaults clamp inbound listen backlogs.
-    server.keepAliveTimeout = 60_000;
-    server.headersTimeout = 65_000;
-    // reload the browser whenever the UMD bundle finishes rebuilding —
-    // every tab loads the UMD, so this stays a broadcast.
-    rollup({
-      deps: true,
-      watch: true,
-      env: "development",
-      log,
-      onBuild: () => triggerReload(),
-    });
+  // Vite holds a reload sent while no tab is connected for the next one to
+  // connect, which would reload a freshly opened page.
+  const reloadAll = () => {
+    if (server.ws.clients.size) server.ws.send({type: "full-reload"});
+  };
+
+  server.watcher.on("all", (event, file) => {
+    if (!/\.(html|js)$/.test(file)) return;
+    log.update(`change detected in ${path.relative(process.cwd(), file)}`);
+    if (file.endsWith(".html")) writeIndex(process.cwd());
+    // scripts bypass Vite's module graph, so every tab reloads for them
+    else reloadAll();
+    log.timer("watching for changes...");
+  });
+
+  await server.listen();
+  log.done(`dev server running at ${server.resolvedUrls.local[0]}`);
+
+  rollup({
+    deps: true,
+    watch: true,
+    env: "development",
+    log,
+    onBuild: reloadAll,
   });
 }
