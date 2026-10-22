@@ -6,129 +6,130 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Icicle as D3plusIcicle} from "@d3plus/react";
-export const Icicle = ({ config }) => <D3plusIcicle config={config} />;
+export const Icicle = ({config}) => <D3plusIcicle config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Icicle
    */
   Object.keys(vizArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = vizArgTypes[k]), obj), {}),
 
   /**
    * Icicle-specific methods
    */
-  
+
   {
     legend: {
       table: {
         defaultValue: {
-          summary: "rowLegend"
-        }
-      }
+          summary: "rowLegend",
+        },
+      },
     },
     legendSort: {
       table: {
         defaultValue: {
-          summary: "partitionLegendSort"
-        }
-      }
+          summary: "partitionLegendSort",
+        },
+      },
     },
     legendTooltip: {
       table: {
         defaultValue: {
-          summary: "{tbody: []}"
-        }
-      }
+          summary: "{tbody: []}",
+        },
+      },
     },
     orient: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "horizontal",
-      description: "Which way the levels run: `\"horizontal\"` (default) puts the root on the left with each level to its right; `\"vertical\"` puts the root on top with each level below it.",
-      options: [
-        "horizontal",
-        "vertical"
-      ],
+      description:
+        'Which way the levels run: `"horizontal"` (default) puts the root on the left with each level to its right; `"vertical"` puts the root on top with each level below it.',
+      options: ["horizontal", "vertical"],
       table: {
         defaultValue: {
-          summary: "horizontal"
-        }
+          summary: "horizontal",
+        },
       },
       type: {
         required: false,
-        summary: "\"horizontal\" | \"vertical\""
-      }
+        summary: '"horizontal" | "vertical"',
+      },
     },
     shade: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Lightens each level below the top one a step more than the level above it (see `shadeConfig`), so the levels read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
+      description:
+        "Lightens each level below the top one a step more than the level above it (see `shadeConfig`), so the levels read apart while each branch keeps its top-level color. Applies only to the default colors: a custom `color`, `shapeConfig.fill`, or `colorScale` is drawn as given. Labels keep their automatic contrast color.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     shadeConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Shading strengths, as `colorLighter` amounts (0–1): `step` per `groupBy` level below the top level, up to `max`, which keeps the deepest levels in their branch's hue.",
+      description:
+        "Shading strengths, as `colorLighter` amounts (0–1): `step` per `groupBy` level below the top level, up to `max`, which keeps the deepest levels in their branch's hue.",
       table: {
         defaultValue: {
-          summary: "{step: 0.22, max: 0.6}"
-        }
+          summary: "{step: 0.22, max: 0.6}",
+        },
       },
       type: {
         required: false,
-        summary: "{step?: number, max?: number}"
-      }
+        summary: "{step?: number, max?: number}",
+      },
     },
     sort: {
       control: {},
-      description: "Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
+      description:
+        "Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to descending by summed value, with any threshold bucket last.",
       table: {
         defaultValue: {
-          summary: "partitionDefaultSort"
-        }
+          summary: "partitionDefaultSort",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     sum: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the value each rectangle's breadth is proportional to. Parent rectangles sum their children.",
+      description:
+        "Accessor function or string key for the value each rectangle's breadth is proportional to. Parent rectangles sum their children.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: [shareRow(viz, \"sum\")]}"
-        }
-      }
-    }
-  }
+          summary: '{tbody: [shareRow(viz, "sum")]}',
+        },
+      },
+    },
+  },
 );

@@ -16,7 +16,11 @@ it("saveBlob downloads through a temporary link and revokes its URL later", () =
   global.setTimeout = (fn, ms) => timers.push({fn, ms});
   dom.window.document.addEventListener("click", e => {
     e.preventDefault();
-    clicked = {href: e.target.href, download: e.target.download, attached: e.target.isConnected};
+    clicked = {
+      href: e.target.href,
+      download: e.target.download,
+      attached: e.target.isConnected,
+    };
   });
   try {
     saveBlob(new Blob(["a,b"]), "table.csv");
@@ -28,8 +32,16 @@ it("saveBlob downloads through a temporary link and revokes its URL later", () =
     URL.revokeObjectURL = revokeObjectURL;
     delete global.document;
   }
-  assert.deepStrictEqual(clicked, {href: "blob:fake", download: "table.csv", attached: true});
-  assert.strictEqual(dom.window.document.querySelectorAll("a").length, 0, "the link is removed");
+  assert.deepStrictEqual(clicked, {
+    href: "blob:fake",
+    download: "table.csv",
+    attached: true,
+  });
+  assert.strictEqual(
+    dom.window.document.querySelectorAll("a").length,
+    0,
+    "the link is removed",
+  );
   assert.deepStrictEqual(revokedAtClick, [], "the URL outlives the click");
   assert.strictEqual(timers.length, 1);
   assert.deepStrictEqual(revoked, ["blob:fake"], "then is revoked");

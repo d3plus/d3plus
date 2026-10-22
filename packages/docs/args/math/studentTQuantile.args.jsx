@@ -3,37 +3,36 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   df: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "Degrees of freedom (greater than 0).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   p: {
     control: {
-      type: "number"
+      type: "number",
     },
-    description: "A probability between 0 and 1 (e.g. 0.975 for a two-sided 95% interval).",
+    description:
+      "A probability between 0 and 1 (e.g. 0.975 for a two-sided 95% interval).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

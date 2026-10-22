@@ -5,7 +5,10 @@ const watched = new WeakSet<FontFaceSet>();
 
 /** Normalizes a font-family name for comparison: unquoted and lowercase. */
 const normalize = (family: string): string =>
-  family.trim().replace(/^["']|["']$/g, "").toLowerCase();
+  family
+    .trim()
+    .replace(/^["']|["']$/g, "")
+    .toLowerCase();
 
 /**
  * Records the families in a CSS font-family string as used for measurement, so

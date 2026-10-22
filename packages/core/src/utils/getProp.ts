@@ -8,7 +8,12 @@ import type {DataPoint} from "@d3plus/data";
     @private
 */
 export default function getProp(
-  this: {schema: Record<string, (d: DataPoint, i: number) => DataPoint[keyof DataPoint]>},
+  this: {
+    schema: Record<
+      string,
+      (d: DataPoint, i: number) => DataPoint[keyof DataPoint]
+    >;
+  },
   type: string,
   d: DataPoint,
   i: number,

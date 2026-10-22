@@ -59,9 +59,17 @@ it("Icicle geometry: icicleCollapse maps through the zoom pivot, folding outside
   const bands = icicleBands(400, 2, true);
   const origin = {x0: 0.5, x1: 1, depth: 1};
   // A child of the pivot fills its share of the whole, one band out.
-  const child = icicleCollapse({x0: 0.5, x1: 0.75}, 2, origin, bands, horizontal);
+  const child = icicleCollapse(
+    {x0: 0.5, x1: 0.75},
+    2,
+    origin,
+    bands,
+    horizontal,
+  );
   assert.deepStrictEqual(
-    [child.x, child.y, child.width, child.height].map(v => Math.round(v * 1000) / 1000),
+    [child.x, child.y, child.width, child.height].map(
+      v => Math.round(v * 1000) / 1000,
+    ),
     [133.333, 0, 133.333, 150],
   );
   // A sibling before the pivot folds to a zero-height sliver at the near edge.
@@ -74,6 +82,12 @@ it("Icicle geometry: icicleCollapse maps through the zoom pivot, folding outside
   const deep = icicleCollapse({x0: 0.5, x1: 1}, 9, origin, bands, horizontal);
   assert.deepStrictEqual([deep.x, deep.width], [400, 0]);
   // A zero-width pivot never divides by zero.
-  const flat = icicleCollapse({x0: 0, x1: 1}, 1, {x0: 0.5, x1: 0.5, depth: 1}, bands, horizontal);
+  const flat = icicleCollapse(
+    {x0: 0, x1: 1},
+    1,
+    {x0: 0.5, x1: 0.5, depth: 1},
+    bands,
+    horizontal,
+  );
   assert.ok(Number.isFinite(flat.y) && Number.isFinite(flat.height));
 });

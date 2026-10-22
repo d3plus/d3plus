@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   arr: {
     control: {},
@@ -12,27 +10,27 @@ export const argTypes = {
     description: "The array of values to test against.",
     table: {
       defaultValue: {
-        summary: "[]"
-      }
+        summary: "[]",
+      },
     },
     type: {
       required: false,
-      summary: "array.&lt;number&gt;"
-    }
+      summary: "array.&lt;number&gt;",
+    },
   },
   n: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The number value to use when searching the array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

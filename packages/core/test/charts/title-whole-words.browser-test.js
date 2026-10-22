@@ -25,7 +25,11 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
       new Promise((resolve, reject) => {
         const viz = new window.d3plus.Plot()
           .select("#s")
-          .data([{id: "a", x: 1, y: 2}, {id: "a", x: 2, y: 50000}, {id: "b", x: 3, y: 3}])
+          .data([
+            {id: "a", x: 1, y: 2},
+            {id: "a", x: 2, y: 50000},
+            {id: "b", x: 3, y: 3},
+          ])
           .groupBy("id")
           .x("x")
           .y("y")
@@ -42,7 +46,9 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
             }
             const host = document.querySelector("#s").getBoundingClientRect();
             const rects = selector =>
-              [...document.querySelectorAll(selector)].map(e => e.getBoundingClientRect().toJSON());
+              [...document.querySelectorAll(selector)].map(e =>
+                e.getBoundingClientRect().toJSON(),
+              );
             const out = {
               lines: node ? node.lines.map(l => l.text) : [],
               zoom: rects("#s .zoom-control"),
@@ -50,8 +56,14 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
             };
             if (node) {
               const {x, y} = node.transform;
-              const lH = node.lines.length > 1 ? node.lines[1].y - node.lines[0].y : node.font.size * 1.2;
-              const spans = node.lines.map(l => [x + l.x - l.width / 2, x + l.x + l.width / 2]);
+              const lH =
+                node.lines.length > 1
+                  ? node.lines[1].y - node.lines[0].y
+                  : node.font.size * 1.2;
+              const spans = node.lines.map(l => [
+                x + l.x - l.width / 2,
+                x + l.x + l.width / 2,
+              ]);
               out.box = {
                 left: host.left + Math.min(...spans.map(s => s[0])),
                 right: host.left + Math.max(...spans.map(s => s[1])),
@@ -70,16 +82,31 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
 
 /** Asserts the text is drawn in whole words and stays clear of every corner control. */
 function assertWholeWords(out, text, label) {
-  assert.ok(out.lines.every(l => !l.endsWith("-")), `${label}: no word is broken (${JSON.stringify(out.lines)})`);
-  assert.strictEqual(out.lines.join(" "), text, `${label}: the whole text is drawn`);
-  assert.ok(out.zoom.length && out.topLeft.length, `${label}: both corner panels show`);
+  assert.ok(
+    out.lines.every(l => !l.endsWith("-")),
+    `${label}: no word is broken (${JSON.stringify(out.lines)})`,
+  );
+  assert.strictEqual(
+    out.lines.join(" "),
+    text,
+    `${label}: the whole text is drawn`,
+  );
+  assert.ok(
+    out.zoom.length && out.topLeft.length,
+    `${label}: both corner panels show`,
+  );
   for (const r of [...out.zoom, ...out.topLeft]) {
-    assert.ok(!overlaps(out.box, r), `${label}: the text clears the control at ${r.left},${r.top}`);
+    assert.ok(
+      !overlaps(out.box, r),
+      `${label}: the text clears the control at ${r.left},${r.top}`,
+    );
   }
 }
 
-const panelsBottom = out => Math.max(...[...out.zoom, ...out.topLeft].map(r => r.bottom));
-const onControlsRow = out => out.box.top < Math.min(...out.zoom.map(r => r.bottom));
+const panelsBottom = out =>
+  Math.max(...[...out.zoom, ...out.topLeft].map(r => r.bottom));
+const onControlsRow = out =>
+  out.box.top < Math.min(...out.zoom.map(r => r.bottom));
 
 for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: a word hyphenated only to pack a line is drawn whole beside the controls`, async function () {
@@ -88,7 +115,10 @@ for (const renderer of ["svg", "canvas"]) {
     for (const width of [240, 300, 310, 400, 420]) {
       const out = await textLayout(text, renderer, width);
       assertWholeWords(out, text, `${renderer} @ ${width}px`);
-      assert.ok(onControlsRow(out), `${renderer} @ ${width}px: the title stays on the controls' row`);
+      assert.ok(
+        onControlsRow(out),
+        `${renderer} @ ${width}px: the title stays on the controls' row`,
+      );
     }
   });
 
@@ -101,20 +131,36 @@ for (const renderer of ["svg", "canvas"]) {
   });
 
   it(`${renderer}: a title whose word is too wide beside the controls drops below them, wrapped by words`, async function () {
-    for (const text of ["Quarterly Unemployment Rate", "Telecommunications Infrastructure Spending"]) {
+    for (const text of [
+      "Quarterly Unemployment Rate",
+      "Telecommunications Infrastructure Spending",
+    ]) {
       const width = text.startsWith("Quarterly") ? 250 : 300;
       const out = await textLayout(text, renderer, width);
       assertWholeWords(out, text, `${renderer}: ${text} @ ${width}px`);
-      assert.ok(out.box.top >= panelsBottom(out) - 1, `${text}: starts below the panels (${out.box.top} vs ${panelsBottom(out)})`);
+      assert.ok(
+        out.box.top >= panelsBottom(out) - 1,
+        `${text}: starts below the panels (${out.box.top} vs ${panelsBottom(out)})`,
+      );
     }
   });
 
   it(`${renderer}: a single word too wide for the full-width row still breaks there`, async function () {
     const text = "Pneumonoultramicroscopicsilicovolcanoconiosis";
     const out = await textLayout(text, renderer, 300);
-    assert.ok(out.lines.length > 1 && out.lines[0].endsWith("-"), `the word is hyphenated (${JSON.stringify(out.lines)})`);
-    assert.strictEqual(out.lines.map(l => l.replace(/-$/, "")).join(""), text, "the whole word is drawn");
-    assert.ok(out.box.top >= panelsBottom(out) - 1, "it is drawn on the full-width row below the panels");
+    assert.ok(
+      out.lines.length > 1 && out.lines[0].endsWith("-"),
+      `the word is hyphenated (${JSON.stringify(out.lines)})`,
+    );
+    assert.strictEqual(
+      out.lines.map(l => l.replace(/-$/, "")).join(""),
+      text,
+      "the whole word is drawn",
+    );
+    assert.ok(
+      out.box.top >= panelsBottom(out) - 1,
+      "it is drawn on the full-width row below the panels",
+    );
   });
 
   it(`${renderer}: a subtitle fits beside the controls in whole words too`, async function () {

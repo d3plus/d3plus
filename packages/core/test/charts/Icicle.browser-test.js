@@ -63,7 +63,9 @@ it("Icicle: draws one rect per node, one band per level from the left edge", asy
         "#viz svg.d3plus-render-svg rect[data-key^='icicle-']",
       ).length,
       count: rects.length,
-      bands: [...new Set(rects.map(n => Math.round(n.x)))].sort((a, b) => a - b),
+      bands: [...new Set(rects.map(n => Math.round(n.x)))].sort(
+        (a, b) => a - b,
+      ),
       widths: [...new Set(rects.map(n => Math.round(n.width)))],
       frontend: window.box(window.rectFor(chart, ["Frontend"])),
       pages: window.box(window.rectFor(chart, ["Frontend", "Pages"])),
@@ -72,12 +74,17 @@ it("Icicle: draws one rect per node, one band per level from the left edge", asy
   assert.strictEqual(out.count, 3 + 7, "3 areas + 7 modules");
   assert.strictEqual(out.svgRects, out.count, "every rect reached the SVG");
   assert.strictEqual(out.bands.length, 2);
-  assert.strictEqual(out.bands[0], 0, "the first level starts at the root edge");
+  assert.strictEqual(
+    out.bands[0],
+    0,
+    "the first level starts at the root edge",
+  );
   assert.strictEqual(out.widths.length, 1, "every band is equally deep");
   assert.strictEqual(out.pages.x, out.frontend.x + out.frontend.width);
   assert.ok(
     out.pages.y >= out.frontend.y - 1e-6 &&
-      out.pages.y + out.pages.height <= out.frontend.y + out.frontend.height + 1e-6,
+      out.pages.y + out.pages.height <=
+        out.frontend.y + out.frontend.height + 1e-6,
     "a child stays within its parent's breadth",
   );
 });
@@ -95,7 +102,10 @@ it("Icicle: orient vertical runs the levels top-down", async function () {
     };
   });
   assert.strictEqual(out.tops, 3);
-  assert.ok(out.first.every(y => y === 0), "the first level sits on top");
+  assert.ok(
+    out.first.every(y => y === 0),
+    "the first level sits on top",
+  );
   assert.ok(out.fullWidth > 400, "the first level spans the width");
 });
 
@@ -142,7 +152,9 @@ it("Icicle: labels sit inside their rects, upright or turned up narrow ones, in 
           };
         });
     const horizontal = collect(await window.build());
-    const vertical = collect(await window.build({config: {orient: "vertical"}}));
+    const vertical = collect(
+      await window.build({config: {orient: "vertical"}}),
+    );
     return {horizontal, vertical};
   });
   const words = new Set(
@@ -158,7 +170,10 @@ it("Icicle: labels sit inside their rects, upright or turned up narrow ones, in 
           assert.ok(words.has(w) || w.endsWith("..."), `whole word: ${w}`);
     }
   }
-  assert.ok(out.vertical.some(l => l.rotate === -90), "narrow columns turn their labels");
+  assert.ok(
+    out.vertical.some(l => l.rotate === -90),
+    "narrow columns turn their labels",
+  );
 });
 
 it("Icicle: a click zooms into a node (it fills the root band) and the root band zooms back out", async function () {
@@ -189,7 +204,10 @@ it("Icicle: a click zooms into a node (it fills the root band) and the root band
     [0, 0, out.area],
     "the focus fills the root band's full breadth",
   );
-  assert.ok(out.drawn.every(k => k.includes("Backend")), "only Backend's subtree");
+  assert.ok(
+    out.drawn.every(k => k.includes("Backend")),
+    "only Backend's subtree",
+  );
   assert.strictEqual(out.after, 0);
   assert.ok(
     out.returning.some(k => k.includes("Frontend")),
@@ -220,19 +238,25 @@ it("Icicle: draws small multiples with facet", async function () {
     const all = [];
     const walk = nodes =>
       nodes.forEach(n => {
-        if (n.type === "rect" && n.datum && /icicle-/.test(n.key)) all.push(n.key);
+        if (n.type === "rect" && n.datum && /icicle-/.test(n.key))
+          all.push(n.key);
         if (n.children) walk(n.children);
       });
     walk(chart._chartScene);
     return {count: all.length, keys: all};
   });
-  assert.strictEqual(out.count, 7 + 10, "every module and file across the panels");
+  assert.strictEqual(
+    out.count,
+    7 + 10,
+    "every module and file across the panels",
+  );
 });
 
 it("Icicle: shapeConfig texture and backgroundImage reach every rect and legend swatch, on SVG and Canvas", async function () {
   for (const renderer of ["svg", "canvas"]) {
     const out = await page(async r => {
-      const image = "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
+      const image =
+        "data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2210%22%20height%3D%2210%22%2F%3E";
       const chart = await window.build({
         renderer: r,
         config: {shapeConfig: {texture: "lines", backgroundImage: image}},
@@ -243,29 +267,60 @@ it("Icicle: shapeConfig texture and backgroundImage reach every rect and legend 
           ? (n.children || []).forEach(c => walk(c, `${anc}>${n.key || ""}`))
           : leaves.push({...n, anc});
       walk(chart._lastSceneRendered.root, "");
-      const images = new Set(leaves.filter(n => n.type === "image").map(n => n.key));
+      const images = new Set(
+        leaves.filter(n => n.type === "image").map(n => n.key),
+      );
       const mark = n => ({
         key: n.key,
         textured: String(n.paint.fill).startsWith("pattern:"),
         image: images.has(`${n.key}-bgimage-img`),
       });
-      const rects = leaves.filter(n => n.type === "rect" && n.datum && /^icicle-/.test(n.key));
-      const swatches = leaves.filter(n =>
-        ["rect", "circle", "path"].includes(n.type) && n.datum && n.anc.includes("viz-legend") &&
-        !String(n.key).endsWith("::hit") && n.paint && n.paint.fill && n.paint.fill !== "none");
+      const rects = leaves.filter(
+        n => n.type === "rect" && n.datum && /^icicle-/.test(n.key),
+      );
+      const swatches = leaves.filter(
+        n =>
+          ["rect", "circle", "path"].includes(n.type) &&
+          n.datum &&
+          n.anc.includes("viz-legend") &&
+          !String(n.key).endsWith("::hit") &&
+          n.paint &&
+          n.paint.fill &&
+          n.paint.fill !== "none",
+      );
       const svg = document.querySelector("#viz svg");
       return {
         rects: rects.map(mark),
         swatches: swatches.map(mark),
-        dom: svg ? {patterns: svg.querySelectorAll("[fill^='url(#']").length, images: svg.querySelectorAll("image").length} : null,
+        dom: svg
+          ? {
+              patterns: svg.querySelectorAll("[fill^='url(#']").length,
+              images: svg.querySelectorAll("image").length,
+            }
+          : null,
       };
     }, renderer);
     assert.strictEqual(out.rects.length, 3 + 7 + 10, `${renderer}: every node`);
-    assert.deepStrictEqual(out.rects.filter(m => !m.textured || !m.image), [], `${renderer}: every rect takes both`);
-    assert.strictEqual(out.swatches.length, 3, `${renderer}: one swatch per area`);
-    assert.deepStrictEqual(out.swatches.filter(m => !m.textured || !m.image), [], `${renderer}: every swatch takes both`);
+    assert.deepStrictEqual(
+      out.rects.filter(m => !m.textured || !m.image),
+      [],
+      `${renderer}: every rect takes both`,
+    );
+    assert.strictEqual(
+      out.swatches.length,
+      3,
+      `${renderer}: one swatch per area`,
+    );
+    assert.deepStrictEqual(
+      out.swatches.filter(m => !m.textured || !m.image),
+      [],
+      `${renderer}: every swatch takes both`,
+    );
     if (renderer === "svg") {
-      assert.ok(out.dom.patterns >= 23, `the DOM fills ${out.dom.patterns} shapes with patterns`);
+      assert.ok(
+        out.dom.patterns >= 23,
+        `the DOM fills ${out.dom.patterns} shapes with patterns`,
+      );
       assert.ok(out.dom.images >= 23, `the DOM draws ${out.dom.images} images`);
     }
   }

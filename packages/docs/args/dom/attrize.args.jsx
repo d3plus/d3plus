@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   a: {
     control: {},
@@ -12,25 +10,25 @@ export const argTypes = {
     description: "An object of key/value attr pairs.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "record"
-    }
+      summary: "record",
+    },
   },
   e: {
     control: {},
     description: "The d3 selection to apply attributes to.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "attrable"
-    }
-  }
+      summary: "attrable",
+    },
+  },
 };

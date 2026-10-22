@@ -20,7 +20,11 @@ import {Treemap} from "@d3plus/core";
 @Component({
   selector: "app-chart",
   imports: [D3plusVizComponent],
-  template: `<d3plus-viz [viz]="Treemap" [config]="config" style="height: 400px" />`,
+  template: `<d3plus-viz
+    [viz]="Treemap"
+    [config]="config"
+    style="height: 400px"
+  />`,
 })
 export class ChartComponent {
   readonly Treemap = Treemap;
@@ -39,10 +43,10 @@ The component instantiates the visualization on init and re-renders whenever an 
 
 ## Inputs
 
-| Input | Description |
-| --- | --- |
-| `viz` | **Required.** The d3plus visualization class to instantiate (e.g. `Treemap`). |
-| `config` | Config object forwarded to the instance's `.config()` method. |
-| `globalConfig` | Config merged ahead of `config` — a shared baseline across charts. |
-| `callback` | A function invoked at the end of each render cycle. |
-| `forceUpdate` | When `true`, re-renders on every change even if the config is unchanged. |
+| Input          | Description                                                                   |
+| -------------- | ----------------------------------------------------------------------------- |
+| `viz`          | **Required.** The d3plus visualization class to instantiate (e.g. `Treemap`). |
+| `config`       | Config object forwarded to the instance's `.config()` method.                 |
+| `globalConfig` | Config merged ahead of `config` — a shared baseline across charts.            |
+| `callback`     | A function invoked at the end of each render cycle.                           |
+| `forceUpdate`  | When `true`, re-renders on every change even if the config is unchanged.      |

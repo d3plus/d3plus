@@ -7,7 +7,11 @@ import {SvgRenderer, CanvasRenderer} from "../index.ts";
 useJsdom({augment: false});
 
 function scene(children) {
-  return {width: 200, height: 100, root: {type: "group", key: "root", children}};
+  return {
+    width: 200,
+    height: 100,
+    root: {type: "group", key: "root", children},
+  };
 }
 
 it("SvgRenderer mounts an HtmlOverlay node as a sibling div", () => {
@@ -74,7 +78,10 @@ it("HtmlOverlay onMount callback fires with the host element", () => {
   );
 
   assert.ok(mountEl, "onMount was called");
-  assert.strictEqual(mountEl?.className.includes("d3plus-render-overlay"), true);
+  assert.strictEqual(
+    mountEl?.className.includes("d3plus-render-overlay"),
+    true,
+  );
   assert.strictEqual(
     mountEl?.querySelector(".b")?.textContent,
     "x",
@@ -222,7 +229,11 @@ it("HtmlOverlay preserves onMount DOM mutations across re-draws (same html)", ()
       "rgb(1, 2, 3)",
       `${Renderer.name}: onMount style survives re-draw`,
     );
-    assert.strictEqual(mounts, 1, `${Renderer.name}: onMount fired exactly once`);
+    assert.strictEqual(
+      mounts,
+      1,
+      `${Renderer.name}: onMount fired exactly once`,
+    );
 
     renderer.destroy();
   }

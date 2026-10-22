@@ -5,7 +5,10 @@ import {default as ckmeans} from "../src/ckmeans.ts";
 it("math/ckmeans clusters well-separated data into the optimal grouping", () => {
   assert.deepStrictEqual(
     ckmeans([1, 2, 3, 10, 11, 12], 2),
-    [[1, 2, 3], [10, 11, 12]],
+    [
+      [1, 2, 3],
+      [10, 11, 12],
+    ],
     "two obvious groups",
   );
 
@@ -13,7 +16,11 @@ it("math/ckmeans clusters well-separated data into the optimal grouping", () => 
   // partition is safe to assert (no tie-breaking ambiguity).
   assert.deepStrictEqual(
     ckmeans([-1, 2, -1, 2, 4, 5, 6, -1, 2, -1], 3),
-    [[-1, -1, -1, -1], [2, 2, 2], [4, 5, 6]],
+    [
+      [-1, -1, -1, -1],
+      [2, 2, 2],
+      [4, 5, 6],
+    ],
     "three groups, minimizing within-cluster sum of squares",
   );
 });
@@ -23,7 +30,10 @@ it("math/ckmeans sorts unsorted input without mutating the caller's array", () =
   const result = ckmeans(input, 2);
   assert.deepStrictEqual(
     result,
-    [[1, 2, 3], [10, 11, 12]],
+    [
+      [1, 2, 3],
+      [10, 11, 12],
+    ],
     "result is grouped from a sorted view of the data",
   );
   assert.deepStrictEqual(

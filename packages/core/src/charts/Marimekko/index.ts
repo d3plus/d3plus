@@ -14,7 +14,11 @@ import {barWidthAccessor, labelBarWidth} from "../Plot/barWidth.js";
 import {resolveStackOffset} from "../Plot/stackHelpers.js";
 import {pyramidStackOrder} from "../Pyramid/stackOrder.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {marimekkoAxisDefaults, marimekkoFacetAxes, marimekkoFixedAxes} from "./axis.js";
+import {
+  marimekkoAxisDefaults,
+  marimekkoFacetAxes,
+  marimekkoFixedAxes,
+} from "./axis.js";
 
 /** Each bar's total along the value axis, labeled "Bar Total" in tooltips. */
 function barTotal(viz: VizInstance) {
@@ -34,7 +38,10 @@ export const marimekkoDef: ChartDefinition = {
     viz._stackOffset = resolveStackOffset("expand");
     // Each series keeps one level in every bar, the largest overall at the bottom.
     viz._stackOrder = pyramidStackOrder((d, i) =>
-      viz._ids(d, i).slice(0, viz._drawDepth + 1).join("_"),
+      viz
+        ._ids(d, i)
+        .slice(0, viz._drawDepth + 1)
+        .join("_"),
     ) as unknown as VizInstance["_stackOrder"];
     const preDraw = viz._preDraw.bind(viz);
     viz._preDraw = () => {

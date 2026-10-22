@@ -65,18 +65,34 @@ const ARROW_KEYS: Record<string, [number, number]> = {
 };
 
 /** Re-centers the chart, at scale `k`, on a content-space point — the shared math behind click-to-jump and wheel-zoom. @private */
-function centerOn(viz: Viz, px: number, py: number, k: number, duration: number): void {
+function centerOn(
+  viz: Viz,
+  px: number,
+  py: number,
+  k: number,
+  duration: number,
+): void {
   const [[ax0, ay0], [ax1, ay1]] = viz._zoomBehavior.translateExtent();
-  const dims = zoomedDims(viz), t = liveTransform(viz);
+  const dims = zoomedDims(viz),
+    t = liveTransform(viz);
   const x = dims.x ? (ax0 + ax1) / 2 - px * k : t.x;
   const y = dims.y ? (ay0 + ay1) / 2 - py * k : t.y;
   zoomTo(viz, k, x, y, duration);
 }
 
 /** Maps a pointer position local to the minimap's outer box into content-space. @private */
-function contentPointFromLocal(viz: Viz, mmW: number, mmH: number, localX: number, localY: number): [number, number] {
+function contentPointFromLocal(
+  viz: Viz,
+  mmW: number,
+  mmH: number,
+  localX: number,
+  localY: number,
+): [number, number] {
   const [[ax0, ay0], [ax1, ay1]] = viz._zoomBehavior.translateExtent();
-  return [ax0 + (localX / mmW) * (ax1 - ax0), ay0 + (localY / mmH) * (ay1 - ay0)];
+  return [
+    ax0 + (localX / mmW) * (ax1 - ax0),
+    ay0 + (localY / mmH) * (ay1 - ay0),
+  ];
 }
 
 /**
@@ -94,7 +110,14 @@ function contentPointFromLocal(viz: Viz, mmW: number, mmH: number, localX: numbe
     other property (background, border, border-radius, …) up to the user.
     @private
 */
-function paint(viz: Viz, mmW: number, mmH: number, styles: MinimapStyles, state: DragState, viewportEl: HTMLElement): void {
+function paint(
+  viz: Viz,
+  mmW: number,
+  mmH: number,
+  styles: MinimapStyles,
+  state: DragState,
+  viewportEl: HTMLElement,
+): void {
   const el = viewportEl.parentElement;
   const labelEl = el?.querySelector<HTMLElement>(".d3plus-minimap-label");
   if (!el || !labelEl) return;
@@ -120,17 +143,30 @@ function paint(viz: Viz, mmW: number, mmH: number, styles: MinimapStyles, state:
   if (!zoomedIn) return;
 
   const [[ax0, ay0], [ax1, ay1]] = viz._zoomBehavior.translateExtent();
-  const areaW = ax1 - ax0, areaH = ay1 - ay0;
+  const areaW = ax1 - ax0,
+    areaH = ay1 - ay0;
   const frac = Math.min(1, 1 / t.k);
   const dims = zoomedDims(viz);
-  const fracW = dims.x ? frac : 1, fracH = dims.y ? frac : 1;
+  const fracW = dims.x ? frac : 1,
+    fracH = dims.y ? frac : 1;
   // Un-apply the current transform — the same algebra `zoomToBounds`
   // uses to go from displayed bounds back to unzoomed surface space.
-  const contentX0 = (ax0 - t.x) / t.k, contentY0 = (ay0 - t.y) / t.k;
-  const fracX = Math.max(0, Math.min(1 - fracW, areaW ? (contentX0 - ax0) / areaW : 0));
-  const fracY = Math.max(0, Math.min(1 - fracH, areaH ? (contentY0 - ay0) / areaH : 0));
+  const contentX0 = (ax0 - t.x) / t.k,
+    contentY0 = (ay0 - t.y) / t.k;
+  const fracX = Math.max(
+    0,
+    Math.min(1 - fracW, areaW ? (contentX0 - ax0) / areaW : 0),
+  );
+  const fracY = Math.max(
+    0,
+    Math.min(1 - fracH, areaH ? (contentY0 - ay0) / areaH : 0),
+  );
 
-  paintMinimapStyle(viewportEl, styles.viewport, state.dragging ? styles.viewportActive : {});
+  paintMinimapStyle(
+    viewportEl,
+    styles.viewport,
+    state.dragging ? styles.viewportActive : {},
+  );
   paintMinimapStyle(viewportEl, {
     position: "absolute",
     "box-sizing": "border-box",
@@ -161,7 +197,9 @@ function viewportEvents(
   paintFrom: (viewportEl: HTMLElement) => void,
 ): Record<string, (e: Event) => void> {
   const closestViewport = (e: Event): HTMLElement | null =>
-    (e.target as Element | null)?.closest(".d3plus-minimap-viewport") as HTMLElement | null;
+    (e.target as Element | null)?.closest(
+      ".d3plus-minimap-viewport",
+    ) as HTMLElement | null;
 
   const endDrag = (e: Event): void => {
     if ((e as PointerEvent).pointerId !== state.dragPointerId) return;
@@ -187,7 +225,13 @@ function viewportEvents(
       state.dragging = true;
       state.dragPointerId = pe.pointerId;
       const t = liveTransform(viz);
-      state.dragStart = {x: pe.clientX, y: pe.clientY, tx: t.x, ty: t.y, k: t.k};
+      state.dragStart = {
+        x: pe.clientX,
+        y: pe.clientY,
+        tx: t.x,
+        ty: t.y,
+        k: t.k,
+      };
       paintFrom(el);
       e.preventDefault();
     },
@@ -197,12 +241,22 @@ function viewportEvents(
       const [[ax0], [ax1]] = viz._zoomBehavior.translateExtent();
       const scaleFactor = (ax1 - ax0) / mmW;
       const dims = zoomedDims(viz);
-      const dx = dims.x ? (pe.clientX - state.dragStart.x) * scaleFactor * state.dragStart.k : 0;
-      const dy = dims.y ? (pe.clientY - state.dragStart.y) * scaleFactor * state.dragStart.k : 0;
+      const dx = dims.x
+        ? (pe.clientX - state.dragStart.x) * scaleFactor * state.dragStart.k
+        : 0;
+      const dy = dims.y
+        ? (pe.clientY - state.dragStart.y) * scaleFactor * state.dragStart.k
+        : 0;
       // duration 0 — 1:1 responsiveness, matching every other per-pixel
       // pan/zoom tick (`zoomed()`'s own reasoning: a queued transition
       // per pointermove would visibly lag).
-      zoomTo(viz, state.dragStart.k, state.dragStart.tx - dx, state.dragStart.ty - dy, 0);
+      zoomTo(
+        viz,
+        state.dragStart.k,
+        state.dragStart.tx - dx,
+        state.dragStart.ty - dy,
+        0,
+      );
     },
     pointerup: endDrag,
     pointercancel: endDrag,
@@ -229,7 +283,11 @@ function viewportEvents(
 }
 
 /** Click-to-jump / double-click-reset / Cmd+wheel-zoom events for the outer box. @private */
-function outerEvents(viz: Viz, mmW: number, mmH: number): Record<string, (e: Event) => void> {
+function outerEvents(
+  viz: Viz,
+  mmW: number,
+  mmH: number,
+): Record<string, (e: Event) => void> {
   return {
     // A click on the outer box (not the viewport box itself, which
     // `viewportEvents`'s `pointerdown` already claims for dragging)
@@ -242,7 +300,13 @@ function outerEvents(viz: Viz, mmW: number, mmH: number): Record<string, (e: Eve
       if (!outerEl) return;
       const me = e as MouseEvent;
       const rect = outerEl.getBoundingClientRect();
-      const [px, py] = contentPointFromLocal(viz, mmW, mmH, me.clientX - rect.left, me.clientY - rect.top);
+      const [px, py] = contentPointFromLocal(
+        viz,
+        mmW,
+        mmH,
+        me.clientX - rect.left,
+        me.clientY - rect.top,
+      );
       centerOn(viz, px, py, liveTransform(viz).k, viz.schema.duration);
     },
     // Double-clicking anywhere on the minimap resets the chart, like the
@@ -259,11 +323,20 @@ function outerEvents(viz: Viz, mmW: number, mmH: number): Record<string, (e: Eve
       const we = e as WheelEvent;
       if (!we.ctrlKey && !we.metaKey) return;
       we.preventDefault();
-      const outerEl = (e.target as Element | null)?.closest(".d3plus-minimap") as HTMLElement | null;
+      const outerEl = (e.target as Element | null)?.closest(
+        ".d3plus-minimap",
+      ) as HTMLElement | null;
       if (!outerEl) return;
       const rect = outerEl.getBoundingClientRect();
-      const [px, py] = contentPointFromLocal(viz, mmW, mmH, we.clientX - rect.left, we.clientY - rect.top);
-      const factor = we.deltaY < 0 ? viz.schema.zoomFactor : 1 / viz.schema.zoomFactor;
+      const [px, py] = contentPointFromLocal(
+        viz,
+        mmW,
+        mmH,
+        we.clientX - rect.left,
+        we.clientY - rect.top,
+      );
+      const factor =
+        we.deltaY < 0 ? viz.schema.zoomFactor : 1 / viz.schema.zoomFactor;
       centerOn(viz, px, py, liveTransform(viz).k * factor, 0);
     },
   };
@@ -277,11 +350,23 @@ function outerEvents(viz: Viz, mmW: number, mmH: number): Record<string, (e: Eve
     which re-run `layout()`. Mirrors `buildZoomControlPanel`'s shape.
     @private
 */
-function buildMinimapPanel(viz: Viz, mmW: number, mmH: number, controlsHeight: number): FeatureLayout["panel"] {
+function buildMinimapPanel(
+  viz: Viz,
+  mmW: number,
+  mmH: number,
+  controlsHeight: number,
+): FeatureLayout["panel"] {
   const styles = minimapStyles(viz);
-  const state: DragState = {dragging: false, dragPointerId: null, dragStart: {x: 0, y: 0, tx: 0, ty: 0, k: 1}};
-  const paintFrom = (viewportEl: HTMLElement): void => paint(viz, mmW, mmH, styles, state, viewportEl);
-  const extraClass = viz.schema.minimapClassName ? ` ${viz.schema.minimapClassName}` : "";
+  const state: DragState = {
+    dragging: false,
+    dragPointerId: null,
+    dragStart: {x: 0, y: 0, tx: 0, ty: 0, k: 1},
+  };
+  const paintFrom = (viewportEl: HTMLElement): void =>
+    paint(viz, mmW, mmH, styles, state, viewportEl);
+  const extraClass = viz.schema.minimapClassName
+    ? ` ${viz.schema.minimapClassName}`
+    : "";
 
   return {
     type: "htmlOverlay",
@@ -293,11 +378,19 @@ function buildMinimapPanel(viz: Viz, mmW: number, mmH: number, controlsHeight: n
     className: `d3plus-minimap${extraClass}`,
     html: minimapHtml(viz),
     events: {
-      ".d3plus-minimap-viewport": viewportEvents(viz, mmW, styles, state, paintFrom),
+      ".d3plus-minimap-viewport": viewportEvents(
+        viz,
+        mmW,
+        styles,
+        state,
+        paintFrom,
+      ),
       ".d3plus-minimap": outerEvents(viz, mmW, mmH),
     },
     onUpdate: (host: HTMLElement) => {
-      const viewportEl = host.querySelector<HTMLElement>(".d3plus-minimap-viewport");
+      const viewportEl = host.querySelector<HTMLElement>(
+        ".d3plus-minimap-viewport",
+      );
       if (viewportEl) paintFrom(viewportEl);
     },
   };
@@ -323,7 +416,13 @@ function buildMinimapPanel(viz: Viz, mmW: number, mmH: number, controlsHeight: n
 export const minimapFeature: FeatureModule = {
   name: "minimap",
   layout: ({viz}) => {
-    if (!viz.schema.zoom || !viz.schema.minimap || !viz._container || !viz._zoomBehavior || !showsZoomControls(viz))
+    if (
+      !viz.schema.zoom ||
+      !viz.schema.minimap ||
+      !viz._container ||
+      !viz._zoomBehavior ||
+      !showsZoomControls(viz)
+    )
       return {panel: null, margin: {}};
 
     const box = zoomControlsBox(viz);
@@ -335,7 +434,8 @@ export const minimapFeature: FeatureModule = {
     // math, which reads `translateExtent` directly) must track it rather
     // than `chartBounds` alone.
     const bounds = chartBounds(viz as never);
-    const height = viz._zoomHeight || bounds.height, width = viz._zoomWidth || bounds.width;
+    const height = viz._zoomHeight || bounds.height,
+      width = viz._zoomWidth || bounds.width;
     if (!width || !height) return {panel: null, margin: {}};
 
     // `box.width` measures the WHOLE button panel, including its own

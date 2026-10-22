@@ -96,10 +96,20 @@ export default function (
       )
       .titleSwatch(true)
       .position(position)
-      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.tooltipConfig))
-      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.legendTooltip));
+      .config(
+        configPrep.bind(this as unknown as ConfigPrepHost)(
+          this.schema.tooltipConfig,
+        ),
+      )
+      .config(
+        configPrep.bind(this as unknown as ConfigPrepHost)(
+          this.schema.legendTooltip,
+        ),
+      );
     // The title leads with the hovered entry's swatch, as on the chart.
-    leadTitleWithSwatch(this._tooltipClass, pickSwatch(this as unknown as VizInstance, this._lastScenePick))
-      .render();
+    leadTitleWithSwatch(
+      this._tooltipClass,
+      pickSwatch(this as unknown as VizInstance, this._lastScenePick),
+    ).render();
   }
 }

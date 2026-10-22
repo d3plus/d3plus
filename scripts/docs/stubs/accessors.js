@@ -5,7 +5,8 @@
 
 import {configArgType, configInterfaceDocs, scopedDoc} from "./args.js";
 
-const hasParent = ({augments}) => (augments && augments.length ? augments[0] : false);
+const hasParent = ({augments}) =>
+  augments && augments.length ? augments[0] : false;
 
 /** A short rendering of an accessor's default value for a table cell. */
 function renderDefault(value) {
@@ -20,7 +21,10 @@ function renderDefault(value) {
 }
 
 const cell = text =>
-  text.replace(/\|/g, "\\|").replace(/\s*\n\s*\n\s*/g, "<br><br>").replace(/\n/g, " ");
+  text
+    .replace(/\|/g, "\\|")
+    .replace(/\s*\n\s*\n\s*/g, "<br><br>")
+    .replace(/\n/g, " ");
 
 /** The `[start, end)` of a class's `### Name` section in `readme`, or null. */
 function sectionRange(readme, name) {
@@ -40,7 +44,10 @@ function sectionRange(readme, name) {
     @param context `{stories, configDefaults, interfaceDocs}`, as the args
     generator uses them.
 */
-export function injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs}) {
+export function injectConfigAccessors(
+  readme,
+  {stories, configDefaults, interfaceDocs},
+) {
   const classes = stories.filter(s => s.kind === "class" && !s.chartDef);
   const byName = name => stories.find(d => d.name === name);
 
@@ -56,25 +63,32 @@ export function injectConfigAccessors(readme, {stories, configDefaults, interfac
     );
     const inherited = configDefaults[hasParent(story)] || {};
     tableKeys[story.name] = Object.keys(own)
-      .filter(key => !key.startsWith("_") && !(key in inherited) && !documented.has(key))
+      .filter(
+        key =>
+          !key.startsWith("_") && !(key in inherited) && !documented.has(key),
+      )
       .sort((a, b) => a.localeCompare(b));
   }
 
-  const specificDocs = name => configInterfaceDocs(name, stories, interfaceDocs);
+  const specificDocs = name =>
+    configInterfaceDocs(name, stories, interfaceDocs);
   for (const story of classes) {
     const keys = tableKeys[story.name];
     if (!keys) continue;
     let ancestor = byName(hasParent(story));
-    while (ancestor && !tableKeys[ancestor.name]?.length) ancestor = byName(hasParent(ancestor));
+    while (ancestor && !tableKeys[ancestor.name]?.length)
+      ancestor = byName(hasParent(ancestor));
     if (!keys.length && !ancestor) continue;
 
     let md = "#### Config accessors\n\n";
-    md += "Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()` returns it.";
+    md +=
+      "Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()` returns it.";
     if (ancestor)
       md += ` Also accepts the config accessors of [\`${ancestor.name}\`](#${ancestor.name.toLowerCase()}).`;
     md += "\n\n";
     if (keys.length) {
-      md += "| Accessor | Type | Default | Description |\n| --- | --- | --- | --- |\n";
+      md +=
+        "| Accessor | Type | Default | Description |\n| --- | --- | --- | --- |\n";
       for (const key of keys) {
         const value = configDefaults[story.name][key];
         const doc = scopedDoc(
@@ -93,7 +107,12 @@ export function injectConfigAccessors(readme, {stories, configDefaults, interfac
     const section = readme.slice(start, end);
     const methods = section.indexOf("\n#### Methods\n");
     const at = methods < 0 ? section.length : methods + 1;
-    readme = readme.slice(0, start) + section.slice(0, at) + md + section.slice(at) + readme.slice(end);
+    readme =
+      readme.slice(0, start) +
+      section.slice(0, at) +
+      md +
+      section.slice(at) +
+      readme.slice(end);
   }
   return readme;
 }

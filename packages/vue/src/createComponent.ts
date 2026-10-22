@@ -1,4 +1,12 @@
-import {defineComponent, h, inject, onMounted, onUnmounted, ref, watch} from "vue";
+import {
+  defineComponent,
+  h,
+  inject,
+  onMounted,
+  onUnmounted,
+  ref,
+  watch,
+} from "vue";
 import type {InjectionKey, PropType} from "vue";
 import {applyConfig, hash} from "@d3plus/dom";
 import type {D3plusInstance} from "@d3plus/dom";
@@ -8,7 +16,8 @@ import type {D3plusInstance} from "@d3plus/dom";
     own config — the Vue analogue of the React wrapper's D3plusContext. Provide
     it from an ancestor: `provide(D3plusConfigKey, {locale: "es-ES"})`.
 */
-export const D3plusConfigKey: InjectionKey<Record<string, unknown>> = Symbol("d3plus-config");
+export const D3plusConfigKey: InjectionKey<Record<string, unknown>> =
+  Symbol("d3plus-config");
 
 /**
     Builds a Vue 3 component that renders the given d3plus class into an `<svg>`.
@@ -26,7 +35,10 @@ export function createD3plusComponent(
     name: "D3plusRenderer",
     props: {
       /** Config forwarded to the instance's `.config()` method. */
-      config: {type: Object as PropType<Record<string, unknown>>, default: () => ({})},
+      config: {
+        type: Object as PropType<Record<string, unknown>>,
+        default: () => ({}),
+      },
       /** A function invoked at the end of each render cycle. */
       callback: {type: Function as PropType<() => void>, default: undefined},
       /** Re-render on every update even when the merged config is unchanged. */
@@ -52,15 +64,18 @@ export function createD3plusComponent(
       }
 
       onMounted(draw);
-      watch(() => [props.config, props.forceUpdate, globalConfig], draw, {deep: true});
+      watch(() => [props.config, props.forceUpdate, globalConfig], draw, {
+        deep: true,
+      });
       onUnmounted(() => {
         instance?.destroy?.();
         instance = null;
       });
 
-      return () => h("div", {class: props.className, style: {height: "100%"}}, [
-        h("svg", {ref: container, width: "100%", height: "100%"}),
-      ]);
+      return () =>
+        h("div", {class: props.className, style: {height: "100%"}}, [
+          h("svg", {ref: container, width: "100%", height: "100%"}),
+        ]);
     },
   });
 }

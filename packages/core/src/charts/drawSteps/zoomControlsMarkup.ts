@@ -13,7 +13,12 @@ import {
   zoomControlStyleDefault,
   zoomControlStyleHoverDefault,
 } from "../viz/vizDefaults.js";
-import {controlButtonStyles, kebab, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
+import {
+  controlButtonStyles,
+  kebab,
+  paintControlButton,
+  type ControlButtonStyles,
+} from "./controlButtonStyle.js";
 export {kebab};
 
 /**
@@ -37,8 +42,17 @@ function buttonStyles(viz: Viz): ControlButtonStyles {
 }
 
 /** Paints a zoom-control button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
-export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
+export function paintZoomButton(
+  viz: Viz,
+  btn: HTMLElement,
+  hovered = false,
+): void {
+  paintControlButton(
+    btn,
+    buttonStyles(viz),
+    hovered,
+    btn.classList.contains("active"),
+  );
 }
 
 /**
@@ -76,7 +90,8 @@ export function paintZoomButton(viz: Viz, btn: HTMLElement, hovered = false): vo
     bounding box within the 24x24 viewBox, so they also match in apparent
     size) — this is how icon sets like Feather/Lucide/Material Symbols do it.
 */
-export const ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
+export const ICON_ATTRS =
+  'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
 const ZOOM_IN_ICON = `<svg ${ICON_ATTRS}><line x1="12" y1="4" x2="12" y2="20"/><line x1="4" y1="12" x2="20" y2="12"/></svg>`;
 const ZOOM_OUT_ICON = `<svg ${ICON_ATTRS}><line x1="4" y1="12" x2="20" y2="12"/></svg>`;
 // A simple house outline — the conventional "reset to home view" icon.
@@ -112,8 +127,11 @@ const ZOOM_BRUSH_ICON = `<svg ${ICON_ATTRS} stroke-dasharray="4 3"><rect x="4" y
 */
 export type ZoomControlIconRenderer = (el: HTMLElement) => void | (() => void);
 export type ZoomControlIconValue = string | ZoomControlIconRenderer;
-export type ZoomControlIconKey = "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush";
-export type ZoomControlIcons = Partial<Record<ZoomControlIconKey, ZoomControlIconValue>>;
+export type ZoomControlIconKey =
+  "zoomIn" | "zoomOut" | "zoomReset" | "zoomBrush";
+export type ZoomControlIcons = Partial<
+  Record<ZoomControlIconKey, ZoomControlIconValue>
+>;
 
 /**
     Markup for a mount-function icon: an empty `<span>` sized like the built-in
@@ -127,7 +145,9 @@ const iconSlot = (key: ZoomControlIconKey): string =>
 
 /** Resolves one button's glyph markup: a custom override, or the built-in icon. */
 function iconFor(viz: Viz, key: ZoomControlIconKey, builtin: string): string {
-  const icon = (viz.schema.zoomControlIcons as ZoomControlIcons | undefined)?.[key];
+  const icon = (viz.schema.zoomControlIcons as ZoomControlIcons | undefined)?.[
+    key
+  ];
   if (typeof icon === "string") return icon;
   if (typeof icon === "function") return iconSlot(key);
   return builtin;
@@ -173,14 +193,30 @@ export const ZOOM_PANEL_STYLE: Record<string, string> = {
     the `.active` class frameworks like Bootstrap style) while brush mode is on.
 */
 export function zoomControlsHtml(viz: Viz): string {
-  const extraClass = viz.schema.zoomControlClassName ? ` ${viz.schema.zoomControlClassName}` : "";
-  const button = (cls: string, label: string, glyph: string, pressed?: boolean) =>
+  const extraClass = viz.schema.zoomControlClassName
+    ? ` ${viz.schema.zoomControlClassName}`
+    : "";
+  const button = (
+    cls: string,
+    label: string,
+    glyph: string,
+    pressed?: boolean,
+  ) =>
     `<button type="button" class="zoom-control ${cls}${pressed ? " active" : ""}${extraClass}" aria-label="${viz.schema.translate(label)}"${pressed === undefined ? "" : ` aria-pressed="${pressed}"`}>${glyph}</button>`;
   return (
     button("zoom-in", "Zoom In", iconFor(viz, "zoomIn", ZOOM_IN_ICON)) +
     button("zoom-out", "Zoom Out", iconFor(viz, "zoomOut", ZOOM_OUT_ICON)) +
-    button("zoom-reset", "Reset Zoom", iconFor(viz, "zoomReset", ZOOM_RESET_ICON)) +
-    button("zoom-brush", "Brush Zoom", iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON), isBrushing(viz))
+    button(
+      "zoom-reset",
+      "Reset Zoom",
+      iconFor(viz, "zoomReset", ZOOM_RESET_ICON),
+    ) +
+    button(
+      "zoom-brush",
+      "Brush Zoom",
+      iconFor(viz, "zoomBrush", ZOOM_BRUSH_ICON),
+      isBrushing(viz),
+    )
   );
 }
 
@@ -197,8 +233,8 @@ export function zoomControlsHtml(viz: Viz): string {
 export function mountCustomIcons(viz: Viz, btn: HTMLElement): void {
   const icons = viz.schema.zoomControlIcons as ZoomControlIcons | undefined;
   if (!icons) return;
-  const key = (Object.keys(ICON_BUTTON_CLASS) as ZoomControlIconKey[]).find(
-    k => btn.classList.contains(ICON_BUTTON_CLASS[k]),
+  const key = (Object.keys(ICON_BUTTON_CLASS) as ZoomControlIconKey[]).find(k =>
+    btn.classList.contains(ICON_BUTTON_CLASS[k]),
   );
   const icon = key && icons[key];
   if (!key || typeof icon !== "function") return;
@@ -211,7 +247,8 @@ export function mountCustomIcons(viz: Viz, btn: HTMLElement): void {
 
 /** The HTML element a chart's overlays (the zoom controls) mount in. */
 export function overlayHost(viz: Viz): HTMLElement | null {
-  let host = viz._select && viz._select.node() ? viz._select.node().parentNode : null;
+  let host =
+    viz._select && viz._select.node() ? viz._select.node().parentNode : null;
   while (host && !(host instanceof HTMLElement)) host = host.parentNode;
   return host instanceof HTMLElement ? host : null;
 }
@@ -222,7 +259,9 @@ export function overlayHost(viz: Viz): HTMLElement | null {
     a click on the button itself — e.g. leaving brush mode after a selection.
 */
 export function syncBrushButton(viz: Viz): void {
-  const btn = overlayHost(viz)?.querySelector<HTMLElement>(".d3plus-zoom-control .zoom-brush");
+  const btn = overlayHost(viz)?.querySelector<HTMLElement>(
+    ".d3plus-zoom-control .zoom-brush",
+  );
   if (!btn) return;
   const pressed = isBrushing(viz);
   btn.classList.toggle("active", pressed);
@@ -236,7 +275,10 @@ export function showsZoomControls(viz: Viz): boolean {
 }
 
 /** Panel size before it has been measured (the default 20px buttons). */
-const ESTIMATED_BOX = {width: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING, height: 20 + ZOOM_PANEL_PADDING};
+const ESTIMATED_BOX = {
+  width: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING,
+  height: 20 + ZOOM_PANEL_PADDING,
+};
 
 /**
     The zoom-control panel's size (padding included) as it will render in the
@@ -246,7 +288,9 @@ const ESTIMATED_BOX = {width: 4 * 20 + 3 * 4 + ZOOM_PANEL_PADDING, height: 20 + 
     and cached until the markup or styling changes. Returns null when the
     chart shows no controls.
 */
-export function zoomControlsBox(viz: Viz): {width: number; height: number} | null {
+export function zoomControlsBox(
+  viz: Viz,
+): {width: number; height: number} | null {
   if (!showsZoomControls(viz)) return null;
   const html = zoomControlsHtml(viz);
   const {base} = buttonStyles(viz);
@@ -259,18 +303,22 @@ export function zoomControlsBox(viz: Viz): {width: number; height: number} | nul
   if (host) {
     const probe = document.createElement("div");
     probe.className = "d3plus-zoom-control";
-    for (const key in ZOOM_PANEL_STYLE) probe.style.setProperty(kebab(key), ZOOM_PANEL_STYLE[key]);
+    for (const key in ZOOM_PANEL_STYLE)
+      probe.style.setProperty(kebab(key), ZOOM_PANEL_STYLE[key]);
     // Shrink-wrapped and invisible, so it measures without affecting layout.
     probe.style.setProperty("display", "inline-flex");
     probe.style.setProperty("position", "absolute");
     probe.style.setProperty("visibility", "hidden");
     probe.style.setProperty("pointer-events", "none");
     probe.innerHTML = html;
-    probe.querySelectorAll<HTMLElement>(".zoom-control").forEach(btn => paintZoomButton(viz, btn));
+    probe
+      .querySelectorAll<HTMLElement>(".zoom-control")
+      .forEach(btn => paintZoomButton(viz, btn));
     host.appendChild(probe);
     const rect = probe.getBoundingClientRect();
     host.removeChild(probe);
-    if (rect.width && rect.height) box = {width: Math.ceil(rect.width), height: Math.ceil(rect.height)};
+    if (rect.width && rect.height)
+      box = {width: Math.ceil(rect.width), height: Math.ceil(rect.height)};
   }
   viz._zoomControlsBox = {...box, signature};
   return viz._zoomControlsBox;

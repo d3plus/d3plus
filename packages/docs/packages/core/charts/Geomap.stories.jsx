@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.",
+        component:
+          "Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Geomap config={configify(args, argTypes)} />;
-  
+const Template = args => <Geomap config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -34,16 +35,33 @@ ChoroplethMap.args = {
     axisConfig: {
       tickFormat: funcify(
         d => `${(d * 100).toFixed(1)}%`,
-        "d => `${(d * 100).toFixed(1)}%`"
-      )
-    }
+        "d => `${(d * 100).toFixed(1)}%`",
+      ),
+    },
   },
   ocean: "transparent",
   projection: "geoAlbersUsa",
   tiles: false,
-  topojson: "https://datausa.io/topojson/State.json"
+  topojson: "https://datausa.io/topojson/State.json",
 };
-ChoroplethMap.parameters = {controls: {include: ["colorScale", "colorScaleConfig", "ocean", "projection", "tiles", "topojson"]}, docs: {description: {story: "Joins data to the `topojson` shapes via `groupBy` and fills each region by its `colorScale` value; `colorScaleConfig`'s `tickFormat` renders the legend ticks as percentages."}}};
+ChoroplethMap.parameters = {
+  controls: {
+    include: [
+      "colorScale",
+      "colorScaleConfig",
+      "ocean",
+      "projection",
+      "tiles",
+      "topojson",
+    ],
+  },
+  docs: {
+    description: {
+      story:
+        "Joins data to the `topojson` shapes via `groupBy` and fills each region by its `colorScale` value; `colorScaleConfig`'s `tickFormat` renders the legend ticks as percentages.",
+    },
+  },
+};
 
 export const CoordinatePointMap = Template.bind({});
 CoordinatePointMap.args = {
@@ -52,53 +70,73 @@ CoordinatePointMap.args = {
   colorScale: "dma_code",
   label: funcify(
     d => d.city + ", " + d.region,
-    `d => d.city + ", " + d.region`
+    `d => d.city + ", " + d.region`,
   ),
   point: funcify(
     d => [d.longitude, d.latitude],
-    "d => [d.longitude, d.latitude]"
+    "d => [d.longitude, d.latitude]",
   ),
-  pointSize: funcify(
-    d => d.dma_code,
-    "d => d.dma_code"
-  ),
+  pointSize: funcify(d => d.dma_code, "d => d.dma_code"),
   pointSizeMin: 1,
-  pointSizeMax: 10
+  pointSizeMax: 10,
 };
-CoordinatePointMap.parameters = {controls: {include: ["point", "pointSize", "pointSizeMin", "pointSizeMax"]}, docs: {description: {story: "Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`."}}};
+CoordinatePointMap.parameters = {
+  controls: {include: ["point", "pointSize", "pointSizeMin", "pointSizeMax"]},
+  docs: {
+    description: {
+      story:
+        "Rather than shading regions, this drops a marker per datum: `point` returns each row's `[longitude, latitude]`, and `pointSize` scales the radius between `pointSizeMin` and `pointSizeMax` by `dma_code`.",
+    },
+  },
+};
 
 export const ChangingProjection = Template.bind({});
 ChangingProjection.args = {
   data: [],
   projection: "geoMercator",
   topojson: "/data/countries-110m.json",
-  topojsonFilter: funcify(
-    d => d.id !== "010",
-    "d => d.id !== '010'"
-  )
+  topojsonFilter: funcify(d => d.id !== "010", "d => d.id !== '010'"),
 };
-ChangingProjection.parameters = {controls: {include: ["projection", "topojson", "topojsonFilter"]}, docs: {description: {story: "Any d3-geo projection name can be passed to `projection`; `\"geoMercator\"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== \"ata\"`)."}}};
+ChangingProjection.parameters = {
+  controls: {include: ["projection", "topojson", "topojsonFilter"]},
+  docs: {
+    description: {
+      story:
+        'Any d3-geo projection name can be passed to `projection`; `"geoMercator"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== "ata"`).',
+    },
+  },
+};
 
 // Tile servers that serve tiles without an account or API key (checked
 // 2026-09-25). Each still has its own usage policy and attribution, which
 // Geomap displays automatically.
-const esri = name => `https://server.arcgisonline.com/ArcGIS/rest/services/${name}/MapServer/tile/{z}/{y}/{x}`;
+const esri = name =>
+  `https://server.arcgisonline.com/ArcGIS/rest/services/${name}/MapServer/tile/{z}/{y}/{x}`;
 const noKeyTilesets = [
-  {name: "Esri Light Gray (default)", url: esri("Canvas/World_Light_Gray_Base")},
-  {name: "Esri Dark Gray (dark default)", url: esri("Canvas/World_Dark_Gray_Base")},
+  {
+    name: "Esri Light Gray (default)",
+    url: esri("Canvas/World_Light_Gray_Base"),
+  },
+  {
+    name: "Esri Dark Gray (dark default)",
+    url: esri("Canvas/World_Dark_Gray_Base"),
+  },
   {name: "Esri Terrain", url: esri("World_Terrain_Base")},
   {name: "Esri Street Map", url: esri("World_Street_Map")},
   {name: "Esri Imagery", url: esri("World_Imagery")},
   {name: "Esri National Geographic", url: esri("NatGeo_World_Map")},
   {name: "OSM Standard", url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png"},
-  {name: "OSM Humanitarian", url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"},
+  {
+    name: "OSM Humanitarian",
+    url: "https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png",
+  },
   {name: "OpenTopoMap", url: "https://tile.opentopomap.org/{z}/{x}/{y}.png"},
 ];
 
 // No topojson layered on top here — these three stories are about the raw
 // basemap tiles, so nothing but the ocean/tile imagery is drawn over them.
 const tileBackdrop = {
-  projection: "geoMercator"
+  projection: "geoMercator",
 };
 
 export const ChangingTileset = {
@@ -111,7 +149,11 @@ export const ChangingTileset = {
           onChange={e => setTileUrl(e.target.value)}
           style={{marginBottom: "12px", font: "inherit", padding: "4px 8px"}}
         >
-          {noKeyTilesets.map(({name, url}) => <option key={url} value={url}>{name}</option>)}
+          {noKeyTilesets.map(({name, url}) => (
+            <option key={url} value={url}>
+              {name}
+            </option>
+          ))}
         </select>
         <Geomap config={{...tileBackdrop, height: 400, tileUrl}} />
       </div>
@@ -120,8 +162,12 @@ export const ChangingTileset = {
   parameters: {
     controls: {disable: true},
     docs: {
-      description: {story: "Point `tileUrl` at any XYZ tile server to swap the background imagery — pick one of the servers that need no API key from the menu above the map. The credit in the corner updates to match, and any other `{z}/{x}/{y}` template works too (Esri's services order it `{z}/{y}/{x}`)."},
-      source: {code: `import {Geomap} from "@d3plus/react";
+      description: {
+        story:
+          "Point `tileUrl` at any XYZ tile server to swap the background imagery — pick one of the servers that need no API key from the menu above the map. The credit in the corner updates to match, and any other `{z}/{x}/{y}` template works too (Esri's services order it `{z}/{y}/{x}`).",
+      },
+      source: {
+        code: `import {Geomap} from "@d3plus/react";
 import {useState} from "react";
 
 function ChangingTileset() {
@@ -134,48 +180,95 @@ ${noKeyTilesets.map(t => `        <option value="${t.url}">${t.name}</option>`).
       <Geomap config={{tileUrl}} />
     </div>
   );
-}`}
-    }
-  }
+}`,
+      },
+    },
+  },
 };
 
 export const NoKeyTilesets = {
   render: () => (
-    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
-      {noKeyTilesets.map(({name, url}) =>
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+        gap: "24px",
+      }}
+    >
+      {noKeyTilesets.map(({name, url}) => (
         <div key={url} style={{height: "280px"}}>
-          <Geomap config={{...tileBackdrop, height: 280, title: name, tileUrl: url}} />
+          <Geomap
+            config={{...tileBackdrop, height: 280, title: name, tileUrl: url}}
+          />
         </div>
-      )}
+      ))}
     </div>
   ),
   parameters: {
     controls: {disable: true},
     docs: {
-      description: {story: "Every tile server that works without an account or API key, side by side. Esri's Canvas layers are the default: Light Gray on a light page and Dark Gray on a dark one. The others suit topographic, street-level, or imagery backdrops."},
-      source: {code: `import {Geomap} from "@d3plus/react";
+      description: {
+        story:
+          "Every tile server that works without an account or API key, side by side. Esri's Canvas layers are the default: Light Gray on a light page and Dark Gray on a dark one. The others suit topographic, street-level, or imagery backdrops.",
+      },
+      source: {
+        code: `import {Geomap} from "@d3plus/react";
 
-${noKeyTilesets.map(t => `// ${t.name}
-<Geomap config={{tileUrl: "${t.url}"}} />`).join("\n\n")}`}
-    }
-  }
+${noKeyTilesets
+  .map(
+    t => `// ${t.name}
+<Geomap config={{tileUrl: "${t.url}"}} />`,
+  )
+  .join("\n\n")}`,
+      },
+    },
+  },
 };
 
 export const LightAndDarkTiles = {
   render: () => (
-    <div style={{display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))", gap: "24px"}}>
-      {[["Light page", "#ffffff", "#222"], ["Dark page", "#15191e", "#ddd"]].map(([label, background, color]) =>
-        <div key={label} style={{background, color, padding: "12px", borderRadius: "6px", height: "304px"}}>
-          <Geomap config={{...tileBackdrop, height: 280, title: label, titleConfig: {fontColor: color}}} />
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+        gap: "24px",
+      }}
+    >
+      {[
+        ["Light page", "#ffffff", "#222"],
+        ["Dark page", "#15191e", "#ddd"],
+      ].map(([label, background, color]) => (
+        <div
+          key={label}
+          style={{
+            background,
+            color,
+            padding: "12px",
+            borderRadius: "6px",
+            height: "304px",
+          }}
+        >
+          <Geomap
+            config={{
+              ...tileBackdrop,
+              height: 280,
+              title: label,
+              titleConfig: {fontColor: color},
+            }}
+          />
         </div>
-      )}
+      ))}
     </div>
   ),
   parameters: {
     controls: {disable: true},
     docs: {
-      description: {story: "`tileUrl` and `ocean` also accept a `{light, dark}` pair, and the defaults are one: Esri Light Gray Canvas on a light backdrop and Dark Gray Canvas on a dark one, with a matching ocean and no-data fill. Geomap reads the backdrop from the page (the nearest background color, or a dark `color-scheme` on a dark system) and redraws when it changes."},
-      source: {code: `import {Geomap} from "@d3plus/react";
+      description: {
+        story:
+          "`tileUrl` and `ocean` also accept a `{light, dark}` pair, and the defaults are one: Esri Light Gray Canvas on a light backdrop and Dark Gray Canvas on a dark one, with a matching ocean and no-data fill. Geomap reads the backdrop from the page (the nearest background color, or a dark `color-scheme` on a dark system) and redraws when it changes.",
+      },
+      source: {
+        code: `import {Geomap} from "@d3plus/react";
 
 // The default, spelled out: any two tile servers can be paired this way.
 <Geomap config={{
@@ -184,9 +277,10 @@ export const LightAndDarkTiles = {
     dark: "${noKeyTilesets[1].url}"
   },
   ocean: {light: "#d0cfd4", dark: "#222327"}
-}} />`}
-    }
-  }
+}} />`,
+      },
+    },
+  },
 };
 
 export const ChangingNoDataColor = Template.bind({});
@@ -196,9 +290,17 @@ ChangingNoDataColor.args = {
   colorScale: "Total Population",
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/PUMA.json",
-  topojsonFill: "#ffcccc"
-}
-ChangingNoDataColor.parameters = {controls: {include: ["topojsonFill"]}, docs: {description: {story: "`topojsonFill` sets the color for shapes with no matching data (here light pink), so empty regions read differently from those on the `colorScale`."}}};
+  topojsonFill: "#ffcccc",
+};
+ChangingNoDataColor.parameters = {
+  controls: {include: ["topojsonFill"]},
+  docs: {
+    description: {
+      story:
+        "`topojsonFill` sets the color for shapes with no matching data (here light pink), so empty regions read differently from those on the `colorScale`.",
+    },
+  },
+};
 
 export const CustomColors = Template.bind({});
 CustomColors.args = {
@@ -206,31 +308,50 @@ CustomColors.args = {
   groupBy: "State ID",
   colorScale: "Diabetes Prevalence",
   colorScaleConfig: {
-    color: ["red", "orange", "yellow", "green", "blue"]
+    color: ["red", "orange", "yellow", "green", "blue"],
   },
   projection: "geoAlbersUsa",
-  topojson: "https://datausa.io/topojson/State.json"
+  topojson: "https://datausa.io/topojson/State.json",
 };
-CustomColors.parameters = {controls: {include: ["colorScaleConfig"]}, docs: {description: {story: "Override the default color interpolation by passing an explicit ramp to `colorScaleConfig`'s `color` array — here red → orange → yellow → green → blue across the range."}}};
+CustomColors.parameters = {
+  controls: {include: ["colorScaleConfig"]},
+  docs: {
+    description: {
+      story:
+        "Override the default color interpolation by passing an explicit ramp to `colorScaleConfig`'s `color` array — here red → orange → yellow → green → blue across the range.",
+    },
+  },
+};
 
 export const CustomZoom = Template.bind({});
 CustomZoom.args = {
   fitObject: {
-    "type": "Topology",
-    "objects": {
+    type: "Topology",
+    objects: {
       "custom-bounds": {
-        "type": "GeometryCollection",
-        "geometries":[
+        type: "GeometryCollection",
+        geometries: [
           {
-            "type": "MultiPoint",
-            "coordinates": [[-160, 70], [170, -55]]
-          }
-        ]
-      }
-    }
-  }
+            type: "MultiPoint",
+            coordinates: [
+              [-160, 70],
+              [170, -55],
+            ],
+          },
+        ],
+      },
+    },
+  },
 };
-CustomZoom.parameters = {controls: {include: ["fitObject"]}, docs: {description: {story: "`fitObject` frames the initial view to a custom TopoJSON object; the two `MultiPoint` corners here define the bounding box the map zooms to fit."}}};
+CustomZoom.parameters = {
+  controls: {include: ["fitObject"]},
+  docs: {
+    description: {
+      story:
+        "`fitObject` frames the initial view to a custom TopoJSON object; the two `MultiPoint` corners here define the bounding box the map zooms to fit.",
+    },
+  },
+};
 
 export const DisableZooming = Template.bind({});
 DisableZooming.args = {
@@ -239,9 +360,17 @@ DisableZooming.args = {
   colorScale: "Diabetes Prevalence",
   projection: "geoAlbersUsa",
   topojson: "https://datausa.io/topojson/State.json",
-  zoom: false
+  zoom: false,
 };
-DisableZooming.parameters = {controls: {include: ["zoom"]}, docs: {description: {story: "`zoom: false` turns off panning and scroll-to-zoom, locking the map at its initial extent."}}};
+DisableZooming.parameters = {
+  controls: {include: ["zoom"]},
+  docs: {
+    description: {
+      story:
+        "`zoom: false` turns off panning and scroll-to-zoom, locking the map at its initial extent.",
+    },
+  },
+};
 
 export const HidingTheColorScale = Template.bind({});
 HidingTheColorScale.args = {
@@ -250,9 +379,17 @@ HidingTheColorScale.args = {
   colorScale: "Diabetes Prevalence",
   colorScalePosition: false,
   projection: "geoAlbersUsa",
-  topojson: "https://datausa.io/topojson/State.json"
+  topojson: "https://datausa.io/topojson/State.json",
 };
-HidingTheColorScale.parameters = {controls: {include: ["colorScalePosition"]}, docs: {description: {story: "`colorScalePosition: false` hides the legend while regions stay shaded by `colorScale` — useful when the scale is documented elsewhere."}}};
+HidingTheColorScale.parameters = {
+  controls: {include: ["colorScalePosition"]},
+  docs: {
+    description: {
+      story:
+        "`colorScalePosition: false` hides the legend while regions stay shaded by `colorScale` — useful when the scale is documented elsewhere.",
+    },
+  },
+};
 
 export const OverridingColorscaleBehavior = Template.bind({});
 OverridingColorscaleBehavior.args = {
@@ -288,22 +425,27 @@ OverridingColorscaleBehavior.args = {
     {id: "578", name: "Norway", "Export Growth": -0.024},
     {id: "246", name: "Finland", "Export Growth": -0.033},
     {id: "620", name: "Portugal", "Export Growth": 0.015},
-    {id: "710", name: "South Africa", "Export Growth": -0.091}
+    {id: "710", name: "South Africa", "Export Growth": -0.091},
   ],
   groupBy: "id",
   label: funcify(d => d.name, "d => d.name"),
   colorScale: "Export Growth",
   colorScaleConfig: {
-    scale: "linear"
+    scale: "linear",
   },
   projection: "geoMiller",
   topojson: "/data/countries-110m.json",
-  topojsonFilter: funcify(
-    d => d.id !== "010",
-    "d => d.id !== '010'"
-  )
+  topojsonFilter: funcify(d => d.id !== "010", "d => d.id !== '010'"),
 };
-OverridingColorscaleBehavior.parameters = {controls: {include: ["colorScaleConfig"]}, docs: {description: {story: "The color scale normally auto-detects its type from the data; setting `colorScaleConfig`'s `scale: \"linear\"` forces a plain linear ramp instead of the automatic choice."}}};
+OverridingColorscaleBehavior.parameters = {
+  controls: {include: ["colorScaleConfig"]},
+  docs: {
+    description: {
+      story:
+        'The color scale normally auto-detects its type from the data; setting `colorScaleConfig`\'s `scale: "linear"` forces a plain linear ramp instead of the automatic choice.',
+    },
+  },
+};
 
 export const RemovingOceanAndTiles = Template.bind({});
 RemovingOceanAndTiles.args = {
@@ -314,16 +456,24 @@ RemovingOceanAndTiles.args = {
     axisConfig: {
       tickFormat: funcify(
         d => `${(d * 100).toFixed(1)}%`,
-        "d => `${(d * 100).toFixed(1)}%`"
-      )
-    }
+        "d => `${(d * 100).toFixed(1)}%`",
+      ),
+    },
   },
   ocean: "transparent",
   projection: "geoAlbersUsa",
   tiles: false,
-  topojson: "https://datausa.io/topojson/State.json"
+  topojson: "https://datausa.io/topojson/State.json",
 };
-RemovingOceanAndTiles.parameters = {controls: {include: ["ocean", "tiles"]}, docs: {description: {story: "Set `ocean: \"transparent\"` and `tiles: false` to strip the water fill and background map tiles, leaving just the choropleth shapes."}}};
+RemovingOceanAndTiles.parameters = {
+  controls: {include: ["ocean", "tiles"]},
+  docs: {
+    description: {
+      story:
+        'Set `ocean: "transparent"` and `tiles: false` to strip the water fill and background map tiles, leaving just the choropleth shapes.',
+    },
+  },
+};
 
 export const RenderingToCanvas = Template.bind({});
 RenderingToCanvas.args = {
@@ -334,108 +484,142 @@ RenderingToCanvas.args = {
     axisConfig: {
       tickFormat: funcify(
         d => `${(d * 100).toFixed(1)}%`,
-        "d => `${(d * 100).toFixed(1)}%`"
-      )
-    }
+        "d => `${(d * 100).toFixed(1)}%`",
+      ),
+    },
   },
   ocean: "transparent",
   projection: "geoAlbersUsa",
   renderer: "canvas",
   tiles: false,
-  topojson: "https://datausa.io/topojson/State.json"
+  topojson: "https://datausa.io/topojson/State.json",
 };
 RenderingToCanvas.parameters = {
   controls: {include: ["renderer"]},
-  docs: {description: {story: "The same choropleth painted with the Canvas backend (`renderer: \"canvas\"`). Geography, color scale, tooltips, and zoom all work; SVG remains the default."}}
+  docs: {
+    description: {
+      story:
+        'The same choropleth painted with the Canvas backend (`renderer: "canvas"`). Geography, color scale, tooltips, and zoom all work; SVG remains the default.',
+    },
+  },
 };
 
 export const PointMotionTrails = Template.bind({});
 PointMotionTrails.args = {
   data: [
-    {id: "Ana",  day: 1, lon: -38, lat: 11},
-    {id: "Ana",  day: 2, lon: -47, lat: 14},
-    {id: "Ana",  day: 3, lon: -56, lat: 17},
-    {id: "Ana",  day: 4, lon: -65, lat: 21},
-    {id: "Ana",  day: 5, lon: -73, lat: 25},
-    {id: "Ana",  day: 6, lon: -81, lat: 29},
+    {id: "Ana", day: 1, lon: -38, lat: 11},
+    {id: "Ana", day: 2, lon: -47, lat: 14},
+    {id: "Ana", day: 3, lon: -56, lat: 17},
+    {id: "Ana", day: 4, lon: -65, lat: 21},
+    {id: "Ana", day: 5, lon: -73, lat: 25},
+    {id: "Ana", day: 6, lon: -81, lat: 29},
     {id: "Bill", day: 1, lon: -30, lat: 9},
     {id: "Bill", day: 2, lon: -39, lat: 13},
     {id: "Bill", day: 3, lon: -47, lat: 18},
     {id: "Bill", day: 4, lon: -54, lat: 24},
     {id: "Bill", day: 5, lon: -61, lat: 30},
-    {id: "Bill", day: 6, lon: -69, lat: 36}
+    {id: "Bill", day: 6, lon: -69, lat: 36},
   ],
   groupBy: "id",
   time: "day",
-  point: funcify(
-    d => [d.lon, d.lat],
-    "d => [d.lon, d.lat]"
-  ),
+  point: funcify(d => [d.lon, d.lat], "d => [d.lon, d.lat]"),
   pointSize: 8,
   projection: "geoMercator",
   topojson: "/data/countries-110m.json",
-  topojsonFilter: funcify(
-    d => d.id !== "010",
-    "d => d.id !== '010'"
-  ),
+  topojsonFilter: funcify(d => d.id !== "010", "d => d.id !== '010'"),
   fitObject: {
     type: "Topology",
     objects: {
       bounds: {
         type: "GeometryCollection",
         geometries: [
-          {type: "MultiPoint", coordinates: [[-95, 5], [-12, 46]]}
-        ]
-      }
-    }
-  }
+          {
+            type: "MultiPoint",
+            coordinates: [
+              [-95, 5],
+              [-12, 46],
+            ],
+          },
+        ],
+      },
+    },
+  },
 };
 PointMotionTrails.parameters = {
   controls: {include: ["renderer", "time"]},
-  docs: {description: {story: "Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends."}}
+  docs: {
+    description: {
+      story:
+        "Motion trails aren't just for scatter plots — Geomap coordinate points trail too, and are **on by default**. Press **play**: each storm track sweeps a tapering cone from its previous position to the next as the timeline advances, tracing its path across the map. Toggle `renderer` to compare the SVG and Canvas backends.",
+    },
+  },
 };
 
 export const PointSizeLegend = Template.bind({});
 PointSizeLegend.args = {
   data: [
-    {city: "Tokyo", lon: 139.69, lat: 35.69, pop: 37.1}, {city: "Delhi", lon: 77.21, lat: 28.61, pop: 33.8},
-    {city: "Shanghai", lon: 121.47, lat: 31.23, pop: 29.9}, {city: "São Paulo", lon: -46.63, lat: -23.55, pop: 22.8},
-    {city: "Mexico City", lon: -99.13, lat: 19.43, pop: 22.3}, {city: "Cairo", lon: 31.24, lat: 30.04, pop: 22.2},
-    {city: "Mumbai", lon: 72.88, lat: 19.08, pop: 21.3}, {city: "Beijing", lon: 116.41, lat: 39.90, pop: 21.8},
-    {city: "Dhaka", lon: 90.41, lat: 23.81, pop: 23.2}, {city: "Osaka", lon: 135.50, lat: 34.69, pop: 19.0},
-    {city: "New York", lon: -74.01, lat: 40.71, pop: 18.9}, {city: "Karachi", lon: 67.01, lat: 24.86, pop: 17.2},
-    {city: "Buenos Aires", lon: -58.38, lat: -34.60, pop: 15.5}, {city: "Istanbul", lon: 28.98, lat: 41.01, pop: 15.8},
-    {city: "Lagos", lon: 3.38, lat: 6.52, pop: 15.9}, {city: "Manila", lon: 120.98, lat: 14.60, pop: 14.7},
-    {city: "Rio de Janeiro", lon: -43.17, lat: -22.91, pop: 13.7}, {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 12.5},
-    {city: "Moscow", lon: 37.62, lat: 55.76, pop: 12.7}, {city: "Paris", lon: 2.35, lat: 48.86, pop: 11.2},
-    {city: "London", lon: -0.13, lat: 51.51, pop: 9.6}, {city: "Lima", lon: -77.04, lat: -12.05, pop: 11.2},
-    {city: "Bangkok", lon: 100.50, lat: 13.76, pop: 11.1}, {city: "Jakarta", lon: 106.85, lat: -6.21, pop: 11.2},
-    {city: "Chicago", lon: -87.63, lat: 41.88, pop: 8.9}, {city: "Sydney", lon: 151.21, lat: -33.87, pop: 5.2},
-    {city: "Johannesburg", lon: 28.05, lat: -26.20, pop: 6.2}, {city: "Toronto", lon: -79.38, lat: 43.65, pop: 6.4},
-    {city: "Nairobi", lon: 36.82, lat: -1.29, pop: 5.3}, {city: "Madrid", lon: -3.70, lat: 40.42, pop: 6.8},
-    {city: "Berlin", lon: 13.40, lat: 52.52, pop: 3.6}, {city: "Santiago", lon: -70.67, lat: -33.45, pop: 6.9},
-    {city: "Auckland", lon: 174.76, lat: -36.85, pop: 1.7}, {city: "Reykjavík", lon: -21.94, lat: 64.15, pop: 0.2},
+    {city: "Tokyo", lon: 139.69, lat: 35.69, pop: 37.1},
+    {city: "Delhi", lon: 77.21, lat: 28.61, pop: 33.8},
+    {city: "Shanghai", lon: 121.47, lat: 31.23, pop: 29.9},
+    {city: "São Paulo", lon: -46.63, lat: -23.55, pop: 22.8},
+    {city: "Mexico City", lon: -99.13, lat: 19.43, pop: 22.3},
+    {city: "Cairo", lon: 31.24, lat: 30.04, pop: 22.2},
+    {city: "Mumbai", lon: 72.88, lat: 19.08, pop: 21.3},
+    {city: "Beijing", lon: 116.41, lat: 39.9, pop: 21.8},
+    {city: "Dhaka", lon: 90.41, lat: 23.81, pop: 23.2},
+    {city: "Osaka", lon: 135.5, lat: 34.69, pop: 19.0},
+    {city: "New York", lon: -74.01, lat: 40.71, pop: 18.9},
+    {city: "Karachi", lon: 67.01, lat: 24.86, pop: 17.2},
+    {city: "Buenos Aires", lon: -58.38, lat: -34.6, pop: 15.5},
+    {city: "Istanbul", lon: 28.98, lat: 41.01, pop: 15.8},
+    {city: "Lagos", lon: 3.38, lat: 6.52, pop: 15.9},
+    {city: "Manila", lon: 120.98, lat: 14.6, pop: 14.7},
+    {city: "Rio de Janeiro", lon: -43.17, lat: -22.91, pop: 13.7},
+    {city: "Los Angeles", lon: -118.24, lat: 34.05, pop: 12.5},
+    {city: "Moscow", lon: 37.62, lat: 55.76, pop: 12.7},
+    {city: "Paris", lon: 2.35, lat: 48.86, pop: 11.2},
+    {city: "London", lon: -0.13, lat: 51.51, pop: 9.6},
+    {city: "Lima", lon: -77.04, lat: -12.05, pop: 11.2},
+    {city: "Bangkok", lon: 100.5, lat: 13.76, pop: 11.1},
+    {city: "Jakarta", lon: 106.85, lat: -6.21, pop: 11.2},
+    {city: "Chicago", lon: -87.63, lat: 41.88, pop: 8.9},
+    {city: "Sydney", lon: 151.21, lat: -33.87, pop: 5.2},
+    {city: "Johannesburg", lon: 28.05, lat: -26.2, pop: 6.2},
+    {city: "Toronto", lon: -79.38, lat: 43.65, pop: 6.4},
+    {city: "Nairobi", lon: 36.82, lat: -1.29, pop: 5.3},
+    {city: "Madrid", lon: -3.7, lat: 40.42, pop: 6.8},
+    {city: "Berlin", lon: 13.4, lat: 52.52, pop: 3.6},
+    {city: "Santiago", lon: -70.67, lat: -33.45, pop: 6.9},
+    {city: "Auckland", lon: 174.76, lat: -36.85, pop: 1.7},
+    {city: "Reykjavík", lon: -21.94, lat: 64.15, pop: 0.2},
   ],
   groupBy: "city",
   legend: false,
   ocean: "transparent",
-  point: funcify(
-    d => [d.lon, d.lat],
-    "d => [d.lon, d.lat]"
-  ),
-  pointSize: funcify(
-    d => d.pop,
-    "d => d.pop"
-  ),
+  point: funcify(d => [d.lon, d.lat], "d => [d.lon, d.lat]"),
+  pointSize: funcify(d => d.pop, "d => d.pop"),
   pointSizeMax: 24,
   pointSizeMin: 3,
   pointSizeScale: "sqrt",
   sizeLegendConfig: {title: "Population (millions)"},
   tiles: false,
   topojson: "/data/countries-110m.json",
-  topojsonFilter: funcify(
-    d => d.id !== "010",
-    "d => d.id !== '010'"
-  )
+  topojsonFilter: funcify(d => d.id !== "010", "d => d.id !== '010'"),
 };
-PointSizeLegend.parameters = {controls: {include: ["pointSize", "pointSizeMin", "pointSizeMax", "pointSizeScale", "sizeLegendConfig"]}, docs: {description: {story: "Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed."}}};
+PointSizeLegend.parameters = {
+  controls: {
+    include: [
+      "pointSize",
+      "pointSizeMin",
+      "pointSizeMax",
+      "pointSizeScale",
+      "sizeLegendConfig",
+    ],
+  },
+  docs: {
+    description: {
+      story:
+        "Coordinate points sized by `pointSize` get a size legend in the corner, drawn with the same `pointSizeScale` as the points. The points scale with the map as you zoom in, so the legend keeps its circles the same size and relabels them: at 4× zoom, the largest circle represents a much smaller population than it does unzoomed.",
+    },
+  },
+};

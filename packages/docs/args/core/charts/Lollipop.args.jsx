@@ -6,76 +6,83 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Lollipop as D3plusLollipop} from "@d3plus/react";
-export const Lollipop = ({ config }) => <D3plusLollipop config={config} />;
+export const Lollipop = ({config}) => <D3plusLollipop config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in Lollipop
    */
   Object.keys(plotArgTypes)
-    .filter(k => !k.match(/^(shape|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|swarm|swarmConfig)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .filter(
+      k =>
+        !k.match(
+          /^(shape|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|swarm|swarmConfig)$/,
+        ),
+    )
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * Lollipop-specific methods
    */
-  
+
   {
     baseline: {
       defaultValue: 0,
-      description: "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.\n\nStems rise from zero unless the value axis breaks away from it.",
+      description:
+        "Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is \"none\"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.\n\nStems rise from zero unless the value axis breaks away from it.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
-      }
+          summary: "0",
+        },
+      },
     },
     baselineBreak: {
       defaultValue: true,
-      description: "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for the Plots whose marks grow from `0`, such as BarChart,\nAreaPlot, Histogram, and Lollipop (each chart lists its own default),\nand `false` for other Plots and a standalone Axis.\n\nLets the value axis break away from zero when every value sits far from it, so stems start at the axis's edge instead.",
+      description:
+        "When the domain of a linear value axis stops short of the `baseline`\n(e.g. `[1100, 2100]` with a baseline of `0`), keeps the baseline as the\naxis's end tick and breaks the axis between it and the domain: a short\nstretch of axis holds the baseline tick and two tilted marks with a gap\nin the axis line, then the domain spans the rest. Style it with the\naxis's `baselineBreakConfig`. In a Plot it applies to a user-supplied\nvalue domain (`yDomain`/`yConfig.domain`, or the x versions for\nhorizontal charts), and bars and areas start at the baseline tick,\nwith the break's gap cut across them (`baselineBreakConfig`'s\n`mask`); turned off, a `yDomain` stretches to reach the baseline while a\n`yConfig.domain` is kept and cuts its bars off at the axis. Defaults\nto `true` for the Plots whose marks grow from `0`, such as BarChart,\nAreaPlot, Histogram, and Lollipop (each chart lists its own default),\nand `false` for other Plots and a standalone Axis.\n\nLets the value axis break away from zero when every value sits far from it, so stems start at the axis's edge instead.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     discrete: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "x",
-      description: "Sets orientation of main category axis.\n\nThe category axis: `\"x\"` (default) draws vertical stems, `\"y\"` horizontal ones.",
-      options: [
-        "x",
-        "y"
-      ],
+      description:
+        'Sets orientation of main category axis.\n\nThe category axis: `"x"` (default) draws vertical stems, `"y"` horizontal ones.',
+      options: ["x", "y"],
       table: {
         defaultValue: {
-          summary: "x"
-        }
+          summary: "x",
+        },
       },
       type: {
         required: false,
-        summary: "\"x\" | \"y\""
-      }
+        summary: '"x" | "y"',
+      },
     },
     legendConfig: {
-      description: "Configuration object passed to the legend's config method.\n\nLegend swatches are drawn as circles, matching the heads.",
+      description:
+        "Configuration object passed to the legend's config method.\n\nLegend swatches are drawn as circles, matching the heads.",
       table: {
         defaultValue: {
-          summary: "{shape: \"Circle\"}"
-        }
-      }
+          summary: '{shape: "Circle"}',
+        },
+      },
     },
     shapeConfig: {
-      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nStems are styled by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeDasharray`, …; the stroke defaults to the head's color) and heads by `shapeConfig.Circle` (`r`, `fill`, …).",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.\n\nStems are styled by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeDasharray`, …; the stroke defaults to the head's color) and heads by `shapeConfig.Circle` (`r`, `fill`, …).",
       table: {
         defaultValue: {
-          summary: "{Bar: {label: false}, Circle: {label: false, trail: false}, Line: {label: false, stroke: fillOf(viz)}}"
-        }
-      }
-    }
-  }
+          summary:
+            "{Bar: {label: false}, Circle: {label: false, trail: false}, Line: {label: false, stroke: fillOf(viz)}}",
+        },
+      },
+    },
+  },
 );

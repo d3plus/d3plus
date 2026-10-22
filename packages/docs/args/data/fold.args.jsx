@@ -3,52 +3,51 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   data: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "data",
     description: "The key in the JSON object that contains the data array.",
     table: {
       defaultValue: {
-        summary: "data"
-      }
+        summary: "data",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   headers: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "headers",
-    description: "The key used for the flat headers array inside of the JSON object.",
+    description:
+      "The key used for the flat headers array inside of the JSON object.",
     table: {
       defaultValue: {
-        summary: "headers"
-      }
+        summary: "headers",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   json: {
     control: {},
     description: "A JSON data Object with `data` and `headers` keys.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "foldablejson"
-    }
-  }
+      summary: "foldablejson",
+    },
+  },
 };

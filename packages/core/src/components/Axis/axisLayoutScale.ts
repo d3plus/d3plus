@@ -28,7 +28,6 @@ import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, roundedDomain} from "./axisRounding.js";
 
-
 /**
     Builds the tick label formatter (user-supplied or scale-derived). With a
     `rotatedTickFormat`, the formatter reads `axis._labelRotation` on every
@@ -40,8 +39,11 @@ export function buildTickFormat(
   getTicks: () => unknown[],
 ): (d: unknown) => string {
   const format = baseTickFormat(axis, timeLocaleObj, getTicks);
-  const rotated = axis.schema.rotatedTickFormat as ((d: unknown) => string) | undefined;
-  return rotated ? (d: unknown) => (axis._labelRotation ? rotated : format)(d) : format;
+  const rotated = axis.schema.rotatedTickFormat as
+    ((d: unknown) => string) | undefined;
+  return rotated
+    ? (d: unknown) => (axis._labelRotation ? rotated : format)(d)
+    : format;
 }
 
 /** The tick label formatter for unrotated labels: `tickFormat`, else the scale's default. */
@@ -54,13 +56,26 @@ function baseTickFormat(
   let categories: Date[] | undefined;
   // Every label reads all of the axis's dates, so they are read once per set
   // of dates (see `dateFormatter`) in the current default time locale.
-  let memo: {dates: Date[]; format: typeof timeFormat; label: (d: Date, shown?: Date[]) => string} | undefined;
+  let memo:
+    | {
+        dates: Date[];
+        format: typeof timeFormat;
+        label: (d: Date, shown?: Date[]) => string;
+      }
+    | undefined;
   const dateLabel = (dates: Date[], d: Date): string => {
     if (!memo || memo.dates !== dates || memo.format !== timeFormat)
-      memo = {dates, format: timeFormat, label: dateFormatter(dates, timeFormat)};
-    return memo.label(d, axisShownDates(axis)).replace(/^Q/g, timeLocaleObj.quarter);
+      memo = {
+        dates,
+        format: timeFormat,
+        label: dateFormatter(dates, timeFormat),
+      };
+    return memo
+      .label(d, axisShownDates(axis))
+      .replace(/^Q/g, timeLocaleObj.quarter);
   };
-  const format = axis.schema.tickFormat as ((this: Axis, d: unknown) => string) | undefined;
+  const format = axis.schema.tickFormat as
+    ((this: Axis, d: unknown) => string) | undefined;
   // A tickFormat may read the axis it labels as `this` (such as which labels it shows).
   return format
     ? (d: unknown): string => format.call(axis, d)
@@ -83,7 +98,8 @@ function baseTickFormat(
               ? axis.schema.locale
               : formatLocale[axis.schema.locale];
           const {separator, suffixes} = loc;
-          const suff = (d as number) >= 1000 ? suffixes[axis._tickUnit + 8] : "";
+          const suff =
+            (d as number) >= 1000 ? suffixes[axis._tickUnit + 8] : "";
           const tick = (d as number) / Math.pow(10, 3 * axis._tickUnit);
           const number = formatAbbreviate(
             tick,
@@ -139,7 +155,10 @@ function resolveRange(
   if (range[1] === undefined || range[1] > maxRange) range[1] = maxRange;
 
   const sizeInner = maxRange - minRange;
-  if (axis.schema.scale === "ordinal" && axis.schema.domain.length > range.length) {
+  if (
+    axis.schema.scale === "ordinal" &&
+    axis.schema.domain.length > range.length
+  ) {
     if (newRange === axis.schema.range) {
       const buckets = axis.schema.domain.length + 1;
       range = d3Range(buckets)
@@ -156,7 +175,6 @@ function resolveRange(
   }
   return range;
 }
-
 
 /** Splits a log scale into positive/negative sub-scales when it spans zero. */
 function applyLogScaleSplit(axis: Axis): void {
@@ -184,8 +202,8 @@ function applyLogScaleSplit(axis: Axis): void {
   const scaleRange = axis._d3Scale!.range();
 
   if (isNegative(domain[0]) && isNegative(domain[domain.length - 1])) {
-    axis._d3ScaleNegative = axis._d3Scale!
-      .copy()
+    axis._d3ScaleNegative = axis
+      ._d3Scale!.copy()
       .domain(domain)
       .range(scaleRange);
     axis._d3Scale = null;
@@ -203,17 +221,10 @@ function applyLogScaleSplit(axis: Axis): void {
       Math.abs(domain[1]),
     ]);
     if (minPositive === 1) minPositive = 1e-6;
-    let minNegative = min([
-      min(data.filter(isNegative))!,
-      Math.abs(domain[0]),
-    ]);
+    let minNegative = min([min(data.filter(isNegative))!, Math.abs(domain[0])]);
     if (minNegative === 1) minNegative = 1e-6;
     const minPosPow =
-      minPositive === 0
-        ? 1e-6
-        : minPositive! <= 1
-          ? floorPow(minPositive!)
-          : 1;
+      minPositive === 0 ? 1e-6 : minPositive! <= 1 ? floorPow(minPositive!) : 1;
     const minNegPow =
       minNegative === 0
         ? -1e-6
@@ -253,7 +264,8 @@ function resolveTicksLabels(axis: Axis): {ticks: unknown[]; labels: unknown[]} {
   const ownLabels: unknown[] | undefined = sets
     ? sets[Math.min(axis._labelSet ?? 0, sets.length - 1)]
     : axis.schema.labels;
-  const ownTicks: unknown[] | undefined = axis.schema.ticks || (sets ? ownLabels : undefined);
+  const ownTicks: unknown[] | undefined =
+    axis.schema.ticks || (sets ? ownLabels : undefined);
   let ticks = (
     ownTicks
       ? axis.schema.scale === "time"
@@ -312,14 +324,27 @@ function applyTickSuffixUnit(axis: Axis, labels: unknown[]): void {
 }
 
 /** Drops ticks that would visually collide, recording available/visible sets. */
-function filterVisibleTicks(axis: Axis, ticks: unknown[], tickGet: TickGet): unknown[] {
+function filterVisibleTicks(
+  axis: Axis,
+  ticks: unknown[],
+  tickGet: TickGet,
+): unknown[] {
   const pixels: (number | false)[] = [];
   axis._availableTicks = ticks;
   ticks.forEach((d: unknown, i: number) => {
     let s = tickGet({id: d, tick: true}, i);
     if (axis.schema.shape === "Circle") s *= 2;
     const t = axis._getPosition(d);
-    if (!pixels.length || Math.abs(closest(t, pixels.filter((pix): pix is number => pix !== false))! - t) > s * 2)
+    if (
+      !pixels.length ||
+      Math.abs(
+        closest(
+          t,
+          pixels.filter((pix): pix is number => pix !== false),
+        )! - t,
+      ) >
+        s * 2
+    )
       pixels.push(t);
     else pixels.push(false);
   });
@@ -348,19 +373,21 @@ export function setAxisScale(
 
   const initialDomain = axis.schema.domain.slice();
 
-  axis._d3Scale = (scales as unknown as Record<string, () => D3Scale>)[scale]()
-    .domain(
-      axis.schema.scale === "time" ? axisTimeDomain(axis) : initialDomain,
-    )
+  axis._d3Scale = (scales as unknown as Record<string, () => D3Scale>)
+    [scale]()
+    .domain(axis.schema.scale === "time" ? axisTimeDomain(axis) : initialDomain)
     .range(range);
 
   if (axis.schema.rounding !== "none") {
-    const rounded = roundedDomain(initialDomain, axis.schema.rounding, axis.schema.scale);
+    const rounded = roundedDomain(
+      initialDomain,
+      axis.schema.rounding,
+      axis.schema.scale,
+    );
     if (rounded) axis._d3Scale!.domain(rounded);
   }
 
-  if (axis._d3Scale!.padding)
-    axis._d3Scale!.padding(axis.schema.scalePadding);
+  if (axis._d3Scale!.padding) axis._d3Scale!.padding(axis.schema.scalePadding);
   if (axis._d3Scale!.align) axis._d3Scale!.align(axis.schema.scaleAlign);
   if (axis._d3Scale!.paddingInner)
     axis._d3Scale!.paddingInner(axis.schema.paddingInner);

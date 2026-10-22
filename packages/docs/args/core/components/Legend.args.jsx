@@ -6,365 +6,375 @@ import {argTypes as baseClassArgTypes} from "../utils/BaseClass.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Legend as D3plusLegend} from "@d3plus/react";
-export const Legend = ({ config }) => <D3plusLegend config={config} />;
+export const Legend = ({config}) => <D3plusLegend config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BaseClass primitive and
    * overrides any defaults that have been changed in Legend
    */
-  Object.keys(baseClassArgTypes)
-    .reduce((obj, k) => (obj[k] = baseClassArgTypes[k], obj), {}),
+  Object.keys(baseClassArgTypes).reduce(
+    (obj, k) => ((obj[k] = baseClassArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Legend-specific methods
    */
-  
+
   {
     active: {
       control: {},
       description: "The active method for all shapes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     align: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "center",
       description: "",
       table: {
         defaultValue: {
-          summary: "center"
-        }
+          summary: "center",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     config: {
       control: {},
-      description: "Methods that correspond to the key/value pairs and returns this class.",
+      description:
+        "Methods that correspond to the key/value pairs and returns this class.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     data: {
       control: {},
       defaultValue: "[  ]",
-      description: "The data array used to create shapes. A shape key will be drawn for each object in the array.",
+      description:
+        "The data array used to create shapes. A shape key will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "[  ]"
-        }
+          summary: "[  ]",
+        },
       },
       type: {
         required: true,
-        summary: "array.&lt;datapoint&gt;"
-      }
+        summary: "array.&lt;datapoint&gt;",
+      },
     },
     direction: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "row",
       description: "",
       table: {
         defaultValue: {
-          summary: "row"
-        }
+          summary: "row",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     duration: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 600,
       description: "Animation duration in ms.",
       table: {
         defaultValue: {
-          summary: "600"
-        }
+          summary: "600",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     height: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 200,
       description: "Overall height of the visualization in pixels.",
       table: {
         defaultValue: {
-          summary: "200"
-        }
+          summary: "200",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     hover: {
       control: {},
       description: "The hover method for all shapes.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     id: {
       control: {},
-      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
+      description:
+        "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "accessorfn"
-      }
+        summary: "accessorfn",
+      },
     },
     label: {
       control: {},
       description: "Label text(s) per datum. False/undefined skips.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     padding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
-      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
+      description:
+        "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "string | number | function"
-      }
+        summary: "string | number | function",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     render: {
       control: {},
       description: "Renders the current Legend to the page.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "The SVG container element as a d3 selector or DOM element.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | htmlelement | svgelement | null"
-      }
+        summary: "string | htmlelement | svgelement | null",
+      },
     },
     shape: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "The shape type used for each legend entry.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Methods that correspond to the key/value pairs for each shape.",
+      description:
+        "Methods that correspond to the key/value pairs for each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     title: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "Title of the axis.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     titleConfig: {
       control: {},
       description: "Title configuration of the legend.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     verticalAlign: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "middle",
-      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
+      description: 'Label vertical-align ("top"/"middle"/"bottom").',
       table: {
         defaultValue: {
-          summary: "middle"
-        }
+          summary: "middle",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     width: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 400,
       description: "Overall width of the visualization in pixels.",
       table: {
         defaultValue: {
-          summary: "400"
-        }
+          summary: "400",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
-    }
-  }
+        summary: "number",
+      },
+    },
+  },
 );

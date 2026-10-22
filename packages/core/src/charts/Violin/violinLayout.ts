@@ -22,7 +22,11 @@ export interface ViolinSlot {
     @param count The number of categories.
     @param padding The outer padding, in steps.
 */
-export function categoryStep(span: number, count: number, padding: number): number {
+export function categoryStep(
+  span: number,
+  count: number,
+  padding: number,
+): number {
   return Math.abs(span) / Math.max(1, count - 1 + 2 * padding);
 }
 
@@ -46,7 +50,10 @@ export interface ViolinSlotOptions {
     @param options Positions and spacing.
     @returns One slot per violin, in the same order.
 */
-export function violinSlots(categories: readonly string[], options: ViolinSlotOptions): ViolinSlot[] {
+export function violinSlots(
+  categories: readonly string[],
+  options: ViolinSlotOptions,
+): ViolinSlot[] {
   const {position, step, gap, split} = options;
   const width = Math.max(1, step > gap ? step - gap : step);
   const members = new Map<string, number[]>();
@@ -91,8 +98,15 @@ export interface ViolinPoint {
     @param scale The density → `[0, 1]` factor.
     @param half Half the violin's widest extent.
 */
-export function violinOutline(curve: readonly DensityPoint[], scale: number, half: number): ViolinPoint[] {
-  return curve.map(([value, density]) => ({value, extent: density * scale * half}));
+export function violinOutline(
+  curve: readonly DensityPoint[],
+  scale: number,
+  half: number,
+): ViolinPoint[] {
+  return curve.map(([value, density]) => ({
+    value,
+    extent: density * scale * half,
+  }));
 }
 
 /**
@@ -101,7 +115,13 @@ export function violinOutline(curve: readonly DensityPoint[], scale: number, hal
     @param slot The violin's slot.
     @param extent Distance from the center to the edge.
 */
-export function violinEdges(slot: ViolinSlot, extent: number): [number, number] {
+export function violinEdges(
+  slot: ViolinSlot,
+  extent: number,
+): [number, number] {
   const {center, side} = slot;
-  return [side === "end" ? center : center - extent, side === "start" ? center : center + extent];
+  return [
+    side === "end" ? center : center - extent,
+    side === "start" ? center : center + extent,
+  ];
 }

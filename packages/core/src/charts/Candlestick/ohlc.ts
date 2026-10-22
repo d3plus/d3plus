@@ -35,7 +35,8 @@ export type CandleDirection = "up" | "down";
 
 /** `v` as a finite number, or undefined. */
 export function finiteValue(v: unknown): number | undefined {
-  if (v === null || v === undefined || v === "" || typeof v === "boolean") return undefined;
+  if (v === null || v === undefined || v === "" || typeof v === "boolean")
+    return undefined;
   const n = typeof v === "number" ? v : Number(v);
   return Number.isFinite(n) ? n : undefined;
 }
@@ -49,7 +50,11 @@ export function finiteValue(v: unknown): number | undefined {
     @param i The row's index.
     @param accessors The chart's `open`/`high`/`low`/`close` accessors.
 */
-export function readOhlc(d: DataPoint, i: number, accessors: OhlcAccessors): Ohlc | undefined {
+export function readOhlc(
+  d: DataPoint,
+  i: number,
+  accessors: OhlcAccessors,
+): Ohlc | undefined {
   const close = finiteValue(accessors.close(d, i));
   if (close === undefined) return undefined;
   const open = finiteValue(accessors.open(d, i)) ?? close;
@@ -77,7 +82,8 @@ export function candleDirection(open: number, close: number): CandleDirection {
     isn't finite.
 */
 export function candleChange(open: number, close: number): number | undefined {
-  if (!Number.isFinite(open) || !Number.isFinite(close) || open === 0) return undefined;
+  if (!Number.isFinite(open) || !Number.isFinite(close) || open === 0)
+    return undefined;
   return (close - open) / Math.abs(open);
 }
 
@@ -91,7 +97,8 @@ export function ohlcExtent(
   rows: {d: DataPoint; i: number}[],
   accessors: OhlcAccessors,
 ): [number, number] | undefined {
-  let lo = Infinity, hi = -Infinity;
+  let lo = Infinity,
+    hi = -Infinity;
   for (const {d, i} of rows) {
     const v = readOhlc(d, i, accessors);
     if (!v) continue;
@@ -108,9 +115,12 @@ export function ohlcExtent(
     @param fallback The room a lone period gets.
 */
 export function periodSpacing(positions: number[], fallback: number): number {
-  const sorted = Array.from(new Set(positions.filter(Number.isFinite))).sort((a, b) => a - b);
+  const sorted = Array.from(new Set(positions.filter(Number.isFinite))).sort(
+    (a, b) => a - b,
+  );
   let gap = Infinity;
-  for (let k = 1; k < sorted.length; k++) gap = Math.min(gap, sorted[k] - sorted[k - 1]);
+  for (let k = 1; k < sorted.length; k++)
+    gap = Math.min(gap, sorted[k] - sorted[k - 1]);
   return Number.isFinite(gap) && gap > 0 ? gap : fallback;
 }
 
@@ -121,7 +131,9 @@ export function periodSpacing(positions: number[], fallback: number): number {
     @param bodyWidth The share of that room to fill, from 0 to 1.
 */
 export function candleWidth(spacing: number, bodyWidth: number): number {
-  const share = Number.isFinite(bodyWidth) ? Math.min(1, Math.max(0, bodyWidth)) : 0.7;
+  const share = Number.isFinite(bodyWidth)
+    ? Math.min(1, Math.max(0, bodyWidth))
+    : 0.7;
   return Math.max(1, spacing * share);
 }
 

@@ -32,9 +32,15 @@ import type {VizInstance as Viz} from "../viz/vizTypes.js";
 */
 export function nodeRect(node: SceneNode): TransitionRect | null {
   if (!isFlipEligible(node)) return null;
-  if (node.type === "rect") return {x: node.x, y: node.y, width: node.width, height: node.height};
+  if (node.type === "rect")
+    return {x: node.x, y: node.y, width: node.width, height: node.height};
   if (node.type === "circle")
-    return {x: node.cx - node.r, y: node.cy - node.r, width: node.r * 2, height: node.r * 2};
+    return {
+      x: node.cx - node.r,
+      y: node.cy - node.r,
+      width: node.r * 2,
+      height: node.r * 2,
+    };
   if (node.type === "area") return pathBounds(areaPath(node));
   // Only reached for shapeType === "Area" — isFlipEligible excludes every
   // other path (a plain path, or a Sankey Link) above.
@@ -69,7 +75,10 @@ function unwrappedIndex(datum: unknown, nodeIndex: number | undefined): number {
     paint-driven Plot family nests its bars/points inside a `plot-zoom-content`
     group alongside sibling axis groups.
 */
-function findReunionNode(nodes: SceneNode[], matches: (n: SceneNode) => boolean): SceneNode | undefined {
+function findReunionNode(
+  nodes: SceneNode[],
+  matches: (n: SceneNode) => boolean,
+): SceneNode | undefined {
   for (const n of nodes) {
     if (isFlipEligible(n) && matches(n)) return n;
     if (n.type === "group" && n.children.length) {
@@ -113,7 +122,10 @@ export function resolveDrillMorph(viz: Viz): void {
     const match = accessor
       ? findReunionNode(viz._chartScene, n => {
           const d = unwrapDatum(n.datum);
-          return d !== undefined && accessor(d, unwrappedIndex(n.datum, n.index)) === reunion.groupId;
+          return (
+            d !== undefined &&
+            accessor(d, unwrappedIndex(n.datum, n.index)) === reunion.groupId
+          );
         })
       : undefined;
     // Not found (thresholded away, filtered out, etc.) degrades to a plain

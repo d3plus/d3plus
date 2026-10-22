@@ -18,10 +18,7 @@ useJsdom();
 */
 
 it("resolveSpec returns a frozen object mirroring viz.config()", () => {
-  const chart = new BarChart()
-    .baseline(7)
-    .barPadding(3)
-    .width(640);
+  const chart = new BarChart().baseline(7).barPadding(3).width(640);
   const spec = resolveSpec(chart);
   assert.ok(spec, "spec returned");
   assert.ok(Object.isFrozen(spec), "spec is frozen");

@@ -1,12 +1,13 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>DetectVisibleUnload · Viz</title>
-    <meta name="description" content="detectVisible unloading of off-screen charts, with a live status panel.">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="detectVisible unloading of off-screen charts, with a live status panel."
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -78,23 +79,35 @@
         top: 6px;
         z-index: 5;
       }
-      .loaded { background: #2e7d32; }
-      .unloaded { background: #c62828; }
-      .pending { background: #757575; }
+      .loaded {
+        background: #2e7d32;
+      }
+      .unloaded {
+        background: #c62828;
+      }
+      .pending {
+        background: #757575;
+      }
     </style>
-
   </head>
 
   <body>
-
     <div id="hud">
       <h1>detectVisibleUnload</h1>
       <div id="counts"></div>
       <div>DOM nodes: <b id="dom"></b></div>
       <form method="get" class="row">
-        <label><input type="checkbox" name="unload" value="1"> detectVisibleUnload</label>
-        <label>detectVisibleInterval <input type="number" name="delay" min="0" step="100"> ms</label>
-        <label>charts <input type="number" name="charts" min="1" max="500"></label>
+        <label
+          ><input type="checkbox" name="unload" value="1" />
+          detectVisibleUnload</label
+        >
+        <label
+          >detectVisibleInterval
+          <input type="number" name="delay" min="0" step="100" /> ms</label
+        >
+        <label
+          >charts <input type="number" name="charts" min="1" max="500"
+        /></label>
         <button type="submit">Apply (reloads page)</button>
       </form>
       <div class="row">
@@ -108,7 +121,6 @@
     </div>
 
     <script>
-
       // Manual test for viewport-aware charts (detectVisible + detectVisibleUnload).
       //
       // What to check:
@@ -145,24 +157,43 @@
       }
 
       const makers = [
-        ["BarChart", () => {
-          const data = [];
-          for (const g of ["A", "B", "C", "D"])
-            for (let i = 0; i < 12; i++) data.push({g, x: "c" + i, y: Math.round(rnd() * 100)});
-          return new d3plus.BarChart().groupBy("g").data(data).x("x").y("y");
-        }],
-        ["Treemap", () => {
-          const data = [];
-          for (let g = 0; g < 10; g++)
-            for (let i = 0; i < 15; i++) data.push({group: "G" + g, id: `G${g}-${i}`, value: 1 + Math.round(rnd() * 100)});
-          return new d3plus.Treemap().groupBy(["group", "id"]).data(data).sum("value");
-        }],
-        ["LinePlot", () => {
-          const data = [];
-          for (const g of ["S1", "S2", "S3", "S4", "S5", "S6"])
-            for (let i = 0; i < 40; i++) data.push({g, x: i, y: Math.round(rnd() * 100)});
-          return new d3plus.LinePlot().groupBy("g").data(data).x("x").y("y");
-        }]
+        [
+          "BarChart",
+          () => {
+            const data = [];
+            for (const g of ["A", "B", "C", "D"])
+              for (let i = 0; i < 12; i++)
+                data.push({g, x: "c" + i, y: Math.round(rnd() * 100)});
+            return new d3plus.BarChart().groupBy("g").data(data).x("x").y("y");
+          },
+        ],
+        [
+          "Treemap",
+          () => {
+            const data = [];
+            for (let g = 0; g < 10; g++)
+              for (let i = 0; i < 15; i++)
+                data.push({
+                  group: "G" + g,
+                  id: `G${g}-${i}`,
+                  value: 1 + Math.round(rnd() * 100),
+                });
+            return new d3plus.Treemap()
+              .groupBy(["group", "id"])
+              .data(data)
+              .sum("value");
+          },
+        ],
+        [
+          "LinePlot",
+          () => {
+            const data = [];
+            for (const g of ["S1", "S2", "S3", "S4", "S5", "S6"])
+              for (let i = 0; i < 40; i++)
+                data.push({g, x: i, y: Math.round(rnd() * 100)});
+            return new d3plus.LinePlot().groupBy("g").data(data).x("x").y("y");
+          },
+        ],
       ];
 
       const cards = [];
@@ -189,7 +220,9 @@
       const lines = [];
       const t0 = performance.now();
       function log(msg) {
-        lines.unshift(`${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}`);
+        lines.unshift(
+          `${((performance.now() - t0) / 1000).toFixed(1)}s ${msg}`,
+        );
         lines.length = Math.min(lines.length, 8);
         logEl.textContent = lines.join("\n");
       }
@@ -198,9 +231,14 @@
         const tally = {loaded: 0, unloaded: 0, pending: 0};
         cards.forEach((c, i) => {
           const nodes = c.card.querySelectorAll("*").length;
-          const state = c.viz._unloaded ? "unloaded" : nodes > LOADED_MIN_NODES ? "loaded" : "pending";
+          const state = c.viz._unloaded
+            ? "unloaded"
+            : nodes > LOADED_MIN_NODES
+              ? "loaded"
+              : "pending";
           if (state !== c.state) {
-            if (state !== "pending" || c.state === "loaded") log(`#${i + 1} ${c.name}: ${c.state} -> ${state}`);
+            if (state !== "pending" || c.state === "loaded")
+              log(`#${i + 1} ${c.name}: ${c.state} -> ${state}`);
             c.state = state;
           }
           tally[state]++;
@@ -211,7 +249,8 @@
           `<span class="loaded">${tally.loaded} loaded</span>` +
           `<span class="unloaded">${tally.unloaded} unloaded</span>` +
           `<span class="pending">${tally.pending} pending</span>`;
-        document.getElementById("dom").textContent = document.getElementsByTagName("*").length;
+        document.getElementById("dom").textContent =
+          document.getElementsByTagName("*").length;
       }
       setInterval(refresh, 100);
       refresh();
@@ -220,7 +259,8 @@
       document.getElementById("top").onclick = () => scrollTo(0, 0);
       document.getElementById("middle").onclick = () => scrollTo(0, max() / 2);
       document.getElementById("bottom").onclick = () => scrollTo(0, max());
-      document.getElementById("rerender").onclick = () => cards.forEach(c => c.viz.render());
+      document.getElementById("rerender").onclick = () =>
+        cards.forEach(c => c.viz.render());
 
       document.getElementById("fast").onclick = async () => {
         const raf = () => new Promise(r => requestAnimationFrame(r));
@@ -230,13 +270,12 @@
         await raf();
         for (let y = 0; y <= max(); y += 300) {
           scrollTo(0, y);
-          await raf(); await raf(); await raf();
+          await raf();
+          await raf();
+          await raf();
         }
         log(`fast scroll done (${before} loaded before)`);
       };
-
     </script>
-
   </body>
-
 </html>

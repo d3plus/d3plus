@@ -41,7 +41,11 @@ import {
   type AxisRestore,
   type CategoryPosition,
 } from "./gutter.js";
-import {pyramidPanelScene, pyramidScene, type PyramidSceneInput} from "./scene.js";
+import {
+  pyramidPanelScene,
+  pyramidScene,
+  type PyramidSceneInput,
+} from "./scene.js";
 import {pyramidStackOrder} from "./stackOrder.js";
 
 /** Per-instance state kept on `viz.ctx.pyramid`. */
@@ -97,7 +101,11 @@ function mirrorValue(viz: VizInstance) {
     const raw = state.value(d, i);
     const n = finite(raw);
     if (n === undefined) return raw;
-    const magnitude = viz.schema.percent ? (state.total ? Math.abs(n) / state.total : 0) : Math.abs(n);
+    const magnitude = viz.schema.percent
+      ? state.total
+        ? Math.abs(n) / state.total
+        : 0
+      : Math.abs(n);
     return sideSign(state.sides, sideOf(viz)(d, i)) * magnitude;
   };
 }
@@ -122,17 +130,26 @@ function syncTickFormat(viz: VizInstance, state: PyramidState): void {
   const config = viz._xConfig!;
   const current = config.tickFormat;
   if (current === undefined || current === state.tickFormat) {
-    config.tickFormat = state.tickFormat = absoluteFormat(valueFormat(viz), () => state.inset);
+    config.tickFormat = state.tickFormat = absoluteFormat(
+      valueFormat(viz),
+      () => state.inset,
+    );
     state.wrapped.add(config.tickFormat as object);
   } else if (typeof current === "function" && !state.wrapped.has(current)) {
-    config.tickFormat = absoluteFormat(current as (d: number) => string, () => state.inset);
+    config.tickFormat = absoluteFormat(
+      current as (d: number) => string,
+      () => state.inset,
+    );
     state.wrapped.add(config.tickFormat as object);
   }
 }
 
 /** Whether two arrays hold the same values in the same order. */
 const sameValues = (a: unknown, b: unknown): boolean =>
-  Array.isArray(a) && Array.isArray(b) && a.length === b.length && a.every((v, i) => v === b[i]);
+  Array.isArray(a) &&
+  Array.isArray(b) &&
+  a.length === b.length &&
+  a.every((v, i) => v === b[i]);
 
 /**
     The largest single-side category total (with comparison values): over
@@ -141,12 +158,13 @@ const sameValues = (a: unknown, b: unknown): boolean =>
 function valueExtent(viz: VizInstance, state: PyramidState): number {
   const persist = !!viz._axisPersist;
   const rows: DataPoint[] = persist ? viz._data : viz._filteredData;
-  const time = persist && viz.schema.time ? (viz.schema.time as RowAccessor) : undefined;
+  const time =
+    persist && viz.schema.time ? (viz.schema.time as RowAccessor) : undefined;
   const scaled = (fn: RowAccessor, frameTotal: number): RowAccessor => {
     if (!viz.schema.percent) return fn;
     const totals = time ? frameTotals(rows, fn, time) : undefined;
     return (d, i) => {
-      const total = totals ? totals.get(`${time!(d, i)}`) ?? 0 : frameTotal;
+      const total = totals ? (totals.get(`${time!(d, i)}`) ?? 0) : frameTotal;
       const v = finite(fn(d, i));
       return v === undefined || !total ? 0 : v / total;
     };
@@ -156,16 +174,23 @@ function valueExtent(viz: VizInstance, state: PyramidState): number {
     category: viz._y as RowAccessor,
     side: sideOf(viz),
     value: scaled(state.value, state.total),
-    comparison: comparison ? scaled(comparison, state.comparisonTotal) : undefined,
+    comparison: comparison
+      ? scaled(comparison, state.comparisonTotal)
+      : undefined,
     frame: time,
   });
 }
 
 /** Centers the value axis on zero: `[-extent, extent]` across both sides (and the gutter). */
-function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void {
+function syncDomain(
+  viz: VizInstance,
+  state: PyramidState,
+  extent: number,
+): void {
   const config = viz._xConfig!;
   // Compared by value: setting `xConfig` copies the bag, arrays included.
-  const ours = config.domain !== undefined && sameValues(config.domain, state.domain);
+  const ours =
+    config.domain !== undefined && sameValues(config.domain, state.domain);
   if (config.domain !== undefined && !ours) return;
   if (!viz.schema.symmetric || hasUserDomain(viz, "x")) {
     if (ours) delete config.domain;
@@ -176,14 +201,21 @@ function syncDomain(viz: VizInstance, state: PyramidState, extent: number): void
   // Plot draws an `xConfig.domain` as given, so ask for its ends rounded out
   // to nice values; a `rounding` in the user's `xConfig` still wins.
   const defaults = viz._plotAxisDefaults ?? {};
-  viz._plotAxisDefaults = {...defaults, x: {...defaults.x, rounding: "outside"}};
+  viz._plotAxisDefaults = {
+    ...defaults,
+    x: {...defaults.x, rounding: "outside"},
+  };
 }
 
 /**
     Lays out the center gutter: each side starts `inset` from zero, and the
     value axis breaks there as wide as the widest category label.
 */
-function syncGutter(viz: VizInstance, state: PyramidState, extent: number): void {
+function syncGutter(
+  viz: VizInstance,
+  state: PyramidState,
+  extent: number,
+): void {
   const position = viz.schema.categoryPosition as CategoryPosition;
   state.restore ??= captureAxisStyles(viz);
   const center = position === "center";
@@ -193,9 +225,18 @@ function syncGutter(viz: VizInstance, state: PyramidState, extent: number): void
     const categories = allCategories(viz);
     const config = categoryLabelConfig(viz);
     const fonts = categories.map((c, i) => labelFont(config, c, i));
-    width = gutterWidth(categories.map(c => categoryText(viz, c)), fonts);
+    width = gutterWidth(
+      categories.map(c => categoryText(viz, c)),
+      fonts,
+    );
   }
-  viz._plotAxisDefaults = gutterAxisDefaults(position, state.inset, width, viz.schema.xBreak, state.restore);
+  viz._plotAxisDefaults = gutterAxisDefaults(
+    position,
+    state.inset,
+    width,
+    viz.schema.xBreak,
+    state.restore,
+  );
 }
 
 /** In percent mode, titles the value axis "Percent of Total" unless the user titled it. */
@@ -204,7 +245,11 @@ function syncTitle(viz: VizInstance, state: PyramidState): void {
   // Plot's own automatic title (the value's data key).
   const auto = (viz as unknown as {_xTitle?: string})._xTitle;
   if (viz.schema.percent) {
-    if (config.title === undefined || config.title === auto || config.title === state.title) {
+    if (
+      config.title === undefined ||
+      config.title === auto ||
+      config.title === state.title
+    ) {
       config.title = state.title = viz.schema.translate("Percent of Total");
     }
   } else if (state.title !== undefined) {
@@ -242,13 +287,19 @@ function preparePyramid(viz: VizInstance): void {
 function sideLabels(viz: VizInstance, sides: string[]): string[] {
   const side = sideOf(viz);
   return sides.map(s => {
-    const index = viz._data.findIndex((d: DataPoint, i: number) => `${side(d, i)}` === s);
+    const index = viz._data.findIndex(
+      (d: DataPoint, i: number) => `${side(d, i)}` === s,
+    );
     return index >= 0 ? viz._drawLabel(viz._data[index], index, 0) : s;
   });
 }
 
 /** Tooltip rows: the value's share of the total (or the value itself in percent mode) and any comparison. */
-function tooltipRows(viz: VizInstance, d: DataPoint, i: number): [string, string][] {
+function tooltipRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): [string, string][] {
   const state = pyramidState(viz);
   const value = finite(state.value(d, i));
   if (value === undefined) return [];
@@ -256,17 +307,30 @@ function tooltipRows(viz: VizInstance, d: DataPoint, i: number): [string, string
   const percent = !!viz.schema.percent;
   if (percent) {
     const key = viz._xKey;
-    rows.push([typeof key === "string" ? key : viz.schema.translate("Value"), formatAbbreviate(Math.abs(value), viz.schema.locale)]);
+    rows.push([
+      typeof key === "string" ? key : viz.schema.translate("Value"),
+      formatAbbreviate(Math.abs(value), viz.schema.locale),
+    ]);
   } else if (state.total) {
-    rows.push([viz.schema.translate("Percent of Total"), percentText(viz, Math.abs(value) / state.total)]);
+    rows.push([
+      viz.schema.translate("Percent of Total"),
+      percentText(viz, Math.abs(value) / state.total),
+    ]);
   }
   const comparison = viz.schema.comparison as RowAccessor | undefined;
   const c = comparison ? finite(comparison(d, i)) : undefined;
   if (comparison && c !== undefined) {
-    const label = comparisonKeys.get(comparison) ?? viz.schema.translate("Comparison");
-    rows.push([label, percent
-      ? percentText(viz, state.comparisonTotal ? Math.abs(c) / state.comparisonTotal : 0)
-      : formatAbbreviate(Math.abs(c), viz.schema.locale)]);
+    const label =
+      comparisonKeys.get(comparison) ?? viz.schema.translate("Comparison");
+    rows.push([
+      label,
+      percent
+        ? percentText(
+            viz,
+            state.comparisonTotal ? Math.abs(c) / state.comparisonTotal : 0,
+          )
+        : formatAbbreviate(Math.abs(c), viz.schema.locale),
+    ]);
   }
   return rows;
 }
@@ -283,7 +347,9 @@ function sceneInput(viz: VizInstance): PyramidSceneInput {
     titleBox: state.titleBox,
     showTitles: !!viz.schema.sideTitles,
     inset: state.inset,
-    gutter: state.inset ? edges => gutterLabels(viz, state.labelBox, edges) : undefined,
+    gutter: state.inset
+      ? edges => gutterLabels(viz, state.labelBox, edges)
+      : undefined,
   };
 }
 
@@ -310,13 +376,18 @@ export const pyramidDef: ChartDefinition = {
     // and diverge from the center line.
     viz._stackGroup = () => "group";
     viz._stackOrder = pyramidStackOrder((d, i) =>
-      viz._ids(d, i).slice(1, viz._drawDepth + 1).join("_"),
+      viz
+        ._ids(d, i)
+        .slice(1, viz._drawDepth + 1)
+        .join("_"),
     ) as unknown as VizInstance["_stackOrder"];
     // Colors follow the deepest drawn groupBy level, so a sub-group stacked on
     // both sides (e.g. Urban / Rural) shares one color and legend entry.
     viz.schema.color = (d: DataPoint, i: number) => {
       const groupBy = viz.schema.groupBy as RowAccessor[];
-      return groupBy[Math.max(0, Math.min(viz._drawDepth ?? 0, groupBy.length - 1))](d, i);
+      return groupBy[
+        Math.max(0, Math.min(viz._drawDepth ?? 0, groupBy.length - 1))
+      ](d, i);
     };
     // Rows are read off the category axis, so bars carry no labels.
     viz.schema.shapeConfig.Bar = {...viz.schema.shapeConfig.Bar, label: false};
@@ -332,7 +403,8 @@ export const pyramidDef: ChartDefinition = {
   },
 
   // Small multiples add these to each panel as it draws (see `facet` below).
-  decorateScene: (viz, scene) => (viz._facetPanels ? scene : pyramidScene(viz, scene, sceneInput(viz))),
+  decorateScene: (viz, scene) =>
+    viz._facetPanels ? scene : pyramidScene(viz, scene, sceneInput(viz)),
 
   facet: {
     scene: (viz, nodes) => pyramidPanelScene(viz, nodes, sceneInput(viz)),
@@ -420,9 +492,13 @@ export const pyramidDef: ChartDefinition = {
         Ignored when `xDomain` or `xConfig.domain` is set.
     */
     {key: "symmetric", default: true},
-    {key: "tooltipConfig", merge: true, factory: (viz: VizInstance) => ({
-      tbody: (d: DataPoint, i: number) => tooltipRows(viz, d, i),
-    })},
+    {
+      key: "tooltipConfig",
+      merge: true,
+      factory: (viz: VizInstance) => ({
+        tbody: (d: DataPoint, i: number) => tooltipRows(viz, d, i),
+      }),
+    },
   ],
 };
 

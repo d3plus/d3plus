@@ -12,7 +12,8 @@ import {sceneNodes} from "~test/browser/helpers.js";
     classes, and d3plus's own style config, still apply.
 */
 
-const PAGE_CSS = "div {padding: 25px; margin: 10px} button {padding: 20px; margin: 10px}";
+const PAGE_CSS =
+  "div {padding: 25px; margin: 10px} button {padding: 20px; margin: 10px}";
 
 /**
     Renders a 300px-wide Plot with zoom, table view and search showing and a
@@ -27,7 +28,11 @@ const layout = (css, renderer, config = {}) =>
       new Promise((resolve, reject) => {
         const viz = new window.d3plus.Plot()
           .select("#s")
-          .data([{id: "a", x: 1, y: 2}, {id: "a", x: 2, y: 50000}, {id: "b", x: 3, y: 3}])
+          .data([
+            {id: "a", x: 1, y: 2},
+            {id: "a", x: 2, y: 50000},
+            {id: "b", x: 3, y: 3},
+          ])
           .groupBy("id")
           .x("x")
           .y("y")
@@ -39,12 +44,20 @@ const layout = (css, renderer, config = {}) =>
           .config(config);
         viz.render(() => {
           try {
-            const svg = document.querySelector("#s .d3plus-viz").getBoundingClientRect();
+            const svg = document
+              .querySelector("#s .d3plus-viz")
+              .getBoundingClientRect();
             const box = el => {
               const r = el.getBoundingClientRect();
-              return {left: r.left - svg.left, top: r.top - svg.top, width: r.width, height: r.height};
+              return {
+                left: r.left - svg.left,
+                top: r.top - svg.top,
+                width: r.width,
+                height: r.height,
+              };
             };
-            const boxes = selector => [...document.querySelectorAll(selector)].map(box);
+            const boxes = selector =>
+              [...document.querySelectorAll(selector)].map(box);
             let title = null;
             for (const n of sceneNodes(viz.toScene().root)) {
               if (n.key === "viz-title" && n.type === "text") title = n;
@@ -76,23 +89,48 @@ for (const renderer of ["svg", "canvas"]) {
   it(`${renderer}: generic page CSS doesn't move or resize the corner controls`, async function () {
     const bare = await layout("", renderer);
     const styled = await layout(PAGE_CSS, renderer);
-    assert.strictEqual(styled.controlsHeight, bare.controlsHeight, "cornerControlsHeight matches the bare page");
-    assert.ok(bare.controlsHeight > 0 && bare.controlsHeight < 30, `a single row of controls (${bare.controlsHeight}px)`);
-    assert.deepStrictEqual(styled.zoom, bare.zoom, "the zoom controls sit and size as on the bare page");
-    assert.deepStrictEqual(styled.topLeft, bare.topLeft, "the top-left controls sit and size as on the bare page");
+    assert.strictEqual(
+      styled.controlsHeight,
+      bare.controlsHeight,
+      "cornerControlsHeight matches the bare page",
+    );
+    assert.ok(
+      bare.controlsHeight > 0 && bare.controlsHeight < 30,
+      `a single row of controls (${bare.controlsHeight}px)`,
+    );
+    assert.deepStrictEqual(
+      styled.zoom,
+      bare.zoom,
+      "the zoom controls sit and size as on the bare page",
+    );
+    assert.deepStrictEqual(
+      styled.topLeft,
+      bare.topLeft,
+      "the top-left controls sit and size as on the bare page",
+    );
     assert.deepStrictEqual(
       styled.host,
       {left: 0, top: 0, ...styled.svg},
       "the overlay host covers the chart's svg, inside the container's padding",
     );
-    assert.strictEqual(styled.titleTop, bare.titleTop, "the title drops to the same spot");
+    assert.strictEqual(
+      styled.titleTop,
+      bare.titleTop,
+      "the title drops to the same spot",
+    );
     const under = styled.titleTop - bottom([...styled.zoom, ...styled.topLeft]);
-    assert.ok(under >= 0 && under < 10, `the title sits right under the panels (${under}px)`);
+    assert.ok(
+      under >= 0 && under < 10,
+      `the title sits right under the panels (${under}px)`,
+    );
   });
 
   it(`${renderer}: class rules on d3plus's own classes still apply`, async function () {
     const bare = await layout("", renderer);
-    const zoomPadded = await layout(`${PAGE_CSS} .d3plus-zoom-control {padding-bottom: 10px}`, renderer);
+    const zoomPadded = await layout(
+      `${PAGE_CSS} .d3plus-zoom-control {padding-bottom: 10px}`,
+      renderer,
+    );
     // The controls reach their panel's bottom plus a gap equal to the
     // buttons' inset from the chart's top edge.
     assert.strictEqual(
@@ -100,7 +138,10 @@ for (const renderer of ["svg", "canvas"]) {
       bottom(bare.zoom) + 10 + bare.zoom[0].top,
       "the zoom panel's padding from the page is measured",
     );
-    const itemPadded = await layout(`${PAGE_CSS} .tlc-item {padding-bottom: 16px}`, renderer);
+    const itemPadded = await layout(
+      `${PAGE_CSS} .tlc-item {padding-bottom: 16px}`,
+      renderer,
+    );
     assert.strictEqual(
       itemPadded.controlsHeight,
       bare.controlsHeight + 16,
@@ -110,18 +151,32 @@ for (const renderer of ["svg", "canvas"]) {
 
   it(`${renderer}: d3plus style config still wins over page CSS`, async function () {
     const styled = await layout(PAGE_CSS, renderer, {
-      zoomControlStyle: {height: "30px", width: "30px", padding: "5px", margin: "2px"},
+      zoomControlStyle: {
+        height: "30px",
+        width: "30px",
+        padding: "5px",
+        margin: "2px",
+      },
     });
     assert.strictEqual(styled.zoomButton.padding, "5px", "configured padding");
     assert.strictEqual(styled.zoomButton.margin, "2px", "configured margin");
-    assert.ok(styled.zoom.every(r => r.height === 30), "configured size");
+    assert.ok(
+      styled.zoom.every(r => r.height === 30),
+      "configured size",
+    );
   });
 }
 
 it("a zoomControlClassName hands the zoom buttons to the page's CSS", async function () {
-  const styled = await layout(`${PAGE_CSS} .my-button {padding: 3px}`, "svg", {zoomControlClassName: "my-button"});
+  const styled = await layout(`${PAGE_CSS} .my-button {padding: 3px}`, "svg", {
+    zoomControlClassName: "my-button",
+  });
   assert.strictEqual(styled.zoomButton.padding, "3px", "the class's padding");
-  assert.strictEqual(styled.zoomButton.margin, "10px", "the page's own button rules apply too");
+  assert.strictEqual(
+    styled.zoomButton.margin,
+    "10px",
+    "the page's own button rules apply too",
+  );
 });
 
 it("generic page CSS stays off the tooltip, and tooltip config still applies", async function () {
@@ -142,13 +197,30 @@ it("generic page CSS stays off the tooltip, and tooltip config still applies", a
             const body = css(".d3plus-tooltip-body");
             resolve({
               tip: [tip.padding, tip.margin],
-              title: [title.paddingTop, title.paddingLeft, title.marginBottom, title.marginTop],
+              title: [
+                title.paddingTop,
+                title.paddingLeft,
+                title.marginBottom,
+                title.marginTop,
+              ],
               body: [body.padding, body.margin],
             });
           });
       }),
   );
-  assert.deepStrictEqual(out.tip, ["10px", "0px"], "the box keeps its configured padding, and no page margin");
-  assert.deepStrictEqual(out.title, ["0px", "4px", "5px", "0px"], "the title keeps titleStyle and drops the page's box");
-  assert.deepStrictEqual(out.body, ["0px", "0px"], "the body drops the page's box");
+  assert.deepStrictEqual(
+    out.tip,
+    ["10px", "0px"],
+    "the box keeps its configured padding, and no page margin",
+  );
+  assert.deepStrictEqual(
+    out.title,
+    ["0px", "4px", "5px", "0px"],
+    "the title keeps titleStyle and drops the page's box",
+  );
+  assert.deepStrictEqual(
+    out.body,
+    ["0px", "0px"],
+    "the body drops the page's box",
+  );
 });

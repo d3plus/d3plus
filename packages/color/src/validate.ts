@@ -60,11 +60,16 @@ const MACHADO = {
 type CVDKind = keyof typeof MACHADO;
 
 /** CIELAB (D65) from linear-light sRGB. */
-function lin2lab([r, g, b]: [number, number, number]): [number, number, number] {
+function lin2lab([r, g, b]: [number, number, number]): [
+  number,
+  number,
+  number,
+] {
   const X = 0.4124564 * r + 0.3575761 * g + 0.1804375 * b;
   const Y = 0.2126729 * r + 0.7151522 * g + 0.072175 * b;
   const Z = 0.0193339 * r + 0.119192 * g + 0.9503041 * b;
-  const f = (t: number): number => (t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116);
+  const f = (t: number): number =>
+    t > 0.008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116;
   const [fx, fy, fz] = [f(X / 0.95047), f(Y), f(Z / 1.08883)];
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
 }
@@ -166,7 +171,9 @@ function validateCategorical(
     }
   }
   const tritan = pairlist.length
-    ? Math.min(...pairlist.map(([i, j]) => deltaE(palette[i], palette[j], "tritan")))
+    ? Math.min(
+        ...pairlist.map(([i, j]) => deltaE(palette[i], palette[j], "tritan")),
+      )
     : 99;
   const wd = worst ? worst.d : 99;
   const cvdState: CheckState =
@@ -180,7 +187,9 @@ function validateCategorical(
       : "n/a",
   });
 
-  const lowContrast = palette.filter(c => contrastRatio(c, surface) < CONTRAST_MIN);
+  const lowContrast = palette.filter(
+    c => contrastRatio(c, surface) < CONTRAST_MIN,
+  );
   checks.push({
     name: "Contrast vs surface",
     state: lowContrast.length ? "warn" : "pass",
@@ -224,7 +233,9 @@ function validateOrdinal(
       : `all gaps ≥ ${ORDINAL_MIN_DL}`,
   });
 
-  const sorted = [...palette].sort((a, b) => colorToOklch(a).l - colorToOklch(b).l);
+  const sorted = [...palette].sort(
+    (a, b) => colorToOklch(a).l - colorToOklch(b).l,
+  );
   const lightest = mode === "light" ? sorted[sorted.length - 1] : sorted[0];
   const cr = contrastRatio(lightest, surface);
   if (cr < ORDINAL_LIGHT_FLOOR) ok = false;

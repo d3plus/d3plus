@@ -1,14 +1,14 @@
 /** Letters that don't decompose into an ASCII letter plus accents. */
 const special: Record<string, string> = {
-  "Æ": "AE",
-  "æ": "ae",
-  "ß": "B",
-  "Ð": "D",
-  "Þ": "D",
-  "þ": "D",
-  "ð": "d",
-  "Ø": "O",
-  "ø": "o",
+  Æ: "AE",
+  æ: "ae",
+  ß: "B",
+  Ð: "D",
+  Þ: "D",
+  þ: "D",
+  ð: "d",
+  Ø: "O",
+  ø: "o",
   "×": "x",
 };
 

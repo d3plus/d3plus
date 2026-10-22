@@ -65,7 +65,10 @@ it("Funnel geometry: stageWidths measures against a larger shared scale", () => 
   // Shared max 800: a funnel whose widest stage is 200 draws at a quarter width.
   assert.deepStrictEqual(stageWidths([200, 100, 50], 400, 800), [100, 50, 25]);
   // A shared max below the funnel's own largest value doesn't stretch it past the breadth.
-  assert.deepStrictEqual(stageWidths([200, 100, 50], 400, 100), [400, 200, 100]);
+  assert.deepStrictEqual(
+    stageWidths([200, 100, 50], 400, 100),
+    [400, 200, 100],
+  );
   // Zero, negative, or missing shared max falls back to the funnel's own scale.
   assert.deepStrictEqual(stageWidths([200, 100], 400, 0), [400, 200]);
   assert.deepStrictEqual(stageWidths([200, 100], 400, -5), [400, 200]);

@@ -1,5 +1,5 @@
 import type {DataPoint} from "@d3plus/data";
-import { D3plusConfig } from "./D3plusConfig.js";
+import {D3plusConfig} from "./D3plusConfig.js";
 import {markSharedConfig} from "./configWarnings.js";
 
 interface D3PlusWrapped {
@@ -18,12 +18,7 @@ type DataAccessor = (
   e?: Event,
 ) => DataPoint[keyof DataPoint];
 type ConfigValue =
-  | DataAccessor
-  | string
-  | number
-  | boolean
-  | ConfigObject
-  | ConfigValue[];
+  DataAccessor | string | number | boolean | ConfigObject | ConfigValue[];
 interface ConfigObject extends D3plusConfig {
   [key: string]: unknown;
 }
@@ -84,7 +79,8 @@ export default function configPrep(
         ({}.hasOwnProperty.call(on, event) && !event.includes(".")) ||
         event.includes(`.${type}`)
       ) {
-        (newObj.on as unknown as Record<string, DataAccessor>)[event] = wrapFunction(on[event]);
+        (newObj.on as unknown as Record<string, DataAccessor>)[event] =
+          wrapFunction(on[event]);
       }
     }
   };
@@ -102,7 +98,10 @@ export default function configPrep(
     for (const key in obj) {
       if ({}.hasOwnProperty.call(obj, key)) {
         if (key === "on")
-          parseEvents(newObj, obj[key] as unknown as Record<string, DataAccessor>);
+          parseEvents(
+            newObj,
+            obj[key] as unknown as Record<string, DataAccessor>,
+          );
         else if (key === "sort")
           // `sort` is a two-argument layering comparator, not a per-datum
           // accessor — pass it through untouched so `wrapFunction` doesn't
@@ -125,11 +124,21 @@ export default function configPrep(
   };
 
   keyEval(newConfig, config);
-  if (this.schema.on) parseEvents(newConfig, this.schema.on as unknown as Record<string, DataAccessor>);
+  if (this.schema.on)
+    parseEvents(
+      newConfig,
+      this.schema.on as unknown as Record<string, DataAccessor>,
+    );
   if (nest && config[nest]) {
     keyEval(newConfig, config[nest] as ConfigObject);
     if ((config[nest] as ConfigObject).on)
-      parseEvents(newConfig, (config[nest] as ConfigObject).on as unknown as Record<string, DataAccessor>);
+      parseEvents(
+        newConfig,
+        (config[nest] as ConfigObject).on as unknown as Record<
+          string,
+          DataAccessor
+        >,
+      );
   }
 
   return markSharedConfig(newConfig);

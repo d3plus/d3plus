@@ -3,52 +3,52 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   highestQuality: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     defaultValue: "false",
-    description: "Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower.",
+    description:
+      "Excludes distance-based preprocessing step which leads to highest quality simplification but runs ~10-20 times slower.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "boolean"
-    }
+      summary: "boolean",
+    },
   },
   poly: {
     control: {},
     description: "An Array of points that represent a polygon.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
+      summary: "array.&lt;point&gt;",
+    },
   },
   tolerance: {
     control: {
-      type: "number"
+      type: "number",
     },
     defaultValue: "1",
-    description: "Affects the amount of simplification (in the same metric as the point coordinates).",
+    description:
+      "Affects the amount of simplification (in the same metric as the point coordinates).",
     table: {
       defaultValue: {
-        summary: "1"
-      }
+        summary: "1",
+      },
     },
     type: {
       required: false,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

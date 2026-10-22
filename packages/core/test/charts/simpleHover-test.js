@@ -17,7 +17,11 @@ function fakeViz({legend = true, renderer = true} = {}) {
 it("simpleHover stores the predicate, forwards it to the legend, and repaints", () => {
   const viz = fakeViz();
   const pred = d => d.id === "a";
-  assert.strictEqual(simpleHover.call(viz, pred), viz, "returns the chart for chaining");
+  assert.strictEqual(
+    simpleHover.call(viz, pred),
+    viz,
+    "returns the chart for chaining",
+  );
   assert.strictEqual(viz._hover, pred);
   assert.deepStrictEqual(viz.log.legend, [pred]);
   assert.strictEqual(viz.log.repaints, 1);

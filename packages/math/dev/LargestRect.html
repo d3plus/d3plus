@@ -1,29 +1,24 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LargestRect</title>
+    <meta
+      name="description"
+      content="largestRect() inside a diamond polygon."
+    />
+    <script src="/umd/d3plus-math.full.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
+  </head>
 
-  <meta charset="utf-8">
-  <title>LargestRect</title>
-  <meta name="description" content="largestRect() inside a diamond polygon.">
-  <script src="/umd/d3plus-math.full.js"></script>
+  <body></body>
 
-  <style>
-
-    body {
-      margin: 0;
-    }
-
-  </style>
-
-</head>
-
-<body>
-
-</body>
-
-<script>
-
+  <script>
     // Prints each logged value into the page as well as the console.
     const output = document.body.appendChild(document.createElement("pre"));
     const log = (...args) => {
@@ -31,7 +26,9 @@
       const text = args.map(a => {
         if (typeof a === "string") return a;
         try {
-          return JSON.stringify(a, (k, v) => (typeof v === "function" ? `${v}` : v));
+          return JSON.stringify(a, (k, v) =>
+            typeof v === "function" ? `${v}` : v,
+          );
         } catch {
           return String(a);
         }
@@ -39,14 +36,24 @@
       output.textContent += `${text.join(" ")}\n`;
     };
 
-    const poly = [[40, 0], [80, 40], [40, 80], [0, 40], [40, 0]];
+    const poly = [
+      [40, 0],
+      [80, 40],
+      [40, 80],
+      [0, 40],
+      [40, 0],
+    ];
 
     const rect = d3plus.largestRect(poly, {angle: 0});
-    const expected = [[21, 21], [59, 21], [59, 59], [21, 59], [21, 21]];
+    const expected = [
+      [21, 21],
+      [59, 21],
+      [59, 59],
+      [21, 59],
+      [21, 21],
+    ];
     log(rect);
     log(expected);
     // assert.strictEqual(JSON.stringify(expected), JSON.stringify(rect.points.map(d => d.map(Math.round))), "angle option");
-
-</script>
-
+  </script>
 </html>

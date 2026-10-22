@@ -26,17 +26,17 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-    - uses: actions/checkout@v7
-    - uses: pnpm/action-setup@v6
-    - uses: actions/setup-node@v7
-      with:
-        node-version: 24.x
-        cache: pnpm
-    - run: pnpm install
-    - run: pnpm --filter @d3plus/docs build
-    - uses: actions/upload-pages-artifact@v5
-      with:
-        path: packages/docs/build
-    - uses: actions/deploy-pages@v5
-      with:
-        token: ${{ github.token }}
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24.x
+          cache: pnpm
+      - run: pnpm install
+      - run: pnpm --filter @d3plus/docs build
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: packages/docs/build
+      - uses: actions/deploy-pages@v5
+        with:
+          token: ${{ github.token }}

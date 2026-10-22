@@ -4,11 +4,15 @@ import type {transition} from "d3-transition";
 
 import {colorContrast} from "@d3plus/color";
 import type {DataPoint} from "@d3plus/data";
-import {getSize} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
-import {SvgRenderer} from "@d3plus/render";
-import type {GroupNode, Paint, SceneNode, Transform} from "@d3plus/render";
+import type {
+  GroupNode,
+  Paint,
+  SceneNode,
+  SvgRenderer,
+  Transform,
+} from "@d3plus/render";
 
 import {TextBox} from "../components/index.js";
 import {accessor, BaseClass, constant} from "../utils/index.js";
@@ -18,6 +22,7 @@ import type {ConfigField} from "../fluent.js";
 import {buildLabelData} from "./buildLabelData.js";
 import {hitAreaNode} from "./hitAreaNode.js";
 import {interactionPoints} from "./interactionPoints.js";
+import {paintStandalone} from "./shapeStandalone.js";
 import {textureKey} from "./textureKey.js";
 import type {BaseShapeConfig} from "./shapeConfig.js";
 
@@ -51,7 +56,6 @@ export interface ShapeAes {
   x?: number;
   y?: number;
 }
-
 
 import {
   backgroundImageLayout,
@@ -87,7 +91,11 @@ const shapeSchema: ConfigField[] = [
   {key: "rx", coerce: "const", default: constant(0)},
   {key: "ry", coerce: "const", default: constant(0)},
   {key: "scale", coerce: "const", default: constant(1)},
-  {key: "shapeRendering", coerce: "const", default: constant("geometricPrecision")},
+  {
+    key: "shapeRendering",
+    coerce: "const",
+    default: constant("geometricPrecision"),
+  },
   {key: "stroke", coerce: "const"},
   {key: "strokeDasharray", coerce: "const", default: constant("0")},
   {key: "strokeLinecap", coerce: "const", default: constant("butt")},
@@ -95,7 +103,11 @@ const shapeSchema: ConfigField[] = [
   {key: "strokeWidth", coerce: "const", default: constant(0)},
   {key: "textAnchor", coerce: "const", default: constant("start")},
   {key: "texture", coerce: "const", default: constant(false)},
-  {key: "vectorEffect", coerce: "const", default: constant("non-scaling-stroke")},
+  {
+    key: "vectorEffect",
+    coerce: "const",
+    default: constant("non-scaling-stroke"),
+  },
   {key: "verticalAlign", coerce: "const", default: constant("top")},
   // "accessor" (not "const"): a string names a data key (`.x("year")`), a
   // number is a constant (`.x(50)`), and a function passes through — so a
@@ -190,7 +202,10 @@ export default class Shape extends BaseClass {
     // etc. rely on this. Bar overrides to "middle" in its constructor.
     this.schema.labelConfig = {
       fontColor: (d: DataPoint, i: number) =>
-        colorContrast(this.schema.fill(d, i) as string, this.schema.colorDefaults),
+        colorContrast(
+          this.schema.fill(d, i) as string,
+          this.schema.colorDefaults,
+        ),
       // Fade labels with their shape's opacity (e.g. an axis tick label hides
       // when `shapeConfig.opacity` is 0). Reads `this.schema.opacity` live —
       // like `fontColor` reads `fill` — which unwraps nested label data.
@@ -215,7 +230,6 @@ export default class Shape extends BaseClass {
   _aes(_d?: DataPoint, _i?: number): ShapeAes {
     return {};
   }
-
 
   /**
       Returns a full JSON string of the texture config for a given data point.
@@ -250,7 +264,6 @@ export default class Shape extends BaseClass {
       );
   }
 
-
   /**
       Adds labels to each shape group.
       @private
@@ -278,7 +291,6 @@ export default class Shape extends BaseClass {
       id: this.schema.id,
     });
   }
-
 
   /**
       Renders the current Shape to the page. If a *callback* is specified, it will be called once the shapes are done drawing.
@@ -345,7 +357,9 @@ export default class Shape extends BaseClass {
       fillOpacity: numOrUndef(this._styleVal(this.schema.fillOpacity, d, i)),
       stroke: strOrUndef(this._styleVal(this.schema.stroke, d, i)),
       strokeWidth: numOrUndef(this._styleVal(this.schema.strokeWidth, d, i)),
-      strokeOpacity: numOrUndef(this._styleVal(this.schema.strokeOpacity, d, i)),
+      strokeOpacity: numOrUndef(
+        this._styleVal(this.schema.strokeOpacity, d, i),
+      ),
       strokeDasharray: parseDash(
         this._styleVal(this.schema.strokeDasharray, d, i),
       ),
@@ -404,14 +418,34 @@ export default class Shape extends BaseClass {
 
       // Per-point positions (Line/Area) shared by the geometry and its hit area
       // so a hover anywhere on either resolves to the nearest point.
-      const iPoints = interactionPoints(d, this.schema.x, this.schema.y, this.schema.defined);
+      const iPoints = interactionPoints(
+        d,
+        this.schema.x,
+        this.schema.y,
+        this.schema.defined,
+      );
       // Push the hit area (if any) before the geometry so it sits behind it.
       // Line's is a fat path built from the geometry `d`; Bar/legend etc. a rect.
       if (this.schema.hitArea) {
-        const ha = hitAreaNode(this.schema.hitArea, d, i, this._aes(d, i), key, datum, this._name, transform, geom.d as string);
+        const ha = hitAreaNode(
+          this.schema.hitArea,
+          d,
+          i,
+          this._aes(d, i),
+          key,
+          datum,
+          this._name,
+          transform,
+          geom.d as string,
+        );
         // Share the datum's rank so the hit area stays paired just behind its
         // own geometry (equal `z`, kept in push order by the stable sort).
-        if (ha) children.push(rank ? ({...ha, ...iPoints, z: rank[i]} as SceneNode) : ({...ha, ...iPoints} as SceneNode));
+        if (ha)
+          children.push(
+            rank
+              ? ({...ha, ...iPoints, z: rank[i]} as SceneNode)
+              : ({...ha, ...iPoints} as SceneNode),
+          );
       }
 
       children.push({
@@ -436,7 +470,8 @@ export default class Shape extends BaseClass {
       // draw an image in, so it never takes one.
       const bg =
         paint.fill !== "none" &&
-        (this._nestWrapper(this.schema.backgroundImage)(d, i) as string | false);
+        (this._nestWrapper(this.schema.backgroundImage)(d, i) as
+          string | false);
       if (bg) {
         const g = geom as Record<string, unknown>;
         // Only Area/Line lack a `d`/box and need polygon points; Path/Rect/Circle
@@ -450,7 +485,9 @@ export default class Shape extends BaseClass {
           : [];
         const fit = this._nestWrapper(this.schema.backgroundImageFit)(d, i);
         const layout = backgroundImageLayout(
-          g, points, fit === "contain" ? "contain" : "cover",
+          g,
+          points,
+          fit === "contain" ? "contain" : "cover",
         );
         if (layout) {
           bgSpecs.push({
@@ -478,14 +515,16 @@ export default class Shape extends BaseClass {
     // too would emit them twice in every chart that calls collectComputed
     // (Pie/Donut/Pack/Treemap/Network/Priestley/Radar/RadialMatrix/Geomap…).
     // Standalone shape.render() consumers (no collectComputed wrapper) get
-    // labels through Shape.render's own SvgRenderer path below.
+    // labels through Shape.render's own SvgRenderer path (`paintStandalone`).
     return {type: "group", key: `${this._name}-group`, children};
   }
 
   render(callback?: () => void): this {
     // Populate the label TextBox so toScene() reads correct label data. The
     // label class is always in compute mode — the scene path materializes text.
-    const lc = this._labelClass as unknown as {renderMode?: (m: string) => unknown};
+    const lc = this._labelClass as unknown as {
+      renderMode?: (m: string) => unknown;
+    };
     if (lc && typeof lc.renderMode === "function") lc.renderMode("compute");
     // Apply Shape's labelConfig (fontColor, fontResize, padding, textAnchor,
     // verticalAlign, fontSize, …) to the underlying TextBox. Function
@@ -527,59 +566,7 @@ export default class Shape extends BaseClass {
           ? (sel.node() as Element | null)
           : (sel as unknown as Element | null);
       if (node) {
-        const tag = (node.tagName || "").toLowerCase();
-        const isSvg = tag === "svg";
-        // Explicit numeric size first: an <svg>'s width/height attribute, or a
-        // non-svg container's client box.
-        const rawW = isSvg ? Number(node.getAttribute("width")) : (node as HTMLElement).clientWidth;
-        const rawH = isSvg ? Number(node.getAttribute("height")) : (node as HTMLElement).clientHeight;
-        // When that isn't a usable number — e.g. width="100%" (Number → NaN)
-        // or a 0-size box — measure the container's real rendered size,
-        // walking up to the first constrained ancestor. Only fall back to the
-        // static 400x300 when nothing is measurable (e.g. no layout in jsdom).
-        const [measuredW, measuredH] = rawW && rawH ? [rawW, rawH] : getSize(node as HTMLElement);
-        const width = rawW || measuredW || 400;
-        const height = rawH || measuredH || 300;
-        // Combine the shape's scene + label children. toScene() deliberately
-        // omits labels (collectComputed is the canonical aggregator for the
-        // chart pipeline); for the standalone render() path we add them here
-        // so `new Rect().data(...).render()` still produces label text.
-        const shapeGroup = this.toScene();
-        const labelChildren: SceneNode[] = [];
-        if (
-          this._labelClass &&
-          typeof (this._labelClass as {toScene?: unknown}).toScene === "function" &&
-          this._labelClass._data &&
-          this._labelClass._data.length
-        ) {
-          labelChildren.push(
-            ...(this._labelClass.toScene().children as SceneNode[]),
-          );
-        }
-        const root: GroupNode = {
-          ...shapeGroup,
-          children: [...shapeGroup.children, ...labelChildren],
-        };
-        const scene = {root, width, height};
-        // Tear down any previous SvgRenderer so its DOM listeners + timers
-        // are cleared instead of leaking on every re-render.
-        const prev = this._sceneRenderer;
-        if (prev && typeof prev.destroy === "function") prev.destroy();
-        // Caller's element is preserved (downstream selectors still find it);
-        // we mount SvgRenderer INSIDE it. When `node` is a <g> the result is
-        // a nested <svg>-in-<g>, which is valid SVG but visually unusual —
-        // chart code reaches this path only via the Box/Whisker full-mode
-        // fallback, which is not the recommended flow (compute mode is).
-        // Only wipe children when this is the FIRST time we're mounting
-        // here — re-renders into the same node would otherwise destroy any
-        // labels/auxiliary DOM the caller put alongside.
-        if (!prev) {
-          while (node.firstChild) node.removeChild(node.firstChild);
-        }
-        const renderer = new SvgRenderer();
-        renderer.mount({container: node, width, height});
-        renderer.drawScene(scene);
-        this._sceneRenderer = renderer;
+        paintStandalone(this, node);
       }
     }
 
@@ -655,7 +642,8 @@ export default class Shape extends BaseClass {
   labelConfig(_: Record<string, unknown>): this;
   labelConfig(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)), this)
+      ? ((this.schema.labelConfig = mergeConfigBag(this, "labelConfig", _)),
+        this)
       : this.schema.labelConfig;
   }
 
@@ -690,7 +678,11 @@ export default class Shape extends BaseClass {
   textureDefault(_: Record<string, unknown>): this;
   textureDefault(_?: Record<string, unknown>): Record<string, unknown> | this {
     return arguments.length
-      ? ((this.schema.textureDefault = mergeConfigBag(this, "textureDefault", _)),
+      ? ((this.schema.textureDefault = mergeConfigBag(
+          this,
+          "textureDefault",
+          _,
+        )),
         this)
       : this.schema.textureDefault;
   }
@@ -709,4 +701,10 @@ export default class Shape extends BaseClass {
   }
 }
 
-resolvesReset(Shape.prototype, "activeStyle", "hoverStyle", "labelConfig", "textureDefault");
+resolvesReset(
+  Shape.prototype,
+  "activeStyle",
+  "hoverStyle",
+  "labelConfig",
+  "textureDefault",
+);

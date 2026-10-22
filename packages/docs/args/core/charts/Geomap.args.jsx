@@ -6,327 +6,345 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Geomap as D3plusGeomap} from "@d3plus/react";
-export const Geomap = ({ config }) => <D3plusGeomap config={config} />;
+export const Geomap = ({config}) => <D3plusGeomap config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Geomap
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Geomap-specific methods
    */
-  
+
   {
     fitFilter: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Limits which features the initial fit frames: a single feature id, an array of ids, or a filter function over the features of `fitObject` (or of `topojson` when no `fitObject` is set).",
+      description:
+        "Limits which features the initial fit frames: a single feature id, an array of ids, or a filter function over the features of `fitObject` (or of `topojson` when no `fitObject` is set).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | string[] | ((feature: object) => boolean)"
-      }
+        summary: "string | string[] | ((feature: object) => boolean)",
+      },
     },
     fitKey: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The key of the object in `fitObject` (its `objects` map) to fit. Defaults to the first object.",
+      description:
+        "The key of the object in `fitObject` (its `objects` map) to fit. Defaults to the first object.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     fitObject: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: false,
-      description: "The topojson the initial projection fits its extent to ([`fitExtent`](https://github.com/d3/d3-geo#projection_fitExtent)): a topojson object, or a filepath or URL to load. An optional formatting function, passed as a second argument, receives the loaded data and returns the final topojson object. Defaults to `topojson`, or to the coordinate points when there is none.",
+      description:
+        "The topojson the initial projection fits its extent to ([`fitExtent`](https://github.com/d3/d3-geo#projection_fitExtent)): a topojson object, or a filepath or URL to load. An optional formatting function, passed as a second argument, receives the loaded data and returns the final topojson object. Defaults to `topojson`, or to the coordinate points when there is none.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "string | object | false"
-      }
+        summary: "string | object | false",
+      },
     },
     noDataMessage: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     ocean: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The color behind the map's shapes and tiles: any CSS color (including `\"transparent\"`), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors, which mask the tiles while they load.",
+      description:
+        "The color behind the map's shapes and tiles: any CSS color (including `\"transparent\"`), or a `{light, dark}` pair chosen by the chart's backdrop. Defaults to the default basemap's own water colors, which mask the tiles while they load.",
       table: {
         defaultValue: {
-          summary: "{light: \"#d0cfd4\", dark: \"#222327\"}"
-        }
+          summary: '{light: "#d0cfd4", dark: "#222327"}',
+        },
       },
       type: {
         required: false,
-        summary: "string | {light: string, dark: string}"
-      }
+        summary: "string | {light: string, dark: string}",
+      },
     },
     point: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Accessor function for each data point's coordinates, as `[longitude, latitude]` (d3's coordinate order), or one coordinate for every point. Defaults to each row's `point` key. Rows with a coordinate are drawn as points; the rest are matched to `topojson` shapes.",
+      description:
+        "Accessor function for each data point's coordinates, as `[longitude, latitude]` (d3's coordinate order), or one coordinate for every point. Defaults to each row's `point` key. Rows with a coordinate are drawn as points; the rest are matched to `topojson` shapes.",
       table: {
         defaultValue: {
-          summary: "\"point\""
-        }
+          summary: '"point"',
+        },
       },
       type: {
         required: false,
-        summary: "number[] | function"
-      }
+        summary: "number[] | function",
+      },
     },
     pointSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "Accessor (or constant) for the value that sizes each coordinate point, scaled by `pointSizeScale` onto `[pointSizeMin, pointSizeMax]` pixels.",
+      description:
+        "Accessor (or constant) for the value that sizes each coordinate point, scaled by `pointSizeScale` onto `[pointSizeMin, pointSizeMax]` pixels.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     pointSizeMax: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 10,
       description: "The largest coordinate point radius, in pixels.",
       table: {
         defaultValue: {
-          summary: "10"
-        }
+          summary: "10",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     pointSizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
       description: "The smallest coordinate point radius, in pixels.",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     pointSizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "linear",
-      description: "The [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) that sizes coordinate points from `pointSize`, by name (e.g. `\"sqrt\"`).",
+      description:
+        'The [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) that sizes coordinate points from `pointSize`, by name (e.g. `"sqrt"`).',
       table: {
         defaultValue: {
-          summary: "linear"
-        }
+          summary: "linear",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     projection: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The map projection for the topojson and coordinate points: a projection function, or the name of one of the [d3-geo projections](https://github.com/d3/d3-geo#projections) or of `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson` and `geoWinkel3` (e.g. `\"geoAlbersUsa\"`). Map tiles only line up with Mercator (the default), so any other projection turns `tiles` off.",
+      description:
+        'The map projection for the topojson and coordinate points: a projection function, or the name of one of the [d3-geo projections](https://github.com/d3/d3-geo#projections) or of `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson` and `geoWinkel3` (e.g. `"geoAlbersUsa"`). Map tiles only line up with Mercator (the default), so any other projection turns `tiles` off.',
       table: {
         defaultValue: {
-          summary: "geoMercator()"
-        }
+          summary: "geoMercator()",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     projectionPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The outer padding between the edge of the visualization and the map's shapes: one number for every side, or a CSS-style string (e.g. `\"20px 0 10px\"`).",
+      description:
+        'The outer padding between the edge of the visualization and the map\'s shapes: one number for every side, or a CSS-style string (e.g. `"20px 0 10px"`).',
       table: {
         defaultValue: {
-          summary: "{top: 20, right: 20, bottom: 20, left: 20}"
-        }
+          summary: "{top: 20, right: 20, bottom: 20, left: 20}",
+        },
       },
       type: {
         required: false,
-        summary: "number | string"
-      }
+        summary: "number | string",
+      },
     },
     projectionRotate: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Rotates the projection, as d3-geo's [`projection.rotate`](https://github.com/d3/d3-geo#projection_rotate) angles `[lambda, phi, gamma]` in degrees. Turns `tiles` off, since rotated tiles no longer line up.",
+      description:
+        "Rotates the projection, as d3-geo's [`projection.rotate`](https://github.com/d3/d3-geo#projection_rotate) angles `[lambda, phi, gamma]` in degrees. Turns `tiles` off, since rotated tiles no longer line up.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "[number, number] | [number, number, number]"
-      }
+        summary: "[number, number] | [number, number, number]",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Circle\""
-        }
-      }
+          summary: '"Circle"',
+        },
+      },
     },
     tileUrl: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The tile URL template, with `{x}`, `{y}`, and `{z}` placeholders, or a `{light, dark}` pair of templates chosen by the chart's backdrop. Defaults to Esri's light and dark Canvas basemaps. The tile credit in `attribution` follows the active URL unless the attribution was set by hand.",
+      description:
+        "The tile URL template, with `{x}`, `{y}`, and `{z}` placeholders, or a `{light, dark}` pair of templates chosen by the chart's backdrop. Defaults to Esri's light and dark Canvas basemaps. The tile credit in `attribution` follows the active URL unless the attribution was set by hand.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | {light: string, dark: string}"
-      }
+        summary: "string | {light: string, dark: string}",
+      },
     },
     tiles: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Whether to draw map tiles behind the shapes, from `tileUrl`. On by default; a non-Mercator `projection` or `projectionRotate` turns it off.",
+      description:
+        "Whether to draw map tiles behind the shapes, from `tileUrl`. On by default; a non-Mercator `projection` or `projectionRotate` turns it off.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     topojson: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: false,
-      description: "The topojson to draw as geographic paths: a topojson object, or a filepath or URL to load. An optional formatting function, passed as a second argument, receives the loaded data and returns the final topojson object.",
+      description:
+        "The topojson to draw as geographic paths: a topojson object, or a filepath or URL to load. An optional formatting function, passed as a second argument, receives the loaded data and returns the final topojson object.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "string | object | false"
-      }
+        summary: "string | object | false",
+      },
     },
     topojsonFill: {
       control: {
-        type: "color"
+        type: "color",
       },
-      description: "The fill for topojson shapes that have no data (or no `colorScale` value): a CSS color or a function of the feature. Defaults to a quiet light gray, or its dark counterpart over a dark basemap.",
+      description:
+        "The fill for topojson shapes that have no data (or no `colorScale` value): a CSS color or a function of the feature. Defaults to a quiet light gray, or its dark counterpart over a dark basemap.",
       table: {
         defaultValue: {
-          summary: "\"#f5f5f3\""
-        }
+          summary: '"#f5f5f3"',
+        },
       },
       type: {
         required: false,
-        summary: "CssColor | function"
-      }
+        summary: "CssColor | function",
+      },
     },
     topojsonFilter: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Hides topojson features: a single feature id to remove, an array of ids, or a filter function that keeps the features it returns true for. Defaults to hiding Antarctica (id `\"010\"`).",
+      description:
+        'Hides topojson features: a single feature id to remove, an array of ids, or a filter function that keeps the features it returns true for. Defaults to hiding Antarctica (id `"010"`).',
       table: {
         defaultValue: {
-          summary: "![\"010\"].includes(d.id as string)"
-        }
+          summary: '!["010"].includes(d.id as string)',
+        },
       },
       type: {
         required: false,
-        summary: "string | string[] | ((feature: object) => boolean)"
-      }
+        summary: "string | string[] | ((feature: object) => boolean)",
+      },
     },
     topojsonId: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The accessor, or key, that reads each topojson feature's id, which is matched against each data point's id (its `groupBy` value) to join the data to the map.",
+      description:
+        "The accessor, or key, that reads each topojson feature's id, which is matched against each data point's id (its `groupBy` value) to join the data to the map.",
       table: {
         defaultValue: {
-          summary: "\"id\""
-        }
+          summary: '"id"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     topojsonKey: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The key of the object in `topojson` (its `objects` map) to draw. Defaults to the first object.",
+      description:
+        "The key of the object in `topojson` (its `objects` map) to draw. Defaults to the first object.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
-    }
-  }
+        summary: "string",
+      },
+    },
+  },
 );

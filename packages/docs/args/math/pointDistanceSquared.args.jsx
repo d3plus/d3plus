@@ -3,33 +3,33 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   p1: {
     control: {},
-    description: "The first point, which should always be an `[x, y]` formatted Array.",
+    description:
+      "The first point, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
+      summary: "point",
+    },
   },
   p2: {
     control: {},
-    description: "The second point, which should always be an `[x, y]` formatted Array.",
+    description:
+      "The second point, which should always be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "point"
-    }
-  }
+      summary: "point",
+    },
+  },
 };

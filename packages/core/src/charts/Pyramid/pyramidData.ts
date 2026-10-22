@@ -72,15 +72,24 @@ export interface PyramidExtentAccessors {
     counting comparison values too: the half-width of a symmetric value axis
     that fits every bar and outline.
 */
-export function pyramidExtent(data: DataPoint[], accessors: PyramidExtentAccessors): number {
+export function pyramidExtent(
+  data: DataPoint[],
+  accessors: PyramidExtentAccessors,
+): number {
   const {category, side, value, comparison, frame} = accessors;
   const values = new Map<string, number>();
   const comparisons = new Map<string, number>();
   data.forEach((d, i) => {
     const key = `${frame ? frame(d, i) : ""}\u0000${category(d, i)}\u0000${side(d, i)}`;
-    values.set(key, (values.get(key) ?? 0) + Math.abs(finite(value(d, i)) ?? 0));
+    values.set(
+      key,
+      (values.get(key) ?? 0) + Math.abs(finite(value(d, i)) ?? 0),
+    );
     if (comparison)
-      comparisons.set(key, (comparisons.get(key) ?? 0) + Math.abs(finite(comparison(d, i)) ?? 0));
+      comparisons.set(
+        key,
+        (comparisons.get(key) ?? 0) + Math.abs(finite(comparison(d, i)) ?? 0),
+      );
   });
   return Math.max(0, ...values.values(), ...comparisons.values());
 }
@@ -100,6 +109,10 @@ export function snapMagnitude(v: number, inset = 0): number {
     Wraps a number formatter so values on either side read as magnitudes;
     `inset` reports how far from zero the gutter edges sit.
 */
-export function absoluteFormat<T>(format: (d: number) => T, inset: () => number = () => 0): (d: unknown) => T {
-  return (d: unknown) => format(typeof d === "number" ? snapMagnitude(d, inset()) : (d as number));
+export function absoluteFormat<T>(
+  format: (d: number) => T,
+  inset: () => number = () => 0,
+): (d: unknown) => T {
+  return (d: unknown) =>
+    format(typeof d === "number" ? snapMagnitude(d, inset()) : (d as number));
 }

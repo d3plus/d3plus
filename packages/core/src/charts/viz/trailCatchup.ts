@@ -10,10 +10,12 @@ const ms = (v: unknown): number => Number(date(Number(v)));
 /** Keys of the trailed-persist circle/rect marks in a scene. */
 function trailKeys(scene: Scene): Set<string | number> {
   const keys = new Set<string | number>();
-  const on = (v: unknown): boolean => v === true || (typeof v === "number" && v > 0);
+  const on = (v: unknown): boolean =>
+    v === true || (typeof v === "number" && v > 0);
   const visit = (nodes: SceneNode[]): void => {
     for (const n of nodes) {
-      if (on(n.trailPersist) && (n.type === "circle" || n.type === "rect")) keys.add(n.key);
+      if (on(n.trailPersist) && (n.type === "circle" || n.type === "rect"))
+        keys.add(n.key);
       if (n.type === "group") visit((n as {children: SceneNode[]}).children);
     }
   };
@@ -33,10 +35,18 @@ function trailKeys(scene: Scene): Set<string | number> {
     Geomap) or when the jump skips no period.
 */
 export function computeTrailCatchup(
-  viz: VizInstance, scene: Scene, prevSeq: number, sequence: number,
+  viz: VizInstance,
+  scene: Scene,
+  prevSeq: number,
+  sequence: number,
 ): TrailCatchup[] {
-  const xFunc = viz._xFunc, yFunc = viz._yFunc, x = viz._x, y = viz._y, id = viz._id;
-  const time = viz.schema.time as ((d: DataPoint, i: number) => unknown) | undefined;
+  const xFunc = viz._xFunc,
+    yFunc = viz._yFunc,
+    x = viz._x,
+    y = viz._y,
+    id = viz._id;
+  const time = viz.schema.time as
+    ((d: DataPoint, i: number) => unknown) | undefined;
   if (!xFunc || !yFunc || !x || !y || !viz._data || !time) return [];
 
   const keys = trailKeys(scene);
@@ -45,11 +55,16 @@ export function computeTrailCatchup(
   // Distinct periods strictly between the last drawn one and the destination.
   const periods = new Set<number>();
   viz._data.forEach((r, i) => periods.add(ms(time(r, i))));
-  const skipped = [...periods].filter(p => p > prevSeq && p < sequence).sort((a, b) => a - b);
+  const skipped = [...periods]
+    .filter(p => p > prevSeq && p < sequence)
+    .sort((a, b) => a - b);
   if (!skipped.length) return [];
 
   // Each trailed series' row (and its data index) at each period.
-  const rows = new Map<string | number, Map<number, {d: DataPoint; i: number}>>();
+  const rows = new Map<
+    string | number,
+    Map<number, {d: DataPoint; i: number}>
+  >();
   viz._data.forEach((r, i) => {
     const k = id(r, i);
     if (!keys.has(k)) return;
@@ -69,7 +84,13 @@ export function computeTrailCatchup(
       positions: [...keys].flatMap(k => {
         const row = rows.get(k)?.get(seq);
         if (!row) return [];
-        return [{key: k, x: xFunc(px(x(row.d, row.i))), y: yFunc(py(y(row.d, row.i)))}];
+        return [
+          {
+            key: k,
+            x: xFunc(px(x(row.d, row.i))),
+            y: yFunc(py(y(row.d, row.i))),
+          },
+        ];
       }),
     }))
     .filter(cu => cu.positions.length > 0);

@@ -1,126 +1,154 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>LabelFitting · Axis</title>
+    <meta
+      name="description"
+      content="Category labels that don't fit side by side rotate, then thin evenly, instead of dropping out."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 0;
+        padding: 0 16px;
+        font-family: sans-serif;
+      }
 
-  <meta charset="utf-8">
-  <title>LabelFitting · Axis</title>
-  <meta name="description" content="Category labels that don't fit side by side rotate, then thin evenly, instead of dropping out.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+      h2 {
+        font-size: 14px;
+        margin: 16px 0 4px;
+      }
 
-  <style>
+      .viz {
+        height: 260px;
+        max-width: 100%;
+      }
+    </style>
+  </head>
 
-    body {
-      margin: 0;
-      padding: 0 16px;
-      font-family: sans-serif;
-    }
+  <body>
+    <h2>900px: every label fits side by side</h2>
+    <div class="viz" id="w900" style="width: 900px"></div>
+    <h2>
+      600px: a label would lose a word or break mid-word, so they all rotate
+    </h2>
+    <div class="viz" id="w600" style="width: 600px"></div>
+    <h2>480px</h2>
+    <div class="viz" id="w480" style="width: 480px"></div>
+    <h2>360px</h2>
+    <div class="viz" id="w360" style="width: 360px"></div>
+    <h2>Dot plot of 12 countries, labeled on the axis</h2>
+    <div class="viz" id="dots" style="width: 520px; height: 320px"></div>
+    <h2>60 categories in 360px: too many even rotated, so they thin evenly</h2>
+    <div class="viz" id="crowded" style="width: 360px"></div>
+    <h2>labelRotation(false): kept flat, thinned evenly</h2>
+    <div class="viz" id="flat" style="width: 360px"></div>
+    <h2>
+      Horizontal bars: the category axis runs vertically and never rotates
+    </h2>
+    <div class="viz" id="horizontal" style="width: 360px; height: 320px"></div>
+  </body>
 
-    h2 {
-      font-size: 14px;
-      margin: 16px 0 4px;
-    }
+  <script>
+    const cities = [
+      "Tokyo",
+      "Delhi",
+      "Shanghai",
+      "São Paulo",
+      "Mexico City",
+      "Dhaka",
+      "Cairo",
+      "New York",
+      "Buenos Aires",
+      "Lagos",
+      "Kinshasa",
+      "Luanda",
+    ];
+    const cityData = cities.map((city, i) => ({city, pop: 38 - i * 2.5}));
 
-    .viz {
-      height: 260px;
-      max-width: 100%;
-    }
+    ["w900", "w600", "w480", "w360"].forEach(id => {
+      new d3plus.BarChart()
+        .select(`#${id}`)
+        .data(cityData)
+        .groupBy("city")
+        .x("city")
+        .y("pop")
+        .legend(false)
+        .shapeConfig({Bar: {label: false}})
+        .render();
+    });
 
-  </style>
+    const countries = [
+      "Switzerland",
+      "Norway",
+      "Iceland",
+      "Hong Kong",
+      "Denmark",
+      "Sweden",
+      "Germany",
+      "Ireland",
+      "Singapore",
+      "Australia",
+      "Netherlands",
+      "Belgium",
+    ];
+    new d3plus.Plot()
+      .select("#dots")
+      .data(
+        countries.map((country, i) => ({
+          country,
+          score: 0.97 - i * 0.008,
+          population: [9, 5, 0.4, 7, 6, 10, 84, 5, 6, 26, 18, 12][i],
+        })),
+      )
+      .groupBy("country")
+      .discrete("x")
+      .x("country")
+      .y("score")
+      .size("population")
+      .sizeMin(4)
+      .sizeMax(14)
+      .shapeConfig({label: false})
+      .legend(false)
+      .render();
 
-</head>
-
-<body>
-  <h2>900px: every label fits side by side</h2>
-  <div class="viz" id="w900" style="width: 900px"></div>
-  <h2>600px: a label would lose a word or break mid-word, so they all rotate</h2>
-  <div class="viz" id="w600" style="width: 600px"></div>
-  <h2>480px</h2>
-  <div class="viz" id="w480" style="width: 480px"></div>
-  <h2>360px</h2>
-  <div class="viz" id="w360" style="width: 360px"></div>
-  <h2>Dot plot of 12 countries, labeled on the axis</h2>
-  <div class="viz" id="dots" style="width: 520px; height: 320px"></div>
-  <h2>60 categories in 360px: too many even rotated, so they thin evenly</h2>
-  <div class="viz" id="crowded" style="width: 360px"></div>
-  <h2>labelRotation(false): kept flat, thinned evenly</h2>
-  <div class="viz" id="flat" style="width: 360px"></div>
-  <h2>Horizontal bars: the category axis runs vertically and never rotates</h2>
-  <div class="viz" id="horizontal" style="width: 360px; height: 320px"></div>
-</body>
-
-<script>
-
-  const cities = [
-    "Tokyo", "Delhi", "Shanghai", "São Paulo", "Mexico City", "Dhaka",
-    "Cairo", "New York", "Buenos Aires", "Lagos", "Kinshasa", "Luanda"
-  ];
-  const cityData = cities.map((city, i) => ({city, pop: 38 - i * 2.5}));
-
-  ["w900", "w600", "w480", "w360"].forEach(id => {
+    const codes = Array.from({length: 60}, (_, i) => ({
+      code: `C${String(i + 1).padStart(2, "0")}`,
+      value: 10 + ((i * 7) % 23),
+    }));
     new d3plus.BarChart()
-      .select(`#${id}`)
+      .select("#crowded")
+      .data(codes)
+      .groupBy("code")
+      .x("code")
+      .y("value")
+      .legend(false)
+      .shapeConfig({Bar: {label: false}})
+      .render();
+
+    new d3plus.BarChart()
+      .select("#flat")
       .data(cityData)
       .groupBy("city")
       .x("city")
       .y("pop")
+      .xConfig({labelRotation: false})
       .legend(false)
       .shapeConfig({Bar: {label: false}})
       .render();
-  });
 
-  const countries = [
-    "Switzerland", "Norway", "Iceland", "Hong Kong", "Denmark", "Sweden",
-    "Germany", "Ireland", "Singapore", "Australia", "Netherlands", "Belgium"
-  ];
-  new d3plus.Plot()
-    .select("#dots")
-    .data(countries.map((country, i) => ({country, score: 0.97 - i * 0.008, population: [9, 5, 0.4, 7, 6, 10, 84, 5, 6, 26, 18, 12][i]})))
-    .groupBy("country")
-    .discrete("x")
-    .x("country")
-    .y("score")
-    .size("population")
-    .sizeMin(4)
-    .sizeMax(14)
-    .shapeConfig({label: false})
-    .legend(false)
-    .render();
-
-  const codes = Array.from({length: 60}, (_, i) => ({code: `C${String(i + 1).padStart(2, "0")}`, value: 10 + (i * 7) % 23}));
-  new d3plus.BarChart()
-    .select("#crowded")
-    .data(codes)
-    .groupBy("code")
-    .x("code")
-    .y("value")
-    .legend(false)
-    .shapeConfig({Bar: {label: false}})
-    .render();
-
-  new d3plus.BarChart()
-    .select("#flat")
-    .data(cityData)
-    .groupBy("city")
-    .x("city")
-    .y("pop")
-    .xConfig({labelRotation: false})
-    .legend(false)
-    .shapeConfig({Bar: {label: false}})
-    .render();
-
-  new d3plus.BarChart()
-    .select("#horizontal")
-    .data(cityData)
-    .groupBy("city")
-    .discrete("y")
-    .y("city")
-    .x("pop")
-    .legend(false)
-    .shapeConfig({Bar: {label: false}})
-    .render();
-
-</script>
-
+    new d3plus.BarChart()
+      .select("#horizontal")
+      .data(cityData)
+      .groupBy("city")
+      .discrete("y")
+      .y("city")
+      .x("pop")
+      .legend(false)
+      .shapeConfig({Bar: {label: false}})
+      .render();
+  </script>
 </html>

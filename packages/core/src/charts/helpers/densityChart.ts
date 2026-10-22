@@ -86,7 +86,8 @@ type RowFn = (d: DataPoint, i: number) => unknown;
 function groupKey(viz: VizInstance): (d: DataPoint, i: number) => string {
   const groupBy = viz.schema.groupBy as RowFn[];
   const extra = [viz.schema.facet, viz.schema.time].filter(Boolean) as RowFn[];
-  return (d, i) => [...groupBy, ...extra].map(fn => `${fn(d, i)}`).join("\u0000");
+  return (d, i) =>
+    [...groupBy, ...extra].map(fn => `${fn(d, i)}`).join("\u0000");
 }
 
 /**
@@ -108,9 +109,14 @@ export function summarizeBeforePreDraw(viz: VizInstance): void {
     density: viz.schema.densityConfig as KernelDensityOptions,
   });
   const ordered = sortByMedian(groups, viz.schema.medianSort as MedianSort);
-  const widthOf = densityWidthScale(groups.map(g => g.summary), viz.schema.densityScale as DensityScale);
+  const widthOf = densityWidthScale(
+    groups.map(g => g.summary),
+    viz.schema.densityScale as DensityScale,
+  );
   // Ungrouped observations become one category named after the value.
-  const ungrouped = groups.every(g => groupBy.every(fn => fn(g.first, 0) === undefined));
+  const ungrouped = groups.every(g =>
+    groupBy.every(fn => fn(g.first, 0) === undefined),
+  );
   const fallback = valueKey ?? viz.schema.translate("Value");
 
   state.categories = new Map();
@@ -119,16 +125,26 @@ export function summarizeBeforePreDraw(viz: VizInstance): void {
     if (valueKey) delete row[valueKey];
     if (ungrouped) row.id = fallback;
     const category = ungrouped ? fallback : `${groupBy[0](g.first, 0)}`;
-    if (!state.categories.has(category)) state.categories.set(category, state.categories.size);
+    if (!state.categories.has(category))
+      state.categories.set(category, state.categories.size);
     row[categoryAxis] = category;
     row[valueAxis] = g.summary.median;
-    row[DENSITY] = {summary: g.summary, order, scale: widthOf(g.summary)} satisfies DensityMeta as never;
+    row[DENSITY] = {
+      summary: g.summary,
+      order,
+      scale: widthOf(g.summary),
+    } satisfies DensityMeta as never;
     return row;
   });
 
   const configs = {x: viz._xConfig, y: viz._yConfig};
-  if (state.titleAxis && state.titleAxis !== valueAxis) autoTitle(configs[state.titleAxis], state.title, undefined);
-  autoTitle(configs[valueAxis], state.titleAxis === valueAxis ? state.title : undefined, valueKey);
+  if (state.titleAxis && state.titleAxis !== valueAxis)
+    autoTitle(configs[state.titleAxis], state.title, undefined);
+  autoTitle(
+    configs[valueAxis],
+    state.titleAxis === valueAxis ? state.title : undefined,
+    valueKey,
+  );
   state.title = valueKey;
   state.titleAxis = valueAxis;
 }
@@ -138,7 +154,8 @@ function categorySort(viz: VizInstance) {
   return (a: DataPoint, b: DataPoint) => {
     const state = viz.ctx.density as DensityState;
     const axis = state.layout.valueAxis(viz) === "x" ? "y" : "x";
-    const order = (d: DataPoint) => state.categories.get(`${unwrapRow(d)?.[axis]}`) ?? 0;
+    const order = (d: DataPoint) =>
+      state.categories.get(`${unwrapRow(d)?.[axis]}`) ?? 0;
     return state.layout.reverse ? order(b) - order(a) : order(a) - order(b);
   };
 }
@@ -149,7 +166,13 @@ function categorySort(viz: VizInstance) {
 */
 function densityBuffer(
   this: VizInstance,
-  {data, x, y, x2, y2}: {data: DataPoint[]; x: D3Scale; y: D3Scale; x2?: boolean; y2?: boolean},
+  {
+    data,
+    x,
+    y,
+    x2,
+    y2,
+  }: {data: DataPoint[]; x: D3Scale; y: D3Scale; x2?: boolean; y2?: boolean},
 ): [D3Scale, D3Scale] {
   if (x2 || y2) return [x, y];
   const state = this.ctx.density as DensityState;
@@ -178,12 +201,18 @@ function densityBuffer(
     category order, the Area buffer, and the chart's Area emitter.
 */
 export function installDensity(viz: VizInstance, layout: DensityLayout): void {
-  viz.ctx.density = {raw: [], rows: [], layout, categories: new Map()} satisfies DensityState;
+  viz.ctx.density = {
+    raw: [],
+    rows: [],
+    layout,
+    categories: new Map(),
+  } satisfies DensityState;
   viz._buffer = {...viz._buffer, Area: densityBuffer};
   viz._plotShapeEmitters = {...viz._plotShapeEmitters, Area: layout.emit};
   // A curve has no single point to snap a tooltip to: hovering it shows the
   // group's distribution through the default shape tooltip instead.
-  (viz as VizInstance & {_sharedHover: () => void})._sharedHover = () => undefined;
+  (viz as VizInstance & {_sharedHover: () => void})._sharedHover = () =>
+    undefined;
   const sort = categorySort(viz);
   const preDraw = viz._preDraw.bind(viz);
   viz._preDraw = () => {
@@ -191,20 +220,28 @@ export function installDensity(viz: VizInstance, layout: DensityLayout): void {
     // The category axis follows the summary order unless the user sorts it.
     const categoryAxis = layout.valueAxis(viz) === "x" ? "y" : "x";
     const other = categoryAxis === "x" ? "y" : "x";
-    if (viz.schema[`${other}Sort`] === sort) viz.schema[`${other}Sort`] = undefined;
-    if (!viz.schema[`${categoryAxis}Sort`]) viz.schema[`${categoryAxis}Sort`] = sort;
+    if (viz.schema[`${other}Sort`] === sort)
+      viz.schema[`${other}Sort`] = undefined;
+    if (!viz.schema[`${categoryAxis}Sort`])
+      viz.schema[`${categoryAxis}Sort`] = sort;
     preDraw();
   };
 }
 
 /** The tooltip rows for a summary row, or the value of a raw observation. */
-export function densityTooltipRows(viz: VizInstance, d: DataPoint, i: number): [string, string][] {
+export function densityTooltipRows(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): [string, string][] {
   const fmt = (n: number) => formatAbbreviate(n, viz.schema.locale);
   const t = (s: string) => viz.schema.translate(s) as string;
   const meta = densityMeta(d);
   if (!meta) {
     const v = Number(viz.schema.value(unwrapRow(d), i));
-    return Number.isFinite(v) ? [[valueKeyOf(viz.schema.value) ?? t("Value"), fmt(v)]] : [];
+    return Number.isFinite(v)
+      ? [[valueKeyOf(viz.schema.value) ?? t("Value"), fmt(v)]]
+      : [];
   }
   const s = meta.summary;
   return [
@@ -244,7 +281,12 @@ export function densityAccessorFields(): ConfigField[] {
     {
       key: "value",
       default: keyedAccessor("value"),
-      coerce: v => (typeof v === "string" ? keyedAccessor(v) : typeof v === "function" ? v : constant(v as never)),
+      coerce: v =>
+        typeof v === "string"
+          ? keyedAccessor(v)
+          : typeof v === "function"
+            ? v
+            : constant(v as never),
     },
   ];
 }
@@ -263,7 +305,11 @@ export function densityConfigFields(cut: number): ConfigField[] {
         past its group's smallest and largest value, in bandwidths).
         @type {{kernel?: "gaussian" | "epanechnikov" | function, bandwidth?: number | function, points?: number, cut?: number}}
     */
-    {key: "densityConfig", merge: true, default: {kernel: "gaussian", points: 80, cut}},
+    {
+      key: "densityConfig",
+      merge: true,
+      default: {kernel: "gaussian", points: 80, cut},
+    },
     {
       key: "tooltipConfig",
       merge: true,

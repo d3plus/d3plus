@@ -3,38 +3,36 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   base: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The saturated dark anchor of the ramp — a valid CSS color.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   n: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "How many steps to produce.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   options: {
     control: {},
@@ -42,12 +40,12 @@ export const argTypes = {
     description: "Ramp shaping options.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "colorrampoptions"
-    }
-  }
+      summary: "colorrampoptions",
+    },
+  },
 };

@@ -6,7 +6,11 @@
 import {flattenPath, type SceneNode, type Transform} from "@d3plus/render";
 
 /** A node's own coordinate for `value`, given in its parent's frame; null under a rotation. */
-function local(value: number, axis: "x" | "y", transform?: Transform): number | null {
+function local(
+  value: number,
+  axis: "x" | "y",
+  transform?: Transform,
+): number | null {
   if (!transform) return value;
   if (transform.rotate) return null;
   return (value - (transform[axis] ?? 0)) / (transform.scale ?? 1);
@@ -26,8 +30,15 @@ function baseKey(key: string | number): string {
     @param axis The coordinate each path collapses on.
     @param lines Each path key's line, by key (a `::hit` twin shares its mark's).
 */
-export function growFromLine(nodes: SceneNode[], axis: "x" | "y", lines: Map<string, number>): void {
-  const visit = (node: SceneNode, line: (value: number) => number | null): void => {
+export function growFromLine(
+  nodes: SceneNode[],
+  axis: "x" | "y",
+  lines: Map<string, number>,
+): void {
+  const visit = (
+    node: SceneNode,
+    line: (value: number) => number | null,
+  ): void => {
     if (node.type === "group") {
       const inner = (value: number) => {
         const outer = line(value);
@@ -41,7 +52,8 @@ export function growFromLine(nodes: SceneNode[], axis: "x" | "y", lines: Map<str
     if (value === undefined) return;
     const outer = line(value);
     const at = outer === null ? null : local(outer, axis, node.transform);
-    if (at !== null && Number.isFinite(at)) node.enterD = flattenPath(node.d, axis, at);
+    if (at !== null && Number.isFinite(at))
+      node.enterD = flattenPath(node.d, axis, at);
   };
   nodes.forEach(node => visit(node, value => value));
 }
@@ -57,9 +69,10 @@ export function growRectsFromCenter(nodes: SceneNode[], axis: "x" | "y"): void {
     if (node.type === "group") growRectsFromCenter(node.children, axis);
     else if (node.type === "rect") {
       const {x, y, width, height} = node;
-      node.enterRect = axis === "x"
-        ? {x: x + width / 2, y, width: 0, height}
-        : {x, y: y + height / 2, width, height: 0};
+      node.enterRect =
+        axis === "x"
+          ? {x: x + width / 2, y, width: 0, height}
+          : {x, y: y + height / 2, width, height: 0};
     }
   });
 }

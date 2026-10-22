@@ -9,7 +9,10 @@ function run(args, cwd) {
   try {
     execFileSync("pnpm", args, {cwd, stdio: "pipe"});
   } catch (err) {
-    throw new Error(`pnpm ${args.join(" ")} failed:\n${err.stdout}${err.stderr}`, {cause: err});
+    throw new Error(
+      `pnpm ${args.join(" ")} failed:\n${err.stdout}${err.stderr}`,
+      {cause: err},
+    );
   }
 }
 
@@ -20,6 +23,7 @@ function run(args, cwd) {
  */
 export default function setup() {
   const dom = path.join(dir, "..", "dom");
-  if (!fs.existsSync(path.join(dom, "types", "index.d.ts"))) run(["run", "build:types"], dom);
+  if (!fs.existsSync(path.join(dom, "types", "index.d.ts")))
+    run(["run", "build:types"], dom);
   run(["run", "build"], dir);
 }

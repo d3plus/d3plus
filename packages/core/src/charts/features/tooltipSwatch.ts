@@ -25,10 +25,12 @@ export function tooltipSwatch(color?: string, shape?: string): string {
   if (!color) return "";
   if (shape === "Line") {
     const dot = SIZE * 0.6;
-    return `<span class="d3plus-tooltip-swatch d3plus-tooltip-swatch-line" style="${BASE} position: relative">` +
+    return (
+      `<span class="d3plus-tooltip-swatch d3plus-tooltip-swatch-line" style="${BASE} position: relative">` +
       `<span style="position: absolute; left: 0; right: 0; top: ${SIZE / 2 - 1}px; height: 2px; background: ${color}"></span>` +
       `<span style="position: absolute; left: ${(SIZE - dot) / 2}px; top: ${(SIZE - dot) / 2}px; width: ${dot}px; height: ${dot}px; border-radius: 50%; background: ${color}"></span>` +
-      "</span>";
+      "</span>"
+    );
   }
   const radius = shape === "Circle" ? "50%" : "1px";
   return `<span class="d3plus-tooltip-swatch" style="${BASE} border-radius: ${radius}; background: ${color}"></span>`;
@@ -42,7 +44,8 @@ export function tooltipSwatch(color?: string, shape?: string): string {
 */
 export function withSwatch(swatch: string, text: unknown): string {
   if (!swatch) return `${text}`;
-  if (text === undefined || text === null || text === false || text === "") return "";
+  if (text === undefined || text === null || text === false || text === "")
+    return "";
   return `<span style="display: inline-flex; align-items: center">${swatch}<span>${text}</span></span>`;
 }
 
@@ -81,13 +84,18 @@ const OWNED_SUFFIXES = ["::hit", "::confidence", "::stem"];
     @param viz The chart, whose scene holds the mark.
     @param node The picked scene node.
 */
-export function ownerNode<T extends SceneNode>(viz: VizInstance, node: T | undefined): T | undefined {
+export function ownerNode<T extends SceneNode>(
+  viz: VizInstance,
+  node: T | undefined,
+): T | undefined {
   const key = node && (node as PaintNode).key;
   if (typeof key !== "string") return node;
   let owner = key;
   for (const suffix of OWNED_SUFFIXES)
     while (owner.endsWith(suffix)) owner = owner.slice(0, -suffix.length);
-  return owner === key ? node : (findNode(viz._chartScene || [], owner) as T | undefined) || node;
+  return owner === key
+    ? node
+    : (findNode(viz._chartScene || [], owner) as T | undefined) || node;
 }
 
 /**
@@ -97,7 +105,10 @@ export function ownerNode<T extends SceneNode>(viz: VizInstance, node: T | undef
     @param viz The chart, whose scene holds the mark.
     @param node The picked scene node.
 */
-export function nodeColor(viz: VizInstance, node: SceneNode | undefined): string | undefined {
+export function nodeColor(
+  viz: VizInstance,
+  node: SceneNode | undefined,
+): string | undefined {
   const n = ownerNode(viz, node as PaintNode | undefined);
   return n && paintColor(n);
 }
@@ -107,8 +118,8 @@ function paintColor(node: PaintNode): string | undefined {
   const paint = node.paint;
   if (!paint) return undefined;
   return node.shapeType === "Line"
-    ? visibleColor(paint.stroke) ?? visibleColor(paint.fill)
-    : visibleColor(paint.fill) ?? visibleColor(paint.stroke);
+    ? (visibleColor(paint.stroke) ?? visibleColor(paint.fill))
+    : (visibleColor(paint.fill) ?? visibleColor(paint.stroke));
 }
 
 type PickedNode = PaintNode & {interactionGroup?: string; datum?: unknown};
@@ -127,7 +138,13 @@ const shapeOf = (node: PickedNode): string | undefined =>
 */
 function sourceRow(d: unknown): unknown {
   let row = d as {data?: unknown} | undefined;
-  while (row && typeof row === "object" && row.data && typeof row.data === "object" && !Array.isArray(row.data))
+  while (
+    row &&
+    typeof row === "object" &&
+    row.data &&
+    typeof row.data === "object" &&
+    !Array.isArray(row.data)
+  )
     row = row.data as typeof row;
   return row;
 }
@@ -136,10 +153,20 @@ function sourceRow(d: unknown): unknown {
     The first painted mark drawing `row`, in the legend's subtree or outside
     it, searching depth-first.
 */
-function markFor(nodes: SceneNode[], row: unknown, legend: boolean): PickedNode | undefined {
+function markFor(
+  nodes: SceneNode[],
+  row: unknown,
+  legend: boolean,
+): PickedNode | undefined {
   for (const node of nodes as PickedNode[]) {
-    if (isMark(node) && !`${node.key}`.endsWith("::hit") && (node.interactionGroup === "legend") === legend
-      && sourceRow(node.datum) === row && paintColor(node)) return node;
+    if (
+      isMark(node) &&
+      !`${node.key}`.endsWith("::hit") &&
+      (node.interactionGroup === "legend") === legend &&
+      sourceRow(node.datum) === row &&
+      paintColor(node)
+    )
+      return node;
     const child = node.children && markFor(node.children, row, legend);
     if (child) return child;
   }
@@ -157,18 +184,26 @@ function markFor(nodes: SceneNode[], row: unknown, legend: boolean): PickedNode 
 */
 export function pickSwatch(
   viz: VizInstance,
-  pick: {node?: PickResult["node"]; d?: unknown; isLegend?: boolean} | null | undefined,
+  pick:
+    | {node?: PickResult["node"]; d?: unknown; isLegend?: boolean}
+    | null
+    | undefined,
 ): string {
   if (!pick || !pick.node) return "";
   const node = pick.node as PickedNode;
   const own = isMark(node) ? nodeColor(viz, node) : undefined;
   if (own && !pick.isLegend) return tooltipSwatch(own, shapeOf(node));
   const root = viz._paintedScene?.root;
-  const match = own ? node : root && markFor([root], sourceRow(pick.d), !!pick.isLegend);
+  const match = own
+    ? node
+    : root && markFor([root], sourceRow(pick.d), !!pick.isLegend);
   if (!match) return "";
   // A legend entry names its own glyph (a Line draws as a stroke and a dot).
   const entry = (match.datum as {shape?: unknown} | undefined)?.shape;
-  return tooltipSwatch(nodeColor(viz, match), pick.isLegend && typeof entry === "string" ? entry : shapeOf(match));
+  return tooltipSwatch(
+    nodeColor(viz, match),
+    pick.isLegend && typeof entry === "string" ? entry : shapeOf(match),
+  );
 }
 
 /**
@@ -181,5 +216,7 @@ export function pickSwatch(
 export function leadTitleWithSwatch(tooltip: Tooltip, swatch: string): Tooltip {
   if (!swatch || tooltip.schema.titleSwatch === false) return tooltip;
   const title = tooltip.schema.title as (d: unknown, i: number) => unknown;
-  return tooltip.title((d: unknown, i: number) => withSwatch(swatch, title(d, i)));
+  return tooltip.title((d: unknown, i: number) =>
+    withSwatch(swatch, title(d, i)),
+  );
 }

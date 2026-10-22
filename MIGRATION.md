@@ -55,7 +55,7 @@ Every visualization accepts a backend via `.renderer()` (default `"svg"`):
 ```js
 new d3plus.BarChart()
   .data(data)
-  .renderer("canvas")   // paint to <canvas> instead of <svg>
+  .renderer("canvas") // paint to <canvas> instead of <svg>
   .render();
 ```
 

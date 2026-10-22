@@ -36,21 +36,16 @@ export default function (this: Viz, d: DataPoint, i: number): void {
     // settles; if it's the same datum we left, this isn't a real exit — bail
     // before resetting hover or hiding the tooltip so neither flickers.
     let hoverDatum = this._hoverDatum as
-      | (DataPoint & {__d3plus__?: boolean; data?: DataPoint})
-      | null
-      | undefined;
+      (DataPoint & {__d3plus__?: boolean; data?: DataPoint}) | null | undefined;
     while (hoverDatum && hoverDatum.__d3plus__ && hoverDatum.data)
       hoverDatum = hoverDatum.data as typeof hoverDatum;
-    if (hoverDatum && sameId(this._id(hoverDatum), this._id(leaveDatum))) return;
+    if (hoverDatum && sameId(this._id(hoverDatum), this._id(leaveDatum)))
+      return;
 
     // The shared multi-series tooltip (Plot) owns hover + tooltip while active
     // and clears both itself on leaving the plot area.
     if (this._sharedHoverActive) return;
-    if (
-      shapeHoverEnabled(this) && this._hover
-        ? this._hover(d, i)
-        : true
-    ) {
+    if (shapeHoverEnabled(this) && this._hover ? this._hover(d, i) : true) {
       this.hover(false);
     }
     const tooltipData = this._tooltipClass.data();

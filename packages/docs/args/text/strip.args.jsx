@@ -3,38 +3,36 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   spacer: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "-",
     description: "The character to replace whitespace with.",
     table: {
       defaultValue: {
-        summary: "-"
-      }
+        summary: "-",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
+      summary: "string",
+    },
   },
   value: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The HTML string to strip.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

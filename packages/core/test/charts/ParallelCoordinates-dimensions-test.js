@@ -28,14 +28,20 @@ it("ParallelCoordinates dimensions: isNumeric accepts only finite numbers", () =
 });
 
 it("ParallelCoordinates dimensions: isMissing treats null, undefined, empty strings, and non-finite numbers as missing", () => {
-  for (const v of [undefined, null, "", NaN, Infinity]) assert.ok(isMissing(v), `${v} is missing`);
-  for (const v of [0, "0", "a", false]) assert.ok(!isMissing(v), `${v} is present`);
+  for (const v of [undefined, null, "", NaN, Infinity])
+    assert.ok(isMissing(v), `${v} is missing`);
+  for (const v of [0, "0", "a", false])
+    assert.ok(!isMissing(v), `${v} is present`);
 });
 
 it("ParallelCoordinates dimensions: detectDimensions finds numeric keys in first-seen order, skipping excluded and internal keys", () => {
   assert.deepStrictEqual(detectDimensions(rows), ["id", "mpg", "weight"]);
   assert.deepStrictEqual(detectDimensions(rows, ["id"]), ["mpg", "weight"]);
-  assert.deepStrictEqual(detectDimensions([{a: null}, {a: undefined}]), [], "a key with no numbers is skipped");
+  assert.deepStrictEqual(
+    detectDimensions([{a: null}, {a: undefined}]),
+    [],
+    "a key with no numbers is skipped",
+  );
   assert.deepStrictEqual(detectDimensions([]), []);
 });
 
@@ -48,15 +54,31 @@ it("ParallelCoordinates dimensions: dimensionType is numeric only when every pre
 
 it("ParallelCoordinates dimensions: dimensionDomain spans the numeric extent, with user overrides per end", () => {
   assert.deepStrictEqual(dimensionDomain([3, 1, null, 7], "numeric"), [1, 7]);
-  assert.deepStrictEqual(dimensionDomain([3, 1, 7], "numeric", {domain: [0, undefined]}), [0, 7]);
-  assert.deepStrictEqual(dimensionDomain([3, 1, 7], "numeric", {domain: [undefined, 10]}), [1, 10]);
+  assert.deepStrictEqual(
+    dimensionDomain([3, 1, 7], "numeric", {domain: [0, undefined]}),
+    [0, 7],
+  );
+  assert.deepStrictEqual(
+    dimensionDomain([3, 1, 7], "numeric", {domain: [undefined, 10]}),
+    [1, 10],
+  );
   assert.deepStrictEqual(dimensionDomain([], "numeric"), [0, 0]);
 });
 
 it("ParallelCoordinates dimensions: dimensionDomain sorts categories naturally unless given a domain", () => {
-  assert.deepStrictEqual(dimensionDomain(["b", "a", "b", null], "categorical"), ["a", "b"]);
-  assert.deepStrictEqual(dimensionDomain([10, 8, 4], "categorical"), ["4", "8", "10"]);
-  assert.deepStrictEqual(dimensionDomain(["b", "a"], "categorical", {domain: ["b", "a", "c"]}), ["b", "a", "c"]);
+  assert.deepStrictEqual(
+    dimensionDomain(["b", "a", "b", null], "categorical"),
+    ["a", "b"],
+  );
+  assert.deepStrictEqual(dimensionDomain([10, 8, 4], "categorical"), [
+    "4",
+    "8",
+    "10",
+  ]);
+  assert.deepStrictEqual(
+    dimensionDomain(["b", "a"], "categorical", {domain: ["b", "a", "c"]}),
+    ["b", "a", "c"],
+  );
 });
 
 it("ParallelCoordinates dimensions: resolveDimensions reads type, domain, title, and direction", () => {
@@ -64,9 +86,25 @@ it("ParallelCoordinates dimensions: resolveDimensions reads type, domain, title,
     mpg: {reverse: true, title: "Miles per Gallon"},
     weight: {scale: "point"},
   });
-  assert.deepStrictEqual(dims[0], {key: "mpg", title: "Miles per Gallon", type: "numeric", domain: [18, 31], reverse: true});
-  assert.deepStrictEqual(dims[1], {key: "origin", title: "origin", type: "categorical", domain: ["Japan", "USA"], reverse: false});
-  assert.strictEqual(dims[2].type, "categorical", "a point scale makes a numeric key categorical");
+  assert.deepStrictEqual(dims[0], {
+    key: "mpg",
+    title: "Miles per Gallon",
+    type: "numeric",
+    domain: [18, 31],
+    reverse: true,
+  });
+  assert.deepStrictEqual(dims[1], {
+    key: "origin",
+    title: "origin",
+    type: "categorical",
+    domain: ["Japan", "USA"],
+    reverse: false,
+  });
+  assert.strictEqual(
+    dims[2].type,
+    "categorical",
+    "a point scale makes a numeric key categorical",
+  );
   assert.deepStrictEqual(dims[2].domain, ["2100", "3500", "4100"]);
 });
 
@@ -76,8 +114,14 @@ it("ParallelCoordinates dimensions: resolveDimensions prefers shared domains", (
 });
 
 it("ParallelCoordinates dimensions: sharedDomains covers every panel's rows", () => {
-  const out = sharedDomains(["mpg", "origin"], [...rows, {mpg: 44, origin: "Europe"}]);
-  assert.deepStrictEqual(out, {mpg: [18, 44], origin: ["Europe", "Japan", "USA"]});
+  const out = sharedDomains(
+    ["mpg", "origin"],
+    [...rows, {mpg: 44, origin: "Europe"}],
+  );
+  assert.deepStrictEqual(out, {
+    mpg: [18, 44],
+    origin: ["Europe", "Japan", "USA"],
+  });
 });
 
 it("ParallelCoordinates dimensions: autoLineOpacity stays opaque for few lines and fades with density", () => {

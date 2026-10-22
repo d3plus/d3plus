@@ -19,7 +19,13 @@ const every = n => values.filter(v => v % n === 0);
 /** Renders a standalone point axis over `values` with `config`. */
 function draw(width, config = {}) {
   document.body.innerHTML = "";
-  const axis = new AxisBottom().scale("point").domain(values).width(width).height(100).duration(0).config(config);
+  const axis = new AxisBottom()
+    .scale("point")
+    .domain(values)
+    .width(width)
+    .height(100)
+    .duration(0)
+    .config(config);
   axis.render();
   return axis;
 }
@@ -42,20 +48,34 @@ it("Axis labels the first label list that fits, with its ticks", () => {
   const narrow = draw(220, {labels: sets});
   assert.strictEqual(narrow._labelSet, 1, "every 5th fits at 220px");
   assert.deepStrictEqual(narrow._shownLabels, every(5));
-  assert.deepStrictEqual(narrow._availableTicks, every(5), "the ticks follow the chosen list");
+  assert.deepStrictEqual(
+    narrow._availableTicks,
+    every(5),
+    "the ticks follow the chosen list",
+  );
   assert.deepStrictEqual(narrow._visibleTicks, every(5));
 
   const ticked = draw(220, {labels: sets, ticks: every(2)});
   assert.strictEqual(ticked._labelSet, 1);
-  assert.deepStrictEqual(ticked._availableTicks, every(2), "a set `ticks` stays");
+  assert.deepStrictEqual(
+    ticked._availableTicks,
+    every(2),
+    "a set `ticks` stays",
+  );
 });
 
 it("Axis thins the last label list when none fits", () => {
   const axis = draw(40, {labels: [every(5), every(10)]});
   assert.strictEqual(axis._labelSet, 1);
   assert.strictEqual(axis._shownLabels[0], 0, "the first label stays");
-  assert.ok(axis._shownLabels.length < every(10).length, `thinned (got ${axis._shownLabels})`);
-  assert.ok(axis._shownLabels.every(v => v % 10 === 0), "from the last list");
+  assert.ok(
+    axis._shownLabels.length < every(10).length,
+    `thinned (got ${axis._shownLabels})`,
+  );
+  assert.ok(
+    axis._shownLabels.every(v => v % 10 === 0),
+    "from the last list",
+  );
 });
 
 it("Axis keeps a flat labels list as given", () => {

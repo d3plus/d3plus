@@ -33,7 +33,8 @@ export const shapeLabelDefaults = {
     return typeof r === "number" ? r : 0;
   },
   rotateAnchor(d: DataPoint) {
-    const ra = d.rotateAnchor ?? (d.data as DataPoint | undefined)?.rotateAnchor;
+    const ra =
+      d.rotateAnchor ?? (d.data as DataPoint | undefined)?.rotateAnchor;
     return Array.isArray(ra)
       ? ra
       : [((d.w as number) ?? 0) / 2, ((d.h as number) ?? 0) / 2];
@@ -43,7 +44,8 @@ export const shapeLabelDefaults = {
     d: DataPoint,
     i: number,
   ) {
-    const fill = typeof this._fill === "function" ? this._fill(d, i) : this._fill;
+    const fill =
+      typeof this._fill === "function" ? this._fill(d, i) : this._fill;
     return typeof fill === "string" ? colorContrast(fill) : "black";
   },
 };
@@ -62,7 +64,9 @@ export function emitLabels(opts: EmitLabelsOpts): SceneNode[] {
     .renderMode("compute");
   try {
     const scene = tb.toScene();
-    return Array.isArray(scene?.children) ? (scene.children as SceneNode[]) : [];
+    return Array.isArray(scene?.children)
+      ? (scene.children as SceneNode[])
+      : [];
   } catch {
     return [];
   }

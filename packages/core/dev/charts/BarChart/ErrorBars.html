@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Error Bars</title>
-    <meta name="description" content="Confidence error bars on vertical, horizontal (styled) and stacked bars, a LinePlot confidence band, and one-sided bounds, with one button that toggles confidence(false) on every chart.">
+    <meta
+      name="description"
+      content="Confidence error bars on vertical, horizontal (styled) and stacked bars, a LinePlot confidence band, and one-sided bounds, with one button that toggles confidence(false) on every chart."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -32,15 +33,17 @@
         height: 360px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="controls">
       Renderer:
-      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
-      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <label
+        ><input type="radio" name="renderer" value="svg" checked /> SVG</label
+      >
+      <label
+        ><input type="radio" name="renderer" value="canvas" /> Canvas</label
+      >
       <button id="toggle">confidence(false)</button>
     </div>
     <div class="grid">
@@ -67,7 +70,6 @@
     </div>
 
     <script>
-
       const survey = [
         {region: "North", year: "2023", pct: 42, lower: 38.5, upper: 45.6},
         {region: "North", year: "2024", pct: 47, lower: 43.2, upper: 50.9},
@@ -82,7 +84,13 @@
         for (let month = 1; month <= 8; month++) {
           const value = 40 + c * 25 + month * (4 - c) + (month % 3) * 3;
           const moe = 3 + (month % 4) + c * 2;
-          sales.push({channel, month, value, lower: value - moe, upper: value + moe});
+          sales.push({
+            channel,
+            month,
+            value,
+            lower: value - moe,
+            upper: value + moe,
+          });
         }
       });
 
@@ -147,24 +155,27 @@
 
       let renderer = "svg";
       let on = true;
-      const draw = () => charts.forEach(c =>
-        c.viz.renderer(renderer).confidence(on ? c.confidence : false).render());
+      const draw = () =>
+        charts.forEach(c =>
+          c.viz
+            .renderer(renderer)
+            .confidence(on ? c.confidence : false)
+            .render(),
+        );
       draw();
 
       document.querySelectorAll("input[name=renderer]").forEach(input =>
         input.addEventListener("change", () => {
           renderer = input.value;
           draw();
-        }));
+        }),
+      );
       const toggle = document.querySelector("#toggle");
       toggle.addEventListener("click", () => {
         on = !on;
         toggle.textContent = on ? "confidence(false)" : "restore confidence";
         draw();
       });
-
     </script>
-
   </body>
-
 </html>

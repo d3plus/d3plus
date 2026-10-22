@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Capitalizes each significant word of a phrase, normalizing case in both\ndirections: the locale's minor words (articles, short conjunctions/\nprepositions) are forced lowercase in the middle and known acronyms are\nforced uppercase — so \"SOUTH BY SOUTHWEST\" becomes \"South by Southwest\" and\n\"jack smith, ceo\" becomes \"Jack Smith, CEO\". The first and last words are\nalways capitalized. The locale supplies the minor-word and acronym lists\n(e.g. \"le\"/\"de\"/\"par\" for French); pass an explicit rules object for full\ncontrol, including {style: \"sentence\"} to capitalize only the first word.",
+        component:
+          'Capitalizes each significant word of a phrase, normalizing case in both\ndirections: the locale\'s minor words (articles, short conjunctions/\nprepositions) are forced lowercase in the middle and known acronyms are\nforced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and\n"jack smith, ceo" becomes "Jack Smith, CEO". The first and last words are\nalways capitalized. The locale supplies the minor-word and acronym lists\n(e.g. "le"/"de"/"par" for French); pass an explicit rules object for full\ncontrol, including {style: "sentence"} to capitalize only the first word.',
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -53,7 +54,9 @@ const Examples = ({rows}) => (
           {locale ? <span style={chipStyle}>{locale}</span> : null}
           <code>{`"${input}"`}</code>
         </div>
-        <div aria-hidden="true" style={{color: "#bbb"}}>→</div>
+        <div aria-hidden="true" style={{color: "#bbb"}}>
+          →
+        </div>
         <div>
           <strong>
             <code>{`"${titleCase(input, locale)}"`}</code>
@@ -89,7 +92,10 @@ export const BasicExample = () => <Examples rows={basicRows} />;
 BasicExample.parameters = {
   docs: {
     ...sourceParams(basicRows).docs,
-    description: {story: "Capitalizes each word of a plain phrase; the minor word `of` stays lowercase in the middle, while `the` and `a` are capitalized here because they lead the string."},
+    description: {
+      story:
+        "Capitalizes each word of a plain phrase; the minor word `of` stays lowercase in the middle, while `the` and `a` are capitalized here because they lead the string.",
+    },
   },
 };
 
@@ -106,7 +112,10 @@ export const CaseNormalization = () => <Examples rows={caseRows} />;
 CaseNormalization.parameters = {
   docs: {
     ...sourceParams(caseRows).docs,
-    description: {story: "Case is fixed in both directions: the all-caps `SOUTH BY SOUTHWEST` is lowered to `South by Southwest`, the lowercase `ceo` is raised to `CEO`, and a trailing minor word like `for` is capitalized because it ends the phrase."},
+    description: {
+      story:
+        "Case is fixed in both directions: the all-caps `SOUTH BY SOUTHWEST` is lowered to `South by Southwest`, the lowercase `ceo` is raised to `CEO`, and a trailing minor word like `for` is capitalized because it ends the phrase.",
+    },
   },
 };
 
@@ -122,7 +131,10 @@ export const Acronyms = () => <Examples rows={acronymRows} />;
 Acronyms.parameters = {
   docs: {
     ...sourceParams(acronymRows).docs,
-    description: {story: "Recognized acronyms are forced to their canonical casing no matter how they were typed — `ceo`→`CEO`, `gdp`→`GDP`, `sql`→`SQL` — including mixed-case forms like `iOS` and `SaaS`."},
+    description: {
+      story:
+        "Recognized acronyms are forced to their canonical casing no matter how they were typed — `ceo`→`CEO`, `gdp`→`GDP`, `sql`→`SQL` — including mixed-case forms like `iOS` and `SaaS`.",
+    },
   },
 };
 
@@ -138,6 +150,9 @@ export const Localized = () => <Examples rows={localizedRows} />;
 Localized.parameters = {
   docs: {
     ...sourceParams(localizedRows).docs,
-    description: {story: "Passing a locale (`es-ES`, `fr-FR`, `de-DE`, `it-IT`) swaps in that language's minor-word list, so words such as `y`, `de`, `la`, `über`, and `di` stay lowercase mid-title."},
+    description: {
+      story:
+        "Passing a locale (`es-ES`, `fr-FR`, `de-DE`, `it-IT`) swaps in that language's minor-word list, so words such as `y`, `de`, `la`, `über`, and `di` stay lowercase mid-title.",
+    },
   },
 };

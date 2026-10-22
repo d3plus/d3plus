@@ -6,132 +6,136 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Ridgeline as D3plusRidgeline} from "@d3plus/react";
-export const Ridgeline = ({ config }) => <D3plusRidgeline config={config} />;
+export const Ridgeline = ({config}) => <D3plusRidgeline config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in Ridgeline
    */
   Object.keys(plotArgTypes)
-    .filter(k => !k.match(/^(shape|x|x2|y|y2|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig|swarm|swarmConfig|trendLine|trendLineConfig|barPadding|discrete)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .filter(
+      k =>
+        !k.match(
+          /^(shape|x|x2|y|y2|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig|swarm|swarmConfig|trendLine|trendLineConfig|barPadding|discrete)$/,
+        ),
+    )
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * Ridgeline-specific methods
    */
-  
+
   {
     densityConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Kernel density options for every curve: `kernel` (`\"gaussian\"` or `\"epanechnikov\"`), `bandwidth` (in data units; each group's own Silverman rule-of-thumb bandwidth by default), `points` (how many values each curve is evaluated at), and `cut` (how far each curve runs past its group's smallest and largest value, in bandwidths).",
+      description:
+        'Kernel density options for every curve: `kernel` (`"gaussian"` or `"epanechnikov"`), `bandwidth` (in data units; each group\'s own Silverman rule-of-thumb bandwidth by default), `points` (how many values each curve is evaluated at), and `cut` (how far each curve runs past its group\'s smallest and largest value, in bandwidths).',
       table: {
         defaultValue: {
-          summary: "{kernel: \"gaussian\", points: 80, cut: 3}"
-        }
+          summary: '{kernel: "gaussian", points: 80, cut: 3}',
+        },
       },
       type: {
         required: false,
-        summary: "{kernel?: \"gaussian\" | \"epanechnikov\" | function, bandwidth?: number | function, points?: number, cut?: number}"
-      }
+        summary:
+          '{kernel?: "gaussian" | "epanechnikov" | function, bandwidth?: number | function, points?: number, cut?: number}',
+      },
     },
     densityScale: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "area",
-      description: "How curves are sized against each other: `\"area\"` (default) gives every shape the same area, `\"count\"` makes areas proportional to each group's observations, and `\"width\"` scales every shape to the full width (Violin) or height (Ridgeline).",
-      options: [
-        "area",
-        "count",
-        "width"
-      ],
+      description:
+        'How curves are sized against each other: `"area"` (default) gives every shape the same area, `"count"` makes areas proportional to each group\'s observations, and `"width"` scales every shape to the full width (Violin) or height (Ridgeline).',
+      options: ["area", "count", "width"],
       table: {
         defaultValue: {
-          summary: "area"
-        }
+          summary: "area",
+        },
       },
       type: {
         required: false,
-        summary: "\"area\" | \"count\" | \"width\""
-      }
+        summary: '"area" | "count" | "width"',
+      },
     },
     medianSort: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: false,
-      description: "Orders categories by median: `false` (default; data order), `\"ascending\"`, or `\"descending\"`.",
-      options: [
-        false,
-        "ascending",
-        "descending"
-      ],
+      description:
+        'Orders categories by median: `false` (default; data order), `"ascending"`, or `"descending"`.',
+      options: [false, "ascending", "descending"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "false | \"ascending\" | \"descending\""
-      }
+        summary: 'false | "ascending" | "descending"',
+      },
     },
     overlap: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 1.5,
-      description: "How far the tallest ridge rises, in category steps: 1 reaches the next baseline up, larger values overlap the ridges above.",
+      description:
+        "How far the tallest ridge rises, in category steps: 1 reaches the next baseline up, larger values overlap the ridges above.",
       table: {
         defaultValue: {
-          summary: "1.5"
-        }
+          summary: "1.5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     shapeConfig: {
       table: {
         defaultValue: {
-          summary: "{Area: {fillOpacity: 0.85, strokeWidth: 1}, Bar: {label: false}}"
-        }
-      }
+          summary:
+            "{Area: {fillOpacity: 0.85, strokeWidth: 1}, Bar: {label: false}}",
+        },
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "{tbody: (d: DataPoint, i: number) => densityTooltipRows(viz, d, i)}"
-        }
-      }
+          summary:
+            "{tbody: (d: DataPoint, i: number) => densityTooltipRows(viz, d, i)}",
+        },
+      },
     },
     tooltipShared: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for each row's numeric observation.",
+      description:
+        "Accessor function or string key for each row's numeric observation.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

@@ -6,176 +6,183 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Radar as D3plusRadar} from "@d3plus/react";
-export const Radar = ({ config }) => <D3plusRadar config={config} />;
+export const Radar = ({config}) => <D3plusRadar config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Radar
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Radar-specific methods
    */
-  
+
   {
     axisConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The Radar's axis styles, named after the parts of a Plot axis: the\ninner level rings are its gridlines (`gridConfig`, a faint stroke like\nPlot's gridlines), the outer ring is its axis line (`barConfig`, the\nchart's background ink), and the spokes and metric labels are its ticks\n(`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring\nstyles take `stroke`, `strokeWidth`, `strokeOpacity`,\n`strokeDasharray`, and `opacity` (or Plot's `\"stroke-width\"` spelling),\neach a value or a `(ring, i) => value` accessor.",
+      description:
+        "The Radar's axis styles, named after the parts of a Plot axis: the\ninner level rings are its gridlines (`gridConfig`, a faint stroke like\nPlot's gridlines), the outer ring is its axis line (`barConfig`, the\nchart's background ink), and the spokes and metric labels are its ticks\n(`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring\nstyles take `stroke`, `strokeWidth`, `strokeOpacity`,\n`strokeDasharray`, and `opacity` (or Plot's `\"stroke-width\"` spelling),\neach a value or a `(ring, i) => value` accessor.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "object"
-      }
+        summary: "object",
+      },
     },
     discrete: {
       defaultValue: "metric",
       table: {
         defaultValue: {
-          summary: "metric"
-        }
-      }
+          summary: "metric",
+        },
+      },
     },
     levelFormat: {
       control: {},
-      description: "Formats the Radar's level value labels. Receives the ring's value and\nreturns its label. Defaults to the abbreviated number format the axes\nuse (`1.5k`, `2M`, …).",
+      description:
+        "Formats the Radar's level value labels. Receives the ring's value and\nreturns its label. Defaults to the abbreviated number format the axes\nuse (`1.5k`, `2M`, …).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     levelLabelAngle: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
-      description: "Direction of the Radar's level value labels, in degrees clockwise from\n12 o'clock. `0` (the default) runs the labels straight up from the\ncenter. Each label sits just inside its ring, offset to the clockwise\nside of that direction so neither line crosses the text. Spokes start\nat 3 o'clock, so the spoke for the metric at index `i` of `n` sits at\n`90 + 360 * i / n` degrees.",
+      description:
+        "Direction of the Radar's level value labels, in degrees clockwise from\n12 o'clock. `0` (the default) runs the labels straight up from the\ncenter. Each label sits just inside its ring, offset to the clockwise\nside of that direction so neither line crosses the text. Spokes start\nat 3 o'clock, so the spoke for the metric at index `i` of `n` sits at\n`90 + 360 * i / n` degrees.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     levelLabelConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
       description: "Style of the Radar's level value labels.",
       table: {
         defaultValue: {
-          summary: "{}"
-        }
+          summary: "{}",
+        },
       },
       type: {
         required: false,
-        summary: "object"
-      }
+        summary: "object",
+      },
     },
     levelLabels: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: true,
-      description: "Whether the Radar labels each level ring with its value. Defaults to `true`.",
+      description:
+        "Whether the Radar labels each level ring with its value. Defaults to `true`.",
       table: {
         defaultValue: {
-          summary: "true"
-        }
+          summary: "true",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     levels: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: 6,
-      description: "The Radar's level rings. A number (default `6`) is the approximate ring\ncount: the radial domain is rounded out to \"nice\" values and the rings\nsit on its ticks, the same way axis ticks are chosen. An array sets the\nexact ring values.",
+      description:
+        'The Radar\'s level rings. A number (default `6`) is the approximate ring\ncount: the radial domain is rounded out to "nice" values and the rings\nsit on its ticks, the same way axis ticks are chosen. An array sets the\nexact ring values.',
       table: {
         defaultValue: {
-          summary: "6"
-        }
+          summary: "6",
+        },
       },
       type: {
         required: false,
-        summary: "number | array.&lt;number&gt;"
-      }
+        summary: "number | array.&lt;number&gt;",
+      },
     },
     metric: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for each data point's metric: every unique metric becomes one spoke (axis) of the radar.",
+      description:
+        "Accessor function or string key for each data point's metric: every unique metric becomes one spoke (axis) of the radar.",
       table: {
         defaultValue: {
-          summary: "\"metric\""
-        }
+          summary: '"metric"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     outerPadding: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "auto",
-      description: "Room (px) the Radar reserves around its web for the metric labels.\n`\"auto\"` (the default) measures the labels and gives the web the largest\nradius at which every label fits inside the chart, wrapping long labels\nonto two lines (and truncating what still doesn't fit) rather than\nshrinking the web below half its largest possible size. A number\nreserves exactly that much room and wraps labels to that width.",
-      options: [
-        "auto"
-      ],
+      description:
+        'Room (px) the Radar reserves around its web for the metric labels.\n`"auto"` (the default) measures the labels and gives the web the largest\nradius at which every label fits inside the chart, wrapping long labels\nonto two lines (and truncating what still doesn\'t fit) rather than\nshrinking the web below half its largest possible size. A number\nreserves exactly that much room and wraps labels to that width.',
+      options: ["auto"],
       table: {
         defaultValue: {
-          summary: "auto"
-        }
+          summary: "auto",
+        },
       },
       type: {
         required: false,
-        summary: "number | \"auto\""
-      }
+        summary: 'number | "auto"',
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Path\""
-        }
-      }
+          summary: '"Path"',
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for each data point's value, which sets its distance from the center along its metric's spoke.",
+      description:
+        "Accessor function or string key for each data point's value, which sets its distance from the center along its metric's spoke.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

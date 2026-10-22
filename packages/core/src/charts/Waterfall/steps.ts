@@ -8,7 +8,11 @@ import type {DataPoint} from "@d3plus/data";
 export type WaterfallKind = "increase" | "decrease" | "total";
 
 /** Every step kind, in legend order. */
-export const WATERFALL_KINDS: WaterfallKind[] = ["increase", "decrease", "total"];
+export const WATERFALL_KINDS: WaterfallKind[] = [
+  "increase",
+  "decrease",
+  "total",
+];
 
 /** A row accessor, as d3plus passes them. */
 export type RowAccessor = (d: DataPoint, i: number) => unknown;
@@ -61,12 +65,16 @@ interface CategoryRows {
     where both read as numbers (dates by time), otherwise left in data order.
 */
 export function compareCategories(a: unknown, b: unknown): number {
-  const diff = Number(a instanceof Date ? +a : a) - Number(b instanceof Date ? +b : b);
+  const diff =
+    Number(a instanceof Date ? +a : a) - Number(b instanceof Date ? +b : b);
   return Number.isNaN(diff) ? 0 : diff;
 }
 
 /** Orders a series' categories in place: by `sort` when given, else as Plot's axis does. */
-function orderCategories(entries: CategoryRows[], sort?: StepAccessors["sort"]): void {
+function orderCategories(
+  entries: CategoryRows[],
+  sort?: StepAccessors["sort"],
+): void {
   if (sort) entries.sort((a, b) => sort(a.rows[0][0], b.rows[0][0]));
   else entries.sort((a, b) => compareCategories(a.category, b.category));
 }
@@ -91,15 +99,25 @@ export function waterfallStep(
     // A subtotal with its own value resets the running total to that value.
     const end = defined.length ? sum : running;
     return {
-      series, index, category: entry.category, kind: "total",
-      start: 0, end, change: end - running,
+      series,
+      index,
+      category: entry.category,
+      kind: "total",
+      start: 0,
+      end,
+      change: end - running,
       joins: index > 0 && sameLevel(end, running),
     };
   }
   if (!defined.length) return undefined;
   return {
-    series, index, category: entry.category, kind: sum < 0 ? "decrease" : "increase",
-    start: running, end: running + sum, change: sum,
+    series,
+    index,
+    category: entry.category,
+    kind: sum < 0 ? "decrease" : "increase",
+    start: running,
+    end: running + sum,
+    change: sum,
     joins: index > 0,
   };
 }
@@ -111,7 +129,10 @@ export function waterfallStep(
     Returns each row's step; rows without one (no value, not a subtotal) are
     absent.
 */
-export function waterfallSteps(rows: DataPoint[], accessors: StepAccessors): Map<DataPoint, WaterfallStep> {
+export function waterfallSteps(
+  rows: DataPoint[],
+  accessors: StepAccessors,
+): Map<DataPoint, WaterfallStep> {
   const {category, series, value, subtotal, sort} = accessors;
   const grouped = new Map<string, Map<string, CategoryRows>>();
   rows.forEach((d, i) => {
@@ -136,7 +157,9 @@ export function waterfallSteps(rows: DataPoint[], accessors: StepAccessors): Map
         {
           category: entry.category,
           values: entry.rows.map(([d, i]) => finite(value(d, i))),
-          subtotal: subtotal ? entry.rows.some(([d, i]) => !!subtotal(d, i)) : false,
+          subtotal: subtotal
+            ? entry.rows.some(([d, i]) => !!subtotal(d, i))
+            : false,
         },
         running,
         {series: s, index},
@@ -151,7 +174,9 @@ export function waterfallSteps(rows: DataPoint[], accessors: StepAccessors): Map
 }
 
 /** The kinds present among `steps`, in legend order. */
-export function waterfallKinds(steps: Iterable<WaterfallStep | undefined>): WaterfallKind[] {
+export function waterfallKinds(
+  steps: Iterable<WaterfallStep | undefined>,
+): WaterfallKind[] {
   const seen = new Set<WaterfallKind>();
   for (const step of steps) if (step) seen.add(step.kind);
   return WATERFALL_KINDS.filter(k => seen.has(k));
@@ -161,7 +186,10 @@ export function waterfallKinds(steps: Iterable<WaterfallStep | undefined>): Wate
     The value a row reports on the value axis: its own value, or for a
     subtotal without one, the running total it shows.
 */
-export function stepValue(raw: unknown, step: WaterfallStep | undefined): unknown {
+export function stepValue(
+  raw: unknown,
+  step: WaterfallStep | undefined,
+): unknown {
   if (finite(raw) !== undefined || !step || step.kind !== "total") return raw;
   return step.end;
 }
@@ -180,7 +208,9 @@ export type StackOffset = (series: number[][][], order: number[]) => void;
     (low value first, as Plot's stacks expect). Points without a step keep
     d3-stack's own values.
 */
-export function waterfallStackOffset(stepOf: (row: DataPoint) => WaterfallStep | undefined): StackOffset {
+export function waterfallStackOffset(
+  stepOf: (row: DataPoint) => WaterfallStep | undefined,
+): StackOffset {
   return series => {
     for (const s of series) {
       const key = (s as unknown as {key: unknown}).key;

@@ -11,7 +11,12 @@ const box = {data: {id: "alpha", value: 300}, i: 4, key: "alpha", values: []};
 
 it("boxRectConfig: passes the Box's texture and backgroundImage to its box Rect", () => {
   const config = boxRectConfig(
-    {texture: () => "lines", textureDefault: {size: 6}, backgroundImage: () => "a.png", backgroundImageFit: () => "contain"},
+    {
+      texture: () => "lines",
+      textureDefault: {size: 6},
+      backgroundImage: () => "a.png",
+      backgroundImageFit: () => "contain",
+    },
     {fill: "white"},
   );
   assert.strictEqual(config.fill, "white");
@@ -23,13 +28,19 @@ it("boxRectConfig: passes the Box's texture and backgroundImage to its box Rect"
 
 it("boxRectConfig: resolves accessors against the box's merged datum and index", () => {
   const seen = [];
-  const config = boxRectConfig({texture: (d, i) => (seen.push([d, i]), d.id === "alpha" ? "grid" : false)}, {});
+  const config = boxRectConfig(
+    {texture: (d, i) => (seen.push([d, i]), d.id === "alpha" ? "grid" : false)},
+    {},
+  );
   assert.strictEqual(config.texture(box, 0), "grid");
   assert.deepStrictEqual(seen, [[box.data, 4]]);
 });
 
 it("boxRectConfig: rectConfig overrides the Box's own keys", () => {
-  const config = boxRectConfig({texture: () => "lines", backgroundImage: () => "a.png"}, {texture: false, backgroundImage: "b.png"});
+  const config = boxRectConfig(
+    {texture: () => "lines", backgroundImage: () => "a.png"},
+    {texture: false, backgroundImage: "b.png"},
+  );
   assert.strictEqual(config.texture, false);
   assert.strictEqual(config.backgroundImage, "b.png");
 });

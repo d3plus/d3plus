@@ -15,7 +15,11 @@ import type {SceneNode} from "@d3plus/render";
 
 import configPrep from "../../utils/configPrep.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
-import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  collectComputed,
+  makeShape,
+  shapeConfigFor,
+} from "../features/emitHelpers.js";
 import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext, ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -33,7 +37,12 @@ import {
   type Ohlc,
 } from "./ohlc.js";
 import {candleAriaLabel, volumeAriaLabel} from "./tooltip.js";
-import {emitVolume, snapsToPeriod, volumeEnabled, volumeStripRect} from "./volume.js";
+import {
+  emitVolume,
+  snapsToPeriod,
+  volumeEnabled,
+  volumeStripRect,
+} from "./volume.js";
 
 /** The shape key candles are drawn under. */
 export const CANDLESTICK_SHAPE = "Candlestick";
@@ -59,7 +68,10 @@ const MIN_HIT_WIDTH = 6;
 /** A per-row color setting: a color string or an accessor over the user's row. */
 type ColorSetting = string | ((d: DataPoint, i: number) => string) | undefined;
 
-const resolveColor = (setting: ColorSetting, d: PlotDatum): string | undefined =>
+const resolveColor = (
+  setting: ColorSetting,
+  d: PlotDatum,
+): string | undefined =>
   typeof setting === "function" ? setting(d.data, d.i) : setting;
 
 /**
@@ -80,9 +92,15 @@ export function layoutCandles(
 ): Map<PlotDatum, CandleLayout> {
   const accessors = ohlcAccessors(viz);
   const variant = viz.schema.variant as CandlestickVariant;
-  const room = Math.min(Math.abs(range[range.length - 1] - range[0]), LONE_PERIOD_ROOM);
+  const room = Math.min(
+    Math.abs(range[range.length - 1] - range[0]),
+    LONE_PERIOD_ROOM,
+  );
   const centers = rows.map(d => x(d.x));
-  const width = candleWidth(periodSpacing(centers, room), Number(viz.schema.bodyWidth));
+  const width = candleWidth(
+    periodSpacing(centers, room),
+    Number(viz.schema.bodyWidth),
+  );
   // Even widths keep both body edges on pixel centers, like the wick.
   const snapped = width >= 2 ? 2 * Math.round(width / 2) : width;
   const layouts = new Map<PlotDatum, CandleLayout>();
@@ -102,7 +120,10 @@ export function layoutCandles(
       width: snapped,
       px,
       direction: candleDirection(v.open, v.close),
-      d: variant === "ohlc" ? ohlcBarPath(cx, snapped, px) : candlePath(cx, snapped, px),
+      d:
+        variant === "ohlc"
+          ? ohlcBarPath(cx, snapped, px)
+          : candlePath(cx, snapped, px),
     });
   });
   return layouts;
@@ -113,16 +134,23 @@ export function layoutCandles(
     up and down colors on the stroke, and on the fill of a down candle (and of
     an up candle unless `hollow`). OHLC bars are never filled.
 */
-function candleStyle(viz: VizInstance, layoutOf: (d: PlotDatum) => CandleLayout): Record<string, unknown> {
+function candleStyle(
+  viz: VizInstance,
+  layoutOf: (d: PlotDatum) => CandleLayout,
+): Record<string, unknown> {
   const color = (d: PlotDatum): string | undefined =>
     resolveColor(
-      (layoutOf(d).direction === "up" ? viz.schema.upColor : viz.schema.downColor) as ColorSetting,
+      (layoutOf(d).direction === "up"
+        ? viz.schema.upColor
+        : viz.schema.downColor) as ColorSetting,
       d,
     );
   return {
     fill: (d: PlotDatum) => {
       const {direction} = layoutOf(d);
-      const hollow = viz.schema.variant === "ohlc" || (direction === "up" && viz.schema.hollow);
+      const hollow =
+        viz.schema.variant === "ohlc" ||
+        (direction === "up" && viz.schema.hollow);
       return hollow ? "none" : color(d);
     },
     stroke: color,
@@ -144,7 +172,9 @@ export function candleTexture(texture: unknown, fill: unknown): unknown {
   const c = typeof fill === "string" ? color(fill) : null;
   if (!c) return texture;
   const config: Record<string, unknown> =
-    typeof texture === "object" ? {...(texture as Record<string, unknown>)} : {texture};
+    typeof texture === "object"
+      ? {...(texture as Record<string, unknown>)}
+      : {texture};
   if (!config.stroke) config.stroke = c.darker(1).formatHex();
   return config;
 }
@@ -161,20 +191,32 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
   const layouts = layoutCandles(viz, rows, x, y, xRange);
   if (!layouts.size) return [];
   const layoutOf = (d: PlotDatum): CandleLayout => layouts.get(d)!;
-  const nested = viz.schema.shapeConfig[CANDLESTICK_SHAPE] as Record<string, unknown> | undefined;
+  const nested = viz.schema.shapeConfig[CANDLESTICK_SHAPE] as
+    Record<string, unknown> | undefined;
 
   const path = makeShape("Path")
     .renderMode("compute")
     .config(shapeConfigFor(viz, CANDLESTICK_SHAPE))
     .config(candleStyle(viz, layoutOf))
-    .config(nested ? configPrep.bind(viz as unknown as ConfigPrepHost)(nested as Parameters<typeof configPrep>[0]) : {})
+    .config(
+      nested
+        ? configPrep.bind(viz as unknown as ConfigPrepHost)(
+            nested as Parameters<typeof configPrep>[0],
+          )
+        : {},
+    )
     .config({
       ariaLabel: (d: PlotDatum) => candleAriaLabel(viz, d.data, d.i),
       d: (d: PlotDatum) => layoutOf(d).d,
       hitArea: (d: PlotDatum) => {
         const {cx, width, px} = layoutOf(d);
         const w = Math.max(width, MIN_HIT_WIDTH);
-        return {x: cx - w / 2, y: px.high - 2, width: w, height: px.low - px.high + 4};
+        return {
+          x: cx - w / 2,
+          y: px.high - 2,
+          width: w,
+          height: px.low - px.high + 4,
+        };
       },
       id: (d: PlotDatum) => `${d.id}_${d.discrete}`,
       label: false,
@@ -184,29 +226,51 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
   // Hollow means hollow: a candle (or OHLC bar) drawn without a fill takes no
   // backgroundImage, just as it takes no texture.
   const fillOf = path.schema.fill as (d: PlotDatum, i: number) => unknown;
-  const imageOf = path.schema.backgroundImage as (d: PlotDatum, i: number) => unknown;
+  const imageOf = path.schema.backgroundImage as (
+    d: PlotDatum,
+    i: number,
+  ) => unknown;
   const textureOf = path.schema.texture as (d: PlotDatum, i: number) => unknown;
   path
     .config({
-      backgroundImage: (d: PlotDatum, i: number) => (fillOf(d, i) === "none" ? false : imageOf(d, i)),
-      texture: (d: PlotDatum, i: number) => candleTexture(textureOf(d, i), fillOf(d, i)),
+      backgroundImage: (d: PlotDatum, i: number) =>
+        fillOf(d, i) === "none" ? false : imageOf(d, i),
+      texture: (d: PlotDatum, i: number) =>
+        candleTexture(textureOf(d, i), fillOf(d, i)),
     })
     .data(Array.from(layouts.keys()));
   viz._wirePlotShapeEvents!(path, CANDLESTICK_SHAPE, ctx.events);
 
-  const snapPoints = (d: PlotDatum, l: CandleLayout) =>
-    [{x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d.i}];
+  const snapPoints = (d: PlotDatum, l: CandleLayout) => [
+    {x: l.cx, y: l.px.close, datum: d as unknown as DataPoint, index: d.i},
+  ];
   const candles = collectComputed(path).map(node => {
     const d = node.datum as unknown as PlotDatum | undefined;
     const l = d && layouts.get(d);
-    const point = l && snapsToPeriod(node) ? {interactionPoints: snapPoints(d!, l)} : {};
+    const point =
+      l && snapsToPeriod(node) ? {interactionPoints: snapPoints(d!, l)} : {};
     return {...node, shapeType: CANDLESTICK_SHAPE, ...point} as SceneNode;
   });
   if (!volumeEnabled(viz) || !volumeStripRect(ctx)) return candles;
 
-  const bars = new Map<PlotDatum, {cx: number; width: number; interactionPoints: unknown[]}>();
-  layouts.forEach((l, d) => bars.set(d, {cx: l.cx, width: l.width, interactionPoints: snapPoints(d, l)}));
-  const volume = emitVolume(ctx, bars, volumeStyle(viz, layoutOf), CANDLESTICK_SHAPE, candleTexture);
+  const bars = new Map<
+    PlotDatum,
+    {cx: number; width: number; interactionPoints: unknown[]}
+  >();
+  layouts.forEach((l, d) =>
+    bars.set(d, {
+      cx: l.cx,
+      width: l.width,
+      interactionPoints: snapPoints(d, l),
+    }),
+  );
+  const volume = emitVolume(
+    ctx,
+    bars,
+    volumeStyle(viz, layoutOf),
+    CANDLESTICK_SHAPE,
+    candleTexture,
+  );
   // Candles stay in the price area when a zoom rescales it, clear of the strip.
   const top = ctx.yRange[0] - (ctx.x2Height ?? 0);
   const clipped: SceneNode = {
@@ -229,12 +293,17 @@ export const emitCandlesticks: ShapeEmitter = (ctx: ShapeEmitContext) => {
     their candle's up or down color, hollow candles included, so short bars
     stay easy to read, and labeled for screen readers with their volume.
 */
-function volumeStyle(viz: VizInstance, layoutOf: (d: PlotDatum) => CandleLayout): Record<string, unknown> {
+function volumeStyle(
+  viz: VizInstance,
+  layoutOf: (d: PlotDatum) => CandleLayout,
+): Record<string, unknown> {
   return {
     ariaLabel: (d: PlotDatum) => volumeAriaLabel(viz, d.data, d.i),
     fill: (d: PlotDatum) =>
       resolveColor(
-        (layoutOf(d).direction === "up" ? viz.schema.upColor : viz.schema.downColor) as ColorSetting,
+        (layoutOf(d).direction === "up"
+          ? viz.schema.upColor
+          : viz.schema.downColor) as ColorSetting,
         d,
       ),
     stroke: "none",

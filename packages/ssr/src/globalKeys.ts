@@ -160,4 +160,6 @@ const OTHER_KEYS: string[] = [
 ];
 
 /** Deduplicated union of every `window` key `installDom` mirrors. */
-export const GLOBAL_KEYS: string[] = [...new Set([...LIVING_KEYS, ...OTHER_KEYS])];
+export const GLOBAL_KEYS: string[] = [
+  ...new Set([...LIVING_KEYS, ...OTHER_KEYS]),
+];

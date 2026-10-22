@@ -13,9 +13,17 @@
 import type {SceneNode} from "@d3plus/render";
 import {finite} from "@d3plus/math";
 
-import {collectComputed, makeShape, shapeConfigFor} from "../features/emitHelpers.js";
+import {
+  collectComputed,
+  makeShape,
+  shapeConfigFor,
+} from "../features/emitHelpers.js";
 import type {PlotDatum} from "../features/plotPaint.js";
-import {shapeEmitters, type ShapeEmitContext, type ShapeEmitter} from "../features/shapeEmit.js";
+import {
+  shapeEmitters,
+  type ShapeEmitContext,
+  type ShapeEmitter,
+} from "../features/shapeEmit.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
 
 /** Key suffix of a category's connector node. */
@@ -47,7 +55,10 @@ interface ConnectorEnd {
     @param rows The plotted rows.
     @param discrete The category axis.
 */
-export function dumbbellSpans(rows: PlotDatum[], discrete: "x" | "y"): DumbbellSpan[] {
+export function dumbbellSpans(
+  rows: PlotDatum[],
+  discrete: "x" | "y",
+): DumbbellSpan[] {
   const opp = discrete === "x" ? "y" : "x";
   const spans = new Map<string, {lo?: PlotDatum; hi?: PlotDatum}>();
   for (const d of rows) {
@@ -61,7 +72,8 @@ export function dumbbellSpans(rows: PlotDatum[], discrete: "x" | "y"): DumbbellS
   }
   const out: DumbbellSpan[] = [];
   spans.forEach(({lo, hi}, category) => {
-    if (lo && hi && lo !== hi && lo[opp] !== hi[opp]) out.push({category, lo, hi});
+    if (lo && hi && lo !== hi && lo[opp] !== hi[opp])
+      out.push({category, lo, hi});
   });
   return out;
 }
@@ -116,5 +128,8 @@ export const dumbbellEmit: ShapeEmitter = (ctx, key) => {
     ...ctx.shapeConfig,
     id: (d: PlotDatum) => `${d.id}_${d.discrete}`,
   });
-  return [...emitConnectors(ctx), ...shapeEmitters.Circle({...ctx, shapeConfig}, key)];
+  return [
+    ...emitConnectors(ctx),
+    ...shapeEmitters.Circle({...ctx, shapeConfig}, key),
+  ];
 };

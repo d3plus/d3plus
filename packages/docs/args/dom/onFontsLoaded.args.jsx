@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   callback: {
     control: {},
     description: "The function to run after the font loads.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "function"
-    }
-  }
+      summary: "function",
+    },
+  },
 };

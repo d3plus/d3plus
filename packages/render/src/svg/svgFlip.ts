@@ -33,10 +33,17 @@ type RenderTransition = Transition<BaseType, unknown, null, undefined>;
     @param node The entering node.
     @param flip The drill-morph override for this draw, if any.
 */
-export function enterStart(node: SceneNode, flip: FlipTransition | undefined): SceneNode {
+export function enterStart(
+  node: SceneNode,
+  flip: FlipTransition | undefined,
+): SceneNode {
   if (flip?.reunionEnterKey !== undefined && node.key === flip.reunionEnterKey)
     return collapseTo(node, flip.reunionEnterFrom!, undefined, true);
-  const own = arcEnterStart(node) ?? pathEnterStart(node) ?? rectEnterStart(node) ?? groupEnterStart(node);
+  const own =
+    arcEnterStart(node) ??
+    pathEnterStart(node) ??
+    rectEnterStart(node) ??
+    groupEnterStart(node);
   if (own) return own;
   return flip?.enterFrom && isFlipEligible(node)
     ? collapseTo(node, flip.enterFrom, flip.enterFromBody, true)
@@ -90,7 +97,10 @@ export function reconcileExit(
     const swap = d.type === "text" ? (d as TextNode).fadeSwap : undefined;
     if (swap) fadeSwapTween(tsel, swap, "exit", d, d);
     else {
-      const end = exitTo && isFlipEligible(d) ? collapseTo(d, exitTo, exitToBody) : collapse(d);
+      const end =
+        exitTo && isFlipEligible(d)
+          ? collapseTo(d, exitTo, exitToBody)
+          : collapse(d);
       applyGeometry(tsel, end, true, resolveFill);
     }
     tsel.remove();

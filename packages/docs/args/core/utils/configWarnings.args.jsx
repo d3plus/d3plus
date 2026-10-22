@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   _: {
     control: {
-      type: "boolean"
+      type: "boolean",
     },
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "boolean"
-    }
-  }
+      summary: "boolean",
+    },
+  },
 };

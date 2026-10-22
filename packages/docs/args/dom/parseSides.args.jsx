@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   sides: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The CSS shorthand string to expand.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | number"
-    }
-  }
+      summary: "string | number",
+    },
+  },
 };

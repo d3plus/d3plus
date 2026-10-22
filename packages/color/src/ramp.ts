@@ -55,7 +55,11 @@ export default function colorRamp(
   for (let i = 0; i < n; i++) {
     const t = i / (n - 1); // 0 = lightest, 1 = darkest
     steps.push(
-      oklchToColor({l: lightL + (darkL - lightL) * t, c: lightC + (darkC - lightC) * t, h}),
+      oklchToColor({
+        l: lightL + (darkL - lightL) * t,
+        c: lightC + (darkC - lightC) * t,
+        h,
+      }),
     );
   }
   // A continuous ramp ends exactly on the base color (no round-trip drift).

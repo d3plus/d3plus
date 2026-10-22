@@ -4,19 +4,37 @@ import {buildLabelData} from "../../src/shapes/buildLabelData.ts";
 
 it("buildLabelData datum option stores the resolved source row as .data (as Pack uses it)", () => {
   const source = {id: "leaf-1", value: 5};
-  const hierarchyNode = {x: 10, y: 20, r: 8, id: "leaf-1", data: source, parent: {}, children: null};
+  const hierarchyNode = {
+    x: 10,
+    y: 20,
+    r: 8,
+    id: "leaf-1",
+    data: source,
+    parent: {},
+    children: null,
+  };
   const labels = buildLabelData({
     data: [hierarchyNode],
     label: d => d.data.id,
-    labelBounds: (d, i, aes) => ({width: aes.r * 1.6, height: aes.r * 0.8, x: -aes.r * 0.8, y: -aes.r * 0.4}),
-    x: d => d.x, y: d => d.y,
+    labelBounds: (d, i, aes) => ({
+      width: aes.r * 1.6,
+      height: aes.r * 0.8,
+      x: -aes.r * 0.8,
+      y: -aes.r * 0.4,
+    }),
+    x: d => d.x,
+    y: d => d.y,
     aes: d => ({r: d.r, width: 2 * d.r, height: 2 * d.r}),
     rotate: () => 0,
     id: d => d.id,
     datum: d => d.data,
   });
   assert.strictEqual(labels.length, 1, "one label produced");
-  assert.strictEqual(labels[0].data, source, "label .data is the source row, matching the circle node's datum");
+  assert.strictEqual(
+    labels[0].data,
+    source,
+    "label .data is the source row, matching the circle node's datum",
+  );
 });
 
 it("buildLabelData without datum option keeps the iterated node as .data", () => {
@@ -25,7 +43,8 @@ it("buildLabelData without datum option keeps the iterated node as .data", () =>
     data: [node],
     label: () => "X",
     labelBounds: () => ({width: 5, height: 5, x: 0, y: 0}),
-    x: d => d.x, y: d => d.y,
+    x: d => d.x,
+    y: d => d.y,
     aes: d => ({r: d.r}),
     rotate: () => 0,
     id: d => d.id,

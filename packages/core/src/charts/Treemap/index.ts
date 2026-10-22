@@ -52,7 +52,10 @@ const isAggregated = (leaf: AggregatedLeaf): boolean =>
   leaf.children.length === 1 &&
   leaf.children[0].data._isAggregation === true;
 
-type SortFn = (a: HierarchyNode<DataPoint>, b: HierarchyNode<DataPoint>) => number;
+type SortFn = (
+  a: HierarchyNode<DataPoint>,
+  b: HierarchyNode<DataPoint>,
+) => number;
 
 export const treemapDef: ChartDefinition = {
   name: "Treemap",
@@ -64,7 +67,9 @@ export const treemapDef: ChartDefinition = {
     thresholdFunction(data as DataPoint[], {
       aggs: viz.schema.aggs,
       drawDepth: viz._drawDepth,
-      groupBy: viz.schema.groupBy as ((d: DataPoint) => DataPoint[keyof DataPoint])[],
+      groupBy: viz.schema.groupBy as ((
+        d: DataPoint,
+      ) => DataPoint[keyof DataPoint])[],
       threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
       thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
     }),
@@ -104,7 +109,9 @@ export const treemapDef: ChartDefinition = {
       key: "sum",
       default: accessor("value"),
       coerce: v => (typeof v === "function" ? v : accessor(v as string)),
-      onSet: (viz, v) => { viz.schema.thresholdKey = v; },
+      onSet: (viz, v) => {
+        viz.schema.thresholdKey = v;
+      },
     },
     /**
         The [tiling method](https://github.com/d3/d3-hierarchy#treemap-tiling) that

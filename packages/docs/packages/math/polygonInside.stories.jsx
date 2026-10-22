@@ -15,24 +15,45 @@ export default {
         component: "Checks if one polygon is inside another polygon.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 import GeometryExample from "../../helpers/GeometryExample.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
-const outer = [[20, 20], [240, 30], [230, 180], [30, 170]];
-const inner = [[70, 60], [180, 70], [170, 140], [80, 130]];
-const overlapping = [[150, 60], [300, 70], [290, 140], [160, 130]];
+const outer = [
+  [20, 20],
+  [240, 30],
+  [230, 180],
+  [30, 170],
+];
+const inner = [
+  [70, 60],
+  [180, 70],
+  [170, 140],
+  [80, 130],
+];
+const overlapping = [
+  [150, 60],
+  [300, 70],
+  [290, 140],
+  [160, 130],
+];
 
 const Diagram = ({a, b}) => (
   <GeometryExample
     width={320}
     shapes={[
-      {type: "polygon", points: b, fill: "rgba(134, 142, 150, 0.12)", stroke: "#868e96", label: "polyB"},
+      {
+        type: "polygon",
+        points: b,
+        fill: "rgba(134, 142, 150, 0.12)",
+        stroke: "#868e96",
+        label: "polyB",
+      },
       {type: "polygon", points: a, label: "polyA"},
     ]}
     output={`polygonInside(polyA, polyB)\n// → ${polygonInside(a, b)}`}

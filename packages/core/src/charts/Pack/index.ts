@@ -24,7 +24,10 @@ import {packEmit} from "./emit.js";
 import {recursionCircles} from "./recursionCircles.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
 
-type SortFn = (a: HierarchyCircularNode<DataPoint>, b: HierarchyCircularNode<DataPoint>) => number;
+type SortFn = (
+  a: HierarchyCircularNode<DataPoint>,
+  b: HierarchyCircularNode<DataPoint>,
+) => number;
 type HoverFn = (fn: (h: DataPoint) => boolean) => unknown;
 
 /** A merged field's values: an array as-is, or a single value wrapped. */
@@ -56,7 +59,9 @@ export const packDef: ChartDefinition = {
   // right escape hatch for the genuine method-override case.
   setup: (viz: VizInstance) => {
     const supHover = (viz as VizInstance & {hover: HoverFn}).hover.bind(viz);
-    (viz as VizInstance & {hover: HoverFn}).hover = ((fn: (h: DataPoint) => boolean) => {
+    (viz as VizInstance & {hover: HoverFn}).hover = ((
+      fn: (h: DataPoint) => boolean,
+    ) => {
       supHover(fn);
       if (viz.schema.legend) {
         (viz._legendClass as {hover: (fn: unknown) => unknown}).hover(fn);
@@ -117,11 +122,17 @@ export const packDef: ChartDefinition = {
       factory: () => ({
         Circle: {
           label: (d: DataPoint) => {
-            const node = d as DataPoint & {parent?: unknown; children?: unknown};
-            return node.parent && !node.children ? (node.id as string | number) : false;
+            const node = d as DataPoint & {
+              parent?: unknown;
+              children?: unknown;
+            };
+            return node.parent && !node.children
+              ? (node.id as string | number)
+              : false;
           },
           labelConfig: {fontResize: true},
-          opacity: (d: DataPoint) => (d as DataPoint & {__d3plusOpacity__?: number}).__d3plusOpacity__,
+          opacity: (d: DataPoint) =>
+            (d as DataPoint & {__d3plusOpacity__?: number}).__d3plusOpacity__,
         },
       }),
     },
@@ -135,10 +146,16 @@ export const packDef: ChartDefinition = {
       merge: true,
       factory: (viz: VizInstance) => {
         const baseLegend = viz.schema.on["mousemove.legend"] as (
-          d: DataPoint, i: number, x: unknown, event: unknown,
+          d: DataPoint,
+          i: number,
+          x: unknown,
+          event: unknown,
         ) => void;
         const baseShape = viz.schema.on["mousemove.shape"] as (
-          d: DataPoint, i: number, x: unknown, event: unknown,
+          d: DataPoint,
+          i: number,
+          x: unknown,
+          event: unknown,
         ) => void;
         const callHover = (fn: (h: DataPoint) => boolean) =>
           (viz as VizInstance & {hover: HoverFn}).hover(fn);
@@ -146,7 +163,10 @@ export const packDef: ChartDefinition = {
         return {
           mouseenter: () => undefined,
           "mousemove.legend": (
-            d: DataPoint, i: number, x: unknown, event: unknown,
+            d: DataPoint,
+            i: number,
+            x: unknown,
+            event: unknown,
           ) => {
             baseLegend(d, i, x, event);
             const ids = viz._ids(d, i);
@@ -156,7 +176,11 @@ export const packDef: ChartDefinition = {
               // values (a single value, or an array of them).
               const matches = Object.keys(h)
                 .filter(key => key !== "value" && !key.startsWith("__d3plus"))
-                .every(key => d[key] != null && asArray(h[key]).every(v => asArray(d[key]).includes(v)));
+                .every(
+                  key =>
+                    d[key] != null &&
+                    asArray(h[key]).every(v => asArray(d[key]).includes(v)),
+                );
               if (matches) hoverData.push(h);
               else if (ids.includes(h.key as string)) {
                 hoverData.push(...recursionCircles(h, [h]));
@@ -165,7 +189,10 @@ export const packDef: ChartDefinition = {
             });
           },
           "mousemove.shape": (
-            d: DataPoint, i: number, x: unknown, event: unknown,
+            d: DataPoint,
+            i: number,
+            x: unknown,
+            event: unknown,
           ) => {
             if (d.__d3plusTooltip__) baseShape(d, i, x, event);
             const hoverData = recursionCircles(d, [d]);

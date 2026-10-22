@@ -34,7 +34,8 @@ const probeFn = src =>
       viz.render(() => {
         try {
           const host = document.querySelector("#viz");
-          const canvas = host && host.querySelector("canvas.d3plus-render-canvas");
+          const canvas =
+            host && host.querySelector("canvas.d3plus-render-canvas");
           if (!canvas) return reject(new Error("no <canvas> mounted in #viz"));
 
           const ctx = canvas.getContext("2d");
@@ -48,7 +49,10 @@ const probeFn = src =>
           let painted = 0;
           const colors = new Set();
           for (let i = 0; i < data.length; i += 4) {
-            const r = data[i], g = data[i + 1], b = data[i + 2], a = data[i + 3];
+            const r = data[i],
+              g = data[i + 1],
+              b = data[i + 2],
+              a = data[i + 3];
             if (a < 250) continue;
             if (r > 245 && g > 245 && b > 245) continue; // background white
             painted++;
@@ -77,7 +81,10 @@ it("Canvas backend paints a non-blank, multi-color chart into the user's contain
   const fp = await render(body, probeFn, builderSrc);
 
   assert.ok(fp.hasCanvas, "a <canvas> is mounted inside #viz");
-  assert.ok(fp.width > 0 && fp.height > 0, "the canvas has a non-zero backing size");
+  assert.ok(
+    fp.width > 0 && fp.height > 0,
+    "the canvas has a non-zero backing size",
+  );
 
   const paintedFraction = fp.painted / fp.total;
   assert.ok(
@@ -93,20 +100,36 @@ it("Canvas backend paints a non-blank, multi-color chart into the user's contain
 it("CanvasRenderer picks a Path2D path", async () => {
   const res = await render('<div id="B"></div>', () => {
     const r = new CanvasRenderer();
-    r.mount({container: document.getElementById("B"), width: 100, height: 100, pixelRatio: 1});
+    r.mount({
+      container: document.getElementById("B"),
+      width: 100,
+      height: 100,
+      pixelRatio: 1,
+    });
     r.drawScene({
       width: 100,
       height: 100,
       root: {
         type: "group",
         key: "root",
-        children: [{type: "path", key: "p", d: "M10,10 L90,10 L90,90 L10,90 Z", paint: {fill: "#09c"}}],
+        children: [
+          {
+            type: "path",
+            key: "p",
+            d: "M10,10 L90,10 L90,90 L10,90 Z",
+            paint: {fill: "#09c"},
+          },
+        ],
       },
     });
     const inside = r.pick([50, 50]);
     const outside = r.pick([5, 5]);
     return {inside: inside && inside.node.key, outside};
   });
-  assert.strictEqual(res.inside, "p", "point inside the square path hits (Path2D isPointInPath)");
+  assert.strictEqual(
+    res.inside,
+    "p",
+    "point inside the square path hits (Path2D isPointInPath)",
+  );
   assert.strictEqual(res.outside, null, "point outside the path misses");
 });

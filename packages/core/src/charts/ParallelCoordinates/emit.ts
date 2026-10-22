@@ -32,7 +32,8 @@ export interface ParallelLine {
 
 /** The stroke opacity `lineOpacity` resolves to for `count` lines. */
 export function resolveLineOpacity(value: unknown, count: number): number {
-  if (typeof value === "number" && Number.isFinite(value)) return Math.min(1, Math.max(0, value));
+  if (typeof value === "number" && Number.isFinite(value))
+    return Math.min(1, Math.max(0, value));
   return autoLineOpacity(count);
 }
 
@@ -44,7 +45,9 @@ export function lineAriaLabel(
   dims: ParallelDimension[],
 ): string {
   const values = dims
-    .map(dim => `${dim.title} ${formatDimensionValue(viz, dim.key, row[dim.key])}`)
+    .map(
+      dim => `${dim.title} ${formatDimensionValue(viz, dim.key, row[dim.key])}`,
+    )
     .join(", ");
   return `${viz._drawLabel(row, i)}${values ? `: ${values}` : ""}.`;
 }
@@ -73,7 +76,8 @@ export const parallelEmit: ChartEmit = ({viz, shapeData}) => {
         fill: "none",
         stroke: resolveAccessor<string>(sc.stroke, data, i),
         strokeWidth: resolveAccessor<number>(sc.strokeWidth, data, i),
-        strokeOpacity: typeof strokeOpacity === "number" ? strokeOpacity : opacity,
+        strokeOpacity:
+          typeof strokeOpacity === "number" ? strokeOpacity : opacity,
         strokeDasharray: resolveAccessor<number[]>(sc.strokeDasharray, data, i),
         opacity: resolveAccessor<number>(sc.opacity, data, i),
       },

@@ -19,13 +19,18 @@ beforeAll(async function () {
     // Each drawn bar as `x0-x1:count:y`.
     const bars = scene => {
       const list = [];
-      const walk = nodes => (nodes || []).forEach(n => {
-        if (n.type === "group") walk(n.children);
-        else if (n.shapeType === "Bar" && n.datum && !String(n.key).endsWith("::hit")) {
-          const b = unwrap(n.datum);
-          list.push(`${b.x0}-${b.x1}:${b.count}:${+b.y.toFixed(4)}`);
-        }
-      });
+      const walk = nodes =>
+        (nodes || []).forEach(n => {
+          if (n.type === "group") walk(n.children);
+          else if (
+            n.shapeType === "Bar" &&
+            n.datum &&
+            !String(n.key).endsWith("::hit")
+          ) {
+            const b = unwrap(n.datum);
+            list.push(`${b.x0}-${b.x1}:${b.count}:${+b.y.toFixed(4)}`);
+          }
+        });
       walk(scene);
       return list;
     };
@@ -41,7 +46,12 @@ beforeAll(async function () {
         const el = document.createElement("div");
         document.body.appendChild(el);
         // Each chart reserves its 500px, so later ones sit below the fold.
-        const viz = new window.d3plus.Histogram().select(el).duration(0).detectVisible(false).width(800).height(500);
+        const viz = new window.d3plus.Histogram()
+          .select(el)
+          .duration(0)
+          .detectVisible(false)
+          .width(800)
+          .height(500);
         setup(viz);
         const reports = [];
         const step = () => {
@@ -67,18 +77,40 @@ beforeAll(async function () {
     ];
     const independent = {scales: "independent"};
     return (async () => ({
-      shared: await draw(viz => viz.data(facetRows).value("v").binWidth(10).facet("f")),
+      shared: await draw(viz =>
+        viz.data(facetRows).value("v").binWidth(10).facet("f"),
+      ),
       independent: await draw(viz =>
-        viz.data(facetRows).value("v").binWidth(10).facet("f").facetConfig(independent)),
+        viz
+          .data(facetRows)
+          .value("v")
+          .binWidth(10)
+          .facet("f")
+          .facetConfig(independent),
+      ),
       relative: await draw(viz =>
-        viz.data(facetRows).value("v").binWidth(10).binNormalize("relative").facet("f").facetConfig(independent)),
+        viz
+          .data(facetRows)
+          .value("v")
+          .binWidth(10)
+          .binNormalize("relative")
+          .facet("f")
+          .facetConfig(independent),
+      ),
       time: await draw(
         viz => viz.data(timeRows).value("v").binWidth(10).time("year"),
         viz => viz.timeFilter(d => d.year === 2020),
         viz => viz.timeFilter(d => d.year >= 2020 && d.year <= 2021),
       ),
       facetTime: await draw(
-        viz => viz.data(timeRows).value("v").binWidth(10).time("year").facet("f").facetConfig(independent),
+        viz =>
+          viz
+            .data(timeRows)
+            .value("v")
+            .binWidth(10)
+            .time("year")
+            .facet("f")
+            .facetConfig(independent),
         viz => viz.timeFilter(d => d.year === 2020),
       ),
     }))();
@@ -86,32 +118,70 @@ beforeAll(async function () {
 });
 
 it("Histogram bins each facet panel on its own rows", () => {
-  assert.deepStrictEqual(out.shared[0].panels, {
-    "facet-A": ["0-10:4:4", "10-20:1:1", "20-30:0:0", "30-40:0:0"],
-    "facet-B": ["0-10:0:0", "10-20:0:0", "20-30:3:3", "30-40:1:1"],
-  }, "shared scales: panels bin their own rows along shared edges");
-  assert.deepStrictEqual(out.independent[0].panels, {
-    "facet-A": ["0-10:4:4", "10-20:1:1"],
-    "facet-B": ["20-30:3:3", "30-40:1:1"],
-  }, "independent scales: panels bin their own rows along their own edges");
-  assert.deepStrictEqual(out.relative[0].panels, {
-    "facet-A": ["0-10:4:0.8", "10-20:1:0.2"],
-    "facet-B": ["20-30:3:0.75", "30-40:1:0.25"],
-  }, "each panel normalizes against its own rows");
+  assert.deepStrictEqual(
+    out.shared[0].panels,
+    {
+      "facet-A": ["0-10:4:4", "10-20:1:1", "20-30:0:0", "30-40:0:0"],
+      "facet-B": ["0-10:0:0", "10-20:0:0", "20-30:3:3", "30-40:1:1"],
+    },
+    "shared scales: panels bin their own rows along shared edges",
+  );
+  assert.deepStrictEqual(
+    out.independent[0].panels,
+    {
+      "facet-A": ["0-10:4:4", "10-20:1:1"],
+      "facet-B": ["20-30:3:3", "30-40:1:1"],
+    },
+    "independent scales: panels bin their own rows along their own edges",
+  );
+  assert.deepStrictEqual(
+    out.relative[0].panels,
+    {
+      "facet-A": ["0-10:4:0.8", "10-20:1:0.2"],
+      "facet-B": ["20-30:3:0.75", "30-40:1:0.25"],
+    },
+    "each panel normalizes against its own rows",
+  );
 });
 
 it("Histogram bins only the selected time period", () => {
   const [latest, year2020, range] = out.time;
-  assert.deepStrictEqual(latest.panels.chart, ["10-20:2:2", "20-30:1:1"], "defaults to the latest period");
-  assert.deepStrictEqual(latest.ticks, [2020, 2021], "the timeline lists every period");
-  assert.deepStrictEqual(year2020.panels.chart, ["0-10:3:3"], "a selected period bins only its rows");
-  assert.deepStrictEqual(year2020.ticks, [2020, 2021], "the timeline still lists every period");
-  assert.deepStrictEqual(range.panels.chart, ["0-10:3:3", "10-20:2:2", "20-30:1:1"], "a range bins every period in it");
+  assert.deepStrictEqual(
+    latest.panels.chart,
+    ["10-20:2:2", "20-30:1:1"],
+    "defaults to the latest period",
+  );
+  assert.deepStrictEqual(
+    latest.ticks,
+    [2020, 2021],
+    "the timeline lists every period",
+  );
+  assert.deepStrictEqual(
+    year2020.panels.chart,
+    ["0-10:3:3"],
+    "a selected period bins only its rows",
+  );
+  assert.deepStrictEqual(
+    year2020.ticks,
+    [2020, 2021],
+    "the timeline still lists every period",
+  );
+  assert.deepStrictEqual(
+    range.panels.chart,
+    ["0-10:3:3", "10-20:2:2", "20-30:1:1"],
+    "a range bins every period in it",
+  );
 });
 
 it("Histogram bins each facet panel's rows in the selected time period", () => {
   const [latest, year2020] = out.facetTime;
-  assert.deepStrictEqual(latest.panels, {"facet-A": ["10-20:2:2"], "facet-B": ["20-30:1:1"]});
-  assert.deepStrictEqual(year2020.panels, {"facet-A": ["0-10:3:3"], "facet-B": []},
-    "a panel with no rows in the period stays in the grid, empty");
+  assert.deepStrictEqual(latest.panels, {
+    "facet-A": ["10-20:2:2"],
+    "facet-B": ["20-30:1:1"],
+  });
+  assert.deepStrictEqual(
+    year2020.panels,
+    {"facet-A": ["0-10:3:3"], "facet-B": []},
+    "a panel with no rows in the period stays in the grid, empty",
+  );
 });

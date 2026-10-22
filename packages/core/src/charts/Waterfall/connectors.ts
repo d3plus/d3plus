@@ -53,9 +53,12 @@ export function connectorBars(
     if (node.type === "rect" && node.shapeType === "Bar" && node.datum?.data) {
       const datum = node.datum.data;
       const step = stepOf(datum);
-      const offset = vertical ? (node.transform?.x ?? 0) + (node.x ?? 0) : (node.transform?.y ?? 0) + (node.y ?? 0);
+      const offset = vertical
+        ? (node.transform?.x ?? 0) + (node.x ?? 0)
+        : (node.transform?.y ?? 0) + (node.y ?? 0);
       const size = (vertical ? node.width : node.height) ?? 0;
-      if (step && Number.isFinite(offset) && Number.isFinite(size)) bars.push({step, datum, lo: offset, hi: offset + size});
+      if (step && Number.isFinite(offset) && Number.isFinite(size))
+        bars.push({step, datum, lo: offset, hi: offset + size});
     }
     node.children?.forEach(walk);
   };
@@ -90,9 +93,11 @@ export function connectorSegments(
       const forward = bar.lo + bar.hi >= prev.lo + prev.hi;
       const a = forward ? prev.hi : prev.lo;
       const b = forward ? bar.lo : bar.hi;
-      segments.push(vertical
-        ? {from: prev, x1: a, y1: p, x2: b, y2: p}
-        : {from: prev, x1: p, y1: a, x2: p, y2: b});
+      segments.push(
+        vertical
+          ? {from: prev, x1: a, y1: p, x2: b, y2: p}
+          : {from: prev, x1: p, y1: a, x2: p, y2: b},
+      );
     });
   });
   return segments;
@@ -107,7 +112,10 @@ function resolve<T>(v: unknown, d: DataPoint, i: number): T {
     The connectors as inert scene lines, styled by `config` (`stroke`,
     `strokeWidth`, `strokeOpacity`, `strokeDasharray`).
 */
-export function connectorNodes(segments: ConnectorSegment[], config: Record<string, unknown>): LineNode[] {
+export function connectorNodes(
+  segments: ConnectorSegment[],
+  config: Record<string, unknown>,
+): LineNode[] {
   return segments.map((s, i) => {
     const d = s.from.datum;
     const paint: Paint = {
@@ -121,7 +129,10 @@ export function connectorNodes(segments: ConnectorSegment[], config: Record<stri
     return {
       type: "line",
       key: `waterfall-connector-${s.from.step.series}-${s.from.step.index}`,
-      points: [[s.x1, s.y1], [s.x2, s.y2]],
+      points: [
+        [s.x1, s.y1],
+        [s.x2, s.y2],
+      ],
       curve: "linear",
       paint,
       interactive: false,

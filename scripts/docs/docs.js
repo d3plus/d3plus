@@ -8,6 +8,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import {pathToFileURL} from "node:url";
+import * as prettier from "prettier";
 import {Application, Converter, ReflectionKind} from "typedoc";
 
 import Logger from "../utils/log.js";
@@ -18,8 +19,17 @@ import readmeHeader, {apiHeader} from "./stubs/README.js";
 import {injectConfigAccessors} from "./stubs/accessors.js";
 import argsStub from "./stubs/args.js";
 import storiesStub, {warning as storyMarker} from "./stubs/stories.js";
-import {chartDefMap, injectChartConfig, publicChartDefs} from "./stubs/chartDefs.js";
-import {buildPublicDocs, getCommentText, tocSummary, typeToNames} from "./typedoc.js";
+import {
+  chartDefMap,
+  injectChartConfig,
+  publicChartDefs,
+} from "./stubs/chartDefs.js";
+import {
+  buildPublicDocs,
+  getCommentText,
+  tocSummary,
+  typeToNames,
+} from "./typedoc.js";
 
 /**
  * Documents each `makeChart(...)` chart as the class it constructs. TypeDoc
@@ -105,7 +115,9 @@ function pruneOrphans(folder, written, exportedNames) {
       if (ext === ".stories.jsx") {
         const body = fs.readFileSync(file, "utf8").split(storyMarker)[1];
         if (body && body.trim()) {
-          log.warn(`orphan story with hand-written stories, delete it manually: ${shown}`);
+          log.warn(
+            `orphan story with hand-written stories, delete it manually: ${shown}`,
+          );
           continue;
         }
       }
@@ -162,7 +174,9 @@ async function collectConfigDefaults(folder, stories) {
       }
       if (!cfg || typeof cfg !== "object" || Array.isArray(cfg)) continue;
       const schema =
-        inst.schema && typeof inst.schema === "object" && !Array.isArray(inst.schema)
+        inst.schema &&
+        typeof inst.schema === "object" &&
+        !Array.isArray(inst.schema)
           ? inst.schema
           : {};
       // Keep only genuine installFluent accessors: their getter returns
@@ -242,7 +256,6 @@ function collectInterfaceDocs(project) {
   walk(project);
   return {byName, merged};
 }
-
 
 // Framework wrapper packages. These ship curated READMEs and are documented in
 // the Frameworks guide, so the generator skips them: a TypeDoc API dump doesn't
@@ -489,18 +502,23 @@ async function generateMarkdown() {
     // Types + descriptions for those accessors, borrowed from the config interfaces.
     const interfaceDocs = collectInterfaceDocs(project);
 
-    readme = injectConfigAccessors(readme, {stories, configDefaults, interfaceDocs});
+    readme = injectConfigAccessors(readme, {
+      stories,
+      configDefaults,
+      interfaceDocs,
+    });
 
     // The reference goes to API.md, which stays out of the published files;
     // the README (always published to npm) only links to it.
-    fs.writeFileSync(`${folder}/API.md`, readme);
-    fs.writeFileSync(`${folder}/README.md`, readmeHeader(packageJSON));
+    await writeFormatted(`${folder}/API.md`, readme);
+    await writeFormatted(`${folder}/README.md`, readmeHeader(packageJSON));
     fs.rmSync(tempDir, {recursive: true, force: true});
 
     // Generate Storybook args and stories from the same TypeDoc project
     log.timer(`writing TypeDoc comments to Storybook Args for ${name}`);
 
     const written = new Set();
+    const writes = [];
     stories.forEach(story => {
       const {meta, name} = story;
       if (name === "default") {
@@ -544,7 +562,7 @@ async function generateMarkdown() {
       );
       const argsFolder = path.dirname(argsPath);
       fs.mkdirSync(argsFolder, {recursive: true});
-      fs.writeFileSync(argsPath, argsContent);
+      writes.push(writeFormatted(argsPath, argsContent));
       written.add(path.resolve(argsPath));
 
       const storyPath = path.join(
@@ -562,15 +580,29 @@ async function generateMarkdown() {
       );
       const storyFolder = path.dirname(storyPath);
       fs.mkdirSync(storyFolder, {recursive: true});
-      fs.writeFileSync(storyPath, storyContent);
+      writes.push(writeFormatted(storyPath, storyContent));
       written.add(path.resolve(storyPath));
     });
+    await Promise.all(writes);
     pruneOrphans(folder, written, await loadPackageExports(folder));
 
     log.done();
   }
   log.exit();
-  if (failed.length) throw new Error(`docs generation failed for ${failed.join(", ")}`);
+  if (failed.length)
+    throw new Error(`docs generation failed for ${failed.join(", ")}`);
+}
+
+/**
+ * Writes a generated file as Prettier formats it, so a docs run leaves
+ * `pnpm format:check` passing.
+ */
+async function writeFormatted(file, content) {
+  const options = await prettier.resolveConfig(file);
+  fs.writeFileSync(
+    file,
+    await prettier.format(content, {...options, filepath: file}),
+  );
 }
 
 generateMarkdown().catch(err => {

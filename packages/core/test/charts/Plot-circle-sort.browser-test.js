@@ -52,7 +52,10 @@ it("Plot: size accessor alone layers circles largest-behind by default", async f
     radii.every((r, i) => i === 0 || radii[i - 1] >= r),
     `default: larger radii paint first (behind); DOM r order = ${radii}`,
   );
-  assert.ok(radii[0] > radii[radii.length - 1], "smallest circle painted last (on top)");
+  assert.ok(
+    radii[0] > radii[radii.length - 1],
+    "smallest circle painted last (on top)",
+  );
 });
 
 it("Plot: explicit shapeConfig.Circle.sort overrides the size default", async function () {

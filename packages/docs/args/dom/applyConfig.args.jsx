@@ -3,46 +3,46 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   configs: {
     control: {},
-    description: "One or more config objects, merged left-to-right (later\nobjects win); `undefined`/`null` entries are ignored.",
+    description:
+      "One or more config objects, merged left-to-right (later\nobjects win); `undefined`/`null` entries are ignored.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;record | undefined&gt;"
-    }
+      summary: "array.&lt;record | undefined&gt;",
+    },
   },
   instance: {
     control: {},
     description: "A d3plus class instance.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "d3plusinstance"
-    }
+      summary: "d3plusinstance",
+    },
   },
   node: {
     control: {},
-    description: "The DOM element the visualization renders into (its `select`).",
+    description:
+      "The DOM element the visualization renders into (its `select`).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "element"
-    }
-  }
+      summary: "element",
+    },
+  },
 };

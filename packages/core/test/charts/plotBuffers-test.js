@@ -49,7 +49,11 @@ it("charts/numericBuffer leaves the domain alone when the shape fits inside the 
 
 it("charts/discreteBuffer sets half-step padding on a band/point scale", () => {
   let padding;
-  const bandScale = {padding(p) { padding = p; }};
+  const bandScale = {
+    padding(p) {
+      padding = p;
+    },
+  };
   discreteBuffer(bandScale, [], "x");
   assert.strictEqual(padding, 0.5);
 });
@@ -59,7 +63,10 @@ it("charts/discreteBuffer pads a time scale's domain by half the closest step (x
   let domain = [new Date(0), new Date(8)];
   const timeScale = {
     domain(d) {
-      if (arguments.length) { domain = d; return timeScale; }
+      if (arguments.length) {
+        domain = d;
+        return timeScale;
+      }
       return domain;
     },
   };
@@ -72,7 +79,10 @@ it("charts/discreteBuffer pads a time scale's domain accounting for the y-axis r
   let domain = [new Date(0), new Date(8)];
   const timeScale = {
     domain(d) {
-      if (arguments.length) { domain = d; return timeScale; }
+      if (arguments.length) {
+        domain = d;
+        return timeScale;
+      }
       return domain;
     },
   };

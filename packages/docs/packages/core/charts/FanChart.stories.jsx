@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a fan chart from an array of data: a line per series with nested\nconfidence bands around it, outermost first, shaded from the widest\n(lightest) to the narrowest (darkest). The bands open from the last point\nbefore they spread away from the line, and the stretch after it is marked\nas a forecast: a shaded backdrop, a rule at its start, a \"Forecast\" label,\nand a dashed line (see forecast and forecastConfig).",
+        component:
+          'Creates a fan chart from an array of data: a line per series with nested\nconfidence bands around it, outermost first, shaded from the widest\n(lightest) to the narrowest (darkest). The bands open from the last point\nbefore they spread away from the line, and the stretch after it is marked\nas a forecast: a shaded backdrop, a rule at its start, a "Forecast" label,\nand a dashed line (see forecast and forecastConfig).',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <FanChart config={configify(args, argTypes)} />;
-  
+const Template = args => <FanChart config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -67,11 +68,23 @@ BasicExample.args = {
   x: "date",
   time: "date",
   y: "value",
-  confidence: [["p05", "p95", "90%"], ["p20", "p80", "60%"], ["p35", "p65", "30%"]],
+  confidence: [
+    ["p05", "p95", "90%"],
+    ["p20", "p80", "60%"],
+    ["p35", "p65", "30%"],
+  ],
   legend: false,
   timeline: false,
 };
-BasicExample.parameters = {controls: {include: ["confidence", "confidenceConfig", "forecast"]}, docs: {description: {story: "Pass `confidence` a list of `[lower, upper, label]` bands, outermost first. Each band fans out from the last actual point, the widest drawn lightest and the narrowest darkest. The forecast stretch gets a shaded backdrop, a rule at its start, and a dashed line, and hovering a forecast point lists every band's range under its label."}}};
+BasicExample.parameters = {
+  controls: {include: ["confidence", "confidenceConfig", "forecast"]},
+  docs: {
+    description: {
+      story:
+        "Pass `confidence` a list of `[lower, upper, label]` bands, outermost first. Each band fans out from the last actual point, the widest drawn lightest and the narrowest darkest. The forecast stretch gets a shaded backdrop, a rule at its start, and a dashed line, and hovering a forecast point lists every band's range under its label.",
+    },
+  },
+};
 
 export const SeveralSeries = Template.bind({});
 SeveralSeries.args = {
@@ -80,10 +93,21 @@ SeveralSeries.args = {
   x: "date",
   time: "date",
   y: "value",
-  confidence: [["p05", "p95", "90%"], ["p35", "p65", "30%"]],
+  confidence: [
+    ["p05", "p95", "90%"],
+    ["p35", "p65", "30%"],
+  ],
   timeline: false,
 };
-SeveralSeries.parameters = {controls: {include: ["confidence"]}, docs: {description: {story: "Every series draws its own fan in its own color. The shared tooltip follows each series' value with the range of its outermost band."}}};
+SeveralSeries.parameters = {
+  controls: {include: ["confidence"]},
+  docs: {
+    description: {
+      story:
+        "Every series draws its own fan in its own color. The shared tooltip follows each series' value with the range of its outermost band.",
+    },
+  },
+};
 
 export const ExplicitForecastStart = Template.bind({});
 ExplicitForecastStart.args = {
@@ -98,7 +122,15 @@ ExplicitForecastStart.args = {
   legend: false,
   timeline: false,
 };
-ExplicitForecastStart.parameters = {controls: {include: ["confidence", "forecast", "forecastConfig"]}, docs: {description: {story: "A single `[lower, upper]` pair draws one band, exactly as it does on a LinePlot. Set `forecast` to a value on the discrete axis (here a date) to start the forecast there instead of where the bands open, and `forecastConfig.lineDasharray: false` keeps the line solid."}}};
+ExplicitForecastStart.parameters = {
+  controls: {include: ["confidence", "forecast", "forecastConfig"]},
+  docs: {
+    description: {
+      story:
+        "A single `[lower, upper]` pair draws one band, exactly as it does on a LinePlot. Set `forecast` to a value on the discrete axis (here a date) to start the forecast there instead of where the bands open, and `forecastConfig.lineDasharray: false` keeps the line solid.",
+    },
+  },
+};
 
 export const OpacityRamp = Template.bind({});
 OpacityRamp.args = {
@@ -107,14 +139,31 @@ OpacityRamp.args = {
   x: "date",
   time: "date",
   y: "value",
-  color: funcify(() => "#c0392b", "() => \"#c0392b\""),
-  confidence: [["p05", "p95", "90%"], ["p20", "p80", "60%"], ["p35", "p65", "30%"]],
+  color: funcify(() => "#c0392b", '() => "#c0392b"'),
+  confidence: [
+    ["p05", "p95", "90%"],
+    ["p20", "p80", "60%"],
+    ["p35", "p65", "30%"],
+  ],
   confidenceConfig: {bandOpacity: [0.08, 0.3, 0.75]},
-  forecastConfig: {fill: "#c0392b", fillOpacity: 0.04, label: "Projection", stroke: "#c0392b"},
+  forecastConfig: {
+    fill: "#c0392b",
+    fillOpacity: 0.04,
+    label: "Projection",
+    stroke: "#c0392b",
+  },
   legend: false,
   timeline: false,
 };
-OpacityRamp.parameters = {controls: {include: ["confidenceConfig", "forecastConfig"]}, docs: {description: {story: "`confidenceConfig.bandOpacity` sets the ramp: how dark each band looks where it is the innermost band drawn, from the outermost band to the innermost. A number gives every band the same opacity. `forecastConfig` styles the backdrop, the rule, the label, and the dash of each line's forecast stretch."}}};
+OpacityRamp.parameters = {
+  controls: {include: ["confidenceConfig", "forecastConfig"]},
+  docs: {
+    description: {
+      story:
+        "`confidenceConfig.bandOpacity` sets the ramp: how dark each band looks where it is the innermost band drawn, from the outermost band to the innermost. A number gives every band the same opacity. `forecastConfig` styles the backdrop, the rule, the label, and the dash of each line's forecast stretch.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -125,8 +174,20 @@ SmallMultiples.args = {
   x: "date",
   time: "date",
   y: "value",
-  confidence: [["p05", "p95", "90%"], ["p20", "p80", "60%"], ["p35", "p65", "30%"]],
+  confidence: [
+    ["p05", "p95", "90%"],
+    ["p20", "p80", "60%"],
+    ["p35", "p65", "30%"],
+  ],
   legend: false,
   timeline: false,
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "With `facet`, each panel draws its own fan and forecast backdrop on a shared value axis."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "With `facet`, each panel draws its own fan and forecast backdrop on a shared value axis.",
+    },
+  },
+};

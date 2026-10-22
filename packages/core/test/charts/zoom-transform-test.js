@@ -28,9 +28,7 @@ function findGroup(scene, key) {
 }
 
 it("toScene() emits viz-zoom group with an identity transform when _zoomTransform is unset", () => {
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}])
-    .groupBy(["id"]);
+  const chart = new BarChart().data([{id: "a", x: 1, y: 10}]).groupBy(["id"]);
   // Need _chartScene populated so the chart-cells branch fires.
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
@@ -56,9 +54,7 @@ it("toScene() emits viz-zoom group with an identity transform when _zoomTransfor
 });
 
 it("toScene() wraps _chartScene in a viz-zoom group when _zoomTransform is set", () => {
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}])
-    .groupBy(["id"]);
+  const chart = new BarChart().data([{id: "a", x: 1, y: 10}]).groupBy(["id"]);
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
@@ -84,9 +80,7 @@ it("toScene() composes _zoomTransform OUTSIDE the chart transform", () => {
   // carries the chart-positioning transform. viz-chart-cells is left
   // untransformed so its clip stays fixed in surface space while content pans
   // and scales beneath it. Legend/title/etc. live in sibling viz-* groups.
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}])
-    .groupBy(["id"]);
+  const chart = new BarChart().data([{id: "a", x: 1, y: 10}]).groupBy(["id"]);
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
@@ -96,7 +90,11 @@ it("toScene() composes _zoomTransform OUTSIDE the chart transform", () => {
   chart.schema.height = 300;
   const scene = chart.toScene();
   const cells = findGroup(scene, "viz-chart-cells");
-  assert.strictEqual(cells.transform, undefined, "chart-cells group is untransformed");
+  assert.strictEqual(
+    cells.transform,
+    undefined,
+    "chart-cells group is untransformed",
+  );
   const zoomChild = cells.children.find(c => c.key === "viz-zoom");
   assert.ok(zoomChild, "viz-zoom is a child of viz-chart-cells");
   assert.deepStrictEqual(
@@ -106,14 +104,19 @@ it("toScene() composes _zoomTransform OUTSIDE the chart transform", () => {
   );
   const body = zoomChild.children.find(c => c.key === "viz-chart-body");
   assert.ok(body, "viz-chart-body is a child of viz-zoom");
-  assert.deepStrictEqual(body.transform, {x: 10, y: 20}, "viz-chart-body carries _chartTransform");
-  assert.ok(body.children.find(c => c.key === "r1"), "chart content lives in viz-chart-body");
+  assert.deepStrictEqual(
+    body.transform,
+    {x: 10, y: 20},
+    "viz-chart-body carries _chartTransform",
+  );
+  assert.ok(
+    body.children.find(c => c.key === "r1"),
+    "chart content lives in viz-chart-body",
+  );
 });
 
 it("toScene() clips zoomable charts to the chart area", () => {
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}])
-    .groupBy(["id"]);
+  const chart = new BarChart().data([{id: "a", x: 1, y: 10}]).groupBy(["id"]);
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
@@ -135,9 +138,7 @@ it("toScene() clips zoomable charts to the chart area", () => {
 });
 
 it("Clearing _zoomTransform back to undefined resets the viz-zoom group to identity", () => {
-  const chart = new BarChart()
-    .data([{id: "a", x: 1, y: 10}])
-    .groupBy(["id"]);
+  const chart = new BarChart().data([{id: "a", x: 1, y: 10}]).groupBy(["id"]);
   chart._chartScene = [
     {type: "rect", key: "r1", x: 0, y: 0, width: 10, height: 10},
   ];
@@ -145,7 +146,11 @@ it("Clearing _zoomTransform back to undefined resets the viz-zoom group to ident
   chart.schema.height = 300;
   chart._zoomTransform = {x: 5, y: 5, scale: 1.2};
   const zoomed = findGroup(chart.toScene(), "viz-zoom");
-  assert.deepStrictEqual(zoomed.transform, {x: 5, y: 5, scale: 1.2}, "viz-zoom reflects the zoom");
+  assert.deepStrictEqual(
+    zoomed.transform,
+    {x: 5, y: 5, scale: 1.2},
+    "viz-zoom reflects the zoom",
+  );
   chart._zoomTransform = undefined;
   // The group stays (stable key); its transform falls back to identity.
   const cleared = findGroup(chart.toScene(), "viz-zoom");

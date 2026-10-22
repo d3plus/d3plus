@@ -26,7 +26,10 @@ import {finiteValue, type OhlcAccessors} from "./ohlc.js";
 export type RowAccessor = (d: DataPoint, i: number) => unknown;
 
 /** An `aggs` entry: the merged rows and a reader of one value from a row. */
-export type Aggregator = (rows: DataPoint[], value: (d: DataPoint) => unknown) => unknown;
+export type Aggregator = (
+  rows: DataPoint[],
+  value: (d: DataPoint) => unknown,
+) => unknown;
 
 /** The value fields Candlestick aggregates when rows merge. */
 export const VALUE_FIELDS = ["open", "high", "low", "close", "volume"] as const;
@@ -62,18 +65,28 @@ export function rememberKey(fn: RowAccessor, key: string): void {
 
 /** The data key `fn` reads, when it was set from one. */
 export function accessorKey(fn: unknown): string | undefined {
-  return typeof fn === "function" ? accessorKeys.get(fn as RowAccessor) : undefined;
+  return typeof fn === "function"
+    ? accessorKeys.get(fn as RowAccessor)
+    : undefined;
 }
 
 /** The finite values `value` reads from `rows`, in row order. */
-const finiteValues = (rows: DataPoint[], value: (d: DataPoint) => unknown): number[] =>
-  rows.map(value).map(finiteValue).filter((v): v is number => v !== undefined);
+const finiteValues = (
+  rows: DataPoint[],
+  value: (d: DataPoint) => unknown,
+): number[] =>
+  rows
+    .map(value)
+    .map(finiteValue)
+    .filter((v): v is number => v !== undefined);
 
 /** The first finite value, in row order. */
-export const firstValue: Aggregator = (rows, value) => finiteValues(rows, value)[0];
+export const firstValue: Aggregator = (rows, value) =>
+  finiteValues(rows, value)[0];
 
 /** The last finite value, in row order. */
-export const lastValue: Aggregator = (rows, value) => finiteValues(rows, value).at(-1);
+export const lastValue: Aggregator = (rows, value) =>
+  finiteValues(rows, value).at(-1);
 
 /** The largest finite value. */
 export const maxValue: Aggregator = (rows, value) => {
@@ -149,18 +162,28 @@ export function aggregateFunctionFields(
     const fn = accessors[field];
     if (typeof fn !== "function" || accessorKey(fn) !== undefined) continue;
     const own = aggs[field];
-    const agg = typeof own === "function" && !isDefaultAgg(own) ? (own as Aggregator) : DEFAULT_AGGS[field];
-    (out ??= {})[field] = agg(rows, d => (fn as RowAccessor)(d, rows.indexOf(d)));
+    const agg =
+      typeof own === "function" && !isDefaultAgg(own)
+        ? (own as Aggregator)
+        : DEFAULT_AGGS[field];
+    (out ??= {})[field] = agg(rows, d =>
+      (fn as RowAccessor)(d, rows.indexOf(d)),
+    );
   }
   return out;
 }
 
 /** The value fields' accessors, as stored on the chart. */
-const fieldAccessors = (viz: VizInstance): Partial<Record<ValueField, unknown>> =>
+const fieldAccessors = (
+  viz: VizInstance,
+): Partial<Record<ValueField, unknown>> =>
   Object.fromEntries(VALUE_FIELDS.map(f => [f, viz.schema[f]]));
 
 /** The function-read fields' values kept beside each merged row. */
-const mergedValues = new WeakMap<VizInstance, WeakMap<DataPoint, Partial<Record<ValueField, unknown>>>>();
+const mergedValues = new WeakMap<
+  VizInstance,
+  WeakMap<DataPoint, Partial<Record<ValueField, unknown>>>
+>();
 
 /**
     Installs Candlestick's row merging on a chart: before each draw, the
@@ -174,7 +197,11 @@ export function installAggregation(viz: VizInstance): void {
   viz._mergeRows = (leaves: DataPoint[]) => {
     const d = merge(leaves, viz.schema.aggs) as DataPoint;
     if (leaves.length > 1) {
-      const values = aggregateFunctionFields(leaves, fieldAccessors(viz), viz.schema.aggs);
+      const values = aggregateFunctionFields(
+        leaves,
+        fieldAccessors(viz),
+        viz.schema.aggs,
+      );
       if (values) kept.set(d, values);
     }
     return d;
@@ -193,10 +220,15 @@ export function syncChartAggs(viz: VizInstance): void {
     @param viz The chart.
     @param field The value field.
 */
-export function fieldAccessor(viz: VizInstance, field: ValueField): RowAccessor {
+export function fieldAccessor(
+  viz: VizInstance,
+  field: ValueField,
+): RowAccessor {
   return (d, i) => {
     const values = mergedValues.get(viz)?.get(d);
-    return values && field in values ? values[field] : (viz.schema[field] as RowAccessor)(d, i);
+    return values && field in values
+      ? values[field]
+      : (viz.schema[field] as RowAccessor)(d, i);
   };
 }
 

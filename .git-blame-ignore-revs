@@ -1,0 +1,4 @@
+# Prettier pass over the whole repo. `git blame` skips these commits with
+# `git config blame.ignoreRevsFile .git-blame-ignore-revs` (GitHub does it
+# automatically).
+012bfc45c1915c967c51deda3937f7fc3751c94b

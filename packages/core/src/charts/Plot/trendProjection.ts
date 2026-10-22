@@ -3,7 +3,14 @@
     trend line extends to (`trendLineConfig.projection`), stepping past the
     last plotted value at the data's own spacing.
 */
-import {timeDay, timeHour, timeMinute, timeMonth, timeSecond, timeYear} from "d3-time";
+import {
+  timeDay,
+  timeHour,
+  timeMinute,
+  timeMonth,
+  timeSecond,
+  timeYear,
+} from "d3-time";
 import type {CountableTimeInterval} from "d3-time";
 
 import {date} from "@d3plus/dom";
@@ -19,7 +26,14 @@ export type TrendProjection = number | {to: number | string | Date};
 export type TrendOffset = (value: unknown, k: number) => unknown;
 
 /** The calendar intervals a time axis is checked against, coarsest first. */
-const intervals: CountableTimeInterval[] = [timeYear, timeMonth, timeDay, timeHour, timeMinute, timeSecond];
+const intervals: CountableTimeInterval[] = [
+  timeYear,
+  timeMonth,
+  timeDay,
+  timeHour,
+  timeMinute,
+  timeSecond,
+];
 
 /** The median of a non-empty list of numbers. */
 function median(values: number[]): number {
@@ -41,8 +55,11 @@ const clean = (n: number): number => +n.toPrecision(12);
 */
 export function trendStep(order: unknown[]): TrendOffset | null {
   const time = order.some(v => v instanceof Date);
-  if (order.some(v => !(v instanceof Date) && typeof v !== "number")) return null;
-  const values = Array.from(new Set(order.map(Number).filter(Number.isFinite))).sort((a, b) => a - b);
+  if (order.some(v => !(v instanceof Date) && typeof v !== "number"))
+    return null;
+  const values = Array.from(
+    new Set(order.map(Number).filter(Number.isFinite)),
+  ).sort((a, b) => a - b);
   if (values.length < 2) return null;
   const gaps = values.slice(1).map((v, i) => v - values[i]);
 
@@ -54,7 +71,9 @@ export function trendStep(order: unknown[]): TrendOffset | null {
   const dates = values.map(v => new Date(v));
   const interval = intervals.find(t => dates.every(d => +t.floor(d) === +d));
   if (interval) {
-    const step = Math.round(median(dates.slice(1).map((d, i) => interval.count(dates[i], d))));
+    const step = Math.round(
+      median(dates.slice(1).map((d, i) => interval.count(dates[i], d))),
+    );
     if (step > 0) return (v, k) => interval.offset(v as Date, step * k);
   }
   const step = median(gaps);
@@ -72,16 +91,24 @@ const MAX_STEPS = 1000;
     @param order The independent axis's values.
     @param projection The `trendLineConfig.projection` setting.
 */
-export function projectionPositions(order: unknown[], projection: unknown): unknown[] {
+export function projectionPositions(
+  order: unknown[],
+  projection: unknown,
+): unknown[] {
   if (!projection) return [];
   const offset = trendStep(order);
   if (!offset) return [];
   const time = order.some(v => v instanceof Date);
-  const last = order.reduce<unknown>((a, b) => (+(b as number) > +(a as number) ? b : a), order[0]);
+  const last = order.reduce<unknown>(
+    (a, b) => (+(b as number) > +(a as number) ? b : a),
+    order[0],
+  );
 
   if (typeof projection === "number") {
     const count = Math.min(Math.floor(projection), MAX_STEPS);
-    return Array.from({length: Math.max(count, 0)}, (_, i) => offset(last, i + 1));
+    return Array.from({length: Math.max(count, 0)}, (_, i) =>
+      offset(last, i + 1),
+    );
   }
 
   const to = (projection as {to?: unknown}).to;

@@ -58,21 +58,35 @@ export default {
       .filter(d => d.isDirectory() && d.name !== "docs")
       .map(({name}) => ({
         find: new RegExp(`^@d3plus/${name}$`),
-        replacement: path.resolve(packagesDir, name, name === "react" ? "index.tsx" : "index.ts"),
+        replacement: path.resolve(
+          packagesDir,
+          name,
+          name === "react" ? "index.tsx" : "index.ts",
+        ),
       }));
 
     // The `@d3plus/ssr` stories document the server-rendering API. Its
     // Node-only runtime deps never run in the browser preview, so they
     // resolve to an empty module.
     const empty = path.resolve(__dirname, "empty.js");
-    const nodeOnly = ["jsdom", "@napi-rs/canvas", "node:dns", "node:http", "node:https", "node:net"].map(name => ({
+    const nodeOnly = [
+      "jsdom",
+      "@napi-rs/canvas",
+      "node:dns",
+      "node:http",
+      "node:https",
+      "node:net",
+    ].map(name => ({
       find: new RegExp(`^${name}$`),
       replacement: empty,
     }));
 
     config.resolve = config.resolve || {};
     config.resolve.alias = [
-      {find: /^@d3plus\/types\/react$/, replacement: path.resolve(packagesDir, "types", "react.ts")},
+      {
+        find: /^@d3plus\/types\/react$/,
+        replacement: path.resolve(packagesDir, "types", "react.ts"),
+      },
       ...workspacePackages,
       ...nodeOnly,
       ...(Array.isArray(config.resolve.alias) ? config.resolve.alias : []),
@@ -90,7 +104,14 @@ export default {
         ...config.build?.rolldownOptions,
         output: {...config.build?.rolldownOptions?.output, keepNames: true},
         onwarn(warning, warn) {
-          if (["MODULE_LEVEL_DIRECTIVE", "PLUGIN_TIMINGS", "SOURCEMAP_ERROR"].includes(warning.code)) return;
+          if (
+            [
+              "MODULE_LEVEL_DIRECTIVE",
+              "PLUGIN_TIMINGS",
+              "SOURCEMAP_ERROR",
+            ].includes(warning.code)
+          )
+            return;
           warn(warning);
         },
       },

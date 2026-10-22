@@ -40,6 +40,14 @@ it("Viz holds a font-load redraw until its entrance animation ends, and redraws 
       }),
   );
 
-  assert.strictEqual(out.during, 0, "defers the redraw while the entrance runs");
-  assert.strictEqual(out.after, 1, "two fonts arriving mid-entrance share one redraw after it");
+  assert.strictEqual(
+    out.during,
+    0,
+    "defers the redraw while the entrance runs",
+  );
+  assert.strictEqual(
+    out.after,
+    1,
+    "two fonts arriving mid-entrance share one redraw after it",
+  );
 });

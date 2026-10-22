@@ -1,61 +1,56 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Network</title>
+    <meta
+      name="description"
+      content="Network with positioned nodes, links, and data merged onto the nodes."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
 
-  <meta charset="utf-8">
-  <title>Network</title>
-  <meta name="description" content="Network with positioned nodes, links, and data merged onto the nodes.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+  <body></body>
 
-  <style>
+  <script>
+    // Nodes take their positions from x/y (or x2/y2 here, via the accessors
+    // below); `data` merges onto the nodes by id, so only alpha and beta get a
+    // value and turn red.
+    var nodes = [
+      {id: "alpha", x2: 1, y2: 1},
+      {id: "beta", x2: 2, y2: 1},
+      {id: "gamma", x2: 1, y2: 2},
+      {id: "epsilon", x2: 3, y2: 2},
+    ];
 
-    body {
-      margin: 0;
-      overflow: hidden;
-    }
+    var links = [
+      {source: "alpha", target: "beta", weight: 10},
+      {source: "alpha", target: "gamma", weight: 100},
+      {source: "gamma", target: "epsilon", weight: 50},
+    ];
 
-  </style>
+    var data = [
+      {id: "alpha", value: 0.4},
+      {id: "beta", value: 0.5},
+    ];
 
-</head>
-
-<body></body>
-
-<script>
-
-  // Nodes take their positions from x/y (or x2/y2 here, via the accessors
-  // below); `data` merges onto the nodes by id, so only alpha and beta get a
-  // value and turn red.
-  var nodes = [
-    {id: "alpha",   x2: 1, y2: 1},
-    {id: "beta",    x2: 2, y2: 1},
-    {id: "gamma",   x2: 1, y2: 2},
-    {id: "epsilon", x2: 3, y2: 2}
-  ];
-
-  var links = [
-    {source: "alpha", target: "beta", weight: 10},
-    {source: "alpha", target: "gamma", weight: 100},
-    {source: "gamma", target: "epsilon", weight: 50}
-  ];
-
-  var data = [
-    {id: "alpha", value: 0.4},
-    {id: "beta", value: 0.5}
-  ];
-
-  new d3plus.Network()
-    .links(links)
-    .nodes(nodes)
-    .data(data)
-    .x("x2")
-    .y("y2")
-    .shapeConfig({
-      fill: d => d.value ? "red" : "grey"
-    })
-    .render();
-
-</script>
-
+    new d3plus.Network()
+      .links(links)
+      .nodes(nodes)
+      .data(data)
+      .x("x2")
+      .y("y2")
+      .shapeConfig({
+        fill: d => (d.value ? "red" : "grey"),
+      })
+      .render();
+  </script>
 </html>

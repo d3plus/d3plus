@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   config: {
     control: {},
@@ -12,57 +10,59 @@ export const argTypes = {
     description: "The configuration object to parse.",
     table: {
       defaultValue: {
-        summary: "..."
-      }
+        summary: "...",
+      },
     },
     type: {
       required: false,
-      summary: "configobject"
-    }
+      summary: "configobject",
+    },
   },
   nest: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "false",
-    description: "An optional nested key to bubble up to the parent config level.",
+    description:
+      "An optional nested key to bubble up to the parent config level.",
     table: {
       defaultValue: {
-        summary: "false"
-      }
+        summary: "false",
+      },
     },
     type: {
       required: false,
-      summary: "string | false"
-    }
+      summary: "string | false",
+    },
   },
   this: {
     control: {},
     description: "",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "configprephost"
-    }
+      summary: "configprephost",
+    },
   },
   type: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "shape",
-    description: "The event classifier to user for \"on\" events. For example, the default event type of \"shape\" will apply all events in the \"on\" config object with that key, like \"click.shape\" and \"mouseleave.shape\", in addition to any gloval events like \"click\" and \"mouseleave\".",
+    description:
+      'The event classifier to user for "on" events. For example, the default event type of "shape" will apply all events in the "on" config object with that key, like "click.shape" and "mouseleave.shape", in addition to any gloval events like "click" and "mouseleave".',
     table: {
       defaultValue: {
-        summary: "shape"
-      }
+        summary: "shape",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

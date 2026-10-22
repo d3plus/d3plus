@@ -248,7 +248,12 @@ it("Funnel labels: a beside label that's the smallest sets the shared size", () 
 it("Funnel labels: planFunnelLabels honors a cap, fixed sizes, and labels that fit nowhere", () => {
   const labels = [
     {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null},
-    {lines: ["abcd"], inside: {width: 300, height: 80}, outside: null, fixed: 20},
+    {
+      lines: ["abcd"],
+      inside: {width: 300, height: 80},
+      outside: null,
+      fixed: 20,
+    },
     {lines: ["abcd"], inside: {width: 5, height: 5}, outside: null},
   ];
   const capped = planFunnelLabels(labels, measure, sizing, 12);
@@ -260,7 +265,12 @@ it("Funnel labels: planFunnelLabels honors a cap, fixed sizes, and labels that f
   const fixed = planFunnelLabels(
     [
       // Fits inside at a fixed 10px.
-      {lines: ["abcd"], inside: {width: 40, height: 40}, outside: null, fixed: 10},
+      {
+        lines: ["abcd"],
+        inside: {width: 40, height: 40},
+        outside: null,
+        fixed: 10,
+      },
       // Doesn't fit inside at a fixed 10px, so beside.
       {
         lines: ["abcdefghij"],

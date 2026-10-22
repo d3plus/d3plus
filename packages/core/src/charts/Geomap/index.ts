@@ -34,7 +34,11 @@ import type {Themed} from "./basemapTheme.js";
 import {makeChart} from "../definition/makeChart.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
-import {applyGeomapLayout, geomapPointData, geomapPointSizeScale} from "./applyLayout.js";
+import {
+  applyGeomapLayout,
+  geomapPointData,
+  geomapPointSizeScale,
+} from "./applyLayout.js";
 import {projectionByName} from "./projections.js";
 import {geomapEmit} from "./emit.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -67,12 +71,18 @@ function findAttribution(url: string): string | false {
 /** The tile layer's extent: the map rect in `_container`'s own (margin-relative) space. */
 function tileExtent(viz: VizInstance): [[number, number], [number, number]] {
   const {width, height} = chartBounds(viz);
-  return [[0, 0], [width, height]];
+  return [
+    [0, 0],
+    [width, height],
+  ];
 }
 
 /** The tile URL template for the chart's current light/dark backdrop. */
 function currentTileUrl(viz: VizInstance): string {
-  return resolveThemed(viz.schema.tileUrl as Themed<string>, Boolean(viz._basemapDark));
+  return resolveThemed(
+    viz.schema.tileUrl as Themed<string>,
+    Boolean(viz._basemapDark),
+  );
 }
 
 /**
@@ -82,14 +92,15 @@ function currentTileUrl(viz: VizInstance): string {
 function syncTileAttribution(viz: VizInstance): void {
   const auto = viz.schema.tiles ? findAttribution(currentTileUrl(viz)) : false;
   const current = viz.schema.attribution;
-  if (!current || current === viz._tileAttribution) viz.schema.attribution = auto || "";
+  if (!current || current === viz._tileAttribution)
+    viz.schema.attribution = auto || "";
   viz._tileAttribution = auto;
 }
 
 /** Installs `_renderTiles`, the per-instance method that mutates the tile group. */
 function setupGeomapRenderTiles(viz: VizInstance): void {
   // `_renderTiles` is a per-instance method that mutates the tile group.
-  viz._renderTiles = function(
+  viz._renderTiles = function (
     this: VizInstance,
     transform: ZoomTransform = tileZoomTransform(this as never),
     duration: number = 0,
@@ -111,15 +122,25 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
         .extent(tileExtent(this))
         .scale(this.schema.projection.scale() * (2 * Math.PI) * transform.k)
         .translate(transform.apply(this.schema.projection.translate()))();
-      this._tileGroup!.transition().duration(duration).attr("transform", transform);
+      this._tileGroup!.transition()
+        .duration(duration)
+        .attr("transform", transform);
     }
-    const images = this._tileGroup!
-      .selectAll("image.d3plus-geomap-tile")
-      .data(tileData, ([x, y, z]: [number, number, number]) => `${x}-${y}-${z}`);
+    const images = this._tileGroup!.selectAll("image.d3plus-geomap-tile").data(
+      tileData,
+      ([x, y, z]: [number, number, number]) => `${x}-${y}-${z}`,
+    );
     images.exit().transition().duration(duration).attr("opacity", 0).remove();
     const scale = tileData.scale! / transform.k;
-    const tileEnter = images.enter().append("image").attr("class", "d3plus-geomap-tile");
-    tileEnter.attr("opacity", 0).transition().duration(duration).attr("opacity", 1);
+    const tileEnter = images
+      .enter()
+      .append("image")
+      .attr("class", "d3plus-geomap-tile");
+    tileEnter
+      .attr("opacity", 0)
+      .transition()
+      .duration(duration)
+      .attr("opacity", 1);
     // `images.interrupt()`: a config change that fires two `_renderTiles` calls
     // back to back — e.g. a React `config` update that touches `tileUrl`
     // alongside `projection`, whose setter resets the projection's fit before
@@ -136,7 +157,8 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
     // tile revived within one tick of being marked for exit survives instead
     // of vanishing.
     images.interrupt();
-    images.merge(tileEnter)
+    images
+      .merge(tileEnter)
       .attr("width", scale)
       .attr("height", scale)
       .attr("xlink:href", ([x, y, z]: [number, number, number]) =>
@@ -146,10 +168,20 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
           .replace("{x}", `${x}`)
           .replace("{y}", `${y}`),
       )
-      .attr("x", ([x]: [number]) =>
-        x * scale + tileData.translate![0] * scale - transform.x / transform.k)
-      .attr("y", ([, y]: [number, number]) =>
-        y * scale + tileData.translate![1] * scale - transform.y / transform.k);
+      .attr(
+        "x",
+        ([x]: [number]) =>
+          x * scale +
+          tileData.translate![0] * scale -
+          transform.x / transform.k,
+      )
+      .attr(
+        "y",
+        ([, y]: [number, number]) =>
+          y * scale +
+          tileData.translate![1] * scale -
+          transform.y / transform.k,
+      );
   };
 
   // Static (identity-transform) tile list for server-side rendering: the tile
@@ -157,7 +189,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
   // them and geomapEmit can place them as scene image nodes (both SVG string and
   // canvas output then include the basemap, with no network at view time).
   // Deterministic `{s}` = "a" so tiles are cacheable across renders.
-  viz._computeTileList = function(
+  viz._computeTileList = function (
     this: VizInstance,
   ): Array<{key: string; url: string; x: number; y: number; size: number}> {
     if (!this.schema.tiles) return [];
@@ -184,7 +216,7 @@ function setupGeomapRenderTiles(viz: VizInstance): void {
 function setupGeomapDraw(viz: VizInstance): void {
   // Wrap _draw to ensure DOM zoom group + zoom wiring.
   const supDraw = viz._draw.bind(viz);
-  viz._draw = function(callback?: () => void) {
+  viz._draw = function (callback?: () => void) {
     // Resolve `{light, dark}` basemaps against the chart's backdrop.
     viz._basemapDark = pageIsDark(viz);
     if (isThemed(viz)) watchPageTheme(viz);
@@ -202,7 +234,10 @@ function setupGeomapDraw(viz: VizInstance): void {
       // ocean into the scene instead (see geomapEmit).
       ocean: viz._facetStep
         ? "transparent"
-        : resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)),
+        : resolveThemed(
+            viz.schema.ocean as Themed<string>,
+            Boolean(viz._basemapDark),
+          ),
     });
     viz._zoomSet = true;
     return result;
@@ -229,7 +264,7 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       `topojson` when no `fitObject` is set).
       @type {string | string[] | ((feature: object) => boolean)}
   */
-  v.fitFilter = function(this: VizInstance, _?: unknown) {
+  v.fitFilter = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this._zoomSet = false;
       if (typeof _ === "function") {
@@ -237,7 +272,8 @@ function setupGeomapFitFluent(viz: VizInstance): void {
         return this;
       }
       const ids = (_ instanceof Array ? _ : [_]) as string[];
-      this.schema.fitFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
+      this.schema.fitFilter = (d: Record<string, unknown>) =>
+        ids.includes(d.id as string);
       return this;
     }
     return this.schema.fitFilter;
@@ -247,7 +283,7 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       the first object.
       @type {string}
   */
-  v.fitKey = function(this: VizInstance, _?: unknown) {
+  v.fitKey = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.fitKey = _ as string | undefined;
       this._zoomSet = false;
@@ -264,9 +300,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       points when there is none.
       @type {string | object | false}
   */
-  v.fitObject = function(this: VizInstance, _?: unknown, f?: unknown) {
+  v.fitObject = function (this: VizInstance, _?: unknown, f?: unknown) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "fitObject");
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+        _,
+        f,
+        "fitObject",
+      );
       this._zoomSet = false;
       return this;
     }
@@ -279,9 +319,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       drawn as points; the rest are matched to `topojson` shapes.
       @type {number[] | function}
   */
-  v.point = function(this: VizInstance, _?: unknown) {
+  v.point = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? ((this.schema.point = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      ? ((this.schema.point =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
       : this.schema.point;
   };
   /**
@@ -289,9 +333,13 @@ function setupGeomapFitFluent(viz: VizInstance): void {
       scaled by `pointSizeScale` onto `[pointSizeMin, pointSizeMax]` pixels.
       @type {number | function}
   */
-  v.pointSize = function(this: VizInstance, _?: unknown) {
+  v.pointSize = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? ((this.schema.pointSize = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      ? ((this.schema.pointSize =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
       : this.schema.pointSize;
   };
 }
@@ -308,10 +356,12 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       default), so any other projection turns `tiles` off.
       @type {string | function}
   */
-  v.projection = function(this: VizInstance, _?: unknown) {
+  v.projection = function (this: VizInstance, _?: unknown) {
     if (arguments.length && _ !== "geoMercator") v.tiles(false);
     return arguments.length
-      ? ((this.schema.projection = typeof _ === "string" ? projectionByName(_) : _), this)
+      ? ((this.schema.projection =
+          typeof _ === "string" ? projectionByName(_) : _),
+        this)
       : this.schema.projection;
   };
   /**
@@ -320,9 +370,12 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       `"20px 0 10px"`).
       @type {number | string}
   */
-  v.projectionPadding = function(this: VizInstance, _?: unknown) {
+  v.projectionPadding = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? ((this.schema.projectionPadding = parseSides(_ as Parameters<typeof parseSides>[0])), this)
+      ? ((this.schema.projectionPadding = parseSides(
+          _ as Parameters<typeof parseSides>[0],
+        )),
+        this)
       : this.schema.projectionPadding;
   };
   /**
@@ -332,7 +385,7 @@ function setupGeomapProjectionFluent(viz: VizInstance): void {
       no longer line up.
       @type {[number, number] | [number, number, number]}
   */
-  v.projectionRotate = function(this: VizInstance, _?: unknown) {
+  v.projectionRotate = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.projection.rotate(_);
       v.tiles(false);
@@ -351,7 +404,7 @@ function setupGeomapTileFluent(viz: VizInstance): void {
       a non-Mercator `projection` or `projectionRotate` turns it off.
       @type {boolean}
   */
-  v.tiles = function(this: VizInstance, _?: unknown) {
+  v.tiles = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.tiles = _ as boolean;
       syncTileAttribution(this);
@@ -366,7 +419,7 @@ function setupGeomapTileFluent(viz: VizInstance): void {
       follows the active URL unless the attribution was set by hand.
       @type {string | {light: string, dark: string}}
   */
-  v.tileUrl = function(this: VizInstance, _?: unknown) {
+  v.tileUrl = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.tileUrl = _ as Themed<string>;
       syncTileAttribution(this);
@@ -386,9 +439,13 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       argument, receives the loaded data and returns the final topojson object.
       @type {string | object | false}
   */
-  v.topojson = function(this: VizInstance, _?: unknown, f?: unknown) {
+  v.topojson = function (this: VizInstance, _?: unknown, f?: unknown) {
     if (arguments.length) {
-      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(_, f, "topojson");
+      (addToQueue as unknown as (...a: unknown[]) => void).bind(this)(
+        _,
+        f,
+        "topojson",
+      );
       this._zoomSet = false;
       return this;
     }
@@ -400,9 +457,13 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       its dark counterpart over a dark basemap.
       @type {CssColor | function}
   */
-  v.topojsonFill = function(this: VizInstance, _?: unknown) {
+  v.topojsonFill = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? ((this.schema.topojsonFill = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : constant(_)), this)
+      ? ((this.schema.topojsonFill =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : constant(_)),
+        this)
       : this.schema.topojsonFill;
   };
   /**
@@ -411,15 +472,18 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       hiding Antarctica (id `"010"`).
       @type {string | string[] | ((feature: object) => boolean)}
   */
-  v.topojsonFilter = function(this: VizInstance, _?: unknown) {
+  v.topojsonFilter = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this._zoomSet = false;
       if (typeof _ === "function") {
-        this.schema.topojsonFilter = _ as (d: Record<string, unknown>) => boolean;
+        this.schema.topojsonFilter = _ as (
+          d: Record<string, unknown>,
+        ) => boolean;
         return this;
       }
       const ids = (_ instanceof Array ? _ : [_]) as string[];
-      this.schema.topojsonFilter = (d: Record<string, unknown>) => ids.includes(d.id as string);
+      this.schema.topojsonFilter = (d: Record<string, unknown>) =>
+        ids.includes(d.id as string);
       return this;
     }
     return this.schema.topojsonFilter;
@@ -429,7 +493,7 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       the first object.
       @type {string}
   */
-  v.topojsonKey = function(this: VizInstance, _?: unknown) {
+  v.topojsonKey = function (this: VizInstance, _?: unknown) {
     if (arguments.length) {
       this.schema.topojsonKey = _ as string | undefined;
       this._zoomSet = false;
@@ -443,9 +507,13 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       data to the map.
       @type {string | function}
   */
-  v.topojsonId = function(this: VizInstance, _?: unknown) {
+  v.topojsonId = function (this: VizInstance, _?: unknown) {
     return arguments.length
-      ? ((this.schema.topojsonId = typeof _ === "function" ? (_ as (...a: unknown[]) => unknown) : accessor(_ as string)), this)
+      ? ((this.schema.topojsonId =
+          typeof _ === "function"
+            ? (_ as (...a: unknown[]) => unknown)
+            : accessor(_ as string)),
+        this)
       : this.schema.topojsonId;
   };
 }
@@ -520,7 +588,8 @@ export const geomapDef: ChartDefinition = {
     {key: "topojsonFill", default: constant("#f5f5f3")},
     {
       key: "topojsonFilter",
-      default: (d: Record<string, unknown>) => !["010"].includes(d.id as string),
+      default: (d: Record<string, unknown>) =>
+        !["010"].includes(d.id as string),
     },
     {key: "topojsonId", default: accessor("id")},
     {
@@ -532,13 +601,17 @@ export const geomapDef: ChartDefinition = {
         hoverOpacity: 1,
         Path: {
           ariaLabel: (d: DataPoint, i: number) => {
-            const cs = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
+            const cs = viz.schema.colorScale as
+              ((d: DataPoint, i: number) => unknown) | undefined;
             const validColorScale = cs ? `, ${cs(d, i)}` : "";
             return `${viz._drawLabel(d, i)}${validColorScale}.`;
           },
           fill: (d: DataPoint, i: number) => {
-            const coordFeatures = (viz.ctx.coordData as {features: DataPoint[]} | undefined)?.features ?? [];
-            const cs = viz.schema.colorScale as ((d: DataPoint) => unknown) | undefined;
+            const coordFeatures =
+              (viz.ctx.coordData as {features: DataPoint[]} | undefined)
+                ?.features ?? [];
+            const cs = viz.schema.colorScale as
+              ((d: DataPoint) => unknown) | undefined;
             if (cs && !coordFeatures.includes(d)) {
               const c = cs(d);
               if (c !== undefined && c !== null) {
@@ -549,23 +622,46 @@ export const geomapDef: ChartDefinition = {
                 return col;
               }
             }
-            return (viz.schema.topojsonFill as (d: DataPoint, i: number) => unknown)(d, i);
+            return (
+              viz.schema.topojsonFill as (d: DataPoint, i: number) => unknown
+            )(d, i);
           },
           on: {
-            mouseenter: (d: DataPoint, i: number, x: DataPoint, event: MouseEvent) => {
-              const coordFeatures = (viz.ctx.coordData as {features: DataPoint[]} | undefined)?.features ?? [];
+            mouseenter: (
+              d: DataPoint,
+              i: number,
+              x: DataPoint,
+              event: MouseEvent,
+            ) => {
+              const coordFeatures =
+                (viz.ctx.coordData as {features: DataPoint[]} | undefined)
+                  ?.features ?? [];
               return !coordFeatures.includes(d)
                 ? viz.schema.on.mouseenter.bind(viz)(d, i, x, event)
                 : null;
             },
-            "mousemove.shape": (d: DataPoint, i: number, x: DataPoint, event: MouseEvent) => {
-              const coordFeatures = (viz.ctx.coordData as {features: DataPoint[]} | undefined)?.features ?? [];
+            "mousemove.shape": (
+              d: DataPoint,
+              i: number,
+              x: DataPoint,
+              event: MouseEvent,
+            ) => {
+              const coordFeatures =
+                (viz.ctx.coordData as {features: DataPoint[]} | undefined)
+                  ?.features ?? [];
               return !coordFeatures.includes(d)
                 ? viz.schema.on["mousemove.shape"].bind(viz)(d, i, x, event)
                 : null;
             },
-            mouseleave: (d: DataPoint, i: number, x: DataPoint, event: MouseEvent) => {
-              const coordFeatures = (viz.ctx.coordData as {features: DataPoint[]} | undefined)?.features ?? [];
+            mouseleave: (
+              d: DataPoint,
+              i: number,
+              x: DataPoint,
+              event: MouseEvent,
+            ) => {
+              const coordFeatures =
+                (viz.ctx.coordData as {features: DataPoint[]} | undefined)
+                  ?.features ?? [];
               return !coordFeatures.includes(d)
                 ? viz.schema.on.mouseleave.bind(viz)(d, i, x, event)
                 : null;
@@ -573,9 +669,10 @@ export const geomapDef: ChartDefinition = {
           },
           stroke: (d: DataPoint, i: number) => {
             const sc = viz.schema.shapeConfig.Path as Record<string, unknown>;
-            const c = typeof sc.fill === "function"
-              ? (sc.fill as (d: DataPoint, i: number) => unknown)(d, i)
-              : sc.fill;
+            const c =
+              typeof sc.fill === "function"
+                ? (sc.fill as (d: DataPoint, i: number) => unknown)(d, i)
+                : sc.fill;
             const col = color(c as string);
             return col ? col.darker().toString() : (c as string);
           },

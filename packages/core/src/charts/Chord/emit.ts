@@ -18,19 +18,25 @@ import {
   textureFill,
   userLabelConfig,
 } from "../features/emitHelpers.js";
-import {backgroundImageNode, backgroundImageNodes} from "../features/backgroundImageEmit.js";
+import {
+  backgroundImageNode,
+  backgroundImageNodes,
+} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import type {ChordCtx, ChordNode} from "./applyLayout.js";
 
-export const chordEmit: ChartEmit = ({viz}) => {
-  const c = viz.ctx.chordCtx as ChordCtx | undefined;
-  if (!c) return [];
-  const out: SceneNode[] = [];
-
-  const pathCfg = shapeConfigFor(viz, "Path");
-  const chordOpacity = (viz.schema.chordOpacity as number) ?? 0.6;
-
-  // Ribbons (chords) first.
+/**
+    Ribbon Paths for every chord, followed by their background images. Each
+    ribbon's paint resolves against its source node.
+*/
+function emitChordRibbons(
+  viz: VizInstance,
+  c: ChordCtx,
+  pathCfg: Record<string, unknown>,
+  chordOpacity: number,
+): SceneNode[] {
+  const ribbons: SceneNode[] = [];
   const ribbonImages: SceneNode[] = [];
   for (let i = 0; i < c.chords.length; i++) {
     const ch = c.chords[i];
@@ -52,7 +58,11 @@ export const chordEmit: ChartEmit = ({viz}) => {
       // A chord accumulates duplicate links into one matrix cell, so bind a
       // synthesized flat link datum (source/target ids + flow) — the tooltip
       // title and hover predicates read `.source.id`/`.target.id`.
-      datum: {source: {id: src.id}, target: {id: tgt.id}, value: ch.source.value} as unknown as DataPoint,
+      datum: {
+        source: {id: src.id},
+        target: {id: tgt.id},
+        value: ch.source.value,
+      } as unknown as DataPoint,
       index: i,
       paint: {
         fill: textureFill(pathCfg, src.data, src.i, fill),
@@ -65,23 +75,42 @@ export const chordEmit: ChartEmit = ({viz}) => {
         label: `${viz._drawLabel(src.data, src.i)} to ${viz._drawLabel(tgt.data, tgt.i)}, ${ch.source.value}.`,
       },
     } as SceneNode;
-    out.push(ribbon);
+    ribbons.push(ribbon);
     // The image is as see-through as the ribbon's fill, so crossing ribbons
     // still show through each other.
     const image = backgroundImageNode(
       pathCfg,
-      {...ribbon, paint: {...ribbon.paint, opacity: (ribbon.paint?.opacity ?? 1) * chordOpacity}},
+      {
+        ...ribbon,
+        paint: {
+          ...ribbon.paint,
+          opacity: (ribbon.paint?.opacity ?? 1) * chordOpacity,
+        },
+      },
       src.data,
       src.i,
     );
     if (image) ribbonImages.push(image);
   }
-  out.push(...ribbonImages);
+  return [...ribbons, ...ribbonImages];
+}
+
+export const chordEmit: ChartEmit = ({viz}) => {
+  const c = viz.ctx.chordCtx as ChordCtx | undefined;
+  if (!c) return [];
+  const out: SceneNode[] = [];
+
+  const pathCfg = shapeConfigFor(viz, "Path");
+  const chordOpacity = (viz.schema.chordOpacity as number) ?? 0.6;
+
+  // Ribbons (chords) first.
+  out.push(...emitChordRibbons(viz, c, pathCfg, chordOpacity));
 
   // Arcs (groups).
   const arcNodes: SceneNode[] = [];
   const arcData = c.nodes.filter(
-    (nd): nd is ChordNode & {group: NonNullable<ChordNode["group"]>} => Boolean(nd.group),
+    (nd): nd is ChordNode & {group: NonNullable<ChordNode["group"]>} =>
+      Boolean(nd.group),
   );
   for (const node of arcData) {
     const paint = paintFromShapeConfig(pathCfg, node.data, node.i);
@@ -98,7 +127,13 @@ export const chordEmit: ChartEmit = ({viz}) => {
     } as SceneNode);
   }
 
-  out.push(...arcNodes, ...backgroundImageNodes(pathCfg, arcNodes, k => [arcData[k].data, arcData[k].i]));
+  out.push(
+    ...arcNodes,
+    ...backgroundImageNodes(pathCfg, arcNodes, k => [
+      arcData[k].data,
+      arcData[k].i,
+    ]),
+  );
 
   // Group labels, positioned + rotated by the layout stage.
   if (arcData.length) {

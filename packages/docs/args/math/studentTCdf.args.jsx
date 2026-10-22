@@ -3,37 +3,35 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   df: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "Degrees of freedom.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   t: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The t statistic.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

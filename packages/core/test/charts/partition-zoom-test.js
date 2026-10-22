@@ -62,7 +62,10 @@ it("partition zoom: partitionRemoved keeps the nodes the next layout drops", () 
 });
 
 it("partition zoom: partitionZoomOutFocus finds the old focus, or its nearest drawn ancestor", () => {
-  const previous = [{depth: 0, path: ["A", "m"]}, {depth: 1, path: ["A", "m", "f"]}];
+  const previous = [
+    {depth: 0, path: ["A", "m"]},
+    {depth: 1, path: ["A", "m", "f"]},
+  ];
   const next = [
     {id: "A", depth: 1, path: ["A"]},
     {id: "Am", depth: 2, path: ["A", "m"]},
@@ -84,10 +87,17 @@ it("partition zoom: partitionReturning collapses each returning node through the
     {id: "Amf", depth: 3, path: ["A", "m", "f"]},
     {id: "B", depth: 1, path: ["B"]},
   ];
-  const enter = partitionReturning(previous, next, (n, focus) => `${n.id}@${focus.id}`);
-  assert.deepStrictEqual([...enter], [
-    ["A", "A@Am"],
-    ["B", "B@Am"],
-  ]);
+  const enter = partitionReturning(
+    previous,
+    next,
+    (n, focus) => `${n.id}@${focus.id}`,
+  );
+  assert.deepStrictEqual(
+    [...enter],
+    [
+      ["A", "A@Am"],
+      ["B", "B@Am"],
+    ],
+  );
   assert.strictEqual(partitionReturning([], next, () => 0).size, 0);
 });

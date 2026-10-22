@@ -4,4 +4,3 @@
 <!-- https://jsfiddle.net/davelandry/u7dfeop0/ -->
 
 <!-- Please remove as many unrelated methods until the bug is still reproducible. -->
-

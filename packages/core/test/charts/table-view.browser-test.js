@@ -37,41 +37,93 @@ it("the table-view toggle button renders by default, and clicking it swaps the c
           .render(() => {
             const before = {
               toggle: document.querySelectorAll(".table-view-toggle").length,
-              table: document.querySelectorAll(".d3plus-table-view-table").length,
+              table: document.querySelectorAll(".d3plus-table-view-table")
+                .length,
             };
-            document.querySelector(".d3plus-top-left-controls-item .table-view-toggle").click();
+            document
+              .querySelector(
+                ".d3plus-top-left-controls-item .table-view-toggle",
+              )
+              .click();
             const active = {
-              toggleCount: document.querySelectorAll(".table-view-toggle").length,
-              table: document.querySelectorAll(".d3plus-table-view-table").length,
-              rows: document.querySelectorAll(".d3plus-table-view-table tbody tr").length,
-              headers: Array.from(document.querySelectorAll(".d3plus-table-view-table thead th")).map(
-                th => th.textContent,
-              ),
-              pressed: document.querySelector(".d3plus-table-view .table-view-toggle").getAttribute("aria-pressed"),
+              toggleCount:
+                document.querySelectorAll(".table-view-toggle").length,
+              table: document.querySelectorAll(".d3plus-table-view-table")
+                .length,
+              rows: document.querySelectorAll(
+                ".d3plus-table-view-table tbody tr",
+              ).length,
+              headers: Array.from(
+                document.querySelectorAll(".d3plus-table-view-table thead th"),
+              ).map(th => th.textContent),
+              pressed: document
+                .querySelector(".d3plus-table-view .table-view-toggle")
+                .getAttribute("aria-pressed"),
             };
             // Toggling back (via the overlay's own embedded button) should drop
             // the table and restore just the shared panel's single button.
-            document.querySelector(".d3plus-table-view .table-view-toggle").click();
+            document
+              .querySelector(".d3plus-table-view .table-view-toggle")
+              .click();
             const after = {
               toggle: document.querySelectorAll(".table-view-toggle").length,
-              table: document.querySelectorAll(".d3plus-table-view-table").length,
-              pressed: document.querySelector(".table-view-toggle").getAttribute("aria-pressed"),
+              table: document.querySelectorAll(".d3plus-table-view-table")
+                .length,
+              pressed: document
+                .querySelector(".table-view-toggle")
+                .getAttribute("aria-pressed"),
             };
             resolve({before, active, after});
           });
       }),
   );
 
-  assert.strictEqual(out.before.toggle, 1, "the toggle button renders by default (shared top-left panel only)");
-  assert.strictEqual(out.before.table, 0, "no data table before the first click");
-  assert.strictEqual(out.active.toggleCount, 2, "the shared panel's button + the overlay's embedded copy");
-  assert.strictEqual(out.active.table, 1, "clicking the toggle renders the data table");
+  assert.strictEqual(
+    out.before.toggle,
+    1,
+    "the toggle button renders by default (shared top-left panel only)",
+  );
+  assert.strictEqual(
+    out.before.table,
+    0,
+    "no data table before the first click",
+  );
+  assert.strictEqual(
+    out.active.toggleCount,
+    2,
+    "the shared panel's button + the overlay's embedded copy",
+  );
+  assert.strictEqual(
+    out.active.table,
+    1,
+    "clicking the toggle renders the data table",
+  );
   assert.strictEqual(out.active.rows, 2, "one row per datum");
-  assert.deepStrictEqual(out.active.headers, ["id", "x", "y"], "columns come from the datum's own keys");
-  assert.strictEqual(out.active.pressed, "true", "the toggle reports pressed while active");
-  assert.strictEqual(out.after.table, 0, "clicking again removes the data table");
-  assert.strictEqual(out.after.toggle, 1, "back to just the shared panel's single button");
-  assert.strictEqual(out.after.pressed, "false", "the toggle reports not-pressed once deactivated");
+  assert.deepStrictEqual(
+    out.active.headers,
+    ["id", "x", "y"],
+    "columns come from the datum's own keys",
+  );
+  assert.strictEqual(
+    out.active.pressed,
+    "true",
+    "the toggle reports pressed while active",
+  );
+  assert.strictEqual(
+    out.after.table,
+    0,
+    "clicking again removes the data table",
+  );
+  assert.strictEqual(
+    out.after.toggle,
+    1,
+    "back to just the shared panel's single button",
+  );
+  assert.strictEqual(
+    out.after.pressed,
+    "false",
+    "the toggle reports not-pressed once deactivated",
+  );
 });
 
 it("the toggle button is painted with its structural default style, active/hover state, and disables on tableViewControlClassName", async function () {
@@ -89,7 +141,9 @@ it("the toggle button is painted with its structural default style, active/hover
             const btn = document.querySelector(".table-view-toggle");
             const beforeWidth = window.getComputedStyle(btn).width;
             btn.click(); // now active
-            const activeBtn = document.querySelector(".d3plus-table-view .table-view-toggle");
+            const activeBtn = document.querySelector(
+              ".d3plus-table-view .table-view-toggle",
+            );
             const afterWidth = window.getComputedStyle(activeBtn).width;
             const afterBg = window.getComputedStyle(activeBtn).backgroundColor;
             resolve({beforeWidth, afterWidth, afterBg});
@@ -97,9 +151,21 @@ it("the toggle button is painted with its structural default style, active/hover
       }),
   );
 
-  assert.strictEqual(out.beforeWidth, "20px", "structural default style is painted onto the button");
-  assert.strictEqual(out.afterWidth, "20px", "structural style persists once active");
-  assert.notStrictEqual(out.afterBg, "rgba(0, 0, 0, 0)", "the active style paints a background color");
+  assert.strictEqual(
+    out.beforeWidth,
+    "20px",
+    "structural default style is painted onto the button",
+  );
+  assert.strictEqual(
+    out.afterWidth,
+    "20px",
+    "structural style persists once active",
+  );
+  assert.notStrictEqual(
+    out.afterBg,
+    "rgba(0, 0, 0, 0)",
+    "the active style paints a background color",
+  );
 });
 
 it("tableView(false) removes the toggle button entirely", async function () {
@@ -110,12 +176,17 @@ it("tableView(false) removes the toggle button entirely", async function () {
         new window.d3plus.Pie()
           .select("#s")
           .tableView(false)
-          .data([{id: "x", value: 3}, {id: "y", value: 2}])
+          .data([
+            {id: "x", value: 3},
+            {id: "y", value: 2},
+          ])
           .groupBy("id")
           .value("value")
           .duration(0)
           .render(() =>
-            resolve({toggle: document.querySelectorAll(".table-view-toggle").length}),
+            resolve({
+              toggle: document.querySelectorAll(".table-view-toggle").length,
+            }),
           );
       }),
   );
@@ -139,15 +210,23 @@ it("tableViewControlClassName and tableViewClassName apply to the button and the
           .render(() => {
             document.querySelector(".table-view-toggle").click();
             resolve({
-              toggleClass: document.querySelector(".d3plus-table-view .table-view-toggle").className,
+              toggleClass: document.querySelector(
+                ".d3plus-table-view .table-view-toggle",
+              ).className,
               tableClass: document.querySelector("table").className,
             });
           });
       }),
   );
 
-  assert.ok(out.toggleClass.includes("my-toggle"), "custom button className applied");
-  assert.ok(out.tableClass.includes("my-table"), "custom table className applied");
+  assert.ok(
+    out.toggleClass.includes("my-toggle"),
+    "custom button className applied",
+  );
+  assert.ok(
+    out.tableClass.includes("my-table"),
+    "custom table className applied",
+  );
 });
 
 it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable at the ends", async function () {
@@ -160,8 +239,11 @@ it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable
           .groupBy("id")
           .tableViewPageSize(2)
           .data([
-            {id: "a", x: "Q1", y: 1}, {id: "a", x: "Q2", y: 2}, {id: "a", x: "Q3", y: 3},
-            {id: "a", x: "Q4", y: 4}, {id: "a", x: "Q5", y: 5},
+            {id: "a", x: "Q1", y: 1},
+            {id: "a", x: "Q2", y: 2},
+            {id: "a", x: "Q3", y: 3},
+            {id: "a", x: "Q4", y: 4},
+            {id: "a", x: "Q5", y: 5},
           ])
           .x("x")
           .y("y")
@@ -170,14 +252,18 @@ it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable
             document.querySelector(".table-view-toggle").click();
             const page1 = {
               rows: document.querySelectorAll("tbody tr").length,
-              prevDisabled: document.querySelector(".tableview-page-prev").hasAttribute("disabled"),
+              prevDisabled: document
+                .querySelector(".tableview-page-prev")
+                .hasAttribute("disabled"),
             };
             document.querySelector(".tableview-page-next").click();
             const page2 = {rows: document.querySelectorAll("tbody tr").length};
             document.querySelector(".tableview-page-next").click();
             const page3 = {
               rows: document.querySelectorAll("tbody tr").length,
-              nextDisabled: document.querySelector(".tableview-page-next").hasAttribute("disabled"),
+              nextDisabled: document
+                .querySelector(".tableview-page-next")
+                .hasAttribute("disabled"),
             };
             resolve({page1, page2, page3});
           });
@@ -185,10 +271,26 @@ it("tableViewPageSize paginates the data table, and Prev/Next navigate + disable
   );
 
   assert.strictEqual(out.page1.rows, 2, "first page shows pageSize rows");
-  assert.strictEqual(out.page1.prevDisabled, true, "Prev disabled on the first page");
-  assert.strictEqual(out.page2.rows, 2, "second page shows the next pageSize rows");
-  assert.strictEqual(out.page3.rows, 1, "final page shows the remainder (5 rows / 2 per page)");
-  assert.strictEqual(out.page3.nextDisabled, true, "Next disabled on the last page");
+  assert.strictEqual(
+    out.page1.prevDisabled,
+    true,
+    "Prev disabled on the first page",
+  );
+  assert.strictEqual(
+    out.page2.rows,
+    2,
+    "second page shows the next pageSize rows",
+  );
+  assert.strictEqual(
+    out.page3.rows,
+    1,
+    "final page shows the remainder (5 rows / 2 per page)",
+  );
+  assert.strictEqual(
+    out.page3.nextDisabled,
+    true,
+    "Next disabled on the last page",
+  );
 });
 
 it("escapes data values instead of interpreting them as HTML (#XSS)", async function () {
@@ -213,8 +315,15 @@ it("escapes data values instead of interpreting them as HTML (#XSS)", async func
       }),
   );
 
-  assert.strictEqual(out.injectedImg, 0, "no element is injected from a data value");
-  assert.ok(out.text.includes("<img"), "the raw string still renders as visible text");
+  assert.strictEqual(
+    out.injectedImg,
+    0,
+    "no element is injected from a data value",
+  );
+  assert.ok(
+    out.text.includes("<img"),
+    "the raw string still renders as visible text",
+  );
 });
 
 it("table view claims zero layout margin, and coexists with a simultaneously-showing Back button", async function () {
@@ -222,7 +331,10 @@ it("table view claims zero layout margin, and coexists with a simultaneously-sho
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "A", value: 10}, {id: "B", value: 20}];
+        const data = [
+          {id: "A", value: 10},
+          {id: "B", value: 20},
+        ];
         const noHistory = new window.d3plus.Treemap()
           .select("#a")
           .data(data)
@@ -240,7 +352,9 @@ it("table view claims zero layout margin, and coexists with a simultaneously-sho
           withHistory.render(() => {
             resolve({
               back: document.querySelectorAll("#b .back-control").length,
-              tableToggle: document.querySelectorAll("#b .d3plus-top-left-controls-item .table-view-toggle").length,
+              tableToggle: document.querySelectorAll(
+                "#b .d3plus-top-left-controls-item .table-view-toggle",
+              ).length,
               // Relative comparison, not an assumed absolute value (e.g. 0)
               // — matches top-left-controls.browser-test.js's own equivalent check.
               // Some OTHER default margin claim (unrelated to this panel)
@@ -254,9 +368,20 @@ it("table view claims zero layout margin, and coexists with a simultaneously-sho
       }),
   );
 
-  assert.strictEqual(out.back, 1, "back button also contributes to the shared panel");
-  assert.strictEqual(out.tableToggle, 1, "table-view toggle contributes alongside it");
-  assert.ok(out.marginTopEqual, "neither back nor table-view claims layout margin — both float");
+  assert.strictEqual(
+    out.back,
+    1,
+    "back button also contributes to the shared panel",
+  );
+  assert.strictEqual(
+    out.tableToggle,
+    1,
+    "table-view toggle contributes alongside it",
+  );
+  assert.ok(
+    out.marginTopEqual,
+    "neither back nor table-view claims layout margin — both float",
+  );
 });
 
 it("clicking a column header sorts the table, toggles asc/desc, and reflects state in aria-sort", async function () {
@@ -268,7 +393,9 @@ it("clicking a column header sorts the table, toggles asc/desc, and reflects sta
           .select("#s")
           .groupBy("id")
           .data([
-            {id: "c", x: "Q1", y: 30}, {id: "a", x: "Q1", y: 10}, {id: "b", x: "Q1", y: 20},
+            {id: "c", x: "Q1", y: 30},
+            {id: "a", x: "Q1", y: 10},
+            {id: "b", x: "Q1", y: 20},
           ])
           .x("x")
           .y("y")
@@ -283,28 +410,52 @@ it("clicking a column header sorts the table, toggles asc/desc, and reflects sta
             // rewrites the DOM.
             const ascHeader = document.querySelector(idHeaderSelector);
             const asc = {
-              order: Array.from(document.querySelectorAll("tbody tr td:first-child")).map(td => td.textContent),
+              order: Array.from(
+                document.querySelectorAll("tbody tr td:first-child"),
+              ).map(td => td.textContent),
               ariaSort: ascHeader.getAttribute("aria-sort"),
-              chevronPoints: ascHeader.querySelector("svg polyline")?.getAttribute("points"),
+              chevronPoints: ascHeader
+                .querySelector("svg polyline")
+                ?.getAttribute("points"),
             };
             document.querySelector(idHeaderSelector).click(); // desc
             const descHeader = document.querySelector(idHeaderSelector);
             const desc = {
-              order: Array.from(document.querySelectorAll("tbody tr td:first-child")).map(td => td.textContent),
+              order: Array.from(
+                document.querySelectorAll("tbody tr td:first-child"),
+              ).map(td => td.textContent),
               ariaSort: descHeader.getAttribute("aria-sort"),
-              chevronPoints: descHeader.querySelector("svg polyline")?.getAttribute("points"),
+              chevronPoints: descHeader
+                .querySelector("svg polyline")
+                ?.getAttribute("points"),
             };
             resolve({asc, desc});
           });
       }),
   );
 
-  assert.deepStrictEqual(out.asc.order, ["a", "b", "c"], "first click sorts ascending");
+  assert.deepStrictEqual(
+    out.asc.order,
+    ["a", "b", "c"],
+    "first click sorts ascending",
+  );
   assert.strictEqual(out.asc.ariaSort, "ascending");
-  assert.strictEqual(out.asc.chevronPoints, "6 15 12 9 18 15", "ascending chevron (pointing up) shown in the header");
-  assert.deepStrictEqual(out.desc.order, ["c", "b", "a"], "second click on the same column reverses to descending");
+  assert.strictEqual(
+    out.asc.chevronPoints,
+    "6 15 12 9 18 15",
+    "ascending chevron (pointing up) shown in the header",
+  );
+  assert.deepStrictEqual(
+    out.desc.order,
+    ["c", "b", "a"],
+    "second click on the same column reverses to descending",
+  );
   assert.strictEqual(out.desc.ariaSort, "descending");
-  assert.strictEqual(out.desc.chevronPoints, "6 9 12 15 18 9", "descending chevron (pointing down) shown in the header");
+  assert.strictEqual(
+    out.desc.chevronPoints,
+    "6 9 12 15 18 9",
+    "descending chevron (pointing down) shown in the header",
+  );
 });
 
 it("tableViewSort(false) renders plain, unsortable header cells", async function () {
@@ -315,22 +466,36 @@ it("tableViewSort(false) renders plain, unsortable header cells", async function
         new window.d3plus.Pie()
           .select("#s")
           .tableViewSort(false)
-          .data([{id: "b", value: 1}, {id: "a", value: 2}])
+          .data([
+            {id: "b", value: 1},
+            {id: "a", value: 2},
+          ])
           .groupBy("id")
           .value("value")
           .duration(0)
           .render(() => {
             document.querySelector(".table-view-toggle").click();
             resolve({
-              sortHeaders: document.querySelectorAll(".tableview-sort-header").length,
-              order: Array.from(document.querySelectorAll("tbody tr td:first-child")).map(td => td.textContent),
+              sortHeaders: document.querySelectorAll(".tableview-sort-header")
+                .length,
+              order: Array.from(
+                document.querySelectorAll("tbody tr td:first-child"),
+              ).map(td => td.textContent),
             });
           });
       }),
   );
 
-  assert.strictEqual(out.sortHeaders, 0, "no clickable sort headers when tableViewSort(false)");
-  assert.deepStrictEqual(out.order, ["b", "a"], "rows stay in their original (unsorted) order");
+  assert.strictEqual(
+    out.sortHeaders,
+    0,
+    "no clickable sort headers when tableViewSort(false)",
+  );
+  assert.deepStrictEqual(
+    out.order,
+    ["b", "a"],
+    "rows stay in their original (unsorted) order",
+  );
 });
 
 it("formats numbers per the chart's own .locale(), not the browser default", async function () {
@@ -339,21 +504,40 @@ it("formats numbers per the chart's own .locale(), not the browser default", asy
     () =>
       new Promise(resolve => {
         const data = [{id: "x", value: 12345}];
-        const us = new window.d3plus.Pie().select("#us").data(data).groupBy("id").value("value").duration(0);
-        const de = new window.d3plus.Pie().select("#de").locale("de-DE").data(data).groupBy("id").value("value").duration(0);
-        us.render(() => de.render(() => {
-          document.querySelector("#us .table-view-toggle").click();
-          document.querySelector("#de .table-view-toggle").click();
-          resolve({
-            us: document.querySelector("#us tbody td:nth-child(2)").textContent,
-            de: document.querySelector("#de tbody td:nth-child(2)").textContent,
-          });
-        }));
+        const us = new window.d3plus.Pie()
+          .select("#us")
+          .data(data)
+          .groupBy("id")
+          .value("value")
+          .duration(0);
+        const de = new window.d3plus.Pie()
+          .select("#de")
+          .locale("de-DE")
+          .data(data)
+          .groupBy("id")
+          .value("value")
+          .duration(0);
+        us.render(() =>
+          de.render(() => {
+            document.querySelector("#us .table-view-toggle").click();
+            document.querySelector("#de .table-view-toggle").click();
+            resolve({
+              us: document.querySelector("#us tbody td:nth-child(2)")
+                .textContent,
+              de: document.querySelector("#de tbody td:nth-child(2)")
+                .textContent,
+            });
+          }),
+        );
       }),
   );
 
   assert.strictEqual(out.us, "12,345", "en-US groups with a comma");
-  assert.strictEqual(out.de, "12.345", "de-DE groups with a period, following the chart's own locale");
+  assert.strictEqual(
+    out.de,
+    "12.345",
+    "de-DE groups with a period, following the chart's own locale",
+  );
 });
 
 it("CSV export includes every row (not just the current page), sorted, with raw (not display-formatted) values, and RFC4180 quoting", async function () {
@@ -374,7 +558,9 @@ it("CSV export includes every row (not just the current page), sorted, with raw 
           .duration(0)
           .render(async () => {
             document.querySelector(".table-view-toggle").click();
-            document.querySelector('.tableview-sort-header[data-column="id"]').click(); // sort asc by id
+            document
+              .querySelector('.tableview-sort-header[data-column="id"]')
+              .click(); // sort asc by id
 
             // Capture the Blob `downloadTableViewCsv` hands to
             // `URL.createObjectURL` (read via `Blob.text()`, which works
@@ -386,7 +572,9 @@ it("CSV export includes every row (not just the current page), sorted, with raw 
             // elements' own `.click()` (not the shared prototype method) so
             // nothing outside this capture window is affected.
             let capturedBlob = null;
-            const originalCreateObjectURL = window.URL.createObjectURL.bind(window.URL);
+            const originalCreateObjectURL = window.URL.createObjectURL.bind(
+              window.URL,
+            );
             window.URL.createObjectURL = function (blob) {
               capturedBlob = blob;
               return originalCreateObjectURL(blob);
@@ -411,9 +599,21 @@ it("CSV export includes every row (not just the current page), sorted, with raw 
 
   const lines = out.csv.split("\r\n");
   assert.strictEqual(lines[0], "id,x,y", "header row");
-  assert.strictEqual(lines.length, 3, "both rows exported despite tableViewPageSize(1)");
-  assert.strictEqual(lines[1], 'a,Q1,2', "sorted ascending by id, matching the on-screen sort");
-  assert.strictEqual(lines[2], '"b, with a comma",Q1,12345', "a comma-containing field is quoted; the number is raw (no locale grouping)");
+  assert.strictEqual(
+    lines.length,
+    3,
+    "both rows exported despite tableViewPageSize(1)",
+  );
+  assert.strictEqual(
+    lines[1],
+    "a,Q1,2",
+    "sorted ascending by id, matching the on-screen sort",
+  );
+  assert.strictEqual(
+    lines[2],
+    '"b, with a comma",Q1,12345',
+    "a comma-containing field is quoted; the number is raw (no locale grouping)",
+  );
 });
 
 it("tableViewDownload(false) removes the CSV download button", async function () {
@@ -430,12 +630,19 @@ it("tableViewDownload(false) removes the CSV download button", async function ()
           .duration(0)
           .render(() => {
             document.querySelector(".table-view-toggle").click();
-            resolve({download: document.querySelectorAll(".tableview-download-csv").length});
+            resolve({
+              download: document.querySelectorAll(".tableview-download-csv")
+                .length,
+            });
           });
       }),
   );
 
-  assert.strictEqual(out.download, 0, "no download button when tableViewDownload(false)");
+  assert.strictEqual(
+    out.download,
+    0,
+    "no download button when tableViewDownload(false)",
+  );
 });
 
 it("a large tableViewPageSize(false) table virtualizes: only a small window of rows is ever in the DOM, and scrolling swaps which rows those are", async function () {
@@ -443,7 +650,11 @@ it("a large tableViewPageSize(false) table virtualizes: only a small window of r
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = Array.from({length: 1000}, (_, i) => ({id: `row-${i}`, x: "Q1", y: i}));
+        const data = Array.from({length: 1000}, (_, i) => ({
+          id: `row-${i}`,
+          x: "Q1",
+          y: i,
+        }));
         new window.d3plus.BarChart()
           .select("#s")
           .groupBy("id")
@@ -455,37 +666,68 @@ it("a large tableViewPageSize(false) table virtualizes: only a small window of r
           .render(() => {
             document.querySelector(".table-view-toggle").click();
             const wrapper = document.querySelector(".d3plus-table-view-scroll");
-            const firstCellText = () => wrapper.querySelector("tbody tr:not([aria-hidden]) td")?.textContent;
+            const firstCellText = () =>
+              wrapper.querySelector("tbody tr:not([aria-hidden]) td")
+                ?.textContent;
             const initial = {
               virtualMarker: wrapper.hasAttribute("data-tableview-virtual"),
-              rowCount: wrapper.querySelectorAll("tbody tr:not([aria-hidden])").length,
+              rowCount: wrapper.querySelectorAll("tbody tr:not([aria-hidden])")
+                .length,
               scrollHeight: wrapper.scrollHeight,
               firstCell: firstCellText(),
             };
             wrapper.scrollTop = 15000; // ~row 500 at the fixed 30px row height
             wrapper.dispatchEvent(new window.Event("scroll"));
-            window.requestAnimationFrame(() => window.requestAnimationFrame(() => {
-              resolve({
-                initial,
-                afterScroll: {rowCount: wrapper.querySelectorAll("tbody tr:not([aria-hidden])").length, firstCell: firstCellText()},
-                total: data.length,
-              });
-            }));
+            window.requestAnimationFrame(() =>
+              window.requestAnimationFrame(() => {
+                resolve({
+                  initial,
+                  afterScroll: {
+                    rowCount: wrapper.querySelectorAll(
+                      "tbody tr:not([aria-hidden])",
+                    ).length,
+                    firstCell: firstCellText(),
+                  },
+                  total: data.length,
+                });
+              }),
+            );
           });
       }),
   );
 
-  assert.strictEqual(out.initial.virtualMarker, true, "1000-row unpaginated table is marked for virtualization");
-  assert.ok(out.initial.rowCount < 100, `only a small window renders initially (got ${out.initial.rowCount})`);
-  assert.strictEqual(out.initial.firstCell, "row-0", "starts scrolled to the top, showing the first row");
+  assert.strictEqual(
+    out.initial.virtualMarker,
+    true,
+    "1000-row unpaginated table is marked for virtualization",
+  );
+  assert.ok(
+    out.initial.rowCount < 100,
+    `only a small window renders initially (got ${out.initial.rowCount})`,
+  );
+  assert.strictEqual(
+    out.initial.firstCell,
+    "row-0",
+    "starts scrolled to the top, showing the first row",
+  );
   assert.ok(
     Math.abs(out.initial.scrollHeight - out.total * 30) < out.total,
     "the scroll container's full height reflects all 1000 rows (via the spacer rows), not just the rendered window",
   );
-  assert.ok(out.afterScroll.rowCount < 100, "still only a small window after scrolling");
-  assert.notStrictEqual(out.afterScroll.firstCell, "row-0", "scrolling swapped in rows from further down the dataset");
+  assert.ok(
+    out.afterScroll.rowCount < 100,
+    "still only a small window after scrolling",
+  );
+  assert.notStrictEqual(
+    out.afterScroll.firstCell,
+    "row-0",
+    "scrolling swapped in rows from further down the dataset",
+  );
   const scrolledIndex = Number(out.afterScroll.firstCell.replace("row-", ""));
-  assert.ok(scrolledIndex > 400 && scrolledIndex < 520, `scrolled-to row is in the expected neighborhood (got ${out.afterScroll.firstCell})`);
+  assert.ok(
+    scrolledIndex > 400 && scrolledIndex < 520,
+    `scrolled-to row is in the expected neighborhood (got ${out.afterScroll.firstCell})`,
+  );
 });
 
 it("a small tableViewPageSize(false) table renders every row directly — virtualization doesn't engage below the threshold", async function () {
@@ -493,7 +735,10 @@ it("a small tableViewPageSize(false) table renders every row directly — virtua
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = Array.from({length: 20}, (_, i) => ({id: `row-${i}`, value: i + 1}));
+        const data = Array.from({length: 20}, (_, i) => ({
+          id: `row-${i}`,
+          value: i + 1,
+        }));
         new window.d3plus.Pie()
           .select("#s")
           .tableViewPageSize(false)
@@ -512,8 +757,16 @@ it("a small tableViewPageSize(false) table renders every row directly — virtua
       }),
   );
 
-  assert.strictEqual(out.virtualMarker, false, "below VIRTUALIZE_THRESHOLD, no virtualization marker");
-  assert.strictEqual(out.rows, 20, "every row renders directly, no spacer/window logic involved");
+  assert.strictEqual(
+    out.virtualMarker,
+    false,
+    "below VIRTUALIZE_THRESHOLD, no virtualization marker",
+  );
+  assert.strictEqual(
+    out.rows,
+    20,
+    "every row renders directly, no spacer/window logic involved",
+  );
 });
 
 it("the shared top-left panel's toggle button stays in sync after deactivating via the overlay's own embedded copy", async function () {
@@ -523,7 +776,10 @@ it("the shared top-left panel's toggle button stays in sync after deactivating v
       new Promise(resolve => {
         const viz = new window.d3plus.Pie()
           .select("#s")
-          .data([{id: "a", value: 1}, {id: "b", value: 2}])
+          .data([
+            {id: "a", value: 1},
+            {id: "b", value: 2},
+          ])
           .groupBy("id")
           .value("value")
           .duration(0);
@@ -539,8 +795,12 @@ it("the shared top-left panel's toggle button stays in sync after deactivating v
           // Deactivate via the OVERLAY's own embedded toggle, not the shared
           // panel's — this is the path that used to leave the shared
           // panel's button stale.
-          document.querySelector(".d3plus-table-view .table-view-toggle").click();
-          const sharedBtn = document.querySelector(".d3plus-top-left-controls-item .table-view-toggle");
+          document
+            .querySelector(".d3plus-table-view .table-view-toggle")
+            .click();
+          const sharedBtn = document.querySelector(
+            ".d3plus-top-left-controls-item .table-view-toggle",
+          );
           resolve({
             isTableView: viz._tableView,
             sharedActive: sharedBtn.classList.contains("active"),
@@ -551,8 +811,16 @@ it("the shared top-left panel's toggle button stays in sync after deactivating v
   );
 
   assert.strictEqual(out.isTableView, false, "table view is deactivated");
-  assert.strictEqual(out.sharedActive, false, "the shared panel's button drops its stale active class");
-  assert.strictEqual(out.sharedAriaPressed, "false", "…and its stale aria-pressed");
+  assert.strictEqual(
+    out.sharedActive,
+    false,
+    "the shared panel's button drops its stale active class",
+  );
+  assert.strictEqual(
+    out.sharedAriaPressed,
+    "false",
+    "…and its stale aria-pressed",
+  );
 });
 
 it("columns come from the union of every row's keys, not just the first row's — no silent column loss on heterogeneous data", async function () {
@@ -573,15 +841,27 @@ it("columns come from the union of every row's keys, not just the first row's �
           .render(() => {
             document.querySelector(".table-view-toggle").click();
             resolve({
-              headers: Array.from(document.querySelectorAll("thead th")).map(th => th.textContent),
-              secondRowCells: Array.from(document.querySelectorAll("tbody tr:nth-child(2) td")).map(td => td.textContent),
+              headers: Array.from(document.querySelectorAll("thead th")).map(
+                th => th.textContent,
+              ),
+              secondRowCells: Array.from(
+                document.querySelectorAll("tbody tr:nth-child(2) td"),
+              ).map(td => td.textContent),
             });
           });
       }),
   );
 
-  assert.deepStrictEqual(out.headers, ["id", "x", "y", "note"], "the 'note' column (absent from row 1) still appears");
-  assert.deepStrictEqual(out.secondRowCells, ["b", "Q1", "2", "flagged"], "and the row that has it shows its value");
+  assert.deepStrictEqual(
+    out.headers,
+    ["id", "x", "y", "note"],
+    "the 'note' column (absent from row 1) still appears",
+  );
+  assert.deepStrictEqual(
+    out.secondRowCells,
+    ["b", "Q1", "2", "flagged"],
+    "and the row that has it shows its value",
+  );
 });
 
 it("CSV export quotes a field containing a lone carriage return, not just '\\n'", async function () {
@@ -598,7 +878,9 @@ it("CSV export quotes a field containing a lone carriage return, not just '\\n'"
           .render(async () => {
             document.querySelector(".table-view-toggle").click();
             let capturedBlob = null;
-            const originalCreateObjectURL = window.URL.createObjectURL.bind(window.URL);
+            const originalCreateObjectURL = window.URL.createObjectURL.bind(
+              window.URL,
+            );
             window.URL.createObjectURL = function (blob) {
               capturedBlob = blob;
               return originalCreateObjectURL(blob);
@@ -621,7 +903,11 @@ it("CSV export quotes a field containing a lone carriage return, not just '\\n'"
       }),
   );
 
-  assert.strictEqual(out.csv, 'id,value,share\r\n"line1\rline2",3,1', "the \\r-containing field is quoted");
+  assert.strictEqual(
+    out.csv,
+    'id,value,share\r\n"line1\rline2",3,1',
+    "the \\r-containing field is quoted",
+  );
 });
 
 it("a big-page-size table (pagination AND virtualization both active) sizes its scroll height against the current page, not the whole dataset", async function () {
@@ -629,7 +915,10 @@ it("a big-page-size table (pagination AND virtualization both active) sizes its 
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = Array.from({length: 1000}, (_, i) => ({id: `row-${i}`, value: i}));
+        const data = Array.from({length: 1000}, (_, i) => ({
+          id: `row-${i}`,
+          value: i,
+        }));
         new window.d3plus.Pie()
           .select("#s")
           .tableViewPageSize(500) // 2 pages of 500 — each page exceeds VIRTUALIZE_THRESHOLD (300)
@@ -648,7 +937,11 @@ it("a big-page-size table (pagination AND virtualization both active) sizes its 
       }),
   );
 
-  assert.strictEqual(out.virtualMarker, true, "500-row page still exceeds the virtualization threshold");
+  assert.strictEqual(
+    out.virtualMarker,
+    true,
+    "500-row page still exceeds the virtualization threshold",
+  );
   // Correct: ~500 rows * 30px. Buggy (dataset-wide total instead of the
   // current page's): ~1000 rows * 30px — over double.
   assert.ok(
@@ -689,19 +982,27 @@ it("a raw/aggregate source toggle appears (next to download) when a chart aggreg
             const toggleSelector = ".tableview-source-toggle";
             const aggregate = {
               toggleCount: document.querySelectorAll(toggleSelector).length,
-              rows: document.querySelectorAll("tbody tr:not([aria-hidden])").length,
-              pressed: document.querySelector(toggleSelector)?.getAttribute("aria-pressed"),
+              rows: document.querySelectorAll("tbody tr:not([aria-hidden])")
+                .length,
+              pressed: document
+                .querySelector(toggleSelector)
+                ?.getAttribute("aria-pressed"),
             };
 
             document.querySelector(toggleSelector).click();
             const raw = {
-              rows: document.querySelectorAll("tbody tr:not([aria-hidden])").length,
-              pressed: document.querySelector(toggleSelector).getAttribute("aria-pressed"),
+              rows: document.querySelectorAll("tbody tr:not([aria-hidden])")
+                .length,
+              pressed: document
+                .querySelector(toggleSelector)
+                .getAttribute("aria-pressed"),
             };
 
             // CSV should follow whichever source is currently selected (raw, now).
             let capturedBlob = null;
-            const originalCreateObjectURL = window.URL.createObjectURL.bind(window.URL);
+            const originalCreateObjectURL = window.URL.createObjectURL.bind(
+              window.URL,
+            );
             window.URL.createObjectURL = function (blob) {
               capturedBlob = blob;
               return originalCreateObjectURL(blob);
@@ -725,12 +1026,32 @@ it("a raw/aggregate source toggle appears (next to download) when a chart aggreg
       }),
   );
 
-  assert.strictEqual(out.aggregate.toggleCount, 1, "toggle renders once raw/aggregate diverge");
-  assert.strictEqual(out.aggregate.rows, 5, "aggregate view shows one row per Treemap group");
-  assert.strictEqual(out.aggregate.pressed, "false", "aggregate is the default (unpressed) state");
-  assert.strictEqual(out.raw.rows, 200, "clicking the toggle switches to the 200 raw input rows");
+  assert.strictEqual(
+    out.aggregate.toggleCount,
+    1,
+    "toggle renders once raw/aggregate diverge",
+  );
+  assert.strictEqual(
+    out.aggregate.rows,
+    5,
+    "aggregate view shows one row per Treemap group",
+  );
+  assert.strictEqual(
+    out.aggregate.pressed,
+    "false",
+    "aggregate is the default (unpressed) state",
+  );
+  assert.strictEqual(
+    out.raw.rows,
+    200,
+    "clicking the toggle switches to the 200 raw input rows",
+  );
   assert.strictEqual(out.raw.pressed, "true", "raw is now the pressed state");
-  assert.strictEqual(out.csvLineCount, 201, "CSV export follows the currently-selected (raw) source: header + 200 rows");
+  assert.strictEqual(
+    out.csvLineCount,
+    201,
+    "CSV export follows the currently-selected (raw) source: header + 200 rows",
+  );
 });
 
 it("the raw/aggregate toggle does NOT render when raw and aggregate data are the same", async function () {
@@ -750,12 +1071,19 @@ it("the raw/aggregate toggle does NOT render when raw and aggregate data are the
           .duration(0)
           .render(() => {
             document.querySelector(".table-view-toggle").click();
-            resolve({toggleCount: document.querySelectorAll(".tableview-source-toggle").length});
+            resolve({
+              toggleCount: document.querySelectorAll(".tableview-source-toggle")
+                .length,
+            });
           });
       }),
   );
 
-  assert.strictEqual(out.toggleCount, 0, "no toggle when there's nothing distinct to switch to");
+  assert.strictEqual(
+    out.toggleCount,
+    0,
+    "no toggle when there's nothing distinct to switch to",
+  );
 });
 
 it("the default (unsorted) row order matches .data() insertion order, even when the chart's own pipeline regroups rows without merging them", async function () {
@@ -770,9 +1098,12 @@ it("the default (unsorted) row order matches .data() insertion order, even when 
           .select("#s")
           .groupBy("id")
           .data([
-            {id: "B", x: "Q1", y: 20}, {id: "A", x: "Q1", y: 10},
-            {id: "B", x: "Q2", y: 25}, {id: "A", x: "Q2", y: 15},
-            {id: "B", x: "Q3", y: 30}, {id: "A", x: "Q3", y: 12},
+            {id: "B", x: "Q1", y: 20},
+            {id: "A", x: "Q1", y: 10},
+            {id: "B", x: "Q2", y: 25},
+            {id: "A", x: "Q2", y: 15},
+            {id: "B", x: "Q3", y: 30},
+            {id: "A", x: "Q3", y: 12},
           ])
           .x("x")
           .y("y")
@@ -781,7 +1112,9 @@ it("the default (unsorted) row order matches .data() insertion order, even when 
             document.querySelector(".table-view-toggle").click();
             resolve({
               order: Array.from(document.querySelectorAll("tbody tr")).map(tr =>
-                Array.from(tr.querySelectorAll("td")).map(td => td.textContent).join("-"),
+                Array.from(tr.querySelectorAll("td"))
+                  .map(td => td.textContent)
+                  .join("-"),
               ),
             });
           });
@@ -802,7 +1135,8 @@ it("the default (unsorted) row order falls back to group-first-appearance when r
       new Promise(resolve => {
         const categories = ["Zebra", "Alpha", "Mango"]; // deliberately non-alphabetical
         const data = [];
-        for (let i = 0; i < 30; i++) data.push({id: categories[i % 3], value: i + 1});
+        for (let i = 0; i < 30; i++)
+          data.push({id: categories[i % 3], value: i + 1});
         new window.d3plus.Treemap()
           .select("#s")
           .groupBy("id")
@@ -812,7 +1146,9 @@ it("the default (unsorted) row order falls back to group-first-appearance when r
           .render(() => {
             document.querySelector(".table-view-toggle").click();
             resolve({
-              order: Array.from(document.querySelectorAll("tbody tr td:first-child")).map(td => td.textContent),
+              order: Array.from(
+                document.querySelectorAll("tbody tr td:first-child"),
+              ).map(td => td.textContent),
             });
           });
       }),

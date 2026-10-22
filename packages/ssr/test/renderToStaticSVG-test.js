@@ -20,7 +20,10 @@ it("renderToStaticSVG returns a standalone SVG string for a Treemap", async () =
     "includes the SVG namespace",
   );
   assert.ok((svg.match(/<rect/g) || []).length >= 3, "has cell rects");
-  assert.ok((svg.match(/<text/g) || []).length >= 3, "has measured text labels");
+  assert.ok(
+    (svg.match(/<text/g) || []).length >= 3,
+    "has measured text labels",
+  );
 });
 
 it("renderToStaticSVG works across chart families", async () => {
@@ -31,7 +34,10 @@ it("renderToStaticSVG works across chart families", async () => {
   ];
   const charts = [
     new BarChart().data(data).groupBy("id").x("id").y("value"),
-    new Donut().data(data).groupBy("id").value(d => d.value),
+    new Donut()
+      .data(data)
+      .groupBy("id")
+      .value(d => d.value),
     new LinePlot().data(line).groupBy("id").x("year").y("value"),
   ];
   for (const viz of charts) {

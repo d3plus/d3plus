@@ -42,7 +42,12 @@ it("RadialBar tracks: radialBarLabelRoom: limited by the circle, or the gap unde
     1e-9,
     "45°: as far as the far end of the tracks",
   );
-  near(radialBarLabelRoom(100, 200, Math.PI / 6, 0), 100 * Math.tan(Math.PI / 6), 1e-9, "30°");
+  near(
+    radialBarLabelRoom(100, 200, Math.PI / 6, 0),
+    100 * Math.tan(Math.PI / 6),
+    1e-9,
+    "30°",
+  );
   assert.strictEqual(
     radialBarLabelRoom(100, 200, 0, 0),
     0,

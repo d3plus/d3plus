@@ -101,9 +101,15 @@ export type ShapeEmitter = (ctx: ShapeEmitContext, key: string) => SceneNode[];
     stacking-aware opp/opp0/opp1 accessors that read the precomputed
     `stackData` cube.
 */
-function buildInner(ctx: ShapeEmitContext, key: string): Record<string, unknown> {
-  const {viz, opp, x, y, stackData, domains, stackKeyIndex, discreteKeyIndex} = ctx;
-  const inner: Record<string, unknown> = markSharedConfig(Object.assign({}, ctx.shapeConfig));
+function buildInner(
+  ctx: ShapeEmitContext,
+  key: string,
+): Record<string, unknown> {
+  const {viz, opp, x, y, stackData, domains, stackKeyIndex, discreteKeyIndex} =
+    ctx;
+  const inner: Record<string, unknown> = markSharedConfig(
+    Object.assign({}, ctx.shapeConfig),
+  );
   // Bubble plots: when a `size` accessor is set, default to layering circles
   // largest-behind so smaller marks stay visible under bigger ones. This is a
   // default — `finishShape` applies the user's `shapeConfig` afterwards, so an
@@ -166,7 +172,11 @@ function finishShape(
   nodes.forEach((n, i) => {
     if (n.shapeType === "Bar") last = i;
   });
-  return stackEnterWindows(ctx, [...nodes.slice(0, last + 1), ...errorBars, ...nodes.slice(last + 1)]);
+  return stackEnterWindows(ctx, [
+    ...nodes.slice(0, last + 1),
+    ...errorBars,
+    ...nodes.slice(last + 1),
+  ]);
 }
 
 /** Generic path — every shape key without a dedicated emitter (incl. stacked Area). */
@@ -192,7 +202,11 @@ const circleEmit: ShapeEmitter = (ctx, key) => {
   return finishShape(ctx, "Circle", s, userConfig => {
     const r = userConfig.r as ((d: DataPoint, i: number) => number) | number;
     const placed = swarmPlacements(viz, {
-      values, x, y, xRange, yRange,
+      values,
+      x,
+      y,
+      xRange,
+      yRange,
       lanes: viz._swarm!.cross === "x" ? ctx.xDomain : ctx.yDomain,
       r: typeof r === "function" ? r : () => r,
     });
@@ -225,7 +239,9 @@ function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
       return at >= lo - 0.5 && at <= hi + 0.5;
     });
   }
-  const [lo, hi] = extent((axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number)) as [number, number];
+  const [lo, hi] = extent(
+    (axis === "x" ? ctx.xDomain : ctx.yDomain).map(Number),
+  ) as [number, number];
   return values.filter(d => {
     const at = +(d[axis] as number);
     return at >= lo && at <= hi;
@@ -235,10 +251,24 @@ function barsInDomain(ctx: ShapeEmitContext): DataPoint[] {
 /** Bar — discrete-axis spacing + multi-series grouping offsets. */
 const barEmit: ShapeEmitter = emitCtx => {
   const ctx = {...emitCtx, values: barsInDomain(emitCtx)};
-  const {viz, x, y, xScale, yScale, xDomain, yDomain, xRange, yRange, values, zoomRanges} = ctx;
+  const {
+    viz,
+    x,
+    y,
+    xScale,
+    yScale,
+    xDomain,
+    yDomain,
+    xRange,
+    yRange,
+    values,
+    zoomRanges,
+  } = ctx;
   const s = makeShape("Bar")
     .renderMode("compute")
-    .config(clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent))
+    .config(
+      clampBarConfig(buildInner(ctx, "Bar"), valueAxis(viz), ctx.valueExtent),
+    )
     .data(values);
 
   const scale = viz.schema.discrete === "x" ? x : y;
@@ -254,7 +284,9 @@ const barEmit: ShapeEmitter = emitCtx => {
   const zoomRange = zoomRanges?.[viz.schema.discrete as "x" | "y"];
   if (scaleType !== "Point" && vals.length === 2) {
     const allPositions = Array.from(
-      new Set(values.map((d: DataPoint) => scale(d[viz.schema.discrete as string]))),
+      new Set(
+        values.map((d: DataPoint) => scale(d[viz.schema.discrete as string])),
+      ),
     );
     const first = allPositions[0] as number;
     const last = allPositions[allPositions.length - 1] as number;
@@ -293,7 +325,10 @@ const barEmit: ShapeEmitter = emitCtx => {
   const uniqueIds = Array.from(new Set(ids));
 
   const discreteKey = viz.schema.discrete as string;
-  const discreteFn = ctx.shapeConfig[discreteKey] as (d: PlotDatum, i: number) => number;
+  const discreteFn = ctx.shapeConfig[discreteKey] as (
+    d: PlotDatum,
+    i: number,
+  ) => number;
   if (max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1) {
     s[discreteKey]((d: PlotDatum, i: number) => discreteFn(d, i));
   } else {
@@ -326,11 +361,18 @@ const barEmit: ShapeEmitter = emitCtx => {
     variable-width bar (`barWidth`) split it side by side, spaced by
     `barPadding`; Histogram's series sharing a bin overlap.
 */
-function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneNode[] {
+function spanBarEmit(
+  ctx: ShapeEmitContext,
+  s: Shape,
+  scale: PlotAxisFn,
+): SceneNode[] {
   const {viz, values} = ctx;
   const space = (d: PlotDatum) => {
     const [start, end] = rowSpan(viz, d);
-    return Math.max(1, Math.abs(scale(end) - scale(start)) - viz._groupPadding!);
+    return Math.max(
+      1,
+      Math.abs(scale(end) - scale(start)) - viz._groupPadding!,
+    );
   };
   const axis = viz.schema.discrete as "x" | "y";
   const series = viz._barSpans ? barSeries(values as PlotDatum[], axis) : [];
@@ -340,7 +382,12 @@ function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneN
     return finishShape(ctx, "Bar", s);
   }
   const slot = (d: PlotDatum) =>
-    seriesSlot(space(d), series.length, series.indexOf(d.group), viz.schema.barPadding);
+    seriesSlot(
+      space(d),
+      series.length,
+      series.indexOf(d.group),
+      viz.schema.barPadding,
+    );
   const position = ctx.shapeConfig[axis] as (d: PlotDatum, i: number) => number;
   s[axis]((d: PlotDatum, i: number) => position(d, i) + slot(d).offset);
   s.width((d: PlotDatum) => slot(d).size);
@@ -351,8 +398,13 @@ function spanBarEmit(ctx: ShapeEmitContext, s: Shape, scale: PlotAxisFn): SceneN
 /** Line — duration, optional confidence band, end-labels, and point markers. */
 const lineEmit: ShapeEmitter = ctx => {
   const {
-    viz, values, width, showLineLabels,
-    labelWidths, largestLabel, labelPositions,
+    viz,
+    values,
+    width,
+    showLineLabels,
+    labelWidths,
+    largestLabel,
+    labelPositions,
   } = ctx;
   const out: SceneNode[] = [];
 
@@ -398,9 +450,7 @@ const lineEmit: ShapeEmitter = ctx => {
           const [firstX, firstY] = s.points[0];
           const [lastX, lastY] = s.points[s.points.length - 1];
           const height = viz.schema.height / 4;
-          const mod = labelPositions[d.id]
-            ? lastY - labelPositions[d.id]
-            : 0;
+          const mod = labelPositions[d.id] ? lastY - labelPositions[d.id] : 0;
           return {
             x: lastX - firstX,
             y: lastY - firstY - height / 2 - mod,
@@ -412,10 +462,24 @@ const lineEmit: ShapeEmitter = ctx => {
   });
 
   // A forecast draws each line dashed from where its forecast starts.
-  const forecastDash = forecastLineDash(viz, values as PlotDatum[], ctx.shapeConfig, ctx);
-  out.push(...finishShape(ctx, "Line", s, forecastDash
-    ? user => ({strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray)})
-    : undefined));
+  const forecastDash = forecastLineDash(
+    viz,
+    values as PlotDatum[],
+    ctx.shapeConfig,
+    ctx,
+  );
+  out.push(
+    ...finishShape(
+      ctx,
+      "Line",
+      s,
+      forecastDash
+        ? user => ({
+            strokeDasharray: forecastDashOr(forecastDash, user.strokeDasharray),
+          })
+        : undefined,
+    ),
+  );
 
   const markers = makeShape("Circle")
     .renderMode("compute")
@@ -443,5 +507,9 @@ export const shapeEmitters: Record<string, ShapeEmitter> = {
     (`viz._plotShapeEmitters`), else the registry, else the generic path.
 */
 export function emitShape(ctx: ShapeEmitContext, key: string): SceneNode[] {
-  return (ctx.viz._plotShapeEmitters?.[key] ?? shapeEmitters[key] ?? genericEmit)(ctx, key);
+  return (
+    ctx.viz._plotShapeEmitters?.[key] ??
+    shapeEmitters[key] ??
+    genericEmit
+  )(ctx, key);
 }

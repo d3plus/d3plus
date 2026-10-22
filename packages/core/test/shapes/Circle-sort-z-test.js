@@ -36,7 +36,11 @@ it("Circle.sort() maps to per-datum z without reordering data", () => {
   const nodes = scene.children;
 
   // Data order is preserved (no in-place sort): index still matches input.
-  assert.deepStrictEqual(nodes.map(n => n.key), ["big", "small", "mid"], "data order untouched");
+  assert.deepStrictEqual(
+    nodes.map(n => n.key),
+    ["big", "small", "mid"],
+    "data order untouched",
+  );
 
   // z reflects the comparator: big=0 (behind), mid=1, small=2 (on top).
   const zByKey = Object.fromEntries(nodes.map(n => [n.key, n.z]));
@@ -51,30 +55,67 @@ it("Circle.sort() maps to per-datum z without reordering data", () => {
   const domOrder = Array.from(
     document.querySelectorAll("circle.d3plus-render-circle"),
   ).map(c => c.closest("[data-key]")?.getAttribute("data-key"));
-  assert.deepStrictEqual(domOrder, ["big", "mid", "small"], "DOM paints big→mid→small (small on top)");
+  assert.deepStrictEqual(
+    domOrder,
+    ["big", "mid", "small"],
+    "DOM paints big→mid→small (small on top)",
+  );
   renderer.destroy();
 });
 
 it("no sort → no z stamped (append-order fast path preserved)", () => {
-  const scene = new Circle().data([{id: "a", r: 10}, {id: "b", r: 20}]).r(d => d.r).toScene();
-  assert.ok(scene.children.every(n => n.z === undefined), "z left undefined when no comparator");
+  const scene = new Circle()
+    .data([
+      {id: "a", r: 10},
+      {id: "b", r: 20},
+    ])
+    .r(d => d.r)
+    .toScene();
+  assert.ok(
+    scene.children.every(n => n.z === undefined),
+    "z left undefined when no comparator",
+  );
 });
 
 it("sortRanks ranks without mutating and is null when inapplicable", () => {
   const data = [{v: 3}, {v: 1}, {v: 2}];
   const rank = sortRanks(data, (a, b) => a.v - b.v);
-  assert.deepStrictEqual(rank, [2, 0, 1], "rank[i] = paint position of datum i");
-  assert.deepStrictEqual(data.map(d => d.v), [3, 1, 2], "input array untouched");
+  assert.deepStrictEqual(
+    rank,
+    [2, 0, 1],
+    "rank[i] = paint position of datum i",
+  );
+  assert.deepStrictEqual(
+    data.map(d => d.v),
+    [3, 1, 2],
+    "input array untouched",
+  );
   assert.strictEqual(sortRanks(data, null), null, "null comparator → null");
-  assert.strictEqual(sortRanks([{v: 1}], (a, b) => a.v - b.v), null, "single datum → null");
+  assert.strictEqual(
+    sortRanks([{v: 1}], (a, b) => a.v - b.v),
+    null,
+    "single datum → null",
+  );
 });
 
 it("configPrep passes a sort comparator through un-wrapped (Plot shapeConfig path)", () => {
   const cmp = (a, b) => b.r - a.r;
   const viz = {schema: {duration: 0, shapeConfig: {}}};
-  const prepped = configPrep.call(viz, {Circle: {sort: cmp}}, "shape", "Circle");
-  assert.strictEqual(prepped.sort, cmp, "comparator reaches the shape identical, not wrapped");
+  const prepped = configPrep.call(
+    viz,
+    {Circle: {sort: cmp}},
+    "shape",
+    "Circle",
+  );
+  assert.strictEqual(
+    prepped.sort,
+    cmp,
+    "comparator reaches the shape identical, not wrapped",
+  );
   // A mangled (wrapped) comparator would ignore its second argument; assert the
   // real two-arg comparison still works after prep.
-  assert.ok(prepped.sort({r: 10}, {r: 30}) > 0, "still a real two-argument comparator");
+  assert.ok(
+    prepped.sort({r: 10}, {r: 30}) > 0,
+    "still a real two-argument comparator",
+  );
 });

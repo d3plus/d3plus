@@ -35,7 +35,10 @@ export function colorCategory(value: unknown): string | undefined {
     @param viz The chart, whose `_legendDepth` is already computed.
     @param legendData The rolled-up legend entries.
 */
-export function legendMergesIds(viz: VizInstance, legendData: DataPoint[]): boolean {
+export function legendMergesIds(
+  viz: VizInstance,
+  legendData: DataPoint[],
+): boolean {
   const groupBy = viz.schema.groupBy?.[viz._legendDepth ?? 0];
   if (typeof groupBy !== "function") return false;
   return legendData.some((d, i) => {
@@ -50,7 +53,9 @@ export function legendMergesIds(viz: VizInstance, legendData: DataPoint[]): bool
     two entries name the same one.
     @param entries Each legend entry with its color value.
 */
-export function legendCategories(entries: LegendEntry[]): WeakMap<DataPoint, string> | undefined {
+export function legendCategories(
+  entries: LegendEntry[],
+): WeakMap<DataPoint, string> | undefined {
   const categories = new WeakMap<DataPoint, string>();
   const seen = new Set<string>();
   for (const {datum, color: value} of entries) {
@@ -69,7 +74,10 @@ export function legendCategories(entries: LegendEntry[]): WeakMap<DataPoint, str
     @param viz The chart.
     @param d A legend entry, or a wrapper around one.
 */
-export function legendCategoryOf(viz: VizInstance, d: DataPoint | undefined): string | undefined {
+export function legendCategoryOf(
+  viz: VizInstance,
+  d: DataPoint | undefined,
+): string | undefined {
   if (!viz._legendCategories || !d) return undefined;
   while (d.__d3plus__ && d.data) d = d.data as DataPoint;
   return viz._legendCategories.get(d);

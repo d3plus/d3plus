@@ -15,9 +15,9 @@ export default {
         component: "Rotates a point around a given origin.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -62,7 +62,9 @@ const params = (p, alpha, alphaSource, origin, story) => ({
   },
 });
 
-export const BasicExample = () => <Diagram p={[100, 0]} alpha={Math.PI / 2} alphaSource="Math.PI / 2" />;
+export const BasicExample = () => (
+  <Diagram p={[100, 0]} alpha={Math.PI / 2} alphaSource="Math.PI / 2" />
+);
 BasicExample.parameters = params(
   [100, 0],
   Math.PI / 2,
@@ -71,7 +73,14 @@ BasicExample.parameters = params(
   "Rotates a point by an angle in radians around the origin `[0, 0]` by default. A quarter turn (π/2) moves `[100, 0]` onto the y axis; the tiny residue on x is ordinary floating-point error.",
 );
 
-export const CustomOrigin = () => <Diagram p={[80, 40]} alpha={Math.PI / 4} alphaSource="Math.PI / 4" origin={[40, 40]} />;
+export const CustomOrigin = () => (
+  <Diagram
+    p={[80, 40]}
+    alpha={Math.PI / 4}
+    alphaSource="Math.PI / 4"
+    origin={[40, 40]}
+  />
+);
 CustomOrigin.parameters = params(
   [80, 40],
   Math.PI / 4,

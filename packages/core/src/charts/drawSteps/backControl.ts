@@ -29,7 +29,11 @@ import {backControlStyleDefault} from "../viz/vizDefaults.js";
 /** The resolved base button style — also used as the cheap, non-DOM basis for `backContribution`'s `styleSignature` (see `Contribution.styleSignature`). */
 function resolvedBackButtonStyle(viz: Viz) {
   const className = Boolean(viz.schema.backControlClassName);
-  return resolveControlStyle(viz.schema.backControlStyle, backControlStyleDefault, className);
+  return resolveControlStyle(
+    viz.schema.backControlStyle,
+    backControlStyleDefault,
+    className,
+  );
 }
 
 /** Paints the back button's inline style. There's no active/hover override — unlike zoom/search it's not a toggle, so it relies on the browser's native `:hover`, like their own hover default (`false`) already does. */
@@ -51,18 +55,27 @@ function goBack(viz: Viz): void {
     // siblings' own geometry is frozen in THIS frame, not the new one
     // .render() is about to produce.
     if (entry.groupId !== undefined && entry.groupDepth !== undefined)
-      viz._pendingExitReunion = {groupId: entry.groupId, groupDepth: entry.groupDepth, body: viz._bodyRect};
+      viz._pendingExitReunion = {
+        groupId: entry.groupId,
+        groupDepth: entry.groupDepth,
+        body: viz._bodyRect,
+      };
     // Only the entry's view keys are config; groupId/groupDepth are the
     // reunion lookup's.
     viz.config({depth: entry.depth, filter: entry.filter}).render();
   } else {
-    viz.depth(viz._drawDepth - 1).filter(false).render();
+    viz
+      .depth(viz._drawDepth - 1)
+      .filter(false)
+      .render();
   }
 }
 
 /** The back button's markup: a real `<button>` (icon + visible "Back" text), so host-page button styling applies through the cascade once `backControlClassName` auto-disables the inline default. */
 export function backControlsHtml(viz: Viz): string {
-  const extraClass = viz.schema.backControlClassName ? ` ${viz.schema.backControlClassName}` : "";
+  const extraClass = viz.schema.backControlClassName
+    ? ` ${viz.schema.backControlClassName}`
+    : "";
   const label = viz.schema.translate("Back");
   return `<button type="button" class="back-control${extraClass}">${BACK_ICON}${label}</button>`;
 }

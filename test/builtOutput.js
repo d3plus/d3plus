@@ -15,10 +15,17 @@ export function builtOutput() {
     enforce: "pre",
     async resolveId(id, importer, options) {
       if (id.startsWith("\0")) return null;
-      const resolved = await this.resolve(id, importer, {...options, skipSelf: true});
+      const resolved = await this.resolve(id, importer, {
+        ...options,
+        skipSelf: true,
+      });
       const match = resolved && resolved.id.match(source);
       if (!match) return null;
-      return path.join(match[1], "es", `${match[2]}.${match[3] === "tsx" ? "jsx" : "js"}`);
+      return path.join(
+        match[1],
+        "es",
+        `${match[2]}.${match[3] === "tsx" ? "jsx" : "js"}`,
+      );
     },
   };
 }

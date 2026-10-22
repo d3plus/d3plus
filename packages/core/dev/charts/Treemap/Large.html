@@ -1,32 +1,27 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Large · Treemap</title>
+    <meta
+      name="description"
+      content="Treemap of US state populations with a timeline."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+  </head>
 
-<head>
+  <body></body>
 
-  <meta charset="utf-8">
-  <title>Large · Treemap</title>
-  <meta name="description" content="Treemap of US state populations with a timeline.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-  // US state populations by year (ACS PUMS, via datausa.io).
-  new d3plus.Treemap()
-    .data("./state-population.json")
-    .config({
-      groupBy: "State",
-      sum: "Total Population",
-      time: "Year"
-    })
-    .render();
-
-</script>
-
+  <script>
+    // US state populations by year (ACS PUMS, via datausa.io).
+    new d3plus.Treemap()
+      .data("./state-population.json")
+      .config({
+        groupBy: "State",
+        sum: "Total Population",
+        time: "Year",
+      })
+      .render();
+  </script>
 </html>

@@ -16,7 +16,8 @@ type Row = {id?: unknown; data?: DataPoint; i?: number};
 /** The formatted row behind a stack series (its key is that row's id). */
 function seriesRow(series: Series): Row | undefined {
   for (let j = 0; j < series.length; j++) {
-    const group = ((series[j] as unknown as {data?: Row[]}).data || []) as Row[];
+    const group = ((series[j] as unknown as {data?: Row[]}).data ||
+      []) as Row[];
     const row = group.find(g => g.id === series.key);
     if (row) return row;
   }
@@ -36,17 +37,25 @@ function seriesMagnitude(series: Series): number {
     key. Sub-groups are ranked by their total across both sides, largest
     first (stacked nearest the center); ties keep their first-seen order.
 */
-export function pyramidStackOrder(subKey: (d: DataPoint, i: number) => string): StackOrderFn {
+export function pyramidStackOrder(
+  subKey: (d: DataPoint, i: number) => string,
+): StackOrderFn {
   const order = ((series: Series[]) => {
     const keys = series.map(s => {
       const row = seriesRow(s);
       return row && row.data ? subKey(row.data, row.i ?? 0) : `${s.key}`;
     });
     const totals = new Map<string, number>();
-    keys.forEach((k, i) => totals.set(k, (totals.get(k) ?? 0) + seriesMagnitude(series[i])));
-    const ranked = Array.from(totals.keys()).sort((a, b) => totals.get(b)! - totals.get(a)!);
+    keys.forEach((k, i) =>
+      totals.set(k, (totals.get(k) ?? 0) + seriesMagnitude(series[i])),
+    );
+    const ranked = Array.from(totals.keys()).sort(
+      (a, b) => totals.get(b)! - totals.get(a)!,
+    );
     const rank = new Map(ranked.map((k, i) => [k, i]));
-    return series.map((_, i) => i).sort((a, b) => rank.get(keys[a])! - rank.get(keys[b])! || a - b);
+    return series
+      .map((_, i) => i)
+      .sort((a, b) => rank.get(keys[a])! - rank.get(keys[b])! || a - b);
   }) as StackOrderFn;
   order.__d3plusStackOrder = true;
   return order;

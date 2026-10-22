@@ -44,10 +44,7 @@ export function windowTransition(
         });
       return proxy;
     },
-    attrTween(
-      name: string,
-      factory: (this: Element) => AttrTween | null,
-    ) {
+    attrTween(name: string, factory: (this: Element) => AttrTween | null) {
       tsel.attrTween(name, function (this: Element) {
         const tween = factory.call(this);
         return tween ? (t: number) => tween(progress(t)) : (null as never);
@@ -86,10 +83,7 @@ export function markEntering(el: Element, node: SceneNode): void {
     @param el The element.
     @param node The node it draws.
 */
-export function enterWindowed(
-  el: Element,
-  node: SceneNode,
-): <T>(tsel: T) => T {
+export function enterWindowed(el: Element, node: SceneNode): <T>(tsel: T) => T {
   const entering = (el as Entering).__d3plusEntering__;
   (el as Entering).__d3plusEntering__ = undefined;
   const window = entering ? node.enterWindow : undefined;

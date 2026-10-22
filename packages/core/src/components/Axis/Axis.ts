@@ -2,8 +2,7 @@ import {extent, min} from "d3-array";
 import {select} from "d3-selection";
 import type {transition} from "d3-transition";
 
-import {colorContrast} from "@d3plus/color";
-import {backgroundColor, elem, rtl as detectRTL} from "@d3plus/dom";
+import {elem} from "@d3plus/dom";
 import type {D3Selection} from "@d3plus/dom";
 
 import type {GroupNode} from "@d3plus/render";
@@ -12,18 +11,24 @@ import type {SvgRenderer} from "@d3plus/render";
 import {TextBox} from "../index.js";
 import type Shape from "../../shapes/Shape.js";
 import {measureAxis} from "./axisLayout.js";
-import {gridStroke} from "./gridStroke.js";
+import {
+  axisBarConfig,
+  axisBreakConfig,
+  axisGridConfig,
+  axisShapeConfig,
+  axisTitleConfig,
+} from "./axisDefaults.js";
 import {timeDataInDomain} from "./timeValues.js";
 import type {AxisBaselineBreak, AxisBreak} from "./axisBreak.js";
+import {axisToScene} from "./axisScene.js";
 import {
-  axisToScene,
   buildTickData,
   calculateTicks,
   configureTickShape,
   renderAxisTitle,
 } from "./axisRender.js";
 import {isNegative} from "./axisRounding.js";
-import {BaseClass, constant, paintComponentScene} from "../../utils/index.js";
+import {BaseClass, paintComponentScene} from "../../utils/index.js";
 import type {D3Scale} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
@@ -147,97 +152,20 @@ export default class Axis extends BaseClass {
     this._data = [];
     this._labelRotation = false;
     this._labelRotationSetting = undefined;
-    this.schema.barConfig = {
-      stroke: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      "stroke-width": 1,
-    };
-    const breakDefaults = () => ({
-      angle: 30,
-      gap: 5,
-      lineConfig: {},
-      lines: true,
-      mask: true,
-      size: 10,
-      space: 36,
-      stroke: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      "stroke-width": 1,
-    });
-    this.schema.baselineBreakConfig = breakDefaults();
-    this.schema.breakConfig = breakDefaults();
-    this.schema.gridConfig = {
-      stroke: () => gridStroke(this._select?.node(), this.schema.colorDefaults),
-      "stroke-width": 1,
-    };
+    this.schema.barConfig = axisBarConfig(this);
+    this.schema.baselineBreakConfig = axisBreakConfig(this);
+    this.schema.breakConfig = axisBreakConfig(this);
+    this.schema.gridConfig = axisGridConfig(this);
     this.orient("bottom");
     this._outerBounds = {width: 0, height: 0, x: 0, y: 0};
-    this.schema.shapeConfig = {
-      fill: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      height: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
-      label: (d: Record<string, unknown>) => d.text,
-      labelBounds: (d: Record<string, unknown>) => d.labelBounds,
-      labelConfig: {
-        fontColor: () => {
-          const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-          return colorContrast(bg, this.schema.colorDefaults);
-        },
-        fontResize: false,
-        fontSize: constant(12),
-        padding: 5,
-        textAnchor: () => {
-          const rtl = detectRTL();
-          return this.schema.orient === "left"
-            ? rtl
-              ? "start"
-              : "end"
-            : this.schema.orient === "right"
-              ? rtl
-                ? "end"
-                : "start"
-              : this._labelRotation
-                ? this.schema.orient === "bottom"
-                  ? "end"
-                  : "start"
-                : "middle";
-        },
-        verticalAlign: () =>
-          this.schema.orient === "bottom"
-            ? "top"
-            : this.schema.orient === "top"
-              ? this._labelRotation ? "top" : "bottom"
-              : "middle",
-      },
-      r: (d: Record<string, unknown>) => (d.tick ? 4 : 0),
-      stroke: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      strokeWidth: 1,
-      width: (d: Record<string, unknown>) => (d.tick ? 8 : 0),
-    };
+    this.schema.shapeConfig = axisShapeConfig(this);
     this._tickUnit = 0;
     this._titleClass = new TextBox();
-    this.schema.titleConfig = {
-      fontColor: () => {
-        const bg = this._select ? backgroundColor(this._select.node()) : "rgb(255, 255, 255)";
-        return colorContrast(bg, this.schema.colorDefaults);
-      },
-      fontSize: 12,
-      textAnchor: "middle",
-    };
+    this.schema.titleConfig = axisTitleConfig(this);
     this._margin = {top: 0, right: 0, bottom: 0, left: 0};
     this._availableTicks = [];
     this._visibleTicks = [];
   }
-
 
   /**
       Returns the scale's domain, taking into account negative and positive log
@@ -334,9 +262,10 @@ export default class Axis extends BaseClass {
       @private
 */
   _getTicks(): unknown[] {
-    const tickData = this.schema.scale === "time" && this._d3Scale
-      ? timeDataInDomain(this._scaleData as Date[], this._d3Scale)
-      : this._scaleData;
+    const tickData =
+      this.schema.scale === "time" && this._d3Scale
+        ? timeDataInDomain(this._scaleData as Date[], this._d3Scale)
+        : this._scaleData;
     if (
       ["band", "ordinal", "point", "time"].includes(this.schema.scale) &&
       tickData.length &&
@@ -355,7 +284,6 @@ export default class Axis extends BaseClass {
       ticks.splice(ticks.indexOf(-1), 1);
     return ticks;
   }
-
 
   /**
       Produces a backend-agnostic scene graph for this axis with no DOM dependency:
@@ -383,7 +311,7 @@ export default class Axis extends BaseClass {
      *
      * In `renderMode("full")` with `_select` unset, we create a
      * body-attached svg so standalone `new Axis().render()` works.
-*/
+     */
     if (this._select === void 0 && this.schema.renderMode !== "compute") {
       // Timeline (`_managesOwnScenePaint`) paints its own brush + play-button
       // DOM into this root, so it needs a real <svg>. A plain Axis paints
@@ -425,8 +353,10 @@ export default class Axis extends BaseClass {
     // render) expect it.
     const standaloneCompute =
       this.schema.renderMode === "compute" &&
-      (this._select === void 0 || this._select === null ||
-        (typeof this._select.node === "function" && this._select.node() === null));
+      (this._select === void 0 ||
+        this._select === null ||
+        (typeof this._select.node === "function" &&
+          this._select.node() === null));
     const group = standaloneCompute
       ? null
       : elem(`g#d3plus-Axis-${this._uuid}`, {parent});
@@ -434,7 +364,8 @@ export default class Axis extends BaseClass {
 
     const gridLineData: {id: unknown}[] = (
       this.schema.gridSize !== 0
-        ? this.schema.grid || (this.schema.scale === "log" && !this.schema.gridLog)
+        ? this.schema.grid ||
+          (this.schema.scale === "log" && !this.schema.gridLog)
           ? labels
           : ticks
         : []
@@ -455,10 +386,7 @@ export default class Axis extends BaseClass {
     // Standalone render: paint the scene into the user's `_select`. Inside a
     // Viz the axis runs in compute mode and the Viz composes its toScene(), so
     // skip both compute mode and subclasses that paint themselves (Timeline).
-    if (
-      this.schema.renderMode !== "compute" &&
-      !this._managesOwnScenePaint
-    )
+    if (this.schema.renderMode !== "compute" && !this._managesOwnScenePaint)
       paintComponentScene(this);
 
     if (callback) setTimeout(callback, this.schema.duration + 100);
@@ -493,7 +421,8 @@ export default class Axis extends BaseClass {
   breakConfig(_: Record<string, unknown>): this;
   breakConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.breakConfig = mergeConfigBag(this, "breakConfig", _)), this)
+      ? ((this.schema.breakConfig = mergeConfigBag(this, "breakConfig", _)),
+        this)
       : this.schema.breakConfig;
   }
 
@@ -513,7 +442,12 @@ export default class Axis extends BaseClass {
   baselineBreakConfig(_: Record<string, unknown>): this;
   baselineBreakConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.baselineBreakConfig = mergeConfigBag(this, "baselineBreakConfig", _)), this)
+      ? ((this.schema.baselineBreakConfig = mergeConfigBag(
+          this,
+          "baselineBreakConfig",
+          _,
+        )),
+        this)
       : this.schema.baselineBreakConfig;
   }
 
@@ -633,7 +567,8 @@ export default class Axis extends BaseClass {
   shapeConfig(_: Record<string, unknown>): this;
   shapeConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)), this)
+      ? ((this.schema.shapeConfig = mergeConfigBag(this, "shapeConfig", _)),
+        this)
       : this.schema.shapeConfig;
   }
 
@@ -644,7 +579,8 @@ export default class Axis extends BaseClass {
   titleConfig(_: Record<string, unknown>): this;
   titleConfig(_?: Record<string, unknown>): unknown {
     return arguments.length
-      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)), this)
+      ? ((this.schema.titleConfig = mergeConfigBag(this, "titleConfig", _)),
+        this)
       : this.schema.titleConfig;
   }
 }

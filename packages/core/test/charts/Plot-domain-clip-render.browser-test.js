@@ -86,12 +86,17 @@ const PRELUDE = `
 
 /** Runs `body` in the page after the prelude. */
 function page(body, arg) {
-  return render(box, new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`), arg);
+  return render(
+    box,
+    new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`),
+    arg,
+  );
 }
 
 for (const renderer of ["svg", "canvas"]) {
   it(`[${renderer}] LinePlot with yDomain([980]) draws nothing below the x axis`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.LinePlot()
         .data(alpha).groupBy("id").x("x").y("value")
         .yDomain([980]).legend(false).lineMarkers(true)
@@ -108,15 +113,23 @@ for (const renderer of ["svg", "canvas"]) {
         below: count({x: 0, y: bottom + 8, width: 640, height: svgHeight}, red),
         inside: count(plot, red),
       };
-    `, renderer);
+    `,
+      renderer,
+    );
     assert.ok(r.clips.length >= 1, "the cut-off marks are clipped");
-    r.clips.forEach(over => assert.ok(over >= 0 && over <= 7, `a clip reaches ${over}px past the axis`));
+    r.clips.forEach(over =>
+      assert.ok(
+        over >= 0 && over <= 7,
+        `a clip reaches ${over}px past the axis`,
+      ),
+    );
     assert.strictEqual(r.below, 0, "no line pixels below the x axis");
     assert.ok(r.inside > 100, "the line still draws inside the plot");
   });
 
   it(`[${renderer}] a point on the domain's edge draws whole`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.LinePlot()
         .data(alpha).groupBy("id").x("x").y("value")
         .yDomain([980, 1040]).legend(false).lineMarkers(true)
@@ -131,14 +144,23 @@ for (const renderer of ["svg", "canvas"]) {
         above: count({x: plot.x, y: plot.y - 6, width: plot.width, height: 5}, green),
         below: count({x: plot.x, y: plot.y + 1, width: plot.width, height: 5}, green),
       };
-    `, renderer);
+    `,
+      renderer,
+    );
     assert.ok(r.clips >= 1, "the dips below 980 are clipped");
-    assert.ok(r.above > 20, `the max point's top half draws above the plot (${r.above}px)`);
-    assert.ok(Math.abs(r.above - r.below) < r.below * 0.5, "about as much of it above the edge as below");
+    assert.ok(
+      r.above > 20,
+      `the max point's top half draws above the plot (${r.above}px)`,
+    );
+    assert.ok(
+      Math.abs(r.above - r.below) < r.below * 0.5,
+      "about as much of it above the edge as below",
+    );
   });
 
   it(`[${renderer}] the clipped-away part of a line takes no pointer events`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       // A flat dip just below the domain, so the clipped stretch of line
       // still lies on the surface (between x ticks, clear of their labels).
       const dip = [1000, 1012, 990, 975, 975, 975, 1024, 1040, 1018, 1003, 1030]
@@ -171,15 +193,25 @@ for (const renderer of ["svg", "canvas"]) {
       const inside = points.filter(p => p[0] > plot.x + 10 && p[0] < plot.x + plot.width - 10 &&
         p[1] > plot.y + 10 && p[1] < bottom - 10);
       return {outside: outside.map(pickLine), inside: inside.map(pickLine)};
-    `, renderer);
-    assert.ok(r.outside.length >= 2, "the dip lies on the surface below the plot");
-    assert.deepStrictEqual(r.outside, r.outside.map(() => false), "the line below the axis doesn't pick");
+    `,
+      renderer,
+    );
+    assert.ok(
+      r.outside.length >= 2,
+      "the dip lies on the surface below the plot",
+    );
+    assert.deepStrictEqual(
+      r.outside,
+      r.outside.map(() => false),
+      "the line below the axis doesn't pick",
+    );
     assert.ok(r.inside.length >= 2, "and some of it inside the plot");
     assert.ok(r.inside.every(Boolean), "which still picks");
   });
 
   it(`[${renderer}] each small-multiples panel clips to its own plot`, async () => {
-    const r = await page(`
+    const r = await page(
+      `
       const chart = new d3plus.LinePlot()
         .data(rows).groupBy("id").x("x").y("value")
         .yDomain([980]).legend(false).facet("id")
@@ -194,7 +226,9 @@ for (const renderer of ["svg", "canvas"]) {
         inside: count(c, red),
         below: count({x: c.x, y: c.y + c.height + 2, width: c.width, height}, red),
       }));
-    `, renderer);
+    `,
+      renderer,
+    );
     const panels = new Set(r.map(c => c.panel));
     assert.strictEqual(panels.size, 2, "both panels clip");
     const lefts = [...new Set(r.map(c => Math.round(c.x)))];
@@ -255,6 +289,10 @@ it("a zoomed plot leaves its marks to the zoom's own clip", async () => {
   `);
   assert.ok(r.before >= 1, "clipped at its natural scale");
   assert.ok(r.zoomClip, "the zoomed content is clipped");
-  assert.strictEqual(r.lines, 2, "the lines sit directly in it, so the zoom's frames tween");
+  assert.strictEqual(
+    r.lines,
+    2,
+    "the lines sit directly in it, so the zoom's frames tween",
+  );
   assert.strictEqual(r.groups, 0, "with no clip group of their own");
 });

@@ -36,7 +36,6 @@ export function setGlobalConfig(config?: Record<string, unknown>): void {
     ```
 */
 export class D3plusElement extends HTMLElement {
-
   /** The d3plus class this element instantiates; set per registered subclass. */
   static viz?: D3plusConstructor;
 
@@ -110,5 +109,4 @@ export class D3plusElement extends HTMLElement {
     applyConfig(this._instance, this._svg, globalConfig, this._config);
     this._instance.render?.(this._callback);
   }
-
 }

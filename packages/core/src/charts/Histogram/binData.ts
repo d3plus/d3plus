@@ -7,7 +7,11 @@ import {bin, extent, groups, range, thresholdSturges} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 
 /** A d3-array threshold generator: `(values, min, max) → count | edges`. */
-export type ThresholdGenerator = (values: ArrayLike<number>, min: number, max: number) => number | number[];
+export type ThresholdGenerator = (
+  values: ArrayLike<number>,
+  min: number,
+  max: number,
+) => number | number[];
 
 /** How bin heights are normalized. */
 export type BinNormalize = "count" | "density" | "relative";
@@ -52,7 +56,9 @@ export interface BinRow extends DataPoint {
 function widthEdges(lo: number, hi: number, width: number): number[] {
   const start = Math.floor(lo / width) * width;
   const end = Math.max(Math.ceil(hi / width) * width, start + width);
-  return range(0, Math.round((end - start) / width) + 1).map(i => start + i * width);
+  return range(0, Math.round((end - start) / width) + 1).map(
+    i => start + i * width,
+  );
 }
 
 /** An observation: its row, the row's index, and its numeric value. */
@@ -72,7 +78,8 @@ function binEdges(values: number[], options: BinOptions): number[] {
     [lo, hi] = [lo - 0.5, hi + 0.5];
     fixedDomain = true;
   }
-  if (options.width && options.width > 0) return widthEdges(lo, hi, options.width);
+  if (options.width && options.width > 0)
+    return widthEdges(lo, hi, options.width);
 
   let generator = bin();
   if (fixedDomain) generator = generator.domain([lo, hi]);
@@ -82,7 +89,11 @@ function binEdges(values: number[], options: BinOptions): number[] {
 }
 
 /** One row per group per bin for one panel's observations, normalized against the panel's total. */
-function binPanel(observations: Observation[], edges: number[], options: BinOptions): BinRow[] {
+function binPanel(
+  observations: Observation[],
+  edges: number[],
+  options: BinOptions,
+): BinRow[] {
   const {group = () => "", normalize = "count"} = options;
   const perGroup = bin()
     .domain([edges[0], edges[edges.length - 1]])
@@ -93,7 +104,8 @@ function binPanel(observations: Observation[], edges: number[], options: BinOpti
     const binned = perGroup(members.map(o => o.v));
     const first = members[0].d;
     binned.forEach(b => {
-      const x0 = b.x0!, x1 = b.x1!;
+      const x0 = b.x0!,
+        x1 = b.x1!;
       const count = b.length;
       const y =
         normalize === "density"
@@ -112,7 +124,10 @@ function binPanel(observations: Observation[], edges: number[], options: BinOpti
     gets a row for every bin of its panel (empty bins included, so stacks
     line up).
 */
-export default function binData(rows: DataPoint[], options: BinOptions): BinRow[] {
+export default function binData(
+  rows: DataPoint[],
+  options: BinOptions,
+): BinRow[] {
   const {value, panel = () => ""} = options;
 
   const observations: Observation[] = rows
@@ -120,8 +135,21 @@ export default function binData(rows: DataPoint[], options: BinOptions): BinRow[
     .filter(o => o.d && Number.isFinite(o.v));
   if (!observations.length) return [];
 
-  const shared = options.sharedEdges ? binEdges(observations.map(o => o.v), options) : undefined;
+  const shared = options.sharedEdges
+    ? binEdges(
+        observations.map(o => o.v),
+        options,
+      )
+    : undefined;
   return groups(observations, o => panel(o.d, o.i)).flatMap(([, members]) =>
-    binPanel(members, shared ?? binEdges(members.map(o => o.v), options), options),
+    binPanel(
+      members,
+      shared ??
+        binEdges(
+          members.map(o => o.v),
+          options,
+        ),
+      options,
+    ),
   );
 }

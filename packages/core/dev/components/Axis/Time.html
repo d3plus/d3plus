@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Time · Axis</title>
-    <meta name="description" content="Yearly, monthly and daily time axes, with and without data ticks.">
+    <meta
+      name="description"
+      content="Yearly, monthly and daily time axes, with and without data ticks."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/@d3plus/axis@1"></script> -->
 
     <style>
-
       body {
         background-color: #fafafa;
         margin: 0;
@@ -38,25 +38,20 @@
         pointer-events: none;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
     <div class="column" id="horizontal"></div>
     <!-- <div class="column" id="vertical"></div> -->
 
     <script>
-
       var index = {horizontal: 0, vertical: 0};
       var height = 150;
       var width = 600;
       var border = 1;
 
       function makeAxis(config, vertical) {
-
         var orient = vertical ? "vertical" : "horizontal";
         var i = index[orient];
         var w = orient === "horizontal" ? width : height;
@@ -66,10 +61,16 @@
         svg.id = "axis" + orient + i;
         svg.setAttribute("width", w + "px");
         svg.setAttribute("height", h + "px");
-        svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+        svg.setAttributeNS(
+          "http://www.w3.org/2000/xmlns/",
+          "xmlns:xlink",
+          "http://www.w3.org/1999/xlink",
+        );
         document.getElementById(orient).appendChild(svg);
 
-        var axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+        var axis = new d3plus[
+          orient === "horizontal" ? "AxisBottom" : "AxisLeft"
+        ]()
           .select("#axis" + orient + i)
           .width(w)
           // .locale("ar")
@@ -90,7 +91,6 @@
         // // console.log(index, bounds);
         // console.log("\n");
         index[orient]++;
-
       }
 
       function getExtent(extent, res) {
@@ -126,9 +126,6 @@
       makeAxis({title: "Daily", data: dailyData, domain: dailyExtent});
       // makeAxis({title: "Daily", data: dailyData.slice(0, 16), domain: [dailyData[0], dailyData[15]]});
       // makeAxis({title: "Daily", data: dailyData.slice(18, 57), domain: [dailyData[18], dailyData[56]]});
-
     </script>
-
   </body>
-
 </html>

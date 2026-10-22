@@ -83,8 +83,16 @@ it("Bullet: fluent defaults", () => {
   assert.strictEqual(viz.target()({target: 4}), 4);
   assert.strictEqual(viz.forecast()({forecast: 5}), 5);
   assert.strictEqual(viz.value()({value: 6}), 6);
-  assert.strictEqual(viz.target(false).target(), false, "target can be turned off");
-  assert.strictEqual(viz.value(false).value()({value: 2}), 2, "value can't be turned off");
+  assert.strictEqual(
+    viz.target(false).target(),
+    false,
+    "target can be turned off",
+  );
+  assert.strictEqual(
+    viz.value(false).value()({value: 2}),
+    2,
+    "value can't be turned off",
+  );
   assert.strictEqual(viz.forecastConfig().opacity, 0.35);
   assert.strictEqual(viz.targetConfig().strokeWidth, 3);
   assert.strictEqual(viz.shapeConfig().strokeWidth, MEASURE_OUTLINE);
@@ -106,7 +114,10 @@ it("Bullet: bulletKey joins the row's ids", () => {
 });
 
 it("Bullet: rowBands reads the shared bands or a per-row accessor", () => {
-  assert.deepStrictEqual(rowBands(bullet(kpis, {bands: [50]}), kpis[0], 0), [{max: 50}, {}]);
+  assert.deepStrictEqual(rowBands(bullet(kpis, {bands: [50]}), kpis[0], 0), [
+    {max: 50},
+    {},
+  ]);
   const viz = bullet(kpis, {bands: d => (d.id === "Profit" ? [20, 25] : [])});
   assert.deepStrictEqual(rowBands(viz, kpis[1], 1), [{max: 20}, {max: 25}, {}]);
   assert.deepStrictEqual(rowBands(viz, kpis[0], 0), []);
@@ -131,8 +142,15 @@ it("Bullet: bulletExtents groups rows by id, or into one shared extent", () => {
   const shared = bulletExtents(bullet(data, {sharedDomain: true}), data);
   assert.deepStrictEqual([...shared.keys()], ["*"]);
   assert.deepStrictEqual(shared.get("*").extent, [22.5, 1650]);
-  const perRow = bulletExtents(bullet(kpis, {domain: d => [0, d.value * 2]}), kpis);
-  assert.deepStrictEqual(perRow.get("Profit").input, [0, 45], "a per-row domain");
+  const perRow = bulletExtents(
+    bullet(kpis, {domain: d => [0, d.value * 2]}),
+    kpis,
+  );
+  assert.deepStrictEqual(
+    perRow.get("Profit").input,
+    [0, 45],
+    "a per-row domain",
+  );
 });
 
 it("Bullet: bulletStyle derives theme colors and reads axisConfig", () => {
@@ -145,7 +163,11 @@ it("Bullet: bulletStyle derives theme colors and reads axisConfig", () => {
   assert.strictEqual(style.tickFontSize, TICK_FONT_SIZE);
   assert.strictEqual(style.tickFormat(1500), "1.5k");
   viz.axisConfig({
-    shapeConfig: {fill: "pink", stroke: "navy", labelConfig: {fontColor: "red", fontSize: 14}},
+    shapeConfig: {
+      fill: "pink",
+      stroke: "navy",
+      labelConfig: {fontColor: "red", fontSize: 14},
+    },
   });
   const custom = bulletStyle(viz, kpis[0], 0);
   assert.strictEqual(custom.trackFill, "pink");
@@ -162,7 +184,9 @@ it("Bullet: bulletTooltipRows lists the values a row has", () => {
     ["[Target]", "250"],
     ["[Forecast]", "290"],
   ]);
-  assert.deepStrictEqual(bulletTooltipRows(viz, kpis[2], 2), [["[Value]", "1.65k"]]);
+  assert.deepStrictEqual(bulletTooltipRows(viz, kpis[2], 2), [
+    ["[Value]", "1.65k"],
+  ]);
 });
 
 it("Bullet: applyBulletLayout lays out one bullet per row", () => {
@@ -170,7 +194,9 @@ it("Bullet: applyBulletLayout lays out one bullet per row", () => {
   const {shapeData} = applyBulletLayout({viz});
   assert.strictEqual(shapeData.length, 3);
   const [rev, profit, orders] = shapeData;
-  assert.ok(shapeData.every((b, i) => b.__d3plus__ && b.i === i && b.data === kpis[i]));
+  assert.ok(
+    shapeData.every((b, i) => b.__d3plus__ && b.i === i && b.data === kpis[i]),
+  );
   assert.deepStrictEqual(
     [rev.key, rev.name, rev.subLabel, rev.value, rev.target, rev.forecast],
     ["Revenue", "Revenue", "US$", 270, 250, 290],
@@ -184,7 +210,10 @@ it("Bullet: applyBulletLayout lays out one bullet per row", () => {
   assert.strictEqual(rev.bands.length, 3);
   assert.strictEqual(rev.bands[0].max, 100);
   assert.ok(profit.track.band.y > rev.track.band.y, "rows stack downward");
-  assert.ok(shapeData.every(b => b.axis), "every row has its own axis");
+  assert.ok(
+    shapeData.every(b => b.axis),
+    "every row has its own axis",
+  );
   const shared = viz.ctx.bullet;
   assert.strictEqual(shared.orient, "horizontal");
   assert.strictEqual(shared.nameFontSize, NAME_FONT_SIZE);
@@ -195,18 +224,29 @@ it("Bullet: applyBulletLayout lays out one bullet per row", () => {
 it("Bullet: applyBulletLayout shares a domain, reads facet extents, and runs vertical", () => {
   const shared = bullet(kpis, {sharedDomain: true});
   const rows = applyBulletLayout({viz: shared}).shapeData;
-  assert.ok(rows.every(b => b.track.domain.join() === rows[0].track.domain.join()));
-  assert.deepStrictEqual(rows.map(b => b.axis), [false, false, true]);
+  assert.ok(
+    rows.every(b => b.track.domain.join() === rows[0].track.domain.join()),
+  );
+  assert.deepStrictEqual(
+    rows.map(b => b.axis),
+    [false, false, true],
+  );
   assert.ok(rows.slice(0, 2).every(b => !b.ticks.length));
 
   const faceted = bullet(kpis);
-  faceted.ctx.bulletFacet = bulletExtents(faceted, [...kpis, {id: "Profit", value: 900}]);
+  faceted.ctx.bulletFacet = bulletExtents(faceted, [
+    ...kpis,
+    {id: "Profit", value: 900},
+  ]);
   const profit = applyBulletLayout({viz: faceted}).shapeData[1];
   assert.ok(profit.track.domain[1] >= 900, "a facet-shared extent wins");
 
   const vertical = bullet(kpis, {orient: "vertical"});
   const cols = applyBulletLayout({viz: vertical}).shapeData;
-  assert.ok(cols[1].track.band.x > cols[0].track.band.x, "columns run left to right");
+  assert.ok(
+    cols[1].track.band.x > cols[0].track.band.x,
+    "columns run left to right",
+  );
   assert.ok(cols[0].track.band.height > cols[0].track.band.width);
 
   const empty = bullet([]);
@@ -216,14 +256,21 @@ it("Bullet: applyBulletLayout shares a domain, reads facet extents, and runs ver
 it("Bullet: bulletFacet asks for wide panels and shares extents across panels", () => {
   assert.strictEqual(bulletFacet.aspect, 2);
   const viz = bullet();
-  const scales = bulletFacet.share(viz, [[kpis[0]], [{id: "Revenue", value: 900}]]);
+  const scales = bulletFacet.share(viz, [
+    [kpis[0]],
+    [{id: "Revenue", value: 900}],
+  ]);
   assert.deepStrictEqual(scales.get("Revenue").extent, [250, 900]);
   const undo = bulletFacet.panel(viz, {shared: true, scales});
   assert.strictEqual(viz.ctx.bulletFacet, scales);
   undo();
   assert.strictEqual(viz.ctx.bulletFacet, undefined);
   bulletFacet.panel(viz, {shared: false, scales});
-  assert.strictEqual(viz.ctx.bulletFacet, undefined, "independent panels fit their own");
+  assert.strictEqual(
+    viz.ctx.bulletFacet,
+    undefined,
+    "independent panels fit their own",
+  );
 });
 
 it("Bullet: bulletText anchors a single-line label", () => {
@@ -242,7 +289,16 @@ it("Bullet: bulletText anchors a single-line label", () => {
   assert.strictEqual(node.font.weight, 600);
   assert.strictEqual(node.font.baseline, "middle");
   assert.strictEqual(node.paint.fill, "red");
-  assert.strictEqual(bulletText("k", "x", 0, 0, {size: 1, family: "", color: "", anchor: "start", width: 1}).font.weight, 400);
+  assert.strictEqual(
+    bulletText("k", "x", 0, 0, {
+      size: 1,
+      family: "",
+      color: "",
+      anchor: "start",
+      width: 1,
+    }).font.weight,
+    400,
+  );
 });
 
 it("Bullet: bulletStatics draws the track, bands, and axis as static nodes", () => {
@@ -250,12 +306,32 @@ it("Bullet: bulletStatics draws the track, bands, and axis as static nodes", () 
   const [rev] = applyBulletLayout({viz}).shapeData;
   const nodes = bulletStatics(rev, "b", viz.ctx.bullet.style);
   const keys = nodes.map(n => n.key);
-  assert.deepStrictEqual(keys.slice(0, 5), ["b-track", "b-band-0", "b-band-1", "b-band-2", "b-ticks"]);
-  assert.strictEqual(keys.filter(k => k.startsWith("b-tick-")).length, rev.ticks.length);
+  assert.deepStrictEqual(keys.slice(0, 5), [
+    "b-track",
+    "b-band-0",
+    "b-band-1",
+    "b-band-2",
+    "b-ticks",
+  ]);
+  assert.strictEqual(
+    keys.filter(k => k.startsWith("b-tick-")).length,
+    rev.ticks.length,
+  );
   assert.ok(nodes.every(n => n.interactive === false && !n.datum));
-  assert.notStrictEqual(nodes[1].paint.fill, nodes[3].paint.fill, "bands are shaded apart");
-  const bare = bulletStatics({...rev, ticks: [], bands: []}, "c", viz.ctx.bullet.style);
-  assert.deepStrictEqual(bare.map(n => n.key), ["c-track"]);
+  assert.notStrictEqual(
+    nodes[1].paint.fill,
+    nodes[3].paint.fill,
+    "bands are shaded apart",
+  );
+  const bare = bulletStatics(
+    {...rev, ticks: [], bands: []},
+    "c",
+    viz.ctx.bullet.style,
+  );
+  assert.deepStrictEqual(
+    bare.map(n => n.key),
+    ["c-track"],
+  );
 });
 
 it("Bullet: bulletEmit draws a group per row with a hit area, labels, and marks", () => {
@@ -263,23 +339,32 @@ it("Bullet: bulletEmit draws a group per row with a hit area, labels, and marks"
   viz.schema.translate = s => s;
   const shapeData = applyBulletLayout({viz}).shapeData;
   const groups = bulletEmit({viz, shapeData});
-  assert.deepStrictEqual(groups.map(g => g.key), ["bullet-Revenue", "bullet-Profit", "bullet-Orders"]);
+  assert.deepStrictEqual(
+    groups.map(g => g.key),
+    ["bullet-Revenue", "bullet-Profit", "bullet-Orders"],
+  );
   const kids = groups[0].children;
-  assert.deepStrictEqual(kids.map(k => k.key), [
-    "bullet-Revenue-static",
-    "bullet-Revenue::hit",
-    "bullet-Revenue-name",
-    "bullet-Revenue-sub",
-    "bullet-Revenue-forecast",
-    "bullet-Revenue-measure",
-    "bullet-Revenue-target",
-  ]);
+  assert.deepStrictEqual(
+    kids.map(k => k.key),
+    [
+      "bullet-Revenue-static",
+      "bullet-Revenue::hit",
+      "bullet-Revenue-name",
+      "bullet-Revenue-sub",
+      "bullet-Revenue-forecast",
+      "bullet-Revenue-measure",
+      "bullet-Revenue-target",
+    ],
+  );
   const [, hit, name, , forecast, measure, target] = kids;
   assert.strictEqual(hit.paint.fill, "transparent");
   assert.strictEqual(hit.datum, kpis[0]);
   assert.strictEqual(name.datum, kpis[0], "labels dim with their row");
   assert.strictEqual(forecast.paint.opacity, 0.35);
-  assert.ok(forecast.width > measure.width, "the forecast runs past the measure");
+  assert.ok(
+    forecast.width > measure.width,
+    "the forecast runs past the measure",
+  );
   assert.ok(forecast.height > measure.height, "and is wider");
   assert.strictEqual(measure.shapeType, "Rect");
   assert.strictEqual(measure.aria.label, "Revenue, 270, Target 250.");
@@ -289,6 +374,9 @@ it("Bullet: bulletEmit draws a group per row with a hit area, labels, and marks"
   assert.ok(!orders.includes("bullet-Orders-target"), "no target, no marker");
   assert.ok(!orders.includes("bullet-Orders-forecast"));
   const dupes = bulletEmit({viz, shapeData: [shapeData[0], shapeData[0]]});
-  assert.deepStrictEqual(dupes.map(g => g.key), ["bullet-Revenue", "bullet-Revenue-1"]);
+  assert.deepStrictEqual(
+    dupes.map(g => g.key),
+    ["bullet-Revenue", "bullet-Revenue-1"],
+  );
   assert.deepStrictEqual(bulletEmit({viz, shapeData: []}), []);
 });

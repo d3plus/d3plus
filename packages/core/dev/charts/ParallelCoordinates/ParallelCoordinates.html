@@ -1,122 +1,185 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>ParallelCoordinates</title>
+    <meta
+      name="description"
+      content="ParallelCoordinates variants on a cars dataset: auto-detected dimensions, a categorical axis with per-dimension format/reverse and bump curves, a vertical layout, 1000 rows on canvas with preset brushes, and small multiples by origin. Drag along any axis to brush; click the axis outside the brush, double-click it, or press Escape on a focused brush to clear it."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: Inter, sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .wide {
+        grid-column: 1 / -1;
+      }
+      .viz {
+        height: 420px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      button {
+        font: inherit;
+        margin-left: 8px;
+      }
+      output {
+        font-size: 12px;
+        margin-left: 8px;
+        color: #666;
+      }
+      p {
+        font-size: 13px;
+        color: #444;
+        margin: 0 0 16px;
+      }
+      kbd {
+        font: 12px monospace;
+        border: 1px solid #ccc;
+        border-radius: 3px;
+        padding: 0 3px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <p>
+      Drag along an axis to brush it. To clear a brush, click its axis outside
+      the selection, double-click the axis, or <kbd>Tab</kbd> to a brushed axis
+      and press <kbd>Esc</kbd>. Clearing the last brush restores every line.
+    </p>
+    <div class="grid">
+      <div class="wide">
+        <h3>
+          Auto-detected dimensions, colored by origin
+          <output id="brushed"></output>
+        </h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>
+          Categorical origin axis, reversed mpg, formatted weight, bump curves
+        </h3>
+        <div class="viz" id="configured"></div>
+      </div>
+      <div>
+        <h3>Vertical orient</h3>
+        <div class="viz" id="vertical"></div>
+      </div>
+      <div>
+        <h3>
+          1000 rows on canvas, preset brushes
+          <button id="clear">Clear brushes</button>
+        </h3>
+        <div class="viz" id="dense"></div>
+      </div>
+      <div>
+        <h3>Small multiples by origin (shared domains)</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>ParallelCoordinates</title>
-  <meta name="description" content="ParallelCoordinates variants on a cars dataset: auto-detected dimensions, a categorical axis with per-dimension format/reverse and bump curves, a vertical layout, 1000 rows on canvas with preset brushes, and small multiples by origin. Drag along any axis to brush; click the axis outside the brush, double-click it, or press Escape on a focused brush to clear it.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-  <style>
-    body { font-family: Inter, sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .wide { grid-column: 1 / -1; }
-    .viz { height: 420px; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-    button { font: inherit; margin-left: 8px; }
-    output { font-size: 12px; margin-left: 8px; color: #666; }
-    p { font-size: 13px; color: #444; margin: 0 0 16px; }
-    kbd { font: 12px monospace; border: 1px solid #ccc; border-radius: 3px; padding: 0 3px; }
-  </style>
-
-</head>
-
-<body>
-  <p>Drag along an axis to brush it. To clear a brush, click its axis outside the selection, double-click the axis, or <kbd>Tab</kbd> to a brushed axis and press <kbd>Esc</kbd>. Clearing the last brush restores every line.</p>
-  <div class="grid">
-    <div class="wide"><h3>Auto-detected dimensions, colored by origin <output id="brushed"></output></h3><div class="viz" id="basic"></div></div>
-    <div><h3>Categorical origin axis, reversed mpg, formatted weight, bump curves</h3><div class="viz" id="configured"></div></div>
-    <div><h3>Vertical orient</h3><div class="viz" id="vertical"></div></div>
-    <div><h3>1000 rows on canvas, preset brushes <button id="clear">Clear brushes</button></h3><div class="viz" id="dense"></div></div>
-    <div><h3>Small multiples by origin (shared domains)</h3><div class="viz" id="facet"></div></div>
-  </div>
-</body>
-
-<script>
-
-  // Seeded rows so the dense chart renders identically every load.
-  let seed = 11;
-  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const normal = () => Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
-  const clusters = ["Alpha", "Beta", "Gamma"];
-  const dense = Array.from({length: 1000}, (_, i) => {
-    const c = i % 3;
-    const base = normal();
-    return {
-      id: i,
-      cluster: clusters[c],
-      a: Math.round((50 + 15 * base + 10 * c) * 10) / 10,
-      b: Math.round((30 - 8 * base + 6 * normal()) * 10) / 10,
-      c: Math.round((20 + 12 * c + 5 * normal()) * 10) / 10,
-      d: Math.round((60 + 10 * normal() - 12 * c) * 10) / 10,
-      e: Math.round((40 + 9 * base + 4 * normal()) * 10) / 10,
-      f: Math.round((10 + 3 * c + 2 * normal()) * 10) / 10,
-    };
-  });
-
-  fetch("./cars.json").then(r => r.json()).then(cars => {
-
-    const basic = new d3plus.ParallelCoordinates()
-      .select("#basic")
-      .data(cars)
-      .groupBy(["origin", "name"])
-      .dimensionConfig({year: {tickFormat: d => `${d}`}})
-      .on("brush", brushes => {
-        const keys = Object.keys(brushes);
-        document.querySelector("#brushed").textContent = keys.length
-          ? `brushed: ${keys.map(k => `${k} ${JSON.stringify(brushes[k])}`).join(" AND ")}`
-          : "";
-      })
-      .render();
-
-    new d3plus.ParallelCoordinates()
-      .select("#configured")
-      .data(cars)
-      .groupBy(["origin", "name"])
-      .dimensions(["origin", "cylinders", "horsepower", "weight", "mpg"])
-      .dimensionConfig({
-        cylinders: {scale: "point", title: "Cylinders"},
-        horsepower: {title: "Horsepower"},
-        mpg: {reverse: true, title: "MPG (reversed)"},
-        origin: {title: "Origin"},
-        weight: {tickFormat: d => `${Math.round(d / 1000 * 10) / 10}k lb`, title: "Weight"},
-      })
-      .curve("bump")
-      .render();
-
-    new d3plus.ParallelCoordinates()
-      .select("#vertical")
-      .data(cars)
-      .groupBy(["origin", "name"])
-      .dimensions(["mpg", "horsepower", "weight", "acceleration"])
-      .orient("vertical")
-      .render();
-
-    const denseChart = new d3plus.ParallelCoordinates()
-      .select("#dense")
-      .data(dense)
-      .groupBy(["cluster", "id"])
-      .renderer("canvas")
-      .brushes({a: [55, 75], d: [40, 65]})
-      .render();
-    document.querySelector("#clear").addEventListener("click", () => {
-      denseChart.brushes({}).render();
+  <script>
+    // Seeded rows so the dense chart renders identically every load.
+    let seed = 11;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = () =>
+      Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    const clusters = ["Alpha", "Beta", "Gamma"];
+    const dense = Array.from({length: 1000}, (_, i) => {
+      const c = i % 3;
+      const base = normal();
+      return {
+        id: i,
+        cluster: clusters[c],
+        a: Math.round((50 + 15 * base + 10 * c) * 10) / 10,
+        b: Math.round((30 - 8 * base + 6 * normal()) * 10) / 10,
+        c: Math.round((20 + 12 * c + 5 * normal()) * 10) / 10,
+        d: Math.round((60 + 10 * normal() - 12 * c) * 10) / 10,
+        e: Math.round((40 + 9 * base + 4 * normal()) * 10) / 10,
+        f: Math.round((10 + 3 * c + 2 * normal()) * 10) / 10,
+      };
     });
 
-    new d3plus.ParallelCoordinates()
-      .select("#facet")
-      .data(cars)
-      .groupBy(["origin", "name"])
-      .dimensions(["cylinders", "horsepower", "weight", "mpg"])
-      .facet("origin")
-      .legend(false)
-      .render();
+    fetch("./cars.json")
+      .then(r => r.json())
+      .then(cars => {
+        const basic = new d3plus.ParallelCoordinates()
+          .select("#basic")
+          .data(cars)
+          .groupBy(["origin", "name"])
+          .dimensionConfig({year: {tickFormat: d => `${d}`}})
+          .on("brush", brushes => {
+            const keys = Object.keys(brushes);
+            document.querySelector("#brushed").textContent = keys.length
+              ? `brushed: ${keys.map(k => `${k} ${JSON.stringify(brushes[k])}`).join(" AND ")}`
+              : "";
+          })
+          .render();
 
-    window.charts = {basic, denseChart};
-  });
+        new d3plus.ParallelCoordinates()
+          .select("#configured")
+          .data(cars)
+          .groupBy(["origin", "name"])
+          .dimensions(["origin", "cylinders", "horsepower", "weight", "mpg"])
+          .dimensionConfig({
+            cylinders: {scale: "point", title: "Cylinders"},
+            horsepower: {title: "Horsepower"},
+            mpg: {reverse: true, title: "MPG (reversed)"},
+            origin: {title: "Origin"},
+            weight: {
+              tickFormat: d => `${Math.round((d / 1000) * 10) / 10}k lb`,
+              title: "Weight",
+            },
+          })
+          .curve("bump")
+          .render();
 
-</script>
+        new d3plus.ParallelCoordinates()
+          .select("#vertical")
+          .data(cars)
+          .groupBy(["origin", "name"])
+          .dimensions(["mpg", "horsepower", "weight", "acceleration"])
+          .orient("vertical")
+          .render();
 
+        const denseChart = new d3plus.ParallelCoordinates()
+          .select("#dense")
+          .data(dense)
+          .groupBy(["cluster", "id"])
+          .renderer("canvas")
+          .brushes({a: [55, 75], d: [40, 65]})
+          .render();
+        document.querySelector("#clear").addEventListener("click", () => {
+          denseChart.brushes({}).render();
+        });
+
+        new d3plus.ParallelCoordinates()
+          .select("#facet")
+          .data(cars)
+          .groupBy(["origin", "name"])
+          .dimensions(["cylinders", "horsepower", "weight", "mpg"])
+          .facet("origin")
+          .legend(false)
+          .render();
+
+        window.charts = {basic, denseChart};
+      });
+  </script>
 </html>

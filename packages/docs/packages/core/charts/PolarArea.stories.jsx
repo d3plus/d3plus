@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a polar area chart (Nightingale rose or coxcomb) from an array of\ndata: every category gets an equal slice of the circle, and each wedge's\nradius shows its value. With a metric, each category stacks its\ngroupBy groups outward from the center.",
+        component:
+          "Creates a polar area chart (Nightingale rose or coxcomb) from an array of\ndata: every category gets an equal slice of the circle, and each wedge's\nradius shows its value. With a metric, each category stacks its\ngroupBy groups outward from the center.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <PolarArea config={configify(args, argTypes)} />;
-  
+const Template = args => <PolarArea config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

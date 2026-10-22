@@ -6,13 +6,25 @@
 import {formatAbbreviate, formatDateFull} from "@d3plus/format";
 import type {SceneEvent} from "@d3plus/render";
 
-import {axisDateLabel, isValidDate, parseTime} from "../../components/Axis/timeValues.js";
+import {
+  axisDateLabel,
+  isValidDate,
+  parseTime,
+} from "../../components/Axis/timeValues.js";
 import {axisIsYearLike, formatYear} from "../../components/Axis/yearValues.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
-import {leadTitleWithSwatch, tooltipSwatch, withSwatch} from "../features/tooltipSwatch.js";
+import {
+  leadTitleWithSwatch,
+  tooltipSwatch,
+  withSwatch,
+} from "../features/tooltipSwatch.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {confidenceRows, confidenceSuffix, rangeSuffix} from "./confidenceTooltip.js";
+import {
+  confidenceRows,
+  confidenceSuffix,
+  rangeSuffix,
+} from "./confidenceTooltip.js";
 import type {SharedHover, SharedRow} from "./sharedHover.js";
 
 type Axis = "x" | "y";
@@ -32,7 +44,11 @@ export function axisName(viz: VizInstance, k: Axis): string {
     `axisDateLabel`); undefined when the axis isn't a time axis or the value
     doesn't parse.
 */
-function timeValue(viz: VizInstance, k: Axis, value: unknown): string | undefined {
+function timeValue(
+  viz: VizInstance,
+  k: Axis,
+  value: unknown,
+): string | undefined {
   if (!viz[`_${k}Time`]) return undefined;
   const parsed = parseTime(value);
   if (!parsed) return undefined;
@@ -51,8 +67,10 @@ function timeValue(viz: VizInstance, k: Axis, value: unknown): string | undefine
     year on the discrete axis) as-is.
 */
 export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
-  const config = viz[`_${k}Config`] as {tickFormat?: (d: unknown) => string} | undefined;
-  if (config && typeof config.tickFormat === "function") return config.tickFormat(value);
+  const config = viz[`_${k}Config`] as
+    {tickFormat?: (d: unknown) => string} | undefined;
+  if (config && typeof config.tickFormat === "function")
+    return config.tickFormat(value);
   const time = timeValue(viz, k, value);
   if (time !== undefined) return time;
   if (isValidDate(value)) {
@@ -73,7 +91,8 @@ function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
   const row = hover.rows[0];
   const accessor = viz[`_${k}`];
   // A projected row's datum is a source row of its series, not this column.
-  const raw = accessor && !row.projected ? accessor(row.datum, row.index) : hover.value;
+  const raw =
+    accessor && !row.projected ? accessor(row.datum, row.index) : hover.value;
   return [axisName(viz, k), axisValue(viz, k, raw)];
 }
 
@@ -82,7 +101,11 @@ function axisRow(viz: VizInstance, k: Axis, hover: SharedHover): string[] {
     snapped position (surface space → client space via the pointer's own
     offset), the other following the pointer.
 */
-function snappedPosition(viz: VizInstance, hover: SharedHover, event: SceneEvent): number[] {
+function snappedPosition(
+  viz: VizInstance,
+  hover: SharedHover,
+  event: SceneEvent,
+): number[] {
   const native = event.nativeEvent as MouseEvent & TouchEvent;
   const client =
     native && native.touches && native.touches.length
@@ -110,7 +133,11 @@ function snappedPosition(viz: VizInstance, hover: SharedHover, event: SceneEvent
 export function prepareTooltip(viz: VizInstance) {
   const tip = viz._tooltipClass!;
   if (!viz._sharedTooltipSaved)
-    viz._sharedTooltipSaved = {arrow: tip.arrow(), thead: tip.thead(), tbody: tip.tbody()};
+    viz._sharedTooltipSaved = {
+      arrow: tip.arrow(),
+      thead: tip.thead(),
+      tbody: tip.tbody(),
+    };
   const saved = viz._sharedTooltipSaved;
   return tip.thead(saved.thead).tbody(saved.tbody).titleSwatch(true);
 }
@@ -118,7 +145,8 @@ export function prepareTooltip(viz: VizInstance) {
 /** Puts back what `prepareTooltip` held. */
 export function restoreTooltip(viz: VizInstance): void {
   const saved = viz._sharedTooltipSaved;
-  if (saved) viz._tooltipClass!.arrow(saved.arrow).thead(saved.thead).tbody(saved.tbody);
+  if (saved)
+    viz._tooltipClass!.arrow(saved.arrow).thead(saved.thead).tbody(saved.tbody);
   viz._sharedTooltipSaved = undefined;
 }
 
@@ -129,7 +157,10 @@ export function restoreTooltip(viz: VizInstance): void {
 function bounds(viz: VizInstance, k: Axis, row: SharedRow): string {
   const format = (v: number): string => axisValue(viz, k, v);
   const band = row.projected;
-  if (band) return band.lci === undefined || band.hci === undefined ? "" : rangeSuffix(band.lci, band.hci, format);
+  if (band)
+    return band.lci === undefined || band.hci === undefined
+      ? ""
+      : rangeSuffix(band.lci, band.hci, format);
   return confidenceSuffix(viz, row.datum, row.index, format);
 }
 
@@ -138,13 +169,18 @@ function bounds(viz: VizInstance, k: Axis, row: SharedRow): string {
     on the discrete value in the header when every row is projected, or on
     each projected row's name when the column mixes in plotted values.
 */
-function markProjected(viz: VizInstance, hover: SharedHover): {header: string[]; names: string[]} {
+function markProjected(
+  viz: VizInstance,
+  hover: SharedHover,
+): {header: string[]; names: string[]} {
   const label = ` (${viz.schema.translate("Projected")})`;
   const header = axisRow(viz, hover.axis, hover);
   const all = hover.rows.every(r => r.projected);
   return {
     header: all ? [header[0], `${header[1]}${label}`] : header,
-    names: hover.rows.map(r => (r.projected && !all ? `${r.name}${label}` : r.name)),
+    names: hover.rows.map(r =>
+      r.projected && !all ? `${r.name}${label}` : r.name,
+    ),
   };
 }
 
@@ -155,18 +191,28 @@ function markProjected(viz: VizInstance, hover: SharedHover): {header: string[];
     `confidence` range. User `tooltipConfig` styles apply first; the shared
     title/rows win.
 */
-export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event: SceneEvent): void {
+export function renderSharedTooltip(
+  viz: VizInstance,
+  hover: SharedHover,
+  event: SceneEvent,
+): void {
   const cont = other(hover.axis);
   const {header, names} = markProjected(viz, hover);
   prepareTooltip(viz)
     .data([hover.rows[0].datum])
-    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig))
+    .config(
+      configPrep.bind(viz as unknown as ConfigPrepHost)(
+        viz.schema.tooltipConfig,
+      ),
+    )
     .title(() => axisName(viz, cont))
     .thead(header)
-    .tbody(hover.rows.map((r, i) => [
-      withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
-      `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
-    ]))
+    .tbody(
+      hover.rows.map((r, i) => [
+        withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+        `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
+      ]),
+    )
     .footer(false)
     .arrow(false)
     .position(snappedPosition(viz, hover, event))
@@ -179,21 +225,40 @@ export function renderSharedTooltip(viz: VizInstance, hover: SharedHover, event:
     `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
     then any rows the chart's `tooltipConfig` adds.
 */
-export function renderSingleTooltip(viz: VizInstance, hover: SharedHover, event: SceneEvent): void {
+export function renderSingleTooltip(
+  viz: VizInstance,
+  hover: SharedHover,
+  event: SceneEvent,
+): void {
   const row = hover.rows[0];
   const deeper = viz._drawDepth < viz.schema.groupBy.length - 1;
   const tip = prepareTooltip(viz)
     .data([row.datum])
     .title(() => viz._drawLabel(row.datum, row.index))
-    .footer(deeper && viz.schema.on["click.shape"] ? viz.schema.translate("Click to Expand") : false)
-    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig));
+    .footer(
+      deeper && viz.schema.on["click.shape"]
+        ? viz.schema.translate("Click to Expand")
+        : false,
+    )
+    .config(
+      configPrep.bind(viz as unknown as ConfigPrepHost)(
+        viz.schema.tooltipConfig,
+      ),
+    );
   // A `tbody` accessor resolves against the hovered datum, like any other cell.
   const tbody = tip.tbody();
-  const extra = typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
+  const extra =
+    typeof tbody === "function" ? tbody(row.datum, row.index) : tbody;
   leadTitleWithSwatch(tip, tooltipSwatch(row.color, row.shape))
     .tbody([
-      ...(viz._tooltipAxisRows === false ? [] : [axisRow(viz, "x", hover), axisRow(viz, "y", hover)]),
-      ...(row.projected ? [] : confidenceRows(viz, row.datum, row.index, v => axisValue(viz, other(hover.axis), v))),
+      ...(viz._tooltipAxisRows === false
+        ? []
+        : [axisRow(viz, "x", hover), axisRow(viz, "y", hover)]),
+      ...(row.projected
+        ? []
+        : confidenceRows(viz, row.datum, row.index, v =>
+            axisValue(viz, other(hover.axis), v),
+          )),
       ...(Array.isArray(extra) ? extra : []),
     ])
     .arrow(false)

@@ -29,12 +29,11 @@ import type {D3plusConstructor, D3plusInstance} from "@d3plus/dom";
 */
 @Component({
   selector: "d3plus-viz",
-  template: "<svg #svg width=\"100%\" height=\"100%\"></svg>",
+  template: '<svg #svg width="100%" height="100%"></svg>',
   styles: [":host{display:block}"],
   encapsulation: ViewEncapsulation.None,
 })
 export class D3plusVizComponent implements OnInit, OnChanges, OnDestroy {
-
   /** The d3plus visualization class to instantiate. */
   @Input({required: true}) viz!: D3plusConstructor;
   /** Config forwarded to the instance's `.config()` method. */
@@ -78,5 +77,4 @@ export class D3plusVizComponent implements OnInit, OnChanges, OnDestroy {
     applyConfig(this.instance, el, this.globalConfig, this.config);
     this.instance.render?.(this.callback);
   }
-
 }

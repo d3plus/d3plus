@@ -24,28 +24,40 @@ it("zoomControlIcons: a string renders as-is; a mount function persists across o
         const viz = new window.d3plus.Treemap()
           .select("#s")
           .duration(0)
-          .data([{id: "a", value: 3}, {id: "b", value: 2}])
+          .data([
+            {id: "a", value: 3},
+            {id: "b", value: 2},
+          ])
           .groupBy("id")
           .sum("value")
           .zoomControlIcons({
-            zoomIn: "<b class=\"my-plus\">PLUS</b>",
+            zoomIn: '<b class="my-plus">PLUS</b>',
             zoomOut: el => {
               mounts++;
               el.textContent = `M${mounts}`;
-              return () => { cleanups++; };
+              return () => {
+                cleanups++;
+              };
             },
           });
         viz.render(() => {
           const stringIcon = document.querySelector(".zoom-in").innerHTML;
-          const afterFirst = {mounts, cleanups, text: document.querySelector(".zoom-out").textContent};
+          const afterFirst = {
+            mounts,
+            cleanups,
+            text: document.querySelector(".zoom-out").textContent,
+          };
           viz.render(() => {
             const afterOrdinary = {mounts, cleanups};
             document.querySelector(".zoom-brush").click();
             viz.render(() => {
               const afterBrush = {
-                mounts, cleanups,
+                mounts,
+                cleanups,
                 text: document.querySelector(".zoom-out").textContent,
-                slotIsFresh: !!document.querySelector(".zoom-out .zoom-control-icon"),
+                slotIsFresh: !!document.querySelector(
+                  ".zoom-out .zoom-control-icon",
+                ),
               };
               resolve({stringIcon, afterFirst, afterOrdinary, afterBrush});
             });
@@ -54,15 +66,34 @@ it("zoomControlIcons: a string renders as-is; a mount function persists across o
       }),
   );
 
-  assert.strictEqual(out.stringIcon, '<b class="my-plus">PLUS</b>', "a string icon renders as raw markup");
-  assert.deepStrictEqual(out.afterFirst, {mounts: 1, cleanups: 0, text: "M1"}, "the mount function runs once, with no cleanup yet");
-  assert.deepStrictEqual(out.afterOrdinary, {mounts: 1, cleanups: 0}, "an unrelated redraw doesn't remount");
+  assert.strictEqual(
+    out.stringIcon,
+    '<b class="my-plus">PLUS</b>',
+    "a string icon renders as raw markup",
+  );
   assert.deepStrictEqual(
-    {mounts: out.afterBrush.mounts, cleanups: out.afterBrush.cleanups, text: out.afterBrush.text},
+    out.afterFirst,
+    {mounts: 1, cleanups: 0, text: "M1"},
+    "the mount function runs once, with no cleanup yet",
+  );
+  assert.deepStrictEqual(
+    out.afterOrdinary,
+    {mounts: 1, cleanups: 0},
+    "an unrelated redraw doesn't remount",
+  );
+  assert.deepStrictEqual(
+    {
+      mounts: out.afterBrush.mounts,
+      cleanups: out.afterBrush.cleanups,
+      text: out.afterBrush.text,
+    },
     {mounts: 2, cleanups: 1, text: "M2"},
     "toggling brush mode (which regenerates the whole panel) cleans up the old mount and mounts fresh",
   );
-  assert.ok(out.afterBrush.slotIsFresh, "the remounted icon has its own fresh slot element");
+  assert.ok(
+    out.afterBrush.slotIsFresh,
+    "the remounted icon has its own fresh slot element",
+  );
 });
 
 it("attributionIcon: a string renders as-is; a mount function persists across ordinary redraws and remounts only when the credit changes", async function () {
@@ -82,15 +113,27 @@ it("attributionIcon: a string renders as-is; a mount function persists across or
           .attributionIcon(el => {
             mounts++;
             el.textContent = `A${mounts}`;
-            return () => { cleanups++; };
+            return () => {
+              cleanups++;
+            };
           });
         viz.render(() => {
-          const afterFirst = {mounts, cleanups, text: document.querySelector("#a .d3plus-attribution-icon").textContent};
+          const afterFirst = {
+            mounts,
+            cleanups,
+            text: document.querySelector("#a .d3plus-attribution-icon")
+              .textContent,
+          };
           viz.render(() => {
             const afterOrdinary = {mounts, cleanups};
             viz.attribution("A longer, different credit");
             viz.render(() => {
-              const afterChange = {mounts, cleanups, text: document.querySelector("#a .d3plus-attribution-icon").textContent};
+              const afterChange = {
+                mounts,
+                cleanups,
+                text: document.querySelector("#a .d3plus-attribution-icon")
+                  .textContent,
+              };
 
               const viz2 = new window.d3plus.Treemap()
                 .select("#b")
@@ -102,8 +145,12 @@ it("attributionIcon: a string renders as-is; a mount function persists across or
                 .attributionIcon('<span class="brand">B</span>');
               viz2.render(() => {
                 resolve({
-                  afterFirst, afterOrdinary, afterChange,
-                  stringIcon: document.querySelector("#b .d3plus-attribution-toggle").innerHTML,
+                  afterFirst,
+                  afterOrdinary,
+                  afterChange,
+                  stringIcon: document.querySelector(
+                    "#b .d3plus-attribution-toggle",
+                  ).innerHTML,
                 });
               });
             });
@@ -112,10 +159,26 @@ it("attributionIcon: a string renders as-is; a mount function persists across or
       }),
   );
 
-  assert.deepStrictEqual(out.afterFirst, {mounts: 1, cleanups: 0, text: "A1"}, "the mount function runs once");
-  assert.deepStrictEqual(out.afterOrdinary, {mounts: 1, cleanups: 0}, "an unrelated redraw doesn't remount");
-  assert.deepStrictEqual(out.afterChange, {mounts: 2, cleanups: 1, text: "A2"}, "a changed credit cleans up the old mount and mounts fresh");
-  assert.strictEqual(out.stringIcon, '<span class="brand">B</span>', "a string icon renders as raw markup");
+  assert.deepStrictEqual(
+    out.afterFirst,
+    {mounts: 1, cleanups: 0, text: "A1"},
+    "the mount function runs once",
+  );
+  assert.deepStrictEqual(
+    out.afterOrdinary,
+    {mounts: 1, cleanups: 0},
+    "an unrelated redraw doesn't remount",
+  );
+  assert.deepStrictEqual(
+    out.afterChange,
+    {mounts: 2, cleanups: 1, text: "A2"},
+    "a changed credit cleans up the old mount and mounts fresh",
+  );
+  assert.strictEqual(
+    out.stringIcon,
+    '<span class="brand">B</span>',
+    "a string icon renders as raw markup",
+  );
 });
 
 it("a mount-function zoom icon doesn't get invoked by the panel's off-DOM size measurement", async function () {
@@ -131,7 +194,11 @@ it("a mount-function zoom icon doesn't get invoked by the panel's off-DOM size m
           .data([{id: "a", value: 3}])
           .groupBy("id")
           .sum("value")
-          .zoomControlIcons({zoomIn: () => { mounts++; }});
+          .zoomControlIcons({
+            zoomIn: () => {
+              mounts++;
+            },
+          });
         // Rendering with a title forces zoomControlsBox() to measure the
         // panel (to reserve space for it) before the panel itself ever
         // reaches the real DOM — the function must not run during that.
@@ -139,8 +206,15 @@ it("a mount-function zoom icon doesn't get invoked by the panel's off-DOM size m
       }),
   );
 
-  assert.strictEqual(out.mounts, 1, "the real panel mounts exactly once — the off-DOM measurement never invokes the function a second time");
-  assert.ok(out.box && out.box.width > 0 && out.box.height > 0, "the panel still measures a real, positive size");
+  assert.strictEqual(
+    out.mounts,
+    1,
+    "the real panel mounts exactly once — the off-DOM measurement never invokes the function a second time",
+  );
+  assert.ok(
+    out.box && out.box.width > 0 && out.box.height > 0,
+    "the panel still measures a real, positive size",
+  );
 });
 
 it("a long attribution credit with a custom icon still collapses to a badge and expands on click", async function () {
@@ -148,7 +222,10 @@ it("a long attribution credit with a custom icon still collapses to a badge and 
     '<div id="s" style="width:300px;height:200px;"></div>',
     () =>
       new Promise(resolve => {
-        const longCredit = "A very long attribution credit that should not fit alongside a 300px-wide chart".repeat(2);
+        const longCredit =
+          "A very long attribution credit that should not fit alongside a 300px-wide chart".repeat(
+            2,
+          );
         const viz = new window.d3plus.Treemap()
           .select("#s")
           .duration(0)
@@ -156,24 +233,47 @@ it("a long attribution credit with a custom icon still collapses to a badge and 
           .groupBy("id")
           .sum("value")
           .attribution(longCredit)
-          .attributionIcon("<span class=\"brand\">B</span>");
+          .attributionIcon('<span class="brand">B</span>');
         viz.render(() => {
           const before = {
-            textVisible: document.querySelector(".d3plus-attribution-text").style.display !== "none",
-            badgeVisible: document.querySelector(".d3plus-attribution-toggle").style.display !== "none",
+            textVisible:
+              document.querySelector(".d3plus-attribution-text").style
+                .display !== "none",
+            badgeVisible:
+              document.querySelector(".d3plus-attribution-toggle").style
+                .display !== "none",
           };
           document.querySelector(".d3plus-attribution-toggle").click();
           resolve({
             before,
-            afterClick: document.querySelector(".d3plus-attribution-text").style.display !== "none",
-            icon: document.querySelector(".d3plus-attribution-toggle").innerHTML,
+            afterClick:
+              document.querySelector(".d3plus-attribution-text").style
+                .display !== "none",
+            icon: document.querySelector(".d3plus-attribution-toggle")
+              .innerHTML,
           });
         });
       }),
   );
 
-  assert.strictEqual(out.before.textVisible, false, "the long credit starts collapsed");
-  assert.strictEqual(out.before.badgeVisible, true, "the badge shows in its place");
-  assert.strictEqual(out.afterClick, true, "clicking the badge expands the credit");
-  assert.strictEqual(out.icon, '<span class="brand">B</span>', "the custom icon renders inside the badge");
+  assert.strictEqual(
+    out.before.textVisible,
+    false,
+    "the long credit starts collapsed",
+  );
+  assert.strictEqual(
+    out.before.badgeVisible,
+    true,
+    "the badge shows in its place",
+  );
+  assert.strictEqual(
+    out.afterClick,
+    true,
+    "clicking the badge expands the credit",
+  );
+  assert.strictEqual(
+    out.icon,
+    '<span class="brand">B</span>',
+    "the custom icon renders inside the badge",
+  );
 });

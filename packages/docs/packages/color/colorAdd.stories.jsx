@@ -15,9 +15,9 @@ export default {
         component: "Adds two colors together.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -52,20 +52,31 @@ const params = (rows, story) => ({
     ...sourceSnippet(
       "color",
       "colorAdd",
-      mixes(rows).map(({call, result}) => ({call, result: JSON.stringify(result)})),
+      mixes(rows).map(({call, result}) => ({
+        call,
+        result: JSON.stringify(result),
+      })),
     ).docs,
     description: {story},
   },
 });
 
-const basicRows = [["#ff0000", "#0000ff"], ["red", "yellow"], ["#1c7ed6", "#2f9e44"]];
+const basicRows = [
+  ["#ff0000", "#0000ff"],
+  ["red", "yellow"],
+  ["#1c7ed6", "#2f9e44"],
+];
 export const BasicExample = () => <Mixes rows={basicRows} />;
 BasicExample.parameters = params(
   basicRows,
   "Mixes two colors by meeting halfway in HSL: the hue lands between the two along the shorter way around the wheel, and saturation and lightness are averaged. Red and blue give purple, red and yellow give orange.",
 );
 
-const opacityRows = [["#ff0000", "#0000ff", 1, 0.25], ["#ff0000", "#0000ff", 1, 0.5], ["#ff0000", "#0000ff", 1, 1]];
+const opacityRows = [
+  ["#ff0000", "#0000ff", 1, 0.25],
+  ["#ff0000", "#0000ff", 1, 0.5],
+  ["#ff0000", "#0000ff", 1, 1],
+];
 export const WithOpacity = () => <Mixes rows={opacityRows} />;
 WithOpacity.parameters = params(
   opacityRows,

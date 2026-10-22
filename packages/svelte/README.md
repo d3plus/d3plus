@@ -38,10 +38,10 @@ Because `config` is reactive, reassigning it (or mutating `$state`) drives updat
 
 The action takes a single object parameter:
 
-| Property | Description |
-| --- | --- |
-| `constructor` | **Required.** The d3plus visualization class to instantiate (e.g. `Treemap`). |
-| `config` | Config object forwarded to the instance's `.config()` method. |
-| `globalConfig` | Config merged ahead of `config` — a shared baseline across charts. |
-| `callback` | A function invoked at the end of each render cycle. |
-| `forceUpdate` | When `true`, re-renders on every update even if the config is unchanged. |
+| Property       | Description                                                                   |
+| -------------- | ----------------------------------------------------------------------------- |
+| `constructor`  | **Required.** The d3plus visualization class to instantiate (e.g. `Treemap`). |
+| `config`       | Config object forwarded to the instance's `.config()` method.                 |
+| `globalConfig` | Config merged ahead of `config` — a shared baseline across charts.            |
+| `callback`     | A function invoked at the end of each render cycle.                           |
+| `forceUpdate`  | When `true`, re-renders on every update even if the config is unchanged.      |

@@ -2,7 +2,12 @@ import {it} from "vitest";
 import assert from "assert";
 
 import {useJsdom} from "~test/jsdom.js";
-import {CanvasRenderer, enterWindowProgress, interpolateScene, SvgRenderer} from "../index.ts";
+import {
+  CanvasRenderer,
+  enterWindowProgress,
+  interpolateScene,
+  SvgRenderer,
+} from "../index.ts";
 
 useJsdom({augment: false});
 
@@ -33,21 +38,42 @@ const label = (key, extra = {}) => ({
   paint: {fill: "#000"},
   ...extra,
 });
-const near = (a, b, msg) => assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
+const near = (a, b, msg) =>
+  assert.ok(Math.abs(a - b) < 1e-9, `${msg}: ${a} vs ${b}`);
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 it("enterWindowProgress holds at 0 before the window, runs across it, and holds at 1 after", () => {
   const w = {start: 0.25, end: 0.75};
-  assert.strictEqual(enterWindowProgress(0.4, undefined), 0.4, "no window: the progress itself");
+  assert.strictEqual(
+    enterWindowProgress(0.4, undefined),
+    0.4,
+    "no window: the progress itself",
+  );
   assert.strictEqual(enterWindowProgress(0, w), 0);
   assert.strictEqual(enterWindowProgress(0.2, w), 0, "held before it starts");
   near(enterWindowProgress(0.5, w), 0.5, "halfway through the window");
   assert.strictEqual(enterWindowProgress(0.8, w), 1, "done once it ends");
   assert.strictEqual(enterWindowProgress(1, w), 1);
-  assert.strictEqual(enterWindowProgress(0.4, {start: 0.5, end: 0.5}), 0, "an empty window waits");
-  assert.strictEqual(enterWindowProgress(0.5, {start: 0.5, end: 0.5}), 1, "then jumps");
-  near(enterWindowProgress(0.5, {start: -1, end: 2}), 0.5, "shares clamp to 0–1");
-  assert.strictEqual(enterWindowProgress(1, {start: 1, end: 1}), 1, "always finishes");
+  assert.strictEqual(
+    enterWindowProgress(0.4, {start: 0.5, end: 0.5}),
+    0,
+    "an empty window waits",
+  );
+  assert.strictEqual(
+    enterWindowProgress(0.5, {start: 0.5, end: 0.5}),
+    1,
+    "then jumps",
+  );
+  near(
+    enterWindowProgress(0.5, {start: -1, end: 2}),
+    0.5,
+    "shares clamp to 0–1",
+  );
+  assert.strictEqual(
+    enterWindowProgress(1, {start: 1, end: 1}),
+    1,
+    "always finishes",
+  );
 });
 
 it("interpolateScene runs each entering node over its own enterWindow", () => {
@@ -55,7 +81,8 @@ it("interpolateScene runs each entering node over its own enterWindow", () => {
   const second = rect("b", {enterWindow: {start: 0.5, end: 1}});
   const plain = rect("c");
   const interp = interpolateScene(scene([]), scene([first, second, plain]));
-  const at = t => Object.fromEntries(interp(t).root.children.map(n => [n.key, n]));
+  const at = t =>
+    Object.fromEntries(interp(t).root.children.map(n => [n.key, n]));
   near(at(0.25).a.width, 50, "the first is halfway at a quarter");
   assert.strictEqual(at(0.25).b.width, 0, "the second holds its enter start");
   assert.strictEqual(at(0.25).b.y, 20);
@@ -91,7 +118,10 @@ it("interpolateScene ignores enterWindow on updating nodes, and windows an enter
 });
 
 it("interpolateScene holds an entering fade-swap label until its window's fade-in", () => {
-  const swapping = label("l", {fadeSwap: {out: 0.2, in: 0.2}, enterWindow: {start: 0, end: 0.5}});
+  const swapping = label("l", {
+    fadeSwap: {out: 0.2, in: 0.2},
+    enterWindow: {start: 0, end: 0.5},
+  });
   const interp = interpolateScene(scene([]), scene([swapping]));
   const opacity = t => interp(t).root.children[0].paint.opacity;
   assert.strictEqual(opacity(0.3), 0, "hidden early in its window");
@@ -102,27 +132,42 @@ it("interpolateScene holds an entering fade-swap label until its window's fade-i
 it("SvgRenderer runs each entering element over its own enterWindow", async () => {
   const renderer = new SvgRenderer();
   renderer.mount({container: document.body, width: 200, height: 100});
-  const width = key => Number(document.querySelector(`[data-key="${key}"]`).getAttribute("width"));
-  const opacity = key => document.querySelector(`[data-key="${key}"]`).getAttribute("opacity");
+  const width = key =>
+    Number(document.querySelector(`[data-key="${key}"]`).getAttribute("width"));
+  const opacity = key =>
+    document.querySelector(`[data-key="${key}"]`).getAttribute("opacity");
   renderer.drawScene(
     scene([
       rect("a", {enterWindow: {start: 0, end: 0.4}}),
       rect("b", {enterWindow: {start: 0.6, end: 1}}),
-      label("l", {fadeSwap: {out: 0.1, in: 0.1}, enterWindow: {start: 0.6, end: 1}}),
+      label("l", {
+        fadeSwap: {out: 0.1, in: 0.1},
+        enterWindow: {start: 0.6, end: 1},
+      }),
     ]),
     {duration: 800},
   );
   await wait(250);
   // ~30% of the time is ~20% of cubicInOut's eased progress.
-  assert.ok(width("a") > 0 && width("a") < 100, `the first grows early: ${width("a")}`);
+  assert.ok(
+    width("a") > 0 && width("a") < 100,
+    `the first grows early: ${width("a")}`,
+  );
   assert.strictEqual(width("b"), 0, "the second holds its enter start");
   assert.strictEqual(opacity("l"), "0", "its label waits with it");
   await wait(320);
   // ~70% of the time is ~90% of the eased progress.
   assert.strictEqual(width("a"), 100, "the first has arrived");
-  assert.ok(width("b") > 0 && width("b") < 100, `the second is growing: ${width("b")}`);
+  assert.ok(
+    width("b") > 0 && width("b") < 100,
+    `the second is growing: ${width("b")}`,
+  );
   await wait(400);
-  assert.deepStrictEqual([width("a"), width("b")], [100, 100], "both end at their targets");
+  assert.deepStrictEqual(
+    [width("a"), width("b")],
+    [100, 100],
+    "both end at their targets",
+  );
   assert.strictEqual(opacity("l"), null, "the label ends at its own opacity");
   renderer.destroy();
 });
@@ -131,9 +176,13 @@ it("SvgRenderer animates an updating element over the whole transition, whatever
   const renderer = new SvgRenderer();
   renderer.mount({container: document.body, width: 200, height: 100});
   renderer.drawScene(scene([rect("a", {width: 20})]));
-  renderer.drawScene(scene([rect("a", {enterWindow: {start: 0.6, end: 1}})]), {duration: 800});
+  renderer.drawScene(scene([rect("a", {enterWindow: {start: 0.6, end: 1}})]), {
+    duration: 800,
+  });
   await wait(250);
-  const w = Number(document.querySelector('[data-key="a"]').getAttribute("width"));
+  const w = Number(
+    document.querySelector('[data-key="a"]').getAttribute("width"),
+  );
   assert.ok(w > 20 && w < 100, `it moves from the start: ${w}`);
   renderer.destroy();
 });
@@ -144,13 +193,22 @@ it("CanvasRenderer paints each entering node over its own enterWindow", async ()
   const frames = [];
   const paint = renderer._paint.bind(renderer);
   renderer._paint = frame => {
-    frames.push(Object.fromEntries(frame.root.children.map(n => [n.key, n.width])));
+    frames.push(
+      Object.fromEntries(frame.root.children.map(n => [n.key, n.width])),
+    );
     return paint(frame);
   };
   let progress = 0;
   const handle = renderer.drawScene(
-    scene([rect("a", {enterWindow: {start: 0, end: 0.5}}), rect("b", {enterWindow: {start: 0.5, end: 1}})]),
-    {duration: 120, ease: t => t, onFrame: t => (progress = t, frames[frames.length - 1].t = t)},
+    scene([
+      rect("a", {enterWindow: {start: 0, end: 0.5}}),
+      rect("b", {enterWindow: {start: 0.5, end: 1}}),
+    ]),
+    {
+      duration: 120,
+      ease: t => t,
+      onFrame: t => ((progress = t), (frames[frames.length - 1].t = t)),
+    },
   );
   await handle.finished;
   assert.ok(progress === 1 && frames.length > 2, "it animated");

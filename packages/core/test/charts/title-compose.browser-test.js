@@ -29,24 +29,37 @@ const treemap = (setup, [width, height]) =>
   });
 
 it("titleFeature composes a title TextNode into the scene", async () => {
-  const res = await treemap(viz => viz.title(() => "My Chart Title"), [300, 200]);
+  const res = await treemap(
+    viz => viz.title(() => "My Chart Title"),
+    [300, 200],
+  );
   assert.ok(res.vizFeaturesGroup, "viz-features group composed into scene");
   assert.ok(res.hasTitle, "title text node present in scene");
   // Wrapped lines render as separate tspans with no inserted whitespace, so
   // check the words rather than the exact phrase with its space intact.
-  assert.ok(res.text.includes("My Chart"), "title text appears in rendered DOM");
+  assert.ok(
+    res.text.includes("My Chart"),
+    "title text appears in rendered DOM",
+  );
   assert.ok(res.text.includes("Title"), "title text appears in rendered DOM");
 });
 
 it("subtitle and total features compose into the scene", async () => {
   const res = await treemap(
-    viz => viz.title(() => "Chart Title").subtitle(() => "A descriptive subtitle").total(d => d.value),
+    viz =>
+      viz
+        .title(() => "Chart Title")
+        .subtitle(() => "A descriptive subtitle")
+        .total(d => d.value),
     [400, 300],
   );
   assert.ok(res.hasTitle, "title in scene");
   assert.ok(res.hasSubtitle, "subtitle in scene");
   assert.ok(res.hasTotal, "total in scene");
   assert.ok(res.text.includes("Chart Title"), "title text rendered");
-  assert.ok(res.text.includes("descriptive subtitle"), "subtitle text rendered");
+  assert.ok(
+    res.text.includes("descriptive subtitle"),
+    "subtitle text rendered",
+  );
   assert.ok(res.text.includes("30"), "total value rendered");
 });

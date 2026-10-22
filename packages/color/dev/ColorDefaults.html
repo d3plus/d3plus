@@ -1,9 +1,12 @@
 <!doctype html>
 <html>
   <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>ColorDefaults</title>
-    <meta name="description" content="colorDefaults swatches labeled in their colorContrast text color.">
+    <meta
+      name="description"
+      content="colorDefaults swatches labeled in their colorContrast text color."
+    />
     <script src="/umd/d3plus-color.full.js"></script>
   </head>
   <style>
@@ -22,9 +25,8 @@
     <section id="section-2"></section>
   </body>
   <script>
-
     const makeBox = (section, name, color) => {
-      const box = document.createElement("div")
+      const box = document.createElement("div");
       box.style.backgroundColor = color;
       box.style.color = d3plus.colorContrast(color);
       box.innerHTML = name;
@@ -39,7 +41,5 @@
     d3plus.colorDefaults.scale.range().forEach((color, i) => {
       makeBox(2, ``, color);
     });
-
-
   </script>
 </html>

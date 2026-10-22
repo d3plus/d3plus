@@ -129,7 +129,10 @@ function flowWords(
         : 0;
 
     // newline if breaking character or not enough width
-    if (textProg.slice(-1) === "\n" || widthProg - joinHyphen + wordWidth > width) {
+    if (
+      textProg.slice(-1) === "\n" ||
+      widthProg - joinHyphen + wordWidth > width
+    ) {
       if (!i && !overflow) {
         truncated = true;
         break;
@@ -349,7 +352,8 @@ function wrapSentence(phrase: unknown, config: WrapConfig): TextWrapResult {
   // consumer that sizes a box to `max(widths)` won't trigger another break).
   // The circle path already measured the finished lines while checking chord
   // fit, so reuse that instead of measuring the same strings again.
-  const lineWidthsVisible = visibleWidths ?? (textWidth(lines, style) as number[]);
+  const lineWidthsVisible =
+    visibleWidths ?? (textWidth(lines, style) as number[]);
 
   return {
     lines,

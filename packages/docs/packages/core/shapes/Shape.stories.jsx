@@ -17,20 +17,27 @@ export default {
         component: "An abstracted class for generating shapes.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Shape config={configify(args, argTypes)} />;
-  
+const Template = args => <Shape config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
-const note = {margin: 0, fontSize: 14, lineHeight: 1.5, color: "#495057", maxWidth: 720};
+const note = {
+  margin: 0,
+  fontSize: 14,
+  lineHeight: 1.5,
+  color: "#495057",
+  maxWidth: 720,
+};
 
 export const Reference = () => (
   <p style={note}>
-    The abstract base of Rect, Circle, Line, Area, Path, Bar, Box, Whisker, and Image. The table below is the
-    configuration they all share, which is also what a chart&apos;s <code>shapeConfig</code> accepts.
+    The abstract base of Rect, Circle, Line, Area, Path, Bar, Box, Whisker, and
+    Image. The table below is the configuration they all share, which is also
+    what a chart&apos;s <code>shapeConfig</code> accepts.
   </p>
 );
 Reference.args = {height: 90};
@@ -58,7 +65,8 @@ new Rect().select("#svg").data(data).fill("#1c7ed6").render();`,
       language: "jsx",
     },
     description: {
-      story: "`Shape` handles what every drawn element has in common: positioning, fill and stroke, opacity, hover and active states, labels (through `labelConfig`), and events. Subclasses add only their geometry. In a chart, `shapeConfig` is applied to whichever shape class the chart draws with.",
+      story:
+        "`Shape` handles what every drawn element has in common: positioning, fill and stroke, opacity, hover and active states, labels (through `labelConfig`), and events. Subclasses add only their geometry. In a chart, `shapeConfig` is applied to whichever shape class the chart draws with.",
     },
   },
 };

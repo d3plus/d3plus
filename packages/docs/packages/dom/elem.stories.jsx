@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.",
+        component:
+          "Manages the enter/update/exit pattern for a single DOM element, applying enter, update, and exit attributes with optional transitions.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -27,7 +28,13 @@ import {select} from "d3-selection";
 import DomExample from "../../helpers/DomExample.jsx";
 
 const snippet = (code, story) => ({
-  docs: {source: {code: `import {select} from "d3-selection";\nimport {elem} from "@d3plus/dom";\n\n${code}`, language: "jsx"}, description: {story}},
+  docs: {
+    source: {
+      code: `import {select} from "d3-selection";\nimport {elem} from "@d3plus/dom";\n\n${code}`,
+      language: "jsx",
+    },
+    description: {story},
+  },
 });
 
 export const BasicExample = () => (
@@ -47,15 +54,21 @@ BasicExample.parameters = snippet(
   enter: {"data-state": "entered", title: "created by elem()"},
   update: {"data-updated": "true"},
 });`,
-  "Selects (or creates) exactly one element matching the selector under `parent`, applying `enter` attributes when it is first created and `update` attributes on every call. The tag and class come from the selector, so `div.demo-box` makes a `<div class=\"demo-box\">`. Calling it again finds the same element instead of adding another; this is how charts keep one container per role across redraws.",
+  'Selects (or creates) exactly one element matching the selector under `parent`, applying `enter` attributes when it is first created and `update` attributes on every call. The tag and class come from the selector, so `div.demo-box` makes a `<div class="demo-box">`. Calling it again finds the same element instead of adding another; this is how charts keep one container per role across redraws.',
 );
 
 const Conditional = () => {
   const [shown, setShown] = useState(true);
   return (
     <div style={{display: "grid", gap: 12}}>
-      <label style={{fontSize: 13, display: "flex", gap: 8, alignItems: "center"}}>
-        <input type="checkbox" checked={shown} onChange={e => setShown(e.target.checked)} />
+      <label
+        style={{fontSize: 13, display: "flex", gap: 8, alignItems: "center"}}
+      >
+        <input
+          type="checkbox"
+          checked={shown}
+          onChange={e => setShown(e.target.checked)}
+        />
         <code>condition</code>
       </label>
       <DomExample

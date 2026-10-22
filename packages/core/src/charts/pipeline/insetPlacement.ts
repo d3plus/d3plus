@@ -27,8 +27,17 @@ import {paintColorScaleInset} from "../features/featuresColorScale.js";
 import {buildLegendData, paintLegendInset} from "../features/featuresLegend.js";
 import {sanitizePosition} from "../features/features.js";
 import {markBoxes} from "../features/sceneBounds.js";
-import {INSET_PRIORITY, insetFrame, insetStyle} from "../features/insetState.js";
-import type {InsetKey, InsetOrient, InsetPlacement, InsetRegion} from "../features/insetState.js";
+import {
+  INSET_PRIORITY,
+  insetFrame,
+  insetStyle,
+} from "../features/insetState.js";
+import type {
+  InsetKey,
+  InsetOrient,
+  InsetPlacement,
+  InsetRegion,
+} from "../features/insetState.js";
 import {bottomRightControlsBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import {MINIMAP_RIGHT_INSET} from "../drawSteps/minimapMarkup.js";
 import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
@@ -58,7 +67,9 @@ export function sceneInsetRegion(
 /** Whether `legendInset` is on for this draw. */
 function insetEnabled(viz: VizInstance): boolean {
   const flag = viz.schema.legendInset;
-  return typeof flag === "function" ? Boolean(flag.bind(viz)(resolveSpec(viz))) : Boolean(flag);
+  return typeof flag === "function"
+    ? Boolean(flag.bind(viz)(resolveSpec(viz)))
+    : Boolean(flag);
 }
 
 /** The smallest a legend entry can be: a swatch (1.4× the 12px label font) plus its padding. */
@@ -71,13 +82,21 @@ const MIN_LEGEND_ENTRY = 12 * 1.4 + 5;
     hundreds of entries just to find it doesn't fit.
 */
 function legendCouldFit(viz: VizInstance): boolean {
-  const frame = insetFrame("column", {width: viz.schema.width || 0, height: viz.schema.height || 0});
+  const frame = insetFrame("column", {
+    width: viz.schema.width || 0,
+    height: viz.schema.height || 0,
+  });
   const entries = buildLegendData(viz).legendData.length;
-  return entries * MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY <= frame.width * frame.height;
+  return (
+    entries * MIN_LEGEND_ENTRY * MIN_LEGEND_ENTRY <= frame.width * frame.height
+  );
 }
 
 /** Whether a `legendPosition`/`colorScalePosition` accessor resolves to `"auto"` for this draw. */
-function isAutoPosition(viz: VizInstance, position: (config: unknown) => unknown): boolean {
+function isAutoPosition(
+  viz: VizInstance,
+  position: (config: unknown) => unknown,
+): boolean {
   return position.bind(viz)(resolveSpec(viz)) === "auto";
 }
 
@@ -88,8 +107,12 @@ function isAutoPosition(viz: VizInstance, position: (config: unknown) => unknown
 */
 function insetCandidates(viz: VizInstance): InsetKey[] {
   return INSET_PRIORITY.filter(key => {
-    if (key === "legend") return isAutoPosition(viz, viz.schema.legendPosition) && legendCouldFit(viz);
-    if (key === "colorScale") return isAutoPosition(viz, viz.schema.colorScalePosition);
+    if (key === "legend")
+      return (
+        isAutoPosition(viz, viz.schema.legendPosition) && legendCouldFit(viz)
+      );
+    if (key === "colorScale")
+      return isAutoPosition(viz, viz.schema.colorScalePosition);
     return true;
   });
 }
@@ -105,9 +128,14 @@ const ORIENTS: Record<InsetKey, InsetOrient[]> = {
 function isShowing(viz: VizInstance, key: InsetKey): boolean {
   if (key === "sizeLegend") return Boolean(bottomRightControlsBox(viz)?.inset);
   if (key === "legend") return Boolean(viz._legendClass?._data?.length);
-  return Boolean(viz.schema.colorScale) &&
-    sanitizePosition(viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)), viz) !== false &&
-    !viz.schema.colorScaleConfig.select;
+  return (
+    Boolean(viz.schema.colorScale) &&
+    sanitizePosition(
+      viz.schema.colorScalePosition.bind(viz)(resolveSpec(viz)),
+      viz,
+    ) !== false &&
+    !viz.schema.colorScaleConfig.select
+  );
 }
 
 /**
@@ -160,9 +188,23 @@ export function fitInset(
     bottom: Math.abs(r.y + r.height - (bounds.y + bounds.height)) < eps,
     top: Math.abs(r.y - bounds.y) < eps,
   });
-  const place = (r: Bounds, alignX: InsetPlacement["alignX"], alignY: InsetPlacement["alignY"]) => ({
-    x: alignX === "right" ? r.x + r.width - width : alignX === "left" ? r.x : r.x + (r.width - width) / 2,
-    y: alignY === "bottom" ? r.y + r.height - height : alignY === "top" ? r.y : r.y + (r.height - height) / 2,
+  const place = (
+    r: Bounds,
+    alignX: InsetPlacement["alignX"],
+    alignY: InsetPlacement["alignY"],
+  ) => ({
+    x:
+      alignX === "right"
+        ? r.x + r.width - width
+        : alignX === "left"
+          ? r.x
+          : r.x + (r.width - width) / 2,
+    y:
+      alignY === "bottom"
+        ? r.y + r.height - height
+        : alignY === "top"
+          ? r.y
+          : r.y + (r.height - height) / 2,
     width,
     height,
     alignX,
@@ -175,7 +217,8 @@ export function fitInset(
     });
     if (rect) return place(rect, alignX, alignY);
   }
-  const rect = fits[0], e = edges(rect);
+  const rect = fits[0],
+    e = edges(rect);
   return place(
     rect,
     e.right ? "right" : e.left ? "left" : "center",
@@ -199,25 +242,43 @@ function chromeBoxes(viz: VizInstance): Bounds[] {
   const {width, height} = chartBounds(viz);
   const zoom = zoomControlsBox(viz as never);
   if (zoom) {
-    const minimap = viz.schema.minimap ? (zoom.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width)) : 0;
-    boxes.push({x: viz.schema.width - zoom.width, y: 0, width: zoom.width, height: zoom.height + minimap});
+    const minimap = viz.schema.minimap
+      ? (zoom.width - MINIMAP_RIGHT_INSET) * (height / Math.max(1, width))
+      : 0;
+    boxes.push({
+      x: viz.schema.width - zoom.width,
+      y: 0,
+      width: zoom.width,
+      height: zoom.height + minimap,
+    });
   }
-  const topLeft = topLeftControlsBox(viz as never, getTopLeftContributions(viz as never));
-  if (topLeft) boxes.push({x: 0, y: 0, width: topLeft.width, height: topLeft.height});
+  const topLeft = topLeftControlsBox(
+    viz as never,
+    getTopLeftContributions(viz as never),
+  );
+  if (topLeft)
+    boxes.push({x: 0, y: 0, width: topLeft.width, height: topLeft.height});
   if (viz.schema.attribution) {
-    const parent = viz._select?.node?.()?.parentNode as Element | null | undefined;
-    const node = parent?.querySelector?.("div.d3plus-attribution") as HTMLElement | null | undefined;
+    const parent = viz._select?.node?.()?.parentNode as
+      Element | null | undefined;
+    const node = parent?.querySelector?.("div.d3plus-attribution") as
+      HTMLElement | null | undefined;
     const text = String(viz.schema.attribution).replace(/<[^>]*>/g, "");
     const w = Math.min(node?.offsetWidth || text.length * 6 + 30, width / 2);
     const h = node?.offsetHeight || ATTRIBUTION_HEIGHT;
-    const right = viz.schema.width - viz._margin.right, bottom = viz.schema.height - viz._margin.bottom;
+    const right = viz.schema.width - viz._margin.right,
+      bottom = viz.schema.height - viz._margin.bottom;
     boxes.push({x: right - w, y: bottom - h, width: w, height: h});
   }
   return boxes;
 }
 
 /** The open rects in the chart's region, kept `padding` clear of the marks and the region's edges. */
-function openSpace(viz: VizInstance): {rects: Bounds[]; bounds: Bounds; area: {width: number; height: number}} | null {
+function openSpace(viz: VizInstance): {
+  rects: Bounds[];
+  bounds: Bounds;
+  area: {width: number; height: number};
+} | null {
   const region = viz._insetRegion?.();
   if (!region) return null;
   const {padding} = insetStyle(viz);
@@ -230,14 +291,21 @@ function openSpace(viz: VizInstance): {rects: Bounds[]; bounds: Bounds; area: {w
   };
   if (bounds.width <= 0 || bounds.height <= 0) return null;
   const exclude = chromeBoxes(viz);
-  return {rects: negativeSpace(bounds, region.obstacles, {padding, exclude}), bounds, area: b};
+  return {
+    rects: negativeSpace(bounds, region.obstacles, {padding, exclude}),
+    bounds,
+    area: b,
+  };
 }
 
 /**
     Fits the first of `keys` that has room inside the chart. Returns the
     placement (or null) and which candidates are showing at all.
 */
-function choose(viz: VizInstance, keys: InsetKey[]): {placement: InsetPlacement | null; showing: InsetKey[]} {
+function choose(
+  viz: VizInstance,
+  keys: InsetKey[],
+): {placement: InsetPlacement | null; showing: InsetKey[]} {
   const showing = keys.filter(key => isShowing(viz, key));
   const space = showing.length ? openSpace(viz) : null;
   if (!space || !space.rects.length) return {placement: null, showing};
@@ -245,7 +313,14 @@ function choose(viz: VizInstance, keys: InsetKey[]): {placement: InsetPlacement 
   for (const key of showing) {
     for (const orient of ORIENTS[key]) {
       const size = measure(viz, key, orient, space.area);
-      const spot = size && fitInset(space.rects, space.bounds, size.width + margin * 2, size.height + margin * 2);
+      const spot =
+        size &&
+        fitInset(
+          space.rects,
+          space.bounds,
+          size.width + margin * 2,
+          size.height + margin * 2,
+        );
       if (spot) {
         return {placement: {key, orient, ...spot}, showing};
       }
@@ -255,7 +330,10 @@ function choose(viz: VizInstance, keys: InsetKey[]): {placement: InsetPlacement 
 }
 
 /** Runs `_draw()` again from the margins the render started with. */
-function redraw(viz: VizInstance, start: {margin: VizInstance["_margin"]; padding: VizInstance["_padding"]}): void {
+function redraw(
+  viz: VizInstance,
+  start: {margin: VizInstance["_margin"]; padding: VizInstance["_padding"]},
+): void {
   viz._margin = {...start.margin};
   viz._padding = {...start.padding};
   viz._draw();
@@ -268,7 +346,10 @@ function redraw(viz: VizInstance, start: {margin: VizInstance["_margin"]; paddin
 */
 export function drawWithInset(viz: VizInstance): void {
   viz._insetPlacement = null;
-  const keys = typeof viz._insetRegion === "function" && insetEnabled(viz) ? insetCandidates(viz) : [];
+  const keys =
+    typeof viz._insetRegion === "function" && insetEnabled(viz)
+      ? insetCandidates(viz)
+      : [];
   if (!keys.length) {
     viz._insetPending = null;
     viz._draw();

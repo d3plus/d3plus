@@ -3,14 +3,12 @@ import globals from "globals";
 import storybook from "eslint-plugin-storybook";
 
 import js from "@eslint/js";
+import prettier from "eslint-config-prettier";
 export default [
   js.configs.recommended,
   {
     // Build output and the manual dev pages.
-    ignores: [
-      "**/{es,umd,types,dist,build,coverage}/**",
-      "packages/*/dev/**",
-    ],
+    ignores: ["**/{es,umd,types,dist,build,coverage}/**", "packages/*/dev/**"],
   },
   {
     files: ["**/*.js", "**/*.mjs"],
@@ -48,7 +46,10 @@ export default [
       "@typescript-eslint/no-this-alias": "off",
       "@typescript-eslint/no-unused-vars": ["error", {argsIgnorePattern: "^_"}],
       "prefer-const": "warn",
-      "max-lines": ["error", {max: 500, skipBlankLines: true, skipComments: true}],
+      "max-lines": [
+        "error",
+        {max: 500, skipBlankLines: true, skipComments: true},
+      ],
       "max-lines-per-function": [
         "error",
         {max: 100, skipBlankLines: true, skipComments: true},
@@ -59,15 +60,21 @@ export default [
     // Package entry points are export lists, not code: they grow by a line or
     // two with every new export, so they're exempt from file size, and may
     // hold only imports and re-exports so they stay that way.
-    files: ["packages/core/internal.ts", "packages/core/umd-entry.ts", "packages/*/index.ts"],
+    files: [
+      "packages/core/internal.ts",
+      "packages/core/umd-entry.ts",
+      "packages/*/index.ts",
+    ],
     ignores: ["packages/{element,svelte,vue}/index.ts"],
     rules: {
       "max-lines": "off",
       "no-restricted-syntax": [
         "error",
         {
-          selector: "Program > :not(ImportDeclaration, ExportAllDeclaration, ExportNamedDeclaration:not([declaration]))",
-          message: "Package entry points hold only imports and re-exports; put code in src/.",
+          selector:
+            "Program > :not(ImportDeclaration, ExportAllDeclaration, ExportNamedDeclaration:not([declaration]))",
+          message:
+            "Package entry points hold only imports and re-exports; put code in src/.",
         },
       ],
     },
@@ -75,7 +82,10 @@ export default [
   {
     // Translation/data dictionaries are data, not code — exempt from file size,
     // as is the config type, which declares one property per config key.
-    files: ["packages/locales/**/*.ts", "packages/core/src/utils/D3plusConfig.ts"],
+    files: [
+      "packages/locales/**/*.ts",
+      "packages/core/src/utils/D3plusConfig.ts",
+    ],
     rules: {
       "max-lines": "off",
     },
@@ -132,12 +142,16 @@ export default [
       "no-restricted-syntax": [
         "error",
         {
-          selector: "CallExpression[callee.name=/^(it|test|jsdomit)$/] > FunctionExpression[generator=true]",
-          message: "Vitest does not drive generator test bodies; use an async function.",
+          selector:
+            "CallExpression[callee.name=/^(it|test|jsdomit)$/] > FunctionExpression[generator=true]",
+          message:
+            "Vitest does not drive generator test bodies; use an async function.",
         },
         {
-          selector: "CallExpression[callee.object.type='ThisExpression'][callee.property.name='timeout']",
-          message: "Pass {timeout} in the test's options instead of calling this.timeout().",
+          selector:
+            "CallExpression[callee.object.type='ThisExpression'][callee.property.name='timeout']",
+          message:
+            "Pass {timeout} in the test's options instead of calling this.timeout().",
         },
       ],
     },
@@ -150,14 +164,20 @@ export default [
         "error",
         {
           patterns: [
-            {regex: "^node:", message: "Browser tests run in the page; use a server command."},
+            {
+              regex: "^node:",
+              message: "Browser tests run in the page; use a server command.",
+            },
             {
               regex: "^(assert|fs|path|url|child_process)$",
-              message: "Browser tests run in the page; use ~test/browser/assert.js or a server command.",
+              message:
+                "Browser tests run in the page; use ~test/browser/assert.js or a server command.",
             },
           ],
         },
       ],
     },
   },
+  // Last, so it turns off any rule that disagrees with Prettier's output.
+  prettier,
 ];

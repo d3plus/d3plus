@@ -28,7 +28,10 @@ export interface PlotFacetScales {
     panel's own (see `PlotFacetScales.padded`); the scales unchanged when the
     panel isn't sharing scales.
 */
-export function applyPaddedDomains<S extends Record<string, unknown>>(viz: VizInstance, scales: S): S {
+export function applyPaddedDomains<S extends Record<string, unknown>>(
+  viz: VizInstance,
+  scales: S,
+): S {
   const padded = viz._plotFacetScales?.padded;
   if (!padded) return scales;
   const out: Record<string, unknown> = {...scales};

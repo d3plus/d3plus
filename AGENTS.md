@@ -8,21 +8,21 @@ d3plus is a JavaScript data visualization library that extends D3.js. It is orga
 
 ### Packages
 
-| Package | Purpose |
-|---|---|
-| `@d3plus/color` | Color utilities and defaults |
-| `@d3plus/core` | All chart types, components, and shapes |
-| `@d3plus/data` | Data manipulation and filtering |
-| `@d3plus/dom` | DOM utilities |
-| `@d3plus/export` | SVG/image export |
-| `@d3plus/format` | Number and date formatting |
-| `@d3plus/locales` | Translation dictionaries |
-| `@d3plus/math` | Math utilities |
-| `@d3plus/render` | Scene-graph renderer abstraction + SVG/Canvas backends |
-| `@d3plus/react` | React component wrappers |
-| `@d3plus/text` | Text measurement and wrapping |
-| `@d3plus/types` | Unified TypeScript type definitions |
-| `@d3plus/docs` | Storybook documentation site (private, not published) |
+| Package           | Purpose                                                |
+| ----------------- | ------------------------------------------------------ |
+| `@d3plus/color`   | Color utilities and defaults                           |
+| `@d3plus/core`    | All chart types, components, and shapes                |
+| `@d3plus/data`    | Data manipulation and filtering                        |
+| `@d3plus/dom`     | DOM utilities                                          |
+| `@d3plus/export`  | SVG/image export                                       |
+| `@d3plus/format`  | Number and date formatting                             |
+| `@d3plus/locales` | Translation dictionaries                               |
+| `@d3plus/math`    | Math utilities                                         |
+| `@d3plus/render`  | Scene-graph renderer abstraction + SVG/Canvas backends |
+| `@d3plus/react`   | React component wrappers                               |
+| `@d3plus/text`    | Text measurement and wrapping                          |
+| `@d3plus/types`   | Unified TypeScript type definitions                    |
+| `@d3plus/docs`    | Storybook documentation site (private, not published)  |
 
 ## Architecture (v4)
 
@@ -128,7 +128,7 @@ lifecycle:
 - `vizDraw` — feature layout + margin/panel assembly; returns the margin it
   claimed and the panels.
 - `runVizPipeline(viz)` — the full orchestrator (`_preDraw → _draw → features →
-  paint`).
+paint`).
 - `resolveSpec(viz)` — frozen config/context snapshot (the config↔context
   boundary).
 
@@ -295,7 +295,9 @@ Pass `VERBOSE=1` to any build script for per-file output; by default piped
 - **Getter/setter methods:** same method name handles both — no argument returns
   the stored value, an argument stores and returns `this`.
 - **Formatting:** Prettier with `arrowParens: "avoid"` and `bracketSpacing:
-  false`.
+false`. `pnpm format` rewrites the repo and `pnpm format:check` (run in CI)
+  verifies it; `.prettierignore` skips generated data, snapshots and MDX. The
+  docs generator formats what it writes.
 - **Linting:** ESLint flat config (`eslint.config.js`). Fix lint before
   committing; `max-lines` rules are enforced — split oversized files.
   Package entry points (`index.ts`, core's `internal.ts` and `umd-entry.ts`)

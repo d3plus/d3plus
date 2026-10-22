@@ -13,10 +13,26 @@ it("colorDefaults() starts from the @d3plus/color defaults and merges overrides"
     assert.strictEqual(initial[key], colorDefaults[key], key);
 
   base.colorDefaults({dark: "#111111"}).colorDefaults({light: "#eeeeee"});
-  assert.strictEqual(base.colorDefaults().dark, "#111111", "first override kept");
-  assert.strictEqual(base.colorDefaults().light, "#eeeeee", "second override merged");
-  assert.strictEqual(base.colorDefaults().missing, colorDefaults.missing, "untouched keys keep defaults");
-  assert.strictEqual(colorDefaults.dark, "#495057", "library defaults are not mutated");
+  assert.strictEqual(
+    base.colorDefaults().dark,
+    "#111111",
+    "first override kept",
+  );
+  assert.strictEqual(
+    base.colorDefaults().light,
+    "#eeeeee",
+    "second override merged",
+  );
+  assert.strictEqual(
+    base.colorDefaults().missing,
+    colorDefaults.missing,
+    "untouched keys keep defaults",
+  );
+  assert.strictEqual(
+    colorDefaults.dark,
+    "#495057",
+    "library defaults are not mutated",
+  );
 });
 
 it("colorDefaults() scale accepts an array of colors", () => {
@@ -47,14 +63,38 @@ it("viz colorDefaults() drive fills, label contrast, and child components", () =
   const {shapeConfig} = viz.schema;
 
   viz.color(() => "#000000");
-  assert.strictEqual(shapeConfig.labelConfig.fontColor({}, 0), "#fefefe", "light text on dark fill");
+  assert.strictEqual(
+    shapeConfig.labelConfig.fontColor({}, 0),
+    "#fefefe",
+    "light text on dark fill",
+  );
   viz.color(() => "#ffffff");
-  assert.strictEqual(shapeConfig.labelConfig.fontColor({}, 0), "#010101", "dark text on light fill");
+  assert.strictEqual(
+    shapeConfig.labelConfig.fontColor({}, 0),
+    "#010101",
+    "dark text on light fill",
+  );
 
-  assert.strictEqual(viz._tooltipClass.schema.background({}, 0), "#fefefe", "tooltip background");
-  assert.strictEqual(viz._legendClass.colorDefaults().dark, "#010101", "legend");
-  assert.strictEqual(viz._timelineClass.colorDefaults().dark, "#010101", "timeline");
-  assert.strictEqual(viz._colorScaleClass.colorDefaults().sequential, "#00ff00", "color scale");
+  assert.strictEqual(
+    viz._tooltipClass.schema.background({}, 0),
+    "#fefefe",
+    "tooltip background",
+  );
+  assert.strictEqual(
+    viz._legendClass.colorDefaults().dark,
+    "#010101",
+    "legend",
+  );
+  assert.strictEqual(
+    viz._timelineClass.colorDefaults().dark,
+    "#010101",
+    "timeline",
+  );
+  assert.strictEqual(
+    viz._colorScaleClass.colorDefaults().sequential,
+    "#00ff00",
+    "color scale",
+  );
   assert.strictEqual(
     viz._colorScaleClass._axisClass.colorDefaults().dark,
     "#010101",
@@ -68,9 +108,21 @@ it("colorDefaults RESET restores the viz defaults", () => {
   viz.config({colorDefaults: {dark: "#123456", scale: ["#000000"]}});
   assert.strictEqual(viz.colorDefaults().dark, "#123456");
   viz.config({colorDefaults: RESET});
-  assert.strictEqual(viz.colorDefaults().dark, colorDefaults.dark, "dark reset");
-  assert.strictEqual(viz.colorDefaults().scale, scale, "viz-owned scale restored");
-  assert.strictEqual(viz._legendClass.colorDefaults().dark, colorDefaults.dark, "children reset");
+  assert.strictEqual(
+    viz.colorDefaults().dark,
+    colorDefaults.dark,
+    "dark reset",
+  );
+  assert.strictEqual(
+    viz.colorDefaults().scale,
+    scale,
+    "viz-owned scale restored",
+  );
+  assert.strictEqual(
+    viz._legendClass.colorDefaults().dark,
+    colorDefaults.dark,
+    "children reset",
+  );
 });
 
 it("standalone shapes use their own colorDefaults for label contrast", () => {
@@ -86,35 +138,55 @@ it("ColorScale poles fall back to colorDefaults when unset", () => {
     .scale("linear")
     .colorDefaults({sequential: "#ff0000", light: "#ffffff"});
   const {colors} = computeColorScale(cs);
-  assert.strictEqual(colors[colors.length - 1], "#ff0000", "high pole from sequential");
+  assert.strictEqual(
+    colors[colors.length - 1],
+    "#ff0000",
+    "high pole from sequential",
+  );
 
   cs.colorMax("#0000ff");
   const explicit = computeColorScale(cs).colors;
-  assert.strictEqual(explicit[explicit.length - 1], "#0000ff", "explicit colorMax wins");
+  assert.strictEqual(
+    explicit[explicit.length - 1],
+    "#0000ff",
+    "explicit colorMax wins",
+  );
 });
 
-it("a rendered chart paints fills and label text from the viz overrides", {timeout: 120000}, async function () {
-  const out = await render(
-    '<div id="s" style="width:600px;height:400px;"></div>',
-    async () => {
-      const viz = new window.d3plus.Treemap()
-        .select("#s")
-        .duration(0)
-        .legend(false)
-        .data([
-          {id: "alpha", value: 30},
-          {id: "beta", value: 20},
-        ])
-        .colorDefaults({scale: ["#000000", "#ffffff"], dark: "#222222", light: "#dddddd"});
-      await new Promise(resolve => viz.render(resolve));
-      return {
-        fills: [...document.querySelectorAll("#s svg rect")].map(r => r.getAttribute("fill")),
-        text: [...document.querySelectorAll("#s svg text")].map(t => t.getAttribute("fill")),
-      };
-    },
-  );
-  assert.ok(out.fills.includes("#000000"), "first palette color painted");
-  assert.ok(out.fills.includes("#ffffff"), "second palette color painted");
-  assert.ok(out.text.includes("#dddddd"), "light text on the dark tile");
-  assert.ok(out.text.includes("#222222"), "dark text on the light tile");
-});
+it(
+  "a rendered chart paints fills and label text from the viz overrides",
+  {timeout: 120000},
+  async function () {
+    const out = await render(
+      '<div id="s" style="width:600px;height:400px;"></div>',
+      async () => {
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .duration(0)
+          .legend(false)
+          .data([
+            {id: "alpha", value: 30},
+            {id: "beta", value: 20},
+          ])
+          .colorDefaults({
+            scale: ["#000000", "#ffffff"],
+            dark: "#222222",
+            light: "#dddddd",
+          });
+        await new Promise(resolve => viz.render(resolve));
+        return {
+          fills: [...document.querySelectorAll("#s svg rect")].map(r =>
+            r.getAttribute("fill"),
+          ),
+          text: [...document.querySelectorAll("#s svg text")].map(t =>
+            t.getAttribute("fill"),
+          ),
+        };
+      },
+    );
+    assert.ok(out.fills.includes("#000000"), "first palette color painted");
+    assert.ok(out.fills.includes("#ffffff"), "second palette color painted");
+    assert.ok(out.text.includes("#dddddd"), "light text on the dark tile");
+    assert.ok(out.text.includes("#222222"), "dark text on the light tile");
+  },
+);

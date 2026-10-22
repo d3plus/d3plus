@@ -14,7 +14,7 @@ interface RenderOptions {
   duration?: number;
   html?: string;
   mask?: string | false;
-   
+
   style?: Record<string, unknown>;
 }
 
@@ -111,7 +111,10 @@ export default class Message {
         .merge(this.elem as never) as unknown as D3Selection
     ).html(String);
 
-    stylize(this.elem, style as Record<string, string | number | boolean | null>);
+    stylize(
+      this.elem,
+      style as Record<string, string | number | boolean | null>,
+    );
 
     if (callback) setTimeout(callback, 100);
 

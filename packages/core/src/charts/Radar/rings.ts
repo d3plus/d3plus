@@ -34,15 +34,22 @@ export function radarRingStyle(
   user: RadarRingStyle | undefined,
 ): RadarRingStyle {
   const out: RadarRingStyle = {...defaults};
-  for (const [key, value] of Object.entries(user ?? {})) out[KEBAB[key] ?? key] = value;
+  for (const [key, value] of Object.entries(user ?? {}))
+    out[KEBAB[key] ?? key] = value;
   return out;
 }
 
 const resolve = (v: unknown, ring: RadarRing, i: number): unknown =>
-  typeof v === "function" ? (v as (d: RadarRing, i: number) => unknown)(ring, i) : v;
+  typeof v === "function"
+    ? (v as (d: RadarRing, i: number) => unknown)(ring, i)
+    : v;
 
 /** Resolves a ring style into a concrete paint for one ring. */
-export function radarRingPaint(style: RadarRingStyle, ring: RadarRing, i: number): Paint {
+export function radarRingPaint(
+  style: RadarRingStyle,
+  ring: RadarRing,
+  i: number,
+): Paint {
   const paint: Paint = {fill: "none"};
   const stroke = resolve(style.stroke, ring, i);
   if (typeof stroke === "string") paint.stroke = stroke;
@@ -53,7 +60,13 @@ export function radarRingPaint(style: RadarRingStyle, ring: RadarRing, i: number
   const opacity = Number(resolve(style.opacity, ring, i));
   if (Number.isFinite(opacity)) paint.opacity = opacity;
   const dash = resolve(style.strokeDasharray, ring, i);
-  const dashes = (Array.isArray(dash) ? dash : typeof dash === "string" ? dash.split(/[\s,]+/) : [])
+  const dashes = (
+    Array.isArray(dash)
+      ? dash
+      : typeof dash === "string"
+        ? dash.split(/[\s,]+/)
+        : []
+  )
     .map(Number)
     .filter(Number.isFinite);
   if (dashes.length) paint.strokeDasharray = dashes;
@@ -78,12 +91,22 @@ export function emitRadarRings(
   const all = [...inner, {value: outerValue, r: radius}];
   const children: SceneNode[] = all.map((ring, i) => ({
     type: "circle",
-    key: i === inner.length ? `${prefix}-ring-outer` : `${prefix}-ring-${ring.value}`,
+    key:
+      i === inner.length
+        ? `${prefix}-ring-outer`
+        : `${prefix}-ring-${ring.value}`,
     interactive: false,
     cx: 0,
     cy: 0,
     r: ring.r,
     paint: radarRingPaint(i === inner.length ? outerStyle : gridStyle, ring, i),
   }));
-  return [{type: "group", key: `${prefix}-radial-circles`, interactive: false, children}];
+  return [
+    {
+      type: "group",
+      key: `${prefix}-radial-circles`,
+      interactive: false,
+      children,
+    },
+  ];
 }

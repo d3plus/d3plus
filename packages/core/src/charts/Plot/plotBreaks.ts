@@ -17,11 +17,12 @@ import type {GroupNode, LineNode, Paint, SceneNode} from "@d3plus/render";
 import type Axis from "../../components/Axis/Axis.js";
 import type {AxisBreak} from "../../components/Axis/axisBreak.js";
 import {breakGap, breakStyle} from "../../components/Axis/axisBreak.js";
-import {configToPaint} from "../../components/Axis/axisRender.js";
+import {configToPaint} from "../../components/Axis/axisScene.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** Whether a node is a value or line label, which the mask leaves whole. */
-const isLabel = (node: SceneNode): boolean => node.type === "text" || node.type === "htmlOverlay";
+const isLabel = (node: SceneNode): boolean =>
+  node.type === "text" || node.type === "htmlOverlay";
 
 /** A polygon as `[x, y]` points. */
 type Polygon = [number, number][];
@@ -54,7 +55,9 @@ function placedBreaks(viz: VizInstance, frame: MaskFrame): PlacedBreak[] {
     if (!axis || !axis._breaks || !axis._breaks.length) return [];
     const vertical = which === "y";
     const shift = vertical ? frame.x2Height : 0;
-    const extent = (vertical ? frame.xRange : frame.yRange.map(r => r - frame.x2Height))
+    const extent = (
+      vertical ? frame.xRange : frame.yRange.map(r => r - frame.x2Height)
+    )
       .slice(0, 2)
       .sort((a, b) => a - b) as [number, number];
     return axis._breaks.map(brk => ({
@@ -68,7 +71,8 @@ function placedBreaks(viz: VizInstance, frame: MaskFrame): PlacedBreak[] {
 }
 
 /** The config key that styles `brk`. */
-const configKey = (brk: AxisBreak) => (brk.baseline ? "baselineBreakConfig" : "breakConfig");
+const configKey = (brk: AxisBreak) =>
+  brk.baseline ? "baselineBreakConfig" : "breakConfig";
 
 /**
     The paint for a break's lines: the axis's own axis-line style
@@ -76,9 +80,15 @@ const configKey = (brk: AxisBreak) => (brk.baseline ? "baselineBreakConfig" : "b
     read as extensions of the axis line they break.
 */
 export function breakLinePaint(axis: Axis, brk: AxisBreak): Paint {
-  const bar = configToPaint(axis, axis.schema.barConfig as Record<string, unknown>);
+  const bar = configToPaint(
+    axis,
+    axis.schema.barConfig as Record<string, unknown>,
+  );
   const cfg = (axis.schema[configKey(brk)] || {}) as Record<string, unknown>;
-  const own = configToPaint(axis, (cfg.lineConfig || {}) as Record<string, unknown>);
+  const own = configToPaint(
+    axis,
+    (cfg.lineConfig || {}) as Record<string, unknown>,
+  );
   return {...bar, ...own};
 }
 
@@ -89,22 +99,33 @@ export function breakLinePaint(axis: Axis, brk: AxisBreak): Paint {
     They sit in the gridline layer, behind the shapes, and ignore the
     pointer.
 */
-export function breakLineNodes(viz: VizInstance, frame: MaskFrame): SceneNode[] {
-  return placedBreaks(viz, frame).flatMap(({axis, brk, vertical, gap, extent}, i) => {
-    if (!breakStyle(axis, configKey(brk)).lines) return [];
-    const paint = breakLinePaint(axis, brk);
-    const prefix = `break-line-${vertical ? "y" : "x"}-${i}`;
-    return gap.map(
-      (g, j): LineNode => ({
+export function breakLineNodes(
+  viz: VizInstance,
+  frame: MaskFrame,
+): SceneNode[] {
+  return placedBreaks(viz, frame).flatMap(
+    ({axis, brk, vertical, gap, extent}, i) => {
+      if (!breakStyle(axis, configKey(brk)).lines) return [];
+      const paint = breakLinePaint(axis, brk);
+      const prefix = `break-line-${vertical ? "y" : "x"}-${i}`;
+      return gap.map((g, j): LineNode => ({
         type: "line",
         key: `${prefix}-${j}`,
-        points: vertical ? [[extent[0], g], [extent[1], g]] : [[g, extent[0]], [g, extent[1]]],
+        points: vertical
+          ? [
+              [extent[0], g],
+              [extent[1], g],
+            ]
+          : [
+              [g, extent[0]],
+              [g, extent[1]],
+            ],
         paint,
         interactive: false,
         interactionGroup: "axis",
-      }),
-    );
-  });
+      }));
+    },
+  );
 }
 
 /** Signed area of a polygon (shoelace); the sign gives its winding. */
@@ -118,7 +139,10 @@ const area = (p: Polygon): number =>
 export function maskPath(outer: Polygon, holes: Polygon[]): string {
   const ring = (p: Polygon) => `M${p.map(([x, y]) => `${x},${y}`).join("L")}Z`;
   const sign = Math.sign(area(outer));
-  return [outer, ...holes.map(h => (Math.sign(area(h)) === sign ? h.slice().reverse() : h))]
+  return [
+    outer,
+    ...holes.map(h => (Math.sign(area(h)) === sign ? h.slice().reverse() : h)),
+  ]
     .map(ring)
     .join("");
 }
@@ -128,13 +152,28 @@ export function maskPath(outer: Polygon, holes: Polygon[]): string {
     its two break lines (inset by half a line's width, so the lines stay
     whole), spanning the plot perpendicular to the axis.
 */
-export function bandPolygon(gap: [number, number], extent: [number, number], vertical: boolean, inset = 0): Polygon {
+export function bandPolygon(
+  gap: [number, number],
+  extent: [number, number],
+  vertical: boolean,
+  inset = 0,
+): Polygon {
   const g0 = gap[0] + inset;
   const g1 = gap[1] - inset;
   const [c0, c1] = extent;
   return vertical
-    ? [[c0, g0], [c1, g0], [c1, g1], [c0, g1]]
-    : [[g0, c0], [g1, c0], [g1, c1], [g0, c1]];
+    ? [
+        [c0, g0],
+        [c1, g0],
+        [c1, g1],
+        [c0, g1],
+      ]
+    : [
+        [g0, c0],
+        [g1, c0],
+        [g1, c1],
+        [g0, c1],
+      ];
 }
 
 /**
@@ -144,18 +183,31 @@ export function bandPolygon(gap: [number, number], extent: [number, number], ver
     paint order, so no label is cut. Returns `nodes` unchanged when no
     break asks for a mask.
 */
-export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFrame): SceneNode[] {
-  const outer: Polygon = [[-1e6, -1e6], [1e6, -1e6], [1e6, 1e6], [-1e6, 1e6]];
+export function maskBreaks(
+  viz: VizInstance,
+  nodes: SceneNode[],
+  frame: MaskFrame,
+): SceneNode[] {
+  const outer: Polygon = [
+    [-1e6, -1e6],
+    [1e6, -1e6],
+    [1e6, 1e6],
+    [-1e6, 1e6],
+  ];
   const placed = placedBreaks(viz, frame);
   const clips = [true, false].flatMap(vertical => {
     const holes = placed
       .filter(p => p.vertical === vertical && p.brk.mask)
       .map(({axis, brk, gap, extent}) => {
         const style = breakStyle(axis, configKey(brk));
-        const inset = style.lines ? (breakLinePaint(axis, brk).strokeWidth ?? 1) / 2 : 0;
+        const inset = style.lines
+          ? (breakLinePaint(axis, brk).strokeWidth ?? 1) / 2
+          : 0;
         return bandPolygon(gap, extent, vertical, inset);
       });
-    return holes.length ? [{axis: vertical ? "y" : "x", d: maskPath(outer, holes)}] : [];
+    return holes.length
+      ? [{axis: vertical ? "y" : "x", d: maskPath(outer, holes)}]
+      : [];
   });
   if (!clips.length) return nodes;
   const out: SceneNode[] = [];
@@ -164,12 +216,17 @@ export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFram
   const flush = (): void => {
     if (!run.length) return;
     const suffix = runs++ ? `-${runs - 1}` : "";
-    const wrapped = clips.reduce<SceneNode[]>((children, {axis, d}) => [{
-      type: "group",
-      key: `${BREAK_MASK_KEY}-${axis}${suffix}`,
-      clip: {type: "path", d},
-      children,
-    }], run);
+    const wrapped = clips.reduce<SceneNode[]>(
+      (children, {axis, d}) => [
+        {
+          type: "group",
+          key: `${BREAK_MASK_KEY}-${axis}${suffix}`,
+          clip: {type: "path", d},
+          children,
+        },
+      ],
+      run,
+    );
     out.push(...wrapped);
     run = [];
   };
@@ -177,8 +234,7 @@ export function maskBreaks(viz: VizInstance, nodes: SceneNode[], frame: MaskFram
     if (isLabel(node)) {
       flush();
       out.push(node);
-    }
-    else run.push(node);
+    } else run.push(node);
   }
   flush();
   return out;
@@ -191,6 +247,8 @@ const isBreakMask = (node: SceneNode): node is GroupNode =>
 /** The plot content inside any break-mask groups, in paint order. */
 export function unwrapBreakMasks(nodes: SceneNode[]): SceneNode[] {
   return nodes.some(isBreakMask)
-    ? nodes.flatMap(node => (isBreakMask(node) ? unwrapBreakMasks(node.children) : [node]))
+    ? nodes.flatMap(node =>
+        isBreakMask(node) ? unwrapBreakMasks(node.children) : [node],
+      )
     : nodes;
 }

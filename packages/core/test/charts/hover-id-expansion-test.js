@@ -40,11 +40,21 @@ it("hover expands a predicate over chart rows that have no legend entry", () => 
   });
   hover.call(viz, d => d.id === "a");
 
-  assert.strictEqual(viz.legendHovers.length, 1, "the legend received a predicate");
+  assert.strictEqual(
+    viz.legendHovers.length,
+    1,
+    "the legend received a predicate",
+  );
   const fn = viz.legendHovers[0];
-  assert.ok(fn({group: "P"}, 0), "the matched row's parent legend entry is highlighted");
+  assert.ok(
+    fn({group: "P"}, 0),
+    "the matched row's parent legend entry is highlighted",
+  );
   assert.ok(!fn({group: "Q"}, 1), "an unrelated legend entry is not");
-  assert.ok(fn({group: "P", id: "a"}, 0), "the matched row itself is highlighted");
+  assert.ok(
+    fn({group: "P", id: "a"}, 0),
+    "the matched row itself is highlighted",
+  );
   assert.ok(!fn({group: "P", id: "b"}, 1), "its sibling is not");
 });
 
@@ -67,5 +77,9 @@ it("hover passes the predicate through unchanged when nothing matches", () => {
   });
   hover.call(viz, predicate);
   assert.strictEqual(viz.legendHovers[0], predicate);
-  assert.strictEqual(viz._hover, predicate, "_hover keeps the caller's predicate");
+  assert.strictEqual(
+    viz._hover,
+    predicate,
+    "_hover keeps the caller's predicate",
+  );
 });

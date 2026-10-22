@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Computes the exact bounding box of an SVG path string with no DOM involved,\nevaluating the true extrema of each Bézier and arc segment (not a sampled\napproximation). Returns {x, y, width, height}, or a zero-size box at the\norigin for an empty/unparseable path.",
+        component:
+          "Computes the exact bounding box of an SVG path string with no DOM involved,\nevaluating the true extrema of each Bézier and arc segment (not a sampled\napproximation). Returns {x, y, width, height}, or a zero-size box at the\norigin for an empty/unparseable path.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -25,14 +26,26 @@ import GeometryExample from "../../helpers/GeometryExample.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 const r = n => Math.round(n * 100) / 100;
-const summary = b => ({x: r(b.x), y: r(b.y), width: r(b.width), height: r(b.height)});
+const summary = b => ({
+  x: r(b.x),
+  y: r(b.y),
+  width: r(b.width),
+  height: r(b.height),
+});
 
 const Diagram = ({d}) => {
   const b = pathBounds(d);
   return (
     <GeometryExample
       shapes={[
-        {type: "rect", x: b.x, y: b.y, width: b.width, height: b.height, dashed: true},
+        {
+          type: "rect",
+          x: b.x,
+          y: b.y,
+          width: b.width,
+          height: b.height,
+          dashed: true,
+        },
         {type: "path", d},
       ]}
       output={`pathBounds(${JSON.stringify(d)})\n// → ${JSON.stringify(summary(b))}`}
@@ -42,7 +55,12 @@ const Diagram = ({d}) => {
 
 const params = (d, story) => ({
   docs: {
-    ...sourceSnippet("math", "pathBounds", [{call: `pathBounds(${JSON.stringify(d)})`, result: JSON.stringify(summary(pathBounds(d)))}]).docs,
+    ...sourceSnippet("math", "pathBounds", [
+      {
+        call: `pathBounds(${JSON.stringify(d)})`,
+        result: JSON.stringify(summary(pathBounds(d))),
+      },
+    ]).docs,
     description: {story},
   },
 });

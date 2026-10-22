@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a Sankey visualization based on a defined set of nodes and links.",
+        component:
+          "Creates a Sankey visualization based on a defined set of nodes and links.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Sankey config={configify(args, argTypes)} />;
-  
+const Template = args => <Sankey config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -34,10 +35,18 @@ BasicExample.args = {
     {source: "beta", target: "epsilon"},
     {source: "zeta", target: "gamma"},
     {source: "theta", target: "gamma"},
-    {source: "eta", target: "gamma"}
-  ]
+    {source: "eta", target: "gamma"},
+  ],
 };
-BasicExample.parameters = {controls: {include: ["links"]}, docs: {description: {story: "Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them."}}};
+BasicExample.parameters = {
+  controls: {include: ["links"]},
+  docs: {
+    description: {
+      story:
+        "Supplying only `links` lets the layout infer every node from the `source`/`target` ids and route the flows between them.",
+    },
+  },
+};
 
 export const DataDrivenLinkWidth = Template.bind({});
 DataDrivenLinkWidth.args = {
@@ -49,26 +58,41 @@ DataDrivenLinkWidth.args = {
     {source: "Hub 1", target: "Out X", value: 35},
     {source: "Hub 1", target: "Out Y", value: 20},
     {source: "Hub 2", target: "Out X", value: 15},
-    {source: "Hub 2", target: "Out Y", value: 20}
+    {source: "Hub 2", target: "Out Y", value: 20},
   ],
-  value: "value"
+  value: "value",
 };
 DataDrivenLinkWidth.parameters = {
   controls: {include: ["value"]},
-  docs: {description: {story: "Each link's `value` sets its thickness, so flows are weighted by magnitude."}}
+  docs: {
+    description: {
+      story:
+        "Each link's `value` sets its thickness, so flows are weighted by magnitude.",
+    },
+  },
 };
 
 export const NodeSpacing = Template.bind({});
 NodeSpacing.args = {
   links: [
-    {source: "alpha", target: "beta"}, {source: "alpha", target: "gamma"},
-    {source: "beta", target: "delta"}, {source: "beta", target: "epsilon"},
-    {source: "gamma", target: "delta"}
+    {source: "alpha", target: "beta"},
+    {source: "alpha", target: "gamma"},
+    {source: "beta", target: "delta"},
+    {source: "beta", target: "epsilon"},
+    {source: "gamma", target: "delta"},
   ],
   nodeWidth: 30,
-  nodePadding: 40
+  nodePadding: 40,
 };
-NodeSpacing.parameters = {controls: {include: ["nodeWidth", "nodePadding"]}, docs: {description: {story: "`nodeWidth` sets how thick each node bar is drawn and `nodePadding` the vertical gap between nodes in a column—raise `nodePadding` to spread crowded columns apart."}}};
+NodeSpacing.parameters = {
+  controls: {include: ["nodeWidth", "nodePadding"]},
+  docs: {
+    description: {
+      story:
+        "`nodeWidth` sets how thick each node bar is drawn and `nodePadding` the vertical gap between nodes in a column—raise `nodePadding` to spread crowded columns apart.",
+    },
+  },
+};
 
 export const DirectionalArrows = Template.bind({});
 DirectionalArrows.args = {
@@ -77,8 +101,16 @@ DirectionalArrows.args = {
     {source: "Source A", target: "Hub", value: 30},
     {source: "Source B", target: "Hub", value: 20},
     {source: "Hub", target: "Out X", value: 30},
-    {source: "Hub", target: "Out Y", value: 20}
+    {source: "Hub", target: "Out Y", value: 20},
   ],
-  arrows: "target"
+  arrows: "target",
 };
-DirectionalArrows.parameters = {controls: {include: ["arrows", "arrowSize"]}, docs: {description: {story: "`arrows` adds an arrowhead where each flow enters its target node, reinforcing the left-to-right direction. Use `\"both\"` for bi-directional flows or a per-link accessor."}}};
+DirectionalArrows.parameters = {
+  controls: {include: ["arrows", "arrowSize"]},
+  docs: {
+    description: {
+      story:
+        '`arrows` adds an arrowhead where each flow enters its target node, reinforcing the left-to-right direction. Use `"both"` for bi-directional flows or a per-link accessor.',
+    },
+  },
+};

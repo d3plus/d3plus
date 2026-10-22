@@ -8,7 +8,13 @@ it("uniqueIds leaves unique ids alone", () => {
 });
 
 it("uniqueIds suffixes each repeat in order", () => {
-  assert.deepStrictEqual(uniqueIds(["a", "b", "a", "a", "b"]), ["a", "b", "a~1", "a~2", "b~1"]);
+  assert.deepStrictEqual(uniqueIds(["a", "b", "a", "a", "b"]), [
+    "a",
+    "b",
+    "a~1",
+    "a~2",
+    "b~1",
+  ]);
 });
 
 it("uniqueIds skips suffixes another id already uses", () => {

@@ -3,53 +3,52 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   locale: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "en-US",
-    description: "The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.",
+    description:
+      "The locale config to be used. If an object is provided, the function will format the numbers according to the object. The object must include `suffixes`, `delimiter` and `currency` properties.",
     table: {
       defaultValue: {
-        summary: "en-US"
-      }
+        summary: "en-US",
+      },
     },
     type: {
       required: false,
-      summary: "string | formatlocaledefinition"
-    }
+      summary: "string | formatlocaledefinition",
+    },
   },
   n: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The number to be formatted.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | number"
-    }
+      summary: "string | number",
+    },
   },
   precision: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "Number of significant digits to display.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

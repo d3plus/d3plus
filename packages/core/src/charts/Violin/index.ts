@@ -6,7 +6,11 @@
 
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
-import {densityAccessorFields, densityConfigFields, installDensity} from "../helpers/densityChart.js";
+import {
+  densityAccessorFields,
+  densityConfigFields,
+  installDensity,
+} from "../helpers/densityChart.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {VIOLIN_PADDING, violinEmit} from "./emit.js";
@@ -53,7 +57,11 @@ export const violinDef: ChartDefinition = {
         config), and `points` (Circle config).
         @type {{box?: object, quartiles?: object, points?: object}}
     */
-    {key: "innerConfig", merge: true, default: {box: {}, quartiles: {}, points: {}}},
+    {
+      key: "innerConfig",
+      merge: true,
+      default: {box: {}, quartiles: {}, points: {}},
+    },
     {
       key: "shapeConfig",
       merge: true,

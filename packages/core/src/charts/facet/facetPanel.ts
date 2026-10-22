@@ -23,7 +23,8 @@ export function facetPanelAt(
   if (!panels || !panels.length || !point) return undefined;
   const t = viz._zoomTransform;
   const k = t && t.scale ? t.scale : 1;
-  const x = (point[0] - (t?.x ?? 0)) / k, y = (point[1] - (t?.y ?? 0)) / k;
+  const x = (point[0] - (t?.x ?? 0)) / k,
+    y = (point[1] - (t?.y ?? 0)) / k;
   return panels.find(p => {
     const c = p.cell;
     return x >= c.x && x <= c.x + c.width && y >= c.y && y <= c.y + c.height;
@@ -45,7 +46,11 @@ function panelSlots(panel: FacetPanelState): Slots {
     reassigned (a handler that redraws the chart keeps its new draw).
     Without a panel, just runs `fn`.
 */
-export function withFacetPanel<T>(viz: VizInstance, panel: FacetPanelState | undefined, fn: () => T): T {
+export function withFacetPanel<T>(
+  viz: VizInstance,
+  panel: FacetPanelState | undefined,
+  fn: () => T,
+): T {
   if (!panel) return fn();
   const target = viz as unknown as Slots;
   const slots = panelSlots(panel);
@@ -56,8 +61,7 @@ export function withFacetPanel<T>(viz: VizInstance, panel: FacetPanelState | und
   }
   try {
     return fn();
-  }
-  finally {
+  } finally {
     for (const key of Object.keys(slots)) {
       if (target[key] === slots[key]) target[key] = saved[key];
     }
@@ -65,7 +69,10 @@ export function withFacetPanel<T>(viz: VizInstance, panel: FacetPanelState | und
 }
 
 /** Clears the per-panel slots on the composed chart, so nothing reads one panel's state as the whole chart's. */
-export function clearPanelSlots(viz: VizInstance, panels: FacetPanelState[]): void {
+export function clearPanelSlots(
+  viz: VizInstance,
+  panels: FacetPanelState[],
+): void {
   const target = viz as unknown as Slots;
   for (const panel of panels) {
     for (const key of Object.keys(panel.state)) target[key] = undefined;

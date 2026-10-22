@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.\n\nWithout shown, the year rides on the first and last dates and on each January 1st. Given shown (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.",
+        component:
+          "A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.\n\nWithout shown, the year rides on the first and last dates and on each January 1st. Given shown (the dates actually drawn, such as the axis labels left after thinning), it rides on the first shown date and on the first shown date after each change of year instead, so the year stays readable however the labels are thinned; at hourly steps, the date rides with the hour on the first shown date of each day. A label carrying the year at hourly steps reads its date, year, and hour.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -35,9 +36,15 @@ const monthly = range(12, i => d(2023, i, 1));
 const daily = range(10, i => d(2024, 2, 1 + i));
 const hourly = range(12, i => d(2024, 2, 1, i));
 
-const labels = (dates, formatter) => dates.map(date => formatDate(date, dates, formatter));
+const labels = (dates, formatter) =>
+  dates.map(date => formatDate(date, dates, formatter));
 
-const stripStyle = {display: "flex", gap: 6, flexWrap: "wrap", alignItems: "flex-start"};
+const stripStyle = {
+  display: "flex",
+  gap: 6,
+  flexWrap: "wrap",
+  alignItems: "flex-start",
+};
 const tickStyle = {
   padding: "3px 8px",
   border: "1px solid #dee2e6",
@@ -51,7 +58,9 @@ const tickStyle = {
 // A row of axis-style tick labels, one per date in the array.
 const DateStrip = ({title, dates, formatter}) => (
   <div style={{marginBottom: 12}}>
-    {title ? <div style={{fontSize: 12, color: "#666", marginBottom: 4}}>{title}</div> : null}
+    {title ? (
+      <div style={{fontSize: 12, color: "#666", marginBottom: 4}}>{title}</div>
+    ) : null}
     <div style={stripStyle}>
       {labels(dates, formatter).map((label, i) => (
         <span key={`${label}-${i}`} style={tickStyle}>
@@ -94,7 +103,12 @@ export const IntervalDetection = () => (
   </div>
 );
 IntervalDetection.parameters = params(
-  [["quarterly", quarterly], ["monthly", monthly], ["daily", daily], ["hourly", hourly]],
+  [
+    ["quarterly", quarterly],
+    ["monthly", monthly],
+    ["daily", daily],
+    ["hourly", hourly],
+  ],
   "The interval between neighbouring dates decides the base format (quarter, month, day, or hour), and the first and last dates, plus any date that starts a new year or month, get a fuller label so the strip can be read without an axis title. Arrays of five dates or fewer always use the fuller label.",
 );
 
@@ -106,7 +120,10 @@ export const CustomFormatter = () => (
   </div>
 );
 CustomFormatter.parameters = params(
-  [["monthly", monthly, spanish], ["daily", daily, spanish]],
+  [
+    ["monthly", monthly, spanish],
+    ["daily", daily, spanish],
+  ],
   "The third argument replaces d3's `timeFormat` with any function that turns a specifier into a formatter. Here a `timeFormatLocale` built from the `es-ES` dictionary in `@d3plus/locales` supplies Spanish month names.",
   'timeFormatLocale(locale["es-ES"]).format',
 );

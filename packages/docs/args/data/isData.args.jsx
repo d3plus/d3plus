@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   dataItem: {
     control: {},
     description: "The value to be tested",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "unknown"
-    }
-  }
+      summary: "unknown",
+    },
+  },
 };

@@ -78,7 +78,8 @@ export function funnelFacetPanel(
     ? (ctx.scales as FunnelFacetScale | undefined)
     : undefined;
   viz.ctx.funnelScaleMax = scale ? scale.max : undefined;
-  viz.ctx.funnelLabelSize = scale && scale.fontSize ? scale.fontSize : undefined;
+  viz.ctx.funnelLabelSize =
+    scale && scale.fontSize ? scale.fontSize : undefined;
   return () => {
     viz.ctx.funnelScaleMax = savedMax;
     viz.ctx.funnelLabelSize = savedSize;

@@ -10,6 +10,8 @@ export default function (
   data: string = "data",
 ): DataPoint[] {
   return arrayOfArrays.flatMap(item =>
-    Array.isArray(item) ? item : ((item[data] as DataPoint[] | undefined) ?? []),
+    Array.isArray(item)
+      ? item
+      : ((item[data] as DataPoint[] | undefined) ?? []),
   );
 }

@@ -10,10 +10,14 @@ const tag = value => Object.prototype.toString.call(value).slice(8, -1);
  * @param {WeakMap} [seen]
  */
 export function toEvaluateResult(value, seen = new WeakMap()) {
-  if (typeof value === "function" || typeof value === "symbol") return undefined;
+  if (typeof value === "function" || typeof value === "symbol")
+    return undefined;
   if (!value || typeof value !== "object") return value;
   if (value.window === value) return "ref: <Window>";
-  if (typeof value.nodeType === "number" && typeof value.nodeName === "string") {
+  if (
+    typeof value.nodeType === "number" &&
+    typeof value.nodeName === "string"
+  ) {
     return value.nodeType === 9 ? "ref: <Document>" : "ref: <Node>";
   }
   const type = tag(value);
@@ -26,13 +30,15 @@ export function toEvaluateResult(value, seen = new WeakMap()) {
   if (type === "Date") return new Date(value.getTime());
   if (type === "URL") return new URL(value.href);
   if (type === "RegExp") return new RegExp(value.source, value.flags);
-  if (ArrayBuffer.isView(value) && type !== "DataView") return new globalThis[type](value);
+  if (ArrayBuffer.isView(value) && type !== "DataView")
+    return new globalThis[type](value);
   if (type === "ArrayBuffer") return value.slice(0);
   if (seen.has(value)) return seen.get(value);
   if (Array.isArray(value)) {
     const out = [];
     seen.set(value, out);
-    for (let i = 0; i < value.length; i++) out.push(toEvaluateResult(value[i], seen));
+    for (let i = 0; i < value.length; i++)
+      out.push(toEvaluateResult(value[i], seen));
     return out;
   }
   const out = {};
@@ -45,7 +51,10 @@ export function toEvaluateResult(value, seen = new WeakMap()) {
     } catch {
       continue;
     }
-    out[key] = key === "toJSON" && typeof item === "function" ? {} : toEvaluateResult(item, seen);
+    out[key] =
+      key === "toJSON" && typeof item === "function"
+        ? {}
+        : toEvaluateResult(item, seen);
   }
   if (!keys.length && typeof value.toJSON === "function") {
     seen.delete(value);

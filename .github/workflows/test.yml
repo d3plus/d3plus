@@ -2,9 +2,9 @@ name: Lint Code and Run Tests
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 # A new push to a pull request supersedes its in-flight run, so cancel that
 # run rather than letting both occupy runners. Pushes to main each finish.
@@ -29,13 +29,14 @@ jobs:
       - run: pnpm install
       - name: Lint
         run: pnpm lint
+      - name: Check formatting
+        run: pnpm format:check
       - name: Typecheck (build types)
         run: pnpm -r --if-present run build:types
       - name: Build docs site (Storybook)
         run: pnpm --filter @d3plus/docs build
 
   test:
-
     runs-on: ubuntu-latest
     timeout-minutes: 45
     # Node 26 is still "Current" (LTS begins 2026-10-28), so run it as a

@@ -8,7 +8,11 @@
 import type {DataPoint} from "@d3plus/data";
 import {formatDate} from "@d3plus/format";
 
-import {computeFilteredData, computeTimeFilter, dataFilter} from "../pipeline/preDrawData.js";
+import {
+  computeFilteredData,
+  computeTimeFilter,
+  dataFilter,
+} from "../pipeline/preDrawData.js";
 import type {VizPreDrawResult} from "../pipeline/preDrawData.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {FacetAccessor, FacetSort, FacetValue} from "./facetConfig.js";
@@ -29,19 +33,28 @@ export function facetKey(value: unknown): string {
 export function toFacetValue(value: unknown): FacetValue | undefined {
   if (value === undefined || value === null || value === "") return undefined;
   if (value instanceof Date) return value;
-  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") return value;
+  if (
+    typeof value === "string" ||
+    typeof value === "number" ||
+    typeof value === "boolean"
+  )
+    return value;
   return `${value}`;
 }
 
 /** Natural order: numbers and dates numerically, text alphabetically (with embedded numbers compared as numbers). */
 export function compareFacetValues(a: FacetValue, b: FacetValue): number {
-  const na = a instanceof Date ? +a : a, nb = b instanceof Date ? +b : b;
+  const na = a instanceof Date ? +a : a,
+    nb = b instanceof Date ? +b : b;
   if (typeof na === "number" && typeof nb === "number") return na - nb;
   return `${a}`.localeCompare(`${b}`, undefined, {numeric: true});
 }
 
 /** Orders facet values (given in data order) by a `FacetSort`. */
-export function sortFacetValues(values: FacetValue[], sort: FacetSort): FacetValue[] {
+export function sortFacetValues(
+  values: FacetValue[],
+  sort: FacetSort,
+): FacetValue[] {
   const out = values.slice();
   if (Array.isArray(sort)) {
     const rank = new Map(sort.map((v, i) => [facetKey(v), i]));
@@ -58,7 +71,11 @@ export function sortFacetValues(values: FacetValue[], sort: FacetSort): FacetVal
     Groups `rows` by facet value, in panel order. Rows without a facet value
     are left out of every panel.
 */
-export function groupFacets(rows: DataPoint[], facet: FacetAccessor, sort: FacetSort): FacetGroup[] {
+export function groupFacets(
+  rows: DataPoint[],
+  facet: FacetAccessor,
+  sort: FacetSort,
+): FacetGroup[] {
   const groups = new Map<string, FacetGroup>();
   rows.forEach((d, i) => {
     const value = toFacetValue(facet(d, i));
@@ -69,7 +86,10 @@ export function groupFacets(rows: DataPoint[], facet: FacetAccessor, sort: Facet
     group.rows.push(d);
   });
   const byKey = new Map(Array.from(groups.values()).map(g => [g.key, g]));
-  const ordered = sortFacetValues(Array.from(groups.values()).map(g => g.value), sort);
+  const ordered = sortFacetValues(
+    Array.from(groups.values()).map(g => g.value),
+    sort,
+  );
   return ordered.map(v => byKey.get(facetKey(v))!);
 }
 
@@ -107,14 +127,21 @@ export function facetFilteredData(
 }
 
 /** The time filter every panel shares (see `facetFilteredData`). */
-export function facetTimeFilter(viz: VizInstance): ReturnType<typeof computeTimeFilter> {
+export function facetTimeFilter(
+  viz: VizInstance,
+): ReturnType<typeof computeTimeFilter> {
   return computeTimeFilter(viz);
 }
 
 /** A panel's default title: its facet value, with dates formatted against every panel's date. */
-export function formatFacetValue(value: FacetValue, values: FacetValue[]): string {
+export function formatFacetValue(
+  value: FacetValue,
+  values: FacetValue[],
+): string {
   if (value instanceof Date) {
-    const dates = values.filter((v): v is Date => v instanceof Date).sort((a, b) => +a - +b);
+    const dates = values
+      .filter((v): v is Date => v instanceof Date)
+      .sort((a, b) => +a - +b);
     return formatDate(value, dates);
   }
   return `${value}`;

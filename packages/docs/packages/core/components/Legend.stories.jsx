@@ -17,11 +17,11 @@ export default {
         component: "Creates an SVG legend based on an array of data.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Legend config={configify(args, argTypes)} />;
-  
+const Template = args => <Legend config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -32,37 +32,53 @@ BasicExample.args = {
     {color: "orange", id: "beta"},
     {color: "green", id: "gamma"},
     {color: "blue", id: "delta"},
-    {color: "purple", id: "epsilon"}
+    {color: "purple", id: "epsilon"},
   ],
   label: d => d.id,
   shapeConfig: {
     fill: d => d.color,
     r: 10,
     height: 20,
-    width: 20
+    width: 20,
   },
   shape: "Rect",
   title: "A Basic Legend",
   height: 100,
   width: 500,
 };
-BasicExample.parameters = {controls: {include: ["shape", "title"]}, docs: {description: {story: "Each datum becomes a labeled entry drawn with `Rect` markers whose `fill` is read per datum from `shapeConfig`; `label` sets the entry text and `title` the heading above them."}}};
+BasicExample.parameters = {
+  controls: {include: ["shape", "title"]},
+  docs: {
+    description: {
+      story:
+        "Each datum becomes a labeled entry drawn with `Rect` markers whose `fill` is read per datum from `shapeConfig`; `label` sets the entry text and `title` the heading above them.",
+    },
+  },
+};
 export const CircleMarkers = Template.bind({});
 CircleMarkers.args = {
   data: [
     {color: "#cc4b4b", id: "alpha"},
     {color: "#3a7ca5", id: "beta"},
     {color: "#5d9e6e", id: "gamma"},
-    {color: "#b07cc6", id: "delta"}
+    {color: "#b07cc6", id: "delta"},
   ],
   label: d => d.id,
   shapeConfig: {fill: d => d.color, r: 12},
   shape: "Circle",
   title: "Circle Markers",
   height: 100,
-  width: 500
+  width: 500,
 };
-CircleMarkers.parameters = {controls: {include: ["shape", "title"]}, docs: {description: {story: "Setting `shape` to `Circle` marks each entry with a filled dot sized by `shapeConfig.r` instead of a rectangle."}}};
+CircleMarkers.parameters = {
+  controls: {include: ["shape", "title"]},
+  docs: {
+    description: {
+      story:
+        "Setting `shape` to `Circle` marks each entry with a filled dot sized by `shapeConfig.r` instead of a rectangle.",
+    },
+  },
+};
 
 export const VerticalOrientation = Template.bind({});
 VerticalOrientation.args = {
@@ -71,7 +87,7 @@ VerticalOrientation.args = {
     {color: "#e0913a", id: "beta"},
     {color: "#5d9e6e", id: "gamma"},
     {color: "#3a7ca5", id: "delta"},
-    {color: "#b07cc6", id: "epsilon"}
+    {color: "#b07cc6", id: "epsilon"},
   ],
   label: d => d.id,
   shapeConfig: {fill: d => d.color, height: 20, width: 20},
@@ -79,6 +95,14 @@ VerticalOrientation.args = {
   direction: "column",
   title: "Vertical Legend",
   height: 240,
-  width: 220
+  width: 220,
 };
-VerticalOrientation.parameters = {controls: {include: ["direction", "title"]}, docs: {description: {story: "Set `direction: \"column\"` to stack entries in a single vertical column instead of the default horizontal `\"row\"` — handy for a narrow sidebar where a wide legend won't fit. Flip `direction` in the controls to compare."}}};
+VerticalOrientation.parameters = {
+  controls: {include: ["direction", "title"]},
+  docs: {
+    description: {
+      story:
+        'Set `direction: "column"` to stack entries in a single vertical column instead of the default horizontal `"row"` — handy for a narrow sidebar where a wide legend won\'t fit. Flip `direction` in the controls to compare.',
+    },
+  },
+};

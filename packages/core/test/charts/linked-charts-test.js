@@ -71,19 +71,36 @@ it("resolveLink normalizes the string and object forms", () => {
   const fromString = resolveLink(viz);
   assert.strictEqual(fromString.group, "dash");
   assert.deepStrictEqual(
-    [fromString.hover, fromString.active, fromString.highlight, fromString.legend],
+    [
+      fromString.hover,
+      fromString.active,
+      fromString.highlight,
+      fromString.legend,
+    ],
     [true, true, true, true],
     "every interaction mirrors by default",
   );
-  assert.strictEqual(fromString.by(rows[0], 0), "Brazil", "`by` defaults to the chart's id");
+  assert.strictEqual(
+    fromString.by(rows[0], 0),
+    "Brazil",
+    "`by` defaults to the chart's id",
+  );
 
   viz.schema.link = {group: "dash", by: "region", hover: false};
   const fromKey = resolveLink(viz);
-  assert.strictEqual(fromKey.by(rows[0], 0), "Americas", "a string `by` is a data key");
+  assert.strictEqual(
+    fromKey.by(rows[0], 0),
+    "Americas",
+    "a string `by` is a data key",
+  );
   assert.strictEqual(fromKey.hover, false);
 
   viz.schema.link = {group: "dash", by: d => d.value * 2};
-  assert.strictEqual(resolveLink(viz).by(rows[0], 0), 20, "a function `by` is used as-is");
+  assert.strictEqual(
+    resolveLink(viz).by(rows[0], 0),
+    20,
+    "a function `by` is used as-is",
+  );
 
   viz.schema.link = {group: ""};
   assert.strictEqual(resolveLink(viz), null, "an empty group isn't linked");
@@ -96,7 +113,11 @@ it("registers on `link`, re-registers on change, and leaves on false or destroy(
   assert.deepStrictEqual(linkMembers("one"), [a, b]);
 
   b.link("two");
-  assert.deepStrictEqual(linkMembers("one"), [a], "moving groups leaves the old one");
+  assert.deepStrictEqual(
+    linkMembers("one"),
+    [a],
+    "moving groups leaves the old one",
+  );
   assert.deepStrictEqual(linkMembers("two"), [b]);
 
   b.link(false);
@@ -107,7 +128,11 @@ it("registers on `link`, re-registers on change, and leaves on false or destroy(
   assert.deepStrictEqual(linkMembers("one"), [], "destroy() unregisters");
 
   registerLink(a);
-  assert.deepStrictEqual(linkMembers("one"), [a], "registerLink re-reads the config");
+  assert.deepStrictEqual(
+    linkMembers("one"),
+    [a],
+    "registerLink re-reads the config",
+  );
 });
 
 it("linkKeys flattens arrays, stringifies values, and drops null", () => {
@@ -122,13 +147,26 @@ it("forEachSceneRow visits each painted row once, unwrapped, with its index", ()
   reset();
   const row = rows[0];
   const scene = [
-    {type: "group", children: [{type: "rect", datum: row, index: 3}, {type: "text", datum: {data: row}}]},
+    {
+      type: "group",
+      children: [
+        {type: "rect", datum: row, index: 3},
+        {type: "text", datum: {data: row}},
+      ],
+    },
     {type: "path", datum: {...rows[1], i: 7}},
     {type: "circle", datum: {data: row}},
   ];
   const seen = [];
   forEachSceneRow(scene, (r, i) => seen.push([r.country, i]));
-  assert.deepStrictEqual(seen, [["Brazil", 3], ["Chile", 7]], "label + duplicate mark skipped; index falls back to row.i");
+  assert.deepStrictEqual(
+    seen,
+    [
+      ["Brazil", 3],
+      ["Chile", 7],
+    ],
+    "label + duplicate mark skipped; index falls back to row.i",
+  );
 });
 
 it("linkValues collects the `by` keys of the matched painted rows", () => {
@@ -155,7 +193,10 @@ it("linkPredicate matches rows sharing a key, and an empty set matches nothing",
   reset();
   const link = {by: d => d.region};
   const pred = linkPredicate(link, new Set(["Europe"]));
-  assert.deepStrictEqual(rows.filter(pred).map(d => d.country), ["France", "Spain"]);
+  assert.deepStrictEqual(
+    rows.filter(pred).map(d => d.country),
+    ["France", "Spain"],
+  );
   const none = linkPredicate(link, new Set());
   assert.strictEqual(rows.filter(none).length, 0);
 });
@@ -166,7 +207,7 @@ it("hovering one chart hovers the matching rows in the others, without echo", ()
   const b = make(BarChart, "dash");
   let echoes = 0;
   const own = b.hover.bind(b);
-  b.hover = function(...args) {
+  b.hover = function (...args) {
     echoes++;
     return own(...args);
   };
@@ -174,7 +215,10 @@ it("hovering one chart hovers the matching rows in the others, without echo", ()
   BarChart.prototype.hover.call(b, brazil);
   assert.strictEqual(echoes, 0, "the target's own broadcast doesn't come back");
   assert.strictEqual(typeof a._hover, "function");
-  assert.deepStrictEqual(rows.filter(a._hover).map(d => d.country), ["Brazil"]);
+  assert.deepStrictEqual(
+    rows.filter(a._hover).map(d => d.country),
+    ["Brazil"],
+  );
 
   b.hover(false);
   assert.strictEqual(a._hover, false, "clearing hover clears it everywhere");
@@ -185,9 +229,15 @@ it("mirrors active and highlight too", () => {
   const a = make(Treemap, "dash");
   const b = make(BarChart, "dash");
   a.active(brazil);
-  assert.deepStrictEqual(rows.filter(b._active).map(d => d.country), ["Brazil"]);
+  assert.deepStrictEqual(
+    rows.filter(b._active).map(d => d.country),
+    ["Brazil"],
+  );
   a.highlight(d => d.region === "Europe");
-  assert.deepStrictEqual(rows.filter(b._highlight).map(d => d.country), ["France", "Spain"]);
+  assert.deepStrictEqual(
+    rows.filter(b._highlight).map(d => d.country),
+    ["France", "Spain"],
+  );
   a.active(false);
   assert.strictEqual(b._active, false);
 });
@@ -210,7 +260,11 @@ it("respects per-interaction opt-outs and keeps groups isolated", () => {
   assert.strictEqual(b._hover, undefined, "target opted out of hover");
   assert.strictEqual(c._hover, undefined, "a different group is untouched");
   a.active(brazil);
-  assert.strictEqual(typeof b._active, "function", "the opt-out is per interaction");
+  assert.strictEqual(
+    typeof b._active,
+    "function",
+    "the opt-out is per interaction",
+  );
 
   const d = make(BarChart, {group: "solo-out", highlight: false});
   const e = make(BarChart, "solo-out");
@@ -238,9 +292,16 @@ it("linkAs narrows the rows the next broadcast treats as matched", () => {
   const b = make(Treemap, "dash");
   linkAs(a, brazil);
   a.hover(() => true);
-  assert.deepStrictEqual(rows.filter(b._hover).map(d => d.country), ["Brazil"]);
+  assert.deepStrictEqual(
+    rows.filter(b._hover).map(d => d.country),
+    ["Brazil"],
+  );
   a.hover(() => true);
-  assert.strictEqual(rows.filter(b._hover).length, 4, "the override is one-shot");
+  assert.strictEqual(
+    rows.filter(b._hover).length,
+    4,
+    "the override is one-shot",
+  );
 });
 
 it("broadcasts from charts that override hover (Network)", () => {
@@ -249,7 +310,10 @@ it("broadcasts from charts that override hover (Network)", () => {
   const a = make(Network, {group: "dash", by: "id"}, nodes);
   const b = make(BarChart, {group: "dash", by: "country"});
   a.hover(d => d.id === "Chile");
-  assert.deepStrictEqual(rows.filter(b._hover).map(d => d.country), ["Chile"]);
+  assert.deepStrictEqual(
+    rows.filter(b._hover).map(d => d.country),
+    ["Chile"],
+  );
 });
 
 it("broadcastLink ignores reads (undefined) and unlinked charts", () => {
@@ -297,16 +361,28 @@ it("maps legend state across groupings: solo on any key, hide on all keys", () =
 
   a._hidden = ["Brazil"];
   broadcastLegend(a);
-  assert.deepStrictEqual(b._hidden, [], "a region stays while some of its countries show");
+  assert.deepStrictEqual(
+    b._hidden,
+    [],
+    "a region stays while some of its countries show",
+  );
 
   a._hidden = ["Brazil", "Chile"];
   broadcastLegend(a);
-  assert.deepStrictEqual(b._hidden, ["Americas"], "…and hides once all of them are hidden");
+  assert.deepStrictEqual(
+    b._hidden,
+    ["Americas"],
+    "…and hides once all of them are hidden",
+  );
 
   a._hidden = [];
   a._solo = ["France"];
   broadcastLegend(a);
-  assert.deepStrictEqual(b._solo, ["Europe"], "solo'ing one country solos its region");
+  assert.deepStrictEqual(
+    b._solo,
+    ["Europe"],
+    "solo'ing one country solos its region",
+  );
 });
 
 it("skips legend sync for opted-out or undrawn charts", () => {
@@ -332,7 +408,11 @@ it("linked charts share categorical colors, whatever order they assign them in",
   assert.strictEqual(scaleB, scaleA, "one scale for the group");
   assert.strictEqual(scaleB("Americas"), scaleA("Americas"));
   assert.strictEqual(scaleB("Europe"), first);
-  assert.strictEqual(a.schema.colorDefaults.scale, a._autoColorScale, "the chart's own scale is untouched");
+  assert.strictEqual(
+    a.schema.colorDefaults.scale,
+    a._autoColorScale,
+    "the chart's own scale is untouched",
+  );
 });
 
 it("keeps a chart's own colors when it opts out or sets its own scale", () => {
@@ -342,15 +422,35 @@ it("keeps a chart's own colors when it opts out or sets its own scale", () => {
   const c = make(BarChart, "colors");
   c.colorDefaults({scale: ["#000", "#fff"]});
   const d = new BarChart();
-  assert.notStrictEqual(linkedColorDefaults(b).scale, linkedColorDefaults(a).scale, "color: false");
-  assert.strictEqual(linkedColorDefaults(c).scale, c.schema.colorDefaults.scale, "custom scale wins");
-  assert.strictEqual(linkedColorDefaults(d), d.schema.colorDefaults, "unlinked charts use their own");
+  assert.notStrictEqual(
+    linkedColorDefaults(b).scale,
+    linkedColorDefaults(a).scale,
+    "color: false",
+  );
+  assert.strictEqual(
+    linkedColorDefaults(c).scale,
+    c.schema.colorDefaults.scale,
+    "custom scale wins",
+  );
+  assert.strictEqual(
+    linkedColorDefaults(d),
+    d.schema.colorDefaults,
+    "unlinked charts use their own",
+  );
 
   c.colorDefaults({missing: "#ccc"});
-  assert.strictEqual(linkedColorDefaults(c).scale, c.schema.colorDefaults.scale, "partial overrides keep the custom scale");
+  assert.strictEqual(
+    linkedColorDefaults(c).scale,
+    c.schema.colorDefaults.scale,
+    "partial overrides keep the custom scale",
+  );
   const e = make(BarChart, "colors");
   e.colorDefaults({missing: "#ccc"});
-  assert.strictEqual(linkedColorDefaults(e).scale, linkedColorDefaults(a).scale, "…and keep sharing when it's the default one");
+  assert.strictEqual(
+    linkedColorDefaults(e).scale,
+    linkedColorDefaults(a).scale,
+    "…and keep sharing when it's the default one",
+  );
 });
 
 it("drops a group's shared colors once its last chart leaves", () => {
@@ -360,5 +460,9 @@ it("drops a group's shared colors once its last chart leaves", () => {
   shared("Asia");
   a.link(false);
   a.link("colors");
-  assert.notStrictEqual(linkedColorDefaults(a).scale, shared, "a fresh scale for the re-formed group");
+  assert.notStrictEqual(
+    linkedColorDefaults(a).scale,
+    shared,
+    "a fresh scale for the re-formed group",
+  );
 });

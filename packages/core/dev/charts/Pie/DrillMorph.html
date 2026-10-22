@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>DrillMorph · Pie</title>
-    <meta name="description" content="Click a wedge to drill in; children grow out of the clicked wedge (issue #166).">
+    <meta
+      name="description"
+      content="Click a wedge to drill in; children grow out of the clicked wedge (issue #166)."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
-      html, body {
+      html,
+      body {
         height: 100vh;
         margin: 0;
         padding: 0;
@@ -26,7 +30,15 @@
 
   <body>
     <div id="controls">
-      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      duration:
+      <input
+        id="duration"
+        type="range"
+        min="0"
+        max="2000"
+        step="50"
+        value="600"
+      />
       <span id="durationLabel">600ms</span>
     </div>
     <div id="viz"></div>
@@ -42,9 +54,11 @@
     // Pie story config (packages/docs/.../Pie.stories.jsx).
     var chart = new d3plus.Pie()
       .data([
-        {category: "Fruit", id: "Apple", value: 30}, {category: "Fruit", id: "Banana", value: 22},
+        {category: "Fruit", id: "Apple", value: 30},
+        {category: "Fruit", id: "Banana", value: 22},
         {category: "Fruit", id: "Cherry", value: 18},
-        {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
+        {category: "Vegetable", id: "Carrot", value: 20},
+        {category: "Vegetable", id: "Pea", value: 12},
         {category: "Vegetable", id: "Kale", value: 8},
       ])
       .groupBy(["category", "id"])

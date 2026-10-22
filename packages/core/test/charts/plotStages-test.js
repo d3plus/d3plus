@@ -28,7 +28,7 @@ const makeViz = (overrides = {}) => {
       {id: "B", x: 1, y: 4},
     ],
     _data: [],
-    _ids: (d) => [d.id],
+    _ids: d => [d.id],
     _drawDepth: 0,
     _groupBy: [accessor("id")],
     _axisPersist: false,
@@ -107,9 +107,16 @@ it("computePlotAxisValues returns sorted/unique per-axis arrays", () => {
 
   assert.ok(Array.isArray(partial.xData), "xData array");
   // x values 0,1 across 4 rows → 2 unique values.
-  assert.deepStrictEqual(partial.xData.sort(), [0, 1], "x is the discrete axis (unique)");
+  assert.deepStrictEqual(
+    partial.xData.sort(),
+    [0, 1],
+    "x is the discrete axis (unique)",
+  );
   // y is the non-discrete axis — extent ordered, includes all values.
-  assert.ok(partial.yData.length >= 2, `yData populated (got ${partial.yData.length})`);
+  assert.ok(
+    partial.yData.length >= 2,
+    `yData populated (got ${partial.yData.length})`,
+  );
 });
 
 it("computePlotScales constructs four d3 scale instances + configScales", () => {
@@ -138,13 +145,25 @@ it("computePlotScales constructs four d3 scale instances + configScales", () => 
   });
 
   assert.ok(partial.plotScales, "scales object returned");
-  assert.strictEqual(typeof partial.plotScales.x, "function", "x is a d3 scale");
-  assert.strictEqual(typeof partial.plotScales.y, "function", "y is a d3 scale");
+  assert.strictEqual(
+    typeof partial.plotScales.x,
+    "function",
+    "x is a d3 scale",
+  );
+  assert.strictEqual(
+    typeof partial.plotScales.y,
+    "function",
+    "y is a d3 scale",
+  );
   assert.strictEqual(typeof partial.plotScales.x2, "function");
   assert.strictEqual(typeof partial.plotScales.y2, "function");
 
   // configScales returned in the stage's ctx patch.
-  assert.strictEqual(partial.plotConfigScales.xConfigScale, "point", "x discrete → point scale");
+  assert.strictEqual(
+    partial.plotConfigScales.xConfigScale,
+    "point",
+    "x discrete → point scale",
+  );
   assert.strictEqual(typeof partial.plotConfigScales.yConfigScale, "string");
 
   // Plot opps captured.

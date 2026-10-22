@@ -5,6 +5,8 @@
     Implementation files in this folder:
       - `applyLayout.ts` — focus + ring placement + link bezier paths.
       - `emit.ts` — link Paths + per-shape-type node groups.
+      - `ringsGraph.ts` — node set + link resolution.
+      - `ringsSizing.ts` — ring geometry + node sizing.
 */
 
 import {addToQueue} from "@d3plus/data";
@@ -34,13 +36,20 @@ interface RingsFluent {
     keys?: string | string[] | ((d: DataPoint, i: number) => unknown),
   ) => unknown;
   size: (value?: RingsAccessor) => unknown;
-  hover: (predicate?: boolean | ((d: DataPoint, i: number) => boolean)) => unknown;
+  hover: (
+    predicate?: boolean | ((d: DataPoint, i: number) => boolean),
+  ) => unknown;
 }
 
 /** Installs Rings' nodes/links/size/hover fluent accessors onto the instance. */
 function installRingsAccessors(viz: VizInstance): void {
   const v = viz as VizInstance & RingsFluent;
-  const queue = (that: VizInstance, _?: DataPoint[], f?: unknown, key?: string) =>
+  const queue = (
+    that: VizInstance,
+    _?: DataPoint[],
+    f?: unknown,
+    key?: string,
+  ) =>
     addToQueue.bind(that as unknown as ThisParameterType<typeof addToQueue>)(
       _!,
       f as Parameters<typeof addToQueue>[1],
@@ -57,7 +66,7 @@ function installRingsAccessors(viz: VizInstance): void {
       receives the loaded data and returns the final links array.
       @type {object[] | string}
   */
-  v.links = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
+  v.links = function (this: VizInstance, _?: DataPoint[], f?: unknown) {
     if (!arguments.length) return this.schema.links;
     queue(this, _, f, "links");
     return this;
@@ -70,7 +79,7 @@ function installRingsAccessors(viz: VizInstance): void {
       returns the final nodes array.
       @type {object[] | string}
   */
-  v.nodes = function(this: VizInstance, _?: DataPoint[], f?: unknown) {
+  v.nodes = function (this: VizInstance, _?: DataPoint[], f?: unknown) {
     if (!arguments.length) return this.schema.nodes;
     queue(this, _, f, "nodes");
     return this;
@@ -81,9 +90,11 @@ function installRingsAccessors(viz: VizInstance): void {
       smallest node radius (see `linkSizeScale`).
       @type {number | function}
   */
-  v.linkSize = function(this: VizInstance, _?: RingsAccessor) {
+  v.linkSize = function (this: VizInstance, _?: RingsAccessor) {
     return arguments.length
-      ? ((this.schema.linkSize = typeof _ === "function" ? _ : constant(_ as never)), this)
+      ? ((this.schema.linkSize =
+          typeof _ === "function" ? _ : constant(_ as never)),
+        this)
       : this.schema.linkSize;
   };
   /**
@@ -91,7 +102,7 @@ function installRingsAccessors(viz: VizInstance): void {
       one per `groupBy` depth. When unset, nodes are identified by `groupBy`.
       @type {string | function | (string | function)[]}
   */
-  v.nodeGroupBy = function(
+  v.nodeGroupBy = function (
     this: VizInstance,
     _?: string | string[] | ((d: DataPoint, i: number) => unknown),
   ) {
@@ -102,7 +113,10 @@ function installRingsAccessors(viz: VizInstance): void {
     this.schema.nodeGroupBy = keys.map(k => {
       if (typeof k === "function") return k;
       if (!this.schema.aggs[k])
-        this.schema.aggs[k] = (a: DataPoint[], c: (d: DataPoint) => unknown) => {
+        this.schema.aggs[k] = (
+          a: DataPoint[],
+          c: (d: DataPoint) => unknown,
+        ) => {
           const vv = Array.from(new Set(a.map(c)));
           return vv.length === 1 ? vv[0] : vv;
         };
@@ -116,11 +130,11 @@ function installRingsAccessors(viz: VizInstance): void {
       `sizeScale`). When unset, each ring draws its nodes at one fixed size.
       @type {string | function}
   */
-  v.size = function(this: VizInstance, _?: RingsAccessor) {
+  v.size = function (this: VizInstance, _?: RingsAccessor) {
     if (!arguments.length) return this._size;
-    this._size = (typeof _ === "function" || !_
-      ? _
-      : accessor(_ as unknown as string)) as VizInstance["_size"];
+    this._size = (
+      typeof _ === "function" || !_ ? _ : accessor(_ as unknown as string)
+    ) as VizInstance["_size"];
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
@@ -131,7 +145,8 @@ export const ringsDef: ChartDefinition = {
   name: "Rings",
 
   layoutStage: applyRingsLayout,
-  sizeLegendScale: (viz, {width, height}) => ringsSizeLegendScale(viz, width, height),
+  sizeLegendScale: (viz, {width, height}) =>
+    ringsSizeLegendScale(viz, width, height),
   emit: ringsEmit,
   insetRegion: sceneInsetRegion,
 
@@ -143,7 +158,12 @@ export const ringsDef: ChartDefinition = {
       v.hover(false);
     };
     const defaultMouseMove = viz.schema.on["mousemove.shape"];
-    viz.schema.on["mousemove.shape"] = (d: DataPoint, i: number, x: unknown, event: MouseEvent) => {
+    viz.schema.on["mousemove.shape"] = (
+      d: DataPoint,
+      i: number,
+      x: unknown,
+      event: MouseEvent,
+    ) => {
       defaultMouseMove(d, i, x, event);
       if (viz._focus && viz._focus === d.id) {
         v.hover(false);
@@ -152,11 +172,12 @@ export const ringsDef: ChartDefinition = {
         return;
       }
       const id =
-          viz.schema.nodeGroupBy && viz.schema.nodeGroupBy[viz._drawDepth](d, i)
-            ? viz.schema.nodeGroupBy[viz._drawDepth](d, i)
-            : viz._id(d, i);
+        viz.schema.nodeGroupBy && viz.schema.nodeGroupBy[viz._drawDepth](d, i)
+          ? viz.schema.nodeGroupBy[viz._drawDepth](d, i)
+          : viz._id(d, i);
       type NodeRecord = {id: string; x: number; y: number; r: number};
-      const links = (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
+      const links =
+        (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
       const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
       const filterIds = [node.id];
       const xDomain = [node.x - node.r, node.x + node.r];

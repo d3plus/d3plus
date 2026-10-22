@@ -6,37 +6,36 @@ import {argTypes as pieArgTypes} from "./Pie.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Donut as D3plusDonut} from "@d3plus/react";
-export const Donut = ({ config }) => <D3plusDonut config={config} />;
+export const Donut = ({config}) => <D3plusDonut config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Pie primitive and
    * overrides any defaults that have been changed in Donut
    */
   Object.keys(pieArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = pieArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = pieArgTypes[k]), obj), {}),
 
   /**
    * Donut-specific methods
    */
-  
+
   {
     innerRadius: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     padPixel: {
       defaultValue: 2,
       table: {
         defaultValue: {
-          summary: "2"
-        }
-      }
-    }
-  }
+          summary: "2",
+        },
+      },
+    },
+  },
 );

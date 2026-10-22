@@ -1,193 +1,286 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Texture and Background Image</title>
+    <meta
+      name="description"
+      content="Every chart with shapeConfig.texture and with shapeConfig.backgroundImage on its filled marks."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
 
-<head>
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 12px 20px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin: 20px;
+      }
 
-  <meta charset="utf-8">
-  <title>Texture and Background Image</title>
-  <meta name="description" content="Every chart with shapeConfig.texture and with shapeConfig.backgroundImage on its filled marks.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+      h2 {
+        font-size: 16px;
+        grid-column: 1 / -1;
+        margin: 16px 0 0;
+      }
 
-  <style>
+      .viz {
+        height: 320px;
+      }
+    </style>
+  </head>
 
-    body {
-      display: grid;
-      font-family: sans-serif;
-      gap: 12px 20px;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      margin: 20px;
+  <body></body>
+
+  <script>
+    var image = "./TextureAndBackgroundImage.svg";
+
+    var flat = [
+      {id: "alpha", value: 29},
+      {id: "beta", value: 18},
+      {id: "gamma", value: 12},
+      {id: "delta", value: 8},
+    ];
+    var nested = [
+      {parent: "Group 1", id: "alpha", value: 29},
+      {parent: "Group 1", id: "beta", value: 10},
+      {parent: "Group 2", id: "gamma", value: 20},
+      {parent: "Group 2", id: "delta", value: 14},
+    ];
+    var series = [];
+    ["alpha", "beta", "gamma"].forEach(function (id, k) {
+      [2019, 2020, 2021, 2022].forEach(function (year, j) {
+        series.push({
+          id: id,
+          year: year,
+          value: 10 + k * 5 + ((j * 7 + k * 3) % 11),
+        });
+      });
+    });
+    var nodes = [
+      {id: "alpha", x: 1, y: 1},
+      {id: "beta", x: 2, y: 1},
+      {id: "gamma", x: 1, y: 2},
+      {id: "delta", x: 3, y: 2},
+    ];
+    var links = [
+      {source: "alpha", target: "beta", value: 10},
+      {source: "alpha", target: "gamma", value: 6},
+      {source: "gamma", target: "delta", value: 5},
+      {source: "delta", target: "beta", value: 3},
+    ];
+    var grid = [];
+    ["A", "B", "C"].forEach(function (row, i) {
+      ["X", "Y", "Z"].forEach(function (column, j) {
+        grid.push({row: row, column: column, value: 1 + ((i * 3 + j * 5) % 7)});
+      });
+    });
+    var samples = [];
+    for (var i = 0; i < 150; i++) {
+      samples.push({
+        id: i,
+        group: ["Low", "Mid", "High"][i % 3],
+        value: ((i * 37) % 23) + (i % 3) * 8,
+      });
     }
-
-    h2 {
-      font-size: 16px;
-      grid-column: 1 / -1;
-      margin: 16px 0 0;
-    }
-
-    .viz {
-      height: 320px;
-    }
-
-  </style>
-
-</head>
-
-<body>
-</body>
-
-<script>
-
-  var image = "./TextureAndBackgroundImage.svg";
-
-  var flat = [
-    {id: "alpha", value: 29},
-    {id: "beta", value: 18},
-    {id: "gamma", value: 12},
-    {id: "delta", value: 8}
-  ];
-  var nested = [
-    {parent: "Group 1", id: "alpha", value: 29},
-    {parent: "Group 1", id: "beta", value: 10},
-    {parent: "Group 2", id: "gamma", value: 20},
-    {parent: "Group 2", id: "delta", value: 14}
-  ];
-  var series = [];
-  ["alpha", "beta", "gamma"].forEach(function(id, k) {
-    [2019, 2020, 2021, 2022].forEach(function(year, j) {
-      series.push({id: id, year: year, value: 10 + k * 5 + (j * 7 + k * 3) % 11});
+    var box = [];
+    ["alpha", "beta"].forEach(function (id) {
+      [20, 40, 74, 80, 115, 125, 150, 170, 180, 300].forEach(
+        function (value, sub) {
+          box.push({id: id, sub: sub, value: value});
+        },
+      );
     });
-  });
-  var nodes = [
-    {id: "alpha", x: 1, y: 1},
-    {id: "beta", x: 2, y: 1},
-    {id: "gamma", x: 1, y: 2},
-    {id: "delta", x: 3, y: 2}
-  ];
-  var links = [
-    {source: "alpha", target: "beta", value: 10},
-    {source: "alpha", target: "gamma", value: 6},
-    {source: "gamma", target: "delta", value: 5},
-    {source: "delta", target: "beta", value: 3}
-  ];
-  var grid = [];
-  ["A", "B", "C"].forEach(function(row, i) {
-    ["X", "Y", "Z"].forEach(function(column, j) {
-      grid.push({row: row, column: column, value: 1 + (i * 3 + j * 5) % 7});
+    var pyramid = [];
+    ["0-19", "20-39", "40-59", "60-79", "80+"].forEach(function (age, b) {
+      ["Male", "Female"].forEach(function (sex) {
+        pyramid.push({
+          age: age,
+          sex: sex,
+          population: 1000 - b * 180 + (sex === "Male" ? 30 : 0),
+        });
+      });
     });
-  });
-  var samples = [];
-  for (var i = 0; i < 150; i++) {
-    samples.push({id: i, group: ["Low", "Mid", "High"][i % 3], value: (i * 37) % 23 + (i % 3) * 8});
-  }
-  var box = [];
-  ["alpha", "beta"].forEach(function(id) {
-    [20, 40, 74, 80, 115, 125, 150, 170, 180, 300].forEach(function(value, sub) {
-      box.push({id: id, sub: sub, value: value});
-    });
-  });
-  var pyramid = [];
-  ["0-19", "20-39", "40-59", "60-79", "80+"].forEach(function(age, b) {
-    ["Male", "Female"].forEach(function(sex) {
-      pyramid.push({age: age, sex: sex, population: 1000 - b * 180 + (sex === "Male" ? 30 : 0)});
-    });
-  });
-  // Three neighboring regions, so the page needs no map files.
-  var regions = {
-    type: "Topology",
-    objects: {regions: {type: "GeometryCollection", geometries: [
-      {type: "Polygon", arcs: [[0]], id: "west"},
-      {type: "Polygon", arcs: [[1]], id: "central"},
-      {type: "Polygon", arcs: [[2]], id: "east"}
-    ]}},
-    arcs: [
-      [[-12, 38], [-12, 52], [-4, 52], [-4, 38], [-12, 38]],
-      [[-4, 38], [-4, 52], [4, 52], [4, 38], [-4, 38]],
-      [[4, 38], [4, 52], [12, 52], [12, 38], [4, 38]]
-    ]
-  };
+    // Three neighboring regions, so the page needs no map files.
+    var regions = {
+      type: "Topology",
+      objects: {
+        regions: {
+          type: "GeometryCollection",
+          geometries: [
+            {type: "Polygon", arcs: [[0]], id: "west"},
+            {type: "Polygon", arcs: [[1]], id: "central"},
+            {type: "Polygon", arcs: [[2]], id: "east"},
+          ],
+        },
+      },
+      arcs: [
+        [
+          [-12, 38],
+          [-12, 52],
+          [-4, 52],
+          [-4, 38],
+          [-12, 38],
+        ],
+        [
+          [-4, 38],
+          [-4, 52],
+          [4, 52],
+          [4, 38],
+          [-4, 38],
+        ],
+        [
+          [4, 38],
+          [4, 52],
+          [12, 52],
+          [12, 38],
+          [4, 38],
+        ],
+      ],
+    };
 
-  var charts = [
-    ["Treemap", {data: flat, groupBy: "id", sum: "value"}],
-    ["Pack", {data: flat, groupBy: "id", sum: "value"}],
-    ["Pie", {data: flat, groupBy: "id", value: "value"}],
-    ["Donut", {data: flat, groupBy: "id", value: "value"}],
-    ["Sunburst", {data: nested, groupBy: ["parent", "id"], sum: "value"}],
-    ["Tree", {data: nested, groupBy: ["parent", "id"], orient: "horizontal"}],
-    ["Network", {nodes: nodes, links: links}],
-    ["Sankey", {links: links.slice(0, 3), value: "value"}],
-    ["Rings", {links: links, center: "alpha"}],
-    ["Chord", {links: links.concat([{source: "beta", target: "alpha", value: 4}]), value: "value"}],
-    ["Geomap", {data: [{id: "west", value: 3}, {id: "central", value: 6}, {id: "east", value: 9}], colorScale: "value", topojson: regions, tiles: false, zoom: false}],
-    ["Matrix", {data: grid, groupBy: ["row", "column"], row: "row", column: "column"}],
-    ["RadialMatrix", {data: grid, groupBy: ["row", "column"], row: "row", column: "column"}],
-    ["Priestley", {data: [{id: "alpha", start: 2004, end: 2007}, {id: "beta", start: 2005, end: 2010}, {id: "gamma", start: 2007, end: 2012}]}],
-    ["Radar", {data: series, groupBy: "id", metric: "year", value: "value"}],
-    ["Gauge", {data: [{id: "CPU", value: 64}], domain: [0, 100], indicator: "progress"}],
-    ["BarChart", {data: series, groupBy: "id", x: "year", y: "value"}],
-    ["AreaPlot", {data: series, groupBy: "id", x: "year", y: "value"}],
-    // Lines are stroked, so they take neither; only the legend swatches do.
-    ["LinePlot", {data: series, groupBy: "id", x: "year", y: "value", lineMarkers: true}],
-    ["StackedArea", {data: series, groupBy: "id", x: "year", y: "value"}],
-    ["Plot", {data: series, groupBy: ["id", "year"], x: "year", y: "value", size: "value", color: "id"}],
-    ["BoxWhisker", {data: box, groupBy: ["id", "sub"], x: "id", y: "value"}],
-    ["Histogram", {data: samples, groupBy: "group", value: "value"}],
-    ["Pyramid", {data: pyramid, groupBy: "sex", y: "age", x: "population"}],
-    ["Beeswarm", {data: samples, groupBy: "id", color: "group", x: "value", y: "group"}]
-  ];
+    var charts = [
+      ["Treemap", {data: flat, groupBy: "id", sum: "value"}],
+      ["Pack", {data: flat, groupBy: "id", sum: "value"}],
+      ["Pie", {data: flat, groupBy: "id", value: "value"}],
+      ["Donut", {data: flat, groupBy: "id", value: "value"}],
+      ["Sunburst", {data: nested, groupBy: ["parent", "id"], sum: "value"}],
+      ["Tree", {data: nested, groupBy: ["parent", "id"], orient: "horizontal"}],
+      ["Network", {nodes: nodes, links: links}],
+      ["Sankey", {links: links.slice(0, 3), value: "value"}],
+      ["Rings", {links: links, center: "alpha"}],
+      [
+        "Chord",
+        {
+          links: links.concat([{source: "beta", target: "alpha", value: 4}]),
+          value: "value",
+        },
+      ],
+      [
+        "Geomap",
+        {
+          data: [
+            {id: "west", value: 3},
+            {id: "central", value: 6},
+            {id: "east", value: 9},
+          ],
+          colorScale: "value",
+          topojson: regions,
+          tiles: false,
+          zoom: false,
+        },
+      ],
+      [
+        "Matrix",
+        {data: grid, groupBy: ["row", "column"], row: "row", column: "column"},
+      ],
+      [
+        "RadialMatrix",
+        {data: grid, groupBy: ["row", "column"], row: "row", column: "column"},
+      ],
+      [
+        "Priestley",
+        {
+          data: [
+            {id: "alpha", start: 2004, end: 2007},
+            {id: "beta", start: 2005, end: 2010},
+            {id: "gamma", start: 2007, end: 2012},
+          ],
+        },
+      ],
+      ["Radar", {data: series, groupBy: "id", metric: "year", value: "value"}],
+      [
+        "Gauge",
+        {
+          data: [{id: "CPU", value: 64}],
+          domain: [0, 100],
+          indicator: "progress",
+        },
+      ],
+      ["BarChart", {data: series, groupBy: "id", x: "year", y: "value"}],
+      ["AreaPlot", {data: series, groupBy: "id", x: "year", y: "value"}],
+      // Lines are stroked, so they take neither; only the legend swatches do.
+      [
+        "LinePlot",
+        {data: series, groupBy: "id", x: "year", y: "value", lineMarkers: true},
+      ],
+      ["StackedArea", {data: series, groupBy: "id", x: "year", y: "value"}],
+      [
+        "Plot",
+        {
+          data: series,
+          groupBy: ["id", "year"],
+          x: "year",
+          y: "value",
+          size: "value",
+          color: "id",
+        },
+      ],
+      ["BoxWhisker", {data: box, groupBy: ["id", "sub"], x: "id", y: "value"}],
+      ["Histogram", {data: samples, groupBy: "group", value: "value"}],
+      ["Pyramid", {data: pyramid, groupBy: "sex", y: "age", x: "population"}],
+      [
+        "Beeswarm",
+        {data: samples, groupBy: "id", color: "group", x: "value", y: "group"},
+      ],
+    ];
 
-  charts.forEach(function(chart) {
-    var name = chart[0];
-    var heading = document.createElement("h2");
-    heading.textContent = name;
-    document.body.appendChild(heading);
+    charts.forEach(function (chart) {
+      var name = chart[0];
+      var heading = document.createElement("h2");
+      heading.textContent = name;
+      document.body.appendChild(heading);
+      [
+        ["texture", {texture: "lines"}],
+        ["backgroundImage", {backgroundImage: image}],
+      ].forEach(function (feature) {
+        var el = document.createElement("div");
+        el.className = "viz";
+        document.body.appendChild(el);
+        new d3plus[name]()
+          .select(el)
+          .config(chart[1])
+          .shapeConfig(feature[1])
+          .title(feature[0])
+          .render();
+      });
+    });
+
+    // A per-row accessor gets each area's merged row, so only beta is textured.
+    var perRow = document.createElement("h2");
+    perRow.textContent = "Per-row texture accessor (beta only)";
+    document.body.appendChild(perRow);
     [
-      ["texture", {texture: "lines"}],
-      ["backgroundImage", {backgroundImage: image}]
-    ].forEach(function(feature) {
+      ["StackedArea", {}],
+      [
+        "LinePlot",
+        {confidence: ["lci", "hci"], title: "LinePlot confidence bands"},
+      ],
+    ].forEach(function (chart) {
       var el = document.createElement("div");
       el.className = "viz";
       document.body.appendChild(el);
-      new d3plus[name]()
+      new d3plus[chart[0]]()
         .select(el)
+        .config({
+          data: series.map(function (d) {
+            return Object.assign({lci: d.value - 3, hci: d.value + 3}, d);
+          }),
+          groupBy: "id",
+          x: "year",
+          y: "value",
+          title: chart[0],
+        })
         .config(chart[1])
-        .shapeConfig(feature[1])
-        .title(feature[0])
+        .shapeConfig({
+          texture: function (d) {
+            return d.id === "beta"
+              ? {texture: "lines", stroke: "#212529", strokeWidth: 1.5, size: 8}
+              : false;
+          },
+        })
         .render();
     });
-  });
-
-  // A per-row accessor gets each area's merged row, so only beta is textured.
-  var perRow = document.createElement("h2");
-  perRow.textContent = "Per-row texture accessor (beta only)";
-  document.body.appendChild(perRow);
-  [
-    ["StackedArea", {}],
-    ["LinePlot", {confidence: ["lci", "hci"], title: "LinePlot confidence bands"}]
-  ].forEach(function(chart) {
-    var el = document.createElement("div");
-    el.className = "viz";
-    document.body.appendChild(el);
-    new d3plus[chart[0]]()
-      .select(el)
-      .config({
-        data: series.map(function(d) {
-          return Object.assign({lci: d.value - 3, hci: d.value + 3}, d);
-        }),
-        groupBy: "id",
-        x: "year",
-        y: "value",
-        title: chart[0]
-      })
-      .config(chart[1])
-      .shapeConfig({
-        texture: function(d) {
-          return d.id === "beta" ? {texture: "lines", stroke: "#212529", strokeWidth: 1.5, size: 8} : false;
-        }
-      })
-      .render();
-  });
-
-</script>
-
+  </script>
 </html>

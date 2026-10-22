@@ -50,8 +50,12 @@ export default function CallGrid({calls, renderResult}) {
               {row.chip ? <span style={chipStyle}>{row.chip}</span> : null}
               <code>{row.call}</code>
             </div>
-            <div aria-hidden="true" style={{color: "#bbb"}}>→</div>
-            <div><strong>{cell}</strong></div>
+            <div aria-hidden="true" style={{color: "#bbb"}}>
+              →
+            </div>
+            <div>
+              <strong>{cell}</strong>
+            </div>
           </React.Fragment>
         );
       })}

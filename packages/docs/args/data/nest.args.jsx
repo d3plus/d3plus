@@ -3,33 +3,31 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   data: {
     control: {},
     description: "The flat data array to nest.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;datapoint&gt;"
-    }
+      summary: "array.&lt;datapoint&gt;",
+    },
   },
   keys: {
     control: {},
     description: "One key accessor, or an array of them, one per nest level.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "keyaccessor | array.&lt;keyaccessor&gt;"
-    }
-  }
+      summary: "keyaccessor | array.&lt;keyaccessor&gt;",
+    },
+  },
 };

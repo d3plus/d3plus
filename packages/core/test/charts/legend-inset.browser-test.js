@@ -13,34 +13,48 @@ import {overlaps} from "~test/helpers.js";
 
 /** Renders the chart `builderSrc` returns and reports its inset placement against its marks. */
 const probe = (builderSrc, {width = 800, height = 500} = {}) =>
-  render(`<div id="viz" style="width:${width}px;height:${height}px"></div>`, src =>
-    new Promise((resolve, reject) => {
-      const lib = window.d3plus;
-      const viz = new Function("lib", `return (${src})(lib);`)(lib).duration(0).select("#viz");
-      viz.render(() => {
-        try {
-          const nodes = [];
-          const walk = (n, path) => {
-            nodes.push({n, path});
-            (n.children || []).forEach(c => walk(c, path.concat(n.key)));
-          };
-          walk(viz.toScene().root, []);
-          const background = nodes.find(({n}) => n.key === "viz-inset-background");
-          const marks = viz._chartScene ? lib.markBoxes(viz._chartScene, viz._chartTransform) : [];
-          resolve({
-            placement: viz._insetPlacement || null,
-            margin: viz._margin,
-            background: background ? {...background.n, path: background.path} : null,
-            marks,
-            legendData: (viz._legendClass._data || []).length,
-            legend: viz._legendClass.outerBounds(),
-            sizeBox: viz._bottomRightBox ? {inset: !!viz._bottomRightBox.inset} : null,
-          });
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }), builderSrc);
+  render(
+    `<div id="viz" style="width:${width}px;height:${height}px"></div>`,
+    src =>
+      new Promise((resolve, reject) => {
+        const lib = window.d3plus;
+        const viz = new Function("lib", `return (${src})(lib);`)(lib)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          try {
+            const nodes = [];
+            const walk = (n, path) => {
+              nodes.push({n, path});
+              (n.children || []).forEach(c => walk(c, path.concat(n.key)));
+            };
+            walk(viz.toScene().root, []);
+            const background = nodes.find(
+              ({n}) => n.key === "viz-inset-background",
+            );
+            const marks = viz._chartScene
+              ? lib.markBoxes(viz._chartScene, viz._chartTransform)
+              : [];
+            resolve({
+              placement: viz._insetPlacement || null,
+              margin: viz._margin,
+              background: background
+                ? {...background.n, path: background.path}
+                : null,
+              marks,
+              legendData: (viz._legendClass._data || []).length,
+              legend: viz._legendClass.outerBounds(),
+              sizeBox: viz._bottomRightBox
+                ? {inset: !!viz._bottomRightBox.inset}
+                : null,
+            });
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }),
+    builderSrc,
+  );
 
 // Three color groups in the top half and bottom-left: the bottom-right is open.
 const scatter = (extra = "") => `lib => new lib.Plot()
@@ -56,11 +70,18 @@ it("Plot draws the legend in an empty quadrant and claims no margin for it", asy
   assert.ok(r.placement, "placed inside the plot");
   assert.strictEqual(r.placement.key, "legend");
   assert.ok(r.background, "draws a background box");
-  assert.ok(r.background.path.includes("viz-legend"), "box sits in the legend group");
+  assert.ok(
+    r.background.path.includes("viz-legend"),
+    "box sits in the legend group",
+  );
   assert.ok(r.background.paint.fillOpacity < 1, "box is translucent");
-  for (const m of r.marks) assert.ok(!overlaps(r.placement, m), "clear of every mark");
+  for (const m of r.marks)
+    assert.ok(!overlaps(r.placement, m), "clear of every mark");
   assert.ok(r.margin.right < 60, `no right legend margin (${r.margin.right})`);
-  assert.ok(r.placement.x > 400 && r.placement.y > 250, "in the bottom-right quadrant");
+  assert.ok(
+    r.placement.x > 400 && r.placement.y > 250,
+    "in the bottom-right quadrant",
+  );
 });
 
 it("legendInset(false) keeps the legend in its margin", async () => {
@@ -68,7 +89,10 @@ it("legendInset(false) keeps the legend in its margin", async () => {
   const off = await probe(scatter(".legendInset(false)"));
   assert.strictEqual(off.placement, null);
   assert.strictEqual(off.background, null);
-  assert.ok(off.margin.right > on.margin.right, "the legend claims its margin again");
+  assert.ok(
+    off.margin.right > on.margin.right,
+    "the legend claims its margin again",
+  );
 });
 
 it("an explicit legendPosition is honored", async () => {
@@ -76,7 +100,7 @@ it("an explicit legendPosition is honored", async () => {
   assert.strictEqual(r.placement, null);
 });
 
-it("legendPosition(\"auto\") places the legend inside the chart, like the default", async () => {
+it('legendPosition("auto") places the legend inside the chart, like the default', async () => {
   const def = await probe(scatter());
   const auto = await probe(scatter(`.legendPosition("auto")`));
   assert.ok(auto.placement, "placed inside the plot");
@@ -98,20 +122,29 @@ it("an explicit side keeps the legend in that margin, never inside the chart", a
     assert.strictEqual(r.placement, null, `${side}: not inset`);
     assert.strictEqual(r.background, null, `${side}: no inset box`);
     assert.strictEqual(r.legendData, 3, `${side}: shown`);
-    assert.ok(hugs[side](r.legend), `${side}: drawn on that side (${JSON.stringify(r.legend)})`);
+    assert.ok(
+      hugs[side](r.legend),
+      `${side}: drawn on that side (${JSON.stringify(r.legend)})`,
+    );
   }
   const hidden = await probe(scatter(".legendPosition(false)"));
   assert.strictEqual(hidden.placement, null, "false: not inset");
   assert.strictEqual(hidden.legendData, 0, "false: hidden");
 });
 
-it("an \"auto\" legend that isn't inset goes right on wide charts and bottom on others", async () => {
+it('an "auto" legend that isn\'t inset goes right on wide charts and bottom on others', async () => {
   for (const extra of ["", `.legendPosition("auto")`]) {
     const src = scatter(`.legendInset(false)${extra}`);
     const wide = await probe(src, {width: 800, height: 500});
-    assert.ok(wide.margin.right > wide.margin.bottom, `wide${extra}: right (${JSON.stringify(wide.margin)})`);
+    assert.ok(
+      wide.margin.right > wide.margin.bottom,
+      `wide${extra}: right (${JSON.stringify(wide.margin)})`,
+    );
     const tall = await probe(src, {width: 500, height: 700});
-    assert.ok(tall.margin.bottom > tall.margin.right, `tall${extra}: bottom (${JSON.stringify(tall.margin)})`);
+    assert.ok(
+      tall.margin.bottom > tall.margin.right,
+      `tall${extra}: bottom (${JSON.stringify(tall.margin)})`,
+    );
   }
   // A chart with no room inside (Treemap) resolves "auto" the same way.
   const tree = `lib => new lib.Treemap()
@@ -119,12 +152,18 @@ it("an \"auto\" legend that isn't inset goes right on wide charts and bottom on 
     .groupBy(["g", "id"]).sum("value").legendPosition("auto")`;
   const wideTree = await probe(tree, {width: 800, height: 500});
   assert.strictEqual(wideTree.placement, null);
-  assert.ok(wideTree.margin.right > wideTree.margin.bottom, "wide Treemap: right");
+  assert.ok(
+    wideTree.margin.right > wideTree.margin.bottom,
+    "wide Treemap: right",
+  );
   const tallTree = await probe(tree, {width: 500, height: 700});
-  assert.ok(tallTree.margin.bottom > tallTree.margin.right, "tall Treemap: bottom");
+  assert.ok(
+    tallTree.margin.bottom > tallTree.margin.right,
+    "tall Treemap: bottom",
+  );
 });
 
-it("colorScalePosition(\"auto\") may be inset, and an explicit side never is", async () => {
+it('colorScalePosition("auto") may be inset, and an explicit side never is', async () => {
   const colored = extra => `lib => new lib.Plot()
     .data([
       {id: "a", x: 1, y: 9, value: 10}, {id: "b", x: 2, y: 10, value: 20},
@@ -146,8 +185,12 @@ it("the size legend is tried first; the legend falls back to its margin", async 
   assert.ok(r.placement, "placed");
   assert.strictEqual(r.placement.key, "sizeLegend");
   assert.ok(r.sizeBox && r.sizeBox.inset, "size legend panel drawn inset");
-  assert.ok(r.background.path.includes("viz-bottomRight"), "box sits in the size legend panel");
-  for (const m of r.marks) assert.ok(!overlaps(r.placement, m), "clear of every mark");
+  assert.ok(
+    r.background.path.includes("viz-bottomRight"),
+    "box sits in the size legend panel",
+  );
+  for (const m of r.marks)
+    assert.ok(!overlaps(r.placement, m), "clear of every mark");
 });
 
 it("never uses the space enclosed by the marks", async () => {
@@ -159,8 +202,10 @@ it("never uses the space enclosed by the marks", async () => {
     .groupBy(["id", "key"]).x("x").y("y")`;
   const r = await probe(ring);
   if (r.placement) {
-    const xs = r.marks.map(m => m.x + m.width / 2), ys = r.marks.map(m => m.y + m.height / 2);
-    const cx = (Math.min(...xs) + Math.max(...xs)) / 2, cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+    const xs = r.marks.map(m => m.x + m.width / 2),
+      ys = r.marks.map(m => m.y + m.height / 2);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2,
+      cy = (Math.min(...ys) + Math.max(...ys)) / 2;
     const center = {x: cx - 5, y: cy - 5, width: 10, height: 10};
     assert.ok(!overlaps(r.placement, center), "not in the hole in the middle");
   }
@@ -183,33 +228,54 @@ it("Network draws the legend in a corner around a clustered layout", async () =>
     .nodes([{id: "a", x: 0, y: 0}, {id: "b", x: 1, y: 0}, {id: "c", x: 0, y: 1}, {id: "d", x: 1, y: 1}])
     .links([{source: "a", target: "b"}, {source: "b", target: "d"}, {source: "c", target: "d"}])
     .groupBy("group")`);
-  if (r.placement) for (const m of r.marks) assert.ok(!overlaps(r.placement, m), "clear of every node");
+  if (r.placement)
+    for (const m of r.marks)
+      assert.ok(!overlaps(r.placement, m), "clear of every node");
 });
 
 it("clicking a swatch in an inset legend still hides its group", async () => {
-  const r = await render(`<div id="viz" style="width:800px;height:500px"></div>`, src =>
-    new Promise((resolve, reject) => {
-      const lib = window.d3plus;
-      const viz = new Function("lib", `return (${src})(lib);`)(lib).duration(0).select("#viz");
-      viz.render(() => {
-        try {
-          const p = viz._insetPlacement;
-          const {margin} = lib.insetStyle(viz);
-          // The first swatch sits just inside the box's top-left content corner.
-          const rect = document.querySelector("#viz svg").getBoundingClientRect();
-          const target = document.elementFromPoint(rect.left + p.x + margin + 8, rect.top + p.y + margin + 8);
-          target.dispatchEvent(new MouseEvent("click", {bubbles: true}));
-          window.setTimeout(() => resolve({
-            key: p.key,
-            hidden: viz._hidden.slice(),
-            drawn: [...new Set(viz._filteredData.map(d => d.id))].sort(),
-          }), 300);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }), scatter());
+  const r = await render(
+    `<div id="viz" style="width:800px;height:500px"></div>`,
+    src =>
+      new Promise((resolve, reject) => {
+        const lib = window.d3plus;
+        const viz = new Function("lib", `return (${src})(lib);`)(lib)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          try {
+            const p = viz._insetPlacement;
+            const {margin} = lib.insetStyle(viz);
+            // The first swatch sits just inside the box's top-left content corner.
+            const rect = document
+              .querySelector("#viz svg")
+              .getBoundingClientRect();
+            const target = document.elementFromPoint(
+              rect.left + p.x + margin + 8,
+              rect.top + p.y + margin + 8,
+            );
+            target.dispatchEvent(new MouseEvent("click", {bubbles: true}));
+            window.setTimeout(
+              () =>
+                resolve({
+                  key: p.key,
+                  hidden: viz._hidden.slice(),
+                  drawn: [...new Set(viz._filteredData.map(d => d.id))].sort(),
+                }),
+              300,
+            );
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }),
+    scatter(),
+  );
   assert.strictEqual(r.key, "legend");
-  assert.deepStrictEqual(r.hidden, ["0", "1"], "the first swatch hides group a (keys 0 and 1)");
+  assert.deepStrictEqual(
+    r.hidden,
+    ["0", "1"],
+    "the first swatch hides group a (keys 0 and 1)",
+  );
   assert.deepStrictEqual(r.drawn, ["b", "c"], "group a's points are gone");
 });

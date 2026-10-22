@@ -186,29 +186,39 @@ it("every dev page has a title and description, and dev/index.html is current", 
   );
 });
 
-it("every dev page renders without errors or warnings", {timeout: 10 * 60 * 1000}, async function () {
-  const umd = fs.readFileSync(path.join(coreDir, "umd", "d3plus-core.full.js"), "utf8");
-  const server = await serve(umd);
-  const origin = `http://127.0.0.1:${server.address().port}`;
-  const browser = await chromium.launch();
-  try {
-    const checked = pages.filter(
-      page => !skip[page] && (!only || page.includes(only)),
+it(
+  "every dev page renders without errors or warnings",
+  {timeout: 10 * 60 * 1000},
+  async function () {
+    const umd = fs.readFileSync(
+      path.join(coreDir, "umd", "d3plus-core.full.js"),
+      "utf8",
     );
-    const runs = checked.map(page => [page, ""]);
-    for (const page of checked) {
-      if (page.startsWith("charts/")) runs.push([page, "?renderer=canvas"]);
+    const server = await serve(umd);
+    const origin = `http://127.0.0.1:${server.address().port}`;
+    const browser = await chromium.launch();
+    try {
+      const checked = pages.filter(
+        page => !skip[page] && (!only || page.includes(only)),
+      );
+      const runs = checked.map(page => [page, ""]);
+      for (const page of checked) {
+        if (page.startsWith("charts/")) runs.push([page, "?renderer=canvas"]);
+      }
+      const results = await pool(runs, concurrency, ([page, query]) =>
+        check(browser, origin, page, query),
+      );
+      const failures = runs
+        .map(([page, query], i) => [
+          `${page}${query}`,
+          [...new Set(results[i])],
+        ])
+        .filter(([, problems]) => problems.length)
+        .map(([page, problems]) => `${page}\n    ${problems.join("\n    ")}`);
+      assert.strictEqual(failures.length, 0, `\n  ${failures.join("\n  ")}`);
+    } finally {
+      await browser.close();
+      server.close();
     }
-    const results = await pool(runs, concurrency, ([page, query]) =>
-      check(browser, origin, page, query),
-    );
-    const failures = runs
-      .map(([page, query], i) => [`${page}${query}`, [...new Set(results[i])]])
-      .filter(([, problems]) => problems.length)
-      .map(([page, problems]) => `${page}\n    ${problems.join("\n    ")}`);
-    assert.strictEqual(failures.length, 0, `\n  ${failures.join("\n  ")}`);
-  } finally {
-    await browser.close();
-    server.close();
-  }
-});
+  },
+);

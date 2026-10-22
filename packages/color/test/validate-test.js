@@ -14,18 +14,34 @@ it("validate — categorical", () => {
   const light = validate(primary, {mode: "light"});
   assert.ok(light.ok, "default primary 8 passes (light)");
   assert.strictEqual(state(light, "Lightness band"), "pass", "in band");
-  assert.strictEqual(state(light, "Chroma floor"), "pass", "above chroma floor");
-  assert.notStrictEqual(state(light, "CVD separation"), "fail", "CVD not failing");
+  assert.strictEqual(
+    state(light, "Chroma floor"),
+    "pass",
+    "above chroma floor",
+  );
+  assert.notStrictEqual(
+    state(light, "CVD separation"),
+    "fail",
+    "CVD not failing",
+  );
 
   // Two near-identical colors collapse under CVD and hard-fail.
   const collapse = validate(["#2f9e44", "#33a048"], {pairs: "all"});
-  assert.strictEqual(state(collapse, "CVD separation"), "fail", "near-identical greens collapse");
+  assert.strictEqual(
+    state(collapse, "CVD separation"),
+    "fail",
+    "near-identical greens collapse",
+  );
   assert.ok(!collapse.ok, "collapse is not ok");
   assert.strictEqual(collapse.checks.length, 4, "four categorical checks");
 
   // A too-light color trips the lightness band and (usually) contrast.
   const tooLight = validate(["#eeeeee", "#4c6ef5"], {mode: "light"});
-  assert.strictEqual(state(tooLight, "Lightness band"), "fail", "near-white out of band");
+  assert.strictEqual(
+    state(tooLight, "Lightness band"),
+    "fail",
+    "near-white out of band",
+  );
 });
 
 it("validate — ordinal ramp", () => {
@@ -39,5 +55,9 @@ it("validate — ordinal ramp", () => {
 
   // …a multi-hue set fails "Single hue".
   const multi = validate(["#cde2fb", "#e03131", "#2f9e44"], {ordinal: true});
-  assert.strictEqual(state(multi, "Single hue"), "fail", "multi-hue is not a ramp");
+  assert.strictEqual(
+    state(multi, "Single hue"),
+    "fail",
+    "multi-hue is not a ramp",
+  );
 });

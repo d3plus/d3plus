@@ -51,12 +51,12 @@ provide(D3plusConfigKey, {locale: "es-ES"});
 
 ## Props
 
-| Prop | Description |
-| --- | --- |
-| `config` | Config object forwarded to the instance's `.config()` method. |
-| `callback` | A function invoked at the end of each render cycle. |
+| Prop          | Description                                                              |
+| ------------- | ------------------------------------------------------------------------ |
+| `config`      | Config object forwarded to the instance's `.config()` method.            |
+| `callback`    | A function invoked at the end of each render cycle.                      |
 | `forceUpdate` | When `true`, re-renders on every update even if the config is unchanged. |
-| `className` | The wrapper `<div>`'s class attribute (defaults per component type). |
+| `className`   | The wrapper `<div>`'s class attribute (defaults per component type).     |
 
 ## API Reference
 

@@ -26,7 +26,12 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type Viz from "../viz/Viz.js";
 import {isInternalKey} from "../features/shareKey.js";
 import {overlayHost} from "./zoomControlsMarkup.js";
-import {controlButtonStyles, escapeHtml, paintControlButton, type ControlButtonStyles} from "./controlButtonStyle.js";
+import {
+  controlButtonStyles,
+  escapeHtml,
+  paintControlButton,
+  type ControlButtonStyles,
+} from "./controlButtonStyle.js";
 import {
   tableViewControlStyleActiveDefault,
   tableViewControlStyleDefault,
@@ -59,7 +64,10 @@ export interface TableViewSort {
 export function getTableViewSort(viz: Viz): TableViewSort | undefined {
   return viz._tableViewSort;
 }
-export function setTableViewSort(viz: Viz, value: TableViewSort | undefined): void {
+export function setTableViewSort(
+  viz: Viz,
+  value: TableViewSort | undefined,
+): void {
   viz._tableViewSort = value;
 }
 
@@ -69,7 +77,10 @@ export type TableViewDataSource = "raw" | "aggregate";
 export function getTableViewDataSource(viz: Viz): TableViewDataSource {
   return viz._tableViewDataSource === "raw" ? "raw" : "aggregate";
 }
-export function setTableViewDataSource(viz: Viz, value: TableViewDataSource): void {
+export function setTableViewDataSource(
+  viz: Viz,
+  value: TableViewDataSource,
+): void {
   viz._tableViewDataSource = value;
 }
 
@@ -101,8 +112,17 @@ function buttonStyles(viz: Viz): ControlButtonStyles {
 }
 
 /** Paints the table-view button's inline style for its current state (base/hover/active) — see `paintControlButton`. */
-export function paintTableViewButton(viz: Viz, btn: HTMLElement, hovered = false): void {
-  paintControlButton(btn, buttonStyles(viz), hovered, btn.classList.contains("active"));
+export function paintTableViewButton(
+  viz: Viz,
+  btn: HTMLElement,
+  hovered = false,
+): void {
+  paintControlButton(
+    btn,
+    buttonStyles(viz),
+    hovered,
+    btn.classList.contains("active"),
+  );
 }
 
 /** The cheap, non-DOM signature capturing the button's resolved style — see `Contribution.styleSignature`. */
@@ -111,7 +131,8 @@ export function tableViewButtonStyleSignature(viz: Viz): string {
 }
 
 /** Shared icon attributes — see the long comment in `zoomControlsMarkup.ts` for why these exact properties matter. */
-const ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
+const ICON_ATTRS =
+  'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:12px;height:12px;vertical-align:middle;flex-shrink:0"';
 // A simple spreadsheet-style grid: outer frame + one horizontal + one vertical divider.
 const TABLE_ICON = `<svg ${ICON_ATTRS}><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>`;
 // A downward arrow into a tray — the conventional "download" icon.
@@ -134,14 +155,17 @@ const SWAP_ICON = `<svg ${ICON_ATTRS}><polyline points="14 4 19 9 14 14"/><line 
     fonts and OSes — a plain stroked chevron matches this feature's own
     icon language and reads the same everywhere.
 */
-const SORT_ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:middle;margin-left:4px;flex-shrink:0"';
+const SORT_ICON_ATTRS =
+  'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px;vertical-align:middle;margin-left:4px;flex-shrink:0"';
 const SORT_ASC_ICON = `<svg ${SORT_ICON_ATTRS}><polyline points="6 15 12 9 18 15"/></svg>`;
 const SORT_DESC_ICON = `<svg ${SORT_ICON_ATTRS}><polyline points="6 9 12 15 18 9"/></svg>`;
 
 /** The toggle button's markup — a real `<button>` so host-page button styling applies once `tableViewControlClassName` disables the inline defaults. */
 export function tableViewButtonHtml(viz: Viz): string {
   const active = isTableView(viz);
-  const extraClass = viz.schema.tableViewControlClassName ? ` ${viz.schema.tableViewControlClassName}` : "";
+  const extraClass = viz.schema.tableViewControlClassName
+    ? ` ${viz.schema.tableViewControlClassName}`
+    : "";
   const label = viz.schema.translate(active ? "Show Chart" : "Show Data Table");
   return `<button type="button" class="table-view-control table-view-toggle${active ? " active" : ""}${extraClass}" aria-label="${label}" aria-pressed="${active}">${TABLE_ICON}</button>`;
 }
@@ -161,8 +185,12 @@ function downloadButtonHtml(viz: Viz): string {
 */
 function dataSourceButtonHtml(viz: Viz): string {
   const showingRaw = getTableViewDataSource(viz) === "raw";
-  const extraClass = viz.schema.tableViewControlClassName ? ` ${viz.schema.tableViewControlClassName}` : "";
-  const label = viz.schema.translate(showingRaw ? "Show Aggregate Data" : "Show Raw Data");
+  const extraClass = viz.schema.tableViewControlClassName
+    ? ` ${viz.schema.tableViewControlClassName}`
+    : "";
+  const label = viz.schema.translate(
+    showingRaw ? "Show Aggregate Data" : "Show Raw Data",
+  );
   return `<button type="button" class="table-view-control tableview-source-toggle${showingRaw ? " active" : ""}${extraClass}" aria-label="${label}" title="${label}" aria-pressed="${showingRaw}">${SWAP_ICON}</button>`;
 }
 
@@ -197,7 +225,9 @@ function csvField(value: unknown): string {
 function toCsv(columns: string[], rows: DataPoint[]): string {
   const lines = [columns.map(csvField).join(",")];
   for (const row of rows) {
-    lines.push(columns.map(c => csvField((row as Record<string, unknown>)[c])).join(","));
+    lines.push(
+      columns.map(c => csvField((row as Record<string, unknown>)[c])).join(","),
+    );
   }
   return lines.join("\r\n");
 }
@@ -228,7 +258,8 @@ function compareValues(a: unknown, b: unknown, locale: string): number {
     several raw rows legitimately share one key.
 */
 function groupByKey(viz: Viz, row: DataPoint, index: number): string {
-  const groupBy = viz.schema.groupBy as Array<(d: DataPoint, i: number) => unknown> | undefined;
+  const groupBy = viz.schema.groupBy as
+    Array<(d: DataPoint, i: number) => unknown> | undefined;
   if (!groupBy || !groupBy.length) return "";
   return groupBy.map(fn => String(fn(row, index))).join("\u0000");
 }
@@ -250,7 +281,10 @@ function groupByKey(viz: Viz, row: DataPoint, index: number): string {
     `defaultRowOrder` again — without the cache each one would re-pay that
     scan even though `_data` itself hasn't changed.
 */
-function rowOrderLookups(viz: Viz): {exact: Map<string, number>; group: Map<string, number>} {
+function rowOrderLookups(viz: Viz): {
+  exact: Map<string, number>;
+  group: Map<string, number>;
+} {
   const raw = (viz._data as DataPoint[] | undefined) || [];
   const cache = viz._tableViewGroupOrder;
   if (cache && cache.data === raw) return cache;
@@ -294,7 +328,10 @@ function defaultRowOrder(viz: Viz, rows: DataPoint[]): DataPoint[] {
   return rows
     .map((row, i) => {
       const exactOrder = exact.get(JSON.stringify(row));
-      const order = exactOrder ?? group.get(groupByKey(viz, row, i)) ?? Number.MAX_SAFE_INTEGER;
+      const order =
+        exactOrder ??
+        group.get(groupByKey(viz, row, i)) ??
+        Number.MAX_SAFE_INTEGER;
       return {row, order};
     })
     .sort((a, b) => a.order - b.order)
@@ -343,16 +380,29 @@ function allColumns(rows: DataPoint[]): string[] {
     insertion order — raw is already in that order by definition, so it's
     skipped there.
 */
-export function sortedTableViewRows(viz: Viz): {rows: DataPoint[]; columns: string[]} {
-  const useRaw = getTableViewDataSource(viz) === "raw" && hasDistinctRawData(viz);
-  const source = (useRaw ? viz._data : viz._filteredData || viz._data) as DataPoint[] | undefined;
+export function sortedTableViewRows(viz: Viz): {
+  rows: DataPoint[];
+  columns: string[];
+} {
+  const useRaw =
+    getTableViewDataSource(viz) === "raw" && hasDistinctRawData(viz);
+  const source = (useRaw ? viz._data : viz._filteredData || viz._data) as
+    DataPoint[] | undefined;
   let rows = (source || []).slice();
   const columns = allColumns(rows);
   const sort = getTableViewSort(viz);
   if (sort && columns.includes(sort.column)) {
     const dir = sort.direction === "desc" ? -1 : 1;
     const {column} = sort;
-    rows.sort((a, b) => dir * compareValues((a as Record<string, unknown>)[column], (b as Record<string, unknown>)[column], viz.schema.locale));
+    rows.sort(
+      (a, b) =>
+        dir *
+        compareValues(
+          (a as Record<string, unknown>)[column],
+          (b as Record<string, unknown>)[column],
+          viz.schema.locale,
+        ),
+    );
   } else if (!useRaw) {
     rows = defaultRowOrder(viz, rows);
   }
@@ -363,10 +413,18 @@ export function sortedTableViewRows(viz: Viz): {rows: DataPoint[]; columns: stri
 export function paginate(
   viz: Viz,
   rows: DataPoint[],
-): {slice: DataPoint[]; page: number; totalPages: number; start: number; end: number; total: number} {
+): {
+  slice: DataPoint[];
+  page: number;
+  totalPages: number;
+  start: number;
+  end: number;
+  total: number;
+} {
   const total = rows.length;
   const pageSize = viz.schema.tableViewPageSize;
-  const size = typeof pageSize === "number" && pageSize > 0 ? pageSize : total || 1;
+  const size =
+    typeof pageSize === "number" && pageSize > 0 ? pageSize : total || 1;
   const totalPages = Math.max(1, Math.ceil(total / size));
   const page = Math.min(Math.max(0, getTableViewPage(viz)), totalPages - 1);
   setTableViewPage(viz, page);
@@ -434,7 +492,10 @@ const CELL_MAX_WIDTH = "320px";
 /** One data row's `<td>` cells. */
 function rowCellsHtml(viz: Viz, columns: string[], row: DataPoint): string {
   return columns
-    .map(c => `<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;"><div class="d3plus-table-view-cell" style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`)
+    .map(
+      c =>
+        `<td style="padding:6px 10px;border-bottom:1px solid #e0e0e0;"><div class="d3plus-table-view-cell" style="max-width:${CELL_MAX_WIDTH};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(formatCell((row as Record<string, unknown>)[c], viz.schema.locale))}</div></td>`,
+    )
     .join("");
 }
 
@@ -469,20 +530,35 @@ function tbodyRowsHtml(
   const colspan = Math.max(columns.length, 1);
   return (
     spacerRowHtml(startIndex * ROW_HEIGHT, colspan) +
-    rows.slice(startIndex, endIndex).map(row => rowHtml(viz, columns, row)).join("") +
+    rows
+      .slice(startIndex, endIndex)
+      .map(row => rowHtml(viz, columns, row))
+      .join("") +
     spacerRowHtml((total - endIndex) * ROW_HEIGHT, colspan)
   );
 }
 
 /** One `<th>`: sort affordance (click/keyboard-toggleable, `aria-sort`, chevron indicator) when sortable, plain otherwise. */
-function headerCellHtml(viz: Viz, column: string, sort: TableViewSort | undefined): string {
+function headerCellHtml(
+  viz: Viz,
+  column: string,
+  sort: TableViewSort | undefined,
+): string {
   const label = escapeHtml(column);
   if (!showsTableViewSort(viz)) {
     return `<th style="position:sticky;top:0;background:#fff;text-align:left;padding:6px 10px;border-bottom:2px solid #ccc;white-space:nowrap;">${label}</th>`;
   }
   const active = sort?.column === column;
-  const ariaSort = active ? (sort.direction === "desc" ? "descending" : "ascending") : "none";
-  const arrow = active ? (sort.direction === "desc" ? SORT_DESC_ICON : SORT_ASC_ICON) : "";
+  const ariaSort = active
+    ? sort.direction === "desc"
+      ? "descending"
+      : "ascending"
+    : "none";
+  const arrow = active
+    ? sort.direction === "desc"
+      ? SORT_DESC_ICON
+      : SORT_ASC_ICON
+    : "";
   return `<th class="tableview-sort-header" data-column="${escapeHtml(column)}" role="button" tabindex="0" aria-sort="${ariaSort}" style="position:sticky;top:0;background:#fff;text-align:left;padding:6px 10px;border-bottom:2px solid #ccc;white-space:nowrap;cursor:pointer;user-select:none;">${label}${arrow}</th>`;
 }
 
@@ -518,7 +594,14 @@ export function tableViewOverlayHtml(viz: Viz): string {
   // `slice`, well past its actual end.
   const bodyHtml = !total
     ? `<tr><td style="padding:12px;color:#767676;" colspan="${Math.max(columns.length, 1)}">${viz.schema.translate("No Data Available")}</td></tr>`
-    : tbodyRowsHtml(viz, columns, slice, 0, virtualized ? Math.min(pageTotal, INITIAL_VIRTUAL_WINDOW) : pageTotal, pageTotal);
+    : tbodyRowsHtml(
+        viz,
+        columns,
+        slice,
+        0,
+        virtualized ? Math.min(pageTotal, INITIAL_VIRTUAL_WINDOW) : pageTotal,
+        pageTotal,
+      );
 
   const headHtml = columns.map(c => headerCellHtml(viz, c, sort)).join("");
 
@@ -531,7 +614,9 @@ export function tableViewOverlayHtml(viz: Viz): string {
         </div>`
       : "";
 
-  const extraClass = viz.schema.tableViewClassName ? ` ${viz.schema.tableViewClassName}` : "";
+  const extraClass = viz.schema.tableViewClassName
+    ? ` ${viz.schema.tableViewClassName}`
+    : "";
   const toolbarHtml =
     tableViewButtonHtml(viz) +
     (showsTableViewDownload(viz) ? downloadButtonHtml(viz) : "") +
@@ -588,7 +673,9 @@ export function bindTableViewButton(host: HTMLElement, viz: Viz): void {
     if (btn.dataset.tableViewBound) return;
     btn.dataset.tableViewBound = "1";
     paintTableViewButton(viz, btn);
-    btn.addEventListener("mouseenter", () => paintTableViewButton(viz, btn, true));
+    btn.addEventListener("mouseenter", () =>
+      paintTableViewButton(viz, btn, true),
+    );
     btn.addEventListener("mouseleave", () => paintTableViewButton(viz, btn));
   });
 }
@@ -602,10 +689,23 @@ function renderVisibleRows(
   columns: string[],
 ): void {
   const total = rows.length;
-  const visibleCount = Math.max(1, Math.ceil(wrapper.clientHeight / ROW_HEIGHT));
-  const startIndex = Math.max(0, Math.floor(wrapper.scrollTop / ROW_HEIGHT) - OVERSCAN);
+  const visibleCount = Math.max(
+    1,
+    Math.ceil(wrapper.clientHeight / ROW_HEIGHT),
+  );
+  const startIndex = Math.max(
+    0,
+    Math.floor(wrapper.scrollTop / ROW_HEIGHT) - OVERSCAN,
+  );
   const endIndex = Math.min(total, startIndex + visibleCount + OVERSCAN * 2);
-  tbody.innerHTML = tbodyRowsHtml(viz, columns, rows, startIndex, endIndex, total);
+  tbody.innerHTML = tbodyRowsHtml(
+    viz,
+    columns,
+    rows,
+    startIndex,
+    endIndex,
+    total,
+  );
 }
 
 /**
@@ -633,7 +733,9 @@ function renderVisibleRows(
     animation frame, never a re-sort.
 */
 function setupTableViewVirtualization(host: HTMLElement, viz: Viz): void {
-  const wrapper = host.querySelector<HTMLElement>(".d3plus-table-view-scroll[data-tableview-virtual]");
+  const wrapper = host.querySelector<HTMLElement>(
+    ".d3plus-table-view-scroll[data-tableview-virtual]",
+  );
   if (!wrapper || wrapper.dataset.tableviewVirtualBound) return;
   const tbody = wrapper.querySelector<HTMLElement>("tbody");
   if (!tbody) return;
@@ -680,7 +782,9 @@ export function bindTableViewOverlay(host: HTMLElement, viz: Viz): void {
     would otherwise still read "active" until the next full re-render.
 */
 export function syncSharedTableViewButton(viz: Viz): void {
-  const btn = overlayHost(viz)?.querySelector<HTMLElement>(".d3plus-top-left-controls-item .table-view-toggle");
+  const btn = overlayHost(viz)?.querySelector<HTMLElement>(
+    ".d3plus-top-left-controls-item .table-view-toggle",
+  );
   if (!btn) return;
   const active = isTableView(viz);
   btn.classList.toggle("active", active);

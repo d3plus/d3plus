@@ -11,11 +11,19 @@ declare module "hyphenated";
 // d3-timer ships no TypeScript types; @d3plus/render schedules against its clock.
 declare module "d3-timer" {
   export interface Timer {
-    restart(callback: (elapsed: number) => void, delay?: number, time?: number): void;
+    restart(
+      callback: (elapsed: number) => void,
+      delay?: number,
+      time?: number,
+    ): void;
     stop(): void;
   }
   export function now(): number;
-  export function timer(callback: (elapsed: number) => void, delay?: number, time?: number): Timer;
+  export function timer(
+    callback: (elapsed: number) => void,
+    delay?: number,
+    time?: number,
+  ): Timer;
 }
 
 // Optional peer dependency of @d3plus/ssr; ships no TypeScript types.
@@ -45,7 +53,11 @@ declare module "node:dns" {
   export function lookup(
     hostname: string,
     options: LookupOptions,
-    callback: (err: Error | null, address: LookupAddress[] | string, family?: number) => void,
+    callback: (
+      err: Error | null,
+      address: LookupAddress[] | string,
+      family?: number,
+    ) => void,
   ): void;
 }
 
@@ -67,7 +79,11 @@ declare module "node:http" {
     lookup?: (
       hostname: string,
       options: import("node:dns").LookupOptions,
-      callback: (err: Error | null, address: import("node:dns").LookupAddress[] | string, family?: number) => void,
+      callback: (
+        err: Error | null,
+        address: import("node:dns").LookupAddress[] | string,
+        family?: number,
+      ) => void,
     ) => void;
   }
   export function request(

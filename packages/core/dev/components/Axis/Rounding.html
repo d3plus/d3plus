@@ -1,17 +1,17 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Rounding · Axis</title>
-    <meta name="description" content="Linear axis rounding: inside, none and outside.">
+    <meta
+      name="description"
+      content="Linear axis rounding: inside, none and outside."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <!-- <script src="https://cdn.jsdelivr.net/npm/@d3plus/axis@1"></script> -->
 
     <style>
-
       body {
         background-color: #fafafa;
         font-family: "Helvetica Neue";
@@ -20,7 +20,8 @@
         text-align: center;
       }
 
-      h1, h2 {
+      h1,
+      h2 {
         margin: 10px auto;
       }
 
@@ -43,19 +44,15 @@
         pointer-events: none;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
     <h1 id="title"></h1>
     <div class="column" id="horizontal"></div>
     <div class="column" id="vertical"></div>
 
     <script>
-
       const index = {horizontal: 0, vertical: 0};
       const height = 150;
       const border = 1;
@@ -78,8 +75,7 @@
       // const domain = [-124612, 1482562];
       // const domain = [0, 2373315];
       // const domain = [12000001, 13000001];
-      
-      
+
       const scale = "linear";
 
       const formatter = new Intl.NumberFormat("en-US", {notation: "compact"});
@@ -87,27 +83,34 @@
       title.innerHTML = `${domain.map(d => formatter.format(d)).join(" to ")} Axis Test (${scale})`;
 
       function makeAxis(config, vertical = false) {
-
         const orient = vertical ? "vertical" : "horizontal";
 
         const groupTitle = document.createElement("h2");
-        groupTitle.innerHTML = `rounding: <i>"${config.rounding || "none"}"</i>`
+        groupTitle.innerHTML = `rounding: <i>"${config.rounding || "none"}"</i>`;
         document.getElementById(orient).appendChild(groupTitle);
 
         widths.forEach(width => {
-          
           const i = index[orient];
           const w = orient === "horizontal" ? width : height;
           const h = orient === "horizontal" ? height : width;
 
-          const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+          const svg = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "svg",
+          );
           svg.id = "axis" + orient + i;
           svg.setAttribute("width", w + "px");
           svg.setAttribute("height", h + "px");
-          svg.setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns:xlink", "http://www.w3.org/1999/xlink");
+          svg.setAttributeNS(
+            "http://www.w3.org/2000/xmlns/",
+            "xmlns:xlink",
+            "http://www.w3.org/1999/xlink",
+          );
           document.getElementById(orient).appendChild(svg);
 
-          const axis = new d3plus[orient === "horizontal" ? "AxisBottom" : "AxisLeft"]()
+          const axis = new d3plus[
+            orient === "horizontal" ? "AxisBottom" : "AxisLeft"
+          ]()
             .select("#axis" + orient + i)
             .width(w)
             .height(h)
@@ -121,17 +124,12 @@
             .render();
 
           index[orient]++;
-
         });
-
       }
 
       makeAxis({rounding: "inside"});
       makeAxis({});
       makeAxis({rounding: "outside"});
-
     </script>
-
   </body>
-
 </html>

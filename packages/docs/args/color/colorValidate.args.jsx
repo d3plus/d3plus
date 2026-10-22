@@ -3,8 +3,6 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   options: {
     control: {},
@@ -12,25 +10,25 @@ export const argTypes = {
     description: "Mode, surface, pair scope, and ordinal toggle.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "colorvalidateoptions"
-    }
+      summary: "colorvalidateoptions",
+    },
   },
   palette: {
     control: {},
     description: "An array of CSS color strings, in slot order.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;string&gt;"
-    }
-  }
+      summary: "array.&lt;string&gt;",
+    },
+  },
 };

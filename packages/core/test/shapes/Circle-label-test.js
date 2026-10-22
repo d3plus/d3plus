@@ -21,8 +21,7 @@ it("Circle wraps labels inside the circle", () => {
         r,
         x: 150,
         y: 150,
-        text:
-          "internationalization internationalization internationalization",
+        text: "internationalization internationalization internationalization",
       },
     ])
     .label(d => d.text)
@@ -45,7 +44,11 @@ it("Circle wraps labels inside the circle", () => {
 
   const text = circle._labelClass.toScene().children[0];
   assert.ok(text, "a label text node was emitted");
-  assert.strictEqual(text.font.anchor, "middle", "label is centered horizontally");
+  assert.strictEqual(
+    text.font.anchor,
+    "middle",
+    "label is centered horizontally",
+  );
 
   assert.ok(text.lines.length >= 2, "the long label wraps to multiple lines");
 

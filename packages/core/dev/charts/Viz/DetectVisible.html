@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>DetectVisible · Viz</title>
-    <meta name="description" content="200 charts on one page, each rendered only once it scrolls into view.">
+    <meta
+      name="description"
+      content="200 charts on one page, each rendered only once it scrolls into view."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -26,13 +27,10 @@
         flex: 1;
       }
     </style>
-
   </head>
 
   <body>
-
     <script>
-
       const sections = 200;
       for (let i = 1; i <= sections; i++) {
         const div = document.createElement("div");
@@ -64,10 +62,9 @@
 
       const buttons = document.querySelectorAll("button");
       buttons.forEach(elem => {
-        elem
-          .addEventListener("click", () => {
-            visualizations.forEach(v => v.render());
-          });
+        elem.addEventListener("click", () => {
+          visualizations.forEach(v => v.render());
+        });
       });
 
       // var visualization = new d3plus.Viz()
@@ -80,9 +77,6 @@
       //     // .data("./data.json")
       //     .render();
       // }, 2000);
-
     </script>
-
   </body>
-
 </html>

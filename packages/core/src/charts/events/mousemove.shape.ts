@@ -59,7 +59,10 @@ export default function (
     // the Treemap "share" column) resolve regardless of whether the hovered
     // scene node was the shape (datum = row) or its text label (datum = a
     // wrapper whose `.data` chain leads back to the row).
-    let tooltipDatum = (x || d) as DataPoint & {__d3plus__?: boolean; data?: DataPoint};
+    let tooltipDatum = (x || d) as DataPoint & {
+      __d3plus__?: boolean;
+      data?: DataPoint;
+    };
     while (tooltipDatum && tooltipDatum.__d3plus__ && tooltipDatum.data)
       tooltipDatum = tooltipDatum.data as typeof tooltipDatum;
 
@@ -73,9 +76,15 @@ export default function (
       .title((dd: DataPoint, ii: number) => this._drawLabel(dd, ii))
       .titleSwatch(true)
       .position(position)
-      .config(configPrep.bind(this as unknown as ConfigPrepHost)(this.schema.tooltipConfig));
+      .config(
+        configPrep.bind(this as unknown as ConfigPrepHost)(
+          this.schema.tooltipConfig,
+        ),
+      );
     // The title leads with a swatch of the hovered mark, as in the legend.
-    leadTitleWithSwatch(this._tooltipClass, pickSwatch(this as unknown as VizInstance, this._lastScenePick))
-      .render();
+    leadTitleWithSwatch(
+      this._tooltipClass,
+      pickSwatch(this as unknown as VizInstance, this._lastScenePick),
+    ).render();
   }
 }

@@ -6,160 +6,167 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Matrix as D3plusMatrix} from "@d3plus/react";
-export const Matrix = ({ config }) => <D3plusMatrix config={config} />;
+export const Matrix = ({config}) => <D3plusMatrix config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Matrix
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Matrix-specific methods
    */
-  
+
   {
     cellPadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 2,
       description: "The pixel padding between neighboring cells.",
       table: {
         defaultValue: {
-          summary: "2"
-        }
+          summary: "2",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     column: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The column each data point falls in: a key present in every data point, or an accessor function that receives a data point and its index and returns its column value.",
+      description:
+        "The column each data point falls in: a key present in every data point, or an accessor function that receives a data point and its index and returns its column value.",
       table: {
         defaultValue: {
-          summary: "\"column\""
-        }
+          summary: '"column"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     columnConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Config for the `Axis` that draws the column labels, merged over the defaults.",
+      description:
+        "Config for the `Axis` that draws the column labels, merged over the defaults.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     columnList: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "A manual list of column values to draw, in place of the unique `column` values found in the data. Sorted by `columnSort`.",
+      description:
+        "A manual list of column values to draw, in place of the unique `column` values found in the data. Sorted by `columnSort`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "(string | number | boolean)[]"
-      }
+        summary: "(string | number | boolean)[]",
+      },
     },
     columnSort: {
       control: {},
       description: "A sort comparator run on the unique set of column values.",
       table: {
         defaultValue: {
-          summary: "localeCompare"
-        }
+          summary: "localeCompare",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     label: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     row: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The row each data point falls in: a key present in every data point, or an accessor function that receives a data point and its index and returns its row value.",
+      description:
+        "The row each data point falls in: a key present in every data point, or an accessor function that receives a data point and its index and returns its row value.",
       table: {
         defaultValue: {
-          summary: "\"row\""
-        }
+          summary: '"row"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     rowConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Config for the `Axis` that draws the row labels, merged over the defaults.",
+      description:
+        "Config for the `Axis` that draws the row labels, merged over the defaults.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "record"
-      }
+        summary: "record",
+      },
     },
     rowList: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "A manual list of row values to draw, in place of the unique `row` values found in the data. Sorted by `rowSort`.",
+      description:
+        "A manual list of row values to draw, in place of the unique `row` values found in the data. Sorted by `rowSort`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "(string | number | boolean)[]"
-      }
+        summary: "(string | number | boolean)[]",
+      },
     },
     rowSort: {
       control: {},
       description: "A sort comparator run on the unique set of row values.",
       table: {
         defaultValue: {
-          summary: "localeCompare"
-        }
+          summary: "localeCompare",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
-    }
-  }
+        summary: "function",
+      },
+    },
+  },
 );

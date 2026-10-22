@@ -20,7 +20,11 @@ it("densityStats: quartiles, extent, mean, and curve", () => {
   assert.strictEqual(s.max, 9);
   assert.strictEqual(s.mean, 5);
   assert.strictEqual(s.curve.length, 21);
-  assert.strictEqual(s.peak, Math.max(...s.curve.map(p => p[1])), "peak is the highest density");
+  assert.strictEqual(
+    s.peak,
+    Math.max(...s.curve.map(p => p[1])),
+    "peak is the highest density",
+  );
 });
 
 it("densityStats: interpolates quartiles like d3.quantile", () => {
@@ -39,7 +43,10 @@ it("densityStats: ignores non-finite values and returns null without any", () =>
 
 it("densityStats: passes the curve options through", () => {
   const s = densityStats([0, 10], {cut: 0, points: 3});
-  assert.deepStrictEqual(s.curve.map(p => p[0]), [0, 5, 10]);
+  assert.deepStrictEqual(
+    s.curve.map(p => p[0]),
+    [0, 5, 10],
+  );
 });
 
 it("densityStats: a single value has equal quartiles and one bump", () => {
@@ -53,14 +60,30 @@ it("densityStats: a single value has equal quartiles and one bump", () => {
 
 it("densityGroups: groups rows by key in order of first appearance", () => {
   const rows = [
-    {g: "b", v: 1}, {g: "a", v: 2}, {g: "b", v: 3}, {g: "a", v: "4"}, {g: "c", v: null},
+    {g: "b", v: 1},
+    {g: "a", v: 2},
+    {g: "b", v: 3},
+    {g: "a", v: "4"},
+    {g: "c", v: null},
   ];
-  const groups = densityGroups(rows, {value: d => d.v, key: d => d.g, density: {points: 5}});
-  assert.deepStrictEqual(groups.map(g => g.key), ["b", "a"], "c has no finite values");
+  const groups = densityGroups(rows, {
+    value: d => d.v,
+    key: d => d.g,
+    density: {points: 5},
+  });
+  assert.deepStrictEqual(
+    groups.map(g => g.key),
+    ["b", "a"],
+    "c has no finite values",
+  );
   assert.strictEqual(groups[0].first, rows[0]);
   assert.deepStrictEqual(groups[0].summary.rows, [rows[0], rows[2]]);
   assert.deepStrictEqual(groups[0].summary.observed, [1, 3]);
-  assert.deepStrictEqual(groups[1].summary.observed, [2, 4], "numeric strings count");
+  assert.deepStrictEqual(
+    groups[1].summary.observed,
+    [2, 4],
+    "numeric strings count",
+  );
   assert.strictEqual(groups[1].summary.curve.length, 5);
 });
 
@@ -68,13 +91,23 @@ it("densityGroups: drops missing, empty, and non-numeric values and empty rows",
   const rows = [{v: ""}, {v: undefined}, {v: "x"}, null, {v: 0}, {v: false}];
   const groups = densityGroups(rows, {value: d => d.v, key: () => "all"});
   assert.strictEqual(groups.length, 1);
-  assert.deepStrictEqual(groups[0].summary.observed, [0, 0], "0 and false (→ 0) are kept");
-  assert.deepStrictEqual(densityGroups([], {value: d => d.v, key: () => ""}), []);
+  assert.deepStrictEqual(
+    groups[0].summary.observed,
+    [0, 0],
+    "0 and false (→ 0) are kept",
+  );
+  assert.deepStrictEqual(
+    densityGroups([], {value: d => d.v, key: () => ""}),
+    [],
+  );
 });
 
 it("densityGroups: passes the row index to the accessors", () => {
   const seen = [];
-  densityGroups([{v: 1}, {v: 2}], {value: (d, i) => (seen.push(i), d.v), key: () => ""});
+  densityGroups([{v: 1}, {v: 2}], {
+    value: (d, i) => (seen.push(i), d.v),
+    key: () => "",
+  });
   assert.deepStrictEqual(seen, [0, 1]);
 });
 
@@ -100,7 +133,12 @@ it("densityWidthScale: count weights each curve by its observations", () => {
   const scale = densityWidthScale(all, "count");
   // Weighted peaks: 5 and 10; the second fills the width.
   near(scale(all[1]) * 0.25, 1, 1e-12, "largest weighted peak spans the width");
-  near(scale(all[0]) * 0.5, 0.5, 1e-12, "half the observations, half the width");
+  near(
+    scale(all[0]) * 0.5,
+    0.5,
+    1e-12,
+    "half the observations, half the width",
+  );
 });
 
 it("densityWidthScale: zero peaks scale to 0", () => {
@@ -114,16 +152,36 @@ it("densityWidthScale: zero peaks scale to 0", () => {
 it("sortByMedian: keeps data order, or sorts by median with stable ties", () => {
   const g = (key, median) => ({key, summary: {median}});
   const groups = [g("a", 3), g("b", 1), g("c", 3), g("d", 2)];
-  assert.deepStrictEqual(sortByMedian(groups, false).map(d => d.key), ["a", "b", "c", "d"]);
-  assert.deepStrictEqual(sortByMedian(groups, "ascending").map(d => d.key), ["b", "d", "a", "c"]);
-  assert.deepStrictEqual(sortByMedian(groups, "descending").map(d => d.key), ["a", "c", "d", "b"]);
-  assert.deepStrictEqual(sortByMedian(groups, "bogus").map(d => d.key), ["a", "b", "c", "d"]);
+  assert.deepStrictEqual(
+    sortByMedian(groups, false).map(d => d.key),
+    ["a", "b", "c", "d"],
+  );
+  assert.deepStrictEqual(
+    sortByMedian(groups, "ascending").map(d => d.key),
+    ["b", "d", "a", "c"],
+  );
+  assert.deepStrictEqual(
+    sortByMedian(groups, "descending").map(d => d.key),
+    ["a", "c", "d", "b"],
+  );
+  assert.deepStrictEqual(
+    sortByMedian(groups, "bogus").map(d => d.key),
+    ["a", "b", "c", "d"],
+  );
   assert.notStrictEqual(sortByMedian(groups, false), groups, "returns a copy");
-  assert.deepStrictEqual(groups.map(d => d.key), ["a", "b", "c", "d"], "input untouched");
+  assert.deepStrictEqual(
+    groups.map(d => d.key),
+    ["a", "b", "c", "d"],
+    "input untouched",
+  );
 });
 
 it("densityAt: interpolates between curve points and is 0 outside", () => {
-  const curve = [[0, 0], [1, 2], [3, 0]];
+  const curve = [
+    [0, 0],
+    [1, 2],
+    [3, 0],
+  ];
   assert.strictEqual(densityAt(curve, 0), 0);
   assert.strictEqual(densityAt(curve, 1), 2);
   assert.strictEqual(densityAt(curve, 0.5), 1);

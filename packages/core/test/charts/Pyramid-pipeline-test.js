@@ -25,7 +25,13 @@ const rows = [
 ];
 
 // The left layout keeps zero exact; the center gutter's own tests are below.
-const pyramid = (data = rows) => new Pyramid().data(data).groupBy("sex").y("age").x("pop").categoryPosition("left");
+const pyramid = (data = rows) =>
+  new Pyramid()
+    .data(data)
+    .groupBy("sex")
+    .y("age")
+    .x("pop")
+    .categoryPosition("left");
 
 it("Pyramid pre-draw assigns sides in data order, or as configured", () => {
   const viz = pyramid();
@@ -33,7 +39,11 @@ it("Pyramid pre-draw assigns sides in data order, or as configured", () => {
   assert.deepStrictEqual(viz.ctx.pyramid.sides, ["Male", "Female"]);
   viz.sides(["Female", "Male"])._preDraw();
   assert.deepStrictEqual(viz.ctx.pyramid.sides, ["Female", "Male"]);
-  assert.strictEqual(viz._x(rows[1], 1), -120, "the configured left side mirrors");
+  assert.strictEqual(
+    viz._x(rows[1], 1),
+    -120,
+    "the configured left side mirrors",
+  );
   assert.strictEqual(viz._x(rows[0], 0), 100);
 });
 
@@ -42,8 +52,15 @@ it("Pyramid keeps a hidden side on its own half", () => {
   viz._hidden = ["Male"];
   viz._preDraw();
   assert.ok(viz._filteredData.every(d => d.sex === "Female"));
-  assert.deepStrictEqual(viz.ctx.pyramid.sides, ["Male", "Female"], "sides come from every row");
-  assert.ok(viz._filteredData.every((d, i) => viz._x(d, i) > 0), "Female stays on the right");
+  assert.deepStrictEqual(
+    viz.ctx.pyramid.sides,
+    ["Male", "Female"],
+    "sides come from every row",
+  );
+  assert.ok(
+    viz._filteredData.every((d, i) => viz._x(d, i) > 0),
+    "Female stays on the right",
+  );
 });
 
 it("Pyramid centers the value axis on the largest side", () => {
@@ -51,9 +68,17 @@ it("Pyramid centers the value axis on the largest side", () => {
   viz._preDraw();
   assert.deepStrictEqual(viz._xConfig.domain, [-120, 120]);
   viz.comparison("before")._preDraw();
-  assert.deepStrictEqual(viz._xConfig.domain, [-150, 150], "comparison values widen it");
+  assert.deepStrictEqual(
+    viz._xConfig.domain,
+    [-150, 150],
+    "comparison values widen it",
+  );
   viz.symmetric(false)._preDraw();
-  assert.strictEqual(viz._xConfig.domain, undefined, "symmetric(false) hands the domain back to Plot");
+  assert.strictEqual(
+    viz._xConfig.domain,
+    undefined,
+    "symmetric(false) hands the domain back to Plot",
+  );
 });
 
 it("Pyramid asks for its own symmetric domain rounded outside", () => {
@@ -61,14 +86,29 @@ it("Pyramid asks for its own symmetric domain rounded outside", () => {
   viz._preDraw();
   assert.strictEqual(viz._plotAxisDefaults.x.rounding, "outside");
   viz.symmetric(false)._preDraw();
-  assert.strictEqual(viz._plotAxisDefaults.x.rounding, undefined, "no symmetric domain, no rounding of its own");
+  assert.strictEqual(
+    viz._plotAxisDefaults.x.rounding,
+    undefined,
+    "no symmetric domain, no rounding of its own",
+  );
   const user = pyramid().xConfig({domain: [-500, 500]});
   user._preDraw();
-  assert.strictEqual(user._plotAxisDefaults.x.rounding, undefined, "a user's domain is drawn as given");
+  assert.strictEqual(
+    user._plotAxisDefaults.x.rounding,
+    undefined,
+    "a user's domain is drawn as given",
+  );
   const center = pyramid().categoryPosition("center");
   center._preDraw();
-  assert.strictEqual(center._plotAxisDefaults.x.rounding, "outside", "beside the gutter's break");
-  assert.ok(Array.isArray(center._plotAxisDefaults.x.break), "the gutter's break is kept");
+  assert.strictEqual(
+    center._plotAxisDefaults.x.rounding,
+    "outside",
+    "beside the gutter's break",
+  );
+  assert.ok(
+    Array.isArray(center._plotAxisDefaults.x.break),
+    "the gutter's break is kept",
+  );
 });
 
 it("Pyramid leaves a user's domain alone", () => {
@@ -77,7 +117,11 @@ it("Pyramid leaves a user's domain alone", () => {
   assert.deepStrictEqual(viz._xConfig.domain, [-500, 500]);
   const withXDomain = pyramid().xDomain([-300, 300]);
   withXDomain._preDraw();
-  assert.strictEqual(withXDomain._xConfig.domain, undefined, "xDomain wins over the symmetric domain");
+  assert.strictEqual(
+    withXDomain._xConfig.domain,
+    undefined,
+    "xDomain wins over the symmetric domain",
+  );
 });
 
 it("Pyramid sizes a persistent axis to every frame", () => {
@@ -89,13 +133,23 @@ it("Pyramid sizes a persistent axis to every frame", () => {
   const viz = pyramid(data).time("year");
   viz._preDraw();
   assert.deepStrictEqual(viz._xConfig.domain, [-400, 400], "the latest frame");
-  const first = pyramid(data).time("year").timeFilter(d => d.year === 2000);
+  const first = pyramid(data)
+    .time("year")
+    .timeFilter(d => d.year === 2000);
   first._preDraw();
   assert.deepStrictEqual(first._xConfig.domain, [-120, 120]);
   first.axisPersist(true)._preDraw();
-  assert.deepStrictEqual(first._xConfig.domain, [-400, 400], "axisPersist fits every year");
+  assert.deepStrictEqual(
+    first._xConfig.domain,
+    [-400, 400],
+    "axisPersist fits every year",
+  );
   first.percent(true)._preDraw();
-  assert.deepStrictEqual(first._xConfig.domain, [-0.8, 0.8], "percent mode divides each year by its own total");
+  assert.deepStrictEqual(
+    first._xConfig.domain,
+    [-0.8, 0.8],
+    "percent mode divides each year by its own total",
+  );
 });
 
 it("Pyramid percent mode divides by the frame's total", () => {
@@ -113,7 +167,11 @@ it("Pyramid formats ticks as magnitudes, wrapping a user tickFormat once", () =>
   assert.strictEqual(auto(-1200), "1.2k");
   assert.strictEqual(auto(1200), "1.2k");
   viz.percent(true)._preDraw();
-  assert.strictEqual(viz._xConfig.tickFormat(-0.25), "25%", "percent mode reads percentages");
+  assert.strictEqual(
+    viz._xConfig.tickFormat(-0.25),
+    "25%",
+    "percent mode reads percentages",
+  );
   const seen = [];
   viz.xConfig({tickFormat: d => (seen.push(d), `${d}!`)})._preDraw();
   assert.strictEqual(viz._xConfig.tickFormat(-3), "3!");
@@ -130,7 +188,11 @@ it("Pyramid titles the value axis in percent mode unless the user has", () => {
   viz.percent(true)._preDraw();
   assert.strictEqual(viz._xConfig.title, "Percent of Total");
   viz.percent(false)._preDraw();
-  assert.strictEqual(viz._xConfig.title, "pop", "restored when percent mode ends");
+  assert.strictEqual(
+    viz._xConfig.title,
+    "pop",
+    "restored when percent mode ends",
+  );
   const titled = pyramid().percent(true).xConfig({title: "Share of people"});
   titled._preDraw();
   assert.strictEqual(titled._xConfig.title, "Share of people");
@@ -152,7 +214,10 @@ it("Pyramid reserves room above the bars for side titles", () => {
 it("Pyramid colors by the deepest drawn level", () => {
   const viz = pyramid().groupBy(["sex", "area"]);
   viz._preDraw();
-  assert.strictEqual(viz.schema.color({sex: "Male", area: "Urban"}, 0), "Urban");
+  assert.strictEqual(
+    viz.schema.color({sex: "Male", area: "Urban"}, 0),
+    "Urban",
+  );
   const flat = pyramid();
   flat._preDraw();
   assert.strictEqual(flat.schema.color({sex: "Male"}, 0), "Male");
@@ -160,7 +225,11 @@ it("Pyramid colors by the deepest drawn level", () => {
 
 const stages = viz => {
   viz._preDraw();
-  return runStages({viz}, [formatPlotData, computePlotAxisValues, computePlotInitialDomains]);
+  return runStages({viz}, [
+    formatPlotData,
+    computePlotAxisValues,
+    computePlotInitialDomains,
+  ]);
 };
 
 const stacked = rows.flatMap(d => [
@@ -172,8 +241,20 @@ it("Pyramid stacks both sides, and every sub-group, in one stack per row", () =>
   const ctx = stages(pyramid(stacked).groupBy(["sex", "area"]));
   const groups = new Set(ctx.plotFormattedData.map(d => d.group));
   assert.deepStrictEqual([...groups], ["time_group"]);
-  assert.deepStrictEqual(ctx.plotInitialDomains.x, [-100, 120], "the left side stacks below zero");
-  const bars = stages(new BarChart().data(stacked).groupBy(["sex", "area"]).discrete("y").y("age").x("pop").stacked(true));
+  assert.deepStrictEqual(
+    ctx.plotInitialDomains.x,
+    [-100, 120],
+    "the left side stacks below zero",
+  );
+  const bars = stages(
+    new BarChart()
+      .data(stacked)
+      .groupBy(["sex", "area"])
+      .discrete("y")
+      .y("age")
+      .x("pop")
+      .stacked(true),
+  );
   assert.deepStrictEqual(
     [...new Set(bars.plotFormattedData.map(d => d.group))].sort(),
     ["time_Female", "time_Male"],
@@ -185,11 +266,17 @@ it("Pyramid stacks the same sub-group nearest the center on both sides", () => {
   const ctx = stages(pyramid(stacked).groupBy(["sex", "area"]));
   const segment = (sex, area) => {
     const key = ctx.plotStackKeys.indexOf(`${sex}_${area}_0-9`);
-    const discrete = ctx.plotDiscreteKeys.findIndex(k => `${k}`.startsWith("0-9"));
+    const discrete = ctx.plotDiscreteKeys.findIndex(k =>
+      `${k}`.startsWith("0-9"),
+    );
     const [lo, hi] = ctx.plotStackData[key][discrete];
     return [lo, hi];
   };
-  assert.deepStrictEqual(segment("Male", "Urban"), [-75, 0], "Urban (larger) starts at the center");
+  assert.deepStrictEqual(
+    segment("Male", "Urban"),
+    [-75, 0],
+    "Urban (larger) starts at the center",
+  );
   assert.deepStrictEqual(segment("Male", "Rural"), [-100, -75]);
   assert.deepStrictEqual(segment("Female", "Urban"), [0, 90]);
   assert.deepStrictEqual(segment("Female", "Rural"), [90, 120]);
@@ -200,8 +287,16 @@ it("Pyramid keeps updating its domain after another xConfig set", () => {
   viz._preDraw();
   viz.xConfig({title: "People"});
   viz.data(rows.map(d => ({...d, pop: d.pop * 2})))._preDraw();
-  assert.deepStrictEqual(viz._xConfig.domain, [-240, 240], "the copied domain is still the chart's");
+  assert.deepStrictEqual(
+    viz._xConfig.domain,
+    [-240, 240],
+    "the copied domain is still the chart's",
+  );
   assert.strictEqual(viz._xConfig.title, "People");
   viz.xConfig({domain: [-500, 500]})._preDraw();
-  assert.deepStrictEqual(viz._xConfig.domain, [-500, 500], "a user domain is left alone");
+  assert.deepStrictEqual(
+    viz._xConfig.domain,
+    [-500, 500],
+    "a user domain is left alone",
+  );
 });

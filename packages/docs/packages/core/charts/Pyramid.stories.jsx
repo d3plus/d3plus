@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a population pyramid: horizontal bars for two groups (the first\ngroupBy level, e.g. Male / Female) extending in opposite directions\nfrom a shared center line, one row per y category (e.g. age band).\nValues stay positive — the left side is mirrored internally and the value\naxis reads magnitudes on both halves. The category labels run down a\ngutter between the halves (or beside the chart, with categoryPosition).\nDeeper groupBy levels stack within each side.",
+        component:
+          "Creates a population pyramid: horizontal bars for two groups (the first\ngroupBy level, e.g. Male / Female) extending in opposite directions\nfrom a shared center line, one row per y category (e.g. age band).\nValues stay positive — the left side is mirrored internally and the value\naxis reads magnitudes on both halves. The category labels run down a\ngutter between the halves (or beside the chart, with categoryPosition).\nDeeper groupBy levels stack within each side.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Pyramid config={configify(args, argTypes)} />;
-  
+const Template = args => <Pyramid config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -65,7 +66,15 @@ BasicExample.args = {
   x: "Population",
   y: "Age",
 };
-BasicExample.parameters = {controls: {include: ["categoryPosition", "sides", "sideTitles", "symmetric"]}, docs: {description: {story: "Pass positive values: the first `groupBy` level splits the rows into two sides, the first side (here Male) is mirrored to the left, and the value axis reads magnitudes outward from zero on both halves. The `y` categories (age bands) run down a gutter between the halves, bottom to top in data order, and each side is named above its half."}}};
+BasicExample.parameters = {
+  controls: {include: ["categoryPosition", "sides", "sideTitles", "symmetric"]},
+  docs: {
+    description: {
+      story:
+        "Pass positive values: the first `groupBy` level splits the rows into two sides, the first side (here Male) is mirrored to the left, and the value axis reads magnitudes outward from zero on both halves. The `y` categories (age bands) run down a gutter between the halves, bottom to top in data order, and each side is named above its half.",
+    },
+  },
+};
 
 export const LeftLabels = Template.bind({});
 LeftLabels.args = {
@@ -75,7 +84,15 @@ LeftLabels.args = {
   y: "Age",
   categoryPosition: "left",
 };
-LeftLabels.parameters = {controls: {include: ["categoryPosition", "yConfig"]}, docs: {description: {story: "`categoryPosition(\"left\")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line."}}};
+LeftLabels.parameters = {
+  controls: {include: ["categoryPosition", "yConfig"]},
+  docs: {
+    description: {
+      story:
+        '`categoryPosition("left")` moves the categories onto a regular axis beside the chart, so the two halves meet on a single zero line.',
+    },
+  },
+};
 
 export const StackedSides = Template.bind({});
 StackedSides.args = {
@@ -84,7 +101,15 @@ StackedSides.args = {
   x: "Population",
   y: "Age",
 };
-StackedSides.parameters = {controls: {include: ["groupBy", "stackOrder"]}, docs: {description: {story: "Deeper `groupBy` levels stack within each side. A sub-group keeps one color and one legend entry on both sides, and is stacked at the same distance from the center line on each, largest nearest the center."}}};
+StackedSides.parameters = {
+  controls: {include: ["groupBy", "stackOrder"]},
+  docs: {
+    description: {
+      story:
+        "Deeper `groupBy` levels stack within each side. A sub-group keeps one color and one legend entry on both sides, and is stacked at the same distance from the center line on each, largest nearest the center.",
+    },
+  },
+};
 
 export const PercentAndComparison = Template.bind({});
 PercentAndComparison.args = {
@@ -95,7 +120,15 @@ PercentAndComparison.args = {
   percent: true,
   comparison: "Population 2000",
 };
-PercentAndComparison.parameters = {controls: {include: ["percent", "comparison", "comparisonConfig"]}, docs: {description: {story: "`percent(true)` draws every bar as a share of the whole population, so pyramids of different sizes compare by shape. `comparison` traces a second value for each row as an outline around each side — here the same population in 2000, scaled to its own total."}}};
+PercentAndComparison.parameters = {
+  controls: {include: ["percent", "comparison", "comparisonConfig"]},
+  docs: {
+    description: {
+      story:
+        "`percent(true)` draws every bar as a share of the whole population, so pyramids of different sizes compare by shape. `comparison` traces a second value for each row as an outline around each side — here the same population in 2000, scaled to its own total.",
+    },
+  },
+};
 
 export const Timeline = Template.bind({});
 Timeline.args = {
@@ -106,4 +139,12 @@ Timeline.args = {
   time: "Year",
   axisPersist: true,
 };
-Timeline.parameters = {controls: {include: ["time", "axisPersist"]}, docs: {description: {story: "With `time`, the timeline steps (or plays) through the years. `axisPersist(true)` keeps one symmetric axis sized to every year, so the pyramid's shape change reads directly."}}};
+Timeline.parameters = {
+  controls: {include: ["time", "axisPersist"]},
+  docs: {
+    description: {
+      story:
+        "With `time`, the timeline steps (or plays) through the years. `axisPersist(true)` keeps one symmetric axis sized to every year, so the pyramid's shape change reads directly.",
+    },
+  },
+};

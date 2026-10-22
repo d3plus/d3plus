@@ -27,29 +27,61 @@ it("legend accessor keeps schema.legend callable for boolean args", () => {
       () => viz.schema.legend.bind(viz)({}, []),
       `${Chart.name}: schema.legend.bind() must not throw`,
     );
-    assert.strictEqual(viz.schema.legend.bind(viz)({}, []), false, `${Chart.name}: legend(false) → false`);
+    assert.strictEqual(
+      viz.schema.legend.bind(viz)({}, []),
+      false,
+      `${Chart.name}: legend(false) → false`,
+    );
 
     viz.legend(true);
-    assert.strictEqual(typeof viz.schema.legend, "function", `${Chart.name}: .legend(true) stays a function`);
-    assert.strictEqual(viz.schema.legend.bind(viz)({}, []), true, `${Chart.name}: legend(true) → true`);
+    assert.strictEqual(
+      typeof viz.schema.legend,
+      "function",
+      `${Chart.name}: .legend(true) stays a function`,
+    );
+    assert.strictEqual(
+      viz.schema.legend.bind(viz)({}, []),
+      true,
+      `${Chart.name}: legend(true) → true`,
+    );
 
     // A function argument still passes straight through.
     const fn = () => false;
     viz.legend(fn);
-    assert.strictEqual(viz.schema.legend, fn, `${Chart.name}: function arg passes through`);
+    assert.strictEqual(
+      viz.schema.legend,
+      fn,
+      `${Chart.name}: function arg passes through`,
+    );
   }
 });
 
 it("shape accessor coerces string args to constant functions", () => {
   const viz = new BarChart();
   viz.shape("Circle");
-  assert.strictEqual(typeof viz.schema.shape, "function", "shape string → constant fn");
-  assert.strictEqual(viz.schema.shape({}, 0), "Circle", "shape fn returns the constant");
+  assert.strictEqual(
+    typeof viz.schema.shape,
+    "function",
+    "shape string → constant fn",
+  );
+  assert.strictEqual(
+    viz.schema.shape({}, 0),
+    "Circle",
+    "shape fn returns the constant",
+  );
 });
 
 it("label accessor coerces string args to constant functions", () => {
   const viz = new Matrix();
   viz.label("Region");
-  assert.strictEqual(typeof viz.schema.label, "function", "label string → constant fn");
-  assert.strictEqual(viz.schema.label({}, 0), "Region", "label fn returns the constant");
+  assert.strictEqual(
+    typeof viz.schema.label,
+    "function",
+    "label string → constant fn",
+  );
+  assert.strictEqual(
+    viz.schema.label({}, 0),
+    "Region",
+    "label fn returns the constant",
+  );
 });

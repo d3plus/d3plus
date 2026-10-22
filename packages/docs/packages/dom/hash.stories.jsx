@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Stable hash that serializes functions by their source, so function-valued\nconfig props (accessors, formatters) still register as changed when their\nbody changes. Wrappers use this to diff config across a framework's render\ncycles — two structurally identical config objects hash equal, so an\nunchanged config skips a re-render.",
+        component:
+          "Stable hash that serializes functions by their source, so function-valued\nconfig props (accessors, formatters) still register as changed when their\nbody changes. Wrappers use this to diff config across a framework's render\ncycles — two structurally identical config objects hash equal, so an\nunchanged config skips a re-render.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -52,7 +53,8 @@ ${calls.map(({call, result}) => `${call}; // ${result}`).join("\n")}`,
       language: "jsx",
     },
     description: {
-      story: "A stable string for a config object. Functions are serialized by their source, so two configs built separately but with the same accessors hash the same, while changing an accessor's body (`d.year` → `d.month`) changes the hash. The framework wrappers compare hashes between renders to skip redrawing when nothing changed. Circular references are tolerated.",
+      story:
+        "A stable string for a config object. Functions are serialized by their source, so two configs built separately but with the same accessors hash the same, while changing an accessor's body (`d.year` → `d.month`) changes the hash. The framework wrappers compare hashes between renders to skip redrawing when nothing changed. Circular references are tolerated.",
     },
   },
 };

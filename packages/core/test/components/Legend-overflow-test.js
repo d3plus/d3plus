@@ -22,7 +22,9 @@ const items = n => Array.from({length: n}, (_, i) => ({id: `item ${i}`}));
 function legend(n, {direction = "column", width = 400, height = 300} = {}) {
   const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
   document.body.appendChild(svg);
-  const group = svg.appendChild(document.createElementNS("http://www.w3.org/2000/svg", "g"));
+  const group = svg.appendChild(
+    document.createElementNS("http://www.w3.org/2000/svg", "g"),
+  );
   return new Legend()
     .renderMode("compute")
     .select(group)
@@ -60,7 +62,11 @@ it("Legend: re-rendering moves between the overflowing and fitting states", () =
 
   l.data(items(127)).render();
   assert.strictEqual(l.outerBounds().height, 0, "overflow clears the bounds");
-  assert.strictEqual(swatchCount(l), 0, "overflow clears the previous swatches");
+  assert.strictEqual(
+    swatchCount(l),
+    0,
+    "overflow clears the previous swatches",
+  );
 
   l.data(items(5)).render();
   assert.ok(l.outerBounds().height > 0, "fitting again restores the bounds");
@@ -68,11 +74,15 @@ it("Legend: re-rendering moves between the overflowing and fitting states", () =
 });
 
 it("wrapLegendRows: returns the row width when swatches fit, false when they don't", () => {
-  for (const [n, fits] of [[5, true], [127, false]]) {
+  for (const [n, fits] of [
+    [5, true],
+    [127, false],
+  ]) {
     const l = legend(n);
     l._lineData = computeLegendLineData(l, l.height());
     const space = wrapLegendRows(l, l.width(), l.height());
-    if (fits) assert.ok(typeof space === "number" && space > 0, `${n} items: ${space}`);
+    if (fits)
+      assert.ok(typeof space === "number" && space > 0, `${n} items: ${space}`);
     else assert.strictEqual(space, false, `${n} items`);
   }
 });

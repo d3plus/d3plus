@@ -67,7 +67,9 @@ export default function (
       rerender();
     } else if (!event.shiftKey) {
       if (hiddenIndex >= 0) {
-        this._hidden = this._hidden.filter((h: string | number) => !id.includes(h));
+        this._hidden = this._hidden.filter(
+          (h: string | number) => !id.includes(h),
+        );
       } else if (soloIndex >= 0) {
         this._solo = [];
         this._hidden = [];

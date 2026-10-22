@@ -6,91 +6,92 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {BarChart as D3plusBarChart} from "@d3plus/react";
-export const BarChart = ({ config }) => <D3plusBarChart config={config} />;
+export const BarChart = ({config}) => <D3plusBarChart config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in BarChart
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * BarChart-specific methods
    */
-  
+
   {
     barWidth: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.",
+      description:
+        "Makes each bar as wide as its own measure (a data key or accessor), read off the merge of the bar's rows, so stacked segments add up unless `aggs` says otherwise. The bars sit end to end along a continuous discrete axis of cumulative width, labeled at their centers. Off (`undefined`) by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | false | function"
-      }
+        summary: "string | false | function",
+      },
     },
     barWidthShare: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       defaultValue: false,
-      description: "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.",
+      description:
+        "With `barWidth`, adds each bar's share of the total width to its category's axis label: on a second line beneath the name along a horizontal axis, in parentheses after it along a vertical one. Along a horizontal axis, a name wraps to fit a narrow bar, widening into room its neighbors leave; a label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. In small multiples, each panel's shares are of that panel's own total width. Off (`false`) by default.",
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     baseline: {
       defaultValue: 0,
       table: {
         defaultValue: {
-          summary: "0"
-        }
-      }
+          summary: "0",
+        },
+      },
     },
     baselineBreak: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     discrete: {
       defaultValue: "x",
       table: {
         defaultValue: {
-          summary: "x"
-        }
-      }
+          summary: "x",
+        },
+      },
     },
     legend: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "barTooltipConfig"
-        }
-      }
-    }
-  }
+          summary: "barTooltipConfig",
+        },
+      },
+    },
+  },
 );

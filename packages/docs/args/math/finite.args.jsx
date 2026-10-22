@@ -3,20 +3,18 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   value: {
     control: {},
     description: "The value to check.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "unknown"
-    }
-  }
+      summary: "unknown",
+    },
+  },
 };

@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "The soft hyphen (U+00AD): textSplit ends each syllable of a hyphenated\nword with it, and textWrap draws it as a hyphen only where a line breaks.",
+        component:
+          "The soft hyphen (U+00AD): textSplit ends each syllable of a hyphenated\nword with it, and textWrap draws it as a hyphen only where a line breaks.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -40,7 +41,8 @@ BasicExample.parameters = {
   docs: {
     ...sourceSnippet("text", "softHyphen, textSplit", calls).docs,
     description: {
-      story: "`textSplit` ends every syllable but the last with the soft hyphen (shown here as ‐). It is invisible in text, so `textWrap` draws a hyphen only where it breaks a line mid-word and strips the rest.",
+      story:
+        "`textSplit` ends every syllable but the last with the soft hyphen (shown here as ‐). It is invisible in text, so `textWrap` draws a hyphen only where it breaks a line mid-word and strips the rest.",
     },
   },
 };

@@ -79,7 +79,13 @@ it(
   withIO(() => {
     const a = {};
     const seen = [];
-    const off = observeVisibility(a, null, () => seen.push("in"), 0, () => seen.push("out"));
+    const off = observeVisibility(
+      a,
+      null,
+      () => seen.push("in"),
+      0,
+      () => seen.push("out"),
+    );
     const io = StubIO.instances[0];
     io.fire(a, true);
     io.fire(a, false);
@@ -93,13 +99,22 @@ it(
   withIO(() => {
     const el = {};
     const seen = [];
-    const offA = observeVisibility(el, null, () => seen.push("a-in"), 0, () => seen.push("a-out"));
+    const offA = observeVisibility(
+      el,
+      null,
+      () => seen.push("a-in"),
+      0,
+      () => seen.push("a-out"),
+    );
     const io = StubIO.instances[0];
     const offB = observeVisibility(el, null, () => seen.push("b-in"));
     io.fire(el, true);
     assert.deepStrictEqual(seen, ["a-in", "b-in"]);
     offB();
-    assert.ok(io.targets.has(el), "still observed while another registration remains");
+    assert.ok(
+      io.targets.has(el),
+      "still observed while another registration remains",
+    );
     io.fire(el, false);
     assert.deepStrictEqual(seen, ["a-in", "b-in", "a-out"]);
     offA();

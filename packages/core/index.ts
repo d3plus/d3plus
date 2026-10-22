@@ -104,9 +104,16 @@ export type {
 export type {FunnelCurve} from "./src/charts/Funnel/funnelGeometry.js";
 export type {GaugeBand} from "./src/charts/Gauge/gaugeGeometry.js";
 export type {GaugeIndicator} from "./src/charts/Gauge/dialLayout.js";
-export type {BrushRange, BrushSelection} from "./src/charts/ParallelCoordinates/brushFilter.js";
+export type {
+  BrushRange,
+  BrushSelection,
+} from "./src/charts/ParallelCoordinates/brushFilter.js";
 export type {DimensionOptions} from "./src/charts/ParallelCoordinates/dimensions.js";
-export type {FacetConfig, FacetSort, FacetValue} from "./src/charts/facet/facetConfig.js";
+export type {
+  FacetConfig,
+  FacetSort,
+  FacetValue,
+} from "./src/charts/facet/facetConfig.js";
 
 export type {
   AnyShapeConfig,
@@ -127,11 +134,7 @@ export type {
   WhiskerConfig,
 } from "./src/shapes/shapeConfig.js";
 
-export type {
-  D3Selection,
-  Margin,
-  Padding,
-} from "./src/charts/viz/vizTypes.js";
+export type {D3Selection, Margin, Padding} from "./src/charts/viz/vizTypes.js";
 
 // The v4 scene-graph pipeline (layout stages, ChartDefinitions, feature
 // modules, the pure pre-draw/draw functions, fluent generation, axis

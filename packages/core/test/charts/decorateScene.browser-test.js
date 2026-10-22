@@ -46,17 +46,28 @@ async function probe(renderer, hook) {
             cells: !!find(scene.root, "viz-chart-cells"),
             marker: !!find(scene.root, "decorated-marker"),
           });
-          const marker = {type: "rect", key: "decorated-marker", x: 1, y: 2, width: 3, height: 4, paint: {fill: "red"}};
-          return {...scene, root: {...scene.root, children: [...scene.root.children, marker]}};
+          const marker = {
+            type: "rect",
+            key: "decorated-marker",
+            x: 1,
+            y: 2,
+            width: 3,
+            height: 4,
+            paint: {fill: "red"},
+          };
+          return {
+            ...scene,
+            root: {...scene.root, children: [...scene.root.children, marker]},
+          };
         };
       }
-      const viz = window.__viz = new Treemap()
+      const viz = (window.__viz = new Treemap()
         .select("#viz")
         .renderer(renderer)
         .duration(0)
         .data(data)
         .groupBy("id")
-        .sum("value");
+        .sum("value"));
       await new Promise(resolve => viz.render(resolve));
       const first = {
         calls: calls.length,
@@ -76,7 +87,9 @@ async function probe(renderer, hook) {
       };
       const before = calls.length;
       viz.hover(d => d.id === "alpha");
-      await new Promise(resolve => requestAnimationFrame(() => setTimeout(resolve, 50)));
+      await new Promise(resolve =>
+        requestAnimationFrame(() => setTimeout(resolve, 50)),
+      );
       viz.toScene = toScene;
       const hover = {
         builds: builds.length,
@@ -85,48 +98,81 @@ async function probe(renderer, hook) {
       };
 
       // Without a hook, the chart's scene is its base class's.
-      const shape = node => [node.type, node.key, node.transform, (node.children || []).map(shape)];
-      const plain = JSON.stringify(shape(Viz.prototype.toScene.call(viz).root)) === JSON.stringify(shape(viz.toScene().root));
+      const shape = node => [
+        node.type,
+        node.key,
+        node.transform,
+        (node.children || []).map(shape),
+      ];
+      const plain =
+        JSON.stringify(shape(Viz.prototype.toScene.call(viz).root)) ===
+        JSON.stringify(shape(viz.toScene().root));
       return {first, calls, hover, plain};
     },
     {data, renderer, hook},
   );
 }
 
-it("decorateScene receives the finished scene and the SVG renderer paints its return value", {timeout: 300000}, async function () {
-  const {first, calls} = await probe("svg", true);
-  assert.ok(first.calls >= 1, "the hook runs on the first render");
-  assert.ok(calls[0].self, "it receives the chart instance");
-  assert.strictEqual(calls[0].root, "viz-root", "and the finished scene");
-  assert.ok(calls[0].cells, "with the chart cells already composed");
-  assert.ok(!calls[0].marker, "before its own changes");
-  assert.ok(first.painted, "the painted scene is the hook's return value");
-  assert.ok(first.rendered, "and it reaches the renderer");
-  assert.strictEqual(first.kind, "svg");
-  assert.ok(first.svgNode, "the SVG renderer draws the added node");
-});
+it(
+  "decorateScene receives the finished scene and the SVG renderer paints its return value",
+  {timeout: 300000},
+  async function () {
+    const {first, calls} = await probe("svg", true);
+    assert.ok(first.calls >= 1, "the hook runs on the first render");
+    assert.ok(calls[0].self, "it receives the chart instance");
+    assert.strictEqual(calls[0].root, "viz-root", "and the finished scene");
+    assert.ok(calls[0].cells, "with the chart cells already composed");
+    assert.ok(!calls[0].marker, "before its own changes");
+    assert.ok(first.painted, "the painted scene is the hook's return value");
+    assert.ok(first.rendered, "and it reaches the renderer");
+    assert.strictEqual(first.kind, "svg");
+    assert.ok(first.svgNode, "the SVG renderer draws the added node");
+  },
+);
 
-it("decorateScene's return value is what the Canvas renderer paints", {timeout: 300000}, async function () {
-  const {first} = await probe("canvas", true);
-  assert.ok(first.calls >= 1, "the hook runs on the first render");
-  assert.strictEqual(first.kind, "canvas");
-  assert.ok(first.canvas, "a canvas is mounted");
-  assert.ok(first.painted && first.rendered, "the Canvas renderer receives the hook's scene");
-  assert.ok(!first.svgNode, "and no SVG node is drawn for it");
-});
+it(
+  "decorateScene's return value is what the Canvas renderer paints",
+  {timeout: 300000},
+  async function () {
+    const {first} = await probe("canvas", true);
+    assert.ok(first.calls >= 1, "the hook runs on the first render");
+    assert.strictEqual(first.kind, "canvas");
+    assert.ok(first.canvas, "a canvas is mounted");
+    assert.ok(
+      first.painted && first.rendered,
+      "the Canvas renderer receives the hook's scene",
+    );
+    assert.ok(!first.svgNode, "and no SVG node is drawn for it");
+  },
+);
 
-it("decorateScene runs once per scene build, including hover repaints", {timeout: 300000}, async function () {
-  for (const renderer of ["svg", "canvas"]) {
-    const {hover} = await probe(renderer, true);
-    assert.ok(hover.builds >= 1, `${renderer}: hovering repaints the scene`);
-    assert.strictEqual(hover.calls, hover.builds, `${renderer}: the hook runs exactly once per scene built`);
-    assert.ok(hover.painted, `${renderer}: the hover repaint keeps its changes`);
-  }
-});
+it(
+  "decorateScene runs once per scene build, including hover repaints",
+  {timeout: 300000},
+  async function () {
+    for (const renderer of ["svg", "canvas"]) {
+      const {hover} = await probe(renderer, true);
+      assert.ok(hover.builds >= 1, `${renderer}: hovering repaints the scene`);
+      assert.strictEqual(
+        hover.calls,
+        hover.builds,
+        `${renderer}: the hook runs exactly once per scene built`,
+      );
+      assert.ok(
+        hover.painted,
+        `${renderer}: the hover repaint keeps its changes`,
+      );
+    }
+  },
+);
 
-it("a def without decorateScene builds the scene its base class builds", {timeout: 300000}, async function () {
-  const {first, calls, plain} = await probe("svg", false);
-  assert.strictEqual(calls.length, 0);
-  assert.ok(!first.painted, "nothing is added");
-  assert.ok(plain, "toScene matches Viz.prototype.toScene");
-});
+it(
+  "a def without decorateScene builds the scene its base class builds",
+  {timeout: 300000},
+  async function () {
+    const {first, calls, plain} = await probe("svg", false);
+    assert.strictEqual(calls.length, 0);
+    assert.ok(!first.painted, "nothing is added");
+    assert.ok(plain, "toScene matches Viz.prototype.toScene");
+  },
+);

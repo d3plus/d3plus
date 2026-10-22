@@ -95,8 +95,10 @@ function autoSize(viz: Viz): void {
     @private
 */
 function applyRootSize(viz: Viz): void {
-  const width = viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined;
-  const height = viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined;
+  const width =
+    viz.schema.width !== undefined ? `${viz.schema.width}px` : undefined;
+  const height =
+    viz.schema.height !== undefined ? `${viz.schema.height}px` : undefined;
   if (!viz._select.classed("d3plus-viz")) {
     viz._select
       .style("width", width)
@@ -118,7 +120,10 @@ function applyRootSize(viz: Viz): void {
     the accessibility `<title>`/`<desc>` tags.
     @private
 */
-function applyRootAttributes(viz: Viz, parent: ReturnType<typeof select>): void {
+function applyRootAttributes(
+  viz: Viz,
+  parent: ReturnType<typeof select>,
+): void {
   applyRootSize(viz);
   viz._select
     .attr("class", "d3plus-viz")
@@ -186,7 +191,10 @@ function resetPolls(viz: Viz): void {
     @private
 */
 function setupDetection(viz: Viz, callback?: () => void): boolean {
-  if (viz.schema.detectVisible && viz._select.style("visibility") === "hidden") {
+  if (
+    viz.schema.detectVisible &&
+    viz._select.style("visibility") === "hidden"
+  ) {
     viz._visiblePoll = setInterval(() => {
       if (viz._select.style("visibility") !== "hidden") {
         viz._visiblePoll = clearInterval(viz._visiblePoll);
@@ -288,9 +296,7 @@ function buildDataTable(viz: Viz): void {
   const svgTable = viz._select
     .selectAll("g.data-table")
     .data(
-      !viz.schema.ariaHidden &&
-        viz._data instanceof Array &&
-        viz._data.length
+      !viz.schema.ariaHidden && viz._data instanceof Array && viz._data.length
         ? [0]
         : [],
     );
@@ -347,10 +353,7 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   ) {
     viz._messageClass.hide();
     if (viz._select.attr("opacity") === "0")
-      viz._select
-        .transition()
-        .duration(viz.schema.duration)
-        .attr("opacity", 1);
+      viz._select.transition().duration(viz.schema.duration).attr("opacity", 1);
   }
 
   // Text drawn before a web font finished loading was laid out with the

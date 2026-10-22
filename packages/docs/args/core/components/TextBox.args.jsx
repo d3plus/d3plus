@@ -6,629 +6,653 @@ import {argTypes as baseClassArgTypes} from "../utils/BaseClass.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {TextBox as D3plusTextBox} from "@d3plus/react";
-export const TextBox = ({ config }) => <D3plusTextBox config={config} />;
+export const TextBox = ({config}) => <D3plusTextBox config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the BaseClass primitive and
    * overrides any defaults that have been changed in TextBox
    */
-  Object.keys(baseClassArgTypes)
-    .reduce((obj, k) => (obj[k] = baseClassArgTypes[k], obj), {}),
+  Object.keys(baseClassArgTypes).reduce(
+    (obj, k) => ((obj[k] = baseClassArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * TextBox-specific methods
    */
-  
+
   {
     ariaHidden: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
-      description: "Hides the SVG from assistive technology when true (`aria-hidden`).",
+      description:
+        "Hides the SVG from assistive technology when true (`aria-hidden`).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean"
-      }
+        summary: "boolean",
+      },
     },
     colorDefaults: {
       control: {},
-      description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
+      description:
+        "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "colordefaultsconfig"
-      }
+        summary: "colordefaultsconfig",
+      },
     },
     config: {
       control: {},
-      description: "Methods that correspond to the key/value pairs and returns this class.",
+      description:
+        "Methods that correspond to the key/value pairs and returns this class.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     data: {
       control: {},
-      description: "The data array used to draw text boxes. A text box will be drawn for each object in the array.",
+      description:
+        "The data array used to draw text boxes. A text box will be drawn for each object in the array.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "array.&lt;datapoint&gt;"
-      }
+        summary: "array.&lt;datapoint&gt;",
+      },
     },
     delay: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
       description: "",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     duration: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0,
       description: "Animation duration in ms.",
       table: {
         defaultValue: {
-          summary: "0"
-        }
+          summary: "0",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     ellipsis: {
       control: {},
-      description: "Handles truncated lines, returning the new line value. Passed the line's\ntext and number; by default appends an ellipsis to every line except a\nfirst word that cannot fit (which returns \"\").",
+      description:
+        'Handles truncated lines, returning the new line value. Passed the line\'s\ntext and number; by default appends an ellipsis to every line except a\nfirst word that cannot fit (which returns "").',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     fontColor: {
       control: {
-        type: "color"
+        type: "color",
       },
-      description: "The font color as an accessor function or static string. Inferred from the DOM selection by default.",
+      description:
+        "The font color as an accessor function or static string. Inferred from the DOM selection by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "csscolor | function"
-      }
+        summary: "csscolor | function",
+      },
     },
     fontFamily: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The font-family to use: a font name, a comma-separated list of fallbacks,\nan array of fallbacks, or an accessor returning a string or array. The\nfirst available font on the client is used.",
+      description:
+        "The font-family to use: a font name, a comma-separated list of fallbacks,\nan array of fallbacks, or an accessor returning a string or array. The\nfirst available font on the client is used.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | array.&lt;string&gt; | function"
-      }
+        summary: "string | array.&lt;string&gt; | function",
+      },
     },
     fontMax: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The maximum font size in pixels, used when dynamically resizing fonts.",
+      description:
+        "The maximum font size in pixels, used when dynamically resizing fonts.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     fontMin: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The minimum font size in pixels, used when dynamically resizing fonts.",
+      description:
+        "The minimum font size in pixels, used when dynamically resizing fonts.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     fontOpacity: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The font opacity as an accessor function or static number between 0 and 1.",
+      description:
+        "The font opacity as an accessor function or static number between 0 and 1.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     fontResize: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
-      description: "Toggles font resizing — a static boolean, or an accessor returning a boolean.",
+      description:
+        "Toggles font resizing — a static boolean, or an accessor returning a boolean.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | function"
-      }
+        summary: "boolean | function",
+      },
     },
     fontSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The font size in pixels. Inferred from the DOM selection by default.",
+      description:
+        "The font size in pixels. Inferred from the DOM selection by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     fontStroke: {
       control: {
-        type: "color"
+        type: "color",
       },
       description: "The font stroke color for the rendered text.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "csscolor | function"
-      }
+        summary: "csscolor | function",
+      },
     },
     fontStrokeWidth: {
       control: {
-        type: "number"
+        type: "number",
       },
       description: "The font stroke width for the rendered text.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     fontWeight: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The font weight. Inferred from the DOM selection by default.",
+      description:
+        "The font weight. Inferred from the DOM selection by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | number | function"
-      }
+        summary: "string | number | function",
+      },
     },
     height: {
       control: {
-        type: "number"
+        type: "number",
       },
       description: "The height for each text box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     html: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
-      description: "Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles",
+      description:
+        "Configures the ability to render simple HTML tags. Defaults to supporting `<b>`, `<strong>`, `<i>`, and `<em>`, set to false to disable or provide a mapping of tags to svg styles",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "boolean | record"
-      }
+        summary: "boolean | record",
+      },
     },
     id: {
       control: {},
-      description: "Unique-id accessor per datum (used for keyed enter/update/exit).",
+      description:
+        "Unique-id accessor per datum (used for keyed enter/update/exit).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "accessorfn"
-      }
+        summary: "accessorfn",
+      },
     },
     lineHeight: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The line height, which is 1.2 times the font size by default.",
+      description:
+        "The line height, which is 1.2 times the font size by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     locale: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like \"en-US\"), or a 2-digit language code (like \"en\"). If a 2-digit code is provided, the \"findLocale\" function is used to identify the most approximate locale.",
+      description:
+        'The locale used for all text and number formatting. Supports the locales defined in [d3plus-format](https://github.com/d3plus/d3plus-format/blob/master/src/locale.js). The locale can be a complex Object, a locale code (like "en-US"), or a 2-digit language code (like "en"). If a 2-digit code is provided, the "findLocale" function is used to identify the most approximate locale.',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | object"
-      }
+        summary: "string | object",
+      },
     },
     maxLines: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "Restricts the maximum number of lines to wrap onto; null (unlimited) by default.",
+      description:
+        "Restricts the maximum number of lines to wrap onto; null (unlimited) by default.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | null | function"
-      }
+        summary: "number | null | function",
+      },
     },
     on: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
+      description:
+        "Event listener for the specified event *typenames*. Mirrors the core [d3-selection](https://github.com/d3/d3-selection#selection_on) behavior.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     overflow: {
       control: {
-        type: "boolean"
+        type: "boolean",
       },
       description: "Whether text is allowed to overflow its bounding box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | function"
-      }
+        summary: "boolean | function",
+      },
     },
     padding: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The padding as a CSS shorthand string or number. Defaults to 0.",
+      description:
+        "The padding as a CSS shorthand string or number. Defaults to 0.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | number | function"
-      }
+        summary: "string | number | function",
+      },
     },
     parent: {
       control: {},
       description: "Parent config used by the wrapper.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "unknown"
-      }
+        summary: "unknown",
+      },
     },
     pointerEvents: {
       control: {},
       description: "SVG `pointer-events` attribute per datum.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     render: {
       control: {},
-      description: "Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.",
+      description:
+        "Renders the text boxes. If a *callback* is specified, it will be called once the shapes are done drawing.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     rotate: {
       control: {},
       description: "Rotation in degrees per datum.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     rotateAnchor: {
       control: {
-        type: "object"
+        type: "object",
       },
       description: "The anchor point around which to rotate the text box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "[number, number] | function"
-      }
+        summary: "[number, number] | function",
+      },
     },
     select: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The SVG container element as a d3 selector or DOM element. If not specified, an SVG element will be added to the page.",
+      description:
+        "The SVG container element as a d3 selector or DOM element. If not specified, an SVG element will be added to the page.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "string | htmlelement"
-      }
+        summary: "string | htmlelement",
+      },
     },
     shape: {
       control: {
-        type: "radio"
+        type: "radio",
       },
-      description: "The outline text wraps within, `\"square\"` or `\"circle\"`, or a `(datum, index)` accessor.",
-      options: [
-        "circle",
-        "square"
-      ],
+      description:
+        'The outline text wraps within, `"square"` or `"circle"`, or a `(datum, index)` accessor.',
+      options: ["circle", "square"],
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "\"circle\" | \"square\" | function"
-      }
+        summary: '"circle" | "square" | function',
+      },
     },
     shapeConfig: {
       control: {},
-      description: "Configuration object with key/value pairs applied as method calls on each shape.",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "d3plusconfig"
-      }
+        summary: "d3plusconfig",
+      },
     },
     split: {
       control: {},
-      description: "The word split function: given a string, returns it split into an array of words.",
+      description:
+        "The word split function: given a string, returns it split into an array of words.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     text: {
       control: {
-        type: "text"
+        type: "text",
       },
       description: "The text content for each box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     textAnchor: {
       control: {},
       description: "SVG `text-anchor` for labels.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     translate: {
       control: {},
-      description: "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
+      description:
+        "Defines how informational text strings should be displayed. By default, this function will try to find the string in question (which is the first argument provided to this function) inside of an internally managed translation Object. If you'd like to override to use custom text, simply pass this method your own custom formatting function.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: true,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     verticalAlign: {
       control: {},
-      description: "Label vertical-align (\"top\"/\"middle\"/\"bottom\").",
+      description: 'Label vertical-align ("top"/"middle"/"bottom").',
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "constoraccessor"
-      }
+        summary: "constoraccessor",
+      },
     },
     width: {
       control: {
-        type: "number"
+        type: "number",
       },
       description: "The width for each text box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     x: {
       control: {
-        type: "number"
+        type: "number",
       },
       description: "The x position (left edge) for each text box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     y: {
       control: {
-        type: "number"
+        type: "number",
       },
       description: "The y position (top edge) for each text box.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
-    }
-  }
+        summary: "number | function",
+      },
+    },
+  },
 );

@@ -16,7 +16,9 @@ import type {VizInstance} from "../viz/vizTypes.js";
 /** Tooltip rows for a bar: its width and width share (with `barWidth`), then its stack share. */
 function barTooltipConfig(viz: VizInstance) {
   const share = stackShareTooltipConfig(viz);
-  return {tbody: (d: DataPoint) => [...barWidthTooltipRows(viz, d), ...share.tbody()]};
+  return {
+    tbody: (d: DataPoint) => [...barWidthTooltipRows(viz, d), ...share.tbody()],
+  };
 }
 
 export const barChartDef: ChartDefinition = {

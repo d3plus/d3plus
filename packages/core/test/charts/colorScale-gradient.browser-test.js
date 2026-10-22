@@ -111,11 +111,17 @@ const paintedFn = src =>
           .filter(r => (r.getAttribute("fill") || "").startsWith("url(#"))
           .map(r => {
             const b = r.getBoundingClientRect();
-            return {x: b.x - host.x, y: b.y - host.y, width: b.width, height: b.height};
+            return {
+              x: b.x - host.x,
+              y: b.y - host.y,
+              width: b.width,
+              height: b.height,
+            };
           });
         resolve({
           rects,
-          svgs: document.querySelectorAll("#viz .d3plus-viz-colorScale svg").length,
+          svgs: document.querySelectorAll("#viz .d3plus-viz-colorScale svg")
+            .length,
           placement: viz._insetPlacement || null,
         });
       });
@@ -154,7 +160,10 @@ it("smooth-gradient ColorScale drawn inside the chart paints a single gradient b
   const [r] = fp.rects;
   const p = fp.placement;
   assert.ok(
-    r.x >= p.x && r.y >= p.y && r.x + r.width <= p.x + p.width && r.y + r.height <= p.y + p.height,
+    r.x >= p.x &&
+      r.y >= p.y &&
+      r.x + r.width <= p.x + p.width &&
+      r.y + r.height <= p.y + p.height,
     `gradient ${JSON.stringify(r)} sits inside its box ${JSON.stringify(p)}`,
   );
 });

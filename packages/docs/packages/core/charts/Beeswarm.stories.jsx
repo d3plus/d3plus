@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a beeswarm from an array of data: each circle sits at its value\nalong the axis set by x (or y), packed beside its neighbors so none\noverlap. Set the other axis to a categorical key to draw one swarm per\ncategory. Any Plot can switch between a scatter and a beeswarm with\nswarm; see swarmConfig for spacing and overflow.",
+        component:
+          "Creates a beeswarm from an array of data: each circle sits at its value\nalong the axis set by x (or y), packed beside its neighbors so none\noverlap. Set the other axis to a categorical key to draw one swarm per\ncategory. Any Plot can switch between a scatter and a beeswarm with\nswarm; see swarmConfig for spacing and overflow.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Beeswarm config={configify(args, argTypes)} />;
-  
+const Template = args => <Beeswarm config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -54,7 +55,15 @@ BasicExample.args = {
   groupBy: "country",
   x: "Life Expectancy",
 };
-BasicExample.parameters = {controls: {include: ["x", "swarmConfig"]}, docs: {description: {story: "Each circle sits at its value along `x` and is nudged up or down just far enough to clear its neighbors, so dense values pile up into a shape that reads like a distribution while every point stays visible. The layout is deterministic: the same data always draws the same swarm."}}};
+BasicExample.parameters = {
+  controls: {include: ["x", "swarmConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each circle sits at its value along `x` and is nudged up or down just far enough to clear its neighbors, so dense values pile up into a shape that reads like a distribution while every point stays visible. The layout is deterministic: the same data always draws the same swarm.",
+    },
+  },
+};
 
 export const CategoryLanes = Template.bind({});
 CategoryLanes.args = {
@@ -64,7 +73,15 @@ CategoryLanes.args = {
   x: "Life Expectancy",
   y: "region",
 };
-CategoryLanes.parameters = {controls: {include: ["x", "y", "color"]}, docs: {description: {story: "Set the other axis to a categorical key and each category gets its own swarm, centered on its band. Swap `x` and `y` for vertical swarms."}}};
+CategoryLanes.parameters = {
+  controls: {include: ["x", "y", "color"]},
+  docs: {
+    description: {
+      story:
+        "Set the other axis to a categorical key and each category gets its own swarm, centered on its band. Swap `x` and `y` for vertical swarms.",
+    },
+  },
+};
 
 export const VerticalLanes = Template.bind({});
 VerticalLanes.args = {
@@ -74,7 +91,15 @@ VerticalLanes.args = {
   x: "region",
   y: "Life Expectancy",
 };
-VerticalLanes.parameters = {controls: {include: ["x", "y"]}, docs: {description: {story: "With a numeric `y` and a categorical `x`, the swarms run vertically."}}};
+VerticalLanes.parameters = {
+  controls: {include: ["x", "y"]},
+  docs: {
+    description: {
+      story:
+        "With a numeric `y` and a categorical `x`, the swarms run vertically.",
+    },
+  },
+};
 
 export const SizedCircles = Template.bind({});
 SizedCircles.args = {
@@ -85,27 +110,40 @@ SizedCircles.args = {
   x: "GDP per Capita",
   y: "region",
 };
-SizedCircles.parameters = {controls: {include: ["size", "sizeMin", "sizeMax", "swarmConfig"]}, docs: {description: {story: "A `size` accessor scales each circle, and the packing respects every radius. When a swarm is too tall for its band, `swarmConfig.overflow` decides what gives: `\"shrink\"` (default) scales all circles down together, `\"clamp\"` keeps their sizes and holds the outliers at the band's edge, and `\"visible\"` lets the swarm spill over."}}};
+SizedCircles.parameters = {
+  controls: {include: ["size", "sizeMin", "sizeMax", "swarmConfig"]},
+  docs: {
+    description: {
+      story:
+        'A `size` accessor scales each circle, and the packing respects every radius. When a swarm is too tall for its band, `swarmConfig.overflow` decides what gives: `"shrink"` (default) scales all circles down together, `"clamp"` keeps their sizes and holds the outliers at the band\'s edge, and `"visible"` lets the swarm spill over.',
+    },
+  },
+};
 
 export const ScatterToSwarm = {
   render: () => {
     const [swarm, setSwarm] = React.useState(false);
     return (
       <div>
-        <button onClick={() => setSwarm(!swarm)} style={{marginBottom: "12px", font: "inherit", padding: "4px 12px"}}>
+        <button
+          onClick={() => setSwarm(!swarm)}
+          style={{marginBottom: "12px", font: "inherit", padding: "4px 12px"}}
+        >
           {swarm ? "Show scatter" : "Show beeswarm"}
         </button>
         <div style={{height: "400px"}}>
-          <Plot config={{
-            data: countries,
-            groupBy: "country",
-            color: "region",
-            x: "GDP per Capita",
-            y: "Life Expectancy",
-            swarm,
-            duration: 800,
-            shapeConfig: {Circle: {trail: false}},
-          }} />
+          <Plot
+            config={{
+              data: countries,
+              groupBy: "country",
+              color: "region",
+              x: "GDP per Capita",
+              y: "Life Expectancy",
+              swarm,
+              duration: 800,
+              shapeConfig: {Circle: {trail: false}},
+            }}
+          />
         </div>
       </div>
     );
@@ -113,8 +151,12 @@ export const ScatterToSwarm = {
   parameters: {
     controls: {disable: true},
     docs: {
-      description: {story: "`swarm` is a Plot option, so one chart can switch between a scatter and a beeswarm. Each circle keeps its id, so it glides from its scatter position into the swarm and back. With `swarm` on, the y values are ignored and the y axis steps aside. Plot circles leave motion trails when they move; `shapeConfig.Circle.trail: false` turns them off for a clean glide."},
-      source: {code: `import {Plot} from "@d3plus/react";
+      description: {
+        story:
+          "`swarm` is a Plot option, so one chart can switch between a scatter and a beeswarm. Each circle keeps its id, so it glides from its scatter position into the swarm and back. With `swarm` on, the y values are ignored and the y axis steps aside. Plot circles leave motion trails when they move; `shapeConfig.Circle.trail: false` turns them off for a clean glide.",
+      },
+      source: {
+        code: `import {Plot} from "@d3plus/react";
 import {useState} from "react";
 
 const data = ${countries.__source};
@@ -138,7 +180,8 @@ function ScatterToSwarm() {
       }} />
     </div>
   );
-}`}
-    }
-  }
+}`,
+      },
+    },
+  },
 };

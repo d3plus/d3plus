@@ -15,9 +15,20 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}, {id: "z", value: 1}];
-        const viz = new window.d3plus.Treemap().select("#s").zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
-        const visible = el => Boolean(el) && parseFloat(window.getComputedStyle(el).opacity) > 0.5;
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+          {id: "z", value: 1},
+        ];
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
+        const visible = el =>
+          Boolean(el) && parseFloat(window.getComputedStyle(el).opacity) > 0.5;
         viz.render(() => {
           const before = document.querySelector("#s .d3plus-minimap");
           const beforeVisible = visible(before);
@@ -26,18 +37,25 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
 
           const after = document.querySelector("#s .d3plus-minimap");
           const afterVisible = visible(after);
-          const controls = [...document.querySelectorAll("#s .zoom-control")].map(b => b.getBoundingClientRect());
+          const controls = [
+            ...document.querySelectorAll("#s .zoom-control"),
+          ].map(b => b.getBoundingClientRect());
           const mmRect = after.getBoundingClientRect();
-          const viewport = document.querySelector("#s .d3plus-minimap-viewport").getBoundingClientRect();
+          const viewport = document
+            .querySelector("#s .d3plus-minimap-viewport")
+            .getBoundingClientRect();
 
           resolve({
             beforeVisible,
             afterVisible,
-            controlsWidth: Math.max(...controls.map(b => b.right)) - Math.min(...controls.map(b => b.left)),
+            controlsWidth:
+              Math.max(...controls.map(b => b.right)) -
+              Math.min(...controls.map(b => b.left)),
             controlsBottom: Math.max(...controls.map(b => b.bottom)),
             mmWidth: mmRect.width,
             mmTop: mmRect.top,
-            svgTop: document.querySelector("#s svg").getBoundingClientRect().top,
+            svgTop: document.querySelector("#s svg").getBoundingClientRect()
+              .top,
             viewportFrac: viewport.width / mmRect.width,
             scale: viz._zoomTransform.scale,
           });
@@ -45,11 +63,24 @@ it("minimap is hidden at 1x and appears once zoomed in, sized to match the zoom-
       }),
   );
 
-  assert.strictEqual(out.beforeVisible, false, "minimap hidden at the default 1x view");
+  assert.strictEqual(
+    out.beforeVisible,
+    false,
+    "minimap hidden at the default 1x view",
+  );
   assert.strictEqual(out.afterVisible, true, "minimap visible once zoomed in");
-  assert.ok(Math.abs(out.mmWidth - out.controlsWidth) < 20, `minimap width matches the zoom-control panel's width (mm=${out.mmWidth}, controls=${out.controlsWidth})`);
-  assert.ok(out.mmTop >= out.controlsBottom - out.svgTop + (out.svgTop - 1), "minimap sits underneath the zoom-control panel");
-  assert.ok(Math.abs(out.viewportFrac - 1 / out.scale) < 0.05, "viewport box is sized to 1/scale of the minimap");
+  assert.ok(
+    Math.abs(out.mmWidth - out.controlsWidth) < 20,
+    `minimap width matches the zoom-control panel's width (mm=${out.mmWidth}, controls=${out.controlsWidth})`,
+  );
+  assert.ok(
+    out.mmTop >= out.controlsBottom - out.svgTop + (out.svgTop - 1),
+    "minimap sits underneath the zoom-control panel",
+  );
+  assert.ok(
+    Math.abs(out.viewportFrac - 1 / out.scale) < 0.05,
+    "viewport box is sized to 1/scale of the minimap",
+  );
 });
 
 it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over it zooms", async function () {
@@ -57,8 +88,18 @@ it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over 
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}, {id: "z", value: 1}];
-        const viz = new window.d3plus.Treemap().select("#s").zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+          {id: "z", value: 1},
+        ];
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
         viz.render(() => {
           document.querySelector("#s .zoom-in").click();
           document.querySelector("#s .zoom-in").click();
@@ -66,11 +107,18 @@ it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over 
 
           const vp = document.querySelector("#s .d3plus-minimap-viewport");
           const box = vp.getBoundingClientRect();
-          const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+          const cx = box.left + box.width / 2,
+            cy = box.top + box.height / 2;
           const at = (type, x, y) =>
-            vp.dispatchEvent(new window.PointerEvent(type, {
-              bubbles: true, cancelable: true, pointerId: 1, clientX: x, clientY: y,
-            }));
+            vp.dispatchEvent(
+              new window.PointerEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                pointerId: 1,
+                clientX: x,
+                clientY: y,
+              }),
+            );
           at("pointerdown", cx, cy);
           at("pointermove", cx + 8, cy + 5);
           at("pointerup", cx + 8, cy + 5);
@@ -78,23 +126,44 @@ it("dragging the minimap's viewport box pans the chart, and Cmd/Ctrl+wheel over 
 
           const mm = document.querySelector("#s .d3plus-minimap");
           const mmBox = mm.getBoundingClientRect();
-          mm.dispatchEvent(new window.WheelEvent("wheel", {
-            bubbles: true, cancelable: true,
-            clientX: mmBox.left + mmBox.width / 2, clientY: mmBox.top + mmBox.height / 2,
-            deltaY: -200, ctrlKey: true,
-          }));
+          mm.dispatchEvent(
+            new window.WheelEvent("wheel", {
+              bubbles: true,
+              cancelable: true,
+              clientX: mmBox.left + mmBox.width / 2,
+              clientY: mmBox.top + mmBox.height / 2,
+              deltaY: -200,
+              ctrlKey: true,
+            }),
+          );
           const afterWheel = {...viz._zoomTransform};
-          const label = document.querySelector("#s .d3plus-minimap-label").textContent;
+          const label = document.querySelector(
+            "#s .d3plus-minimap-label",
+          ).textContent;
 
           resolve({beforeDrag, afterDrag, afterWheel, label});
         });
       }),
   );
 
-  assert.strictEqual(out.beforeDrag.scale, out.afterDrag.scale, "dragging the viewport box pans without changing scale");
-  assert.ok(out.beforeDrag.x !== out.afterDrag.x || out.beforeDrag.y !== out.afterDrag.y, "dragging the viewport box changed the pan position");
-  assert.ok(out.afterWheel.scale > out.afterDrag.scale, "Cmd/Ctrl + wheel over the minimap zoomed in further");
-  assert.ok(/^\d+(\.\d)?x$/.test(out.label), `zoom label reads as "Nx" (got "${out.label}")`);
+  assert.strictEqual(
+    out.beforeDrag.scale,
+    out.afterDrag.scale,
+    "dragging the viewport box pans without changing scale",
+  );
+  assert.ok(
+    out.beforeDrag.x !== out.afterDrag.x ||
+      out.beforeDrag.y !== out.afterDrag.y,
+    "dragging the viewport box changed the pan position",
+  );
+  assert.ok(
+    out.afterWheel.scale > out.afterDrag.scale,
+    "Cmd/Ctrl + wheel over the minimap zoomed in further",
+  );
+  assert.ok(
+    /^\d+(\.\d)?x$/.test(out.label),
+    `zoom label reads as "Nx" (got "${out.label}")`,
+  );
 });
 
 it("clicking the minimap's outer box jumps there, and double-clicking resets the zoom", async function () {
@@ -102,8 +171,18 @@ it("clicking the minimap's outer box jumps there, and double-clicking resets the
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}, {id: "z", value: 1}];
-        const viz = new window.d3plus.Treemap().select("#s").zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+          {id: "z", value: 1},
+        ];
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
         viz.render(() => {
           document.querySelector("#s .zoom-in").click();
           document.querySelector("#s .zoom-in").click();
@@ -113,11 +192,26 @@ it("clicking the minimap's outer box jumps there, and double-clicking resets the
           const box = mm.getBoundingClientRect();
           // A corner, well away from the (centered) viewport box, so the
           // click lands on the background rather than the draggable box.
-          const x = box.left + box.width * 0.9, y = box.top + box.height * 0.1;
-          mm.dispatchEvent(new window.MouseEvent("click", {bubbles: true, cancelable: true, clientX: x, clientY: y}));
+          const x = box.left + box.width * 0.9,
+            y = box.top + box.height * 0.1;
+          mm.dispatchEvent(
+            new window.MouseEvent("click", {
+              bubbles: true,
+              cancelable: true,
+              clientX: x,
+              clientY: y,
+            }),
+          );
           const afterClick = {...viz._zoomTransform};
 
-          mm.dispatchEvent(new window.MouseEvent("dblclick", {bubbles: true, cancelable: true, clientX: x, clientY: y}));
+          mm.dispatchEvent(
+            new window.MouseEvent("dblclick", {
+              bubbles: true,
+              cancelable: true,
+              clientX: x,
+              clientY: y,
+            }),
+          );
           const afterDblClick = {...viz._zoomTransform};
 
           resolve({beforeClick, afterClick, afterDblClick});
@@ -125,9 +219,21 @@ it("clicking the minimap's outer box jumps there, and double-clicking resets the
       }),
   );
 
-  assert.strictEqual(out.beforeClick.scale, out.afterClick.scale, "clicking the background re-centers without changing scale");
-  assert.ok(out.beforeClick.x !== out.afterClick.x || out.beforeClick.y !== out.afterClick.y, "clicking the background jumped the pan position");
-  assert.deepStrictEqual(out.afterDblClick, {x: 0, y: 0, scale: 1}, "double-clicking resets to the identity transform");
+  assert.strictEqual(
+    out.beforeClick.scale,
+    out.afterClick.scale,
+    "clicking the background re-centers without changing scale",
+  );
+  assert.ok(
+    out.beforeClick.x !== out.afterClick.x ||
+      out.beforeClick.y !== out.afterClick.y,
+    "clicking the background jumped the pan position",
+  );
+  assert.deepStrictEqual(
+    out.afterDblClick,
+    {x: 0, y: 0, scale: 1},
+    "double-clicking resets to the identity transform",
+  );
 });
 
 it("arrow keys pan the chart when the viewport box is focused", async function () {
@@ -135,8 +241,18 @@ it("arrow keys pan the chart when the viewport box is focused", async function (
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}, {id: "z", value: 1}];
-        const viz = new window.d3plus.Treemap().select("#s").zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+          {id: "z", value: 1},
+        ];
+        const viz = new window.d3plus.Treemap()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
         viz.render(() => {
           document.querySelector("#s .zoom-in").click();
           const before = {...viz._zoomTransform};
@@ -146,26 +262,59 @@ it("arrow keys pan the chart when the viewport box is focused", async function (
             focusable: vp.tabIndex === 0,
             before,
             after: (() => {
-              vp.dispatchEvent(new window.KeyboardEvent("keydown", {bubbles: true, cancelable: true, key: "ArrowRight"}));
+              vp.dispatchEvent(
+                new window.KeyboardEvent("keydown", {
+                  bubbles: true,
+                  cancelable: true,
+                  key: "ArrowRight",
+                }),
+              );
               return {...viz._zoomTransform};
             })(),
             shiftAfter: (() => {
-              vp.dispatchEvent(new window.KeyboardEvent("keydown", {bubbles: true, cancelable: true, key: "ArrowDown", shiftKey: true}));
+              vp.dispatchEvent(
+                new window.KeyboardEvent("keydown", {
+                  bubbles: true,
+                  cancelable: true,
+                  key: "ArrowDown",
+                  shiftKey: true,
+                }),
+              );
               return {...viz._zoomTransform};
             })(),
             ignoresOtherKeys: (() => {
               const before2 = {...viz._zoomTransform};
-              vp.dispatchEvent(new window.KeyboardEvent("keydown", {bubbles: true, cancelable: true, key: "a"}));
-              return JSON.stringify(before2) === JSON.stringify(viz._zoomTransform);
+              vp.dispatchEvent(
+                new window.KeyboardEvent("keydown", {
+                  bubbles: true,
+                  cancelable: true,
+                  key: "a",
+                }),
+              );
+              return (
+                JSON.stringify(before2) === JSON.stringify(viz._zoomTransform)
+              );
             })(),
           });
         });
       }),
   );
 
-  assert.strictEqual(out.focusable, true, "the viewport box is keyboard-focusable");
-  assert.strictEqual(out.before.scale, out.after.scale, "an arrow key pans without changing scale");
-  assert.notStrictEqual(out.before.x, out.after.x, "ArrowRight moved the pan position");
+  assert.strictEqual(
+    out.focusable,
+    true,
+    "the viewport box is keyboard-focusable",
+  );
+  assert.strictEqual(
+    out.before.scale,
+    out.after.scale,
+    "an arrow key pans without changing scale",
+  );
+  assert.notStrictEqual(
+    out.before.x,
+    out.after.x,
+    "ArrowRight moved the pan position",
+  );
   assert.ok(out.ignoresOtherKeys, "a non-arrow key is ignored");
 });
 
@@ -174,7 +323,10 @@ it("minimapClassName is applied to the outer box, viewport box, and label", asyn
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}];
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+        ];
         const viz = new window.d3plus.Treemap()
           .select("#s")
           .minimapClassName("my-mm")
@@ -187,16 +339,26 @@ it("minimapClassName is applied to the outer box, viewport box, and label", asyn
           document.querySelector("#s .zoom-in").click();
           resolve({
             outer: document.querySelector("#s .d3plus-minimap").className,
-            viewport: document.querySelector("#s .d3plus-minimap-viewport").className,
+            viewport: document.querySelector("#s .d3plus-minimap-viewport")
+              .className,
             label: document.querySelector("#s .d3plus-minimap-label").className,
           });
         });
       }),
   );
 
-  assert.ok(out.outer.includes("my-mm"), `outer box carries the custom class (got "${out.outer}")`);
-  assert.ok(out.viewport.includes("my-mm"), `viewport box carries the custom class (got "${out.viewport}")`);
-  assert.ok(out.label.includes("my-mm"), `label carries the custom class (got "${out.label}")`);
+  assert.ok(
+    out.outer.includes("my-mm"),
+    `outer box carries the custom class (got "${out.outer}")`,
+  );
+  assert.ok(
+    out.viewport.includes("my-mm"),
+    `viewport box carries the custom class (got "${out.viewport}")`,
+  );
+  assert.ok(
+    out.label.includes("my-mm"),
+    `label carries the custom class (got "${out.label}")`,
+  );
 });
 
 it("minimap(false) hides the panel even while zoomed, and zoom(false) implies no minimap either", async function () {
@@ -204,9 +366,26 @@ it("minimap(false) hides the panel even while zoomed, and zoom(false) implies no
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "x", value: 3}, {id: "y", value: 2}];
-        const a = new window.d3plus.Treemap().select("#a").minimap(false).zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
-        const b = new window.d3plus.Treemap().select("#b").zoom(false).zoomMax(16).data(data).groupBy("id").sum("value").duration(0);
+        const data = [
+          {id: "x", value: 3},
+          {id: "y", value: 2},
+        ];
+        const a = new window.d3plus.Treemap()
+          .select("#a")
+          .minimap(false)
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
+        const b = new window.d3plus.Treemap()
+          .select("#b")
+          .zoom(false)
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .sum("value")
+          .duration(0);
         a.render(() => {
           document.querySelector("#a .zoom-in").click();
           b.render(() => {
@@ -219,8 +398,16 @@ it("minimap(false) hides the panel even while zoomed, and zoom(false) implies no
       }),
   );
 
-  assert.strictEqual(out.aPanel, 0, "minimap(false) renders no minimap panel, even while zoomed in");
-  assert.strictEqual(out.bPanel, 0, "zoom(false) implies no minimap panel either");
+  assert.strictEqual(
+    out.aPanel,
+    0,
+    "minimap(false) renders no minimap panel, even while zoomed in",
+  );
+  assert.strictEqual(
+    out.bPanel,
+    0,
+    "zoom(false) implies no minimap panel either",
+  );
 });
 
 it("the minimap works on a Plot-family chart, whose zoom rescales axes rather than the picture", async function () {
@@ -230,15 +417,25 @@ it("the minimap works on a Plot-family chart, whose zoom rescales axes rather th
       new Promise(resolve => {
         const data = [];
         for (let x = 0; x < 10; x++) data.push({id: "a", x, y: 10 + x * 2});
-        const viz = new window.d3plus.LinePlot().select("#s").zoomMax(16).data(data).groupBy("id").x("x").y("y").duration(0);
-        const visible = el => Boolean(el) && parseFloat(window.getComputedStyle(el).opacity) > 0.5;
+        const viz = new window.d3plus.LinePlot()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .x("x")
+          .y("y")
+          .duration(0);
+        const visible = el =>
+          Boolean(el) && parseFloat(window.getComputedStyle(el).opacity) > 0.5;
         viz.render(() => {
           const before = document.querySelector("#s .d3plus-minimap");
           const beforeVisible = visible(before);
           document.querySelector("#s .zoom-in").click();
           const after = document.querySelector("#s .d3plus-minimap");
           const rect = after.getBoundingClientRect();
-          const viewport = document.querySelector("#s .d3plus-minimap-viewport").getBoundingClientRect();
+          const viewport = document
+            .querySelector("#s .d3plus-minimap-viewport")
+            .getBoundingClientRect();
           resolve({
             beforeVisible,
             afterVisible: visible(after),
@@ -250,11 +447,26 @@ it("the minimap works on a Plot-family chart, whose zoom rescales axes rather th
       }),
   );
 
-  assert.strictEqual(out.beforeVisible, false, "minimap hidden at 1x on a Plot chart too");
-  assert.strictEqual(out.afterVisible, true, "minimap appears once a Plot chart is zoomed in");
+  assert.strictEqual(
+    out.beforeVisible,
+    false,
+    "minimap hidden at 1x on a Plot chart too",
+  );
+  assert.strictEqual(
+    out.afterVisible,
+    true,
+    "minimap appears once a Plot chart is zoomed in",
+  );
   assert.ok(out.hasSize, "minimap has a real size");
-  assert.ok(Math.abs(out.viewportFrac - 0.5) < 0.05, `viewport box reflects the live d3-zoom scale (2x), even though Plot clears the picture transform (got ${out.viewportFrac})`);
-  assert.strictEqual(out.picture, undefined, "Plot's zoom rescales axes — no picture-zoom transform");
+  assert.ok(
+    Math.abs(out.viewportFrac - 0.5) < 0.05,
+    `viewport box reflects the live d3-zoom scale (2x), even though Plot clears the picture transform (got ${out.viewportFrac})`,
+  );
+  assert.strictEqual(
+    out.picture,
+    undefined,
+    "Plot's zoom rescales axes — no picture-zoom transform",
+  );
 });
 
 it("on a Plot that zooms only one axis, the viewport box shrinks along that axis alone", async function () {
@@ -262,9 +474,22 @@ it("on a Plot that zooms only one axis, the viewport box shrinks along that axis
     '<div id="s" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "a", value: 3}, {id: "b", value: 2}, {id: "c", value: 1}];
-        const viz = new window.d3plus.BarChart().select("#s").zoomMax(16).data(data).groupBy("id").x("id").y("value").duration(0);
-        const live = () => ({...(viz._zoomEventTarget || viz._container).node().__zoom});
+        const data = [
+          {id: "a", value: 3},
+          {id: "b", value: 2},
+          {id: "c", value: 1},
+        ];
+        const viz = new window.d3plus.BarChart()
+          .select("#s")
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .x("id")
+          .y("value")
+          .duration(0);
+        const live = () => ({
+          ...(viz._zoomEventTarget || viz._container).node().__zoom,
+        });
         viz.render(() => {
           document.querySelector("#s .zoom-in").click();
           const outer = document.querySelector("#s .d3plus-minimap");
@@ -273,11 +498,18 @@ it("on a Plot that zooms only one axis, the viewport box shrinks along that axis
           const box = vp.getBoundingClientRect();
           const beforeDrag = live();
 
-          const cx = box.left + box.width / 2, cy = box.top + box.height / 2;
+          const cx = box.left + box.width / 2,
+            cy = box.top + box.height / 2;
           const at = (type, x, y) =>
-            vp.dispatchEvent(new window.PointerEvent(type, {
-              bubbles: true, cancelable: true, pointerId: 1, clientX: x, clientY: y,
-            }));
+            vp.dispatchEvent(
+              new window.PointerEvent(type, {
+                bubbles: true,
+                cancelable: true,
+                pointerId: 1,
+                clientX: x,
+                clientY: y,
+              }),
+            );
           at("pointerdown", cx, cy);
           at("pointermove", cx + 8, cy + 5);
           at("pointerup", cx + 8, cy + 5);
@@ -294,11 +526,28 @@ it("on a Plot that zooms only one axis, the viewport box shrinks along that axis
       }),
   );
 
-  assert.ok(Math.abs(out.widthFrac - 1) < 0.05, `viewport box keeps the minimap's full width (got ${out.widthFrac})`);
-  assert.ok(Math.abs(out.heightFrac - 0.5) < 0.05, `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`);
-  assert.ok(Math.abs(out.left) < 1, `viewport box is flush with the minimap's left edge (got ${out.left})`);
-  assert.strictEqual(out.afterDrag.x, out.beforeDrag.x, "dragging doesn't pan the un-zoomed x dimension");
-  assert.notStrictEqual(out.afterDrag.y, out.beforeDrag.y, "dragging pans the zoomed y dimension");
+  assert.ok(
+    Math.abs(out.widthFrac - 1) < 0.05,
+    `viewport box keeps the minimap's full width (got ${out.widthFrac})`,
+  );
+  assert.ok(
+    Math.abs(out.heightFrac - 0.5) < 0.05,
+    `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`,
+  );
+  assert.ok(
+    Math.abs(out.left) < 1,
+    `viewport box is flush with the minimap's left edge (got ${out.left})`,
+  );
+  assert.strictEqual(
+    out.afterDrag.x,
+    out.beforeDrag.x,
+    "dragging doesn't pan the un-zoomed x dimension",
+  );
+  assert.notStrictEqual(
+    out.afterDrag.y,
+    out.beforeDrag.y,
+    "dragging pans the zoomed y dimension",
+  );
 });
 
 it("on a Plot that zooms both axes, the viewport box shrinks along both", async function () {
@@ -308,16 +557,37 @@ it("on a Plot that zooms both axes, the viewport box shrinks along both", async 
       new Promise(resolve => {
         const data = [];
         for (let x = 0; x < 10; x++) data.push({id: "a", x, y: 10 + x * 2});
-        const viz = new window.d3plus.LinePlot().select("#s").discrete(false).zoomMax(16).data(data).groupBy("id").x("x").y("y").duration(0);
+        const viz = new window.d3plus.LinePlot()
+          .select("#s")
+          .discrete(false)
+          .zoomMax(16)
+          .data(data)
+          .groupBy("id")
+          .x("x")
+          .y("y")
+          .duration(0);
         viz.render(() => {
           document.querySelector("#s .zoom-in").click();
-          const rect = document.querySelector("#s .d3plus-minimap").getBoundingClientRect();
-          const box = document.querySelector("#s .d3plus-minimap-viewport").getBoundingClientRect();
-          resolve({widthFrac: box.width / rect.width, heightFrac: box.height / rect.height});
+          const rect = document
+            .querySelector("#s .d3plus-minimap")
+            .getBoundingClientRect();
+          const box = document
+            .querySelector("#s .d3plus-minimap-viewport")
+            .getBoundingClientRect();
+          resolve({
+            widthFrac: box.width / rect.width,
+            heightFrac: box.height / rect.height,
+          });
         });
       }),
   );
 
-  assert.ok(Math.abs(out.widthFrac - 0.5) < 0.05, `viewport box width reflects the 2x x-axis zoom (got ${out.widthFrac})`);
-  assert.ok(Math.abs(out.heightFrac - 0.5) < 0.05, `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`);
+  assert.ok(
+    Math.abs(out.widthFrac - 0.5) < 0.05,
+    `viewport box width reflects the 2x x-axis zoom (got ${out.widthFrac})`,
+  );
+  assert.ok(
+    Math.abs(out.heightFrac - 0.5) < 0.05,
+    `viewport box height reflects the 2x y-axis zoom (got ${out.heightFrac})`,
+  );
 });

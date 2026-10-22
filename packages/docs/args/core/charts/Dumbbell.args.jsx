@@ -6,71 +6,72 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Dumbbell as D3plusDumbbell} from "@d3plus/react";
-export const Dumbbell = ({ config }) => <D3plusDumbbell config={config} />;
+export const Dumbbell = ({config}) => <D3plusDumbbell config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in Dumbbell
    */
   Object.keys(plotArgTypes)
-    .filter(k => !k.match(/^(shape|barPadding|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig|swarm|swarmConfig|baseline|baselineBreak)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .filter(
+      k =>
+        !k.match(
+          /^(shape|barPadding|groupPadding|stacked|stackOffset|stackOrder|lineLabels|lineMarkers|lineMarkerConfig|labelConnectorConfig|confidence|confidenceConfig|swarm|swarmConfig|baseline|baselineBreak)$/,
+        ),
+    )
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * Dumbbell-specific methods
    */
-  
+
   {
     discrete: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "y",
-      description: "Sets orientation of main category axis.\n\nThe category axis: `\"y\"` (default) draws horizontal dumbbells, `\"x\"` vertical ones.",
-      options: [
-        "x",
-        "y"
-      ],
+      description:
+        'Sets orientation of main category axis.\n\nThe category axis: `"y"` (default) draws horizontal dumbbells, `"x"` vertical ones.',
+      options: ["x", "y"],
       table: {
         defaultValue: {
-          summary: "y"
-        }
+          summary: "y",
+        },
       },
       type: {
         required: false,
-        summary: "\"x\" | \"y\""
-      }
+        summary: '"x" | "y"',
+      },
     },
     gapSort: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: false,
-      description: "Orders the categories by their gap, the distance between each category's smallest and largest value: `\"descending\"` puts the widest gap first (at the top of horizontal dumbbells, at the left of vertical ones), `\"ascending\"` the narrowest. `false` (default) keeps the category axis's own order. A `ySort` (or `xSort`) comparator on the category axis takes precedence.",
-      options: [
-        false,
-        "ascending",
-        "descending"
-      ],
+      description:
+        'Orders the categories by their gap, the distance between each category\'s smallest and largest value: `"descending"` puts the widest gap first (at the top of horizontal dumbbells, at the left of vertical ones), `"ascending"` the narrowest. `false` (default) keeps the category axis\'s own order. A `ySort` (or `xSort`) comparator on the category axis takes precedence.',
+      options: [false, "ascending", "descending"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "false | \"ascending\" | \"descending\""
-      }
+        summary: 'false | "ascending" | "descending"',
+      },
     },
     shapeConfig: {
-      description: "Configuration object with key/value pairs applied as method calls on each shape.\n\nPoints are styled by `shapeConfig.Circle` (`r`, `fill`, …) and connectors by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeLinecap`, …; a 3px gray line by default).",
+      description:
+        "Configuration object with key/value pairs applied as method calls on each shape.\n\nPoints are styled by `shapeConfig.Circle` (`r`, `fill`, …) and connectors by `shapeConfig.Line` (`stroke`, `strokeWidth`, `strokeLinecap`, …; a 3px gray line by default).",
       table: {
         defaultValue: {
-          summary: "{Circle: {label: false, trail: false}, Line: {label: false, stroke: () => connectorStroke(viz), strokeWidth: 3}}"
-        }
-      }
-    }
-  }
+          summary:
+            "{Circle: {label: false, trail: false}, Line: {label: false, stroke: () => connectorStroke(viz), strokeWidth: 3}}",
+        },
+      },
+    },
+  },
 );

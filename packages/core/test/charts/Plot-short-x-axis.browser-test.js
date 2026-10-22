@@ -183,7 +183,12 @@ it("a short LinePlot's line starting bottom-left never touches the end labels", 
   const [r] = await renderCharts([{src: LINE}]);
   assertNoOverlap(r, "LinePlot");
   // The line's lowest point (x = 0) sits on the plot's bottom edge.
-  near(Math.max(...r.shapeBoxes.map(b => b.bottom)), r.plot.bottom, 2, "line reaches the plot bottom");
+  near(
+    Math.max(...r.shapeBoxes.map(b => b.bottom)),
+    r.plot.bottom,
+    2,
+    "line reaches the plot bottom",
+  );
 });
 
 it("the end labels sit the axis's label padding below the plot", async function () {
@@ -204,12 +209,22 @@ it("the end labels sit the axis's label padding below the plot", async function 
       );
   const gap = r => r.labelBoxes[0].top - r.plot.bottom;
   near(gap(base), 5, 1, "default rendered gap");
-  near(gap(wide) - gap(base), 10, 0.5, "the rendered gap follows labelConfig.padding");
+  near(
+    gap(wide) - gap(base),
+    10,
+    0.5,
+    "the rendered gap follows labelConfig.padding",
+  );
   assert.ok(
     wide.area.height < base.area.height,
     "more padding claims more height",
   );
-  near(base.area.height - wide.area.height, 10, 0, "the plot gives up exactly the extra padding");
+  near(
+    base.area.height - wide.area.height,
+    10,
+    0,
+    "the plot gives up exactly the extra padding",
+  );
   assertNoOverlap(wide, "wide padding");
 });
 
@@ -217,7 +232,12 @@ it("the plot claims the end labels' measured text height", async function () {
   const big = `lib => (${LINE})(lib).xConfig({shapeConfig: {labelConfig: {fontSize: 20}}})`;
   const [base, large] = await renderCharts([{src: LINE}, {src: big}]);
   // 12px and 20px labels measure ceil(1.4 × fontSize) tall: 17 and 28.
-  near(base.area.height - large.area.height, 11, 0, "the plot shrinks by the text-height difference");
+  near(
+    base.area.height - large.area.height,
+    11,
+    0,
+    "the plot shrinks by the text-height difference",
+  );
   assert.strictEqual(large.endLabels[0].size, 20);
   assertNoOverlap(large, "20px labels");
   for (const b of large.labelBoxes)
@@ -294,7 +314,12 @@ it("a single value gets one end label, centered on the plot", async function () 
   );
   assert.strictEqual(r.endLabels[0].anchor, "middle");
   const [b] = r.labelBoxes;
-  near((b.left + b.right) / 2, (r.plot.left + r.plot.right) / 2, 1, "label center");
+  near(
+    (b.left + b.right) / 2,
+    (r.plot.left + r.plot.right) / 2,
+    1,
+    "label center",
+  );
 });
 
 it("long end labels truncate with an ellipsis instead of colliding", async function () {
@@ -415,7 +440,12 @@ it("Canvas paints the same end labels, flush with the plot edges", async functio
   const [start, end] = cnv.endLabels;
   near(start.x, cnv.area.x, 0.01, "start label box at the plot's left edge");
   assert.strictEqual(start.anchor, "start");
-  near(end.x + end.width, cnv.area.x + cnv.area.width, 0.01, "end label box at the plot's right edge");
+  near(
+    end.x + end.width,
+    cnv.area.x + cnv.area.width,
+    0.01,
+    "end label box at the plot's right edge",
+  );
   assert.strictEqual(end.anchor, "end");
   assert.ok(
     start.y > cnv.area.y + cnv.area.height,

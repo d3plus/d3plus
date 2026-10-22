@@ -94,7 +94,8 @@ const CORE_KEYS = ["window", "document", "navigator"];
     Prefer {@link withDom} unless you need to manage the lifecycle yourself.
 */
 export async function installDom(opts: DomEnvOptions = {}): Promise<DomEnv> {
-  const window = opts.window ?? (await createJsdomWindow(opts.html ?? DEFAULT_HTML));
+  const window =
+    opts.window ?? (await createJsdomWindow(opts.html ?? DEFAULT_HTML));
   augmentWindow(window);
   const {document} = window;
 

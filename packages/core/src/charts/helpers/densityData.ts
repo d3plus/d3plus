@@ -90,12 +90,19 @@ export function densityStats(
     @param rows The raw observation rows.
     @param options The value and key accessors, and the curve options.
 */
-export function densityGroups(rows: readonly DataPoint[], options: DensityGroupOptions): DensityGroup[] {
-  const groups = new Map<string, {first: DataPoint; rows: DataPoint[]; values: number[]}>();
+export function densityGroups(
+  rows: readonly DataPoint[],
+  options: DensityGroupOptions,
+): DensityGroup[] {
+  const groups = new Map<
+    string,
+    {first: DataPoint; rows: DataPoint[]; values: number[]}
+  >();
   rows.forEach((d, i) => {
     if (!d) return;
     const raw = options.value(d, i);
-    const v = raw === null || raw === undefined || raw === "" ? NaN : Number(raw);
+    const v =
+      raw === null || raw === undefined || raw === "" ? NaN : Number(raw);
     if (!Number.isFinite(v)) return;
     const key = options.key(d, i);
     let group = groups.get(key);
@@ -106,7 +113,12 @@ export function densityGroups(rows: readonly DataPoint[], options: DensityGroupO
   const out: DensityGroup[] = [];
   groups.forEach((group, key) => {
     const stats = densityStats(group.values, options.density);
-    if (stats) out.push({key, first: group.first, summary: {...stats, rows: group.rows, observed: group.values}});
+    if (stats)
+      out.push({
+        key,
+        first: group.first,
+        summary: {...stats, rows: group.rows, observed: group.values},
+      });
   });
   return out;
 }
@@ -142,16 +154,17 @@ export function densityWidthScale(
     @param groups The groups, in data order.
     @param sort `false` for data order, or the median direction.
 */
-export function sortByMedian<T extends {summary: Pick<DensitySummary, "median">}>(
-  groups: readonly T[],
-  sort: MedianSort,
-): T[] {
+export function sortByMedian<
+  T extends {summary: Pick<DensitySummary, "median">},
+>(groups: readonly T[], sort: MedianSort): T[] {
   const list = groups.slice();
   if (sort !== "ascending" && sort !== "descending") return list;
   const dir = sort === "ascending" ? 1 : -1;
   return list
     .map((g, i) => ({g, i}))
-    .sort((a, b) => dir * (a.g.summary.median - b.g.summary.median) || a.i - b.i)
+    .sort(
+      (a, b) => dir * (a.g.summary.median - b.g.summary.median) || a.i - b.i,
+    )
     .map(({g}) => g);
 }
 
@@ -161,14 +174,26 @@ export function sortByMedian<T extends {summary: Pick<DensitySummary, "median">}
     @param curve The `[value, density]` points, ascending by value.
     @param value The value to read.
 */
-export function densityAt(curve: readonly DensityPoint[], value: number): number {
-  if (!curve.length || value < curve[0][0] || value > curve[curve.length - 1][0]) return 0;
-  let lo = 0, hi = curve.length - 1;
+export function densityAt(
+  curve: readonly DensityPoint[],
+  value: number,
+): number {
+  if (
+    !curve.length ||
+    value < curve[0][0] ||
+    value > curve[curve.length - 1][0]
+  )
+    return 0;
+  let lo = 0,
+    hi = curve.length - 1;
   while (hi - lo > 1) {
     const mid = (lo + hi) >> 1;
     if (curve[mid][0] <= value) lo = mid;
     else hi = mid;
   }
-  const [x0, y0] = curve[lo], [x1, y1] = curve[hi];
-  return x1 === x0 ? Math.max(y0, y1) : y0 + ((y1 - y0) * (value - x0)) / (x1 - x0);
+  const [x0, y0] = curve[lo],
+    [x1, y1] = curve[hi];
+  return x1 === x0
+    ? Math.max(y0, y1)
+    : y0 + ((y1 - y0) * (value - x0)) / (x1 - x0);
 }

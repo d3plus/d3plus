@@ -40,7 +40,11 @@ const start = ([renderer, rows, duration]) => {
 /** Each SVG bar's on-screen box and its opacity through all its ancestors. */
 const svgBars = () =>
   [...document.querySelectorAll("#viz svg rect")]
-    .filter(r => r.__data__?.shapeType === "Bar" && !String(r.__data__.key).endsWith("::hit"))
+    .filter(
+      r =>
+        r.__data__?.shapeType === "Bar" &&
+        !String(r.__data__.key).endsWith("::hit"),
+    )
     .map(r => {
       let opacity = 1;
       for (let el = r; el && el.tagName !== "svg"; el = el.parentElement)
@@ -60,7 +64,14 @@ const canvasBars = bars => {
   const rect = canvas.getBoundingClientRect();
   const k = canvas.width / rect.width;
   const ctx = canvas.getContext("2d");
-  const pixel = (x, y) => [...ctx.getImageData(Math.round((x - rect.x) * k), Math.round((y - rect.y) * k), 1, 1).data];
+  const pixel = (x, y) => [
+    ...ctx.getImageData(
+      Math.round((x - rect.x) * k),
+      Math.round((y - rect.y) * k),
+      1,
+      1,
+    ).data,
+  ];
   return bars.map(({key, box}) => {
     const cx = box.x + box.width / 2;
     const cy = box.y + box.height / 2;
@@ -81,39 +92,48 @@ const canvasBars = bars => {
   });
 };
 
-it("a Canvas BarChart's bars match SVG's opacity and size halfway through the first draw", {timeout: 120000}, async function () {
-  const body = '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
-  const frames = {};
-  for (const renderer of ["svg", "canvas"]) {
-    const {page, errors, close} = await openPage(body, {clock: true});
-    try {
-      await page.evaluate(start, [renderer, data, DURATION]);
-      await page.clock.runFor(DURATION / 2);
-      frames[renderer] = renderer === "svg"
-        ? await page.evaluate(svgBars)
-        : await page.evaluate(canvasBars, frames.svg);
-      assert.deepStrictEqual(errors, [], "no page errors");
-    } finally {
-      await close();
+it(
+  "a Canvas BarChart's bars match SVG's opacity and size halfway through the first draw",
+  {timeout: 120000},
+  async function () {
+    const body =
+      '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>';
+    const frames = {};
+    for (const renderer of ["svg", "canvas"]) {
+      const {page, errors, close} = await openPage(body, {clock: true});
+      try {
+        await page.evaluate(start, [renderer, data, DURATION]);
+        await page.clock.runFor(DURATION / 2);
+        frames[renderer] =
+          renderer === "svg"
+            ? await page.evaluate(svgBars)
+            : await page.evaluate(canvasBars, frames.svg);
+        assert.deepStrictEqual(errors, [], "no page errors");
+      } finally {
+        await close();
+      }
     }
-  }
 
-  assert.strictEqual(frames.svg.length, 4, "four bars drawn on SVG");
-  for (const [i, svg] of frames.svg.entries()) {
-    const canvas = frames.canvas[i];
-    assert.ok(svg.opacity > 0.3 && svg.opacity < 0.7, `${svg.key}: SVG is halfway faded in (${svg.opacity.toFixed(2)})`);
-    assert.ok(
-      Math.abs(canvas.opacity - svg.opacity) < 0.06,
-      `${svg.key}: Canvas opacity ${canvas.opacity.toFixed(2)} matches SVG ${svg.opacity.toFixed(2)}`,
-    );
-    // The two renderers can start their first frame a tick apart, and near
-    // the middle of a cubicInOut transition a bar grows by about 1.5 × its
-    // final height per unit of progress, so allow two 60fps frames of growth
-    // (the halfway height is about half the final height).
-    const frameGrowth = 1.5 * (svg.box.height * 2) * (1000 / 60) / DURATION;
-    assert.ok(
-      Math.abs(canvas.height - svg.box.height) < Math.max(3, 2 * frameGrowth),
-      `${svg.key}: Canvas height ${canvas.height.toFixed(1)} matches SVG ${svg.box.height.toFixed(1)}`,
-    );
-  }
-});
+    assert.strictEqual(frames.svg.length, 4, "four bars drawn on SVG");
+    for (const [i, svg] of frames.svg.entries()) {
+      const canvas = frames.canvas[i];
+      assert.ok(
+        svg.opacity > 0.3 && svg.opacity < 0.7,
+        `${svg.key}: SVG is halfway faded in (${svg.opacity.toFixed(2)})`,
+      );
+      assert.ok(
+        Math.abs(canvas.opacity - svg.opacity) < 0.06,
+        `${svg.key}: Canvas opacity ${canvas.opacity.toFixed(2)} matches SVG ${svg.opacity.toFixed(2)}`,
+      );
+      // The two renderers can start their first frame a tick apart, and near
+      // the middle of a cubicInOut transition a bar grows by about 1.5 × its
+      // final height per unit of progress, so allow two 60fps frames of growth
+      // (the halfway height is about half the final height).
+      const frameGrowth = (1.5 * (svg.box.height * 2) * (1000 / 60)) / DURATION;
+      assert.ok(
+        Math.abs(canvas.height - svg.box.height) < Math.max(3, 2 * frameGrowth),
+        `${svg.key}: Canvas height ${canvas.height.toFixed(1)} matches SVG ${svg.box.height.toFixed(1)}`,
+      );
+    }
+  },
+);

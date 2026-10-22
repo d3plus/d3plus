@@ -30,15 +30,16 @@ function timelineShapeConfig(tl: Timeline): Record<string, unknown> {
         : d.labelBounds,
     labelConfig: {
       fontColor: () => {
-        const bg = tl._select ? backgroundColor(tl._select.node()) : "rgb(255, 255, 255)";
+        const bg = tl._select
+          ? backgroundColor(tl._select.node())
+          : "rgb(255, 255, 255)";
         return colorContrast(bg, tl.schema.colorDefaults);
       },
       fontSize: () => 12,
       verticalAlign: () =>
         tl._buttonBehaviorCurrent === "buttons" ? "middle" : "top",
     },
-    fill: () =>
-      tl._buttonBehaviorCurrent === "buttons" ? "#fff" : colorMid,
+    fill: () => (tl._buttonBehaviorCurrent === "buttons" ? "#fff" : colorMid),
     stroke: () =>
       tl._buttonBehaviorCurrent === "buttons" ? colorMid : "transparent",
     height: (d: Record<string, unknown>) =>
@@ -111,8 +112,7 @@ export function initTimelineDefaults(tl: Timeline): void {
   };
   tl.schema.selectionConfig = {
     fill: "#228be6",
-    "fill-opacity": () =>
-      tl._buttonBehaviorCurrent === "buttons" ? 0.3 : 1,
+    "fill-opacity": () => (tl._buttonBehaviorCurrent === "buttons" ? 0.3 : 1),
     "stroke-width": 0,
   };
   tl.schema.shape = "Rect";

@@ -11,7 +11,10 @@ export interface ServerCanvas {
   readonly width: number;
   readonly height: number;
   /** Encode the surface to an image buffer (async). Resolves to a Node `Buffer`. */
-  encode(format: "png" | "jpeg" | "webp" | "avif", quality?: number): Promise<Uint8Array>;
+  encode(
+    format: "png" | "jpeg" | "webp" | "avif",
+    quality?: number,
+  ): Promise<Uint8Array>;
   /** Encode the surface to an image buffer (sync). Returns a Node `Buffer`. */
   toBuffer(mime: "image/png" | "image/jpeg", ...args: any[]): Uint8Array;
 }
@@ -43,7 +46,9 @@ export interface NapiHandle {
     optional peer dependency isn't installed. `load` is overridable so tests
     can simulate a missing install.
 */
-export async function loadNapiCanvas(load: () => Promise<any> = () => import("@napi-rs/canvas")): Promise<any> {
+export async function loadNapiCanvas(
+  load: () => Promise<any> = () => import("@napi-rs/canvas"),
+): Promise<any> {
   try {
     return await load();
   } catch {
@@ -71,7 +76,8 @@ export function createNapiBackend(
 
   const backend: CanvasBackend = {
     dom: false,
-    createCanvas: (w, h) => napi.createCanvas(w, h) as unknown as HTMLCanvasElement,
+    createCanvas: (w, h) =>
+      napi.createCanvas(w, h) as unknown as HTMLCanvasElement,
     // Race the decode against a timeout so a hung remote URL can't stall
     // `whenSettled()` forever; a rejected load is skipped by the renderer.
     loadImage: src => {

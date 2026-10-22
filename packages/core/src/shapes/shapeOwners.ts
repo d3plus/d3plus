@@ -9,9 +9,16 @@ export type Owned = Omit<ShapeOwner, "shapeType">;
     them (a Line merges its points, an endpoint wraps its whisker), so the walk
     climbs those wrappers back to the composite's own record.
 */
-function ownerOf(datum: unknown, records: Map<object, Owned>): Owned | undefined {
+function ownerOf(
+  datum: unknown,
+  records: Map<object, Owned>,
+): Owned | undefined {
   const seen = new Set<object>();
-  for (let d = datum; d && typeof d === "object" && !seen.has(d); d = (d as {data?: unknown}).data) {
+  for (
+    let d = datum;
+    d && typeof d === "object" && !seen.has(d);
+    d = (d as {data?: unknown}).data
+  ) {
     const owned = records.get(d);
     if (owned) return owned;
     seen.add(d);
@@ -34,7 +41,8 @@ export function stampOwners(
     const out = {...node} as SceneNode;
     const owned = ownerOf(node.datum, records);
     if (owned) out.owners = [...(node.owners ?? []), {shapeType, ...owned}];
-    if (node.type === "group") (out as {children: SceneNode[]}).children = node.children.map(stamp);
+    if (node.type === "group")
+      (out as {children: SceneNode[]}).children = node.children.map(stamp);
     return out;
   };
   return nodes.map(stamp);

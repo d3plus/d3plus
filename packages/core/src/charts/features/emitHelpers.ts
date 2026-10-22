@@ -190,7 +190,10 @@ export function userLabelConfig(
   const sc = (viz.schema.shapeConfig ?? {}) as Record<string, unknown>;
   const labelConfigOf = (cfg: unknown): Record<string, unknown> | undefined =>
     cfg && typeof cfg === "object"
-      ? ((cfg as Record<string, unknown>).labelConfig as Record<string, unknown>)
+      ? ((cfg as Record<string, unknown>).labelConfig as Record<
+          string,
+          unknown
+        >)
       : undefined;
   const raw: Record<string, unknown> = {
     ...labelConfigOf(sc),

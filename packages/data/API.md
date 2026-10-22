@@ -1,21 +1,21 @@
 # @d3plus/data API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary. |
-| [`concat`](#concat) | Reduce and concat all the elements included in arrayOfArrays if they are arrays. |
-| [`fold`](#fold) | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
-| [`isData`](#isdata) | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. |
-| [`load`](#load) | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function. |
-| [`merge`](#merge) | Combines an Array of Objects together and returns a new Object. |
-| [`nest`](#nest) | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. |
-| [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy. |
-| [`unique`](#unique) | Reduces an Array of values to unique instances, keeping the first of each. |
+| Functions                   | Description                                                                                                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`addToQueue`](#addtoqueue) | Adds the provided value to the internal queue to be loaded, if necessary.                                                                                                                            |
+| [`concat`](#concat)         | Reduce and concat all the elements included in arrayOfArrays if they are arrays.                                                                                                                     |
+| [`fold`](#fold)             | Given a JSON object where the data values and headers have been split into separate key lookups, this function will combine the data values with the headers and returns one large array of objects. |
+| [`isData`](#isdata)         | Returns true/false whether the argument provided to the function should be loaded using an internal XHR request.                                                                                     |
+| [`load`](#load)             | Loads data from a filepath or URL, converts it to a valid JSON object, and returns it to a callback function.                                                                                        |
+| [`merge`](#merge)           | Combines an Array of Objects together and returns a new Object.                                                                                                                                      |
+| [`nest`](#nest)             | Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor.                                                                                  |
+| [`nestGroups`](#nestgroups) | Recursively groups data by each key function, producing {key, values} objects compatible with d3-hierarchy.                                                                                          |
+| [`unique`](#unique)         | Reduces an Array of values to unique instances, keeping the first of each.                                                                                                                           |
 
-| Interfaces | Description |
-| --- | --- |
-| [`DataPoint`](#datapoint) | Represents a single data point object used throughout d3plus visualizations. |
-| [`MergedDataPoint`](#mergeddatapoint) |  |
+| Interfaces                            | Description                                                                  |
+| ------------------------------------- | ---------------------------------------------------------------------------- |
+| [`DataPoint`](#datapoint)             | Represents a single data point object used throughout d3plus visualizations. |
+| [`MergedDataPoint`](#mergeddatapoint) |                                                                              |
 
 ## Functions
 
@@ -31,18 +31,18 @@ Adds the provided value to the internal queue to be loaded, if necessary. This i
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `this` | `VizContext` | - |
-| `_` | `string` \| [`DataPoint`](#datapoint)[] \| `Record`\<`string`, `unknown`\> | - |
-| `f` | `DataFormatter` \| *required* | Optional formatter function applied to the loaded data. |
-| `key` | `string` | The property name on the instance to store the loaded data. |
+| Parameter | Type                                                                       | Description                                                 |
+| --------- | -------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| `this`    | `VizContext`                                                               | -                                                           |
+| `_`       | `string` \| [`DataPoint`](#datapoint)[] \| `Record`\<`string`, `unknown`\> | -                                                           |
+| `f`       | `DataFormatter` \| _required_                                              | Optional formatter function applied to the loaded data.     |
+| `key`     | `string`                                                                   | The property name on the instance to store the loaded data. |
 
 #### Returns
 
 `void`
 
-***
+---
 
 <a id="concat"></a>
 
@@ -56,16 +56,16 @@ Reduce and concat all the elements included in arrayOfArrays if they are arrays.
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `arrayOfArrays` | ([`DataPoint`](#datapoint)[] \| `Record`\<`string`, [`DataPoint`](#datapoint)[]\>)[] | *required* | Array of elements |
-| `data` | `string` | `"data"` | The key in each element that contains the sub-array to concatenate. |
+| Parameter       | Type                                                                                 | Default    | Description                                                         |
+| --------------- | ------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------- |
+| `arrayOfArrays` | ([`DataPoint`](#datapoint)[] \| `Record`\<`string`, [`DataPoint`](#datapoint)[]\>)[] | _required_ | Array of elements                                                   |
+| `data?`         | `string`                                                                             | `"data"`   | The key in each element that contains the sub-array to concatenate. |
 
 #### Returns
 
 [`DataPoint`](#datapoint)[]
 
-***
+---
 
 <a id="fold"></a>
 
@@ -79,17 +79,17 @@ Given a JSON object where the data values and headers have been split into separ
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `json` | `FoldableJSON` | *required* | A JSON data Object with `data` and `headers` keys. |
-| `data` | `string` | `"data"` | The key in the JSON object that contains the data array. |
-| `headers` | `string` | `"headers"` | The key used for the flat headers array inside of the JSON object. |
+| Parameter  | Type           | Default     | Description                                                        |
+| ---------- | -------------- | ----------- | ------------------------------------------------------------------ |
+| `json`     | `FoldableJSON` | _required_  | A JSON data Object with `data` and `headers` keys.                 |
+| `data?`    | `string`       | `"data"`    | The key in the JSON object that contains the data array.           |
+| `headers?` | `string`       | `"headers"` | The key used for the flat headers array inside of the JSON object. |
 
 #### Returns
 
 [`DataPoint`](#datapoint)[]
 
-***
+---
 
 <a id="isdata"></a>
 
@@ -103,15 +103,15 @@ Returns true/false whether the argument provided to the function should be loade
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter  | Type      | Description            |
+| ---------- | --------- | ---------------------- |
 | `dataItem` | `unknown` | The value to be tested |
 
 #### Returns
 
 `boolean`
 
-***
+---
 
 <a id="load"></a>
 
@@ -125,19 +125,19 @@ Loads data from a filepath or URL, converts it to a valid JSON object, and retur
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `this` | `VizContext` | - |
-| `path` | `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[] | The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped. |
-| `formatter?` | `DataFormatter` | Optional function to transform the loaded data. |
-| `key?` | `string` | The key in the `this` context to save the resulting data to. |
-| `callback?` | (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void` | Optional function called with the error and loaded data. |
+| Parameter    | Type                                                                                                                                       | Description                                                                                                                                        |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `this`       | `VizContext`                                                                                                                               | -                                                                                                                                                  |
+| `path`       | `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[]                              | The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped. |
+| `formatter?` | `DataFormatter`                                                                                                                            | Optional function to transform the loaded data.                                                                                                    |
+| `key?`       | `string`                                                                                                                                   | The key in the `this` context to save the resulting data to.                                                                                       |
+| `callback?`  | (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void` | Optional function called with the error and loaded data.                                                                                           |
 
 #### Returns
 
 `void`
 
-***
+---
 
 <a id="merge"></a>
 
@@ -151,10 +151,10 @@ Combines an Array of Objects together and returns a new Object.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `objects` | [`DataPoint`](#datapoint)[] | The Array of objects to be merged together. |
-| `aggs` | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. |
+| Parameter | Type                                        | Description                                                                                                                                                            |
+| --------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `objects` | [`DataPoint`](#datapoint)[]                 | The Array of objects to be merged together.                                                                                                                            |
+| `aggs?`   | `Record`\<`string`, `AggregationFunction`\> | An object containing specific aggregation methods (functions) for each key type. By default, numbers are summed and strings are returned as an array of unique values. |
 
 #### Returns
 
@@ -162,18 +162,22 @@ Combines an Array of Objects together and returns a new Object.
 
 #### Examples
 
+**this**
+
 ```ts
 merge([
-{id: "foo", group: "A", value: 10, links: [1, 2]},
-{id: "bar", group: "A", value: 20, links: [1, 3]}
+  {id: "foo", group: "A", value: 10, links: [1, 2]},
+  {id: "bar", group: "A", value: 20, links: [1, 3]},
 ]);
 ```
+
+**returns this**
 
 ```ts
 {id: ["bar", "foo"], group: "A", value: 30, links: [1, 2, 3]}
 ```
 
-***
+---
 
 <a id="nest"></a>
 
@@ -187,16 +191,16 @@ Groups a flat array of data by one or more key accessors into nested {key, value
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
-| `keys` | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
+| Parameter | Type                             | Description                                                |
+| --------- | -------------------------------- | ---------------------------------------------------------- |
+| `data`    | [`DataPoint`](#datapoint)[]      | The flat data array to nest.                               |
+| `keys`    | `KeyAccessor` \| `KeyAccessor`[] | One key accessor, or an array of them, one per nest level. |
 
 #### Returns
 
 `NestEntry`[]
 
-***
+---
 
 <a id="nestgroups"></a>
 
@@ -210,16 +214,16 @@ Recursively groups data by each key function, producing {key, values} objects co
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `data` | [`DataPoint`](#datapoint)[] | The flat data array to nest. |
-| `fns` | `KeyAccessor`[] | An array of key accessor functions, one per nesting level. |
+| Parameter | Type                        | Description                                                |
+| --------- | --------------------------- | ---------------------------------------------------------- |
+| `data`    | [`DataPoint`](#datapoint)[] | The flat data array to nest.                               |
+| `fns`     | `KeyAccessor`[]             | An array of key accessor functions, one per nesting level. |
 
 #### Returns
 
 `NestEntry`[]
 
-***
+---
 
 <a id="unique"></a>
 
@@ -234,16 +238,16 @@ Dates compare by time.
 
 #### Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` |
+| Type Parameter                    |
+| --------------------------------- |
+| <a id="type-parameter-t"></a> `T` |
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `arr` | `T`[] | The Array of objects to be filtered. |
-| `accessor` | (`d`: `T`) => `unknown` | An optional accessor function used to extract data points from an Array of Objects. |
+| Parameter   | Type                    | Description                                                                         |
+| ----------- | ----------------------- | ----------------------------------------------------------------------------------- |
+| `arr`       | `T`[]                   | The Array of objects to be filtered.                                                |
+| `accessor?` | (`d`: `T`) => `unknown` | An optional accessor function used to extract data points from an Array of Objects. |
 
 #### Returns
 
@@ -251,12 +255,16 @@ Dates compare by time.
 
 #### Examples
 
+**this**
+
 ```ts
 unique(["apple", "banana", "apple"]);
 ```
 
+**returns this**
+
 ```ts
-["apple", "banana"]
+["apple", "banana"];
 ```
 
 ## Interfaces
@@ -273,7 +281,7 @@ Represents a single data point object used throughout d3plus visualizations.
 
 > \[`key`: `string`\]: `string` \| `number` \| `boolean` \| [`DataPoint`](#datapoint)
 
-***
+---
 
 <a id="mergeddatapoint"></a>
 

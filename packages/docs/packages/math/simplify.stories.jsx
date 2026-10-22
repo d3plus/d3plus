@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).",
+        component:
+          "Simplifies the points of a polygon using both the Ramer-Douglas-Peucker algorithm and basic distance-based simplification. Adapted to an ES6 module from the excellent [Simplify.js](http://mourner.github.io/simplify-js/).",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -25,10 +26,17 @@ import GeometryExample from "../../helpers/GeometryExample.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 const r = n => Math.round(n * 100) / 100;
-const poly = Array.from({length: 21}, (_, i) => [20 + i * 11, r(100 + Math.sin(i / 2) * 40 + ((i % 3) - 1) * 3)]);
+const poly = Array.from({length: 21}, (_, i) => [
+  20 + i * 11,
+  r(100 + Math.sin(i / 2) * 40 + ((i % 3) - 1) * 3),
+]);
 
 const Diagram = ({tolerance, highestQuality}) => {
-  const args = highestQuality ? [tolerance, true] : tolerance === undefined ? [] : [tolerance];
+  const args = highestQuality
+    ? [tolerance, true]
+    : tolerance === undefined
+      ? []
+      : [tolerance];
   const result = simplify(poly, ...args);
   const call = `simplify(poly${args.length ? `, ${args.join(", ")}` : ""})`;
   return (

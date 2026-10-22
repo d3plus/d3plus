@@ -57,7 +57,10 @@ export function icicleStagger(
     const k = step.get(node.id);
     if (k === undefined) continue;
     rects.set(node.id, icicleRootEdge(node, orient));
-    windows.set(node.id, {start: cubicInOut(k / levels), end: cubicInOut((k + 1) / levels)});
+    windows.set(node.id, {
+      start: cubicInOut(k / levels),
+      end: cubicInOut((k + 1) / levels),
+    });
   }
   return {rects, windows};
 }

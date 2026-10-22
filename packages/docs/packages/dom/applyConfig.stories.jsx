@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Merges the supplied config objects over a fresh {select: node} target,\nroutes any <field> + <field>Format pairs to their loader methods, then\napplies whatever remains via instance.config(). Shared by every d3plus\nframework wrapper so this routing lives in exactly one place.",
+        component:
+          "Merges the supplied config objects over a fresh {select: node} target,\nroutes any <field> + <field>Format pairs to their loader methods, then\napplies whatever remains via instance.config(). Shared by every d3plus\nframework wrapper so this routing lives in exactly one place.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -28,18 +29,33 @@ const recorder = () => {
   const calls = [];
   const instance = {
     config: c => calls.push(["config", c]),
-    data: (d, format) => calls.push(["data", d, typeof format === "function" ? "formatter" : format]),
+    data: (d, format) =>
+      calls.push([
+        "data",
+        d,
+        typeof format === "function" ? "formatter" : format,
+      ]),
   };
   return {instance, calls};
 };
-const node = typeof document === "undefined" ? null : document.createElement("div");
+const node =
+  typeof document === "undefined" ? null : document.createElement("div");
 const show = calls =>
   calls
-    .map(([method, ...args]) => `${method}(${args.map(a => (a === node ? "<div>" : JSON.stringify(a))).join(", ")})`)
+    .map(
+      ([method, ...args]) =>
+        `${method}(${args.map(a => (a === node ? "<div>" : JSON.stringify(a))).join(", ")})`,
+    )
     .join("\n");
 
 const basic = recorder();
-applyConfig(basic.instance, node, {width: 300, title: "Default title"}, undefined, {width: 400, legend: false});
+applyConfig(
+  basic.instance,
+  node,
+  {width: 300, title: "Default title"},
+  undefined,
+  {width: 400, legend: false},
+);
 export const BasicExample = () => (
   <FunctionExample
     input={`applyConfig(viz, container,
@@ -60,13 +76,18 @@ applyConfig(viz, container, {width: 300, title: "Default title"}, undefined, {wi
       language: "jsx",
     },
     description: {
-      story: "What every framework wrapper does with the props it receives: merge the config objects left to right (later ones win, `undefined` entries are skipped) over `{select: container}`, then hand the result to the instance's `config()`.",
+      story:
+        "What every framework wrapper does with the props it receives: merge the config objects left to right (later ones win, `undefined` entries are skipped) over `{select: container}`, then hand the result to the instance's `config()`.",
     },
   },
 };
 
 const routed = recorder();
-applyConfig(routed.instance, node, {data: "/data/fruits.csv", dataFormat: rows => rows.slice(0, 3), groupBy: "name"});
+applyConfig(routed.instance, node, {
+  data: "/data/fruits.csv",
+  dataFormat: rows => rows.slice(0, 3),
+  groupBy: "name",
+});
 export const FormatRouting = () => (
   <FunctionExample
     input={`applyConfig(viz, container, {
@@ -88,7 +109,8 @@ applyConfig(viz, container, {data: "/data/fruits.csv", dataFormat: rows => rows.
       language: "jsx",
     },
     description: {
-      story: "A data-like field paired with its `<field>Format` function (`data`/`dataFormat`, and likewise `nodes`, `links`, and `topojson`) is routed to the matching loader method, which takes the formatter as its second argument, and both keys are removed before the rest goes through `config()`.",
+      story:
+        "A data-like field paired with its `<field>Format` function (`data`/`dataFormat`, and likewise `nodes`, `links`, and `topojson`) is routed to the matching loader method, which takes the formatter as its second argument, and both keys are removed before the rest goes through `config()`.",
     },
   },
 };

@@ -36,7 +36,12 @@ it("polar geometry: polarRadius: linear spaces values evenly and clamps", () => 
   near(r(-10), 20, 1e-9, "below the domain clamps to the inner radius");
   near(r(500), 120, 1e-9, "above the domain clamps to the outer radius");
   near(r(NaN), 20, 1e-9, "non-finite maps to the inner radius");
-  near(polarRadius(5, [5, 5], 10, 90, "linear"), 10, 1e-9, "an empty domain maps to the inner radius");
+  near(
+    polarRadius(5, [5, 5], 10, 90, "linear"),
+    10,
+    1e-9,
+    "an empty domain maps to the inner radius",
+  );
 });
 
 it("polar geometry: polarSlots: splits the sweep into equal slots", () => {
@@ -140,5 +145,10 @@ it("polar geometry: polarSlotArc: insets the slot and pads by pixels at the sect
     padAngle: 0,
     padPixel: 0,
   });
-  near(capped.endAngle - capped.startAngle, 0.05, 1e-9, "the inset never swallows the slot");
+  near(
+    capped.endAngle - capped.startAngle,
+    0.05,
+    1e-9,
+    "the inset never swallows the slot",
+  );
 });

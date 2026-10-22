@@ -3,33 +3,33 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   polyA: {
     control: {},
-    description: "An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA.",
+    description:
+      "An Array of `[x, y]` points to be used as the inner polygon, checking if it is inside polyA.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
+      summary: "array.&lt;point&gt;",
+    },
   },
   polyB: {
     control: {},
-    description: "An Array of `[x, y]` points to be used as the containing polygon.",
+    description:
+      "An Array of `[x, y]` points to be used as the containing polygon.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
-  }
+      summary: "array.&lt;point&gt;",
+    },
+  },
 };

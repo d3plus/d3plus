@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a radial bar chart from an array of data: each row is a\nconcentric track whose arc length shows its value, or, with\ndiscrete(\"angle\"), a bar radiating out from an inner circle.",
+        component:
+          'Creates a radial bar chart from an array of data: each row is a\nconcentric track whose arc length shows its value, or, with\ndiscrete("angle"), a bar radiating out from an inner circle.',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <RadialBar config={configify(args, argTypes)} />;
-  
+const Template = args => <RadialBar config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

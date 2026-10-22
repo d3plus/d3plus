@@ -1,6 +1,14 @@
 import {it} from "vitest";
 import assert from "assert";
-import {BarChart, configWarnings, Network, Pack, Pie, Treemap, Viz} from "../../index.ts";
+import {
+  BarChart,
+  configWarnings,
+  Network,
+  Pack,
+  Pie,
+  Treemap,
+  Viz,
+} from "../../index.ts";
 import {captureWarnings} from "~test/helpers.js";
 
 /**
@@ -32,7 +40,9 @@ it("repeated unknown keys only warn once", () => {
     new Treemap().config({sizz: "value"});
     new Treemap().config({sizz: "value"});
   });
-  assert.deepStrictEqual(warnings, ['Treemap.config() received unknown property "sizz".']);
+  assert.deepStrictEqual(warnings, [
+    'Treemap.config() received unknown property "sizz".',
+  ]);
 });
 
 it("configWarnings(false) silences unknown-key warnings", () => {
@@ -41,11 +51,13 @@ it("configWarnings(false) silences unknown-key warnings", () => {
   let warnings;
   try {
     warnings = captureWarnings(() => {
-      new Treemap().config({silencedKey: 1, shapeConfig: {silencedShapeKey: 1}});
+      new Treemap().config({
+        silencedKey: 1,
+        shapeConfig: {silencedShapeKey: 1},
+      });
     });
     assert.strictEqual(configWarnings(), false);
-  }
-  finally {
+  } finally {
     configWarnings(true);
   }
   assert.deepStrictEqual(warnings, []);
@@ -55,7 +67,11 @@ it("shapeConfig() validates on charts whose def seeds shapeConfig, as on a Viz",
   for (const Chart of [Viz, Network, Pack, Pie, Treemap]) {
     const name = Chart.name;
     const warnings = captureWarnings(() => {
-      new Chart().shapeConfig({fill: "red", fll: "blue", Circle: {r: 4, rr: 4}});
+      new Chart().shapeConfig({
+        fill: "red",
+        fll: "blue",
+        Circle: {r: 4, rr: 4},
+      });
     });
     assert.deepStrictEqual(warnings, [
       `${name}.shapeConfig() received unknown property "fll".`,
@@ -67,12 +83,28 @@ it("shapeConfig() validates on charts whose def seeds shapeConfig, as on a Viz",
 it("shapeConfig() deep-merges into a fresh copy of a def-seeded bag", () => {
   const chart = new Treemap();
   const seeded = chart.shapeConfig();
-  assert.strictEqual(seeded.labelConfig.fontMax, 32, "Treemap seeds labelConfig.fontMax");
+  assert.strictEqual(
+    seeded.labelConfig.fontMax,
+    32,
+    "Treemap seeds labelConfig.fontMax",
+  );
   chart.shapeConfig({labelConfig: {fontWeight: 700}});
   const next = chart.shapeConfig();
   assert.notStrictEqual(next, seeded, "the stored bag is a fresh object");
-  assert.strictEqual(seeded.labelConfig.fontWeight, undefined, "the previous bag is untouched");
+  assert.strictEqual(
+    seeded.labelConfig.fontWeight,
+    undefined,
+    "the previous bag is untouched",
+  );
   assert.strictEqual(next.labelConfig.fontWeight, 700, "the new key is set");
-  assert.strictEqual(next.labelConfig.fontMax, 32, "the seeded sibling keys are kept");
-  assert.strictEqual(typeof next.ariaLabel, "function", "top-level seeded keys are kept");
+  assert.strictEqual(
+    next.labelConfig.fontMax,
+    32,
+    "the seeded sibling keys are kept",
+  );
+  assert.strictEqual(
+    typeof next.ariaLabel,
+    "function",
+    "top-level seeded keys are kept",
+  );
 });

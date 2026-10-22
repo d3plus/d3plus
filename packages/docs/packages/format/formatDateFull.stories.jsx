@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from dataArray (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day.",
+        component:
+          "Formats a date to be read on its own, such as in a tooltip: the same interval as [formatDate](#formatDate) picks from dataArray (year, quarter, month, day, hour, or finer), always with the year and, below a day, the time of day.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -35,10 +36,16 @@ const monthly = range(12, i => d(2023, i, 1));
 const daily = range(10, i => d(2024, 2, 1 + i));
 const hourly = range(12, i => d(2024, 2, 1, i));
 
-const full = (dates, formatter) => dates.map(date => formatDateFull(date, dates, formatter));
+const full = (dates, formatter) =>
+  dates.map(date => formatDateFull(date, dates, formatter));
 const ticks = dates => dates.map(date => formatDate(date, dates));
 
-const stripStyle = {display: "flex", gap: 6, flexWrap: "wrap", alignItems: "flex-start"};
+const stripStyle = {
+  display: "flex",
+  gap: 6,
+  flexWrap: "wrap",
+  alignItems: "flex-start",
+};
 const labelStyle = {
   padding: "3px 8px",
   border: "1px solid #dee2e6",
@@ -52,7 +59,9 @@ const labelStyle = {
 // A row of labels, one per date in the array.
 const Strip = ({title, labels}) => (
   <div style={{marginBottom: 12}}>
-    {title ? <div style={{fontSize: 12, color: "#666", marginBottom: 4}}>{title}</div> : null}
+    {title ? (
+      <div style={{fontSize: 12, color: "#666", marginBottom: 4}}>{title}</div>
+    ) : null}
     <div style={stripStyle}>
       {labels.map((label, i) => (
         <span key={`${label}-${i}`} style={labelStyle}>
@@ -99,12 +108,18 @@ export const IntervalDetection = () => (
   </div>
 );
 IntervalDetection.parameters = params(
-  [["quarterly", quarterly], ["daily", daily], ["hourly", hourly]],
+  [
+    ["quarterly", quarterly],
+    ["daily", daily],
+    ["hourly", hourly],
+  ],
   "The spacing between neighbouring dates picks the interval (year, quarter, month, day, hour, or finer). Below a day, the label adds the time of day.",
 );
 
 const spanish = timeFormatLocale(locale["es-ES"]).format;
-export const CustomFormatter = () => <Strip title="monthly, es-ES" labels={full(monthly, spanish)} />;
+export const CustomFormatter = () => (
+  <Strip title="monthly, es-ES" labels={full(monthly, spanish)} />
+);
 CustomFormatter.parameters = params(
   [["monthly", monthly, spanish]],
   "The third argument replaces d3's `timeFormat` with any function that turns a specifier into a formatter. Here a `timeFormatLocale` built from the `es-ES` dictionary in `@d3plus/locales` supplies Spanish month names.",

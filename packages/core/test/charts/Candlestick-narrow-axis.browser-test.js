@@ -73,7 +73,8 @@ const probe = ([{start, days, width, volume}, renderer]) =>
     });
   });
 
-const run = (config, renderer) => render('<div id="viz"></div>', probe, [config, renderer]);
+const run = (config, renderer) =>
+  render('<div id="viz"></div>', probe, [config, renderer]);
 
 /**
     Every painted label is whole on one line, inside the chart, and clear of
@@ -82,17 +83,44 @@ const run = (config, renderer) => render('<div id="viz"></div>', probe, [config,
 */
 function assertFit(r, context, years) {
   const texts = r.labels.map(l => l.lines.join("|"));
-  assert.ok(r.labels.length >= 2, `${context}: paints at least two labels (got ${texts})`);
+  assert.ok(
+    r.labels.length >= 2,
+    `${context}: paints at least two labels (got ${texts})`,
+  );
   r.labels.forEach((l, i) => {
-    assert.strictEqual(l.lines.length, 1, `${context}: "${l.lines.join("|")}" lies on one line (got ${texts})`);
-    assert.ok(!/…|\.\.\./.test(l.lines[0]), `${context}: "${l.lines[0]}" is whole`);
-    assert.ok(l.left >= -1 && l.right <= r.width + 1, `${context}: "${l.lines[0]}" stays inside the chart (got ${JSON.stringify(r.labels)})`);
-    if (i) assert.ok(l.left >= r.labels[i - 1].right, `${context}: "${l.lines[0]}" clears its neighbor (got ${texts})`);
-    const d = new Date(l.value), prev = i ? new Date(r.labels[i - 1].value) : undefined;
+    assert.strictEqual(
+      l.lines.length,
+      1,
+      `${context}: "${l.lines.join("|")}" lies on one line (got ${texts})`,
+    );
+    assert.ok(
+      !/…|\.\.\./.test(l.lines[0]),
+      `${context}: "${l.lines[0]}" is whole`,
+    );
+    assert.ok(
+      l.left >= -1 && l.right <= r.width + 1,
+      `${context}: "${l.lines[0]}" stays inside the chart (got ${JSON.stringify(r.labels)})`,
+    );
+    if (i)
+      assert.ok(
+        l.left >= r.labels[i - 1].right,
+        `${context}: "${l.lines[0]}" clears its neighbor (got ${texts})`,
+      );
+    const d = new Date(l.value),
+      prev = i ? new Date(r.labels[i - 1].value) : undefined;
     const year = !prev || prev.getFullYear() !== d.getFullYear();
-    assert.strictEqual(/\d{4}/.test(l.lines[0]), year, `${context}: "${l.lines[0]}" ${year ? "names" : "leaves out"} the year (got ${texts})`);
+    assert.strictEqual(
+      /\d{4}/.test(l.lines[0]),
+      year,
+      `${context}: "${l.lines[0]}" ${year ? "names" : "leaves out"} the year (got ${texts})`,
+    );
   });
-  years.forEach(y => assert.ok(texts.some(t => t.includes(`${y}`)), `${context}: names ${y} (got ${texts})`));
+  years.forEach(y =>
+    assert.ok(
+      texts.some(t => t.includes(`${y}`)),
+      `${context}: names ${y} (got ${texts})`,
+    ),
+  );
 }
 
 const spans = {
@@ -103,24 +131,50 @@ const spans = {
 for (const renderer of ["svg", "canvas"]) {
   for (const volume of [false, true]) {
     const strip = volume ? " with volume" : "";
-    it(`Candlestick (${renderer}${strip}) names both years at every width, with whole labels`, {timeout: 120000}, async function () {
-      for (const [name, span] of Object.entries(spans)) {
-        for (const width of [260, 320, 420, 700]) {
-          const r = await run({...span, width, volume}, renderer);
-          assertFit(r, `${name}@${width}`, [2023, 2024]);
-          if (name === "january") assert.strictEqual(r.labels[0].value, r.first, `${name}@${width}: labels the first period`);
+    it(
+      `Candlestick (${renderer}${strip}) names both years at every width, with whole labels`,
+      {timeout: 120000},
+      async function () {
+        for (const [name, span] of Object.entries(spans)) {
+          for (const width of [260, 320, 420, 700]) {
+            const r = await run({...span, width, volume}, renderer);
+            assertFit(r, `${name}@${width}`, [2023, 2024]);
+            if (name === "january")
+              assert.strictEqual(
+                r.labels[0].value,
+                r.first,
+                `${name}@${width}: labels the first period`,
+              );
+          }
         }
-      }
-    });
+      },
+    );
 
-    it(`Candlestick (${renderer}${strip}) keeps wide charts on quarters`, {timeout: 120000}, async function () {
-      for (const width of [420, 700]) {
-        const january = await run({...spans.january, width, volume}, renderer);
-        assert.deepStrictEqual(january.labels.map(l => l.lines[0]), ["Jan 2023", "Apr", "Jul", "Oct", "2024"], `january@${width}`);
-        const midyear = await run({...spans.midyear, width, volume}, renderer);
-        assert.deepStrictEqual(midyear.labels.map(l => l.lines[0]), ["Jul 2023", "Oct", "2024", "Apr", "Jul"],
-          `midyear@${width}: the first period crowds July's, which leads`);
-      }
-    });
+    it(
+      `Candlestick (${renderer}${strip}) keeps wide charts on quarters`,
+      {timeout: 120000},
+      async function () {
+        for (const width of [420, 700]) {
+          const january = await run(
+            {...spans.january, width, volume},
+            renderer,
+          );
+          assert.deepStrictEqual(
+            january.labels.map(l => l.lines[0]),
+            ["Jan 2023", "Apr", "Jul", "Oct", "2024"],
+            `january@${width}`,
+          );
+          const midyear = await run(
+            {...spans.midyear, width, volume},
+            renderer,
+          );
+          assert.deepStrictEqual(
+            midyear.labels.map(l => l.lines[0]),
+            ["Jul 2023", "Oct", "2024", "Apr", "Jul"],
+            `midyear@${width}: the first period crowds July's, which leads`,
+          );
+        }
+      },
+    );
   }
 }

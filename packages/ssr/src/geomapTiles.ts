@@ -114,11 +114,17 @@ export function createTileLookup(resolve: typeof dns.lookup = dns.lookup) {
   return function lookup(
     hostname: string,
     options: dns.LookupOptions,
-    callback: (err: Error | null, address: dns.LookupAddress[] | string, family?: number) => void,
+    callback: (
+      err: Error | null,
+      address: dns.LookupAddress[] | string,
+      family?: number,
+    ) => void,
   ): void {
     resolve(hostname, {...options, all: true}, (err, addresses) => {
       if (err) return callback(err, "");
-      const list = Array.isArray(addresses) ? addresses : [{address: addresses as unknown as string, family: 0}];
+      const list = Array.isArray(addresses)
+        ? addresses
+        : [{address: addresses as unknown as string, family: 0}];
       for (const {address} of list) {
         if (isBlockedAddress(address)) {
           return callback(
@@ -147,21 +153,27 @@ export function defaultTileFetch(
 ): Promise<Response> {
   const {request} = url.startsWith("https:") ? https : http;
   return new Promise((resolve, reject) => {
-    const req = request(url, {headers: init.headers, signal: init.signal, lookup: createTileLookup()}, res => {
-      const chunks: Uint8Array[] = [];
-      res.on("data", (chunk: Uint8Array) => chunks.push(chunk));
-      res.on("error", reject);
-      res.on("end", () => {
-        const status = res.statusCode ?? 500;
-        const headers = new Headers();
-        for (const [key, value] of Object.entries(res.headers)) {
-          if (value !== undefined) headers.set(key, Array.isArray(value) ? value.join(", ") : value);
-        }
-        // 204/304 responses can't carry a body.
-        const body = status === 204 || status === 304 ? null : NodeBuffer.concat(chunks);
-        resolve(new Response(body, {status, headers}));
-      });
-    });
+    const req = request(
+      url,
+      {headers: init.headers, signal: init.signal, lookup: createTileLookup()},
+      res => {
+        const chunks: Uint8Array[] = [];
+        res.on("data", (chunk: Uint8Array) => chunks.push(chunk));
+        res.on("error", reject);
+        res.on("end", () => {
+          const status = res.statusCode ?? 500;
+          const headers = new Headers();
+          for (const [key, value] of Object.entries(res.headers)) {
+            if (value !== undefined)
+              headers.set(key, Array.isArray(value) ? value.join(", ") : value);
+          }
+          // 204/304 responses can't carry a body.
+          const body =
+            status === 204 || status === 304 ? null : NodeBuffer.concat(chunks);
+          resolve(new Response(body, {status, headers}));
+        });
+      },
+    );
     req.on("error", reject);
     req.end();
   });
@@ -181,7 +193,10 @@ const MAX_TILE_REDIRECTS = 5;
 export async function fetchTileFollowingRedirects(
   url: string,
   signal: AbortSignal | undefined,
-  doFetch: (url: string, init: {signal?: AbortSignal}) => ReturnType<typeof defaultTileFetch> = defaultTileFetch,
+  doFetch: (
+    url: string,
+    init: {signal?: AbortSignal},
+  ) => ReturnType<typeof defaultTileFetch> = defaultTileFetch,
 ) {
   let current = url;
   for (let hop = 0; hop <= MAX_TILE_REDIRECTS; hop++) {
@@ -219,7 +234,8 @@ export async function fetchOne(
   if (cached) return cached;
   const uri = await fetchUncached(url, opts, netFetch);
   if (uri) {
-    if (tileCache.size >= TILE_CACHE_SIZE) tileCache.delete(tileCache.keys().next().value!);
+    if (tileCache.size >= TILE_CACHE_SIZE)
+      tileCache.delete(tileCache.keys().next().value!);
     tileCache.set(url, uri);
   }
   return uri;
@@ -232,7 +248,8 @@ async function fetchUncached(
   netFetch: typeof defaultTileFetch,
 ): Promise<string | null> {
   const timeout = opts.tileTimeout ?? 15000;
-  const ctrl = typeof AbortController !== "undefined" ? new AbortController() : undefined;
+  const ctrl =
+    typeof AbortController !== "undefined" ? new AbortController() : undefined;
   const timer = setTimeout(() => ctrl?.abort(), timeout);
   try {
     let bytes: ArrayBuffer | Uint8Array | null;
@@ -242,8 +259,10 @@ async function fetchUncached(
       bytes = await opts.fetchTile(url);
     } else {
       const userAgent = opts.tileUserAgent ?? DEFAULT_TILE_USER_AGENT;
-      const res = await fetchTileFollowingRedirects(url, ctrl?.signal, (u, init) =>
-        netFetch(u, {...init, headers: {"User-Agent": userAgent}}),
+      const res = await fetchTileFollowingRedirects(
+        url,
+        ctrl?.signal,
+        (u, init) => netFetch(u, {...init, headers: {"User-Agent": userAgent}}),
       );
       if (!res || !res.ok) return null;
       contentType = res.headers.get("content-type") || contentType;
@@ -267,9 +286,13 @@ async function mapLimit<T, R>(
 ): Promise<R[]> {
   const out: R[] = new Array(items.length);
   let next = 0;
-  const runners = Array.from({length: Math.min(limit, items.length)}, async () => {
-    for (let i = next++; i < items.length; i = next++) out[i] = await worker(items[i]);
-  });
+  const runners = Array.from(
+    {length: Math.min(limit, items.length)},
+    async () => {
+      for (let i = next++; i < items.length; i = next++)
+        out[i] = await worker(items[i]);
+    },
+  );
   await Promise.all(runners);
   return out;
 }
@@ -294,7 +317,9 @@ export async function resolveGeomapTiles(
   const list: Array<{key: string; url: string}> = compute.call(viz);
   if (!list || !list.length) return; // tiles disabled or none in view
 
-  const uris = await mapLimit(list, opts.tileConcurrency ?? 8, t => fetchOne(t.url, opts));
+  const uris = await mapLimit(list, opts.tileConcurrency ?? 8, t =>
+    fetchOne(t.url, opts),
+  );
   const map = new Map<string, string>();
   list.forEach((t, i) => {
     const uri = uris[i];

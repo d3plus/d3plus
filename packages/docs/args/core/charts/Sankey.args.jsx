@@ -6,268 +6,271 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Sankey as D3plusSankey} from "@d3plus/react";
-export const Sankey = ({ config }) => <D3plusSankey config={config} />;
+export const Sankey = ({config}) => <D3plusSankey config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Sankey
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Sankey-specific methods
    */
-  
+
   {
     arrowSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to the link's width, kept between 8 and 28.",
+      description:
+        "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to the link's width, kept between 8 and 28.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     arrows: {
       control: {
-        type: "select"
+        type: "select",
       },
       defaultValue: false,
-      description: "Draws arrowheads on the links: `true` (or `\"target\"`) where each link enters its target, `\"source\"` where it leaves its source, `\"both\"`, or `false` for none. Also accepts an accessor function returning one of those per link.",
-      options: [
-        true,
-        false,
-        "target",
-        "source",
-        "both"
-      ],
+      description:
+        'Draws arrowheads on the links: `true` (or `"target"`) where each link enters its target, `"source"` where it leaves its source, `"both"`, or `false` for none. Also accepts an accessor function returning one of those per link.',
+      options: [true, false, "target", "source", "both"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | \"target\" | \"source\" | \"both\" | function"
-      }
+        summary: 'boolean | "target" | "source" | "both" | function',
+      },
     },
     iterations: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 6,
-      description: "The number of relaxation iterations d3-sankey runs to position the nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).",
+      description:
+        "The number of relaxation iterations d3-sankey runs to position the nodes (see its [iterations](https://github.com/d3/d3-sankey#sankey_iterations)).",
       table: {
         defaultValue: {
-          summary: "6"
-        }
+          summary: "6",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     linkSort: {
       control: {},
-      description: "A comparator that orders the links at each node, passed to d3-sankey's [linkSort](https://github.com/d3/d3-sankey#sankey_linkSort). When unset, links are ordered by the position of the node at their other end.",
+      description:
+        "A comparator that orders the links at each node, passed to d3-sankey's [linkSort](https://github.com/d3/d3-sankey#sankey_linkSort). When unset, links are ordered by the position of the node at their other end.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     links: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The flows between `nodes`. Each link's `linksSource` and `linksTarget` values match a node's `nodeId`, and its width comes from `value`. Accepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
+      description:
+        "The flows between `nodes`. Each link's `linksSource` and `linksTarget` values match a node's `nodeId`, and its width comes from `value`. Accepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
       table: {
         defaultValue: {
-          summary: "\"links\""
-        }
+          summary: '"links"',
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     linksSource: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "source",
-      description: "The key in each link object that holds its source node's id.",
+      description:
+        "The key in each link object that holds its source node's id.",
       table: {
         defaultValue: {
-          summary: "source"
-        }
+          summary: "source",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     linksTarget: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "target",
-      description: "The key in each link object that holds its target node's id.",
+      description:
+        "The key in each link object that holds its target node's id.",
       table: {
         defaultValue: {
-          summary: "target"
-        }
+          summary: "target",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     noDataMessage: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     nodeAlign: {
       control: {
-        type: "radio"
+        type: "radio",
       },
-      description: "How nodes are aligned horizontally: `\"justify\"` (default), `\"left\"`, `\"right\"`, or `\"center\"`, or a custom d3-sankey [alignment function](https://github.com/d3/d3-sankey#sankey_nodeAlign).",
-      options: [
-        "justify",
-        "left",
-        "right",
-        "center"
-      ],
+      description:
+        'How nodes are aligned horizontally: `"justify"` (default), `"left"`, `"right"`, or `"center"`, or a custom d3-sankey [alignment function](https://github.com/d3/d3-sankey#sankey_nodeAlign).',
+      options: ["justify", "left", "right", "center"],
       table: {
         defaultValue: {
-          summary: "sankeyJustify"
-        }
+          summary: "sankeyJustify",
+        },
       },
       type: {
         required: false,
-        summary: "\"justify\" | \"left\" | \"right\" | \"center\" | function"
-      }
+        summary: '"justify" | "left" | "right" | "center" | function',
+      },
     },
     nodeId: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The unique id of each node, as a key or an accessor function. Link sources and targets are matched against these ids.",
+      description:
+        "The unique id of each node, as a key or an accessor function. Link sources and targets are matched against these ids.",
       table: {
         defaultValue: {
-          summary: "\"id\""
-        }
+          summary: '"id"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     nodePadding: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 8,
-      description: "The vertical gap between nodes in the same column, in pixels.",
+      description:
+        "The vertical gap between nodes in the same column, in pixels.",
       table: {
         defaultValue: {
-          summary: "8"
-        }
+          summary: "8",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     nodeSort: {
       control: {},
-      description: "A comparator that orders the nodes in each column, passed to d3-sankey's [nodeSort](https://github.com/d3/d3-sankey#sankey_nodeSort). When unset, d3-sankey orders them to reduce link crossings.",
+      description:
+        "A comparator that orders the nodes in each column, passed to d3-sankey's [nodeSort](https://github.com/d3/d3-sankey#sankey_nodeSort). When unset, d3-sankey orders them to reduce link crossings.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "function"
-      }
+        summary: "function",
+      },
     },
     nodeWidth: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 30,
       description: "The width of each node, in pixels.",
       table: {
         defaultValue: {
-          summary: "30"
-        }
+          summary: "30",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     nodes: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The nodes to draw. When empty, the nodes are the unique source and target values in `links`. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
+      description:
+        "The nodes to draw. When empty, the nodes are the unique source and target values in `links`. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
       table: {
         defaultValue: {
-          summary: "\"nodes\""
-        }
+          summary: '"nodes"',
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Rect\""
-        }
-      }
+          summary: '"Rect"',
+        },
+      },
     },
     shapeConfig: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "The value of each link, which sets its width: a key or an accessor function that receives the link and its index. Defaults to `1` for every link.",
+      description:
+        "The value of each link, which sets its width: a key or an accessor function that receives the link and its index. Defaults to `1` for every link.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

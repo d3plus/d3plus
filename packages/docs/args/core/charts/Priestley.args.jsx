@@ -6,98 +6,104 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Priestley as D3plusPriestley} from "@d3plus/react";
-export const Priestley = ({ config }) => <D3plusPriestley config={config} />;
+export const Priestley = ({config}) => <D3plusPriestley config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Priestley
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Priestley-specific methods
    */
-  
+
   {
     axisConfig: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The Radar's axis styles, named after the parts of a Plot axis: the\ninner level rings are its gridlines (`gridConfig`, a faint stroke like\nPlot's gridlines), the outer ring is its axis line (`barConfig`, the\nchart's background ink), and the spokes and metric labels are its ticks\n(`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring\nstyles take `stroke`, `strokeWidth`, `strokeOpacity`,\n`strokeDasharray`, and `opacity` (or Plot's `\"stroke-width\"` spelling),\neach a value or a `(ring, i) => value` accessor.",
+      description:
+        "The Radar's axis styles, named after the parts of a Plot axis: the\ninner level rings are its gridlines (`gridConfig`, a faint stroke like\nPlot's gridlines), the outer ring is its axis line (`barConfig`, the\nchart's background ink), and the spokes and metric labels are its ticks\n(`shapeConfig`, with `shapeConfig.labelConfig` for the labels). Ring\nstyles take `stroke`, `strokeWidth`, `strokeOpacity`,\n`strokeDasharray`, and `opacity` (or Plot's `\"stroke-width\"` spelling),\neach a value or a `(ring, i) => value` accessor.",
       table: {
         defaultValue: {
-          summary: "{scale: \"time\"}"
-        }
+          summary: '{scale: "time"}',
+        },
       },
       type: {
         required: false,
-        summary: "object"
-      }
+        summary: "object",
+      },
     },
     end: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the end date of each data point. A key also aggregates grouped rows by their latest end.",
+      description:
+        "Accessor function or string key for the end date of each data point. A key also aggregates grouped rows by their latest end.",
       table: {
         defaultValue: {
-          summary: "\"end\""
-        }
+          summary: '"end"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     paddingInner: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0.05,
-      description: "The [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) of the band scale that sets each bar's height: the space between neighboring bars, as a ratio from 0 to 1.",
+      description:
+        "The [paddingInner](https://github.com/d3/d3-scale#band_paddingInner) of the band scale that sets each bar's height: the space between neighboring bars, as a ratio from 0 to 1.",
       table: {
         defaultValue: {
-          summary: "0.05"
-        }
+          summary: "0.05",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     paddingOuter: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 0.05,
-      description: "The [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) of the band scale that sets each bar's height: the space before the first bar and after the last, as a ratio from 0 to 1.",
+      description:
+        "The [paddingOuter](https://github.com/d3/d3-scale#band_paddingOuter) of the band scale that sets each bar's height: the space before the first bar and after the last, as a ratio from 0 to 1.",
       table: {
         defaultValue: {
-          summary: "0.05"
-        }
+          summary: "0.05",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     start: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for the start date of each data point. A key also aggregates grouped rows by their earliest start.",
+      description:
+        "Accessor function or string key for the start date of each data point. A key also aggregates grouped rows by their earliest start.",
       table: {
         defaultValue: {
-          summary: "\"start\""
-        }
+          summary: '"start"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

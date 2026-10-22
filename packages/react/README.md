@@ -19,10 +19,10 @@ import {Treemap} from "@d3plus/react";
 const config = {
   data: [
     {parent: "Group 1", id: "alpha", value: 29},
-    {parent: "Group 2", id: "beta",  value: 10}
+    {parent: "Group 2", id: "beta", value: 10},
   ],
   groupBy: ["parent", "id"],
-  sum: "value"
+  sum: "value",
 };
 
 export default () => <Treemap config={config} />;
@@ -39,7 +39,7 @@ import {D3plusContext} from "@d3plus/react";
 
 <D3plusContext.Provider value={{locale: "es-ES"}}>
   <App />
-</D3plusContext.Provider>
+</D3plusContext.Provider>;
 ```
 
 ## Components
@@ -57,12 +57,12 @@ The package also exports `D3plusContext` and the `D3plusComponentProps` / `Rende
 
 Every component accepts the same props:
 
-| Prop | Description |
-| --- | --- |
-| `config` | Config object passed to the visualization's `.config()` method. |
-| `callback` | A function invoked at the end of each render cycle. |
-| `forceUpdate` | When `true`, re-renders on every React render even if the config is unchanged. |
-| `className` | The class attribute for the wrapper `<div>` (defaults per component type: `chart`, `component`, or `shape`). |
+| Prop          | Description                                                                                                  |
+| ------------- | ------------------------------------------------------------------------------------------------------------ |
+| `config`      | Config object passed to the visualization's `.config()` method.                                              |
+| `callback`    | A function invoked at the end of each render cycle.                                                          |
+| `forceUpdate` | When `true`, re-renders on every React render even if the config is unchanged.                               |
+| `className`   | The class attribute for the wrapper `<div>` (defaults per component type: `chart`, `component`, or `shape`). |
 
 ## Other frameworks
 

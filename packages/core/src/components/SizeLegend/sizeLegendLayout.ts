@@ -33,12 +33,20 @@ export interface SizeLegendSize {
     than one value, or there'd be nothing to measure) unless it would take up
     more than a third of the chart's width or height.
 */
-export function sizeLegendFits(_config: unknown, _scale: SizeLegendScale, size: SizeLegendSize): boolean {
-  return size.width <= size.availableWidth / 3 && size.height <= size.availableHeight / 3;
+export function sizeLegendFits(
+  _config: unknown,
+  _scale: SizeLegendScale,
+  size: SizeLegendSize,
+): boolean {
+  return (
+    size.width <= size.availableWidth / 3 &&
+    size.height <= size.availableHeight / 3
+  );
 }
 
 /** Values to show: explicit numbers, a count of auto-picked values, or a picker. */
-export type SizeLegendValues = number[] | number | ((domain: [number, number]) => number[]);
+export type SizeLegendValues =
+  number[] | number | ((domain: [number, number]) => number[]);
 
 export interface SizeLegendLayoutInput {
   scale: SizeLegendScale;
@@ -114,7 +122,10 @@ function significantDigits(n: number): number {
     among the candidates within 15% of the range of a target, the one with
     the fewest significant digits, then the closest.
 */
-export function defaultSizeLegendValues(domain: [number, number], count = 3): number[] {
+export function defaultSizeLegendValues(
+  domain: [number, number],
+  count = 3,
+): number[] {
   const [lo, hi] = domain;
   if (count <= 1) return [hi];
   if (count === 2) return [lo, hi];
@@ -123,10 +134,13 @@ export function defaultSizeLegendValues(domain: [number, number], count = 3): nu
   const picked: number[] = [];
   for (let k = 1; k < count - 1; k++) {
     const target = lo + ((hi - lo) * k) / (count - 1);
-    const near = inner.filter(t => !picked.includes(t) && Math.abs(t - target) <= tolerance);
+    const near = inner.filter(
+      t => !picked.includes(t) && Math.abs(t - target) <= tolerance,
+    );
     near.sort(
       (a, b) =>
-        significantDigits(a) - significantDigits(b) || Math.abs(a - target) - Math.abs(b - target),
+        significantDigits(a) - significantDigits(b) ||
+        Math.abs(a - target) - Math.abs(b - target),
     );
     if (near.length) picked.push(near[0]);
   }
@@ -134,14 +148,19 @@ export function defaultSizeLegendValues(domain: [number, number], count = 3): nu
 }
 
 /** Resolves the `values` option against a domain: sorted descending, deduped, finite. */
-function resolveValues(values: SizeLegendValues | undefined, domain: [number, number]): number[] {
+function resolveValues(
+  values: SizeLegendValues | undefined,
+  domain: [number, number],
+): number[] {
   const raw =
     typeof values === "function"
       ? values(domain)
       : Array.isArray(values)
         ? values
         : defaultSizeLegendValues(domain, values ?? 3);
-  return Array.from(new Set(raw.filter(v => Number.isFinite(v)))).sort((a, b) => b - a);
+  return Array.from(new Set(raw.filter(v => Number.isFinite(v)))).sort(
+    (a, b) => b - a,
+  );
 }
 
 /**
@@ -151,13 +170,22 @@ function resolveValues(values: SizeLegendValues | undefined, domain: [number, nu
     circles. Returns an empty layout when the scale's domain is a single
     value (nothing to compare) or every value maps to a zero radius.
 */
-export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayout {
+export function computeSizeLegend(
+  input: SizeLegendLayoutInput,
+): SizeLegendLayout {
   const domain = input.scale.domain() as [number, number];
-  if (domain.length < 2 || !Number.isFinite(domain[0]) || !Number.isFinite(domain[1]) || domain[0] === domain[1])
+  if (
+    domain.length < 2 ||
+    !Number.isFinite(domain[0]) ||
+    !Number.isFinite(domain[1]) ||
+    domain[0] === domain[1]
+  )
     return emptySizeLegendLayout();
 
   const limit = input.maxRadius ?? Infinity;
-  const values = resolveValues(input.values, domain).filter(v => input.scale(v) <= limit + 0.5);
+  const values = resolveValues(input.values, domain).filter(
+    v => input.scale(v) <= limit + 0.5,
+  );
   const radii = values.map(v => Math.max(0, input.scale(v) || 0));
   const maxR = Math.max(0, ...radii);
   if (!values.length || !maxR) return emptySizeLegendLayout();
@@ -165,7 +193,9 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
   const {padding, fontSize} = input;
   const lineHeight = fontSize * 1.2;
   const texts = values.map(v => input.tickFormat(v));
-  const widths = texts.map(t => textWidth(t, {"font-family": input.fontFamily, "font-size": fontSize}));
+  const widths = texts.map(t =>
+    textWidth(t, {"font-family": input.fontFamily, "font-size": fontSize}),
+  );
 
   const titleText = input.title ? String(input.title) : "";
   const titleWidth = titleText
@@ -180,7 +210,8 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
   // Horizontal: the circles and their label column, in the wider of that
   // block and the title, with the circles centered under the title as far as
   // the label column allows.
-  const block = maxR * 2 + input.lineLength + input.labelPadding + Math.max(...widths);
+  const block =
+    maxR * 2 + input.lineLength + input.labelPadding + Math.max(...widths);
   const inner = Math.max(block, titleWidth);
   const cx = Math.min(padding + inner / 2, padding + inner - block + maxR);
 
@@ -188,7 +219,12 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
   // circle's pokes half a line above it.
   const top = padding + titleHeight + lineHeight / 2;
   const base = top + maxR * 2;
-  const circles = values.map((value, i) => ({value, cx, cy: base - radii[i], r: radii[i]}));
+  const circles = values.map((value, i) => ({
+    value,
+    cx,
+    cy: base - radii[i],
+    r: radii[i],
+  }));
 
   const labelX = cx + maxR + input.lineLength + input.labelPadding;
   const labels: SizeLegendLabel[] = [];
@@ -198,8 +234,17 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
     const circleTop = c.cy - c.r;
     const y = Math.max(circleTop, lastY + lineHeight);
     lastY = y;
-    labels.push({value: c.value, text: texts[i], x: labelX, y, width: widths[i]});
-    const points: [number, number][] = [[c.cx, circleTop], [c.cx + maxR, circleTop]];
+    labels.push({
+      value: c.value,
+      text: texts[i],
+      x: labelX,
+      y,
+      width: widths[i],
+    });
+    const points: [number, number][] = [
+      [c.cx, circleTop],
+      [c.cx + maxR, circleTop],
+    ];
     if (y !== circleTop) points.push([c.cx + maxR + input.lineLength / 2, y]);
     points.push([labelX - input.labelPadding, y]);
     lines.push({value: c.value, points});
@@ -207,12 +252,27 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
 
   let title: SizeLegendLayout["title"];
   if (titleText) {
-    const x = Math.min(Math.max(cx, padding + titleWidth / 2), padding + inner - titleWidth / 2);
-    title = {text: titleText, x, y: padding + input.titleFontSize, width: titleWidth};
+    const x = Math.min(
+      Math.max(cx, padding + titleWidth / 2),
+      padding + inner - titleWidth / 2,
+    );
+    title = {
+      text: titleText,
+      x,
+      y: padding + input.titleFontSize,
+      width: titleWidth,
+    };
   }
 
   const height = Math.max(base, lastY + lineHeight / 2) + padding;
-  return {circles, lines, labels, title, width: Math.ceil(inner + padding * 2), height: Math.ceil(height)};
+  return {
+    circles,
+    lines,
+    labels,
+    title,
+    width: Math.ceil(inner + padding * 2),
+    height: Math.ceil(height),
+  };
 }
 
 /**
@@ -224,13 +284,23 @@ export function computeSizeLegend(input: SizeLegendLayoutInput): SizeLegendLayou
     number) — the legend relabels rather than grows. Scales without
     `invert` keep their domain.
 */
-export function zoomSizeLegendScale(scale: SizeLegendScale, k: number): SizeLegendScale {
+export function zoomSizeLegendScale(
+  scale: SizeLegendScale,
+  k: number,
+): SizeLegendScale {
   if (k === 1 || !Number.isFinite(k) || k <= 0) return scale;
   const [lo, hi] = scale.domain() as [number, number];
-  const fit = scale.invert ? Math.max(lo, Math.min(hi, scale.invert(scale(hi) / k))) : hi;
+  const fit = scale.invert
+    ? Math.max(lo, Math.min(hi, scale.invert(scale(hi) / k)))
+    : hi;
   // Round down to a nice value (the extremes only need to be exact unzoomed,
   // where they're real marks); a nice value still fits inside the reservation.
-  const nice = fit < hi ? ticks(lo, fit, 4).filter(t => t > lo && t <= fit).pop() : undefined;
+  const nice =
+    fit < hi
+      ? ticks(lo, fit, 4)
+          .filter(t => t > lo && t <= fit)
+          .pop()
+      : undefined;
   const top = nice ?? fit;
   const zoomed = ((v: number) => scale(v) * k) as SizeLegendScale;
   zoomed.domain = () => [lo, top];

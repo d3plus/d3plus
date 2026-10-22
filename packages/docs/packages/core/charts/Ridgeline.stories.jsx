@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a ridgeline (joyplot) from an array of raw observations: the\nvalue of each row is summarized per group as a kernel density estimate,\nand each group's curve rises from its own baseline down the y axis,\nsharing the x axis. overlap sets how far ridges rise into the ones\nabove; medianSort orders them by median.",
+        component:
+          "Creates a ridgeline (joyplot) from an array of raw observations: the\nvalue of each row is summarized per group as a kernel density estimate,\nand each group's curve rises from its own baseline down the y axis,\nsharing the x axis. overlap sets how far ridges rise into the ones\nabove; medianSort orders them by median.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Ridgeline config={configify(args, argTypes)} />;
-  
+const Template = args => <Ridgeline config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -69,7 +70,15 @@ BasicExample.args = {
   legend: false,
   value: "Mean Temperature (°C)",
 };
-BasicExample.parameters = {controls: {include: ["value", "overlap", "densityScale", "densityConfig"]}, docs: {description: {story: "Each group's `value`s become a kernel density estimate rising from the group's baseline, the first group on top. Ridges share the x axis, so a year of daily temperatures reads as one shifting shape. Hover a ridge for its observation count and quartiles."}}};
+BasicExample.parameters = {
+  controls: {include: ["value", "overlap", "densityScale", "densityConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each group's `value`s become a kernel density estimate rising from the group's baseline, the first group on top. Ridges share the x axis, so a year of daily temperatures reads as one shifting shape. Hover a ridge for its observation count and quartiles.",
+    },
+  },
+};
 
 export const SortedByMedian = Template.bind({});
 SortedByMedian.args = {
@@ -79,7 +88,15 @@ SortedByMedian.args = {
   medianSort: "descending",
   value: "Length (minutes)",
 };
-SortedByMedian.parameters = {controls: {include: ["medianSort"]}, docs: {description: {story: "`medianSort` orders the ridges by median, `\"descending\"` putting the longest tracks on top. Genres that mix two formats show two peaks."}}};
+SortedByMedian.parameters = {
+  controls: {include: ["medianSort"]},
+  docs: {
+    description: {
+      story:
+        '`medianSort` orders the ridges by median, `"descending"` putting the longest tracks on top. Genres that mix two formats show two peaks.',
+    },
+  },
+};
 
 export const LowOverlap = Template.bind({});
 LowOverlap.args = {
@@ -90,7 +107,15 @@ LowOverlap.args = {
   overlap: 0.9,
   value: "Length (minutes)",
 };
-LowOverlap.parameters = {controls: {include: ["overlap", "densityScale"]}, docs: {description: {story: "`overlap` is how far the tallest ridge rises, in rows: below 1 every ridge stays in its own row. `densityScale: \"width\"` scales each ridge to its own peak, so every ridge reaches the same height."}}};
+LowOverlap.parameters = {
+  controls: {include: ["overlap", "densityScale"]},
+  docs: {
+    description: {
+      story:
+        '`overlap` is how far the tallest ridge rises, in rows: below 1 every ridge stays in its own row. `densityScale: "width"` scales each ridge to its own peak, so every ridge reaches the same height.',
+    },
+  },
+};
 
 export const TwoSeriesPerRow = Template.bind({});
 TwoSeriesPerRow.args = {
@@ -100,7 +125,15 @@ TwoSeriesPerRow.args = {
   shapeConfig: {Area: {fillOpacity: 0.6}},
   value: "Mean Temperature (°C)",
 };
-TwoSeriesPerRow.parameters = {controls: {include: ["groupBy", "color", "shapeConfig"]}, docs: {description: {story: "With two `groupBy` levels, the first picks the row and the second overlays one ridge per series within it. Lower `fillOpacity` keeps both visible."}}};
+TwoSeriesPerRow.parameters = {
+  controls: {include: ["groupBy", "color", "shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "With two `groupBy` levels, the first picks the row and the second overlays one ridge per series within it. Lower `fillOpacity` keeps both visible.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -110,4 +143,12 @@ SmallMultiples.args = {
   legend: false,
   value: "Mean Temperature (°C)",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one panel per city, sharing the temperature axis so the panels compare directly."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws one panel per city, sharing the temperature axis so the panels compare directly.",
+    },
+  },
+};

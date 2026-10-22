@@ -58,9 +58,12 @@ export function padPeriods(scale: D3Scale, times: number[]): void {
     scale.padding(1);
     return;
   }
-  const sorted = Array.from(new Set(times.filter(Number.isFinite))).sort((a, b) => a - b);
+  const sorted = Array.from(new Set(times.filter(Number.isFinite))).sort(
+    (a, b) => a - b,
+  );
   let gap = Infinity;
-  for (let k = 1; k < sorted.length; k++) gap = Math.min(gap, sorted[k] - sorted[k - 1]);
+  for (let k = 1; k < sorted.length; k++)
+    gap = Math.min(gap, sorted[k] - sorted[k - 1]);
   if (!Number.isFinite(gap)) return;
   const [lo, hi] = (scale.domain() as (number | Date)[]).map(Number);
   scale.domain([new Date(lo - gap), new Date(hi + gap)]);
@@ -72,16 +75,31 @@ export function padPeriods(scale: D3Scale, times: number[]): void {
 */
 export function candlestickBuffer(
   this: VizInstance,
-  {data, x, y, x2}: {data: Record<string, unknown>[]; x: D3Scale; y: D3Scale; x2?: unknown},
+  {
+    data,
+    x,
+    y,
+    x2,
+  }: {data: Record<string, unknown>[]; x: D3Scale; y: D3Scale; x2?: unknown},
 ): [D3Scale, D3Scale] {
   // The secondary axes hold no candles.
   if (x2) return [x, y];
-  padPeriods(x, data.map(row => +(row.x as number)));
-  const rows = data.map(row => ({d: row.data as DataPoint, i: row.i as number}));
+  padPeriods(
+    x,
+    data.map(row => +(row.x as number)),
+  );
+  const rows = data.map(row => ({
+    d: row.data as DataPoint,
+    i: row.i as number,
+  }));
   const extent = ohlcExtent(rows, ohlcAccessors(this));
   if (!extent) return [x, y];
   const domain = (y.domain() as number[]).slice().reverse() as [number, number];
-  const widened = widenDomain(domain, extent, y as unknown as Pick<D3Scale, "invert"> & ((v: number) => number));
+  const widened = widenDomain(
+    domain,
+    extent,
+    y as unknown as Pick<D3Scale, "invert"> & ((v: number) => number),
+  );
   y.domain(widened.slice().reverse());
   return [x, y];
 }

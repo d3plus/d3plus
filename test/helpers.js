@@ -11,12 +11,22 @@ import {expect, vi} from "vitest";
  * @param {String} [message]
  */
 export function near(a, b, tolerance, message = "") {
-  expect(Math.abs(a - b) <= tolerance, `${message}: ${a} vs ${b} (±${tolerance})`).toBe(true);
+  expect(
+    Math.abs(a - b) <= tolerance,
+    `${message}: ${a} vs ${b} (±${tolerance})`,
+  ).toBe(true);
 }
 
 /** A box's edges, from `{left, right, top, bottom}` or `{x, y, width, height}`. */
 const edges = box =>
-  "left" in box ? box : {left: box.x, right: box.x + box.width, top: box.y, bottom: box.y + box.height};
+  "left" in box
+    ? box
+    : {
+        left: box.x,
+        right: box.x + box.width,
+        top: box.y,
+        bottom: box.y + box.height,
+      };
 
 /**
  * Whether two boxes overlap by more than `tolerance` on both axes. Each box
@@ -28,10 +38,13 @@ const edges = box =>
  * @returns {Boolean}
  */
 export function overlaps(a, b, tolerance = 0) {
-  const p = edges(a), q = edges(b);
+  const p = edges(a),
+    q = edges(b);
   return (
-    p.left < q.right - tolerance && q.left < p.right - tolerance &&
-    p.top < q.bottom - tolerance && q.top < p.bottom - tolerance
+    p.left < q.right - tolerance &&
+    q.left < p.right - tolerance &&
+    p.top < q.bottom - tolerance &&
+    q.top < p.bottom - tolerance
   );
 }
 
@@ -41,7 +54,9 @@ export function overlaps(a, b, tolerance = 0) {
  * @param {Number} [tolerance = 0]
  */
 export function anyOverlap(boxes, tolerance = 0) {
-  return boxes.some((a, i) => boxes.slice(i + 1).some(b => overlaps(a, b, tolerance)));
+  return boxes.some((a, i) =>
+    boxes.slice(i + 1).some(b => overlaps(a, b, tolerance)),
+  );
 }
 
 /**
@@ -66,8 +81,8 @@ export function captureWarnings(fn) {
   }
   return result && typeof result.then === "function"
     ? result.then(done, err => {
-      spy.mockRestore();
-      throw err;
-    })
+        spy.mockRestore();
+        throw err;
+      })
     : done();
 }

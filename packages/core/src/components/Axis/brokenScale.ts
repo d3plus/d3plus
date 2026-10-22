@@ -63,7 +63,11 @@ export const isBrokenScale = (scale: unknown): scale is BrokenScale =>
     out-of-domain ranges (including any that would swallow a domain end) are
     dropped.
 */
-export function normalizeBreaks(input: unknown, lo: number, hi: number): BreakRange[] {
+export function normalizeBreaks(
+  input: unknown,
+  lo: number,
+  hi: number,
+): BreakRange[] {
   if (!Array.isArray(input) || !input.length) return [];
   const list = (Array.isArray(input[0]) ? input : [input]) as unknown[];
   const ranges = list
@@ -82,7 +86,10 @@ export function normalizeBreaks(input: unknown, lo: number, hi: number): BreakRa
 }
 
 /** The value → pixel breakpoints of the interior breaks, ascending by value. */
-function breakpoints(spec: BrokenScaleSpec): {values: number[]; pixels: number[]} {
+function breakpoints(spec: BrokenScaleSpec): {
+  values: number[];
+  pixels: number[];
+} {
   const [d0, d1] = spec.domain;
   const lo = Math.min(d0, d1);
   const hi = Math.max(d0, d1);
@@ -90,7 +97,9 @@ function breakpoints(spec: BrokenScaleSpec): {values: number[]; pixels: number[]
   const rHi = d0 <= d1 ? spec.range[1] : spec.range[0];
   const sign = Math.sign(rHi - rLo) || 1;
   const removed = spec.breaks.reduce((s, [a, b]) => s + b - a, 0);
-  const rate = (Math.abs(rHi - rLo) - spec.breaks.length * spec.space) / (hi - lo - removed);
+  const rate =
+    (Math.abs(rHi - rLo) - spec.breaks.length * spec.space) /
+    (hi - lo - removed);
   const values = [lo];
   const pixels = [rLo];
   let prev = lo;
@@ -148,7 +157,11 @@ export function brokenScale(spec: BrokenScaleSpec): BrokenScale {
     rebuild();
     return scale;
   }) as BrokenScale["range"];
-  scale.copy = () => brokenScale({...spec, breaks: spec.breaks.map(b => [b[0], b[1]] as BreakRange)});
+  scale.copy = () =>
+    brokenScale({
+      ...spec,
+      breaks: spec.breaks.map(b => [b[0], b[1]] as BreakRange),
+    });
   scale.invert = (px: number) => {
     const e = spec.edge;
     if (e) {
@@ -161,14 +174,22 @@ export function brokenScale(spec: BrokenScaleSpec): BrokenScale {
   scale.segments = () => {
     const out: ScaleSegment[] = [];
     for (let i = 0; i < values.length; i += 2)
-      out.push({domain: [values[i], values[i + 1]], range: [pixels[i], pixels[i + 1]]});
+      out.push({
+        domain: [values[i], values[i + 1]],
+        range: [pixels[i], pixels[i + 1]],
+      });
     const descending = spec.domain[0] > spec.domain[1];
     return descending
-      ? out.reverse().map(s => ({domain: [s.domain[1], s.domain[0]], range: [s.range[1], s.range[0]]}))
+      ? out.reverse().map(s => ({
+          domain: [s.domain[1], s.domain[0]],
+          range: [s.range[1], s.range[0]],
+        }))
       : out;
   };
   scale.ticks = (count?: number) => {
-    const ticks = scaleLinear().domain([values[0], values[values.length - 1]]).ticks(count);
+    const ticks = scaleLinear()
+      .domain([values[0], values[values.length - 1]])
+      .ticks(count);
     return ticks.filter(t => !spec.breaks.some(([a, b]) => t > a && t < b));
   };
   return scale;
@@ -199,7 +220,9 @@ export function brokenScaleTicks(
   };
   const edges = new Set(scale.brokenSpec.breaks.flat());
   for (const s of scale.segments()) {
-    const segment = scaleLinear().domain(s.domain).range(s.range) as unknown as D3Scale;
+    const segment = scaleLinear()
+      .domain(s.domain)
+      .range(s.range) as unknown as D3Scale;
     const ticks = segmentTicks(segment);
     ticks.forEach(add);
     const values = ticks.map(Number);

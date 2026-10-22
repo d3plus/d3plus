@@ -19,12 +19,17 @@ import path from "node:path";
 import {fileURLToPath} from "node:url";
 import {chromium} from "playwright";
 
-const coreDir = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const coreDir = path.resolve(
+  path.dirname(fileURLToPath(import.meta.url)),
+  "..",
+);
 const umdPath = path.join(coreDir, "umd", "d3plus-core.full.js");
-const v3Url = "https://cdn.jsdelivr.net/npm/@d3plus/core@3.1.6/umd/d3plus-core.full.min.js";
+const v3Url =
+  "https://cdn.jsdelivr.net/npm/@d3plus/core@3.1.6/umd/d3plus-core.full.min.js";
 const outDir = "/tmp/d3plus-compare";
 
-const W = 900, H = 600;
+const W = 900,
+  H = 600;
 
 for (const d of ["v3", "v4", "v4-canvas", "pairs"]) {
   fs.mkdirSync(path.join(outDir, d), {recursive: true});
@@ -38,7 +43,10 @@ function canvasBody(body) {
 function buildUmd() {
   return new Promise((resolve, reject) => {
     const buildScript = path.resolve(coreDir, "../../scripts/build-umd.js");
-    const child = spawn("node", [buildScript], {cwd: coreDir, stdio: "inherit"});
+    const child = spawn("node", [buildScript], {
+      cwd: coreDir,
+      stdio: "inherit",
+    });
     child.on("error", reject);
     child.on("close", code =>
       code === 0 ? resolve() : reject(new Error(`build exited ${code}`)),
@@ -47,13 +55,16 @@ function buildUmd() {
 }
 
 const cryptoPolyfill =
-  "if(typeof crypto!==\"undefined\"&&!crypto.randomUUID){" +
+  'if(typeof crypto!=="undefined"&&!crypto.randomUUID){' +
   "let n=0;crypto.randomUUID=()=>" +
-  "\"00000000-0000-4000-8000-\"+String(n++).padStart(12,\"0\");}";
+  '"00000000-0000-4000-8000-"+String(n++).padStart(12,"0");}';
 
 /** [filename, label, builder-body]. Body has `d3plus` + `done` in scope. */
 const examples = [
-  ["bar-chart", "BarChart", `
+  [
+    "bar-chart",
+    "BarChart",
+    `
     new d3plus.BarChart()
       .select("#viz")
       .groupBy("group")
@@ -69,8 +80,12 @@ const examples = [
       ])
       .x("x").y("y")
       .render(done);
-  `],
-  ["area-plot", "AreaPlot", `
+  `,
+  ],
+  [
+    "area-plot",
+    "AreaPlot",
+    `
     new d3plus.AreaPlot()
       .select("#viz")
       .groupBy("group")
@@ -82,8 +97,12 @@ const examples = [
       ])
       .x("x").y("y")
       .render(done);
-  `],
-  ["line-plot", "LinePlot", `
+  `,
+  ],
+  [
+    "line-plot",
+    "LinePlot",
+    `
     new d3plus.LinePlot()
       .select("#viz")
       .groupBy("group")
@@ -97,8 +116,12 @@ const examples = [
       ])
       .x("x").y("y")
       .render(done);
-  `],
-  ["stacked-area", "StackedArea", `
+  `,
+  ],
+  [
+    "stacked-area",
+    "StackedArea",
+    `
     new d3plus.StackedArea()
       .select("#viz")
       .groupBy("group")
@@ -112,8 +135,12 @@ const examples = [
       ])
       .x("x").y("y")
       .render(done);
-  `],
-  ["bump-chart", "BumpChart", `
+  `,
+  ],
+  [
+    "bump-chart",
+    "BumpChart",
+    `
     new d3plus.BumpChart()
       .select("#viz")
       .groupBy("group")
@@ -127,11 +154,15 @@ const examples = [
       ])
       .x("x").y("y")
       .render(done);
-  `],
+  `,
+  ],
   // groupBy must include the value key — otherwise the observations sharing an
   // id are aggregated (summed) into a single point and each box collapses to a
   // line. ["id", "value"] keeps every observation distinct for the distribution.
-  ["box-whisker", "BoxWhisker", `
+  [
+    "box-whisker",
+    "BoxWhisker",
+    `
     new d3plus.BoxWhisker()
       .select("#viz")
       .data([
@@ -148,8 +179,12 @@ const examples = [
       .groupBy(["id", "value"])
       .x("id").y("value")
       .render(done);
-  `],
-  ["pie", "Pie", `
+  `,
+  ],
+  [
+    "pie",
+    "Pie",
+    `
     new d3plus.Pie()
       .select("#viz")
       .data([
@@ -161,8 +196,12 @@ const examples = [
         {id: "Zeta",    value: 5},
       ])
       .render(done);
-  `],
-  ["donut", "Donut", `
+  `,
+  ],
+  [
+    "donut",
+    "Donut",
+    `
     new d3plus.Donut()
       .select("#viz")
       .data([
@@ -174,8 +213,12 @@ const examples = [
         {id: "Zeta",    value: 5},
       ])
       .render(done);
-  `],
-  ["treemap", "Treemap", `
+  `,
+  ],
+  [
+    "treemap",
+    "Treemap",
+    `
     new d3plus.Treemap()
       .select("#viz")
       .groupBy(["group", "id"])
@@ -192,8 +235,12 @@ const examples = [
       ])
       .sum("value")
       .render(done);
-  `],
-  ["pack", "Pack", `
+  `,
+  ],
+  [
+    "pack",
+    "Pack",
+    `
     new d3plus.Pack()
       .select("#viz")
       .groupBy(["group", "id"])
@@ -207,8 +254,12 @@ const examples = [
       ])
       .sum("value")
       .render(done);
-  `],
-  ["tree", "Tree", `
+  `,
+  ],
+  [
+    "tree",
+    "Tree",
+    `
     new d3plus.Tree()
       .select("#viz")
       .groupBy(["root", "branch", "leaf"])
@@ -221,8 +272,12 @@ const examples = [
         {root: "Root", branch: "Branch 3", leaf: "Leaf F", id: "3f"},
       ])
       .render(done);
-  `],
-  ["matrix", "Matrix", `
+  `,
+  ],
+  [
+    "matrix",
+    "Matrix",
+    `
     new d3plus.Matrix()
       .select("#viz")
       .data([
@@ -245,8 +300,12 @@ const examples = [
       .columnConfig({title: "Column"})
       .rowConfig({title: "Row"})
       .render(done);
-  `],
-  ["radial-matrix", "RadialMatrix", `
+  `,
+  ],
+  [
+    "radial-matrix",
+    "RadialMatrix",
+    `
     new d3plus.RadialMatrix()
       .select("#viz")
       .data([
@@ -270,8 +329,12 @@ const examples = [
       .colorScaleConfig({scale: "jenks", legendConfig: {title: "Value"}})
       .colorScalePosition("right")
       .render(done);
-  `],
-  ["priestley", "Priestley", `
+  `,
+  ],
+  [
+    "priestley",
+    "Priestley",
+    `
     new d3plus.Priestley()
       .select("#viz")
       .data([
@@ -284,8 +347,12 @@ const examples = [
       ])
       .groupBy("group")
       .render(done);
-  `],
-  ["radar", "Radar", `
+  `,
+  ],
+  [
+    "radar",
+    "Radar",
+    `
     new d3plus.Radar()
       .select("#viz")
       .data([
@@ -302,8 +369,12 @@ const examples = [
       ])
       .groupBy("group")
       .render(done);
-  `],
-  ["sankey", "Sankey", `
+  `,
+  ],
+  [
+    "sankey",
+    "Sankey",
+    `
     new d3plus.Sankey()
       .select("#viz")
       .links([
@@ -317,8 +388,12 @@ const examples = [
         {source: "Hub 2", target: "Out Y", value: 20},
       ])
       .render(done);
-  `],
-  ["network", "Network", `
+  `,
+  ],
+  [
+    "network",
+    "Network",
+    `
     new d3plus.Network()
       .select("#viz")
       .nodes([
@@ -333,8 +408,12 @@ const examples = [
         {source: "F", target: "B"},
       ])
       .render(done);
-  `],
-  ["rings", "Rings", `
+  `,
+  ],
+  [
+    "rings",
+    "Rings",
+    `
     new d3plus.Rings()
       .select("#viz")
       .center("Hub")
@@ -350,8 +429,12 @@ const examples = [
         {source: "Node C", target: "Leaf 3"}, {source: "Node D", target: "Leaf 4"},
       ])
       .render(done);
-  `],
-  ["geomap", "Geomap", `
+  `,
+  ],
+  [
+    "geomap",
+    "Geomap",
+    `
     new d3plus.Geomap()
       .select("#viz")
       .data([{id: "01", population: 4830620}, {id: "02", population: 733375}, {id: "04", population: 6641928}, {id: "05", population: 2958208}, {id: "06", population: 38421464}, {id: "08", population: 5278906}, {id: "09", population: 3593222}, {id: "10", population: 926454}, {id: "11", population: 647484}, {id: "12", population: 19645772}, {id: "13", population: 10006693}, {id: "15", population: 1406299}, {id: "16", population: 1616547}, {id: "17", population: 12873761}, {id: "18", population: 6568645}, {id: "19", population: 3093526}, {id: "20", population: 2892987}, {id: "21", population: 4397353}, {id: "22", population: 4625253}, {id: "23", population: 1329100}, {id: "24", population: 5930538}, {id: "25", population: 6705586}, {id: "26", population: 9900571}, {id: "27", population: 5419171}, {id: "28", population: 2988081}, {id: "29", population: 6045448}, {id: "30", population: 1014699}, {id: "31", population: 1869365}, {id: "32", population: 2798636}, {id: "33", population: 1324201}, {id: "34", population: 8904413}, {id: "35", population: 2084117}, {id: "36", population: 19673174}, {id: "37", population: 9845333}, {id: "38", population: 721640}, {id: "39", population: 11575977}, {id: "40", population: 3849733}, {id: "41", population: 3939233}, {id: "42", population: 12779559}, {id: "44", population: 1053661}, {id: "45", population: 4777576}, {id: "46", population: 843190}, {id: "47", population: 6499615}, {id: "48", population: 26538614}, {id: "49", population: 2903379}, {id: "50", population: 626604}, {id: "51", population: 8256630}, {id: "53", population: 6985464}, {id: "54", population: 1851420}, {id: "55", population: 5742117}, {id: "56", population: 579679}])
@@ -362,7 +445,8 @@ const examples = [
       .projection("geoAlbersUsa")
       .tiles(false)
       .render(done);
-  `],
+  `,
+  ],
 ];
 
 async function renderChart(browser, scriptTag, body, file) {
@@ -396,7 +480,11 @@ async function renderChart(browser, scriptTag, body, file) {
     return {ok: true, errors};
   } catch (e) {
     // leave a blank/partial screenshot if possible for the composite
-    try { await page.screenshot({path: file, fullPage: false}); } catch { /* no page to capture */ }
+    try {
+      await page.screenshot({path: file, fullPage: false});
+    } catch {
+      /* no page to capture */
+    }
     return {ok: false, error: e.message, errors};
   } finally {
     await page.close();
@@ -413,7 +501,9 @@ async function compositePair(browser, name, label, v3Res, v4Res, v4cRes) {
   const v4Img = dataUri(path.join(outDir, "v4", `${name}.png`));
   const v4cImg = dataUri(path.join(outDir, "v4-canvas", `${name}.png`));
   const badge = res =>
-    res.ok ? "" : `<span class="bad">render failed: ${(res.error || "").replace(/</g, "&lt;")}</span>`;
+    res.ok
+      ? ""
+      : `<span class="bad">render failed: ${(res.error || "").replace(/</g, "&lt;")}</span>`;
   const panel = (title, sub, img, res) => `
     <div class="panel">
       <div class="cap"><b>${title}</b> <span class="sub">${sub}</span> ${badge(res)}</div>
@@ -439,9 +529,14 @@ async function compositePair(browser, name, label, v3Res, v4Res, v4cRes) {
       ${panel("v4 · Canvas", 'renderer("canvas")', v4cImg, v4cRes)}
     </div>
   </body></html>`;
-  const page = await browser.newPage({viewport: {width: W * 3 + 6, height: H + 100}});
+  const page = await browser.newPage({
+    viewport: {width: W * 3 + 6, height: H + 100},
+  });
   await page.setContent(html);
-  await page.screenshot({path: path.join(outDir, "pairs", `${name}.png`), fullPage: true});
+  await page.screenshot({
+    path: path.join(outDir, "pairs", `${name}.png`),
+    fullPage: true,
+  });
   await page.close();
 }
 
@@ -450,17 +545,19 @@ async function buildOverview(browser, items, perSheet) {
   for (let i = 0; i < items.length; i += perSheet) {
     sheets.push(items.slice(i, i + perSheet));
   }
-  const sw = 380, sh = Math.round(sw * H / W);
+  const sw = 380,
+    sh = Math.round((sw * H) / W);
   for (let s = 0; s < sheets.length; s++) {
-    const rows = sheets[s].map(({name, label, v3Res, v4Res, v4cRes}) => {
-      const v3Img = dataUri(path.join(outDir, "v3", `${name}.png`));
-      const v4Img = dataUri(path.join(outDir, "v4", `${name}.png`));
-      const v4cImg = dataUri(path.join(outDir, "v4-canvas", `${name}.png`));
-      const cell = (img, ok) =>
-        img && ok
-          ? `<img src="${img}" width="${sw}" height="${sh}">`
-          : `<div class="x" style="width:${sw}px;height:${sh}px">failed</div>`;
-      return `<div class="rrow">
+    const rows = sheets[s]
+      .map(({name, label, v3Res, v4Res, v4cRes}) => {
+        const v3Img = dataUri(path.join(outDir, "v3", `${name}.png`));
+        const v4Img = dataUri(path.join(outDir, "v4", `${name}.png`));
+        const v4cImg = dataUri(path.join(outDir, "v4-canvas", `${name}.png`));
+        const cell = (img, ok) =>
+          img && ok
+            ? `<img src="${img}" width="${sw}" height="${sh}">`
+            : `<div class="x" style="width:${sw}px;height:${sh}px">failed</div>`;
+        return `<div class="rrow">
         <div class="rlabel">${label}</div>
         <div class="cells">
           <div class="cell">${cell(v3Img, v3Res.ok)}</div>
@@ -468,7 +565,8 @@ async function buildOverview(browser, items, perSheet) {
           <div class="cell">${cell(v4cImg, v4cRes.ok)}</div>
         </div>
       </div>`;
-    }).join("");
+      })
+      .join("");
     const html = `<!doctype html><html><body>
       <style>
         body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #fff; padding: 16px; }
@@ -483,7 +581,9 @@ async function buildOverview(browser, items, perSheet) {
       <div class="head"><div>v3 &nbsp;<span style="font-weight:400;color:#888">(3.1.6)</span></div><div>v4 SVG &nbsp;<span style="font-weight:400;color:#888">(branch)</span></div><div>v4 Canvas &nbsp;<span style="font-weight:400;color:#888">(branch)</span></div></div>
       ${rows}
     </body></html>`;
-    const page = await browser.newPage({viewport: {width: 150 + sw * 3 + 80, height: 800}});
+    const page = await browser.newPage({
+      viewport: {width: 150 + sw * 3 + 80, height: 800},
+    });
     await page.setContent(html);
     const file = path.join(outDir, `overview-${s + 1}.png`);
     await page.screenshot({path: file, fullPage: true});
@@ -495,7 +595,8 @@ async function buildOverview(browser, items, perSheet) {
 async function main() {
   console.log("Building v4 UMD bundle…");
   await buildUmd();
-  if (!fs.existsSync(umdPath)) throw new Error(`UMD bundle not found at ${umdPath}`);
+  if (!fs.existsSync(umdPath))
+    throw new Error(`UMD bundle not found at ${umdPath}`);
   const v4Umd = fs.readFileSync(umdPath, "utf8");
 
   console.log("Fetching v3 bundle…");
@@ -506,13 +607,28 @@ async function main() {
 
   for (const [name, label, body] of examples) {
     process.stdout.write(`  ${label.padEnd(14)} v3…`);
-    const v3Res = await renderChart(browser, {content: v3Umd}, body, path.join(outDir, "v3", `${name}.png`));
+    const v3Res = await renderChart(
+      browser,
+      {content: v3Umd},
+      body,
+      path.join(outDir, "v3", `${name}.png`),
+    );
     process.stdout.write(v3Res.ok ? " ✓" : " ✗");
     process.stdout.write("  v4-svg…");
-    const v4Res = await renderChart(browser, {content: v4Umd}, body, path.join(outDir, "v4", `${name}.png`));
+    const v4Res = await renderChart(
+      browser,
+      {content: v4Umd},
+      body,
+      path.join(outDir, "v4", `${name}.png`),
+    );
     process.stdout.write(v4Res.ok ? " ✓" : " ✗");
     process.stdout.write("  v4-canvas…");
-    const v4cRes = await renderChart(browser, {content: v4Umd}, canvasBody(body), path.join(outDir, "v4-canvas", `${name}.png`));
+    const v4cRes = await renderChart(
+      browser,
+      {content: v4Umd},
+      canvasBody(body),
+      path.join(outDir, "v4-canvas", `${name}.png`),
+    );
     process.stdout.write(v4cRes.ok ? " ✓" : " ✗");
     await compositePair(browser, name, label, v3Res, v4Res, v4cRes);
     console.log("  composited");
@@ -527,10 +643,15 @@ async function main() {
   console.log("\nSummary:");
   for (const {label, v3Res, v4Res, v4cRes} of items) {
     const f = r => (r.ok ? "✓" : `✗ ${r.error}`);
-    console.log(`  ${label.padEnd(14)} v3:${f(v3Res).padEnd(20)} v4-svg:${f(v4Res).padEnd(20)} v4-canvas:${f(v4cRes)}`);
-    for (const e of [...v3Res.errors, ...v4Res.errors, ...v4cRes.errors]) console.log(`       page-error: ${e}`);
+    console.log(
+      `  ${label.padEnd(14)} v3:${f(v3Res).padEnd(20)} v4-svg:${f(v4Res).padEnd(20)} v4-canvas:${f(v4cRes)}`,
+    );
+    for (const e of [...v3Res.errors, ...v4Res.errors, ...v4cRes.errors])
+      console.log(`       page-error: ${e}`);
   }
-  console.log(`\nDone. Composites in ${path.join(outDir, "pairs")}/, overviews in ${outDir}/`);
+  console.log(
+    `\nDone. Composites in ${path.join(outDir, "pairs")}/, overviews in ${outDir}/`,
+  );
 }
 
 main().catch(e => {

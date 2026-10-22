@@ -15,9 +15,9 @@ export default {
         component: "Rotates a polygon around a given origin.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -25,7 +25,12 @@ import GeometryExample from "../../helpers/GeometryExample.jsx";
 import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 const r = n => Math.round(n * 100) / 100;
-const poly = [[60, 70], [200, 60], [210, 130], [90, 150]];
+const poly = [
+  [60, 70],
+  [200, 60],
+  [210, 130],
+  [90, 150],
+];
 const center = [140, 100];
 const alpha = Math.PI / 6;
 const rotated = polygonRotate(poly, alpha, center);
@@ -35,7 +40,13 @@ const call = `polygonRotate(poly, Math.PI / 6, ${JSON.stringify(center)})`;
 export const BasicExample = () => (
   <GeometryExample
     shapes={[
-      {type: "polygon", points: poly, fill: "none", stroke: "#adb5bd", dashed: true},
+      {
+        type: "polygon",
+        points: poly,
+        fill: "none",
+        stroke: "#adb5bd",
+        dashed: true,
+      },
       {type: "polygon", points: rotated},
       {type: "point", at: center, fill: "#868e96", r: 3, label: "origin"},
     ]}
@@ -45,10 +56,14 @@ export const BasicExample = () => (
 BasicExample.parameters = {
   docs: {
     ...sourceSnippet("math", "polygonRotate", [
-      {call: `const poly = ${JSON.stringify(poly)};\n${call}`, result: show(rotated)},
+      {
+        call: `const poly = ${JSON.stringify(poly)};\n${call}`,
+        result: show(rotated),
+      },
     ]).docs,
     description: {
-      story: "Rotates every point of a polygon by the same angle (radians) around an origin, which defaults to `[0, 0]`. Here the dashed shape turns 30° about its own center into the solid one. `largestRect` tries candidate rectangles at many angles this way.",
+      story:
+        "Rotates every point of a polygon by the same angle (radians) around an origin, which defaults to `[0, 0]`. Here the dashed shape turns 30° about its own center into the solid one. `largestRect` tries candidate rectangles at many angles this way.",
     },
   },
 };

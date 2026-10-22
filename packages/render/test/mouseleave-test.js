@@ -15,12 +15,22 @@ for (const [name, Ctor, selector] of [
   it(`${name} dispatches mouseleave with no prior hover`, () => {
     const renderer = new Ctor();
     renderer.mount({container: document.body, width: 200, height: 100});
-    renderer.drawScene({width: 200, height: 100, root: {type: "group", key: "root", children: []}});
+    renderer.drawScene({
+      width: 200,
+      height: 100,
+      root: {type: "group", key: "root", children: []},
+    });
     const events = [];
     renderer.on(e => events.push(e));
     const surface = document.querySelector(selector);
-    surface.dispatchEvent(new window.MouseEvent("mouseleave", {clientX: 5, clientY: 5}));
-    assert.deepStrictEqual(events.map(e => e.type), ["mouseleave"], "one mouseleave dispatched");
+    surface.dispatchEvent(
+      new window.MouseEvent("mouseleave", {clientX: 5, clientY: 5}),
+    );
+    assert.deepStrictEqual(
+      events.map(e => e.type),
+      ["mouseleave"],
+      "one mouseleave dispatched",
+    );
     assert.strictEqual(events[0].pick, null, "mouseleave carries no pick");
     renderer.destroy();
   });

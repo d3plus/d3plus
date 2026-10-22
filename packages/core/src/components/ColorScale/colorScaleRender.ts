@@ -38,7 +38,12 @@ function prepareGradientAxis(
   cs: ColorScale,
   compute: ColorScaleCompute,
   offsets: Record<string, number>,
-): {axisConfig: Record<string, unknown>; labelConfig: Record<string, unknown>; axisDomain: number[]; labelData: string[]} {
+): {
+  axisConfig: Record<string, unknown>;
+  labelConfig: Record<string, unknown>;
+  axisDomain: number[];
+  labelData: string[];
+} {
   const {horizontal, height, width, domain, labels, ticks} = compute;
 
   const axisDomain = (domain as number[]).slice();
@@ -137,7 +142,11 @@ function renderGradientAxes(
   groups: ColorScaleGroups,
   axisConfig: Record<string, unknown>,
   offsets: Record<string, number>,
-): {axisBounds: Record<string, number>; axisScale: AxisScale; scaleRange: unknown[]} {
+): {
+  axisBounds: Record<string, number>;
+  axisScale: AxisScale;
+  scaleRange: unknown[];
+} {
   const {horizontal, height, width, x, y} = compute;
 
   cs._axisTest
@@ -251,9 +260,7 @@ function renderGradientRect(
   const rectConfig: Record<string, unknown> = assign(
     {
       duration: cs.schema.duration,
-      fill: ticks
-        ? (d: number) => cs._colorScale!(d)
-        : cs._gradientFill,
+      fill: ticks ? (d: number) => cs._colorScale!(d) : cs._gradientFill,
       [x]: ticks
         ? (d: number, i: number) =>
             axisScale(d) +
@@ -261,13 +268,17 @@ function renderGradientRect(
             (["left", "right"].includes(cs.schema.orient)
               ? bucketWidth(d, i)
               : 0)
-        : (scaleRange[0] as number) + ((scaleRange[1] as number) - (scaleRange[0] as number)) / 2 + offsets[x],
+        : (scaleRange[0] as number) +
+          ((scaleRange[1] as number) - (scaleRange[0] as number)) / 2 +
+          offsets[x],
       [y]:
         cs._outerBounds[y] +
         (["top", "left"].includes(cs.schema.orient) ? axisBounds[height] : 0) +
         cs.schema.size / 2 +
         offsets[y],
-      [width]: ticks ? bucketWidth : (scaleRange[1] as number) - (scaleRange[0] as number),
+      [width]: ticks
+        ? bucketWidth
+        : (scaleRange[1] as number) - (scaleRange[0] as number),
       [height]: cs.schema.size,
     },
     cs.schema.rectConfig,
@@ -307,7 +318,9 @@ function renderGradientLabels(
     .select(groups.labelGroup.node() as unknown as HTMLElement)
     .x(((d: DataPoint) =>
       (d as unknown as string) === cs._labelMax
-        ? (rectConfig.x as number) + (rectConfig.width as number) / 2 + cs.schema.padding
+        ? (rectConfig.x as number) +
+          (rectConfig.width as number) / 2 +
+          cs.schema.padding
         : cs._outerBounds.x) as unknown as number)
     .y(
       ((d: DataPoint) =>
@@ -390,7 +403,12 @@ export function renderLegendVariant(
     {
       align: horizontal
         ? "center"
-        : ({start: "left", middle: "center", end: "right"} as Record<string, string>)[cs.schema.align],
+        : (
+            {start: "left", middle: "center", end: "right"} as Record<
+              string,
+              string
+            >
+          )[cs.schema.align],
       direction: horizontal ? "row" : "column",
       duration: cs.schema.duration,
       height: cs.schema.height,
@@ -400,10 +418,18 @@ export function renderLegendVariant(
         (cs.schema.axisConfig.shapeConfig || {}) as Record<string, unknown>,
       ),
       title: cs.schema.axisConfig.title,
-      titleConfig: (cs.schema.axisConfig.titleConfig || {}) as Record<string, unknown>,
+      titleConfig: (cs.schema.axisConfig.titleConfig || {}) as Record<
+        string,
+        unknown
+      >,
       width: cs.schema.width,
       verticalAlign: horizontal
-        ? ({start: "top", middle: "middle", end: "bottom"} as Record<string, string>)[cs.schema.align]
+        ? (
+            {start: "top", middle: "middle", end: "bottom"} as Record<
+              string,
+              string
+            >
+          )[cs.schema.align]
         : "middle",
     } as Record<string, unknown>,
     cs.schema.legendConfig,

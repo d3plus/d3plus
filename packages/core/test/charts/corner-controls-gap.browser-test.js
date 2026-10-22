@@ -32,8 +32,10 @@ const measure = (renderer, title) =>
         const viz = new window.d3plus.BarChart()
           .select("#viz")
           .data([
-            {g: "A", x: "Q1", y: 35}, {g: "A", x: "Q2", y: 50},
-            {g: "B", x: "Q1", y: 20}, {g: "B", x: "Q2", y: 45},
+            {g: "A", x: "Q1", y: 35},
+            {g: "A", x: "Q2", y: 50},
+            {g: "B", x: "Q1", y: 20},
+            {g: "B", x: "Q2", y: 45},
           ])
           .groupBy("g")
           .x("x")
@@ -44,7 +46,9 @@ const measure = (renderer, title) =>
         viz.render(async () => {
           try {
             const surface = document.querySelector(
-              renderer === "canvas" ? "#viz canvas.d3plus-render-canvas" : "#viz svg.d3plus-viz",
+              renderer === "canvas"
+                ? "#viz canvas.d3plus-render-canvas"
+                : "#viz svg.d3plus-viz",
             );
             const origin = surface.getBoundingClientRect();
             const panel = selector => {
@@ -69,15 +73,23 @@ const measure = (renderer, title) =>
               canvas = document.createElement("canvas");
               canvas.width = origin.width;
               canvas.height = origin.height;
-              canvas.getContext("2d").drawImage(img, 0, 0, origin.width, origin.height);
+              canvas
+                .getContext("2d")
+                .drawImage(img, 0, 0, origin.width, origin.height);
             }
             const ratio = canvas.width / origin.width;
-            const {data} = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height);
-            const ink = i => data[i + 3] > 128 && (data[i] < 235 || data[i + 1] < 235 || data[i + 2] < 235);
+            const {data} = canvas
+              .getContext("2d")
+              .getImageData(0, 0, canvas.width, canvas.height);
+            const ink = i =>
+              data[i + 3] > 128 &&
+              (data[i] < 235 || data[i + 1] < 235 || data[i + 2] < 235);
             const firstInk = p => {
-              const x0 = Math.floor(p.left * ratio), x1 = Math.ceil(p.right * ratio);
+              const x0 = Math.floor(p.left * ratio),
+                x1 = Math.ceil(p.right * ratio);
               for (let y = Math.ceil(p.bottom * ratio); y < canvas.height; y++)
-                for (let x = x0; x < x1; x++) if (ink((y * canvas.width + x) * 4)) return y / ratio;
+                for (let x = x0; x < x1; x++)
+                  if (ink((y * canvas.width + x) * 4)) return y / ratio;
               return Infinity;
             };
             const gap = p => firstInk(p) - Math.ceil(p.bottom);
@@ -98,14 +110,20 @@ for (const renderer of ["svg", "canvas"]) {
   for (const title of [false, "Quarterly exports"]) {
     it(`${renderer}: a BarChart ${title ? "with" : "without"} a title leaves a button-margin gap below the corner controls`, async function () {
       const out = await measure(renderer, title);
-      assert.ok(out.offset > 0, `the buttons sit in from the top edge (${out.offset})`);
+      assert.ok(
+        out.offset > 0,
+        `the buttons sit in from the top edge (${out.offset})`,
+      );
       // Where a label's ink starts within its line depends on the font, so
       // the gap is at least one button-margin and only a few rows more.
       assert.ok(
         out.topLeft >= out.offset - 1 && out.topLeft <= out.offset + 3,
         `the y-axis max label starts one button-margin below the top-left controls (gap ${out.topLeft} vs margin ${out.offset})`,
       );
-      assert.ok(out.zoom >= out.offset - 1, `nothing comes closer under the zoom controls (gap ${out.zoom})`);
+      assert.ok(
+        out.zoom >= out.offset - 1,
+        `nothing comes closer under the zoom controls (gap ${out.zoom})`,
+      );
     });
   }
 }

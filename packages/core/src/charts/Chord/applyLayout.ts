@@ -49,6 +49,32 @@ export interface ChordCtx {
 type RawLink = Record<string, unknown>;
 
 /**
+    Infer the node set from link endpoints, ordered-distinct by first
+    appearance (mirrors Sankey).
+*/
+function inferChordNodes(
+  links: RawLink[],
+  sourceKey: string,
+  targetKey: string,
+): DataPoint[] {
+  const seen = new Set<unknown>();
+  const ids: unknown[] = [];
+  for (const link of links) {
+    const src = link[sourceKey];
+    if (!seen.has(src)) {
+      seen.add(src);
+      ids.push(src);
+    }
+    const tgt = link[targetKey];
+    if (!seen.has(tgt)) {
+      seen.add(tgt);
+      ids.push(tgt);
+    }
+  }
+  return ids.map(id => ({id}) as DataPoint);
+}
+
+/**
     Compute each node's label geometry — a tangential label just outside the
     outer arc, rotated to read radially, flipped upright on the left half
     (mirrors Rings' label placement). Mutates each node in place.
@@ -72,10 +98,20 @@ function applyChordLabelGeometry(
       // Left half: flip the text upright and extend it inward (−x) in the box's
       // local frame so it still reads outward from the arc.
       deg += 180;
-      node.labelBounds = {x: -(labelWidth + pad), y: -lineHeight / 2, width: labelWidth, height: lineHeight};
+      node.labelBounds = {
+        x: -(labelWidth + pad),
+        y: -lineHeight / 2,
+        width: labelWidth,
+        height: lineHeight,
+      };
       node.labelAnchor = "end";
     } else {
-      node.labelBounds = {x: pad, y: -lineHeight / 2, width: labelWidth, height: lineHeight};
+      node.labelBounds = {
+        x: pad,
+        y: -lineHeight / 2,
+        width: labelWidth,
+        height: lineHeight,
+      };
       node.labelAnchor = "start";
     }
     node.labelRotate = deg;
@@ -94,28 +130,14 @@ export const applyChordLayout: TransformStage = ({viz}) => {
     return {viz};
   }
 
-  // Resolve the node set — explicit, or inferred (ordered-distinct) from the
-  // link endpoints, mirroring Sankey.
-  let rawNodes: DataPoint[];
-  if (hasNodes) {
-    rawNodes = v.schema.nodes as DataPoint[];
-  } else {
-    const seen = new Set<unknown>();
-    const ids: unknown[] = [];
-    for (const link of v.schema.links as RawLink[]) {
-      const src = link[v.schema.linksSource as string];
-      if (!seen.has(src)) {
-        seen.add(src);
-        ids.push(src);
-      }
-      const tgt = link[v.schema.linksTarget as string];
-      if (!seen.has(tgt)) {
-        seen.add(tgt);
-        ids.push(tgt);
-      }
-    }
-    rawNodes = ids.map(id => ({id}) as DataPoint);
-  }
+  // Resolve the node set — explicit, or inferred from the link endpoints.
+  const rawNodes: DataPoint[] = hasNodes
+    ? (v.schema.nodes as DataPoint[])
+    : inferChordNodes(
+        v.schema.links as RawLink[],
+        v.schema.linksSource as string,
+        v.schema.linksTarget as string,
+      );
 
   const nodes: ChordNode[] = rawNodes.map((n, i) => ({
     __d3plus__: true,
@@ -134,7 +156,9 @@ export const applyChordLayout: TransformStage = ({viz}) => {
 
   // Build the n×n flow matrix. Fresh inner arrays (not `Array(n).fill(shared)`).
   const n = nodes.length;
-  const matrix: number[][] = Array.from({length: n}, () => new Array(n).fill(0));
+  const matrix: number[][] = Array.from({length: n}, () =>
+    new Array(n).fill(0),
+  );
   const adjacency: Record<string, (string | number)[]> = {};
   const addAdj = (a: string | number, b: string | number) => {
     (adjacency[String(a)] ??= []).push(b);
@@ -189,7 +213,9 @@ export const applyChordLayout: TransformStage = ({viz}) => {
   const useArrows =
     typeof arrows === "function" ? true : !!arrows && arrows !== "source";
   const arrowSize =
-    typeof v.schema.arrowSize === "number" ? (v.schema.arrowSize as number) : undefined;
+    typeof v.schema.arrowSize === "number"
+      ? (v.schema.arrowSize as number)
+      : undefined;
   let ribbonFn: (d: Chord) => string;
   if (useArrows) {
     const gen = ribbonArrow<Chord, ChordSubgroup>()

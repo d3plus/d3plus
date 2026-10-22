@@ -8,7 +8,10 @@ unique(["apple", "banana", "apple"]);
     @example <caption>returns this</caption>
 ["apple", "banana"]
 */
-export default function <T>(arr: T[], accessor: (d: T) => unknown = d => d): T[] {
+export default function <T>(
+  arr: T[],
+  accessor: (d: T) => unknown = d => d,
+): T[] {
   const seen = new Set<unknown>();
   return arr.filter(obj => {
     const d = accessor(obj);

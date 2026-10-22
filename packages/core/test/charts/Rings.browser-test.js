@@ -14,7 +14,9 @@ it("Rings click.shape clears the current tooltip when re-centering", async funct
           {source: "alpha", target: "gamma"},
           {source: "beta", target: "delta"},
         ])
-        .width(400).height(400).duration(0);
+        .width(400)
+        .height(400)
+        .duration(0);
       await new Promise(r => viz.render(r));
 
       // Simulate a tooltip currently on screen (as if hovering a node).

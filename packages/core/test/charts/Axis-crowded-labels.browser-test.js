@@ -15,7 +15,8 @@ const probe = ([kind, first, last, width]) =>
   new Promise(resolve => {
     const data = [];
     ["A", "B"].forEach((id, s) => {
-      for (let year = first; year <= last; year++) data.push({id, year, value: 10 + s * 5 + (year - first)});
+      for (let year = first; year <= last; year++)
+        data.push({id, year, value: 10 + s * 5 + (year - first)});
     });
     document.querySelector("#viz").style.width = `${width}px`;
     const viz = new window.d3plus[kind]()
@@ -26,26 +27,49 @@ const probe = ([kind, first, last, width]) =>
       .duration(0)
       .select("#viz");
     viz.render(() => {
-      const years = new Set(Array.from({length: last - first + 1}, (_, i) => `${first + i}`));
+      const years = new Set(
+        Array.from({length: last - first + 1}, (_, i) => `${first + i}`),
+      );
       const labels = Array.from(document.querySelectorAll("#viz text"))
         .filter(t => years.has(t.textContent))
         .map(t => {
           const b = t.getBoundingClientRect();
-          return {text: t.textContent, left: b.left, right: b.right, top: b.top, bottom: b.bottom};
+          return {
+            text: t.textContent,
+            left: b.left,
+            right: b.right,
+            top: b.top,
+            bottom: b.bottom,
+          };
         });
       resolve({labels, rotated: !!viz._xAxis._labelRotation});
     });
   });
 
 const run = (kind, first, last, width = 600) =>
-  render('<div id="viz" style="height:400px"></div>', probe, [kind, first, last, width]);
+  render('<div id="viz" style="height:400px"></div>', probe, [
+    kind,
+    first,
+    last,
+    width,
+  ]);
 
 /** Whether any two label boxes overlap. */
 it("crowded point axis — keeps labels instead of dropping them all", async () => {
-  for (const [first, last] of [[2012, 2029], [2000, 2029], [1950, 2029]]) {
+  for (const [first, last] of [
+    [2012, 2029],
+    [2000, 2029],
+    [1950, 2029],
+  ]) {
     const r = await run("LinePlot", first, last);
-    assert.ok(r.labels.length >= 2, `${last - first + 1} years: shows labels (${r.labels.length})`);
-    assert.ok(!anyOverlap(r.labels, 0.5), `${last - first + 1} years: labels don't overlap`);
+    assert.ok(
+      r.labels.length >= 2,
+      `${last - first + 1} years: shows labels (${r.labels.length})`,
+    );
+    assert.ok(
+      !anyOverlap(r.labels, 0.5),
+      `${last - first + 1} years: labels don't overlap`,
+    );
   }
 });
 
@@ -62,17 +86,39 @@ it("roomy point axis — every label still shows", async () => {
 });
 
 it("crowded point axis — a vertical axis thins labels instead of dropping them all", async () => {
-  const r = await render('<div id="viz" style="width:500px;height:300px"></div>', () =>
-    new Promise(resolve => {
-      const data = [];
-      for (let year = 2000; year <= 2029; year++) data.push({id: "A", year: `${year}`, value: year - 1990});
-      const viz = new window.d3plus.BarChart()
-        .data(data).groupBy("id").discrete("y").y("year").x("value").duration(0).select("#viz");
-      viz.render(() => resolve(Array.from(document.querySelectorAll("#viz [data-key='plot-y-axis'] text")).map(t => {
-        const b = t.getBoundingClientRect();
-        return {text: t.textContent, left: b.left, right: b.right, top: b.top, bottom: b.bottom};
-      })));
-    }));
+  const r = await render(
+    '<div id="viz" style="width:500px;height:300px"></div>',
+    () =>
+      new Promise(resolve => {
+        const data = [];
+        for (let year = 2000; year <= 2029; year++)
+          data.push({id: "A", year: `${year}`, value: year - 1990});
+        const viz = new window.d3plus.BarChart()
+          .data(data)
+          .groupBy("id")
+          .discrete("y")
+          .y("year")
+          .x("value")
+          .duration(0)
+          .select("#viz");
+        viz.render(() =>
+          resolve(
+            Array.from(
+              document.querySelectorAll("#viz [data-key='plot-y-axis'] text"),
+            ).map(t => {
+              const b = t.getBoundingClientRect();
+              return {
+                text: t.textContent,
+                left: b.left,
+                right: b.right,
+                top: b.top,
+                bottom: b.bottom,
+              };
+            }),
+          ),
+        );
+      }),
+  );
   assert.ok(r.length >= 2 && r.length < 30, `shows some labels (${r.length})`);
   assert.ok(!anyOverlap(r, 0.5), "labels don't overlap");
 });

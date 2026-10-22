@@ -36,11 +36,7 @@ export interface StackOrderFieldConfig {
 
 /** Every shape `Plot.stackOrder` accepts. */
 export type StackOrderInput =
-  | string
-  | string[]
-  | StackOrderFieldConfig
-  | ValueAccessor
-  | StackOrderFn;
+  string | string[] | StackOrderFieldConfig | ValueAccessor | StackOrderFn;
 
 /** A single formatted Plot row, as carried on each stacked point's `.data`. */
 type Row = {id?: unknown; data?: DataPoint; [key: string]: unknown};
@@ -92,7 +88,10 @@ export const stackOrderKey = tagOrder((series: Series[]) => {
   const keys = series.map((d: Series) => d.key.split("_")[0]);
   return d3Shape
     .stackOrderNone(asStack(series))
-    .sort((a: number, b: number) => keys[a].localeCompare(keys[b]) || sums[a] - sums[b]);
+    .sort(
+      (a: number, b: number) =>
+        keys[a].localeCompare(keys[b]) || sums[a] - sums[b],
+    );
 });
 
 /**
@@ -142,9 +141,15 @@ const NAMED_ORDERS: Record<string, StackOrderFn> = {
   keyReverse: stackOrderKeyReverse,
   none: tagOrder((series: Series[]) => d3Shape.stackOrderNone(asStack(series))),
   data: tagOrder((series: Series[]) => d3Shape.stackOrderNone(asStack(series))),
-  insideOut: tagOrder((series: Series[]) => d3Shape.stackOrderInsideOut(asStack(series))),
-  appearance: tagOrder((series: Series[]) => d3Shape.stackOrderAppearance(asStack(series))),
-  reverse: tagOrder((series: Series[]) => d3Shape.stackOrderReverse(asStack(series))),
+  insideOut: tagOrder((series: Series[]) =>
+    d3Shape.stackOrderInsideOut(asStack(series)),
+  ),
+  appearance: tagOrder((series: Series[]) =>
+    d3Shape.stackOrderAppearance(asStack(series)),
+  ),
+  reverse: tagOrder((series: Series[]) =>
+    d3Shape.stackOrderReverse(asStack(series)),
+  ),
 };
 
 /** The named orders accepted by `Plot.stackOrder`, for docs/validation. */
@@ -155,7 +160,9 @@ export const stackOrderNames = Object.keys(NAMED_ORDERS);
     a tagged comparator, or an explicit array of series keys. Warns and falls
     back to the default on an unrecognized name.
 */
-export function resolveStackOrder(input: StackOrderInput): StackOrderFn | string[] {
+export function resolveStackOrder(
+  input: StackOrderInput,
+): StackOrderFn | string[] {
   if (typeof input === "function") {
     // Already-resolved order (constructor default / config() reset) passes
     // through; a bare user function is treated as a value accessor.
@@ -166,7 +173,10 @@ export function resolveStackOrder(input: StackOrderInput): StackOrderFn | string
   if (Array.isArray(input)) return input;
   if (input && typeof input === "object") {
     const {value, order} = input as StackOrderFieldConfig;
-    return stackOrderField(typeof value === "function" ? value : accessor(value), order);
+    return stackOrderField(
+      typeof value === "function" ? value : accessor(value),
+      order,
+    );
   }
   if (typeof input === "string") {
     if (input in NAMED_ORDERS) return NAMED_ORDERS[input];
@@ -221,9 +231,12 @@ export const stackOffsetNames = Object.keys(NAMED_OFFSETS);
     Normalizes a `stackOffset` input into an offset function. Warns and falls
     back to the diverging default on an unrecognized name.
 */
-export function resolveStackOffset(input: string | StackOffsetFn): StackOffsetFn {
+export function resolveStackOffset(
+  input: string | StackOffsetFn,
+): StackOffsetFn {
   if (typeof input === "function") return input;
-  if (typeof input === "string" && input in NAMED_OFFSETS) return NAMED_OFFSETS[input];
+  if (typeof input === "string" && input in NAMED_OFFSETS)
+    return NAMED_OFFSETS[input];
   console.warn(
     `[d3plus] Unknown stackOffset "${input}". Expected one of: ${stackOffsetNames.join(
       ", ",

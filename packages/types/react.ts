@@ -13,5 +13,9 @@
 
 // Only the types unique to @d3plus/react (not the component functions, which
 // share names with @d3plus/core classes).
-export type {D3plusComponentProps, D3plusConstructor, RendererProps} from "@d3plus/react";
+export type {
+  D3plusComponentProps,
+  D3plusConstructor,
+  RendererProps,
+} from "@d3plus/react";
 export {D3plusContext} from "@d3plus/react";

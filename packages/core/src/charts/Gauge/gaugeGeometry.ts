@@ -156,7 +156,11 @@ export function resolveBands(
   let previous = lo;
   for (const b of bands ?? []) {
     if (!b) continue;
-    const min = clamp(Number.isFinite(b.min) ? (b.min as number) : previous, lo, hi);
+    const min = clamp(
+      Number.isFinite(b.min) ? (b.min as number) : previous,
+      lo,
+      hi,
+    );
     const max = clamp(Number.isFinite(b.max) ? (b.max as number) : hi, lo, hi);
     previous = max;
     if (max > min) out.push({min, max, color: b.color ?? fallbackColor});

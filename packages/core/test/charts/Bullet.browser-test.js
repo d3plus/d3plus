@@ -17,103 +17,154 @@ const kpis = [
   {id: "Orders", unit: "count", value: 1650, target: 2100},
 ];
 
-it("Bullet emits one labeled bullet per row with bands, axis, and marks", {timeout: 180000}, async function () {
-  const out = await render(
-    "<div id='viz' style='width:600px;height:360px'></div>",
-    async data => {
-      const viz = new window.d3plus.Bullet()
-        .select("#viz")
-        .duration(0)
-        .data(data)
-        .bands([100, 200])
-        .subLabel("unit");
-      await new Promise(r => viz.render(r));
-      const svg = document.querySelector("#viz svg");
-      const scene = viz._chartScene;
-      return {
-        keys: scene.map(g => g.key),
-        kidKeys: scene[0].children.map(k => k.key),
-        staticKeys: scene[0].children[0].children.map(k => k.key).slice(0, 5),
-        staticInteractive: scene[0].children[0].interactive,
-        texts: [...svg.querySelectorAll("text")].map(t => t.textContent),
-        nan: [...svg.querySelectorAll("*")].filter(n =>
-          [...n.attributes].some(a => a.value.includes("NaN")),
-        ).length,
-        aria: [...svg.querySelectorAll("[aria-label]")].map(n =>
-          n.getAttribute("aria-label"),
-        ),
-        legend: document.querySelectorAll('#viz [data-key="viz-legend"] rect').length,
-        legendFn: viz.schema.legend({}, viz._filteredData),
-        zoomButtons: document.querySelectorAll("#viz .zoom-control").length,
-        measureWidth: Number(
-          document.querySelector("[data-key='bullet-Revenue-measure']").getAttribute("width"),
-        ),
-        forecastWidth: Number(
-          document.querySelector("[data-key='bullet-Revenue-forecast']").getAttribute("width"),
-        ),
-      };
-    },
-    kpis,
-  );
-  assert.deepStrictEqual(out.keys, ["bullet-Revenue", "bullet-Profit", "bullet-Orders"]);
-  assert.deepStrictEqual(out.kidKeys, [
-    "bullet-Revenue-static",
-    "bullet-Revenue::hit",
-    "bullet-Revenue-name",
-    "bullet-Revenue-sub",
-    "bullet-Revenue-forecast",
-    "bullet-Revenue-measure",
-    "bullet-Revenue-target",
-  ]);
-  assert.deepStrictEqual(out.staticKeys, [
-    "bullet-Revenue-track",
-    "bullet-Revenue-band-0",
-    "bullet-Revenue-band-1",
-    "bullet-Revenue-band-2",
-    "bullet-Revenue-ticks",
-  ]);
-  assert.strictEqual(out.staticInteractive, false, "bands and axis are never hit targets");
-  for (const t of ["Revenue", "US$", "Profit", "%", "Orders", "count", "0", "300"])
-    assert.ok(out.texts.includes(t), `renders "${t}"`);
-  assert.strictEqual(out.nan, 0, "no NaN attributes");
-  assert.ok(out.aria.includes("Revenue, 270, Target 250."), "measure aria label");
-  assert.strictEqual(out.legendFn, false, "labeled rows need no legend");
-  assert.strictEqual(out.legend, 0, "no legend is drawn");
-  assert.strictEqual(out.zoomButtons, 0, "zoom is off");
-  assert.ok(out.forecastWidth > out.measureWidth, "the forecast runs past the measure");
-});
+it(
+  "Bullet emits one labeled bullet per row with bands, axis, and marks",
+  {timeout: 180000},
+  async function () {
+    const out = await render(
+      "<div id='viz' style='width:600px;height:360px'></div>",
+      async data => {
+        const viz = new window.d3plus.Bullet()
+          .select("#viz")
+          .duration(0)
+          .data(data)
+          .bands([100, 200])
+          .subLabel("unit");
+        await new Promise(r => viz.render(r));
+        const svg = document.querySelector("#viz svg");
+        const scene = viz._chartScene;
+        return {
+          keys: scene.map(g => g.key),
+          kidKeys: scene[0].children.map(k => k.key),
+          staticKeys: scene[0].children[0].children.map(k => k.key).slice(0, 5),
+          staticInteractive: scene[0].children[0].interactive,
+          texts: [...svg.querySelectorAll("text")].map(t => t.textContent),
+          nan: [...svg.querySelectorAll("*")].filter(n =>
+            [...n.attributes].some(a => a.value.includes("NaN")),
+          ).length,
+          aria: [...svg.querySelectorAll("[aria-label]")].map(n =>
+            n.getAttribute("aria-label"),
+          ),
+          legend: document.querySelectorAll('#viz [data-key="viz-legend"] rect')
+            .length,
+          legendFn: viz.schema.legend({}, viz._filteredData),
+          zoomButtons: document.querySelectorAll("#viz .zoom-control").length,
+          measureWidth: Number(
+            document
+              .querySelector("[data-key='bullet-Revenue-measure']")
+              .getAttribute("width"),
+          ),
+          forecastWidth: Number(
+            document
+              .querySelector("[data-key='bullet-Revenue-forecast']")
+              .getAttribute("width"),
+          ),
+        };
+      },
+      kpis,
+    );
+    assert.deepStrictEqual(out.keys, [
+      "bullet-Revenue",
+      "bullet-Profit",
+      "bullet-Orders",
+    ]);
+    assert.deepStrictEqual(out.kidKeys, [
+      "bullet-Revenue-static",
+      "bullet-Revenue::hit",
+      "bullet-Revenue-name",
+      "bullet-Revenue-sub",
+      "bullet-Revenue-forecast",
+      "bullet-Revenue-measure",
+      "bullet-Revenue-target",
+    ]);
+    assert.deepStrictEqual(out.staticKeys, [
+      "bullet-Revenue-track",
+      "bullet-Revenue-band-0",
+      "bullet-Revenue-band-1",
+      "bullet-Revenue-band-2",
+      "bullet-Revenue-ticks",
+    ]);
+    assert.strictEqual(
+      out.staticInteractive,
+      false,
+      "bands and axis are never hit targets",
+    );
+    for (const t of [
+      "Revenue",
+      "US$",
+      "Profit",
+      "%",
+      "Orders",
+      "count",
+      "0",
+      "300",
+    ])
+      assert.ok(out.texts.includes(t), `renders "${t}"`);
+    assert.strictEqual(out.nan, 0, "no NaN attributes");
+    assert.ok(
+      out.aria.includes("Revenue, 270, Target 250."),
+      "measure aria label",
+    );
+    assert.strictEqual(out.legendFn, false, "labeled rows need no legend");
+    assert.strictEqual(out.legend, 0, "no legend is drawn");
+    assert.strictEqual(out.zoomButtons, 0, "zoom is off");
+    assert.ok(
+      out.forecastWidth > out.measureWidth,
+      "the forecast runs past the measure",
+    );
+  },
+);
 
-it("Bullet grows every rect in from its baseline at full thickness", {timeout: 180000}, async function () {
-  const out = await render(
-    "<div id='viz' style='width:600px;height:360px'></div>",
-    async data => {
-      const viz = new window.d3plus.Bullet()
-        .select("#viz")
-        .duration(0)
-        .data(data)
-        .bands([100, 200]);
-      await new Promise(r => viz.render(r));
-      const [revenue] = viz._chartScene;
-      const nodes = [...revenue.children[0].children, ...revenue.children].filter(
-        n => n.type === "rect" && !`${n.key}`.endsWith("::hit"),
+it(
+  "Bullet grows every rect in from its baseline at full thickness",
+  {timeout: 180000},
+  async function () {
+    const out = await render(
+      "<div id='viz' style='width:600px;height:360px'></div>",
+      async data => {
+        const viz = new window.d3plus.Bullet()
+          .select("#viz")
+          .duration(0)
+          .data(data)
+          .bands([100, 200]);
+        await new Promise(r => viz.render(r));
+        const [revenue] = viz._chartScene;
+        const nodes = [
+          ...revenue.children[0].children,
+          ...revenue.children,
+        ].filter(n => n.type === "rect" && !`${n.key}`.endsWith("::hit"));
+        return nodes.map(n => ({
+          key: n.key,
+          x: n.x,
+          y: n.y,
+          width: n.width,
+          height: n.height,
+          enter: n.enterRect,
+        }));
+      },
+      kpis,
+    );
+    assert.deepStrictEqual(
+      out.map(n => n.key),
+      [
+        "bullet-Revenue-track",
+        "bullet-Revenue-band-0",
+        "bullet-Revenue-band-1",
+        "bullet-Revenue-band-2",
+        "bullet-Revenue-forecast",
+        "bullet-Revenue-measure",
+      ],
+    );
+    const zero = out[0].x;
+    for (const n of out) {
+      assert.deepStrictEqual(
+        n.enter,
+        {x: zero, y: n.y, width: 0, height: n.height},
+        n.key,
       );
-      return nodes.map(n => ({key: n.key, x: n.x, y: n.y, width: n.width, height: n.height, enter: n.enterRect}));
-    },
-    kpis,
-  );
-  assert.deepStrictEqual(out.map(n => n.key), [
-    "bullet-Revenue-track",
-    "bullet-Revenue-band-0",
-    "bullet-Revenue-band-1",
-    "bullet-Revenue-band-2",
-    "bullet-Revenue-forecast",
-    "bullet-Revenue-measure",
-  ]);
-  const zero = out[0].x;
-  for (const n of out) {
-    assert.deepStrictEqual(n.enter, {x: zero, y: n.y, width: 0, height: n.height}, n.key);
-  }
-});
+    }
+  },
+);
 
 it("Bullet shares one domain and axis, and runs vertically", async function () {
   const out = await render(
@@ -133,10 +184,14 @@ it("Bullet shares one domain and axis, and runs vertically", async function () {
         .bands([50]);
       await new Promise(r => vertical.render(r));
       const ticks = id =>
-        [...document.querySelectorAll(`${id} [data-key$='-ticks']`)].map(n => n.getAttribute("data-key"));
+        [...document.querySelectorAll(`${id} [data-key$='-ticks']`)].map(n =>
+          n.getAttribute("data-key"),
+        );
       const rect = key => {
         const el = document.querySelector(`[data-key='${key}']`);
-        return ["x", "y", "width", "height"].map(a => Number(el.getAttribute(a)));
+        return ["x", "y", "width", "height"].map(a =>
+          Number(el.getAttribute(a)),
+        );
       };
       return {
         sharedTicks: ticks("#a"),
@@ -149,10 +204,17 @@ it("Bullet shares one domain and axis, and runs vertically", async function () {
     },
     kpis,
   );
-  assert.deepStrictEqual(out.sharedTicks, ["bullet-Profit-ticks"], "one axis, under the last row");
+  assert.deepStrictEqual(
+    out.sharedTicks,
+    ["bullet-Profit-ticks"],
+    "one axis, under the last row",
+  );
   assert.strictEqual(out.verticalTicks, 3, "each vertical bullet has its axis");
   assert.ok(out.vProfit.x > out.vRevenue.x, "columns run left to right");
-  assert.ok(out.vRevenue.height > out.vRevenue.width, "vertical bullets are tall");
+  assert.ok(
+    out.vRevenue.height > out.vRevenue.width,
+    "vertical bullets are tall",
+  );
 });
 
 it("Bullet dims other rows on hover and lists Value, Target, and Forecast", async function () {
@@ -184,17 +246,30 @@ it("Bullet dims other rows on hover and lists Value, Target, and Forecast", asyn
     },
     kpis,
   );
-  assert.strictEqual(Number(out.profitMeasure), 0.5, "other rows' measures dim");
+  assert.strictEqual(
+    Number(out.profitMeasure),
+    0.5,
+    "other rows' measures dim",
+  );
   assert.strictEqual(Number(out.profitName), 0.5, "and their labels");
-  assert.ok(!out.profitBands || Number(out.profitBands) === 1, "bands stay put");
-  assert.ok(!out.revenueMeasure || Number(out.revenueMeasure) === 1, "hovered row stays opaque");
+  assert.ok(
+    !out.profitBands || Number(out.profitBands) === 1,
+    "bands stay put",
+  );
+  assert.ok(
+    !out.revenueMeasure || Number(out.revenueMeasure) === 1,
+    "hovered row stays opaque",
+  );
   assert.ok(out.revenueStroke >= 2, "hovered measure is emphasized");
   assert.deepStrictEqual(out.rows, [
     ["Valor", "270"],
     ["Objetivo", "250"],
     ["Pronóstico", "290"],
   ]);
-  assert.deepStrictEqual(out.orders.map(r => r[0]), ["Valor", "Objetivo"]);
+  assert.deepStrictEqual(
+    out.orders.map(r => r[0]),
+    ["Valor", "Objetivo"],
+  );
 });
 
 it("Bullet small multiples read each row against one domain across panels", async function () {
@@ -204,7 +279,12 @@ it("Bullet small multiples read each row against one domain across panels", asyn
       const data = [];
       ["East", "West"].forEach((region, r) =>
         ["Revenue", "Profit"].forEach((id, k) =>
-          data.push({id, region, value: (k ? 20 : 200) * (r ? 3 : 1), target: k ? 25 : 250}),
+          data.push({
+            id,
+            region,
+            value: (k ? 20 : 200) * (r ? 3 : 1),
+            target: k ? 25 : 250,
+          }),
         ),
       );
       const viz = new window.d3plus.Bullet()
@@ -213,7 +293,9 @@ it("Bullet small multiples read each row against one domain across panels", asyn
         .data(data)
         .facet("region");
       await new Promise(r => viz.render(r));
-      const texts = [...document.querySelectorAll("#viz text")].map(t => t.textContent);
+      const texts = [...document.querySelectorAll("#viz text")].map(
+        t => t.textContent,
+      );
       return {
         panels: viz._chartScene.length,
         texts,
@@ -221,9 +303,19 @@ it("Bullet small multiples read each row against one domain across panels", asyn
       };
     },
   );
-  assert.ok(out.texts.includes("East") && out.texts.includes("West"), "panel titles");
-  assert.strictEqual(out.texts.filter(t => t === "Revenue").length, 2, "a Revenue bullet per panel");
-  assert.ok(out.texts.includes("600"), "East's Revenue axis reaches West's value");
+  assert.ok(
+    out.texts.includes("East") && out.texts.includes("West"),
+    "panel titles",
+  );
+  assert.strictEqual(
+    out.texts.filter(t => t === "Revenue").length,
+    2,
+    "a Revenue bullet per panel",
+  );
+  assert.ok(
+    out.texts.includes("600"),
+    "East's Revenue axis reaches West's value",
+  );
   assert.strictEqual(out.aspect, 2);
 });
 
@@ -244,22 +336,39 @@ it("Bullet reads on a dark background", async function () {
         const [r, g, b] = [0, 2, 4].map(i => parseInt(hex.slice(i, i + 2), 16));
         return 0.299 * r + 0.587 * g + 0.114 * b;
       };
-      const fill = key => document.querySelector(`[data-key='${key}']`).getAttribute("fill");
+      const fill = key =>
+        document.querySelector(`[data-key='${key}']`).getAttribute("fill");
       return {
         name: lum(fill("bullet-Revenue-name")),
         band0: lum(fill("bullet-Revenue-band-0")),
         band2: lum(fill("bullet-Revenue-band-2")),
-        target: lum(document.querySelector("[data-key='bullet-Revenue-target']").getAttribute("stroke")),
-        outline: document.querySelector("[data-key='bullet-Revenue-measure']").getAttribute("stroke"),
+        target: lum(
+          document
+            .querySelector("[data-key='bullet-Revenue-target']")
+            .getAttribute("stroke"),
+        ),
+        outline: document
+          .querySelector("[data-key='bullet-Revenue-measure']")
+          .getAttribute("stroke"),
       };
     },
     kpis,
   );
   assert.ok(out.name > 200, `labels turn light (${out.name})`);
-  assert.ok(out.band0 > out.band2, "the first band contrasts most with the dark background");
-  assert.ok(out.band2 > 40, "the lightest band still shows against the background");
+  assert.ok(
+    out.band0 > out.band2,
+    "the first band contrasts most with the dark background",
+  );
+  assert.ok(
+    out.band2 > 40,
+    "the lightest band still shows against the background",
+  );
   assert.ok(out.target > 200, "the target marker turns light");
-  assert.strictEqual(out.outline, "rgb(31, 35, 40)", "measures are outlined in the background color");
+  assert.strictEqual(
+    out.outline,
+    "rgb(31, 35, 40)",
+    "measures are outlined in the background color",
+  );
 });
 
 it("Bullet paints on Canvas and picks the row under the pointer", async function () {
@@ -280,7 +389,10 @@ it("Bullet paints on Canvas and picks the row under the pointer", async function
       const px = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
       const colors = new Set();
       for (let i = 0; i < px.length; i += 4)
-        if (px[i + 3] > 250 && !(px[i] > 245 && px[i + 1] > 245 && px[i + 2] > 245))
+        if (
+          px[i + 3] > 250 &&
+          !(px[i] > 245 && px[i + 1] > 245 && px[i + 2] > 245)
+        )
           colors.add(`${px[i] >> 4}_${px[i + 1] >> 4}_${px[i + 2] >> 4}`);
       // Click the Profit row's empty track near its end, so the pick lands
       // on the row's hit area rather than a mark.
@@ -290,13 +402,24 @@ it("Bullet paints on Canvas and picks the row under the pointer", async function
       const rect = canvas.getBoundingClientRect();
       window.__clicked = undefined;
       canvas.dispatchEvent(
-        new MouseEvent("click", {clientX: rect.left + x, clientY: rect.top + y, bubbles: true}),
+        new MouseEvent("click", {
+          clientX: rect.left + x,
+          clientY: rect.top + y,
+          bubbles: true,
+        }),
       );
-      return {hasCanvas: true, colors: colors.size, clicked: window.__clicked && window.__clicked.id};
+      return {
+        hasCanvas: true,
+        colors: colors.size,
+        clicked: window.__clicked && window.__clicked.id,
+      };
     },
     kpis,
   );
   assert.ok(out.hasCanvas, "a <canvas> is mounted");
-  assert.ok(out.colors >= 4, `canvas paints the bullets (${out.colors} colors)`);
+  assert.ok(
+    out.colors >= 4,
+    `canvas paints the bullets (${out.colors} colors)`,
+  );
   assert.strictEqual(out.clicked, "Profit", "clicking a bullet picks its row");
 });

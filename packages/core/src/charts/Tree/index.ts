@@ -99,7 +99,9 @@ export const treeDef: ChartDefinition = {
     {
       key: "legendTooltip",
       merge: true,
-      factory: (viz: VizInstance) => ({title: legendLabel.bind(viz as unknown as Viz)}),
+      factory: (viz: VizInstance) => ({
+        title: legendLabel.bind(viz as unknown as Viz),
+      }),
     },
   ],
 };

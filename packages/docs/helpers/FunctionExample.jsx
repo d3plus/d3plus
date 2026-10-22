@@ -42,7 +42,13 @@ export default function FunctionExample({input, output, language = "jsx"}) {
         </div>
         <div
           aria-hidden="true"
-          style={{flex: "0 0 auto", fontSize: 18, lineHeight: 1, color: "#444", fontWeight: "bold"}}
+          style={{
+            flex: "0 0 auto",
+            fontSize: 18,
+            lineHeight: 1,
+            color: "#444",
+            fontWeight: "bold",
+          }}
         >
           →
         </div>

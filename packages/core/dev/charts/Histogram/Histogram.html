@@ -1,81 +1,117 @@
 <!doctype html>
 <html dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Histogram</title>
+    <meta
+      name="description"
+      content="Histogram defaults, stacked groups, binWidth, density normalization, and a count-axis yDomain."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      .viz {
+        height: 360px;
+      }
+      h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Default (Sturges bins, count)</h3>
+        <div class="viz" id="basic"></div>
+      </div>
+      <div>
+        <h3>Stacked by groupBy</h3>
+        <div class="viz" id="stacked"></div>
+      </div>
+      <div>
+        <h3>binWidth(2.5)</h3>
+        <div class="viz" id="width"></div>
+      </div>
+      <div>
+        <h3>binNormalize("density")</h3>
+        <div class="viz" id="density"></div>
+      </div>
+      <div>
+        <h3>yDomain([20]): the count axis breaks back to 0</h3>
+        <div class="viz" id="domain"></div>
+      </div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>Histogram</title>
-  <meta name="description" content="Histogram defaults, stacked groups, binWidth, density normalization, and a count-axis yDomain.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <style>
-    body { font-family: sans-serif; margin: 20px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-    .viz { height: 360px; }
-    h3 { font-size: 14px; font-weight: 600; margin: 0 0 4px; }
-  </style>
+  <script>
+    // Seeded normal samples so the page renders identically every load.
+    let seed = 42;
+    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+    const normal = (mu, sigma) =>
+      mu +
+      sigma *
+        Math.sqrt(-2 * Math.log(random())) *
+        Math.cos(2 * Math.PI * random());
 
-</head>
+    const heights = Array.from({length: 1000}, () => ({
+      "Height (cm)": normal(170, 10),
+    }));
+    const bySex = [
+      ...Array.from({length: 600}, () => ({
+        Sex: "Male",
+        "Height (cm)": normal(176, 7),
+      })),
+      ...Array.from({length: 600}, () => ({
+        Sex: "Female",
+        "Height (cm)": normal(163, 6.5),
+      })),
+    ];
 
-<body>
-  <div class="grid">
-    <div><h3>Default (Sturges bins, count)</h3><div class="viz" id="basic"></div></div>
-    <div><h3>Stacked by groupBy</h3><div class="viz" id="stacked"></div></div>
-    <div><h3>binWidth(2.5)</h3><div class="viz" id="width"></div></div>
-    <div><h3>binNormalize("density")</h3><div class="viz" id="density"></div></div>
-    <div><h3>yDomain([20]): the count axis breaks back to 0</h3><div class="viz" id="domain"></div></div>
-  </div>
-</body>
+    new d3plus.Histogram()
+      .select("#basic")
+      .data(heights)
+      .value("Height (cm)")
+      .render();
 
-<script>
+    new d3plus.Histogram()
+      .select("#stacked")
+      .data(bySex)
+      .groupBy("Sex")
+      .value("Height (cm)")
+      .render();
 
-  // Seeded normal samples so the page renders identically every load.
-  let seed = 42;
-  const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
-  const normal = (mu, sigma) =>
-    mu + sigma * Math.sqrt(-2 * Math.log(random())) * Math.cos(2 * Math.PI * random());
+    new d3plus.Histogram()
+      .select("#width")
+      .data(heights)
+      .value("Height (cm)")
+      .binWidth(2.5)
+      .render();
 
-  const heights = Array.from({length: 1000}, () => ({"Height (cm)": normal(170, 10)}));
-  const bySex = [
-    ...Array.from({length: 600}, () => ({Sex: "Male", "Height (cm)": normal(176, 7)})),
-    ...Array.from({length: 600}, () => ({Sex: "Female", "Height (cm)": normal(163, 6.5)})),
-  ];
+    new d3plus.Histogram()
+      .select("#density")
+      .data(bySex)
+      .groupBy("Sex")
+      .value("Height (cm)")
+      .binNormalize("density")
+      .render();
 
-  new d3plus.Histogram()
-    .select("#basic")
-    .data(heights)
-    .value("Height (cm)")
-    .render();
-
-  new d3plus.Histogram()
-    .select("#stacked")
-    .data(bySex)
-    .groupBy("Sex")
-    .value("Height (cm)")
-    .render();
-
-  new d3plus.Histogram()
-    .select("#width")
-    .data(heights)
-    .value("Height (cm)")
-    .binWidth(2.5)
-    .render();
-
-  new d3plus.Histogram()
-    .select("#density")
-    .data(bySex)
-    .groupBy("Sex")
-    .value("Height (cm)")
-    .binNormalize("density")
-    .render();
-
-  new d3plus.Histogram()
-    .select("#domain")
-    .data(heights)
-    .value("Height (cm)")
-    .yDomain([20])
-    .render();
-
-</script>
-
+    new d3plus.Histogram()
+      .select("#domain")
+      .data(heights)
+      .value("Height (cm)")
+      .yDomain([20])
+      .render();
+  </script>
 </html>

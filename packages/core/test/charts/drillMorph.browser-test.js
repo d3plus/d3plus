@@ -72,9 +72,11 @@ const cases = [
     chart: "Pie",
     config: {
       data: [
-        {category: "Fruit", id: "Apple", value: 30}, {category: "Fruit", id: "Banana", value: 22},
+        {category: "Fruit", id: "Apple", value: 30},
+        {category: "Fruit", id: "Banana", value: 22},
         {category: "Fruit", id: "Cherry", value: 18},
-        {category: "Vegetable", id: "Carrot", value: 20}, {category: "Vegetable", id: "Pea", value: 12},
+        {category: "Vegetable", id: "Carrot", value: 20},
+        {category: "Vegetable", id: "Pea", value: 12},
         {category: "Vegetable", id: "Kale", value: 8},
       ],
       groupBy: ["category", "id"],
@@ -92,14 +94,18 @@ const drill = async ({chart: name, config, mark, group}) => {
     .select("#viz")
     .config(config)
     .depth(0)
-    .width(400).height(300).duration(0);
+    .width(400)
+    .height(300)
+    .duration(0);
   await new Promise(resolve => chart.render(resolve));
 
   // _resolvedEnterFrom/_resolvedExitTo are one-shot: _drawSceneToTarget
   // clears them right after passing them to drawScene. Spy on drawScene to
   // capture what each draw actually resolved and used.
   const capturedOpts = [];
-  const origDrawScene = chart._sceneRenderer.drawScene.bind(chart._sceneRenderer);
+  const origDrawScene = chart._sceneRenderer.drawScene.bind(
+    chart._sceneRenderer,
+  );
   chart._sceneRenderer.drawScene = (scene, opts) => {
     capturedOpts.push(opts);
     return origDrawScene(scene, opts);
@@ -107,8 +113,12 @@ const drill = async ({chart: name, config, mark, group}) => {
 
   const node = findNode(chart._chartScene, n => {
     const row = n.datum && n.datum.data ? n.datum.data : n.datum;
-    return n.type === mark.type && (!mark.shapeType || n.shapeType === mark.shapeType) &&
-      row && chart.schema.groupBy[0](row, n.index ?? 0) === group;
+    return (
+      n.type === mark.type &&
+      (!mark.shapeType || n.shapeType === mark.shapeType) &&
+      row &&
+      chart.schema.groupBy[0](row, n.index ?? 0) === group
+    );
   });
   const bodyRectBefore = chart._bodyRect;
 
@@ -154,7 +164,11 @@ const drill = async ({chart: name, config, mark, group}) => {
 
   return {
     node: node && {
-      x: node.x, y: node.y, width: node.width, height: node.height, r: node.r,
+      x: node.x,
+      y: node.y,
+      width: node.width,
+      height: node.height,
+      r: node.r,
     },
     bodyRectBefore,
     afterDrill,
@@ -165,21 +179,50 @@ const drill = async ({chart: name, config, mark, group}) => {
 
 for (const c of cases) {
   it(`${c.chart}: a routed click arms and resolves the forward and backward drill-down morph`, async function () {
-    const result = await render("<div id='viz' style='width:400px;height:300px'></div>", drill, c);
+    const result = await render(
+      "<div id='viz' style='width:400px;height:300px'></div>",
+      drill,
+      c,
+    );
 
-    assert.ok(result.node, `the ${c.group} group's mark is in the rendered chart scene`);
-    assert.ok(result.bodyRectBefore, "chart body rect captured after the first draw");
-    assert.ok(result.bodyRectBefore.width > 0 && result.bodyRectBefore.height > 0, "body rect has positive size");
+    assert.ok(
+      result.node,
+      `the ${c.group} group's mark is in the rendered chart scene`,
+    );
+    assert.ok(
+      result.bodyRectBefore,
+      "chart body rect captured after the first draw",
+    );
+    assert.ok(
+      result.bodyRectBefore.width > 0 && result.bodyRectBefore.height > 0,
+      "body rect has positive size",
+    );
 
     const {afterDrill, afterBack, unrelatedRepaint} = result;
     assert.strictEqual(afterDrill.drawDepth, 1, "drilled down one level");
     assert.strictEqual(afterDrill.historyLength, 1, "one history entry pushed");
-    assert.strictEqual(afterDrill.historyEntry.groupId, c.group, "history entry remembers the clicked group's id");
-    assert.strictEqual(afterDrill.historyEntry.groupDepth, 0, "history entry remembers the depth the id was read at");
-    assert.strictEqual(afterDrill.pendingEnterOrigin, undefined, "pending origin consumed by the next draw (one-shot)");
-    assert.ok(afterDrill.resolvedEnterFrom, "the drill-down draw resolved an enterFrom box");
+    assert.strictEqual(
+      afterDrill.historyEntry.groupId,
+      c.group,
+      "history entry remembers the clicked group's id",
+    );
+    assert.strictEqual(
+      afterDrill.historyEntry.groupDepth,
+      0,
+      "history entry remembers the depth the id was read at",
+    );
+    assert.strictEqual(
+      afterDrill.pendingEnterOrigin,
+      undefined,
+      "pending origin consumed by the next draw (one-shot)",
+    );
     assert.ok(
-      afterDrill.resolvedEnterFrom.width > 0 && afterDrill.resolvedEnterFrom.height > 0,
+      afterDrill.resolvedEnterFrom,
+      "the drill-down draw resolved an enterFrom box",
+    );
+    assert.ok(
+      afterDrill.resolvedEnterFrom.width > 0 &&
+        afterDrill.resolvedEnterFrom.height > 0,
       "resolved enterFrom has positive size",
     );
 
@@ -196,19 +239,40 @@ for (const c of cases) {
       // Pack's diameter is Math.min(width, height): the back button's top
       // margin shrinks both dimensions, so the resolved box is the clicked
       // circle's fraction of the old diameter, reapplied to the new one.
-      const expectedWidth = ((result.node.r * 2) / result.bodyRectBefore.width) * afterDrill.bodyRect.width;
+      const expectedWidth =
+        ((result.node.r * 2) / result.bodyRectBefore.width) *
+        afterDrill.bodyRect.width;
       assert.ok(
         Math.abs(afterDrill.resolvedEnterFrom.width - expectedWidth) < 1,
         `resolved enterFrom.width (${afterDrill.resolvedEnterFrom.width}) matches the clicked circle's fraction of the old diameter, reapplied to the new diameter (${expectedWidth})`,
       );
     }
 
-    assert.strictEqual(afterBack.drawDepth, 0, "back click returns to the shallower depth");
+    assert.strictEqual(
+      afterBack.drawDepth,
+      0,
+      "back click returns to the shallower depth",
+    );
     assert.strictEqual(afterBack.historyLength, 0, "history entry popped");
-    assert.strictEqual(afterBack.pendingExitReunion, undefined, "pending reunion consumed by the next draw (one-shot)");
-    assert.ok(afterBack.resolvedExitTo, `the drill-up draw resolved an exitTo box (the ${c.group} group's mark reappeared)`);
+    assert.strictEqual(
+      afterBack.pendingExitReunion,
+      undefined,
+      "pending reunion consumed by the next draw (one-shot)",
+    );
+    assert.ok(
+      afterBack.resolvedExitTo,
+      `the drill-up draw resolved an exitTo box (the ${c.group} group's mark reappeared)`,
+    );
 
-    assert.strictEqual(unrelatedRepaint.enterFrom, undefined, "an unrelated repaint never inherits a stale enterFrom");
-    assert.strictEqual(unrelatedRepaint.exitTo, undefined, "an unrelated repaint never inherits a stale exitTo");
+    assert.strictEqual(
+      unrelatedRepaint.enterFrom,
+      undefined,
+      "an unrelated repaint never inherits a stale enterFrom",
+    );
+    assert.strictEqual(
+      unrelatedRepaint.exitTo,
+      undefined,
+      "an unrelated repaint never inherits a stale exitTo",
+    );
   });
 }

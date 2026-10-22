@@ -21,8 +21,15 @@ export type TrendNode = SceneNode & {
 
 /** `trendLineConfig` keys that drive the fit or band; the rest style the Line. */
 const FIT_KEYS = [
-  "group", "order", "confidence", "confidenceLevel", "confidenceConfig",
-  "projection", "projectionConfig", "tooltip", "stroke",
+  "group",
+  "order",
+  "confidence",
+  "confidenceLevel",
+  "confidenceConfig",
+  "projection",
+  "projectionConfig",
+  "tooltip",
+  "stroke",
 ];
 
 /**
@@ -50,7 +57,12 @@ function bandAccessors(fit: TrendFit, x: PlotAxisFn, y: PlotAxisFn) {
 }
 
 /** Renders one fit's band (when computed) and line as a keyed group. */
-function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisFn): SceneNode | null {
+function trendGroup(
+  viz: VizInstance,
+  fit: TrendFit,
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+): SceneNode | null {
   const config = viz._trendLineConfig || {};
   const children: SceneNode[] = [];
   const id = () => `trend-${fit.id}`;
@@ -59,7 +71,13 @@ function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisF
       .renderMode("compute")
       .duration(viz.schema.duration)
       .data(fit.samples)
-      .config({id, label: false, fill: fit.color, stroke: "none", strokeWidth: 0})
+      .config({
+        id,
+        label: false,
+        fill: fit.color,
+        stroke: "none",
+        strokeWidth: 0,
+      })
       .config((config.confidenceConfig || {}) as Record<string, unknown>)
       .config(bandAccessors(fit, x, y));
     children.push(...collectComputed(band).map(n => stamp(n, fit, false)));
@@ -67,7 +85,11 @@ function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisF
   const paint = Object.fromEntries(
     Object.entries(config).filter(([key]) => !FIT_KEYS.includes(key)),
   );
-  const line = (samples: TrendSample[], key: () => string, style: Record<string, unknown>) => {
+  const line = (
+    samples: TrendSample[],
+    key: () => string,
+    style: Record<string, unknown>,
+  ) => {
     if (samples.length < 2) return;
     const shape = makeShape("Line")
       .renderMode("compute")
@@ -76,9 +98,17 @@ function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisF
       .config({...paint, id: key, label: false, stroke: fit.color})
       .config(style)
       .config({x: (d: TrendSample) => x(d.x), y: (d: TrendSample) => y(d.y)});
-    children.push(...collectComputed(shape).map(n => stamp(n, fit, config.tooltip !== false)));
+    children.push(
+      ...collectComputed(shape).map(n =>
+        stamp(n, fit, config.tooltip !== false),
+      ),
+    );
   };
-  line(fit.samples.filter(d => !d.projected), id, {});
+  line(
+    fit.samples.filter(d => !d.projected),
+    id,
+    {},
+  );
   line(
     fit.samples.filter(d => d.projected),
     () => `trend-${fit.id}-projection`,
@@ -89,7 +119,11 @@ function trendGroup(viz: VizInstance, fit: TrendFit, x: PlotAxisFn, y: PlotAxisF
 }
 
 /** The scene groups for every fitted trend line, painted behind the marks. */
-export function emitTrendLines(viz: VizInstance, x: PlotAxisFn, y: PlotAxisFn): SceneNode[] {
+export function emitTrendLines(
+  viz: VizInstance,
+  x: PlotAxisFn,
+  y: PlotAxisFn,
+): SceneNode[] {
   const fits = viz._trendFits || [];
   return fits
     .map(fit => trendGroup(viz, fit, x, y))

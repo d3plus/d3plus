@@ -1,8 +1,16 @@
-import {timeYear, timeMonth, timeDay, timeHour, timeMinute, timeSecond} from "d3-time";
+import {
+  timeYear,
+  timeMonth,
+  timeDay,
+  timeHour,
+  timeMinute,
+  timeSecond,
+} from "d3-time";
 import {timeFormat} from "d3-time-format";
 
 type DateFormatter = (specifier: string) => (date: Date) => string;
-type DateIntervalName = "year" | "quarter" | "month" | "day" | "hour" | undefined;
+type DateIntervalName =
+  "year" | "quarter" | "month" | "day" | "hour" | undefined;
 
 /**
     A default set of date formatters, which takes into account both the interval in between in each data point but also the start/end data points.
@@ -51,7 +59,8 @@ export function dateFormatter(
   });
   const format = cachedFormatter(formatter);
   // The shown dates in time order, and the one before each of them.
-  let shownArray: Date[] | undefined, shownSorted: Date[] = [];
+  let shownArray: Date[] | undefined,
+    shownSorted: Date[] = [];
   const shownPrev = new Map<number, Date | undefined>();
   const prevShown = (d: Date): Date | undefined => {
     const t = +new Date(+d);
@@ -64,13 +73,21 @@ export function dateFormatter(
       shownPrev.clear();
       shownSorted.forEach((s, k) => {
         const t = +s;
-        if (!shownPrev.has(t)) shownPrev.set(t, k ? shownSorted[k - 1] : undefined);
+        if (!shownPrev.has(t))
+          shownPrev.set(t, k ? shownSorted[k - 1] : undefined);
       });
     }
     const {withYear, withDay} = shown
       ? prevBoundaries(d, prevShown(d))
       : indexBoundaries(d, firstIndex.get(+d) ?? -1, last);
-    return pickFormat(d, interval, withYear || smallArray, withDay, !!shown, format)(d);
+    return pickFormat(
+      d,
+      interval,
+      withYear || smallArray,
+      withDay,
+      !!shown,
+      format,
+    )(d);
   };
 }
 
@@ -90,16 +107,24 @@ function pickFormat(
     interval === "year"
       ? "%Y"
       : interval === "quarter"
-        ? year ? "Q%q %Y" : "Q%q"
+        ? year
+          ? "Q%q %Y"
+          : "Q%q"
         : interval === "month"
-          ? year ? "%b %Y" : "%b"
+          ? year
+            ? "%b %Y"
+            : "%b"
           : interval === "day"
-            ? year ? "%b %-d, %Y" : "%b %-d"
+            ? year
+              ? "%b %-d, %Y"
+              : "%b %-d"
             : interval === "hour"
               ? year
                 ? "%b %-d, %Y, %I %p"
                 : withDay
-                  ? shown ? "%b %-d, %I %p" : "%b %-d"
+                  ? shown
+                    ? "%b %-d, %I %p"
+                    : "%b %-d"
                   : "%I %p"
               : timeSecond(d) < d
                 ? ".%L"
@@ -119,15 +144,26 @@ function pickFormat(
     Which boundaries `d` opens among the full set of dates: the year on the first and last dates and on January 1st, the day on the first of each month.
     @private
 */
-function arrayBoundaries(d: Date, dataArray: Date[]): {withYear: boolean; withDay: boolean} {
-  return indexBoundaries(d, dataArray.findIndex(a => +a === +d), dataArray.length - 1);
+function arrayBoundaries(
+  d: Date,
+  dataArray: Date[],
+): {withYear: boolean; withDay: boolean} {
+  return indexBoundaries(
+    d,
+    dataArray.findIndex(a => +a === +d),
+    dataArray.length - 1,
+  );
 }
 
 /**
     The boundaries `d` opens at `labelIndex` (-1 when absent) among dates whose last index is `last` (see `arrayBoundaries`).
     @private
 */
-function indexBoundaries(d: Date, labelIndex: number, last: number): {withYear: boolean; withDay: boolean} {
+function indexBoundaries(
+  d: Date,
+  labelIndex: number,
+  last: number,
+): {withYear: boolean; withDay: boolean} {
   const firstOrLast = labelIndex === 0 || labelIndex === last;
   return {
     withYear: firstOrLast || +timeYear(d) === +d,
@@ -139,7 +175,10 @@ function indexBoundaries(d: Date, labelIndex: number, last: number): {withYear: 
     Which boundaries `d` opens among the shown dates: the year when no shown date comes before it or the one just before it falls in another year, and likewise the day.
     @private
 */
-function shownBoundaries(d: Date, shown: Date[]): {withYear: boolean; withDay: boolean} {
+function shownBoundaries(
+  d: Date,
+  shown: Date[],
+): {withYear: boolean; withDay: boolean} {
   const t = +new Date(+d);
   let prev: Date | undefined;
   for (const s of shown) if (+s < t && (!prev || +s > +prev)) prev = s;
@@ -152,7 +191,8 @@ function shownBoundaries(d: Date, shown: Date[]): {withYear: boolean; withDay: b
 */
 function latestBefore(t: number, sorted: Date[]): Date | undefined {
   if (isNaN(t)) return undefined;
-  let lo = 0, hi = sorted.length;
+  let lo = 0,
+    hi = sorted.length;
   while (lo < hi) {
     const mid = (lo + hi) >>> 1;
     if (+sorted[mid] < t) lo = mid + 1;
@@ -165,7 +205,10 @@ function latestBefore(t: number, sorted: Date[]): Date | undefined {
     The boundaries `d` opens after the shown date `prev` before it (see `shownBoundaries`).
     @private
 */
-function prevBoundaries(d: Date, prev: Date | undefined): {withYear: boolean; withDay: boolean} {
+function prevBoundaries(
+  d: Date,
+  prev: Date | undefined,
+): {withYear: boolean; withDay: boolean} {
   // Axes may pass timestamps for `d`.
   const date = new Date(+d);
   return {

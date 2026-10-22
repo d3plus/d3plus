@@ -6,46 +6,45 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {AreaPlot as D3plusAreaPlot} from "@d3plus/react";
-export const AreaPlot = ({ config }) => <D3plusAreaPlot config={config} />;
+export const AreaPlot = ({config}) => <D3plusAreaPlot config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in AreaPlot
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * AreaPlot-specific methods
    */
-  
+
   {
     baseline: {
       defaultValue: 0,
       table: {
         defaultValue: {
-          summary: "0"
-        }
-      }
+          summary: "0",
+        },
+      },
     },
     baselineBreak: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     discrete: {
       defaultValue: "x",
       table: {
         defaultValue: {
-          summary: "x"
-        }
-      }
-    }
-  }
+          summary: "x",
+        },
+      },
+    },
+  },
 );

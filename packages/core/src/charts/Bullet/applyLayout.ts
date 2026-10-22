@@ -27,11 +27,7 @@ import {
   mergeExtents,
   normalizeBands,
 } from "./bulletGeometry.js";
-import type {
-  BulletExtent,
-  BulletRect,
-  BulletTrack,
-} from "./bulletGeometry.js";
+import type {BulletExtent, BulletRect, BulletTrack} from "./bulletGeometry.js";
 import {bulletStack} from "./bulletLayout.js";
 import type {BulletLabelBox} from "./bulletLayout.js";
 import {bulletStyle, shadeBands} from "./bulletStyle.js";

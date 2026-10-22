@@ -5,7 +5,13 @@ import type {Transition} from "d3-transition";
 import {arcPath, lerpArc} from "../animate/interpolate.js";
 import {areaPath, linePath} from "../paths.js";
 import {textVisualCenter} from "../scene.js";
-import type {ArcGeometry, SceneNode, TextLine, TextNode, TextRun} from "../scene.js";
+import type {
+  ArcGeometry,
+  SceneNode,
+  TextLine,
+  TextNode,
+  TextRun,
+} from "../scene.js";
 
 export const SVG_NS = "http://www.w3.org/2000/svg";
 export const XLINK_NS = "http://www.w3.org/1999/xlink";
@@ -32,18 +38,25 @@ export interface AttrTarget {
 /** Maps a scene node to the SVG element tag that realizes it. */
 export function tagFor(node: SceneNode): string {
   switch (node.type) {
-    case "rect": return "rect";
-    case "circle": return "circle";
+    case "rect":
+      return "rect";
+    case "circle":
+      return "circle";
     case "line":
     case "area":
-    case "path": return "path";
-    case "image": return "image";
-    case "text": return "text";
-    case "group": return "g";
+    case "path":
+      return "path";
+    case "image":
+      return "image";
+    case "text":
+      return "text";
+    case "group":
+      return "g";
     // htmlOverlay nodes are realized by overlay.ts, not as an SVG tag; the
     // SvgRenderer filters them out before tagFor runs. This keeps the switch
     // exhaustive over SceneNode.
-    case "htmlOverlay": return "g";
+    case "htmlOverlay":
+      return "g";
   }
 }
 
@@ -54,7 +67,8 @@ export function transformStr(node: SceneNode): string | null {
   const parts: string[] = [];
   if (tr.x !== undefined || tr.y !== undefined)
     parts.push(`translate(${tr.x ?? 0},${tr.y ?? 0})`);
-  if (tr.scale !== undefined && tr.scale !== 1) parts.push(`scale(${tr.scale})`);
+  if (tr.scale !== undefined && tr.scale !== 1)
+    parts.push(`scale(${tr.scale})`);
   if (tr.rotate)
     parts.push(
       tr.rotateAnchor
@@ -88,29 +102,38 @@ export function textFontTween(
 ): () => (k: number) => string {
   const pt = prev.transform || {};
   const nt = node.transform || {};
-  const orot = pt.rotate ?? 0, nrot = nt.rotate ?? 0;
+  const orot = pt.rotate ?? 0,
+    nrot = nt.rotate ?? 0;
   const [nvcx, nvcy] = textVisualCenter(node);
   const [ovcx, ovcy] = textVisualCenter(prev);
   // Visual-center positions in the parent frame (origin + visual center).
-  const oldCx = (pt.x ?? 0) + ovcx, oldCy = (pt.y ?? 0) + ovcy;
-  const newCx = (nt.x ?? 0) + nvcx, newCy = (nt.y ?? 0) + nvcy;
+  const oldCx = (pt.x ?? 0) + ovcx,
+    oldCy = (pt.y ?? 0) + ovcy;
+  const newCx = (nt.x ?? 0) + nvcx,
+    newCy = (nt.y ?? 0) + nvcy;
   const s0 = (prev.font?.size ?? 1) / (node.font?.size ?? 1);
   const ra = nt.rotateAnchor;
-  return () => (k: number): string => {
-    const sc = s0 + (1 - s0) * k;
-    const px = oldCx + (newCx - oldCx) * k;
-    const py = oldCy + (newCy - oldCy) * k;
-    const rot = orot + (nrot - orot) * k;
-    let str = `translate(${px - sc * nvcx},${py - sc * nvcy}) scale(${sc})`;
-    if (rot) str += ra ? ` rotate(${rot},${ra[0]},${ra[1]})` : ` rotate(${rot})`;
-    return str;
-  };
+  return () =>
+    (k: number): string => {
+      const sc = s0 + (1 - s0) * k;
+      const px = oldCx + (newCx - oldCx) * k;
+      const py = oldCy + (newCy - oldCy) * k;
+      const rot = orot + (nrot - orot) * k;
+      let str = `translate(${px - sc * nvcx},${py - sc * nvcy}) scale(${sc})`;
+      if (rot)
+        str += ra ? ` rotate(${rot},${ra[0]},${ra[1]})` : ` rotate(${rot})`;
+      return str;
+    };
 }
 
 /** Recursively records every node by its (stringified) key for hit-testing. */
-export function buildIndex(node: SceneNode, index: Map<string, SceneNode>): void {
+export function buildIndex(
+  node: SceneNode,
+  index: Map<string, SceneNode>,
+): void {
   index.set(String(node.key), node);
-  if (node.type === "group") for (const c of node.children) buildIndex(c, index);
+  if (node.type === "group")
+    for (const c of node.children) buildIndex(c, index);
 }
 
 /** Applies non-animated attributes: classes, accessibility, pointer behavior, content. */
@@ -187,7 +210,7 @@ export function applyText(sel: SvgSelection, node: TextNode): void {
         return;
       }
       // Styled line: drop any stray direct text, then index-key the run tspans.
-      for (let n = this.firstChild; n; ) {
+      for (let n = this.firstChild; n;) {
         const next = n.nextSibling;
         if (n.nodeType === 3) this.removeChild(n);
         n = next;
@@ -208,7 +231,11 @@ export function applyText(sel: SvgSelection, node: TextNode): void {
 }
 
 /** Applies paint attributes to a selection or transition. */
-export function applyPaint(target: AttrTarget, node: SceneNode, resolveFill: (f?: string) => string | null): void {
+export function applyPaint(
+  target: AttrTarget,
+  node: SceneNode,
+  resolveFill: (f?: string) => string | null,
+): void {
   const p = node.paint || {};
   target
     .attr("fill", resolveFill(p.fill))
@@ -216,7 +243,10 @@ export function applyPaint(target: AttrTarget, node: SceneNode, resolveFill: (f?
     .attr("stroke", p.stroke ?? null)
     .attr("stroke-width", p.strokeWidth ?? null)
     .attr("stroke-opacity", p.strokeOpacity ?? null)
-    .attr("stroke-dasharray", p.strokeDasharray ? p.strokeDasharray.join(" ") : null)
+    .attr(
+      "stroke-dasharray",
+      p.strokeDasharray ? p.strokeDasharray.join(" ") : null,
+    )
     .attr("stroke-linecap", p.strokeLinecap ?? null)
     .attr("vector-effect", p.vectorEffect ?? null)
     .attr("shape-rendering", p.shapeRendering ?? null)
@@ -237,17 +267,29 @@ export function applyPaint(target: AttrTarget, node: SceneNode, resolveFill: (f?
     path/Area band/Sankey link), or on the very first draw (nothing stashed
     yet to interpolate from).
 */
-export function setPath(target: AttrTarget, d: string, animated: boolean, arc?: ArcGeometry): void {
-  const el = (target as unknown as {node?: () => Element & {__d3plusArcPrev__?: ArcGeometry}}).node?.();
+export function setPath(
+  target: AttrTarget,
+  d: string,
+  animated: boolean,
+  arc?: ArcGeometry,
+): void {
+  const el = (
+    target as unknown as {
+      node?: () => Element & {__d3plusArcPrev__?: ArcGeometry};
+    }
+  ).node?.();
   const prevArc = el?.__d3plusArcPrev__;
   if (animated)
-    (target as unknown as SvgTransition).attrTween("d", function (this: Element) {
-      if (arc && prevArc) {
-        const lerp = lerpArc(prevArc, arc);
-        return (k: number) => arcPath(lerp(k));
-      }
-      return interpolatePath(this.getAttribute("d") || d, d);
-    });
+    (target as unknown as SvgTransition).attrTween(
+      "d",
+      function (this: Element) {
+        if (arc && prevArc) {
+          const lerp = lerpArc(prevArc, arc);
+          return (k: number) => arcPath(lerp(k));
+        }
+        return interpolatePath(this.getAttribute("d") || d, d);
+      },
+    );
   else target.attr("d", d);
   if (el) el.__d3plusArcPrev__ = arc;
 }

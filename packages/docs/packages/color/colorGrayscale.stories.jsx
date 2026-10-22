@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Strips a color's saturation while keeping its lightness and alpha, so a\nde-emphasized mark keeps the contrast it had (and a transparent fill stays\ntransparent). Values d3-color can't parse, such as \"none\", are returned\nunchanged.",
+        component:
+          "Strips a color's saturation while keeping its lightness and alpha, so a\nde-emphasized mark keeps the contrast it had (and a transparent fill stays\ntransparent). Values d3-color can't parse, such as \"none\", are returned\nunchanged.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -32,7 +33,10 @@ const calls = colors.map(c => ({
 
 export const BasicExample = () => (
   <SwatchRows
-    rows={colors.map(c => ({colors: [c, colorGrayscale(c)], labels: [c, colorGrayscale(c)]}))}
+    rows={colors.map(c => ({
+      colors: [c, colorGrayscale(c)],
+      labels: [c, colorGrayscale(c)],
+    }))}
     separators={["→"]}
   />
 );
@@ -40,7 +44,8 @@ BasicExample.parameters = {
   docs: {
     ...sourceSnippet("color", "colorGrayscale", calls).docs,
     description: {
-      story: "Removes a color's saturation but keeps its lightness and alpha, so each gray is as light as the color it replaces. Charts use it to fade the marks outside a highlight while their labels keep the contrast they were given.",
+      story:
+        "Removes a color's saturation but keeps its lightness and alpha, so each gray is as light as the color it replaces. Charts use it to fade the marks outside a highlight while their labels keep the contrast they were given.",
     },
   },
 };

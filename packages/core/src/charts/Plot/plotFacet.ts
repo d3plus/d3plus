@@ -25,7 +25,6 @@ import {
 } from "./pipeline.js";
 import {computePlotTrendFits} from "./trendLines.js";
 
-
 /** Whether an axis's domain is a list of values (a category axis) rather than an extent. */
 export function listAxis(viz: VizInstance, axis: string): boolean {
   if (viz.schema[`${axis}Sort`]) return true;
@@ -35,7 +34,9 @@ export function listAxis(viz: VizInstance, axis: string): boolean {
 }
 
 /** The `[min, max]` covering every extent (dates stay dates); undefined when none are numeric. */
-export function unionExtent(extents: DomainValue[][]): DomainValue[] | undefined {
+export function unionExtent(
+  extents: DomainValue[][],
+): DomainValue[] | undefined {
   let lo: DomainValue | undefined, hi: DomainValue | undefined;
   for (const extent of extents) {
     for (const v of extent) {
@@ -50,7 +51,12 @@ export function unionExtent(extents: DomainValue[][]): DomainValue[] | undefined
 /** Runs Plot's data + domain stages for one panel's rows. */
 function panelDomains(viz: VizInstance, rows: DataPoint[]) {
   viz._filteredData = rows;
-  const ctx = runStages({viz}, [formatPlotData, computePlotAxisValues, computePlotTrendFits, computePlotInitialDomains]);
+  const ctx = runStages({viz}, [
+    formatPlotData,
+    computePlotAxisValues,
+    computePlotTrendFits,
+    computePlotInitialDomains,
+  ]);
   return {
     formatted: (ctx.plotFormattedData || []) as Record<string, unknown>[],
     domains: (ctx.plotInitialDomains || {}) as Record<string, DomainValue[]>,
@@ -62,23 +68,32 @@ function panelDomains(viz: VizInstance, rows: DataPoint[]) {
     lists every panel's categories, in the order one chart of all the rows
     would; a continuous axis spans every panel's extent, stacks included.
 */
-export function sharePlotScales(viz: VizInstance, panels: DataPoint[][]): PlotFacetScales {
-  const drawn = panels.filter(rows => rows.length).map(rows => panelDomains(viz, rows));
+export function sharePlotScales(
+  viz: VizInstance,
+  panels: DataPoint[][],
+): PlotFacetScales {
+  const drawn = panels
+    .filter(rows => rows.length)
+    .map(rows => panelDomains(viz, rows));
   const formatted = drawn.flatMap(d => d.formatted);
-  const lists = runStages({viz, plotFormattedData: formatted, plotAxisData: formatted}, [computePlotAxisValues]);
+  const lists = runStages(
+    {viz, plotFormattedData: formatted, plotAxisData: formatted},
+    [computePlotAxisValues],
+  );
   const domains: Record<string, DomainValue[]> = {};
   for (const axis of AXES) {
     if (!drawn.some(d => d.domains[axis])) continue;
     if (listAxis(viz, axis)) {
       const values = lists[`${axis}Data` as "xData"];
       if (values && values.length) domains[axis] = values as DomainValue[];
-    }
-    else {
+    } else {
       const extent = unionExtent(drawn.map(d => d.domains[axis] || []));
       if (extent) domains[axis] = extent;
     }
   }
-  const sizes = viz._size ? formatted.map(d => viz._size!(d.data as DataPoint)) : [];
+  const sizes = viz._size
+    ? formatted.map(d => viz._size!(d.data as DataPoint))
+    : [];
   const size = sizes.length ? plotSizeScale(viz, sizes) : undefined;
   return {domains, size, padded: paddedDomains(viz, formatted, domains, size)};
 }
@@ -97,7 +112,12 @@ function paddedDomains(
   const sizeScale = viz._sizeScaleD3;
   if (size) viz._sizeScaleD3 = size;
   const ctx = runStages(
-    {viz, plotFormattedData: formatted, plotAxisData: formatted, plotInitialDomains: {...domains}},
+    {
+      viz,
+      plotFormattedData: formatted,
+      plotAxisData: formatted,
+      plotInitialDomains: {...domains},
+    },
     [computePlotScales, extendPlotOppScales],
   );
   viz._sizeScaleD3 = sizeScale;
@@ -106,7 +126,8 @@ function paddedDomains(
   if (!scales) return padded;
   for (const axis of AXES) {
     const scale = scales[axis];
-    if (scale && typeof scale.invert === "function") padded[axis] = scale.domain() as DomainValue[];
+    if (scale && typeof scale.invert === "function")
+      padded[axis] = scale.domain() as DomainValue[];
   }
   return padded;
 }
@@ -118,20 +139,35 @@ type AxisConfig = Record<string, unknown> | undefined;
     set. Both keys are always present: the axis keeps config between draws,
     so a labeled panel must undo an unlabeled one before it.
 */
-export function panelAxisConfig(config: AxisConfig, show: boolean): Record<string, unknown> {
+export function panelAxisConfig(
+  config: AxisConfig,
+  show: boolean,
+): Record<string, unknown> {
   const c = config || {};
   return {...c, labels: show ? c.labels : [], title: show ? c.title : false};
 }
 
 /** Puts an axis's labels and title back to its chart config after the panels draw. */
 function resetAxis(axis: VizInstance["_xAxis"], config: AxisConfig): void {
-  if (axis) axis.config({labels: config?.labels, title: config?.title} as Parameters<typeof axis.config>[0]);
+  if (axis)
+    axis.config({labels: config?.labels, title: config?.title} as Parameters<
+      typeof axis.config
+    >[0]);
 }
 
 /** Applies a panel's shared scales and axis-label visibility; returns the undo. */
-export function plotFacetPanel(viz: VizInstance, ctx: FacetPanelContext): () => void {
-  const saved = {scales: viz._plotFacetScales, x: viz._xConfig, y: viz._yConfig};
-  viz._plotFacetScales = ctx.shared ? (ctx.scales as PlotFacetScales | undefined) : undefined;
+export function plotFacetPanel(
+  viz: VizInstance,
+  ctx: FacetPanelContext,
+): () => void {
+  const saved = {
+    scales: viz._plotFacetScales,
+    x: viz._xConfig,
+    y: viz._yConfig,
+  };
+  viz._plotFacetScales = ctx.shared
+    ? (ctx.scales as PlotFacetScales | undefined)
+    : undefined;
   viz._xConfig = panelAxisConfig(saved.x, ctx.labels.x);
   viz._yConfig = panelAxisConfig(saved.y, ctx.labels.y);
   return () => {
@@ -145,9 +181,11 @@ export function plotFacetPanel(viz: VizInstance, ctx: FacetPanelContext): () => 
 
 /** The plot area's insets from the chart area, per side, for the panel just drawn. */
 export function plotFacetInsets(viz: VizInstance): FacetSides {
-  const area = viz._plotArea, t = viz._chartTransform;
+  const area = viz._plotArea,
+    t = viz._chartTransform;
   if (!area || !t) return {top: 0, right: 0, bottom: 0, left: 0};
-  const x = area.x + (t.x ?? 0), y = area.y + (t.y ?? 0);
+  const x = area.x + (t.x ?? 0),
+    y = area.y + (t.y ?? 0);
   return {
     top: y - viz._margin.top,
     right: viz.schema.width - viz._margin.right - (x + area.width),

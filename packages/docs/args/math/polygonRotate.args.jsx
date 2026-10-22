@@ -3,49 +3,49 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   alpha: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The angle in radians to rotate.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
+      summary: "number",
+    },
   },
   origin: {
     control: {},
     defaultValue: "...",
-    description: "The origin point of the rotation, which should be an `[x, y]` formatted Array.",
+    description:
+      "The origin point of the rotation, which should be an `[x, y]` formatted Array.",
     table: {
       defaultValue: {
-        summary: "..."
-      }
+        summary: "...",
+      },
     },
     type: {
       required: false,
-      summary: "point"
-    }
+      summary: "point",
+    },
   },
   poly: {
     control: {},
-    description: "The polygon to be rotated, which should be an Array of `[x, y]` values.",
+    description:
+      "The polygon to be rotated, which should be an Array of `[x, y]` values.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;point&gt;"
-    }
-  }
+      summary: "array.&lt;point&gt;",
+    },
+  },
 };

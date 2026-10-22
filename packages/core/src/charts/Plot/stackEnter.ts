@@ -6,7 +6,12 @@
     of every stack grow together, then the ones on top of them, and so on. A
     diverging stack counts its levels outward from zero on each side.
 */
-import {cubicInOut, type EnterWindow, type Scene, type SceneNode} from "@d3plus/render";
+import {
+  cubicInOut,
+  type EnterWindow,
+  type Scene,
+  type SceneNode,
+} from "@d3plus/render";
 
 import type {PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
@@ -22,7 +27,10 @@ import type {ShapeEmitContext} from "../features/shapeEmit.js";
 */
 export function stackLevels(
   rows: PlotDatum[],
-  ctx: Pick<ShapeEmitContext, "opp" | "stackData" | "stackKeyIndex" | "discreteKeyIndex">,
+  ctx: Pick<
+    ShapeEmitContext,
+    "opp" | "stackData" | "stackKeyIndex" | "discreteKeyIndex"
+  >,
 ): {levels: Map<PlotDatum, number>; depth: number} {
   const {opp, stackData, stackKeyIndex, discreteKeyIndex} = ctx;
   const sides = new Map<string, {row: PlotDatum; order: number}[]>();
@@ -30,9 +38,12 @@ export function stackLevels(
     const value = Number(row[opp ?? "y"]);
     const series = stackData[stackKeyIndex.get(row.id) ?? -1];
     const discrete = discreteKeyIndex.get(row.discrete);
-    if (!value || !Number.isFinite(value) || !series || discrete === undefined) continue;
+    if (!value || !Number.isFinite(value) || !series || discrete === undefined)
+      continue;
     // d3-stack numbers each series by its place in the stack order.
-    const order = (series as unknown as {index?: number}).index ?? stackKeyIndex.get(row.id)!;
+    const order =
+      (series as unknown as {index?: number}).index ??
+      stackKeyIndex.get(row.id)!;
     // Bars in different groups at one position stand side by side, as stacks of their own.
     const side = `${discrete}|${row.group}|${value < 0 ? "-" : "+"}`;
     if (!sides.has(side)) sides.set(side, []);
@@ -55,7 +66,10 @@ export function stackLevels(
     levels then trace one eased motion up the stack.
 */
 export function levelWindow(level: number, depth: number): EnterWindow {
-  return {start: cubicInOut(level / depth), end: cubicInOut((level + 1) / depth)};
+  return {
+    start: cubicInOut(level / depth),
+    end: cubicInOut((level + 1) / depth),
+  };
 }
 
 /** Whether a scene already shows a Plot bar. */
@@ -74,14 +88,20 @@ export function showsBars(scene: Scene | undefined): boolean {
     @param ctx The Plot shape-emit context the bars were drawn with.
     @param nodes The bars' scene nodes.
 */
-export function stackEnterWindows(ctx: ShapeEmitContext, nodes: SceneNode[]): SceneNode[] {
+export function stackEnterWindows(
+  ctx: ShapeEmitContext,
+  nodes: SceneNode[],
+): SceneNode[] {
   const {viz} = ctx;
   if (!viz.schema.stacked || showsBars(viz._paintedScene)) return nodes;
   const {levels, depth} = stackLevels(ctx.values as PlotDatum[], ctx);
   if (depth < 2) return nodes;
   const windows = new Map<unknown, EnterWindow>();
   for (const node of nodes) {
-    const level = node.shapeType === "Bar" ? levels.get(node.datum as unknown as PlotDatum) : undefined;
+    const level =
+      node.shapeType === "Bar"
+        ? levels.get(node.datum as unknown as PlotDatum)
+        : undefined;
     if (level !== undefined) windows.set(node.datum, levelWindow(level, depth));
   }
   return nodes.map(node => {

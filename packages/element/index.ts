@@ -68,7 +68,11 @@ import {
 
 import {D3plusElement} from "./src/D3plusElement.js";
 
-export {D3plusElement, globalConfig, setGlobalConfig} from "./src/D3plusElement.js";
+export {
+  D3plusElement,
+  globalConfig,
+  setGlobalConfig,
+} from "./src/D3plusElement.js";
 
 /**
     Every d3plus class exposed as a custom element, keyed by its PascalCase name.
@@ -168,7 +172,8 @@ export function defineElements(prefix = "d3plus"): Record<string, string> {
   for (const [name, Ctor] of Object.entries(CLASSES)) {
     const tag = `${prefix}-${kebab(name)}`;
     tags[name] = tag;
-    if (typeof customElements === "undefined" || customElements.get(tag)) continue;
+    if (typeof customElements === "undefined" || customElements.get(tag))
+      continue;
     const cls = class extends D3plusElement {};
     cls.viz = Ctor;
     customElements.define(tag, cls);

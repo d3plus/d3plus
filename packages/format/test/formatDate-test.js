@@ -1,7 +1,16 @@
 import {it} from "vitest";
 import assert from "assert";
-import {default as formatDate, dateFormatter, dateFullFormatter, formatDateFull} from "../src/formatDate.ts";
-import {timeFormat, timeFormatDefaultLocale, timeFormatLocale} from "d3-time-format";
+import {
+  default as formatDate,
+  dateFormatter,
+  dateFullFormatter,
+  formatDateFull,
+} from "../src/formatDate.ts";
+import {
+  timeFormat,
+  timeFormatDefaultLocale,
+  timeFormatLocale,
+} from "d3-time-format";
 
 const spanish = {
   dateTime: "%A, %e de %B de %Y, %X",
@@ -141,12 +150,48 @@ it("formatDate", () => {
     hours.push(new Date(2020, 0, 1, i));
   }
   timeFormatDefaultLocale({
-    dateTime: "%x, %X", date: "%-m/%-d/%Y", time: "%-I:%M:%S %p",
+    dateTime: "%x, %X",
+    date: "%-m/%-d/%Y",
+    time: "%-I:%M:%S %p",
     periods: ["AM", "PM"],
-    days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-    shortDays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
-    shortMonths: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    days: [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+    shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    months: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    shortMonths: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
     quarter: "Q",
   });
   const hourFirst = formatDate(hours[0], hours);
@@ -161,7 +206,10 @@ it("formatDate", () => {
     new Date(2020, 0, 3),
   ];
   const smallDay = formatDate(smallDays[1], smallDays);
-  assert.ok(smallDay.includes("2020") || smallDay.includes("Jan"), "small daily array includes year or month");
+  assert.ok(
+    smallDay.includes("2020") || smallDay.includes("Jan"),
+    "small daily array includes year or month",
+  );
 
   // Subsecond data
   const millis = [
@@ -200,24 +248,77 @@ it("formatDate", () => {
     new Date(2020, 0, 2, 1, 0),
     new Date(2020, 0, 2, 1, 30),
   ];
-  assert.strictEqual(formatDate(halfHours[1], halfHours), "11:30", "a half hour reads as its time");
-  assert.strictEqual(formatDate(halfHours[4], halfHours), "01 AM", "an hour reads as its hour");
-  assert.strictEqual(formatDate(halfHours[2], halfHours), "Jan 2", "midnight reads as its day");
-  assert.strictEqual(formatDate(halfHours[0], halfHours), "11 PM", "the first date on the hour reads as its hour");
+  assert.strictEqual(
+    formatDate(halfHours[1], halfHours),
+    "11:30",
+    "a half hour reads as its time",
+  );
+  assert.strictEqual(
+    formatDate(halfHours[4], halfHours),
+    "01 AM",
+    "an hour reads as its hour",
+  );
+  assert.strictEqual(
+    formatDate(halfHours[2], halfHours),
+    "Jan 2",
+    "midnight reads as its day",
+  );
+  assert.strictEqual(
+    formatDate(halfHours[0], halfHours),
+    "11 PM",
+    "the first date on the hour reads as its hour",
+  );
 });
 
 it("formatDate: the shown dates decide which labels carry the year", () => {
   timeFormatDefaultLocale({
-    dateTime: "%x, %X", date: "%-m/%-d/%Y", time: "%-I:%M:%S %p",
+    dateTime: "%x, %X",
+    date: "%-m/%-d/%Y",
+    time: "%-I:%M:%S %p",
     periods: ["AM", "PM"],
-    days: ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"],
-    shortDays: ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"],
-    months: ["January","February","March","April","May","June","July","August","September","October","November","December"],
-    shortMonths: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],
+    days: [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ],
+    shortDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+    months: [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ],
+    shortMonths: [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ],
   });
   const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
   const every = (dates, n) => dates.filter((_, i) => i % n === 0);
-  const label = (dates, shown) => shown.map(d => formatDate(d, dates, timeFormat, shown));
+  const label = (dates, shown) =>
+    shown.map(d => formatDate(d, dates, timeFormat, shown));
 
   const months = range(30, i => new Date(2023, i, 1));
   assert.deepStrictEqual(
@@ -253,7 +354,16 @@ it("formatDate: the shown dates decide which labels carry the year", () => {
   const hours = range(48, i => new Date(2026, 2, 3, 6 + i));
   assert.deepStrictEqual(
     label(hours, every(hours, 6)),
-    ["Mar 3, 2026, 06 AM", "12 PM", "06 PM", "Mar 4, 12 AM", "06 AM", "12 PM", "06 PM", "Mar 5, 12 AM"],
+    [
+      "Mar 3, 2026, 06 AM",
+      "12 PM",
+      "06 PM",
+      "Mar 4, 12 AM",
+      "06 AM",
+      "12 PM",
+      "06 PM",
+      "Mar 5, 12 AM",
+    ],
     "hours: the first label of each day shown names the day, with its hour",
   );
   assert.deepStrictEqual(
@@ -274,7 +384,12 @@ it("formatDate: the shown dates decide which labels carry the year", () => {
     "a timestamp reads as its Date",
   );
   assert.strictEqual(
-    formatDate(months[12], months, timeFormatLocale(spanish).format, every(months, 4)),
+    formatDate(
+      months[12],
+      months,
+      timeFormatLocale(spanish).format,
+      every(months, 4),
+    ),
     "ene 2024",
     "custom formatter for localization",
   );
@@ -285,13 +400,20 @@ it("formatDate: hourly ends read their hour", () => {
   assert.strictEqual(formatDate(hours[0], hours), "Mar 3, 2026, 06 AM");
   assert.strictEqual(formatDate(hours[11], hours), "Mar 3, 2026, 05 PM");
   assert.strictEqual(formatDate(hours[5], hours), "11 AM");
-  assert.strictEqual(formatDate(hours[11], hours, timeFormat, hours), "05 PM", "the last shown hour, on the first's day");
+  assert.strictEqual(
+    formatDate(hours[11], hours, timeFormat, hours),
+    "05 PM",
+    "the last shown hour, on the first's day",
+  );
 });
 
 it("formatDateFull", () => {
   const range = (n, step) => Array.from({length: n}, (_, i) => step(i));
   const years = range(8, i => new Date(2018 + i, 0, 1));
-  const quarters = range(12, i => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1));
+  const quarters = range(
+    12,
+    i => new Date(2024 + Math.floor(i / 4), (i % 4) * 3, 1),
+  );
   const months = range(36, i => new Date(2024, i, 1));
   const days = range(20, i => new Date(2026, 2, 1 + i));
   const hours = range(12, i => new Date(2026, 2, 3, i));
@@ -299,18 +421,66 @@ it("formatDateFull", () => {
   const seconds = range(6, i => new Date(2026, 2, 3, 12, 0, i * 30));
   const millis = range(6, i => new Date(2026, 2, 3, 12, 0, 0, i * 250));
 
-  assert.strictEqual(formatDateFull(years[3], years), "2021", "yearly data reads as the year");
-  assert.strictEqual(formatDateFull(quarters[6], quarters), "Q3 2025", "a middle quarter keeps its year");
-  assert.strictEqual(formatDate(quarters[6], quarters), "Q3", "where formatDate drops it");
-  assert.strictEqual(formatDateFull(months[14], months), "Mar 2025", "a middle month keeps its year");
-  assert.strictEqual(formatDate(months[14], months), "Mar", "where formatDate drops it");
-  assert.strictEqual(formatDateFull(days[9], days), "Mar 10, 2026", "a middle day keeps its year");
-  assert.strictEqual(formatDateFull(hours[5], hours), "Mar 3, 2026 5 AM", "hourly data adds the hour");
-  assert.strictEqual(formatDateFull(minutes[1], minutes), "Mar 3, 2026 12:15 PM", "minute data adds the minute");
-  assert.strictEqual(formatDateFull(minutes[0], minutes), "Mar 3, 2026 12:00 PM", "an on-the-hour value in minute data");
-  assert.strictEqual(formatDateFull(seconds[1], seconds), "Mar 3, 2026 12:00:30 PM", "second data adds the second");
-  assert.strictEqual(formatDateFull(millis[1], millis), "Mar 3, 2026 12:00:00.250 PM", "subsecond data adds the millisecond");
-  assert.strictEqual(formatDateFull(months[14], [months[14]]), "2025", "a lone date reads as its year");
+  assert.strictEqual(
+    formatDateFull(years[3], years),
+    "2021",
+    "yearly data reads as the year",
+  );
+  assert.strictEqual(
+    formatDateFull(quarters[6], quarters),
+    "Q3 2025",
+    "a middle quarter keeps its year",
+  );
+  assert.strictEqual(
+    formatDate(quarters[6], quarters),
+    "Q3",
+    "where formatDate drops it",
+  );
+  assert.strictEqual(
+    formatDateFull(months[14], months),
+    "Mar 2025",
+    "a middle month keeps its year",
+  );
+  assert.strictEqual(
+    formatDate(months[14], months),
+    "Mar",
+    "where formatDate drops it",
+  );
+  assert.strictEqual(
+    formatDateFull(days[9], days),
+    "Mar 10, 2026",
+    "a middle day keeps its year",
+  );
+  assert.strictEqual(
+    formatDateFull(hours[5], hours),
+    "Mar 3, 2026 5 AM",
+    "hourly data adds the hour",
+  );
+  assert.strictEqual(
+    formatDateFull(minutes[1], minutes),
+    "Mar 3, 2026 12:15 PM",
+    "minute data adds the minute",
+  );
+  assert.strictEqual(
+    formatDateFull(minutes[0], minutes),
+    "Mar 3, 2026 12:00 PM",
+    "an on-the-hour value in minute data",
+  );
+  assert.strictEqual(
+    formatDateFull(seconds[1], seconds),
+    "Mar 3, 2026 12:00:30 PM",
+    "second data adds the second",
+  );
+  assert.strictEqual(
+    formatDateFull(millis[1], millis),
+    "Mar 3, 2026 12:00:00.250 PM",
+    "subsecond data adds the millisecond",
+  );
+  assert.strictEqual(
+    formatDateFull(months[14], [months[14]]),
+    "2025",
+    "a lone date reads as its year",
+  );
   assert.strictEqual(
     formatDateFull(months[16], months, timeFormatLocale(spanish).format),
     "may 2025",
@@ -335,14 +505,29 @@ it("dateFormatter labels every date as formatDate does", () => {
   for (const [name, dates] of Object.entries(sets)) {
     for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
       const label = dateFormatter(dates, formatter);
-      const probes = [...dates, +dates[3] || 0, new Date(2030, 0, 1), new Date(NaN)];
-      const shownSets = [undefined, dates, every(dates, 3), every(dates, 7).reverse(), dates.slice(5, 9), [new Date(NaN), ...every(dates, 5)], []];
+      const probes = [
+        ...dates,
+        +dates[3] || 0,
+        new Date(2030, 0, 1),
+        new Date(NaN),
+      ];
+      const shownSets = [
+        undefined,
+        dates,
+        every(dates, 3),
+        every(dates, 7).reverse(),
+        dates.slice(5, 9),
+        [new Date(NaN), ...every(dates, 5)],
+        [],
+      ];
       for (const shown of shownSets) {
-        probes.forEach((d, i) => assert.strictEqual(
-          label(d, shown),
-          formatDate(d, dates, formatter, shown),
-          `${name}: date ${i} with ${shown ? shown.length : "no"} dates shown`,
-        ));
+        probes.forEach((d, i) =>
+          assert.strictEqual(
+            label(d, shown),
+            formatDate(d, dates, formatter, shown),
+            `${name}: date ${i} with ${shown ? shown.length : "no"} dates shown`,
+          ),
+        );
       }
     }
   }
@@ -363,7 +548,9 @@ it("dateFullFormatter labels every date as formatDateFull does", () => {
   for (const dates of sets) {
     for (const formatter of [timeFormat, timeFormatLocale(spanish).format]) {
       const label = dateFullFormatter(dates, formatter);
-      dates.forEach(d => assert.strictEqual(label(d), formatDateFull(d, dates, formatter)));
+      dates.forEach(d =>
+        assert.strictEqual(label(d), formatDateFull(d, dates, formatter)),
+      );
     }
   }
 });

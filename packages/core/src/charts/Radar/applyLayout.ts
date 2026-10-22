@@ -47,11 +47,16 @@ const buildPathConfig = (
 ): Record<string, unknown> => {
   const pathConfig = shapeConfigFor(viz, "Path");
   // Event-handler wrappers: cursor → nearest polygon vertex resolution.
-  const eventNames = Object.keys((pathConfig.on as Record<string, unknown>) ?? {});
+  const eventNames = Object.keys(
+    (pathConfig.on as Record<string, unknown>) ?? {},
+  );
   pathConfig.on = {};
   for (const eventName of eventNames) {
     (pathConfig.on as Record<string, unknown>)[eventName] = (
-      d: GroupDatum, i: number, s: unknown, evt: Event,
+      d: GroupDatum,
+      i: number,
+      s: unknown,
+      evt: Event,
     ) => {
       const xs = d.points.map(p => p.x + width / 2);
       const ys = d.points.map(p => p.y + height / 2);
@@ -59,7 +64,9 @@ const buildPathConfig = (
       const xDist = xs.map(p => Math.abs(p - cursor[0]));
       const yDist = ys.map(p => Math.abs(p - cursor[1]));
       const dists = xDist.map((dd, ii) => dd + yDist[ii]);
-      const handler = viz.schema.on[eventName] as (...args: unknown[]) => unknown;
+      const handler = viz.schema.on[eventName] as (
+        ...args: unknown[]
+      ) => unknown;
       handler.call(viz, d.arr[dists.indexOf(min(dists)!)], i, s, evt);
     };
   }
@@ -88,7 +95,12 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
     return {shapeData: []};
   }
 
-  const {radius, polarAxis} = radarPolarAxis(viz, nestedAxisData, width, height);
+  const {radius, polarAxis} = radarPolarAxis(
+    viz,
+    nestedAxisData,
+    width,
+    height,
+  );
 
   // Chrome: flat SceneNodes on `_chartScene` (the chart-transformed group),
   // painted beneath the polygons `radarEmit` returns.
@@ -102,31 +114,37 @@ export const applyRadarLayout: TransformStage = ({viz}) => {
   );
   const totalAxis = nestedAxisData.length;
 
-  const groupData: GroupDatum[] = nestedGroupData.map(([hKey, innerEntries]) => {
-    const q = innerEntries.map(([, vals], i) => {
-      const value = sum(vals, (x, ii) => valueFn(x, ii));
-      const r = radarRadius(value, domain, radius);
-      const radians = (TAU / totalAxis) * i;
-      return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
-    });
+  const groupData: GroupDatum[] = nestedGroupData.map(
+    ([hKey, innerEntries]) => {
+      const q = innerEntries.map(([, vals], i) => {
+        const value = sum(vals, (x, ii) => valueFn(x, ii));
+        const r = radarRadius(value, domain, radius);
+        const radians = (TAU / totalAxis) * i;
+        return {x: r * Math.cos(radians), y: r * Math.sin(radians)};
+      });
 
-    const pathD = `M ${q[0].x} ${q[0].y} ${q
-      .map(l => `L ${l.x} ${l.y}`)
-      .join(" ")} L ${q[0].x} ${q[0].y}`;
+      const pathD = `M ${q[0].x} ${q[0].y} ${q
+        .map(l => `L ${l.x} ${l.y}`)
+        .join(" ")} L ${q[0].x} ${q[0].y}`;
 
-    const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
-    return {
-      __d3plus__: true,
-      arr: innerEntries.map(([, vals]) => merge(vals as DataPoint[], aggs)) as DataPoint[],
-      id: hKey as string | number,
-      points: q,
-      d: pathD,
-      data: merge(
-        innerEntries.map(([, vals]) => merge(vals as DataPoint[], aggs)) as DataPoint[],
-        aggs,
-      ) as DataPoint,
-    };
-  });
+      const aggs = viz.schema.aggs as Parameters<typeof merge>[1];
+      return {
+        __d3plus__: true,
+        arr: innerEntries.map(([, vals]) =>
+          merge(vals as DataPoint[], aggs),
+        ) as DataPoint[],
+        id: hKey as string | number,
+        points: q,
+        d: pathD,
+        data: merge(
+          innerEntries.map(([, vals]) =>
+            merge(vals as DataPoint[], aggs),
+          ) as DataPoint[],
+          aggs,
+        ) as DataPoint,
+      };
+    },
+  );
 
   const pathConfig = buildPathConfig(viz, width, height);
 

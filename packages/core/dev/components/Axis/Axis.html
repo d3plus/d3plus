@@ -1,16 +1,16 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>Axis</title>
-    <meta name="description" content="Standalone AxisLeft with a point scale, outlined by its outer bounds.">
+    <meta
+      name="description"
+      content="Standalone AxisLeft with a point scale, outlined by its outer bounds."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
     <style>
-
       body {
         /* background-color: black; */
         margin: 0;
@@ -21,14 +21,11 @@
         border: 1px solid red;
         position: absolute;
       }
-
     </style>
-
   </head>
 
   <body>
-
-    <svg width=600 height=600>
+    <svg width="600" height="600">
       <g id="my-axis"></g>
       <g id="my-axis2" transform="translate(0, 0)"></g>
     </svg>
@@ -37,13 +34,17 @@
     <div class="bounds" id="bounds2"></div>
 
     <script>
-
       var bottom = new d3plus.AxisLeft()
         .config({select: "#my-axis"})
         // .domain(["06/12/2010", "06/12/2016"])
         // .domain([2013, 2014, 2015])
         // .domain(["201222", "2013", "2014", "2015", "2016", "2017", "2018", "2019", "2020"])
-        .domain(["Net job growth", "Employment rate", "Working age change", "Fourth"])
+        .domain([
+          "Net job growth",
+          "Employment rate",
+          "Working age change",
+          "Fourth",
+        ])
         // .scalePadding(0.5)
         .scale("point")
         // .domain([2013, 2014])
@@ -110,9 +111,6 @@
       // square2.style.left = bounds2.x + "px";
       // square2.style.top = bounds2.y + 200 + "px";
       // console.log(bounds2);
-
     </script>
-
   </body>
-
 </html>

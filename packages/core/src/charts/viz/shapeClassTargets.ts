@@ -33,12 +33,19 @@ export function handlerDatum(raw: unknown, index: number): HandlerDatum {
     composite's datum. A Box's whisker line fires `.Line`, `.Whisker`, and
     `.Box`, once each.
 */
-export function shapeClassTargets(node: SceneNode, own: HandlerDatum): ShapeClassTarget[] {
+export function shapeClassTargets(
+  node: SceneNode,
+  own: HandlerDatum,
+): ShapeClassTarget[] {
   const targets: ShapeClassTarget[] = [];
-  if (typeof node.shapeType === "string") targets.push({shapeType: node.shapeType, ...own});
+  if (typeof node.shapeType === "string")
+    targets.push({shapeType: node.shapeType, ...own});
   for (const owner of node.owners ?? []) {
     if (targets.some(t => t.shapeType === owner.shapeType)) continue;
-    targets.push({shapeType: owner.shapeType, ...handlerDatum(owner.datum, owner.index)});
+    targets.push({
+      shapeType: owner.shapeType,
+      ...handlerDatum(owner.datum, owner.index),
+    });
   }
   return targets;
 }

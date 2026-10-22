@@ -52,7 +52,11 @@ const PRELUDE = `
 
 /** Runs `body` in the page after the prelude. */
 function page(body, arg) {
-  return render(box, new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`), arg);
+  return render(
+    box,
+    new Function("arg", `return (async () => { ${PRELUDE} ${body} })()`),
+    arg,
+  );
 }
 
 it("draws one titled panel per facet value, with one legend for the whole chart", async function () {
@@ -71,12 +75,34 @@ it("draws one titled panel per facet value, with one legend for the whole chart"
       cells: chart._facetPanels.map(p => [p.cell.row, p.cell.column]),
     };
   `);
-  assert.deepStrictEqual(out.keys, ["facet-East", "facet-North", "facet-South", "facet-West"]);
-  assert.deepStrictEqual(out.labels, ["East", "North", "South", "West"], "each panel group is named by its title");
+  assert.deepStrictEqual(out.keys, [
+    "facet-East",
+    "facet-North",
+    "facet-South",
+    "facet-West",
+  ]);
+  assert.deepStrictEqual(
+    out.labels,
+    ["East", "North", "South", "West"],
+    "each panel group is named by its title",
+  );
   assert.deepStrictEqual(out.titles, ["East", "North", "South", "West"]);
   assert.strictEqual(out.legends, 1, "one legend");
-  assert.strictEqual(out.legendItems, 4, "one legend entry per series, not per panel");
-  assert.deepStrictEqual(out.cells, [[0, 0], [0, 1], [1, 0], [1, 1]], "a 2×2 grid");
+  assert.strictEqual(
+    out.legendItems,
+    4,
+    "one legend entry per series, not per panel",
+  );
+  assert.deepStrictEqual(
+    out.cells,
+    [
+      [0, 0],
+      [0, 1],
+      [1, 0],
+      [1, 1],
+    ],
+    "a 2×2 grid",
+  );
 });
 
 it("shares one y domain across panels and labels only the outer axes", async function () {
@@ -96,14 +122,35 @@ it("shares one y domain across panels and labels only the outer axes", async fun
     };
   `);
   const [first, ...rest] = out.domains;
-  rest.forEach(d => assert.deepStrictEqual(d, first, "every panel draws the same y domain"));
-  assert.ok(first[0] >= 90, `the domain covers the largest panel's values (got ${first})`);
+  rest.forEach(d =>
+    assert.deepStrictEqual(d, first, "every panel draws the same y domain"),
+  );
+  assert.ok(
+    first[0] >= 90,
+    `the domain covers the largest panel's values (got ${first})`,
+  );
   const [area, ...areas] = out.areas;
-  areas.forEach(a => assert.deepStrictEqual(a, area, "every panel's plot area is the same size"));
-  assert.ok(out.texts["facet-East/plot-y-axis"] > 0, "the left column labels its y axis");
-  assert.strictEqual(out.texts["facet-North/plot-y-axis"], 0, "inner panels don't");
-  assert.ok(out.texts["facet-South/plot-x-axis"] > 0, "the bottom row labels its x axis");
-  assert.strictEqual(out.texts["facet-East/plot-x-axis"], 0, "upper panels don't");
+  areas.forEach(a =>
+    assert.deepStrictEqual(a, area, "every panel's plot area is the same size"),
+  );
+  assert.ok(
+    out.texts["facet-East/plot-y-axis"] > 0,
+    "the left column labels its y axis",
+  );
+  assert.strictEqual(
+    out.texts["facet-North/plot-y-axis"],
+    0,
+    "inner panels don't",
+  );
+  assert.ok(
+    out.texts["facet-South/plot-x-axis"] > 0,
+    "the bottom row labels its x axis",
+  );
+  assert.strictEqual(
+    out.texts["facet-East/plot-x-axis"],
+    0,
+    "upper panels don't",
+  );
 });
 
 it("lines every panel's plot area up with its row and column, labeled or not", async function () {
@@ -118,11 +165,28 @@ it("lines every panel's plot area up with its row and column, labeled or not", a
   `);
   const col = c => out.filter(p => p.column === c).map(p => p.x);
   const row = r => out.filter(p => p.row === r).map(p => p.y);
-  for (const c of [0, 1]) assert.deepStrictEqual(col(c)[0], col(c)[1], `column ${c} shares its x extent`);
-  for (const r of [0, 1]) assert.deepStrictEqual(row(r)[0], row(r)[1], `row ${r} shares its y extent`);
-  const width = p => p.x[1] - p.x[0], height = p => p.y[1] - p.y[0];
-  assert.ok(Math.abs(width(out[0]) - width(out[1])) <= 1, "columns are the same width");
-  assert.ok(Math.abs(height(out[0]) - height(out[2])) <= 1, "rows are the same height");
+  for (const c of [0, 1])
+    assert.deepStrictEqual(
+      col(c)[0],
+      col(c)[1],
+      `column ${c} shares its x extent`,
+    );
+  for (const r of [0, 1])
+    assert.deepStrictEqual(
+      row(r)[0],
+      row(r)[1],
+      `row ${r} shares its y extent`,
+    );
+  const width = p => p.x[1] - p.x[0],
+    height = p => p.y[1] - p.y[0];
+  assert.ok(
+    Math.abs(width(out[0]) - width(out[1])) <= 1,
+    "columns are the same width",
+  );
+  assert.ok(
+    Math.abs(height(out[0]) - height(out[2])) <= 1,
+    "rows are the same height",
+  );
 });
 
 it("fits each panel to its own rows with independent scales", async function () {
@@ -133,7 +197,10 @@ it("fits each panel to its own rows with independent scales", async function () 
     await done(chart);
     return chart._facetPanels.map(p => Math.max(...p.state._plotAxisDomains.y.map(Number)));
   `);
-  assert.ok(new Set(out).size > 1, `panels draw different domains (got ${out})`);
+  assert.ok(
+    new Set(out).size > 1,
+    `panels draw different domains (got ${out})`,
+  );
 });
 
 it("hovering a line in one panel highlights that series in every panel", async function () {
@@ -156,7 +223,11 @@ it("hovering a line in one panel highlights that series in every panel", async f
   const panels = new Set(out.lines.map(l => l.panel));
   assert.strictEqual(panels.size, 4, "lines are drawn in every panel");
   for (const line of out.lines) {
-    if (line.product === "Figs") assert.ok(line.opacity === undefined || line.opacity === 1, `Figs stays bright in ${line.panel}`);
+    if (line.product === "Figs")
+      assert.ok(
+        line.opacity === undefined || line.opacity === 1,
+        `Figs stays bright in ${line.panel}`,
+      );
     else assert.ok(line.opacity < 1, `${line.product} dims in ${line.panel}`);
   }
 });
@@ -182,15 +253,21 @@ it("the shared tooltip and crosshair follow the panel under the pointer", async 
   `);
   assert.strictEqual(out.mode, "shared");
   assert.strictEqual(out.panel, "facet-South");
-  assert.deepStrictEqual(out.crosshairs, ["facet-South"], "the crosshair draws in the hovered panel only");
-  for (const product of ["Apples", "Figs", "Pears", "Plums"]) assert.ok(out.tooltip.includes(product), `${product} is listed`);
+  assert.deepStrictEqual(
+    out.crosshairs,
+    ["facet-South"],
+    "the crosshair draws in the hovered panel only",
+  );
+  for (const product of ["Apples", "Figs", "Pears", "Plums"])
+    assert.ok(out.tooltip.includes(product), `${product} is listed`);
   assert.strictEqual(out.cleared, null, "leaving the chart clears it");
 });
 
 for (const renderer of ["svg", "canvas"]) {
   for (const scales of ["shared", "independent"]) {
     it(`the crosshair spans the hovered panel's plot area, in that panel only (${renderer}, ${scales} scales)`, async function () {
-      const out = await page(`
+      const out = await page(
+        `
         const regions5 = ["Africa", "Americas", "Asia", "Europe", "Oceania"];
         const data = [];
         regions5.forEach((region, r) => ["Coffee", "Cocoa", "Tea"].forEach((product, p) => years.forEach((year, y) =>
@@ -218,16 +295,36 @@ for (const renderer of ["svg", "canvas"]) {
           await frames();
         }
         return results;
-      `, scales);
+      `,
+        scales,
+      );
       for (const r of out) {
         assert.strictEqual(r.state, r.key, `${r.key} owns the hover`);
-        assert.deepStrictEqual(r.lines.map(l => l.panel), [r.key], `one crosshair, in ${r.key}`);
+        assert.deepStrictEqual(
+          r.lines.map(l => l.panel),
+          [r.key],
+          `one crosshair, in ${r.key}`,
+        );
         const [line] = r.lines;
-        assert.ok(Math.abs(line.top - r.area.y) < 0.5, `${r.key}: starts at the plot top (${line.top} vs ${r.area.y})`);
-        assert.ok(Math.abs(line.bottom - (r.area.y + r.area.height)) < 0.5, `${r.key}: ends at the plot bottom (${line.bottom} vs ${r.area.y + r.area.height})`);
-        assert.ok(line.x >= r.area.x && line.x <= r.area.x + r.area.width, `${r.key}: inside the plot horizontally`);
+        assert.ok(
+          Math.abs(line.top - r.area.y) < 0.5,
+          `${r.key}: starts at the plot top (${line.top} vs ${r.area.y})`,
+        );
+        assert.ok(
+          Math.abs(line.bottom - (r.area.y + r.area.height)) < 0.5,
+          `${r.key}: ends at the plot bottom (${line.bottom} vs ${r.area.y + r.area.height})`,
+        );
+        assert.ok(
+          line.x >= r.area.x && line.x <= r.area.x + r.area.width,
+          `${r.key}: inside the plot horizontally`,
+        );
       }
-      assert.ok(out.some(r => r.edges.left) && out.some(r => !r.edges.left && !r.edges.bottom) && out.some(r => r.edges.bottom && !r.edges.left), "edge and interior panels");
+      assert.ok(
+        out.some(r => r.edges.left) &&
+          out.some(r => !r.edges.left && !r.edges.bottom) &&
+          out.some(r => r.edges.bottom && !r.edges.left),
+        "edge and interior panels",
+      );
     });
   }
 }
@@ -247,7 +344,12 @@ it("repaints add each panel's hover surface once, without touching the chart's o
     };
     return {painted: count(chart._paintedScene.root.children), own: count(chart._chartScene)};
   `);
-  assert.deepStrictEqual(out.painted, {"facet-East": 1, "facet-North": 1, "facet-South": 1, "facet-West": 1});
+  assert.deepStrictEqual(out.painted, {
+    "facet-East": 1,
+    "facet-North": 1,
+    "facet-South": 1,
+    "facet-West": 1,
+  });
   assert.deepStrictEqual(out.own, {});
 });
 
@@ -270,9 +372,17 @@ it("Pie panels color each series the same, and a slice hover shows its own toolt
       region: chart._lastScenePick && chart._lastScenePick.d.region,
     };
   `);
-  assert.deepStrictEqual(out.fills, {Apples: 1, Figs: 1, Pears: 1, Plums: 1}, "one color per series across panels");
+  assert.deepStrictEqual(
+    out.fills,
+    {Apples: 1, Figs: 1, Pears: 1, Plums: 1},
+    "one color per series across panels",
+  );
   assert.ok(out.tooltip.includes("Pears"), "the hovered slice's tooltip");
-  assert.strictEqual(out.region, "West", "the tooltip reports the hovered panel's row");
+  assert.strictEqual(
+    out.region,
+    "West",
+    "the tooltip reports the hovered panel's row",
+  );
 });
 
 it("a legend click hides the series in every panel", async function () {
@@ -290,7 +400,11 @@ it("a legend click hides the series in every panel", async function () {
     return drawn;
   `);
   for (const [panel, products] of Object.entries(out))
-    assert.deepStrictEqual(products, ["Apples", "Pears", "Plums"], `${panel} drops Figs`);
+    assert.deepStrictEqual(
+      products,
+      ["Apples", "Pears", "Plums"],
+      `${panel} drops Figs`,
+    );
 });
 
 it("hit-tests marks inside panels on the canvas backend", async function () {
@@ -369,9 +483,18 @@ it("facetConfig sets the grid shape, panel order, padding, and titles", async fu
   assert.deepStrictEqual(out.order, ["West", "South", "North", "East"]);
   assert.strictEqual(out.xs, 1, "one column");
   assert.strictEqual(out.gap, 7, "padding between panels");
-  assert.deepStrictEqual(out.titles, ["West (4)", "South (4)", "North (4)", "East (4)"]);
+  assert.deepStrictEqual(out.titles, [
+    "West (4)",
+    "South (4)",
+    "North (4)",
+    "East (4)",
+  ]);
   assert.strictEqual(out.after, 0, "title: false hides panel titles");
-  assert.strictEqual(out.rows, 1, "facetConfig merges: columns 4 makes one row");
+  assert.strictEqual(
+    out.rows,
+    1,
+    "facetConfig merges: columns 4 makes one row",
+  );
 });
 
 it("a colorScale reads the values the panels draw, not values rolled up across panels", async function () {
@@ -384,7 +507,10 @@ it("a colorScale reads the values the panels draw, not values rolled up across p
     return {max: Math.max(...values), rows: values.length};
   `);
   assert.strictEqual(out.rows, 64, "one colorScale row per panel cell");
-  assert.ok(out.max <= 100, `the largest value is a single panel's (got ${out.max})`);
+  assert.ok(
+    out.max <= 100,
+    `the largest value is a single panel's (got ${out.max})`,
+  );
 });
 
 it("keeps every panel through the timeline, showing the same period in each", async function () {
@@ -398,15 +524,23 @@ it("keeps every panel through the timeline, showing the same period in each", as
       years: Array.from(new Set(chart._filteredData.map(d => d.year))),
     };
   `);
-  assert.deepStrictEqual(out.panels, [
-    ["facet-East", true], ["facet-North", true], ["facet-South", false], ["facet-West", true],
-  ], "South has no rows in the latest year but keeps its panel");
+  assert.deepStrictEqual(
+    out.panels,
+    [
+      ["facet-East", true],
+      ["facet-North", true],
+      ["facet-South", false],
+      ["facet-West", true],
+    ],
+    "South has no rows in the latest year but keeps its panel",
+  );
   assert.deepStrictEqual(out.years, [2022]);
 });
 
 it("each Geomap panel paints its own ocean into the scene", async function () {
   const topo = countries;
-  const out = await page(`
+  const out = await page(
+    `
     const chart = new d3plus.Geomap().select("#viz")
       .data([{id: "USA", g: "a", v: 1}, {id: "CAN", g: "a", v: 3}, {id: "BRA", g: "b", v: 2}])
       .colorScale("v").tiles(false).topojson(arg).topojsonId(d => d.id.toUpperCase())
@@ -415,7 +549,9 @@ it("each Geomap panel paints its own ocean into the scene", async function () {
     const oceans = [];
     walk(chart._chartScene, n => { if (String(n.key).endsWith("/geomap-ocean")) oceans.push(panelOf(n.key)); });
     return oceans;
-  `, topo);
+  `,
+    topo,
+  );
   assert.deepStrictEqual(out, ["facet-a", "facet-b"]);
 });
 
@@ -430,7 +566,11 @@ it("drilling down redraws every panel at the new depth", async function () {
     await new Promise(r => setTimeout(r, 300));
     return {depth: chart._drawDepth, panels: chart._facetPanels.length, products: Array.from(new Set(chart._filteredData.map(d => d.product))).sort()};
   `);
-  assert.deepStrictEqual(out, {depth: 1, panels: 4, products: ["Apples", "Pears"]});
+  assert.deepStrictEqual(out, {
+    depth: 1,
+    panels: 4,
+    products: ["Apples", "Pears"],
+  });
 });
 
 it("panel titles measure and lay out as inert text", async function () {
@@ -448,11 +588,26 @@ it("panel titles measure and lay out as inert text", async function () {
       empty: facetTitleBand({schema: {}}, ["", ""], [cell(300), cell(300)], config),
     };
   `);
-  assert.ok(out.height > 12 && out.height < 30, `one line plus padding (got ${out.height})`);
+  assert.ok(
+    out.height > 12 && out.height < 30,
+    `one line plus padding (got ${out.height})`,
+  );
   assert.strictEqual(out.none, 0);
   assert.deepStrictEqual(out.nodes, [
-    {type: "text", interactive: false, group: "facet", datum: false, text: "East"},
-    {type: "text", interactive: false, group: "facet", datum: false, text: "West"},
+    {
+      type: "text",
+      interactive: false,
+      group: "facet",
+      datum: false,
+      text: "East",
+    },
+    {
+      type: "text",
+      interactive: false,
+      group: "facet",
+      datum: false,
+      text: "West",
+    },
   ]);
   assert.ok(out.wraps > 30, `a narrow cell's title wraps (got ${out.wraps})`);
   assert.strictEqual(out.empty, 0);
@@ -468,9 +623,20 @@ it("sharePlotScales spans every panel's stacks and categories", async function (
     const shared = d3plus.sharePlotScales(chart, panels);
     return {y: shared.domains.y.map(Number), x: shared.domains.x, padded: shared.padded.y.map(Number), totals};
   `);
-  assert.deepStrictEqual(out.x, [2019, 2020, 2021, 2022], "every panel's categories, in order");
-  assert.strictEqual(out.y[1], Math.max(...out.totals), "the tallest stack in any panel");
-  assert.ok(Math.max(...out.padded) >= out.y[1], "the padded domain still covers it");
+  assert.deepStrictEqual(
+    out.x,
+    [2019, 2020, 2021, 2022],
+    "every panel's categories, in order",
+  );
+  assert.strictEqual(
+    out.y[1],
+    Math.max(...out.totals),
+    "the tallest stack in any panel",
+  );
+  assert.ok(
+    Math.max(...out.padded) >= out.y[1],
+    "the padded domain still covers it",
+  );
 });
 
 it("a chart's scene hook adds its own nodes to every panel as it draws", async function () {
@@ -497,8 +663,27 @@ it("a chart's scene hook adds its own nodes to every panel as it draws", async f
     };
   `);
   assert.strictEqual(out.calls.length, 4, "once per panel");
-  out.calls.forEach(c => assert.deepStrictEqual(c, {rows: 4, step: "panel", chart: true}, "with the panel's draw (its four products) in place"));
-  assert.deepStrictEqual(out.extras, ["facet-East/extra", "facet-North/extra", "facet-South/extra", "facet-West/extra"]);
-  assert.deepStrictEqual(out.kept, [true, true, true, true], "each panel's state keeps the nodes it composes");
-  assert.strictEqual(out.zoomShapes, false, "the added nodes are not data shapes");
+  out.calls.forEach(c =>
+    assert.deepStrictEqual(
+      c,
+      {rows: 4, step: "panel", chart: true},
+      "with the panel's draw (its four products) in place",
+    ),
+  );
+  assert.deepStrictEqual(out.extras, [
+    "facet-East/extra",
+    "facet-North/extra",
+    "facet-South/extra",
+    "facet-West/extra",
+  ]);
+  assert.deepStrictEqual(
+    out.kept,
+    [true, true, true, true],
+    "each panel's state keeps the nodes it composes",
+  );
+  assert.strictEqual(
+    out.zoomShapes,
+    false,
+    "the added nodes are not data shapes",
+  );
 });

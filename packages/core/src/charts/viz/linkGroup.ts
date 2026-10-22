@@ -133,11 +133,14 @@ export function linkMembers(group: string): VizInstance[] {
 export function linkedColorDefaults(viz: LinkTarget): ColorDefaults {
   const defaults = viz.schema.colorDefaults as ColorDefaults;
   const group = viz._linkGroup;
-  if (group === undefined || defaults.scale !== viz._autoColorScale) return defaults;
+  if (group === undefined || defaults.scale !== viz._autoColorScale)
+    return defaults;
   if (!resolveLink(viz)?.color) return defaults;
   let scale = groupColorScales.get(group);
   if (!scale) {
-    scale = scaleOrdinal<string>().range(defaults.scale.range()) as ColorDefaults["scale"];
+    scale = scaleOrdinal<string>().range(
+      defaults.scale.range(),
+    ) as ColorDefaults["scale"];
     groupColorScales.set(group, scale);
   }
   return {...defaults, scale};
@@ -184,8 +187,12 @@ export function linkValues(
     empty set matches nothing, so a chart without the linked value dims
     entirely.
 */
-export function linkPredicate(link: ResolvedLink, values: Set<string>): Predicate {
-  return (d: DataPoint, i: number) => linkKeys(link.by(d, i)).some(k => values.has(k));
+export function linkPredicate(
+  link: ResolvedLink,
+  values: Set<string>,
+): Predicate {
+  return (d: DataPoint, i: number) =>
+    linkKeys(link.by(d, i)).some(k => values.has(k));
 }
 
 /**
@@ -214,8 +221,7 @@ function dispatch(
       const targetLink = resolveLink(target);
       if (targetLink) fn(target, targetLink);
     }
-  }
-  finally {
+  } finally {
     dispatching.delete(link.group);
   }
 }
@@ -225,17 +231,25 @@ function dispatch(
     group. A predicate becomes a match on its rows' `by` values; `false`
     clears the same state everywhere.
 */
-export function broadcastLink(viz: VizInstance, kind: LinkKind, predicate: unknown): void {
+export function broadcastLink(
+  viz: VizInstance,
+  kind: LinkKind,
+  predicate: unknown,
+): void {
   const override = linkAsPredicates.get(viz);
   linkAsPredicates.delete(viz);
   if (predicate === undefined) return;
   const link = resolveLink(viz);
   if (!link || !link[kind]) return;
-  const source = typeof predicate === "function" ? override ?? (predicate as Predicate) : null;
+  const source =
+    typeof predicate === "function"
+      ? (override ?? (predicate as Predicate))
+      : null;
   let values: Set<string> | null = null;
   dispatch(viz, link, (target, targetLink) => {
     if (!targetLink[kind]) return;
-    const setter = target[kind] as ((_: Predicate | false) => unknown) | undefined;
+    const setter = target[kind] as
+      ((_: Predicate | false) => unknown) | undefined;
     if (!setter) return;
     if (source && !values) values = linkValues(viz, link.by, source);
     setter.call(target, values ? linkPredicate(targetLink, values) : false);
@@ -243,13 +257,21 @@ export function broadcastLink(viz: VizInstance, kind: LinkKind, predicate: unkno
 }
 
 /** The raw legend ids of a legend row, as `_hidden`/`_solo` store them. */
-function legendIds(viz: VizInstance, d: DataPoint, i: number): (string | number)[] {
+function legendIds(
+  viz: VizInstance,
+  d: DataPoint,
+  i: number,
+): (string | number)[] {
   const id = viz._id(d, i) as string | number | (string | number)[];
   return Array.isArray(id) ? id : [id];
 }
 
 /** The `by` keys of the legend rows whose ids appear in `ids`. */
-function legendKeys(viz: VizInstance, link: ResolvedLink, ids: (string | number)[]): Set<string> {
+function legendKeys(
+  viz: VizInstance,
+  link: ResolvedLink,
+  ids: (string | number)[],
+): Set<string> {
   const keys = new Set<string>();
   if (!ids.length) return keys;
   (viz._legendData ?? []).forEach((d, i) => {
@@ -283,7 +305,12 @@ export function broadcastLegend(viz: VizInstance): void {
         for (const id of ids) if (!list.includes(id)) list.push(id);
       };
       if (soloKeys.size && keys.some(k => soloKeys.has(k))) add(solo);
-      else if (hiddenKeys.size && keys.length && keys.every(k => hiddenKeys.has(k))) add(hidden);
+      else if (
+        hiddenKeys.size &&
+        keys.length &&
+        keys.every(k => hiddenKeys.has(k))
+      )
+        add(hidden);
     });
     const same = (a: unknown[], b: unknown[]): boolean =>
       a.length === b.length && a.every(v => b.includes(v));

@@ -12,19 +12,27 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Toggles the console warnings d3plus logs when a class receives a config\nproperty it does not support (like a misspelled key passed to .config()\nor shapeConfig). Warnings are on by default and the setting applies to\nevery chart on the page. With no argument, returns the current setting.",
+        component:
+          "Toggles the console warnings d3plus logs when a class receives a config\nproperty it does not support (like a misspelled key passed to .config()\nor shapeConfig). Warnings are on by default and the setting applies to\nevery chart on the page. With no argument, returns the current setting.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 import {useEffect, useState} from "react";
 import {Legend} from "@d3plus/core";
 
-const buttonStyle = {padding: "6px 12px", fontSize: 13, borderRadius: 4, border: "1px solid #ced4da", background: "#fff", cursor: "pointer"};
+const buttonStyle = {
+  padding: "6px 12px",
+  fontSize: 13,
+  borderRadius: 4,
+  border: "1px solid #ced4da",
+  background: "#fff",
+  cursor: "pointer",
+};
 
 // Mirrors console.warn into the story while mounted, so the warnings d3plus
 // logs for unknown config keys are visible on the page.
@@ -54,16 +62,36 @@ const Demo = () => {
   };
   return (
     <div style={{display: "grid", gap: 10, fontSize: 13}}>
-      <div style={{display: "flex", gap: 12, alignItems: "center", flexWrap: "wrap"}}>
+      <div
+        style={{
+          display: "flex",
+          gap: 12,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         <button type="button" style={buttonStyle} onClick={misspell}>
           new Legend().config({"{"}titel{count + 1}: "Sales"{"}"})
         </button>
         <label style={{display: "flex", gap: 6, alignItems: "center"}}>
-          <input type="checkbox" checked={enabled} onChange={e => toggle(e.target.checked)} />
+          <input
+            type="checkbox"
+            checked={enabled}
+            onChange={e => toggle(e.target.checked)}
+          />
           <code>configWarnings({String(enabled)})</code>
         </label>
       </div>
-      <pre style={{margin: 0, minHeight: 40, padding: 8, background: "#f8f9fa", borderRadius: 4, fontSize: 12}}>
+      <pre
+        style={{
+          margin: 0,
+          minHeight: 40,
+          padding: 8,
+          background: "#f8f9fa",
+          borderRadius: 4,
+          fontSize: 12,
+        }}
+      >
         {log.length ? log.join("\n") : "console.warn output appears here"}
       </pre>
     </div>
@@ -84,7 +112,8 @@ configWarnings();        // false`,
       language: "jsx",
     },
     description: {
-      story: "Every class checks the keys handed to `config()` and warns once about any it does not support, which catches misspellings such as `titel`. Press the button to trigger a warning, then untick the box to turn the check off page-wide; with no argument the function reports the current setting.",
+      story:
+        "Every class checks the keys handed to `config()` and warns once about any it does not support, which catches misspellings such as `titel`. Press the button to trigger a warning, then untick the box to turn the check off page-wide; with no argument the function reports the current setting.",
     },
   },
 };

@@ -11,11 +11,17 @@ import {chartBounds} from "../features/chartGeometry.js";
 import {paintFromShapeConfig, shapeConfigFor} from "../features/emitHelpers.js";
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
+import type {VizInstance} from "../viz/vizTypes.js";
 import {resolveThemed} from "./basemapTheme.js";
 import type {Themed} from "./basemapTheme.js";
 
 interface GeomapCtx {
-  topoData: Array<{__d3plus__?: true; data?: DataPoint; feature: unknown; id: string | number}>;
+  topoData: Array<{
+    __d3plus__?: true;
+    data?: DataPoint;
+    feature: unknown;
+    id: string | number;
+  }>;
   pathFn: (d: {feature: unknown}) => string;
   pointData: DataPoint[];
   pointR: (d: DataPoint, i: number) => number;
@@ -24,9 +30,11 @@ interface GeomapCtx {
   pointSort?: (a: DataPoint, b: DataPoint) => number;
 }
 
-export const geomapEmit: ChartEmit = ({viz}) => {
-  const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
-  if (!c) return [];
+/**
+    The ocean rect and basemap tiles, for a server render or a small-multiples
+    panel (empty otherwise).
+*/
+function emitGeomapBasemap(viz: VizInstance): SceneNode[] {
   const out: SceneNode[] = [];
 
   // The ocean rect and basemap tiles normally live in the imperative geomap
@@ -37,7 +45,10 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   // A small-multiples panel does the same: the imperative layer holds one map.
   const panel = viz._facetStep === "panel";
   if (viz._ssr || panel) {
-    const ocean = resolveThemed(viz.schema.ocean as Themed<string>, Boolean(viz._basemapDark)) as string | undefined;
+    const ocean = resolveThemed(
+      viz.schema.ocean as Themed<string>,
+      Boolean(viz._basemapDark),
+    ) as string | undefined;
     if (ocean && ocean !== "transparent") {
       const {width, height} = chartBounds(viz);
       out.push({
@@ -56,7 +67,7 @@ export const geomapEmit: ChartEmit = ({viz}) => {
   // linked by URL in a small-multiples panel). Placed above the ocean and
   // below the geography, at the positions `_computeTileList` derives from the
   // fitted projection (same math as the live `_renderTiles`).
-  const ssrTiles = viz._ssrTiles as Map<string, string> | undefined;
+  const ssrTiles = viz._ssrTiles;
   const sceneTiles = (ssrTiles && ssrTiles.size) || (panel && !viz._ssr);
   if (sceneTiles && typeof viz._computeTileList === "function") {
     for (const t of viz._computeTileList()) {
@@ -75,10 +86,18 @@ export const geomapEmit: ChartEmit = ({viz}) => {
       } as SceneNode);
     }
   }
+  return out;
+}
+
+export const geomapEmit: ChartEmit = ({viz}) => {
+  const c = viz.ctx.geomapCtx as GeomapCtx | undefined;
+  if (!c) return [];
+  const out: SceneNode[] = emitGeomapBasemap(viz);
 
   if (c.topoData && c.topoData.length) {
     const pathConfig = shapeConfigFor(viz, "Path");
-    const colorScale = viz.schema.colorScale as ((d: DataPoint, i: number) => unknown) | undefined;
+    const colorScale = viz.schema.colorScale as
+      ((d: DataPoint, i: number) => unknown) | undefined;
     const start = out.length;
     for (let i = 0; i < c.topoData.length; i++) {
       const d = c.topoData[i];
@@ -93,19 +112,26 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         // Topojson geography is a data shape: keep its border stroke a constant
         // screen width as the map zooms (v3 parity), rather than scaling with
         // the zoom transform. Honors an explicit shapeConfig.vectorEffect.
-        paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
+        paint: {
+          ...paint,
+          vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
+        },
         aria: {label: `${viz._drawLabel(datum, i)}${validColorScale}.`},
       } as SceneNode);
     }
-    out.push(...backgroundImageNodes(pathConfig, out.slice(start), k => {
-      const d = c.topoData[k];
-      return [(d.data ?? d) as DataPoint, k];
-    }));
+    out.push(
+      ...backgroundImageNodes(pathConfig, out.slice(start), k => {
+        const d = c.topoData[k];
+        return [(d.data ?? d) as DataPoint, k];
+      }),
+    );
   }
 
   if (c.pointData && c.pointData.length) {
     const circleConfig = shapeConfigFor(viz, "Circle");
-    const points = c.pointSort ? [...c.pointData].sort(c.pointSort) : c.pointData;
+    const points = c.pointSort
+      ? [...c.pointData].sort(c.pointSort)
+      : c.pointData;
     const start = out.length;
     for (let i = 0; i < points.length; i++) {
       const d = points[i];
@@ -126,13 +152,25 @@ export const geomapEmit: ChartEmit = ({viz}) => {
         datum: d,
         // Coordinate points are data shapes: hold their stroke at a constant
         // screen width through zoom (v3 parity), like the topojson borders.
-        paint: {...paint, vectorEffect: paint.vectorEffect ?? "non-scaling-stroke"},
-        aria: {label: `${viz._drawLabel(d, i)}, ${(viz.schema.pointSize as (d: DataPoint, i: number) => unknown)(d, i)}.`},
+        paint: {
+          ...paint,
+          vectorEffect: paint.vectorEffect ?? "non-scaling-stroke",
+        },
+        aria: {
+          label: `${viz._drawLabel(d, i)}, ${(viz.schema.pointSize as (d: DataPoint, i: number) => unknown)(d, i)}.`,
+        },
         ...(circleConfig.trail ? {trail: true} : {}),
-        ...(circleConfig.trailPersist ? {trailPersist: circleConfig.trailPersist} : {}),
+        ...(circleConfig.trailPersist
+          ? {trailPersist: circleConfig.trailPersist}
+          : {}),
       } as SceneNode);
     }
-    out.push(...backgroundImageNodes(circleConfig, out.slice(start), k => [points[k], k]));
+    out.push(
+      ...backgroundImageNodes(circleConfig, out.slice(start), k => [
+        points[k],
+        k,
+      ]),
+    );
   }
 
   return out;

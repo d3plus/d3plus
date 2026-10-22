@@ -24,7 +24,11 @@ const scope = {
     @param config The user-supplied `confidenceConfig` patch.
 */
 export function validateConfidenceConfig(owner: string, config: unknown): void {
-  if (config && typeof config === "object" && Object.getPrototypeOf(config) === Object.prototype)
+  if (
+    config &&
+    typeof config === "object" &&
+    Object.getPrototypeOf(config) === Object.prototype
+  )
     validateShapeConfig(owner, config as Record<string, unknown>, scope);
 }
 
@@ -41,8 +45,7 @@ export function resolveConfidence(value: unknown): VizInstance["_confidence"] {
       : typeof b === "string" && b
         ? (accessor(b) as ConfidenceAccessor)
         : false;
-  const pair: [ConfidenceAccessor | false, ConfidenceAccessor | false] = Array.isArray(value)
-    ? [bound(value[0]), bound(value[1])]
-    : [false, false];
+  const pair: [ConfidenceAccessor | false, ConfidenceAccessor | false] =
+    Array.isArray(value) ? [bound(value[0]), bound(value[1])] : [false, false];
   return pair[0] || pair[1] ? pair : false;
 }

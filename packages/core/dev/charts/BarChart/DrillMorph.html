@@ -3,11 +3,15 @@
   <head>
     <meta charset="utf-8" />
     <title>DrillMorph · BarChart</title>
-    <meta name="description" content="Click a bar to drill into its sub-categories; children grow out of the clicked bar (issue #166).">
+    <meta
+      name="description"
+      content="Click a bar to drill into its sub-categories; children grow out of the clicked bar (issue #166)."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
-      html, body {
+      html,
+      body {
         height: 100vh;
         margin: 0;
         padding: 0;
@@ -26,7 +30,15 @@
 
   <body>
     <div id="controls">
-      duration: <input id="duration" type="range" min="0" max="2000" step="50" value="600" />
+      duration:
+      <input
+        id="duration"
+        type="range"
+        min="0"
+        max="2000"
+        step="50"
+        value="600"
+      />
       <span id="durationLabel">600ms</span>
     </div>
     <div id="viz"></div>

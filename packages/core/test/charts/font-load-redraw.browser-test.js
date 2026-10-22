@@ -13,12 +13,10 @@ it("Viz redraws when a measured web font loads, until destroyed", async function
               fontfaces: [new window.FontFace(family, "url(x)")],
             }),
           );
-        const viz = new window.d3plus.Treemap()
-          .select("#s")
-          .data([
-            {id: "alpha", value: 10},
-            {id: "beta", value: 20},
-          ]);
+        const viz = new window.d3plus.Treemap().select("#s").data([
+          {id: "alpha", value: 10},
+          {id: "beta", value: 20},
+        ]);
         viz.render(() =>
           window.setTimeout(() => {
             let renders = 0;

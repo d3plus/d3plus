@@ -31,8 +31,16 @@ function legendPositions(legend: Legend): LegendPositions {
   const {align, direction, padding: pad} = legend.schema;
   const bounds = legend._outerBounds;
   const deps = [
-    lineData, legend._data, bounds.x, bounds.y, bounds.width,
-    legend._titleHeight, legend._rtl, align, direction, pad,
+    lineData,
+    legend._data,
+    bounds.x,
+    bounds.y,
+    bounds.width,
+    legend._titleHeight,
+    legend._rtl,
+    align,
+    direction,
+    pad,
   ];
   const cached = positionCache.get(legend);
   if (cached && cached.deps.every((v, i) => v === deps[i])) return cached;
@@ -51,12 +59,18 @@ function legendPositions(legend: Legend): LegendPositions {
     rowHeights.set(y, max(row.map(l => l.height as number))!);
   });
   const dataHeight = max(
-    legend._data.map((l: DataPoint, x: number) => legend._fetchConfig("height", l, x) as number),
+    legend._data.map(
+      (l: DataPoint, x: number) =>
+        legend._fetchConfig("height", l, x) as number,
+    ),
   );
 
   // Running `_rowWidth` of the items before each one in its row: the sum of
   // their shape + label widths, plus the padding after every one but the last.
-  const running = new Map<unknown, {widths: number; pads: number; last: number; count: number}>();
+  const running = new Map<
+    unknown,
+    {widths: number; pads: number; last: number; count: number}
+  >();
   const x: number[] = [];
   const y: number[] = [];
   lineData.forEach(datum => {
@@ -104,7 +118,9 @@ function legendPositions(legend: Legend): LegendPositions {
     the `legend` instance so they read live `_lineData` / `_outerBounds` /
     `_rtl` / `_titleHeight` state during render.
 */
-export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> {
+export function buildLegendShapeConfig(
+  legend: Legend,
+): Record<string, unknown> {
   return {
     fill: accessor("color"),
     height: constant(12),
@@ -123,7 +139,9 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
       const x = (d.shapeWidth as number) / 2;
       const height = max([d.shapeHeight as number, d.height as number]);
       const rtlMod = legend._rtl
-        ? (d.shapeWidth as number) + (d.width as number) + legend.schema.padding * 2
+        ? (d.shapeWidth as number) +
+          (d.width as number) +
+          legend.schema.padding * 2
         : 0;
       return {
         width: d.width as number,
@@ -134,7 +152,9 @@ export function buildLegendShapeConfig(legend: Legend): Record<string, unknown> 
     },
     labelConfig: {
       fontColor: () => {
-        const bg = legend._select ? backgroundColor(legend._select.node()) : "rgb(255, 255, 255)";
+        const bg = legend._select
+          ? backgroundColor(legend._select.node())
+          : "rgb(255, 255, 255)";
         return colorContrast(bg, legend.schema.colorDefaults);
       },
       fontFamily: legend._titleClass.fontFamily(),

@@ -16,9 +16,14 @@ export const bumpChartDef: ChartDefinition = {
   paintDriven: true,
 
   setup: (viz: VizInstance) => {
-    type Comparator = (a: Record<string, unknown>, b: Record<string, unknown>) => number;
+    type Comparator = (
+      a: Record<string, unknown>,
+      b: Record<string, unknown>,
+    ) => number;
     type BumpFluent = {
-      y2: (accessor: (d: Record<string, unknown>, i: number) => unknown) => unknown;
+      y2: (
+        accessor: (d: Record<string, unknown>, i: number) => unknown,
+      ) => unknown;
       yConfig: (config: Record<string, unknown>) => unknown;
       y2Config: (config: Record<string, unknown>) => unknown;
       ySort: (comparator: Comparator) => unknown;
@@ -29,7 +34,10 @@ export const bumpChartDef: ChartDefinition = {
     v.yConfig({
       tickFormat: (val: number) => {
         const data = viz._formattedData ?? [];
-        const xMin = data[0].x instanceof Date ? (data[0].x as unknown as Date).getTime() : data[0].x;
+        const xMin =
+          data[0].x instanceof Date
+            ? (data[0].x as unknown as Date).getTime()
+            : data[0].x;
         const startData = data.filter(
           (d: Record<string, unknown>) =>
             (d.x instanceof Date ? (d.x as Date).getTime() : d.x) === xMin,
@@ -53,10 +61,16 @@ export const bumpChartDef: ChartDefinition = {
         return d ? viz._drawLabel(d, d.i as number) : "";
       },
     });
-    v.ySort((a: Record<string, unknown>, b: Record<string, unknown>) =>
-      (viz._y as (d: unknown) => number)(b) - (viz._y as (d: unknown) => number)(a));
-    v.y2Sort((a: Record<string, unknown>, b: Record<string, unknown>) =>
-      (viz._y as (d: unknown) => number)(b) - (viz._y as (d: unknown) => number)(a));
+    v.ySort(
+      (a: Record<string, unknown>, b: Record<string, unknown>) =>
+        (viz._y as (d: unknown) => number)(b) -
+        (viz._y as (d: unknown) => number)(a),
+    );
+    v.y2Sort(
+      (a: Record<string, unknown>, b: Record<string, unknown>) =>
+        (viz._y as (d: unknown) => number)(b) -
+        (viz._y as (d: unknown) => number)(a),
+    );
   },
 
   // Each panel ranks its own series, so every panel labels its axes.

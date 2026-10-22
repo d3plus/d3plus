@@ -27,7 +27,10 @@ export const trendTypeNames: Record<string, string> = {
 };
 
 /** Joins signed terms into "a + b − c", dropping zero terms. */
-function joinTerms(terms: [number, string][], format: (n: number) => string): string {
+function joinTerms(
+  terms: [number, string][],
+  format: (n: number) => string,
+): string {
   const kept = terms.filter(([c]) => c !== 0);
   if (!kept.length) return format(0);
   return kept
@@ -56,12 +59,23 @@ export function trendEquation(
   const y = axis === "x" ? "y" : "x";
   const c = fit.coefficients;
   let rhs: string;
-  if (fit.type === "exponential") rhs = `${format(c[0])}e^(${format(c[1])}${x})`;
+  if (fit.type === "exponential")
+    rhs = `${format(c[0])}e^(${format(c[1])}${x})`;
   else if (fit.type === "power") rhs = `${format(c[0])}${x}^${format(c[1])}`;
-  else if (fit.type === "logarithmic") rhs = joinTerms([[c[1], `ln(${x})`], [c[0], ""]], format);
+  else if (fit.type === "logarithmic")
+    rhs = joinTerms(
+      [
+        [c[1], `ln(${x})`],
+        [c[0], ""],
+      ],
+      format,
+    );
   else {
     const terms = c
-      .map((coef, k): [number, string] => [coef, k === 0 ? "" : k === 1 ? x : `${x}${SUPERSCRIPTS[k] || `^${k}`}`])
+      .map((coef, k): [number, string] => [
+        coef,
+        k === 0 ? "" : k === 1 ? x : `${x}${SUPERSCRIPTS[k] || `^${k}`}`,
+      ])
       .reverse();
     rhs = joinTerms(terms, format);
   }
@@ -70,7 +84,10 @@ export function trendEquation(
 
 /** Abbreviates a coefficient, keeping three significant digits on tiny values. */
 function coefficientFormat(locale: string): (n: number) => string {
-  return n => (n !== 0 && Math.abs(n) < 1e-3 ? n.toPrecision(3) : formatAbbreviate(n, locale));
+  return n =>
+    n !== 0 && Math.abs(n) < 1e-3
+      ? n.toPrecision(3)
+      : formatAbbreviate(n, locale);
 }
 
 /**
@@ -79,23 +96,36 @@ function coefficientFormat(locale: string): (n: number) => string {
     value (marked "Projected") and its predicted value, with the band's
     bounds when drawn.
 */
-export function trendTooltipRows(viz: VizInstance, trend: TrendFit, sample?: TrendSample): string[][] {
+export function trendTooltipRows(
+  viz: VizInstance,
+  trend: TrendFit,
+  sample?: TrendSample,
+): string[][] {
   const {fit, axis} = trend;
   const t = (s: string) => viz.schema.translate(s);
   const rows: string[][] = [];
   if (sample && sample.projected) {
     const dep = axis === "x" ? "y" : "x";
     const value = (n: unknown) => axisValue(viz, dep, n);
-    const bounds = sample.lci !== undefined ? ` (${value(sample.lci)} – ${value(sample.hci)})` : "";
+    const bounds =
+      sample.lci !== undefined
+        ? ` (${value(sample.lci)} – ${value(sample.hci)})`
+        : "";
     rows.push(
-      [axisName(viz, axis), `${axisValue(viz, axis, sample[axis])} (${t("Projected")})`],
+      [
+        axisName(viz, axis),
+        `${axisValue(viz, axis, sample[axis])} (${t("Projected")})`,
+      ],
       [axisName(viz, dep), `${value(sample[dep])}${bounds}`],
     );
   }
   rows.push([t("Trend Line"), t(trendTypeNames[fit.type])]);
   // An equation in milliseconds since 1970 says nothing a reader can use.
   if (!viz[`_${axis}Time`])
-    rows.push([t("Equation"), trendEquation(fit, coefficientFormat(viz.schema.locale), axis)]);
+    rows.push([
+      t("Equation"),
+      trendEquation(fit, coefficientFormat(viz.schema.locale), axis),
+    ]);
   rows.push(["R²", fit.r2.toFixed(3)], [t("Observations"), `${fit.n}`]);
   return rows;
 }
@@ -123,7 +153,9 @@ export function nearestProjectedSample(
     return best;
   };
   const best = nearest(trend.samples);
-  return best && best.projected ? nearest(trend.samples.filter(s => s.step)) : undefined;
+  return best && best.projected
+    ? nearest(trend.samples.filter(s => s.step))
+    : undefined;
 }
 
 /** Renders the trend tooltip at the pointer, leading with the nearest projected value when over the projection. */
@@ -142,11 +174,21 @@ export function renderTrendTooltip(
         : event.point;
   const tip = prepareTooltip(viz)
     .data([trend.row || {}])
-    .config(configPrep.bind(viz as unknown as ConfigPrepHost)(viz.schema.tooltipConfig))
+    .config(
+      configPrep.bind(viz as unknown as ConfigPrepHost)(
+        viz.schema.tooltipConfig,
+      ),
+    )
     .title(() => trend.label);
   leadTitleWithSwatch(tip, tooltipSwatch(trend.color, "Line"))
     .thead([])
-    .tbody(trendTooltipRows(viz, trend, cursor ? nearestProjectedSample(viz, trend, cursor) : undefined))
+    .tbody(
+      trendTooltipRows(
+        viz,
+        trend,
+        cursor ? nearestProjectedSample(viz, trend, cursor) : undefined,
+      ),
+    )
     .footer(false)
     .position(position)
     .render();

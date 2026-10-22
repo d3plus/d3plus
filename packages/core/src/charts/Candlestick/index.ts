@@ -27,7 +27,12 @@ import {candlestickBuffer} from "./buffer.js";
 import {CANDLESTICK_SHAPE, emitCandlesticks} from "./emit.js";
 import {bandAxisDefaults, periodDate} from "./periods.js";
 import {candleTooltipRows} from "./tooltip.js";
-import {installVolumeStrip, noteVolumeTop, VOLUME_DEFAULTS, volumeAccessor} from "./volume.js";
+import {
+  installVolumeStrip,
+  noteVolumeTop,
+  VOLUME_DEFAULTS,
+  volumeAccessor,
+} from "./volume.js";
 
 /** Per-instance state kept on `viz.ctx.candlestick`. */
 interface CandlestickState {
@@ -41,7 +46,8 @@ interface CandlestickState {
   time?: RowAccessor;
 }
 
-const candleState = (viz: VizInstance) => viz.ctx.candlestick as CandlestickState;
+const candleState = (viz: VizInstance) =>
+  viz.ctx.candlestick as CandlestickState;
 
 /**
     Routes `x` through a Date parse when periods are evenly spaced, and makes
@@ -74,7 +80,8 @@ function interceptAccessors(viz: VizInstance): void {
     set: (key: string) => {
       state.yKey = key === "y" ? undefined : key;
       // `y(key)` sets the close from that key, which then merges through `aggs`.
-      if (state.yKey !== undefined && typeof viz.schema.close === "function") rememberKey(viz.schema.close, key);
+      if (state.yKey !== undefined && typeof viz.schema.close === "function")
+        rememberKey(viz.schema.close, key);
     },
   });
 }
@@ -88,7 +95,9 @@ function syncTime(viz: VizInstance): void {
   const state = candleState(viz);
   const current = viz.schema.time as RowAccessor | undefined;
   if (current !== undefined && current !== state.time) return;
-  state.time = viz.schema.skipGaps ? undefined : (d: DataPoint, i: number) => viz._x!(d, i);
+  state.time = viz.schema.skipGaps
+    ? undefined
+    : (d: DataPoint, i: number) => viz._x!(d, i);
   viz.schema.time = state.time;
 }
 
@@ -125,7 +134,9 @@ export const candlestickDef: ChartDefinition = {
     // Evenly spaced periods tick on calendar boundaries, per panel when faceted.
     const draw = viz._draw.bind(viz);
     viz._draw = (callback?: () => void) => {
-      viz._plotAxisDefaults = viz.schema.skipGaps ? {x: bandAxisDefaults(viz)} : undefined;
+      viz._plotAxisDefaults = viz.schema.skipGaps
+        ? {x: bandAxisDefaults(viz)}
+        : undefined;
       // Facet panels sharing scales share the volume strip's, from every panel's rows.
       if (viz._facetStep === "chrome") noteVolumeTop(viz);
       return draw(callback);

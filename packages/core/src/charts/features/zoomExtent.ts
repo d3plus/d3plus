@@ -21,7 +21,10 @@ function nodeSizes(node: SceneNode): [number, number][] {
   if (pts && pts.length > 1) {
     const sizes: [number, number][] = [];
     for (let i = 1; i < pts.length; i++)
-      sizes.push([Math.abs(pts[i].x - pts[i - 1].x), Math.abs(pts[i].y - pts[i - 1].y)]);
+      sizes.push([
+        Math.abs(pts[i].x - pts[i - 1].x),
+        Math.abs(pts[i].y - pts[i - 1].y),
+      ]);
     return sizes;
   }
   const size = nodeSize(node);
@@ -80,13 +83,21 @@ export function autoZoomMax(
     fitH = Math.max(1, height - padding * 2);
   let max = 1;
   for (const node of nodes) {
-    if (node.datum === undefined || node.type === "group" || node.type === "text") continue;
+    if (
+      node.datum === undefined ||
+      node.type === "group" ||
+      node.type === "text"
+    )
+      continue;
     if (String(node.key).endsWith("::hit")) continue;
     const s = baseScale * (node.transform?.scale ?? 1);
     for (const [w, h] of nodeSizes(node)) {
       // A zero-width (or -height) shape only constrains the other dimension;
       // one with no extent at all can't be zoomed into.
-      const k = Math.min(w > 0 ? fitW / (w * s) : Infinity, h > 0 ? fitH / (h * s) : Infinity);
+      const k = Math.min(
+        w > 0 ? fitW / (w * s) : Infinity,
+        h > 0 ? fitH / (h * s) : Infinity,
+      );
       if (Number.isFinite(k) && k > max) max = k;
     }
   }

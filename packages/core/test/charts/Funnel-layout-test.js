@@ -21,10 +21,7 @@ import {
   shareFunnelLabelSize,
   shareFunnelScale,
 } from "../../src/charts/Funnel/funnelFacet.ts";
-import {
-  funnelDef,
-  funnelTooltipRows,
-} from "../../src/charts/Funnel/index.ts";
+import {funnelDef, funnelTooltipRows} from "../../src/charts/Funnel/index.ts";
 
 const field = k => funnelDef.fields.find(f => f.key === k);
 
@@ -109,8 +106,16 @@ it("Funnel layout: stages carry their rows, values, and conversion rates", () =>
   assert.ok(Number.isNaN(shapeData[0].previous));
   assert.strictEqual(shapeData[2].previous, 0.25);
   const rows = viz._filteredData;
-  assert.deepStrictEqual(rows[1], {id: "Trial", value: 200}, "user rows are left untouched");
-  assert.strictEqual(stageRates(viz).get(rows[1]).first, 0.5, "kept for the tooltip");
+  assert.deepStrictEqual(
+    rows[1],
+    {id: "Trial", value: 200},
+    "user rows are left untouched",
+  );
+  assert.strictEqual(
+    stageRates(viz).get(rows[1]).first,
+    0.5,
+    "kept for the tooltip",
+  );
   assert.strictEqual(stageRates(viz).get(rows[2]).previous, 0.25);
 });
 
@@ -185,15 +190,30 @@ it("Funnel layout: a neck inherits its stage's texture unless connectorConfig ov
   assert.strictEqual(textured.opacity, 0.35);
   const off = mockViz({connectorConfig: {opacity: 0.35, texture: false}});
   assert.strictEqual(neckPaint(off, s, "#123456", sc).fill, "#123456");
-  const own = mockViz({connectorConfig: {texture: d => (d.id === "Trial" ? "circles" : false)}});
-  assert.ok(neckPaint(own, s, "#123456", {}).fill.includes("circles"), "connectorConfig.texture");
-  assert.strictEqual(neckPaint(mockViz(), s, "#123456").fill, "#123456", "no shape config");
+  const own = mockViz({
+    connectorConfig: {texture: d => (d.id === "Trial" ? "circles" : false)},
+  });
+  assert.ok(
+    neckPaint(own, s, "#123456", {}).fill.includes("circles"),
+    "connectorConfig.texture",
+  );
+  assert.strictEqual(
+    neckPaint(mockViz(), s, "#123456").fill,
+    "#123456",
+    "no shape config",
+  );
 });
 
 it("Funnel layout: neckConfig lays connectorConfig over the stage's shape config", () => {
-  const sc = {texture: "lines", backgroundImage: "stage.png", backgroundImageFit: "contain"};
+  const sc = {
+    texture: "lines",
+    backgroundImage: "stage.png",
+    backgroundImageFit: "contain",
+  };
   assert.deepStrictEqual(neckConfig(mockViz(), sc), {...sc, opacity: 0.35});
-  const viz = mockViz({connectorConfig: {opacity: 0.5, backgroundImage: false}});
+  const viz = mockViz({
+    connectorConfig: {opacity: 0.5, backgroundImage: false},
+  });
   assert.deepStrictEqual(neckConfig(viz, sc), {
     texture: "lines",
     backgroundImage: false,
@@ -241,12 +261,27 @@ it("Funnel definition: value accepts a key, an accessor, or a constant", () => {
 });
 
 it("Funnel layout: funnelOrder keeps data order unless sort is a comparator", () => {
-  const rows = [{id: "B", value: 2}, {id: "A", value: 9}, {id: "C", value: 2}];
+  const rows = [
+    {id: "B", value: 2},
+    {id: "A", value: 9},
+    {id: "C", value: 2},
+  ];
   assert.strictEqual(funnelOrder(mockViz(), rows), rows, "no sort: data order");
   assert.strictEqual(funnelOrder(mockViz({sort: "value"}), rows), rows);
-  const sorted = funnelOrder(mockViz({sort: (a, b) => b.value - a.value}), rows);
-  assert.deepStrictEqual(sorted.map(d => d.id), ["A", "B", "C"], "ties keep data order");
-  assert.deepStrictEqual(rows.map(d => d.id), ["B", "A", "C"], "the user's array is untouched");
+  const sorted = funnelOrder(
+    mockViz({sort: (a, b) => b.value - a.value}),
+    rows,
+  );
+  assert.deepStrictEqual(
+    sorted.map(d => d.id),
+    ["A", "B", "C"],
+    "ties keep data order",
+  );
+  assert.deepStrictEqual(
+    rows.map(d => d.id),
+    ["B", "A", "C"],
+    "the user's array is untouched",
+  );
 });
 
 it("Funnel layout: sort orders the stages, and conversion rates follow it", () => {
@@ -257,17 +292,34 @@ it("Funnel layout: sort orders the stages, and conversion rates follow it", () =
   ];
   const viz = mockViz({sort: (a, b) => b.value - a.value}, data);
   const {shapeData} = applyFunnelLayout({viz});
-  assert.deepStrictEqual(shapeData.map(s => s.data.id), ["Visit", "Trial", "Paid"]);
-  assert.deepStrictEqual(shapeData.map(s => s.i), [0, 1, 2], "i is the drawn rank");
-  assert.ok(shapeData[0].start < shapeData[1].start && shapeData[1].start < shapeData[2].start);
-  assert.ok(Number.isNaN(shapeData[0].previous), "the first drawn stage has no previous");
+  assert.deepStrictEqual(
+    shapeData.map(s => s.data.id),
+    ["Visit", "Trial", "Paid"],
+  );
+  assert.deepStrictEqual(
+    shapeData.map(s => s.i),
+    [0, 1, 2],
+    "i is the drawn rank",
+  );
+  assert.ok(
+    shapeData[0].start < shapeData[1].start &&
+      shapeData[1].start < shapeData[2].start,
+  );
+  assert.ok(
+    Number.isNaN(shapeData[0].previous),
+    "the first drawn stage has no previous",
+  );
   assert.strictEqual(shapeData[1].previous, 0.5);
   assert.strictEqual(shapeData[2].previous, 0.25);
   assert.strictEqual(shapeData[2].first, 0.125);
   const rates = stageRates(viz);
   assert.deepStrictEqual(rates.get(data[0]), {first: 0.125, previous: 0.25});
   assert.ok(Number.isNaN(rates.get(data[1]).previous));
-  assert.deepStrictEqual(Object.keys(data[0]), ["id", "value"], "rows are untouched");
+  assert.deepStrictEqual(
+    Object.keys(data[0]),
+    ["id", "value"],
+    "rows are untouched",
+  );
 });
 
 it("Funnel layout: a shared scale max narrows every stage", () => {
@@ -278,15 +330,27 @@ it("Funnel layout: a shared scale max narrows every stage", () => {
   const shared = applyFunnelLayout({viz}).shapeData;
   // The largest stage (400) draws at half the breadth against a max of 800.
   own.forEach((s, i) => assert.ok(Math.abs(shared[i].max - s.max / 2) < 1e-9));
-  assert.strictEqual(sharedScaleMax(mockViz()), 0, "no shared scale by default");
+  assert.strictEqual(
+    sharedScaleMax(mockViz()),
+    0,
+    "no shared scale by default",
+  );
 });
 
 it("Funnel layout: funnelStages lays out rows without touching the chart", () => {
   const viz = mockViz();
   const rows = viz._filteredData;
-  const {stages, shared} = funnelStages(viz, rows, {width: 400, height: 300}, 0);
+  const {stages, shared} = funnelStages(
+    viz,
+    rows,
+    {width: 400, height: 300},
+    0,
+  );
   assert.deepStrictEqual(viz.ctx, {}, "stores nothing");
-  assert.deepStrictEqual(stages.map(s => s.data), rows);
+  assert.deepStrictEqual(
+    stages.map(s => s.data),
+    rows,
+  );
   assert.strictEqual(shared.center, 200);
   assert.strictEqual(shared.breadth, 400 - STROKE_BUFFER * 2);
   const laid = applyFunnelLayout({viz}).shapeData;
@@ -296,7 +360,10 @@ it("Funnel layout: funnelStages lays out rows without touching the chart", () =>
     "the layout stage lays out the chart area the same way",
   );
   const half = funnelStages(viz, rows, {width: 400, height: 300}, 800).stages;
-  assert.ok(Math.abs(half[0].max - stages[0].max / 2) < 1e-9, "a shared scale max");
+  assert.ok(
+    Math.abs(half[0].max - stages[0].max / 2) < 1e-9,
+    "a shared scale max",
+  );
 });
 
 it("Funnel facet: panels size independently unless facetConfig shares scales", () => {
@@ -322,7 +389,10 @@ it("Funnel facet: shareFunnelScale finds the largest stage across panels", () =>
 
 it("Funnel facet: funnelFacetPanel applies the shared scale and undoes it", () => {
   const viz = mockViz();
-  const undo = funnelFacetPanel(viz, {shared: true, scales: {max: 900, fontSize: 11}});
+  const undo = funnelFacetPanel(viz, {
+    shared: true,
+    scales: {max: 900, fontSize: 11},
+  });
   assert.strictEqual(viz.ctx.funnelScaleMax, 900);
   assert.strictEqual(viz.ctx.funnelLabelSize, 11);
   undo();
@@ -330,13 +400,31 @@ it("Funnel facet: funnelFacetPanel applies the shared scale and undoes it", () =
   assert.strictEqual(viz.ctx.funnelLabelSize, undefined);
   viz.ctx.funnelScaleMax = 5;
   viz.ctx.funnelLabelSize = 9;
-  const undoIndependent = funnelFacetPanel(viz, {shared: false, scales: {max: 900, fontSize: 11}});
-  assert.strictEqual(viz.ctx.funnelScaleMax, undefined, "independent panels use their own scale");
-  assert.strictEqual(viz.ctx.funnelLabelSize, undefined, "and their own label size");
+  const undoIndependent = funnelFacetPanel(viz, {
+    shared: false,
+    scales: {max: 900, fontSize: 11},
+  });
+  assert.strictEqual(
+    viz.ctx.funnelScaleMax,
+    undefined,
+    "independent panels use their own scale",
+  );
+  assert.strictEqual(
+    viz.ctx.funnelLabelSize,
+    undefined,
+    "and their own label size",
+  );
   undoIndependent();
   assert.strictEqual(viz.ctx.funnelScaleMax, 5);
   assert.strictEqual(viz.ctx.funnelLabelSize, 9);
-  const undoNoLabels = funnelFacetPanel(viz, {shared: true, scales: {max: 900, fontSize: 0}});
-  assert.strictEqual(viz.ctx.funnelLabelSize, undefined, "no shared size when no label is drawn");
+  const undoNoLabels = funnelFacetPanel(viz, {
+    shared: true,
+    scales: {max: 900, fontSize: 0},
+  });
+  assert.strictEqual(
+    viz.ctx.funnelLabelSize,
+    undefined,
+    "no shared size when no label is drawn",
+  );
   undoNoLabels();
 });

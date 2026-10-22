@@ -16,7 +16,9 @@ process.on("SIGINT", () => {
   process.exit(0);
 });
 
-const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split("/")[1];
+const name = JSON.parse(fs.readFileSync("package.json", "utf8")).name.split(
+  "/",
+)[1];
 
 const activeBuilds = new Map();
 
@@ -73,8 +75,8 @@ chokidar
     ignored: (path, stats) =>
       path.includes("node_modules") ||
       (stats?.isFile() &&
-      !path.match(/packages\/[a-z]+\/src\//) &&
-      !path.match(/packages\/[a-z]+\/index\.(js|ts|tsx)/)), // only watch js/ts files
+        !path.match(/packages\/[a-z]+\/src\//) &&
+        !path.match(/packages\/[a-z]+\/index\.(js|ts|tsx)/)), // only watch js/ts files
   })
   .on("all", (event, path) => {
     if (event === "change") {
@@ -87,15 +89,21 @@ chokidar
         if (prev) prev.kill();
 
         const child = spawn(
-          "pnpm", ["--filter", `@d3plus/${folder}`, "run", "build:esm"],
-          {env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"}, shell: true, stdio: "pipe"},
+          "pnpm",
+          ["--filter", `@d3plus/${folder}`, "run", "build:esm"],
+          {
+            env: {...process.env, FORCE_COLOR: "1", SUBPROCESS: "true"},
+            shell: true,
+            stdio: "pipe",
+          },
         );
         activeBuilds.set(folder, child);
         let buildErr = "";
-        child.stderr.on("data", d => buildErr += d);
+        child.stderr.on("data", d => (buildErr += d));
         child.on("close", code => {
           if (activeBuilds.get(folder) === child) activeBuilds.delete(folder);
-          if (code !== 0 && buildErr) log.fail(`@d3plus/${folder} build failed\n${buildErr.trim()}`);
+          if (code !== 0 && buildErr)
+            log.fail(`@d3plus/${folder} build failed\n${buildErr.trim()}`);
           else log.done();
           log.timer("watching for changes...");
         });
@@ -126,22 +134,26 @@ function pipeServer(child) {
 
 if (name === "docs") {
   log.timer(`running Storybook on port ${port}`);
-  pipeServer(spawn(
-    "storybook",
-    ["dev", "--docs", "--ci", "--no-version-updates", `--port=${port}`],
-    {stdio: "pipe", shell: true},
-  ));
+  pipeServer(
+    spawn(
+      "storybook",
+      ["dev", "--docs", "--ci", "--no-version-updates", `--port=${port}`],
+      {stdio: "pipe", shell: true},
+    ),
+  );
 } else if (fs.existsSync("vite.config.js")) {
   // Framework wrappers (react, element, svelte, vue, angular) serve their
   // dev/ harness through Vite; each package's vite.config.js loads whatever
   // framework plugin it needs. `--config` is passed explicitly because the
   // `dev` root arg would otherwise make Vite look for the config inside dev/.
   log.timer(`running Vite on port ${port}`);
-  pipeServer(spawn(
-    "vite",
-    ["serve", "dev", "--config", "vite.config.js", `--port=${port}`],
-    {stdio: "pipe", shell: true},
-  ));
+  pipeServer(
+    spawn(
+      "vite",
+      ["serve", "dev", "--config", "vite.config.js", `--port=${port}`],
+      {stdio: "pipe", shell: true},
+    ),
+  );
 } else {
   log.timer(`running dev server on port ${port}`);
 
@@ -179,13 +191,14 @@ if (name === "docs") {
     // reloads can be scoped to the matching tab(s) only.
     if (url.startsWith("/__livereload")) {
       const qIdx = req.url.indexOf("?");
-      const path = qIdx >= 0
-        ? new URLSearchParams(req.url.slice(qIdx + 1)).get("p") || null
-        : null;
+      const path =
+        qIdx >= 0
+          ? new URLSearchParams(req.url.slice(qIdx + 1)).get("p") || null
+          : null;
       res.writeHead(200, {
         "Content-Type": "text/event-stream",
         "Cache-Control": "no-cache",
-        "Connection": "keep-alive",
+        Connection: "keep-alive",
         // Tell intermediaries (and proxies in dev setups) that this
         // response isn't compressible.
         "X-Accel-Buffering": "no",
@@ -205,11 +218,15 @@ if (name === "docs") {
       if (stat.isFile()) {
         const ext = filePath.slice(filePath.lastIndexOf("."));
         if (ext === ".html") return sendHtml(res, fs.readFileSync(filePath));
-        res.writeHead(200, {"Content-Type": mimeTypes[ext] || "application/octet-stream"});
+        res.writeHead(200, {
+          "Content-Type": mimeTypes[ext] || "application/octet-stream",
+        });
         res.end(fs.readFileSync(filePath));
         return;
       }
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
 
     // serve index.html inside directory if it exists
     try {
@@ -217,13 +234,16 @@ if (name === "docs") {
       const data = fs.readFileSync(indexPath);
       sendHtml(res, data);
       return;
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
 
     // generate directory listing if path is a directory
     try {
       const stat = fs.statSync(filePath);
       if (stat.isDirectory()) {
-        const entries = fs.readdirSync(filePath, {withFileTypes: true})
+        const entries = fs
+          .readdirSync(filePath, {withFileTypes: true})
           .sort((a, b) => a.name.localeCompare(b.name));
         const dirs = entries.filter(e => e.isDirectory());
         const files = entries.filter(e => e.isFile());
@@ -242,7 +262,9 @@ if (name === "docs") {
 </ul></body></html>`);
         return;
       }
-    } catch { /* fall through */ }
+    } catch {
+      /* fall through */
+    }
 
     res.writeHead(404);
     res.end("Not found");
@@ -293,6 +315,12 @@ if (name === "docs") {
     server.headersTimeout = 65_000;
     // reload the browser whenever the UMD bundle finishes rebuilding —
     // every tab loads the UMD, so this stays a broadcast.
-    rollup({deps: true, watch: true, env: "development", log, onBuild: () => triggerReload()});
+    rollup({
+      deps: true,
+      watch: true,
+      env: "development",
+      log,
+      onBuild: () => triggerReload(),
+    });
   });
 }

@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does.",
+        component:
+          "Axis preset whose ticks are drawn to the left of the vertical domain path. Accepts everything the base Axis class does.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <AxisLeft config={configify(args, argTypes)} />;
-  
+const Template = args => <AxisLeft config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -30,6 +31,14 @@ BasicExample.args = {
   domain: [0, 100],
   width: 140,
   height: 400,
-  title: "Left Axis"
+  title: "Left Axis",
 };
-BasicExample.parameters = {controls: {include: ["domain", "ticks", "title"]}, docs: {description: {story: "The `[0, 100]` domain runs down the 400px height with its ticks and labels on the left of the path, the placement for a left-edge y-axis."}}};
+BasicExample.parameters = {
+  controls: {include: ["domain", "ticks", "title"]},
+  docs: {
+    description: {
+      story:
+        "The `[0, 100]` domain runs down the 400px height with its ticks and labels on the left of the path, the placement for a left-edge y-axis.",
+    },
+  },
+};

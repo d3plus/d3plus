@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Uses d3's tree layout to create a tidy tree chart based on an array of data.",
+        component:
+          "Uses d3's tree layout to create a tidy tree chart based on an array of data.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Tree config={configify(args, argTypes)} />;
-  
+const Template = args => <Tree config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -32,11 +33,19 @@ BasicExample.args = {
     {parent: "Group 1", id: "beta"},
     {parent: "Group 1", id: "gamma"},
     {parent: "Group 2", id: "delta"},
-    {parent: "Group 2", id: "eta"}
+    {parent: "Group 2", id: "eta"},
   ],
-  groupBy: ["parent", "id"]
+  groupBy: ["parent", "id"],
 };
-BasicExample.parameters = {controls: {include: ["groupBy"]}, docs: {description: {story: "The two-level `groupBy` (`parent` then `id`) defines the hierarchy that the tidy-tree layout arranges top-down, one row per depth."}}};
+BasicExample.parameters = {
+  controls: {include: ["groupBy"]},
+  docs: {
+    description: {
+      story:
+        "The two-level `groupBy` (`parent` then `id`) defines the hierarchy that the tidy-tree layout arranges top-down, one row per depth.",
+    },
+  },
+};
 
 export const HorizontalOrientation = Template.bind({});
 HorizontalOrientation.args = {
@@ -45,12 +54,20 @@ HorizontalOrientation.args = {
     {parent: "Group 1", id: "beta"},
     {parent: "Group 1", id: "gamma"},
     {parent: "Group 2", id: "delta"},
-    {parent: "Group 2", id: "eta"}
+    {parent: "Group 2", id: "eta"},
   ],
   groupBy: ["parent", "id"],
-  orient: "horizontal"
+  orient: "horizontal",
 };
-HorizontalOrientation.parameters = {controls: {include: ["orient"]}, docs: {description: {story: "Set `orient` to `\"horizontal\"` to grow the tree left-to-right instead of top-down—handy for deep hierarchies or long node labels."}}};
+HorizontalOrientation.parameters = {
+  controls: {include: ["orient"]},
+  docs: {
+    description: {
+      story:
+        'Set `orient` to `"horizontal"` to grow the tree left-to-right instead of top-down—handy for deep hierarchies or long node labels.',
+    },
+  },
+};
 
 export const ChangingShapes = Template.bind({});
 ChangingShapes.args = {
@@ -59,9 +76,20 @@ ChangingShapes.args = {
     {parent: "Group 1", id: "beta"},
     {parent: "Group 1", id: "gamma"},
     {parent: "Group 2", id: "delta"},
-    {parent: "Group 2", id: "eta"}
+    {parent: "Group 2", id: "eta"},
   ],
   groupBy: ["parent", "id"],
-  shape: funcify(d => d.parent === "Group 1" ? "Rect" : "Circle", 'd => d.parent === "Group 1" ? "Rect" : "Circle"')
+  shape: funcify(
+    d => (d.parent === "Group 1" ? "Rect" : "Circle"),
+    'd => d.parent === "Group 1" ? "Rect" : "Circle"',
+  ),
 };
-ChangingShapes.parameters = {controls: {include: ["shape"]}, docs: {description: {story: "A `shape` accessor returns `Rect` for one branch and `Circle` for the rest, letting node shape encode a categorical attribute."}}};
+ChangingShapes.parameters = {
+  controls: {include: ["shape"]},
+  docs: {
+    description: {
+      story:
+        "A `shape` accessor returns `Rect` for one branch and `Circle` for the rest, letting node shape encode a categorical attribute.",
+    },
+  },
+};

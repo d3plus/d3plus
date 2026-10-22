@@ -1,98 +1,168 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DomainClipping · Plot</title>
+    <meta
+      name="description"
+      content="Lines, areas, markers, bands and trend lines cut off at the plot edge when xDomain or yDomain stops short of the data."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        margin: 16px;
+        font-family: sans-serif;
+      }
+      .chart {
+        height: 320px;
+      }
+      h3 {
+        margin: 0 0 4px;
+        font-size: 14px;
+      }
+    </style>
+  </head>
 
-<head>
+  <body>
+    <div>
+      <h3>
+        LinePlot, yDomain([980, 1040]): dips below 980, max point on the top
+        edge
+      </h3>
+      <div class="chart" id="line-y"></div>
+    </div>
+    <div>
+      <h3>AreaPlot, yDomain([0, 100]): values run past the top</h3>
+      <div class="chart" id="area-y"></div>
+    </div>
+    <div>
+      <h3>Plot of lines and markers, xDomain([3, 9])</h3>
+      <div class="chart" id="line-x"></div>
+    </div>
+    <div>
+      <h3>LinePlot with line labels, yDomain([980]) (labels aren't clipped)</h3>
+      <div class="chart" id="labels"></div>
+    </div>
+    <div>
+      <h3>
+        LinePlot with confidence band and trend line, yDomain([990, 1030])
+      </h3>
+      <div class="chart" id="band"></div>
+    </div>
+    <div>
+      <h3>Zoomable LinePlot, yDomain([980])</h3>
+      <div class="chart" id="zoom"></div>
+    </div>
+    <div>
+      <h3>LinePlot faceted by series, yDomain([980])</h3>
+      <div class="chart" id="facet"></div>
+    </div>
+    <div>
+      <h3>BarChart, yDomain([980]) (bars clamp, nothing to clip)</h3>
+      <div class="chart" id="bar"></div>
+    </div>
+  </body>
 
-  <meta charset="utf-8">
-  <title>DomainClipping · Plot</title>
-  <meta name="description" content="Lines, areas, markers, bands and trend lines cut off at the plot edge when xDomain or yDomain stops short of the data.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
-  <style>
-    body { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 16px; font-family: sans-serif; }
-    .chart { height: 320px; }
-    h3 { margin: 0 0 4px; font-size: 14px; }
-  </style>
-
-</head>
-
-<body>
-  <div><h3>LinePlot, yDomain([980, 1040]): dips below 980, max point on the top edge</h3><div class="chart" id="line-y"></div></div>
-  <div><h3>AreaPlot, yDomain([0, 100]): values run past the top</h3><div class="chart" id="area-y"></div></div>
-  <div><h3>Plot of lines and markers, xDomain([3, 9])</h3><div class="chart" id="line-x"></div></div>
-  <div><h3>LinePlot with line labels, yDomain([980]) (labels aren't clipped)</h3><div class="chart" id="labels"></div></div>
-  <div><h3>LinePlot with confidence band and trend line, yDomain([990, 1030])</h3><div class="chart" id="band"></div></div>
-  <div><h3>Zoomable LinePlot, yDomain([980])</h3><div class="chart" id="zoom"></div></div>
-  <div><h3>LinePlot faceted by series, yDomain([980])</h3><div class="chart" id="facet"></div></div>
-  <div><h3>BarChart, yDomain([980]) (bars clamp, nothing to clip)</h3><div class="chart" id="bar"></div></div>
-</body>
-
-<script>
-
-  const values = [1000, 1012, 995, 968, 955, 990, 1024, 1040, 1018, 972, 1003, 1030];
-  const series = [];
-  ["Alpha", "Beta"].forEach((id, s) => {
-    values.forEach((v, i) => {
-      const value = s ? v - 18 + (i % 3) * 6 : v;
-      series.push({id, x: i, date: `${2013 + i}-01-01`, value, lci: value - 14, hci: value + 14});
+  <script>
+    const values = [
+      1000, 1012, 995, 968, 955, 990, 1024, 1040, 1018, 972, 1003, 1030,
+    ];
+    const series = [];
+    ["Alpha", "Beta"].forEach((id, s) => {
+      values.forEach((v, i) => {
+        const value = s ? v - 18 + (i % 3) * 6 : v;
+        series.push({
+          id,
+          x: i,
+          date: `${2013 + i}-01-01`,
+          value,
+          lci: value - 14,
+          hci: value + 14,
+        });
+      });
     });
-  });
-  const alpha = series.filter(d => d.id === "Alpha");
+    const alpha = series.filter(d => d.id === "Alpha");
 
-  const make = (Chart, select, config) =>
-    new d3plus[Chart]().select(select).config(config).render();
+    const make = (Chart, select, config) =>
+      new d3plus[Chart]().select(select).config(config).render();
 
-  make("LinePlot", "#line-y", {
-    data: alpha, groupBy: "id", x: "x", y: "value",
-    lineMarkers: true,
-    lineMarkerConfig: {r: 5},
-    shapeConfig: {Line: {strokeWidth: 4}},
-    yDomain: [980, 1040],
-  });
+    make("LinePlot", "#line-y", {
+      data: alpha,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      lineMarkers: true,
+      lineMarkerConfig: {r: 5},
+      shapeConfig: {Line: {strokeWidth: 4}},
+      yDomain: [980, 1040],
+    });
 
-  make("AreaPlot", "#area-y", {
-    data: series.map(d => ({...d, value: (d.value - 940) * 1.2})), groupBy: "id", x: "x", y: "value",
-    yDomain: [0, 100],
-  });
+    make("AreaPlot", "#area-y", {
+      data: series.map(d => ({...d, value: (d.value - 940) * 1.2})),
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      yDomain: [0, 100],
+    });
 
-  make("Plot", "#line-x", {
-    data: series, groupBy: "id", x: "x", y: "value",
-    shape: "Line",
-    lineMarkers: true,
-    xDomain: [3, 9],
-  });
+    make("Plot", "#line-x", {
+      data: series,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      shape: "Line",
+      lineMarkers: true,
+      xDomain: [3, 9],
+    });
 
-  make("LinePlot", "#labels", {
-    data: series, groupBy: "id", x: "x", y: "value",
-    lineLabels: true,
-    yDomain: [980],
-  });
+    make("LinePlot", "#labels", {
+      data: series,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      lineLabels: true,
+      yDomain: [980],
+    });
 
-  make("LinePlot", "#band", {
-    data: alpha, groupBy: "id", x: "x", y: "value",
-    confidence: ["lci", "hci"],
-    trendLine: "linear",
-    yDomain: [990, 1030],
-  });
+    make("LinePlot", "#band", {
+      data: alpha,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      confidence: ["lci", "hci"],
+      trendLine: "linear",
+      yDomain: [990, 1030],
+    });
 
-  make("LinePlot", "#zoom", {
-    data: series, groupBy: "id", x: "x", y: "value",
-    zoom: true,
-    yDomain: [980],
-  });
+    make("LinePlot", "#zoom", {
+      data: series,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      zoom: true,
+      yDomain: [980],
+    });
 
-  make("LinePlot", "#facet", {
-    data: series, groupBy: "id", x: "x", y: "value",
-    lineMarkers: true,
-    facet: "id",
-    yDomain: [980],
-  });
+    make("LinePlot", "#facet", {
+      data: series,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      lineMarkers: true,
+      facet: "id",
+      yDomain: [980],
+    });
 
-  make("BarChart", "#bar", {
-    data: alpha, groupBy: "id", x: "x", y: "value",
-    yDomain: [980],
-  });
-
-</script>
-
+    make("BarChart", "#bar", {
+      data: alpha,
+      groupBy: "id",
+      x: "x",
+      y: "value",
+      yDomain: [980],
+    });
+  </script>
 </html>

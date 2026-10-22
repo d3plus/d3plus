@@ -7,13 +7,21 @@ import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
 import type {AccessorFn} from "./AccessorFn.js";
-import type {ConstOrAccessor, CssColor, Orient, SideOrient} from "../shapes/shapeConfig.js";
+import type {
+  ConstOrAccessor,
+  CssColor,
+  Orient,
+  SideOrient,
+} from "../shapes/shapeConfig.js";
 import type {
   SizeLegendLineConfig,
   SizeLegendShapeConfig,
   SizeLegendTextConfig,
 } from "../components/SizeLegend/SizeLegend.js";
-import type {SizeLegendScale, SizeLegendSize} from "../components/SizeLegend/sizeLegendLayout.js";
+import type {
+  SizeLegendScale,
+  SizeLegendSize,
+} from "../components/SizeLegend/sizeLegendLayout.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -110,7 +118,10 @@ export interface AxisConfig {
       `stroke-width`, and the other line styles `barConfig` takes, for the
       marks.
   */
-  baselineBreakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
+  baselineBreakConfig?: Record<
+    string,
+    string | number | boolean | Record<string, string | number>
+  >;
   /**
       Value ranges to remove from a linear axis: one `[start, end]` pair, or a
       list of them (`[[start, end], [start, end]]`). Each range collapses to a
@@ -127,7 +138,10 @@ export interface AxisConfig {
       `angle`, `lines`, `lineConfig`, `mask`, and mark line styles, with the
       same defaults, as `baselineBreakConfig`.
   */
-  breakConfig?: Record<string, string | number | boolean | Record<string, string | number>>;
+  breakConfig?: Record<
+    string,
+    string | number | boolean | Record<string, string | number>
+  >;
   /** Grid values of the axis. */
   grid?: unknown[];
   gridConfig?: Record<string, string | number>;
@@ -247,8 +261,7 @@ export interface TooltipConfig {
     | ((d: DataPoint) => [string, string][])
     | Array<
         Array<
-          | ((d: DataPoint, i?: number, x?: {share: number}) => string)
-          | string
+          ((d: DataPoint, i?: number, x?: {share: number}) => string) | string
         >
       >;
   /**
@@ -260,8 +273,7 @@ export interface TooltipConfig {
     | ((d: DataPoint) => [string, string][])
     | Array<
         Array<
-          | ((d: DataPoint, i?: number, x?: {share: number}) => string)
-          | string
+          ((d: DataPoint, i?: number, x?: {share: number}) => string) | string
         >
       >;
 }
@@ -320,7 +332,8 @@ export interface TextBoxConfig {
   /** The y position (top edge) for each text box. */
   y?: Accessor<number>;
   /** The outline text wraps within, `"square"` or `"circle"`, or a `(datum, index)` accessor. */
-  shape?: "square" | "circle" | ((d: DataPoint, i: number) => "square" | "circle");
+  shape?:
+    "square" | "circle" | ((d: DataPoint, i: number) => "square" | "circle");
 }
 
 export interface TimelineConfig {
@@ -454,7 +467,8 @@ export type ColorDefaultsConfig = Partial<Omit<ColorDefaults, "scale">> & {
 };
 
 /** One `confidence` bound: a data key, an accessor, or `false` for none. */
-export type ConfidenceBound = string | ((d: DataPoint, i: number) => number) | false;
+export type ConfidenceBound =
+  string | ((d: DataPoint, i: number) => number) | false;
 
 /** One `confidence` band: a `[lower, upper]` pair, `[lower, upper, label]`, or a `{lower, upper, label}` object. */
 export type ConfidenceBandSetting =
@@ -572,7 +586,10 @@ export interface D3plusConfig {
   /** Bullet: the qualitative ranges behind each measure, as threshold values (`[60, 85]`) or band objects (`{min, max, color}`), or a `(d, i) => bands` accessor for per-row bands. */
   bands?:
     | (number | {min?: number; max?: number; color?: string})[]
-    | ((d: DataPoint, i: number) => (number | {min?: number; max?: number; color?: string})[]);
+    | ((
+        d: DataPoint,
+        i: number,
+      ) => (number | {min?: number; max?: number; color?: string})[]);
   /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
   bodyWidth?: number;
   /**
@@ -620,7 +637,8 @@ export interface D3plusConfig {
 
       When the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `"country"` and colored by `"region"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.
   */
-  color?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+  color?:
+    string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
   /** Overrides for the default colors used for data fills and legible text (see `colorDefaults` in @d3plus/color). */
   colorDefaults?: ColorDefaultsConfig;
   /** Treat a discrete color field as ordered: color it with a single-hue light→dark ramp instead of nominal categorical hues. */
@@ -628,7 +646,8 @@ export interface D3plusConfig {
   /**
       Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.
   */
-  colorScale?: string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
+  colorScale?:
+    string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]) | false;
   /** A pass-through to the config method of ColorScale. */
   colorScaleConfig?: {
     axisConfig?: AxisConfig;
@@ -698,7 +717,8 @@ export interface D3plusConfig {
   */
   connectorConfig?: Record<string, unknown>;
   /** Funnel: the conversion rates each stage's label shows: `"first"`, `"previous"`, `"both"` (or `true`), or `false`. */
-  conversion?: boolean | "first" | "previous" | "both" | ("first" | "previous")[];
+  conversion?:
+    boolean | "first" | "previous" | "both" | ("first" | "previous")[];
   /**
       Paint for the shared tooltip's crosshair guide line (`stroke`,
       `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …).
@@ -797,7 +817,10 @@ export interface D3plusConfig {
       follows the lines' curve and leaves pointer events to the lines.
       Defaults to `false`.
   */
-  fillBetween?: boolean | [string | number, string | number] | [string | number, string | number][];
+  fillBetween?:
+    | boolean
+    | [string | number, string | number]
+    | [string | number, string | number][];
   /**
       Area styles for `fillBetween` (default `{fillOpacity: 0.25}`). Style
       accessors receive a data row of whichever series is higher, with
@@ -813,10 +836,7 @@ export interface D3plusConfig {
   /** Predicate filtering which data points are included, or false to disable. */
   filter?: ((d: DataPoint, i: number) => boolean) | false;
   /** Allows removing specific geographies from topojson file to improve zoom. */
-  fitFilter?:
-    | number
-    | string
-    | ((d: Record<string, unknown>) => boolean);
+  fitFilter?: number | string | ((d: Record<string, unknown>) => boolean);
   /**
       Marks a forecast: the stretch of the discrete axis after it gets a
       shaded backdrop, a rule at its start, and a translated "Forecast"
@@ -914,9 +934,14 @@ export interface D3plusConfig {
       quartiles), `"points"` (the observations packed into a swarm), an array
       of several, or `false` for nothing.
   */
-  inner?: "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[] | false;
+  inner?:
+    "box" | "quartiles" | "points" | ("box" | "quartiles" | "points")[] | false;
   /** Styles for Violin's `inner` overlays: `box` (Box config), `quartiles` (Line config), and `points` (Circle config). */
-  innerConfig?: {box?: Record<string, unknown>; quartiles?: Record<string, unknown>; points?: Record<string, unknown>};
+  innerConfig?: {
+    box?: Record<string, unknown>;
+    quartiles?: Record<string, unknown>;
+    points?: Record<string, unknown>;
+  };
   /**
       Accessor function, or a constant string applied to every data point's
       label (unlike `value`/`nodeId`/etc., a string here is not treated as a
@@ -1078,7 +1103,11 @@ export interface D3plusConfig {
   /** Calendar: whether to outline each month inside year blocks. Defaults to `true`. */
   monthOutline?: boolean;
   /** Calendar: styles the month outlines (`stroke`, `strokeWidth`, `strokeDasharray`). */
-  monthOutlineConfig?: {stroke?: string; strokeWidth?: number; strokeDasharray?: number[]};
+  monthOutlineConfig?: {
+    stroke?: string;
+    strokeWidth?: number;
+    strokeDasharray?: number[];
+  };
   /**
       The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.
   */
@@ -1208,7 +1237,11 @@ export interface D3plusConfig {
   */
   sizeLegend?:
     | boolean
-    | ((config: D3plusConfig, scale: SizeLegendScale, size: SizeLegendSize) => boolean);
+    | ((
+        config: D3plusConfig,
+        scale: SizeLegendScale,
+        size: SizeLegendSize,
+      ) => boolean);
   /**
       Candlestick: places periods one slot apart in date order (default
       `true`), so days without data (weekends, holidays) leave no gap, with
@@ -1254,7 +1287,10 @@ export interface D3plusConfig {
   stackOrder?:
     | string
     | string[]
-    | {value: string | ((d: DataPoint) => unknown); order?: "ascending" | "descending"}
+    | {
+        value: string | ((d: DataPoint) => unknown);
+        order?: "ascending" | "descending";
+      }
     | ((d: DataPoint) => unknown);
   /** Bullet: a smaller second label under each row's name, as a data key or accessor. */
   subLabel?: string | ((d: DataPoint, i: number) => string) | false;
@@ -1395,7 +1431,8 @@ export interface D3plusConfig {
       `"linear"`) for a least-squares line, or `"exponential"`,
       `"logarithmic"`, `"power"`, or `"polynomial"`. `false` removes it.
   */
-  trendLine?: boolean | "linear" | "exponential" | "logarithmic" | "power" | "polynomial";
+  trendLine?:
+    boolean | "linear" | "exponential" | "logarithmic" | "power" | "polynomial";
   /**
       Options for the trend lines: `group` (`"series"` or `"all"`), the
       polynomial `order`, a `confidence` band with `confidenceLevel` and

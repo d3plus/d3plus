@@ -10,11 +10,15 @@
     @module
 */
 
-export type StyleObject = Record<string, string | number | undefined | null | false>;
+export type StyleObject = Record<
+  string,
+  string | number | undefined | null | false
+>;
 export type ControlStyleValue = StyleObject | false | null | undefined;
 
 /** `alignItems` / `align-items` → `align-items`, for `style.setProperty`. */
-export const kebab = (key: string): string => key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
+export const kebab = (key: string): string =>
+  key.replace(/[A-Z]/g, c => `-${c.toLowerCase()}`);
 
 /**
     Fallbacks for CSS system colors a browser may not support yet: an
@@ -27,11 +31,16 @@ export const SYSTEM_COLOR_FALLBACKS: Record<string, string> = {
 };
 
 /** Sets one style property, swapping an unsupported system color for its fallback. */
-export function setControlStyle(el: HTMLElement, key: string, value: string): void {
+export function setControlStyle(
+  el: HTMLElement,
+  key: string,
+  value: string,
+): void {
   const prop = kebab(key);
   el.style.setProperty(prop, value);
   const fallback = SYSTEM_COLOR_FALLBACKS[value];
-  if (fallback && !el.style.getPropertyValue(prop)) el.style.setProperty(prop, fallback);
+  if (fallback && !el.style.getPropertyValue(prop))
+    el.style.setProperty(prop, fallback);
 }
 
 /**
@@ -66,12 +75,17 @@ export function paintControlButton(
   isActive: boolean,
 ): void {
   const {base, active = {}, hover = {}} = styles;
-  for (const key of new Set([...Object.keys(base), ...Object.keys(active), ...Object.keys(hover)]))
+  for (const key of new Set([
+    ...Object.keys(base),
+    ...Object.keys(active),
+    ...Object.keys(hover),
+  ]))
     btn.style.removeProperty(kebab(key));
   for (const style of [base, hovered ? hover : {}, isActive ? active : {}])
     for (const key in style) {
       const v = style[key];
-      if (v !== undefined && v !== null && v !== false) setControlStyle(btn, key, String(v));
+      if (v !== undefined && v !== null && v !== false)
+        setControlStyle(btn, key, String(v));
     }
 }
 
@@ -93,11 +107,19 @@ export interface ControlButtonStyles {
 export function controlButtonStyles(
   schema: Record<string, unknown>,
   prefix: string,
-  defaults: {base: ControlStyleValue; active: ControlStyleValue; hover: ControlStyleValue},
+  defaults: {
+    base: ControlStyleValue;
+    active: ControlStyleValue;
+    hover: ControlStyleValue;
+  },
 ): ControlButtonStyles {
   const className = Boolean(schema[`${prefix}ClassName`]);
   const style = (suffix: string, fallback: ControlStyleValue) =>
-    resolveControlStyle(schema[`${prefix}Style${suffix}`] as ControlStyleValue, fallback, className);
+    resolveControlStyle(
+      schema[`${prefix}Style${suffix}`] as ControlStyleValue,
+      fallback,
+      className,
+    );
   return {
     base: style("", defaults.base),
     active: style("Active", defaults.active),
@@ -107,7 +129,11 @@ export function controlButtonStyles(
 
 /** Escapes a value for safe interpolation into `innerHTML`. */
 export function escapeHtml(value: unknown): string {
-  return String(value ?? "").replace(/[&<>"']/g, c => (
-    {"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c] as string
-  ));
+  return String(value ?? "").replace(
+    /[&<>"']/g,
+    c =>
+      ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"})[
+        c
+      ] as string,
+  );
 }

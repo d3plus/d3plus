@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Given a text string, returns the predicted pixel width of the string when placed into DOM.",
+        component:
+          "Given a text string, returns the predicted pixel width of the string when placed into DOM.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -45,7 +46,9 @@ const Measured = ({rows}) => {
         return (
           <div key={`${text}-${JSON.stringify(style)}`}>
             <span style={{...css(style), whiteSpace: "pre"}}>{text}</span>
-            <div style={{width, height: 3, background: "#1c7ed6", marginTop: 2}} />
+            <div
+              style={{width, height: 3, background: "#1c7ed6", marginTop: 2}}
+            />
             <code style={{fontSize: 12, color: "#666"}}>
               {Math.round(width * 100) / 100}px · {JSON.stringify(style)}
             </code>
@@ -63,11 +66,19 @@ const calls = rows =>
   }));
 
 const params = (rows, story) => ({
-  docs: {...sourceSnippet("dom", "textWidth", calls(rows)).docs, description: {story}},
+  docs: {
+    ...sourceSnippet("dom", "textWidth", calls(rows)).docs,
+    description: {story},
+  },
 });
 
 const inter = {"font-family": "Inter", "font-size": 16};
-const basicRows = [["Hello", inter], ["Hello world", inter], ["WWW", inter], ["iii", inter]];
+const basicRows = [
+  ["Hello", inter],
+  ["Hello world", inter],
+  ["WWW", inter],
+  ["iii", inter],
+];
 export const BasicExample = () => <Measured rows={basicRows} />;
 BasicExample.parameters = params(
   basicRows,
@@ -81,11 +92,14 @@ ArrayInput.parameters = {
     ...sourceSnippet("dom", "textWidth", [
       {
         call: `textWidth(${JSON.stringify(list)}, ${JSON.stringify(inter)})`,
-        result: JSON.stringify(textWidth(list, inter).map(w => Math.round(w * 100) / 100)),
+        result: JSON.stringify(
+          textWidth(list, inter).map(w => Math.round(w * 100) / 100),
+        ),
       },
     ]).docs,
     description: {
-      story: "Pass an array to measure many strings at once and get an array of widths back in the same order, which is how `textWrap` sizes every word of a sentence in one call.",
+      story:
+        "Pass an array to measure many strings at once and get an array of widths back in the same order, which is how `textWrap` sizes every word of a sentence in one call.",
     },
   },
 };
@@ -93,8 +107,14 @@ ArrayInput.parameters = {
 const styleRows = [
   ["Sphinx of black quartz", {"font-family": "Inter", "font-size": 12}],
   ["Sphinx of black quartz", {"font-family": "Inter", "font-size": 24}],
-  ["Sphinx of black quartz", {"font-family": "Inter", "font-size": 16, "font-weight": 700}],
-  ["Sphinx of black quartz", {"font-family": "Georgia, serif", "font-size": 16}],
+  [
+    "Sphinx of black quartz",
+    {"font-family": "Inter", "font-size": 16, "font-weight": 700},
+  ],
+  [
+    "Sphinx of black quartz",
+    {"font-family": "Georgia, serif", "font-size": 16},
+  ],
 ];
 export const FontStyles = () => <Measured rows={styleRows} />;
 FontStyles.parameters = params(

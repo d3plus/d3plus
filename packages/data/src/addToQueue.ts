@@ -35,7 +35,9 @@ export default function (
   if (needToLoad) {
     const prev = this._queue.find((q: QueueEntry) => q[3] === key);
     const d: QueueEntry = [
-      load.bind(this as unknown as ThisParameterType<typeof load>) as typeof load,
+      load.bind(
+        this as unknown as ThisParameterType<typeof load>,
+      ) as typeof load,
       paths as (string | Record<string, unknown>)[],
       f,
       key,

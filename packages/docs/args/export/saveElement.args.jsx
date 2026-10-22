@@ -3,21 +3,19 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   elem: {
     control: {},
     description: "The DOM element or d3 selection to export.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "htmlelement | svgelement"
-    }
+      summary: "htmlelement | svgelement",
+    },
   },
   options: {
     control: {},
@@ -25,13 +23,13 @@ export const argTypes = {
     description: "Additional options to specify.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "saveelementoptions"
-    }
+      summary: "saveelementoptions",
+    },
   },
   renderOptions: {
     control: {},
@@ -39,12 +37,12 @@ export const argTypes = {
     description: "Custom options to be passed to the html-to-image function.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "saveelementrenderoptions"
-    }
-  }
+      summary: "saveelementrenderoptions",
+    },
+  },
 };

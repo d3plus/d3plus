@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Draws one square cell per day in a calendar grid, each colored by its\ncolorScale value: weekdays down the side and weeks across, one block per\nyear, with month outlines and localized weekday, month, and year labels.",
+        component:
+          "Draws one square cell per day in a calendar grid, each colored by its\ncolorScale value: weekdays down the side and weeks across, one block per\nyear, with month outlines and localized weekday, month, and year labels.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Calendar config={configify(args, argTypes)} />;
-  
+const Template = args => <Calendar config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 

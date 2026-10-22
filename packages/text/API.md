@@ -1,16 +1,16 @@
 # @d3plus/text API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`fontFamilyStringify`](#fontfamilystringify) | Converts an Array of font-family names into a CSS font-family string. |
-| [`strip`](#strip) | Removes all non ASCII characters from a string. |
-| [`textSplit`](#textsplit) | Splits a given sentence into an array of words. |
-| [`textWrap`](#textwrap) | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text. |
-| [`titleCase`](#titlecase) | Capitalizes each significant word of a phrase, normalizing case in both directions: the locale's minor words (articles, short conjunctions/ prepositions) are forced lowercase in the middle and known acronyms are forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and "jack smith, ceo" becomes "Jack Smith, CEO". |
+| Functions                                     | Description                                                                                                                                                                                                                                                                                                                                  |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`fontFamilyStringify`](#fontfamilystringify) | Converts an Array of font-family names into a CSS font-family string.                                                                                                                                                                                                                                                                        |
+| [`strip`](#strip)                             | Removes all non ASCII characters from a string.                                                                                                                                                                                                                                                                                              |
+| [`textSplit`](#textsplit)                     | Splits a given sentence into an array of words.                                                                                                                                                                                                                                                                                              |
+| [`textWrap`](#textwrap)                       | Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.                                                                                                                                                                                                                                  |
+| [`titleCase`](#titlecase)                     | Capitalizes each significant word of a phrase, normalizing case in both directions: the locale's minor words (articles, short conjunctions/ prepositions) are forced lowercase in the middle and known acronyms are forced uppercase — so "SOUTH BY SOUTHWEST" becomes "South by Southwest" and "jack smith, ceo" becomes "Jack Smith, CEO". |
 
-| Variables | Description |
-| --- | --- |
-| [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings. |
+| Variables                   | Description                                                                                                                                          |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`fontFamily`](#fontfamily) | The default fallback font list used for all text labels as an Array of Strings.                                                                      |
 | [`softHyphen`](#softhyphen) | The soft hyphen (U+00AD): `textSplit` ends each syllable of a hyphenated word with it, and `textWrap` draws it as a hyphen only where a line breaks. |
 
 ## Functions
@@ -27,15 +27,15 @@ Converts an Array of font-family names into a CSS font-family string.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `family` | `string` \| `string`[] | A font family name or array of font family names. |
+| Parameter | Type                   | Description                                       |
+| --------- | ---------------------- | ------------------------------------------------- |
+| `family`  | `string` \| `string`[] | A font family name or array of font family names. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="strip"></a>
 
@@ -49,16 +49,16 @@ Removes all non ASCII characters from a string.
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `value` | `string` | *required* | The HTML string to strip. |
-| `spacer` | `string` | `"-"` | The character to replace whitespace with. |
+| Parameter | Type     | Default    | Description                               |
+| --------- | -------- | ---------- | ----------------------------------------- |
+| `value`   | `string` | _required_ | The HTML string to strip.                 |
+| `spacer?` | `string` | `"-"`      | The character to replace whitespace with. |
 
 #### Returns
 
 `string`
 
-***
+---
 
 <a id="textsplit"></a>
 
@@ -66,21 +66,21 @@ Removes all non ASCII characters from a string.
 
 > **textSplit**(`sentence`: `string`): `string`[]
 
-Defined in: [textSplit.ts:44](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L44)
+Defined in: [textSplit.ts:54](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textSplit.ts#L54)
 
 Splits a given sentence into an array of words.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
+| Parameter  | Type     | Description                       |
+| ---------- | -------- | --------------------------------- |
 | `sentence` | `string` | The sentence to split into words. |
 
 #### Returns
 
 `string`[]
 
-***
+---
 
 <a id="textwrap"></a>
 
@@ -88,7 +88,7 @@ Splits a given sentence into an array of words.
 
 > **textWrap**(): `TextWrapGenerator`
 
-Defined in: [textWrap.ts:362](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L362)
+Defined in: [textWrap.ts:370](https://github.com/d3plus/d3plus/blob/main/packages/text/src/textWrap.ts#L370)
 
 Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.
 
@@ -96,7 +96,7 @@ Based on the defined styles and dimensions, breaks a string into an array of str
 
 `TextWrapGenerator`
 
-***
+---
 
 <a id="titlecase"></a>
 
@@ -117,10 +117,10 @@ control, including `{style: "sentence"}` to capitalize only the first word.
 
 #### Parameters
 
-| Parameter | Type | Default | Description |
-| ------ | ------ | ------ | ------ |
-| `str` | `string` \| *required* | `undefined` | The string to capitalize. |
-| `locale` | `string` \| `TitleCaseRules` | `"en-US"` | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
+| Parameter | Type                         | Default     | Description                                                                             |
+| --------- | ---------------------------- | ----------- | --------------------------------------------------------------------------------------- |
+| `str`     | `string` \| _required_       | `undefined` | The string to capitalize.                                                               |
+| `locale?` | `string` \| `TitleCaseRules` | `"en-US"`   | A locale code (e.g. "en-US", "fr-FR") or an explicit rules object. Defaults to "en-US". |
 
 #### Returns
 
@@ -142,13 +142,13 @@ The default fallback font list used for all text labels as an Array of Strings.
 
 `["Inter", "Helvetica Neue", "HelveticaNeue", "Helvetica", "Arial", "sans-serif"]`
 
-***
+---
 
 <a id="softhyphen"></a>
 
 ### softHyphen
 
-> `const` **softHyphen**: `"­"` = "\u00AD"
+> `const` **softHyphen**: `"­"` = "\\u00AD"
 
 Defined in: [softHyphen.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/text/src/softHyphen.ts#L5)
 

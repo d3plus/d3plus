@@ -19,24 +19,30 @@ const links = `[{source: "a", target: "b"}, {source: "a", target: "c"}, {source:
 
 /** Each node's rendered radius, by id. */
 const radii = extra =>
-  render('<div id="viz" style="width:800px;height:600px"></div>', src =>
-    new Promise((resolve, reject) => {
-      const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus).duration(0).select("#viz");
-      viz.render(() => {
-        try {
-          const out = {};
-          for (const n of sceneNodes(viz.toScene().root)) {
-            if (n.type === "circle" && n.datum) {
-              const d = n.datum.data || n.datum;
-              if (d.id !== undefined && !(d.id in out)) out[d.id] = n.r;
+  render(
+    '<div id="viz" style="width:800px;height:600px"></div>',
+    src =>
+      new Promise((resolve, reject) => {
+        const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          try {
+            const out = {};
+            for (const n of sceneNodes(viz.toScene().root)) {
+              if (n.type === "circle" && n.datum) {
+                const d = n.datum.data || n.datum;
+                if (d.id !== undefined && !(d.id in out)) out[d.id] = n.r;
+              }
             }
+            resolve(out);
+          } catch (e) {
+            reject(e);
           }
-          resolve(out);
-        } catch (e) {
-          reject(e);
-        }
-      });
-    }), `lib => new lib.Rings().nodes(${nodes}).links(${links}).center("a")${extra}`);
+        });
+      }),
+    `lib => new lib.Rings().nodes(${nodes}).links(${links}).center("a")${extra}`,
+  );
 
 const values = {a: 50, b: 100, c: 10, d: 400, e: 25, f: 800, g: 60};
 
@@ -45,7 +51,10 @@ it("Rings: sized nodes get radii that grow with their value", async () => {
   const ids = Object.keys(values).sort((x, y) => values[x] - values[y]);
   ids.forEach(id => assert.ok(Number.isFinite(r[id]), `${id} has a radius`));
   for (let i = 1; i < ids.length; i++)
-    assert.ok(r[ids[i]] > r[ids[i - 1]], `${ids[i]} (${values[ids[i]]}) is larger than ${ids[i - 1]}`);
+    assert.ok(
+      r[ids[i]] > r[ids[i - 1]],
+      `${ids[i]} (${values[ids[i]]}) is larger than ${ids[i - 1]}`,
+    );
 });
 
 it("Rings: sizeMax caps the largest node and sizeMin floors the smallest", async () => {
@@ -72,32 +81,45 @@ it("Rings: unsized nodes keep the fixed per-ring radii", async () => {
 
 /** Renders sized Rings centered on `center`, optionally re-centering on `click`, and reports the center label and feature panels. */
 const centerProbe = (center, click) =>
-  render('<div id="viz" style="width:800px;height:600px"></div>', ([src, clickId]) =>
-    new Promise((resolve, reject) => {
-      const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus).duration(0).select("#viz");
-      viz.render(() => {
-        if (clickId) viz.schema.on["click.shape"]({id: clickId});
-        window.setTimeout(() => {
-          try {
-            const id = viz.schema.center;
-            const node = viz.ctx.nodeLookup[id];
-            const texts = [];
-            for (const n of sceneNodes(viz.toScene().root)) {
-              if (n.type === "text" && (n.lines || []).some(l => l.text.startsWith(id))) texts.push(n);
+  render(
+    '<div id="viz" style="width:800px;height:600px"></div>',
+    ([src, clickId]) =>
+      new Promise((resolve, reject) => {
+        const viz = new Function("lib", `return (${src})(lib);`)(window.d3plus)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          if (clickId) viz.schema.on["click.shape"]({id: clickId});
+          window.setTimeout(() => {
+            try {
+              const id = viz.schema.center;
+              const node = viz.ctx.nodeLookup[id];
+              const texts = [];
+              for (const n of sceneNodes(viz.toScene().root)) {
+                if (
+                  n.type === "text" &&
+                  (n.lines || []).some(l => l.text.startsWith(id))
+                )
+                  texts.push(n);
+              }
+              resolve({
+                r: node.r,
+                inside: node.labelInside,
+                bounds: node.labelBounds,
+                fill: texts[0] && texts[0].paint && texts[0].paint.fill,
+                panels: viz._featurePanels.map(p => p.key),
+              });
+            } catch (e) {
+              reject(e);
             }
-            resolve({
-              r: node.r,
-              inside: node.labelInside,
-              bounds: node.labelBounds,
-              fill: texts[0] && texts[0].paint && texts[0].paint.fill,
-              panels: viz._featurePanels.map(p => p.key),
-            });
-          } catch (e) {
-            reject(e);
-          }
-        }, 300);
-      });
-    }), [`lib => new lib.Rings().nodes(${nodes}).links(${links}).center("${center}").size("v")`, click]);
+          }, 300);
+        });
+      }),
+    [
+      `lib => new lib.Rings().nodes(${nodes}).links(${links}).center("${center}").size("v")`,
+      click,
+    ],
+  );
 
 it("Rings: a center too small for its label puts it below the circle, in dark text", async () => {
   const small = await centerProbe("c");
@@ -113,8 +135,13 @@ it("Rings: a center too small for its label puts it below the circle, in dark te
 it("Rings: re-centering on click keeps the corner controls and size legend", async () => {
   const before = await centerProbe("a");
   const after = await centerProbe("a", "d");
-  ["viz-top-left-controls", "viz-zoom-controls", "viz-bottomRight"].forEach(key => {
-    assert.ok(before.panels.includes(key), `${key} present before`);
-    assert.ok(after.panels.includes(key), `${key} still present after the click`);
-  });
+  ["viz-top-left-controls", "viz-zoom-controls", "viz-bottomRight"].forEach(
+    key => {
+      assert.ok(before.panels.includes(key), `${key} present before`);
+      assert.ok(
+        after.panels.includes(key),
+        `${key} still present after the click`,
+      );
+    },
+  );
 });

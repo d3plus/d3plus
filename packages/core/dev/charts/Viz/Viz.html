@@ -1,9 +1,12 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="utf-8" />
     <title>Viz</title>
-    <meta name="description" content="Base Viz chrome: title, total, legend and timeline.">
+    <meta
+      name="description"
+      content="Base Viz chrome: title, total, legend and timeline."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -32,16 +35,15 @@
       new d3plus.Viz()
         .data("./data2.json")
         .time("year")
-        .title("Here is a long title that should wrap and change the top margin.")
+        .title(
+          "Here is a long title that should wrap and change the top margin.",
+        )
         .total(d => d.value)
         .legendPosition("bottom")
         .select("#viz1")
         .render();
 
-      new d3plus.Viz()
-        .data("./data2.json")
-        .select("#viz2")
-        .render();
+      new d3plus.Viz().data("./data2.json").select("#viz2").render();
     </script>
   </body>
 </html>

@@ -12,12 +12,17 @@ const AXIS_KEY = /^plot-(x|x2|y|y2)-axis$/;
 
 /** The plot area in surface coordinates, with its marks (not its axes) as obstacles; null before layout. */
 export function plotInsetRegion(viz: VizInstance): InsetRegion | null {
-  const area = viz._plotArea, t = viz._chartTransform;
+  const area = viz._plotArea,
+    t = viz._chartTransform;
   if (!area || !t) return null;
-  return sceneInsetRegion(viz, {
-    x: area.x + (t.x ?? 0),
-    y: area.y + (t.y ?? 0),
-    width: area.width,
-    height: area.height,
-  }, node => AXIS_KEY.test(String(node.key)));
+  return sceneInsetRegion(
+    viz,
+    {
+      x: area.x + (t.x ?? 0),
+      y: area.y + (t.y ?? 0),
+      width: area.width,
+      height: area.height,
+    },
+    node => AXIS_KEY.test(String(node.key)),
+  );
 }

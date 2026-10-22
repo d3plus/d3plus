@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.",
+        component:
+          "Groups a flat array of data by one or more key accessors into nested {key, values} entries, one level per accessor. A row whose keys run out before the last level becomes a leaf at the depth where they stopped instead of leaving an empty level.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -37,12 +38,18 @@ const show = value => JSON.stringify(value, null, 2);
 const call = "nest(data, d => d.region)";
 const result = nest(data, d => d.region);
 
-export const BasicExample = () => <FunctionExample input={`${dataSource}\n\n${call}`} output={show(result)} />;
+export const BasicExample = () => (
+  <FunctionExample input={`${dataSource}\n\n${call}`} output={show(result)} />
+);
 BasicExample.parameters = {
   docs: {
-    source: {code: `import {nest} from "@d3plus/data";\n\n${dataSource}\n\n${call};\n// → ${show(result).replace(/\n/g, "\n//   ")}`, language: "jsx"},
+    source: {
+      code: `import {nest} from "@d3plus/data";\n\n${dataSource}\n\n${call};\n// → ${show(result).replace(/\n/g, "\n//   ")}`,
+      language: "jsx",
+    },
     description: {
-      story: "The hierarchy builder charts such as Tree use: like `nestGroups`, but a single accessor can be passed without wrapping it in an array, and rows whose keys run out before the last level are collapsed into leaves instead of leaving an empty level behind.",
+      story:
+        "The hierarchy builder charts such as Tree use: like `nestGroups`, but a single accessor can be passed without wrapping it in an array, and rows whose keys run out before the last level are collapsed into leaves instead of leaving an empty level behind.",
     },
   },
 };

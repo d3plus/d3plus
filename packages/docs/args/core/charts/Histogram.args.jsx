@@ -6,142 +6,142 @@ import {argTypes as plotArgTypes} from "./Plot.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Histogram as D3plusHistogram} from "@d3plus/react";
-export const Histogram = ({ config }) => <D3plusHistogram config={config} />;
+export const Histogram = ({config}) => <D3plusHistogram config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Plot primitive and
    * overrides any defaults that have been changed in Histogram
    */
   Object.keys(plotArgTypes)
     .filter(k => !k.match(/^(shape|x|x2|y|y2|discrete)$/))
-    .reduce((obj, k) => (obj[k] = plotArgTypes[k], obj), {}),
+    .reduce((obj, k) => ((obj[k] = plotArgTypes[k]), obj), {}),
 
   /**
    * Histogram-specific methods
    */
-  
+
   {
     baseline: {
       defaultValue: 0,
       table: {
         defaultValue: {
-          summary: "0"
-        }
-      }
+          summary: "0",
+        },
+      },
     },
     baselineBreak: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     binDomain: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "`[min, max]` to bin across. Defaults to the nicely rounded extent of the values.",
+      description:
+        "`[min, max]` to bin across. Defaults to the nicely rounded extent of the values.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "[number, number]"
-      }
+        summary: "[number, number]",
+      },
     },
     binNormalize: {
       control: {
-        type: "radio"
+        type: "radio",
       },
       defaultValue: "count",
-      description: "What each bar's height measures: `\"count\"` (default), `\"density\"` (count ÷ (total × bin width), so the bars' area sums to 1), or `\"relative\"` (count ÷ total, so the heights sum to 1).",
-      options: [
-        "count",
-        "density",
-        "relative"
-      ],
+      description:
+        'What each bar\'s height measures: `"count"` (default), `"density"` (count ÷ (total × bin width), so the bars\' area sums to 1), or `"relative"` (count ÷ total, so the heights sum to 1).',
+      options: ["count", "density", "relative"],
       table: {
         defaultValue: {
-          summary: "count"
-        }
+          summary: "count",
+        },
       },
       type: {
         required: false,
-        summary: "\"count\" | \"density\" | \"relative\""
-      }
+        summary: '"count" | "density" | "relative"',
+      },
     },
     binThresholds: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "Bin edges: a bin count, an array of interior edges, or a d3-array threshold generator such as `thresholdSturges` (the default), `thresholdScott`, or `thresholdFreedmanDiaconis`.",
+      description:
+        "Bin edges: a bin count, an array of interior edges, or a d3-array threshold generator such as `thresholdSturges` (the default), `thresholdScott`, or `thresholdFreedmanDiaconis`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | number[] | function"
-      }
+        summary: "number | number[] | function",
+      },
     },
     binWidth: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "A uniform bin width, with edges at multiples of the width. When set, takes precedence over `binThresholds`.",
+      description:
+        "A uniform bin width, with edges at multiples of the width. When set, takes precedence over `binThresholds`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     groupPadding: {
       defaultValue: 1,
       table: {
         defaultValue: {
-          summary: "1"
-        }
-      }
+          summary: "1",
+        },
+      },
     },
     stacked: {
       defaultValue: true,
       table: {
         defaultValue: {
-          summary: "true"
-        }
-      }
+          summary: "true",
+        },
+      },
     },
     tooltipConfig: {
       table: {
         defaultValue: {
-          summary: "function"
-        }
-      }
+          summary: "function",
+        },
+      },
     },
     value: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Accessor function or string key for each row's numeric observation.",
+      description:
+        "Accessor function or string key for each row's numeric observation.",
       table: {
         defaultValue: {
-          summary: "\"value\""
-        }
+          summary: '"value"',
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
-    }
-  }
+        summary: "string | function",
+      },
+    },
+  },
 );

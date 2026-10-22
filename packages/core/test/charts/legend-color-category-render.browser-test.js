@@ -21,7 +21,9 @@ function scene(chart, configSrc, body, renderer = "svg") {
   const boxes = `
     <div id="probe" style="width:700px;height:400px"></div>
     <div id="viz" style="width:700px;height:400px"></div>`;
-  return render(boxes, new Function(`return (async () => {
+  return render(
+    boxes,
+    new Function(`return (async () => {
     // Regions first appear in reverse, so the legend's order comes from its sort.
     const regions = ${JSON.stringify(REGIONS)};
     const data = Array.from({length: 20}, (_, i) => ({
@@ -61,14 +63,22 @@ function scene(chart, configSrc, body, renderer = "svg") {
     };
     const drawn = () => [...new Set(viz._filteredData.map(d => d.region))].sort();
     ${body}
-  })()`), renderer);
+  })()`),
+    renderer,
+  );
 }
 
 const plot = `(viz, data) => viz.data(data).groupBy("country").color("region").x("x").y("y")`;
 
 for (const renderer of ["svg", "canvas"]) {
-  it(`Plot colored by region shows a region legend whose entries act on the whole region (${renderer})`, {timeout: 120000}, async function () {
-    const result = await scene("Plot", plot, `
+  it(
+    `Plot colored by region shows a region legend whose entries act on the whole region (${renderer})`,
+    {timeout: 120000},
+    async function () {
+      const result = await scene(
+        "Plot",
+        plot,
+        `
       const out = {labels: labels()};
       fire("mousemove", "Americas");
       await frame();
@@ -87,71 +97,137 @@ for (const renderer of ["svg", "canvas"]) {
       await settle();
       out.afterSolo = drawn();
       return out;
-    `, renderer);
-    assert.deepStrictEqual(result.labels, REGIONS, "one entry per region, labelled by region");
-    assert.ok(result.hovered, "hovering an entry highlights every point in its region");
-    assert.ok(!result.othersHovered, "…and no other region's points");
-    assert.ok(result.tooltip.includes("Americas"), `tooltip title names the region: ${result.tooltip}`);
-    assert.ok(!result.tooltip.includes("Country"), "tooltip title doesn't list countries");
-    assert.deepStrictEqual(result.afterHide, REGIONS.filter(r => r !== "Americas"), "click hides the whole region");
-    assert.deepStrictEqual(result.afterShow, REGIONS, "clicking again restores it");
-    assert.deepStrictEqual(result.afterSolo, ["Asia"], "shift+click solos the region");
-  });
+    `,
+        renderer,
+      );
+      assert.deepStrictEqual(
+        result.labels,
+        REGIONS,
+        "one entry per region, labelled by region",
+      );
+      assert.ok(
+        result.hovered,
+        "hovering an entry highlights every point in its region",
+      );
+      assert.ok(!result.othersHovered, "…and no other region's points");
+      assert.ok(
+        result.tooltip.includes("Americas"),
+        `tooltip title names the region: ${result.tooltip}`,
+      );
+      assert.ok(
+        !result.tooltip.includes("Country"),
+        "tooltip title doesn't list countries",
+      );
+      assert.deepStrictEqual(
+        result.afterHide,
+        REGIONS.filter(r => r !== "Americas"),
+        "click hides the whole region",
+      );
+      assert.deepStrictEqual(
+        result.afterShow,
+        REGIONS,
+        "clicking again restores it",
+      );
+      assert.deepStrictEqual(
+        result.afterSolo,
+        ["Asia"],
+        "shift+click solos the region",
+      );
+    },
+  );
 }
 
 /** The legend labels a chart shows, and whether they're color categories. */
 const legendOf = (chart, configSrc) =>
-  scene(chart, configSrc, "return {labels: labels(), categories: Boolean(viz._legendCategories)};");
+  scene(
+    chart,
+    configSrc,
+    "return {labels: labels(), categories: Boolean(viz._legendCategories)};",
+  );
 
 it("CSS color values keep the legend hidden", async function () {
-  const result = await legendOf("Plot", `(viz, data) => viz.data(data).groupBy("country")
+  const result = await legendOf(
+    "Plot",
+    `(viz, data) => viz.data(data).groupBy("country")
     .color(d => ({Africa: "#e8590c", Americas: "#1c7ed6", Asia: "#2f9e44", Europe: "#7048e8", Oceania: "#c2255c"})[d.region])
-    .x("x").y("y")`);
+    .x("x").y("y")`,
+  );
   assert.deepStrictEqual(result, {labels: [], categories: false});
 });
 
 it("legend(false) hides a category legend", async function () {
-  const result = await legendOf("Plot", `(viz, data) => viz.data(data).groupBy("country")
-    .color("region").x("x").y("y").legend(false)`);
+  const result = await legendOf(
+    "Plot",
+    `(viz, data) => viz.data(data).groupBy("country")
+    .color("region").x("x").y("y").legend(false)`,
+  );
   assert.deepStrictEqual(result.labels, []);
 });
 
 it("a color key that is a groupBy level keeps its groupBy labels", async function () {
-  const result = await legendOf("Plot", `(viz, data) => viz.data(data).groupBy(["region", "country"])
-    .color("region").x("x").y("y")`);
+  const result = await legendOf(
+    "Plot",
+    `(viz, data) => viz.data(data).groupBy(["region", "country"])
+    .color("region").x("x").y("y")`,
+  );
   assert.strictEqual(result.categories, false);
   assert.deepStrictEqual([...result.labels].sort(), REGIONS);
 });
 
 it("numeric ids hide and restore with their category", async function () {
-  const result = await scene("Plot", `(viz, data) => viz.data(data.map((d, i) => ({...d, id: i + 1})))
-    .groupBy("id").color("region").x("x").y("y")`, `
+  const result = await scene(
+    "Plot",
+    `(viz, data) => viz.data(data.map((d, i) => ({...d, id: i + 1})))
+    .groupBy("id").color("region").x("x").y("y")`,
+    `
     fire("click", "Europe");
     await settle();
     const hidden = drawn();
     fire("click", "Europe");
     await settle();
     return {hidden, shown: drawn()};
-  `);
-  assert.deepStrictEqual(result.hidden, REGIONS.filter(r => r !== "Europe"));
+  `,
+  );
+  assert.deepStrictEqual(
+    result.hidden,
+    REGIONS.filter(r => r !== "Europe"),
+  );
   assert.deepStrictEqual(result.shown, REGIONS);
 });
 
 it("an inset or bottom legend labels category entries too", async function () {
-  const bottom = await legendOf("Plot", `(viz, data) => viz.data(data).groupBy("country")
-    .color("region").x("x").y("y").legendPosition("bottom")`);
+  const bottom = await legendOf(
+    "Plot",
+    `(viz, data) => viz.data(data).groupBy("country")
+    .color("region").x("x").y("y").legendPosition("bottom")`,
+  );
   assert.deepStrictEqual(bottom.labels, REGIONS);
-  const inset = await scene("Plot", `(viz, data) => viz.data(data).groupBy("country")
+  const inset = await scene(
+    "Plot",
+    `(viz, data) => viz.data(data).groupBy("country")
     .color("region").x("x").y(d => d.x < 10 ? 1 : 12).legendInset(true)`,
-  "return {labels: labels(), placed: viz._insetPlacement && viz._insetPlacement.key};");
+    "return {labels: labels(), placed: viz._insetPlacement && viz._insetPlacement.key};",
+  );
   assert.deepStrictEqual(inset, {labels: REGIONS, placed: "legend"});
 });
 
 for (const [chart, configSrc] of [
-  ["BarChart", `(viz, data) => viz.data(data).groupBy("country").color("region").x("country").y("value")`],
-  ["Pack", `(viz, data) => viz.data(data).groupBy("country").color("region").sum("value")`],
-  ["Pie", `(viz, data) => viz.data(data).groupBy("country").color("region").value("value")`],
-  ["Treemap", `(viz, data) => viz.data(data).groupBy("country").color("region").sum("value")`],
+  [
+    "BarChart",
+    `(viz, data) => viz.data(data).groupBy("country").color("region").x("country").y("value")`,
+  ],
+  [
+    "Pack",
+    `(viz, data) => viz.data(data).groupBy("country").color("region").sum("value")`,
+  ],
+  [
+    "Pie",
+    `(viz, data) => viz.data(data).groupBy("country").color("region").value("value")`,
+  ],
+  [
+    "Treemap",
+    `(viz, data) => viz.data(data).groupBy("country").color("region").sum("value")`,
+  ],
 ]) {
   it(`${chart} colored by a category outside groupBy shows a category legend`, async function () {
     const result = await legendOf(chart, configSrc);
@@ -161,6 +237,9 @@ for (const [chart, configSrc] of [
 }
 
 it("Treemap keeps hiding a legend whose entries match its tiles", async function () {
-  const result = await legendOf("Treemap", `(viz, data) => viz.data(data).groupBy("country").sum("value")`);
+  const result = await legendOf(
+    "Treemap",
+    `(viz, data) => viz.data(data).groupBy("country").sum("value")`,
+  );
   assert.deepStrictEqual(result.labels, []);
 });

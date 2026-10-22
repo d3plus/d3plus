@@ -69,7 +69,8 @@ export function breakStyle(
 }
 
 /** Reads the baseline break's glyph settings (`baselineBreakConfig`). */
-export const baselineBreakStyle = (axis: Axis): BreakStyle => breakStyle(axis, "baselineBreakConfig");
+export const baselineBreakStyle = (axis: Axis): BreakStyle =>
+  breakStyle(axis, "baselineBreakConfig");
 
 /**
     Resolves whether `axis` needs a baseline break for its current domain and
@@ -112,15 +113,23 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
   if (axis.schema.scale !== "linear" || !axis._d3Scale) return;
   const edge = axis._baselineBreak;
   const domain = (axis._d3Scale.domain() as number[]).map(Number);
-  const inner = range.slice(0, 2).map(r => (edge && r === edge.position ? edge.edgePosition : r));
+  const inner = range
+    .slice(0, 2)
+    .map(r => (edge && r === edge.position ? edge.edgePosition : r));
   const {space, mask} = breakStyle(axis);
-  let breaks = normalizeBreaks(axis.schema.break, Math.min(...domain), Math.max(...domain));
-  if (Math.abs(inner[1] - inner[0]) - breaks.length * space < space * 2) breaks = [];
+  let breaks = normalizeBreaks(
+    axis.schema.break,
+    Math.min(...domain),
+    Math.max(...domain),
+  );
+  if (Math.abs(inner[1] - inner[0]) - breaks.length * space < space * 2)
+    breaks = [];
   if (!edge && !breaks.length) return;
 
   const scale = brokenScale({domain, range: inner, breaks, space, edge});
   axis._d3Scale = scale;
-  const baseline = typeof axis.schema.baseline === "number" ? axis.schema.baseline : 0;
+  const baseline =
+    typeof axis.schema.baseline === "number" ? axis.schema.baseline : 0;
   if (edge)
     axis._breaks.push({
       start: edge.value,
@@ -131,8 +140,16 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
       mask: baselineBreakStyle(axis).mask,
     });
   breaks.forEach(([a, b]) => {
-    const [start, end] = Math.abs(b - baseline) < Math.abs(a - baseline) ? [b, a] : [a, b];
-    axis._breaks.push({start, end, startPosition: scale(start), endPosition: scale(end), baseline: false, mask});
+    const [start, end] =
+      Math.abs(b - baseline) < Math.abs(a - baseline) ? [b, a] : [a, b];
+    axis._breaks.push({
+      start,
+      end,
+      startPosition: scale(start),
+      endPosition: scale(end),
+      baseline: false,
+      mask,
+    });
   });
 }
 
@@ -141,14 +158,21 @@ export function applyAxisBreaks(axis: Axis, range: number[]): void {
     off, makes sure a baseline break's baseline is present, so the axis reads
     "baseline, break, edge, …".
 */
-export function breakTickValues(breaks: AxisBreak[], values: unknown[], addBaseline = true): unknown[] {
+export function breakTickValues(
+  breaks: AxisBreak[],
+  values: unknown[],
+  addBaseline = true,
+): unknown[] {
   const kept = values.filter(v => {
     const n = Number(v);
-    return !breaks.some(b => n > Math.min(b.start, b.end) && n < Math.max(b.start, b.end));
+    return !breaks.some(
+      b => n > Math.min(b.start, b.end) && n < Math.max(b.start, b.end),
+    );
   });
   if (addBaseline) {
     breaks.forEach(b => {
-      if (b.baseline && !kept.some(v => Number(v) === b.start)) kept.push(b.start);
+      if (b.baseline && !kept.some(v => Number(v) === b.start))
+        kept.push(b.start);
     });
   }
   return kept;
@@ -156,7 +180,10 @@ export function breakTickValues(breaks: AxisBreak[], values: unknown[], addBasel
 
 /** The pixel gap (`[from, to]`, ascending) a break leaves in the axis line. */
 export function breakGap(axis: Axis, brk: AxisBreak): [number, number] {
-  const {gap} = breakStyle(axis, brk.baseline ? "baselineBreakConfig" : "breakConfig");
+  const {gap} = breakStyle(
+    axis,
+    brk.baseline ? "baselineBreakConfig" : "breakConfig",
+  );
   const center = (brk.startPosition + brk.endPosition) / 2;
   return [center - gap / 2, center + gap / 2];
 }
@@ -173,7 +200,8 @@ export function axisBarNodes(
 ): SceneNode[] {
   const barPaint = toPaint(axis.schema.barConfig as Record<string, unknown>);
   const breaks = axis._breaks || [];
-  if (!breaks.length) return [{type: "line", key: "bar", points, paint: barPaint}];
+  if (!breaks.length)
+    return [{type: "line", key: "bar", points, paint: barPaint}];
   return brokenBarScene(axis, breaks, points, barPaint, toPaint);
 }
 
@@ -196,7 +224,8 @@ export function brokenBarScene(
   const horizontal = axis._position.horizontal;
   const along = horizontal ? 0 : 1;
   const cross = points[0][1 - along];
-  const pt = (a: number, c: number): [number, number] => (horizontal ? [a, c] : [c, a]);
+  const pt = (a: number, c: number): [number, number] =>
+    horizontal ? [a, c] : [c, a];
   const ends = points.map(p => p[along]);
   const edge = breaks.find(b => b.baseline);
   if (edge) ends.push(edge.startPosition);
@@ -212,14 +241,28 @@ export function brokenBarScene(
     from = g1;
   });
   spans.push([from, hi]);
-  const baselineIndex = edge ? (edge.startPosition <= lo ? 0 : spans.length - 1) : -1;
+  const baselineIndex = edge
+    ? edge.startPosition <= lo
+      ? 0
+      : spans.length - 1
+    : -1;
   // Segments run away from the baseline end of the axis.
   const flip = baselineIndex > 0;
   let barIndex = 0;
   const nodes: LineNode[] = spans.map(([a, b], i) => {
-    const key = i === baselineIndex ? "bar-baseline" : barIndex++ ? `bar-${barIndex - 1}` : "bar";
+    const key =
+      i === baselineIndex
+        ? "bar-baseline"
+        : barIndex++
+          ? `bar-${barIndex - 1}`
+          : "bar";
     const ends: [number, number][] = [pt(a, cross), pt(b, cross)];
-    return {type: "line", key, points: flip ? ends.reverse() : ends, paint: barPaint};
+    return {
+      type: "line",
+      key,
+      points: flip ? ends.reverse() : ends,
+      paint: barPaint,
+    };
   });
   // The baseline segment leads, then the bar's own segments.
   if (baselineIndex > 0) nodes.unshift(...nodes.splice(baselineIndex, 1));
@@ -236,7 +279,10 @@ export function brokenBarScene(
     // baseline side of the break.
     const dAlong = Math.sin(rad) * size;
     const dCross = Math.cos(rad) * size;
-    const mark = (a: number): [number, number][] => [pt(a, cross), pt(a - dir * dAlong, cross + outward * dCross)];
+    const mark = (a: number): [number, number][] => [
+      pt(a, cross),
+      pt(a - dir * dAlong, cross + outward * dCross),
+    ];
     const prefix = brk.baseline ? "baseline-break" : `break-${explicit++}`;
     const [g0, g1] = breakGap(axis, brk);
     const [first, second] = dir < 0 ? [g1, g0] : [g0, g1];

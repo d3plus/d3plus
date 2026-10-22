@@ -65,46 +65,45 @@ const scenarios = [
   {
     name: "LinePlot with a NaN measure",
     build: () =>
-      new LinePlot()
-        .groupBy("id")
-        .data([
-          {value: 10, id: "alpha", q: 1},
-          {value: 30, id: "alpha", q: 2},
-          {value: 20, id: "beta", q: 1},
-          {value: NaN, id: "beta", q: 2},
-        ]),
+      new LinePlot().groupBy("id").data([
+        {value: 10, id: "alpha", q: 1},
+        {value: 30, id: "alpha", q: 2},
+        {value: 20, id: "beta", q: 1},
+        {value: NaN, id: "beta", q: 2},
+      ]),
     keptRows: 3,
   },
   {
     name: "BarChart with a NaN measure (aggregated)",
     build: () =>
-      new BarChart()
-        .groupBy("id")
-        .data([
-          {value: 10, id: "alpha", q: "Q1"},
-          {value: 30, id: "alpha", q: "Q2"},
-          {value: 20, id: "beta", q: "Q1"},
-          {value: NaN, id: "beta", q: "Q2"},
-        ]),
+      new BarChart().groupBy("id").data([
+        {value: 10, id: "alpha", q: "Q1"},
+        {value: 30, id: "alpha", q: "Q2"},
+        {value: 20, id: "beta", q: "Q1"},
+        {value: NaN, id: "beta", q: "Q2"},
+      ]),
     keptRows: 3,
   },
   {
     name: "Plot scatter with a NaN measure",
     build: () =>
-      new Plot()
-        .groupBy("id")
-        .data([
-          {value: 10, id: "a", q: 1},
-          {value: 30, id: "b", q: 2},
-          {value: NaN, id: "c", q: 3},
-        ]),
+      new Plot().groupBy("id").data([
+        {value: 10, id: "a", q: 1},
+        {value: 30, id: "b", q: 2},
+        {value: NaN, id: "c", q: 3},
+      ]),
     keptRows: 2,
   },
 ];
 
 for (const {name, build, keptRows} of scenarios) {
   it(`#776 drops non-plottable rows: ${name}`, () => {
-    const viz = build().x(d => d.q).y("value").width(600).height(400).duration(0);
+    const viz = build()
+      .x(d => d.q)
+      .y("value")
+      .width(600)
+      .height(400)
+      .duration(0);
     const ctx = pipeline(viz);
 
     assert.strictEqual(
@@ -113,8 +112,14 @@ for (const {name, build, keptRows} of scenarios) {
       "the NaN row should be filtered out of the formatted data",
     );
     const coords = pixelCoords(ctx);
-    const bad = coords.filter(c => typeof c !== "number" || !Number.isFinite(c));
-    assert.deepStrictEqual(bad, [], "every plotted coordinate is a finite number");
+    const bad = coords.filter(
+      c => typeof c !== "number" || !Number.isFinite(c),
+    );
+    assert.deepStrictEqual(
+      bad,
+      [],
+      "every plotted coordinate is a finite number",
+    );
   });
 }
 
@@ -133,5 +138,9 @@ it("#776 does not drop rows when x2/y2 are legitimately undefined", () => {
     .height(400)
     .duration(0);
   const ctx = pipeline(viz);
-  assert.strictEqual(ctx.plotFormattedData.length, 4, "all valid rows are kept");
+  assert.strictEqual(
+    ctx.plotFormattedData.length,
+    4,
+    "all valid rows are kept",
+  );
 });

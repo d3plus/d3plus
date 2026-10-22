@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.",
+        component:
+          "Registers a callback to run whenever the browser finishes loading a web font that d3plus has already measured text with — the moment any text laid out with that font's fallback becomes stale. Returns a function that removes the callback.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -26,7 +27,8 @@ import {textWidth} from "@d3plus/dom";
 
 const sample = "Sphinx of black quartz, judge my vow";
 const style = {"font-family": "Lobster", "font-size": 20};
-const stylesheet = "https://fonts.googleapis.com/css2?family=Lobster&display=swap";
+const stylesheet =
+  "https://fonts.googleapis.com/css2?family=Lobster&display=swap";
 
 // Measures a string in a web font the page has not loaded, subscribes to
 // font loads, then lets the viewer load the font and watch the width jump
@@ -38,7 +40,10 @@ const Demo = () => {
   useEffect(
     () =>
       onFontsLoaded(() =>
-        setEvents(list => [...list, `font load at ${new Date().toLocaleTimeString()}`]),
+        setEvents(list => [
+          ...list,
+          `font load at ${new Date().toLocaleTimeString()}`,
+        ]),
       ),
     [],
   );
@@ -54,14 +59,25 @@ const Demo = () => {
   };
   return (
     <div style={{display: "grid", gap: 10, fontSize: 13}}>
-      <span style={{fontFamily: "Lobster, cursive", fontSize: 20, whiteSpace: "pre"}}>{sample}</span>
+      <span
+        style={{
+          fontFamily: "Lobster, cursive",
+          fontSize: 20,
+          whiteSpace: "pre",
+        }}
+      >
+        {sample}
+      </span>
       <div style={{width, height: 3, background: "#1c7ed6"}} />
       <code>
-        textWidth(…, {JSON.stringify(style)}) → {Math.round(width * 100) / 100}px
+        textWidth(…, {JSON.stringify(style)}) → {Math.round(width * 100) / 100}
+        px
       </code>
       <div>
         <button type="button" onClick={loadFont} disabled={requested}>
-          {requested ? "Lobster requested from Google Fonts" : "Load the Lobster web font"}
+          {requested
+            ? "Lobster requested from Google Fonts"
+            : "Load the Lobster web font"}
         </button>
       </div>
       <code style={{color: "#666"}}>
@@ -91,7 +107,8 @@ stop();`,
       language: "jsx",
     },
     description: {
-      story: "Text measured before a web font finishes downloading uses the fallback font's metrics. `onFontsLoaded` runs its callback whenever the browser finishes loading a font that d3plus has already measured with, and returns a function that unsubscribes. Charts use it to redraw labels once their fonts arrive. Press the button to fetch a font from Google Fonts and watch the measured width change (this needs network access).",
+      story:
+        "Text measured before a web font finishes downloading uses the fallback font's metrics. `onFontsLoaded` runs its callback whenever the browser finishes loading a font that d3plus has already measured with, and returns a function that unsubscribes. Charts use it to redraw labels once their fonts arrive. Press the button to fetch a font from Google Fonts and watch the measured width change (this needs network access).",
     },
   },
 };

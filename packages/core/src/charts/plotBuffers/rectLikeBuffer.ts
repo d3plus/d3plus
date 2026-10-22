@@ -50,12 +50,12 @@ export function rectLikeBuffer({stackKey, fromZero}: RectLikeBufferOptions) {
 
     let negVals: number[], posVals: number[];
     if (this.schema.stacked) {
-      const groupedData = groups(
-        data,
-        (d: Record<string, unknown>) => stackKey(d, this.schema.discrete),
+      const groupedData = groups(data, (d: Record<string, unknown>) =>
+        stackKey(d, this.schema.discrete),
       ).map(([, values]: [unknown, Record<string, unknown>[]]) =>
         values.map(
-          (x: Record<string, unknown>) => x[isDiscreteX ? yKey : xKey] as number,
+          (x: Record<string, unknown>) =>
+            x[isDiscreteX ? yKey : xKey] as number,
         ),
       );
       posVals = groupedData.map((arr: number[]) =>

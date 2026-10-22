@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.",
+        component:
+          "Determines whether a given DOM element is visible within the current viewport, with an optional pixel buffer.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -66,7 +67,8 @@ inViewport(document.querySelector(".badge")); // true while any part of it is on
       language: "jsx",
     },
     description: {
-      story: "True while any part of the element's bounding box overlaps the browser viewport. Scroll this story partly out of view to see it flip. Charts with `detectVisible` use this to delay their first draw until they are on screen.",
+      story:
+        "True while any part of the element's bounding box overlaps the browser viewport. Scroll this story partly out of view to see it flip. Charts with `detectVisible` use this to delay their first draw until they are on screen.",
     },
   },
 };
@@ -82,7 +84,8 @@ inViewport(document.querySelector(".badge"), 100);`,
       language: "jsx",
     },
     description: {
-      story: "The second argument shrinks the viewport by that many pixels on every side, so the element has to be well inside the window, not just touching its edge, before this reports `true`.",
+      story:
+        "The second argument shrinks the viewport by that many pixels on every side, so the element has to be well inside the window, not just touching its edge, before this reports `true`.",
     },
   },
 };

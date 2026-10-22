@@ -5,8 +5,10 @@
 export default function (
   dataItem: string | Record<string, unknown> | unknown,
 ): boolean {
-  return typeof dataItem === "string" ||
+  return (
+    typeof dataItem === "string" ||
     (typeof dataItem === "object" &&
       dataItem !== null &&
-      !!(dataItem as Record<string, unknown>).url);
+      !!(dataItem as Record<string, unknown>).url)
+  );
 }

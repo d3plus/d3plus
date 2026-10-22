@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a funnel chart from an array of data: one stage per row, in data\norder unless sort reorders them, drawn as a centered bar whose width encodes its value, with necks\njoining consecutive stages. Labels show each stage's name and value, plus\nany conversion rates conversion asks for; tooltips show the conversion\nfrom the first and the previous stage.",
+        component:
+          "Creates a funnel chart from an array of data: one stage per row, in data\norder unless sort reorders them, drawn as a centered bar whose width encodes its value, with necks\njoining consecutive stages. Labels show each stage's name and value, plus\nany conversion rates conversion asks for; tooltips show the conversion\nfrom the first and the previous stage.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Funnel config={configify(args, argTypes)} />;
-  
+const Template = args => <Funnel config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -37,14 +38,30 @@ export const BasicExample = Template.bind({});
 BasicExample.args = {
   data: stages,
 };
-BasicExample.parameters = {controls: {include: ["stagePadding", "connector", "orient"]}, docs: {description: {story: "Each row is a stage, drawn in data order as a centered bar whose width encodes its value. Necks join consecutive stages; a label goes inside its stage when it fits, otherwise beside it."}}};
+BasicExample.parameters = {
+  controls: {include: ["stagePadding", "connector", "orient"]},
+  docs: {
+    description: {
+      story:
+        "Each row is a stage, drawn in data order as a centered bar whose width encodes its value. Necks join consecutive stages; a label goes inside its stage when it fits, otherwise beside it.",
+    },
+  },
+};
 
 export const ConversionRates = Template.bind({});
 ConversionRates.args = {
   data: stages,
   conversion: "first",
 };
-ConversionRates.parameters = {controls: {include: ["conversion", "valueFormat"]}, docs: {description: {story: "`conversion` adds each stage's conversion rate to its label: `\"first\"` (its share of the first stage), `\"previous\"` (its share of the stage before it), or `\"both\"`. Tooltips always show both rates."}}};
+ConversionRates.parameters = {
+  controls: {include: ["conversion", "valueFormat"]},
+  docs: {
+    description: {
+      story:
+        '`conversion` adds each stage\'s conversion rate to its label: `"first"` (its share of the first stage), `"previous"` (its share of the stage before it), or `"both"`. Tooltips always show both rates.',
+    },
+  },
+};
 
 export const StraightSided = Template.bind({});
 StraightSided.args = {
@@ -54,7 +71,15 @@ StraightSided.args = {
   connector: false,
   conversion: "previous",
 };
-StraightSided.parameters = {controls: {include: ["taper", "stagePadding", "connector"]}, docs: {description: {story: "`taper` narrows each stage from its own width to the next stage's, drawing a continuous straight-sided funnel instead of flat bars."}}};
+StraightSided.parameters = {
+  controls: {include: ["taper", "stagePadding", "connector"]},
+  docs: {
+    description: {
+      story:
+        "`taper` narrows each stage from its own width to the next stage's, drawing a continuous straight-sided funnel instead of flat bars.",
+    },
+  },
+};
 
 export const SmoothFunnel = Template.bind({});
 SmoothFunnel.args = {
@@ -63,7 +88,15 @@ SmoothFunnel.args = {
   curve: "smooth",
   stagePadding: 0.04,
 };
-SmoothFunnel.parameters = {controls: {include: ["curve", "taper", "stagePadding"]}, docs: {description: {story: "`curve(\"smooth\")` bends the funnel's sides through each stage's width without overshooting. Without `taper`, it curves only the necks between stages."}}};
+SmoothFunnel.parameters = {
+  controls: {include: ["curve", "taper", "stagePadding"]},
+  docs: {
+    description: {
+      story:
+        "`curve(\"smooth\")` bends the funnel's sides through each stage's width without overshooting. Without `taper`, it curves only the necks between stages.",
+    },
+  },
+};
 
 export const Horizontal = Template.bind({});
 Horizontal.args = {
@@ -71,7 +104,15 @@ Horizontal.args = {
   orient: "horizontal",
   conversion: "first",
 };
-Horizontal.parameters = {controls: {include: ["orient", "conversion"]}, docs: {description: {story: "`orient(\"horizontal\")` runs the stages left to right, with each stage's height encoding its value. Labels that don't fit inside a stage go below it."}}};
+Horizontal.parameters = {
+  controls: {include: ["orient", "conversion"]},
+  docs: {
+    description: {
+      story:
+        "`orient(\"horizontal\")` runs the stages left to right, with each stage's height encoding its value. Labels that don't fit inside a stage go below it.",
+    },
+  },
+};
 
 export const ColoredByPhase = Template.bind({});
 ColoredByPhase.args = {
@@ -87,7 +128,15 @@ ColoredByPhase.args = {
   conversion: "previous",
   connectorConfig: {fill: "#ced4da", opacity: 0.6},
 };
-ColoredByPhase.parameters = {controls: {include: ["groupBy", "connectorConfig"]}, docs: {description: {story: "With several `groupBy` levels, each row of the last level is a stage and the stages take their color from the first level, which the legend names. `connectorConfig` paints the necks."}}};
+ColoredByPhase.parameters = {
+  controls: {include: ["groupBy", "connectorConfig"]},
+  docs: {
+    description: {
+      story:
+        "With several `groupBy` levels, each row of the last level is a stage and the stages take their color from the first level, which the legend names. `connectorConfig` paints the necks.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -102,14 +151,30 @@ SmallMultiples.args = {
   conversion: "first",
   valueFormat: funcify(d => d.toLocaleString(), "d => d.toLocaleString()"),
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig", "conversion"]}, docs: {description: {story: "`facet` draws one funnel per channel. By default each panel is sized to its own first stage, so conversion reads the same way in every panel."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig", "conversion"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws one funnel per channel. By default each panel is sized to its own first stage, so conversion reads the same way in every panel.",
+    },
+  },
+};
 
 export const SharedWidthScale = Template.bind({});
 SharedWidthScale.args = {
   ...SmallMultiples.args,
   facetConfig: {scales: "shared"},
 };
-SharedWidthScale.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "With `facetConfig: {scales: \"shared\"}`, every panel measures its stages against the widest stage across all panels, so the panels compare volume as well as shape."}}};
+SharedWidthScale.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        'With `facetConfig: {scales: "shared"}`, every panel measures its stages against the widest stage across all panels, so the panels compare volume as well as shape.',
+    },
+  },
+};
 
 export const SortedStages = Template.bind({});
 SortedStages.args = {
@@ -123,4 +188,12 @@ SortedStages.args = {
   sort: funcify((a, b) => a.step - b.step, "(a, b) => a.step - b.step"),
   conversion: "previous",
 };
-SortedStages.parameters = {controls: {include: ["sort", "conversion"]}, docs: {description: {story: "Stages draw in data order unless `sort` orders them, as a comparator over two rows. Conversion rates follow the drawn order, so \"% of previous\" compares each stage with the one above it."}}};
+SortedStages.parameters = {
+  controls: {include: ["sort", "conversion"]},
+  docs: {
+    description: {
+      story:
+        'Stages draw in data order unless `sort` orders them, as a comparator over two rows. Conversion rates follow the drawn order, so "% of previous" compares each stage with the one above it.',
+    },
+  },
+};

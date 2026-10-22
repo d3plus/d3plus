@@ -9,7 +9,9 @@ import type Axis from "../../components/Axis/Axis.js";
 export function frozenAxis(axis: Axis): Axis {
   const frozen = Object.create(axis) as Axis;
   frozen._d3Scale = axis._d3Scale ? axis._d3Scale.copy() : null;
-  frozen._d3ScaleNegative = axis._d3ScaleNegative ? axis._d3ScaleNegative.copy() : null;
+  frozen._d3ScaleNegative = axis._d3ScaleNegative
+    ? axis._d3ScaleNegative.copy()
+    : null;
   frozen.schema = {...axis.schema};
   return frozen;
 }

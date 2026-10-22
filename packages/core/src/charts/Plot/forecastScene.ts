@@ -21,11 +21,7 @@ import type {PlotAxisFn, PlotDatum} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {curvePolyline, splitDash, splitLength} from "./curveLength.js";
 import {lineCurve} from "./lineCurve.js";
-import {
-  discreteRank,
-  forecastStart,
-  type ForecastStart,
-} from "./forecast.js";
+import {discreteRank, forecastStart, type ForecastStart} from "./forecast.js";
 
 /** Key of the forecast backdrop group. */
 export const FORECAST_KEY = "plot-forecast";
@@ -113,7 +109,8 @@ export function slotEdge(
     pixels
       .filter(p => (p - next) * dir * side > 0.5)
       .reduce<number | undefined>(
-        (a, p) => (a === undefined || Math.abs(p - next) < Math.abs(a - next) ? p : a),
+        (a, p) =>
+          a === undefined || Math.abs(p - next) < Math.abs(a - next) ? p : a,
         undefined,
       );
   const before = nearest(-1);
@@ -240,7 +237,10 @@ export function backdropDecor(
   ink: string,
 ): SceneNode[] {
   const out: SceneNode[] = [];
-  const color = typeof config.fill === "string" && config.fill !== "none" ? config.fill : ink;
+  const color =
+    typeof config.fill === "string" && config.fill !== "none"
+      ? config.fill
+      : ink;
   const texture = textureKey(
     config.texture,
     () => "transparent",
@@ -251,7 +251,10 @@ export function backdropDecor(
     out.push({
       ...region,
       key: `${FORECAST_KEY}-texture`,
-      paint: {fill: `pattern:${texture}`, opacity: num(config.textureOpacity, 0.3)},
+      paint: {
+        fill: `pattern:${texture}`,
+        opacity: num(config.textureOpacity, 0.3),
+      },
     } as RectNode);
   const url = config.backgroundImage;
   const image =

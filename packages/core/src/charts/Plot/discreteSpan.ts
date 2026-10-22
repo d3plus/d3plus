@@ -16,19 +16,30 @@ export function isSpanAxis(viz: VizInstance, axis: string): boolean {
 }
 
 /** `[start, end]` of a formatted Plot row (reads its source `data`). */
-export function rowSpan(viz: VizInstance, row: Record<string, unknown>): [number, number] {
+export function rowSpan(
+  viz: VizInstance,
+  row: Record<string, unknown>,
+): [number, number] {
   return viz._discreteExtent!(row.data as DataPoint);
 }
 
 /** The `[min start, max end]` domain covering every row's span. */
-export function spanDomain(viz: VizInstance, rows: Record<string, unknown>[]): number[] {
+export function spanDomain(
+  viz: VizInstance,
+  rows: Record<string, unknown>[],
+): number[] {
   const spans = rows.filter(d => d.data).map(d => rowSpan(viz, d));
   return [min(spans, d => d[0]) as number, max(spans, d => d[1]) as number];
 }
 
 /** Every unique span boundary, ascending — the tick values for a span axis. */
-export function spanEdges(viz: VizInstance, rows: Record<string, unknown>[]): number[] {
+export function spanEdges(
+  viz: VizInstance,
+  rows: Record<string, unknown>[],
+): number[] {
   const edges = new Set<number>();
-  rows.filter(d => d.data).forEach(d => rowSpan(viz, d).forEach(e => edges.add(e)));
+  rows
+    .filter(d => d.data)
+    .forEach(d => rowSpan(viz, d).forEach(e => edges.add(e)));
   return Array.from(edges).sort((a, b) => a - b);
 }

@@ -16,9 +16,16 @@ const args = r => ({
 
 it("circleBuffer pads the value axes by a numeric Circle radius", () => {
   const [, y] = circleBuffer.call(plot, args(7));
-  const [, yFn] = circleBuffer.call(plot, args(() => 7));
+  const [, yFn] = circleBuffer.call(
+    plot,
+    args(() => 7),
+  );
   assert.ok(y.domain()[0] > 100, "the top value gets room");
-  assert.deepStrictEqual(y.domain(), yFn.domain(), "a number pads like an accessor returning it");
+  assert.deepStrictEqual(
+    y.domain(),
+    yFn.domain(),
+    "a number pads like an accessor returning it",
+  );
 });
 
 it("Plot draws with a numeric shapeConfig.Circle.r", async function () {
@@ -44,7 +51,11 @@ it("Plot draws with a numeric shapeConfig.Circle.r", async function () {
           .render(() =>
             resolve(
               [...document.querySelectorAll("circle.d3plus-render-circle")]
-                .filter(c => ["a", "b", "c"].includes(c.closest("[data-key]")?.getAttribute("data-key")))
+                .filter(c =>
+                  ["a", "b", "c"].includes(
+                    c.closest("[data-key]")?.getAttribute("data-key"),
+                  ),
+                )
                 .map(c => +c.getAttribute("r")),
             ),
           );

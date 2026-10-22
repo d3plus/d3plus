@@ -59,16 +59,25 @@ it("saveElement serializes an <svg> target directly for type svg", async () => {
 
 it("saveElement routes an HTML container through toSvg for type svg", async () => {
   reset();
-  const markup = "<svg xmlns='http://www.w3.org/2000/svg'><foreignObject/></svg>";
+  const markup =
+    "<svg xmlns='http://www.w3.org/2000/svg'><foreignObject/></svg>";
   results.toSvg = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(markup)}`;
   await save(container, {type: "svg"}, {background: "white"});
   assert.strictEqual(calls.length, 1);
   assert.strictEqual(calls[0].fn, "toSvg");
   assert.strictEqual(calls[0].node, container);
-  assert.strictEqual(calls[0].options.backgroundColor, "white", "renderOptions are resolved");
+  assert.strictEqual(
+    calls[0].options.backgroundColor,
+    "white",
+    "renderOptions are resolved",
+  );
   assert.strictEqual(saved.length, 1);
   assert.strictEqual(saved[0].name, "download.svg");
-  assert.strictEqual(await saved[0].blob.text(), markup, "the data URL is fetched into a Blob");
+  assert.strictEqual(
+    await saved[0].blob.text(),
+    markup,
+    "the data URL is fetched into a Blob",
+  );
 });
 
 it("saveElement routes png through toBlob", async () => {
@@ -113,7 +122,11 @@ it("saveElement passes toBlob's rejection to the callback", async () => {
   reset();
   results.error = new Error("tainted canvas");
   const error = await save(container, {type: "jpg"});
-  assert.strictEqual(error, results.error, "an Error rejection is passed through");
+  assert.strictEqual(
+    error,
+    results.error,
+    "an Error rejection is passed through",
+  );
   assert.strictEqual(saved.length, 0);
 });
 

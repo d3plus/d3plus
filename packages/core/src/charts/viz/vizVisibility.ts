@@ -40,8 +40,10 @@ function resolveRoot(scrollContainer: unknown): Element | null {
     (typeof window !== "undefined" && scrollContainer === window)
   )
     return null;
-  if (typeof scrollContainer === "string") return select(scrollContainer).node() as Element | null;
-  if (typeof Element !== "undefined" && scrollContainer instanceof Element) return scrollContainer;
+  if (typeof scrollContainer === "string")
+    return select(scrollContainer).node() as Element | null;
+  if (typeof Element !== "undefined" && scrollContainer instanceof Element)
+    return scrollContainer;
   return null;
 }
 

@@ -18,7 +18,11 @@ const transition = ([renderer, next]) =>
     const rows = cats =>
       cats.flatMap(c => {
         const base = (c.charCodeAt(0) - 64) * 20;
-        return [0, 2, 4, 6, 8, 10, 30].map((v, j) => ({id: `${c}${j}`, x: c, y: base + v}));
+        return [0, 2, 4, 6, 8, 10, 30].map((v, j) => ({
+          id: `${c}${j}`,
+          x: c,
+          y: base + v,
+        }));
       });
     const el = document.createElement("div");
     document.body.appendChild(el);
@@ -43,7 +47,8 @@ const transition = ([renderer, next]) =>
       }
       return null;
     };
-    const isBody = n => n && n.type === "rect" && n.width === 50 && n.height > 1;
+    const isBody = n =>
+      n && n.type === "rect" && n.width === 50 && n.height > 1;
     const walk = (nodes, out = []) => {
       for (const n of nodes || []) {
         if (n.type === "group") walk(n.children, out);
@@ -53,7 +58,8 @@ const transition = ([renderer, next]) =>
     };
     const bodies = nodes => {
       const out = {};
-      for (const n of walk(nodes)) if (isBody(n)) out[category(n.datum)] = n.transform.x;
+      for (const n of walk(nodes))
+        if (isBody(n)) out[category(n.datum)] = n.transform.x;
       return out;
     };
     // Keys repeated among siblings anywhere in the scene.
@@ -86,7 +92,9 @@ const transition = ([renderer, next]) =>
         for (const r of el.querySelectorAll("rect.d3plus-render-rect")) {
           const d = r.__data__;
           if (!isBody(d)) continue;
-          const m = (r.getAttribute("transform") || "").match(/translate\(([^,\s)]+)/);
+          const m = (r.getAttribute("transform") || "").match(
+            /translate\(([^,\s)]+)/,
+          );
           out[category(d.datum)] = m ? Number(m[1]) : NaN;
         }
         return out;
@@ -95,7 +103,9 @@ const transition = ([renderer, next]) =>
       // category it draws once the redraw reuses it.
       const tagged = [];
       if (renderer === "svg") {
-        for (const r of el.querySelectorAll(".d3plus-render-rect, .d3plus-render-path, .d3plus-render-circle")) {
+        for (const r of el.querySelectorAll(
+          ".d3plus-render-rect, .d3plus-render-path, .d3plus-render-circle",
+        )) {
           const d = r.__data__;
           if (d && d.shapeType) tagged.push([r, category(d.datum)]);
         }
@@ -119,10 +129,19 @@ const transition = ([renderer, next]) =>
         setTimeout(() => {
           sampling = false;
           const moved = tagged
-            .filter(([r]) => r.isConnected && r.__data__ && r.__data__.shapeType)
+            .filter(
+              ([r]) => r.isConnected && r.__data__ && r.__data__.shapeType,
+            )
             .map(([r, was]) => [was, category(r.__data__.datum)])
             .filter(([was, now]) => was !== now);
-          resolve({before, after: bodies(viz._chartScene), frames, repeated, keys, moved});
+          resolve({
+            before,
+            after: bodies(viz._chartScene),
+            frames,
+            repeated,
+            keys,
+            moved,
+          });
         }, 300);
       });
     });
@@ -139,7 +158,11 @@ const transitionOnce = (renderer, next) => {
 for (const renderer of ["svg", "canvas"]) {
   it(`BoxWhisker scene keys are unique and stable per category (${renderer})`, async function () {
     const out = await transitionOnce(renderer, ["D", "C", "B", "A"]);
-    assert.deepStrictEqual(out.repeated, [], "no key repeats among its siblings");
+    assert.deepStrictEqual(
+      out.repeated,
+      [],
+      "no key repeats among its siblings",
+    );
     assert.deepStrictEqual(out.keys, [
       "B-box",
       "B-median",
@@ -153,7 +176,10 @@ for (const renderer of ["svg", "canvas"]) {
     ]);
   });
 
-  for (const next of [["D", "C", "B", "A"], ["B", "C", "D", "E"]]) {
+  for (const next of [
+    ["D", "C", "B", "A"],
+    ["B", "C", "D", "E"],
+  ]) {
     it(`BoxWhisker boxes travel with their category, ABCD -> ${next.join("")} (${renderer})`, async function () {
       const out = await transitionOnce(renderer, next);
       assert.deepStrictEqual(out.moved, [], "no SVG element switches category");
@@ -164,7 +190,10 @@ for (const renderer of ["svg", "canvas"]) {
         const lo = Math.min(from, to) - 1;
         const hi = Math.max(from, to) + 1;
         assert.ok(xs.length > 2, `${cat}: box sampled mid-transition`);
-        assert.ok(xs.every(x => x >= lo && x <= hi), `${cat}: box stays between ${from} and ${to}`);
+        assert.ok(
+          xs.every(x => x >= lo && x <= hi),
+          `${cat}: box stays between ${from} and ${to}`,
+        );
         assert.ok(
           xs.some(x => Math.abs(x - from) > 10 && Math.abs(x - to) > 10),
           `${cat}: box passes between ${from} and ${to} (saw ${xs.map(Math.round)})`,
@@ -180,7 +209,11 @@ const pointAt = renderer =>
   new Promise(resolve => {
     const rows = ["A", "B", "C", "D"].flatMap(c => {
       const base = (c.charCodeAt(0) - 64) * 20;
-      return [0, 2, 4, 6, 8, 10, 30].map((v, j) => ({id: `${c}${j}`, x: c, y: base + v}));
+      return [0, 2, 4, 6, 8, 10, 30].map((v, j) => ({
+        id: `${c}${j}`,
+        x: c,
+        y: base + v,
+      }));
     });
     const category = datum => {
       for (let d = datum; d; d = d.data) {
@@ -215,27 +248,51 @@ const pointAt = renderer =>
       const parts = {};
       for (const node of el.querySelectorAll("svg [class*='d3plus-render-']")) {
         const d = node.__data__;
-        if (!d || !d.shapeType || category(d.datum) !== "B" || String(d.key).endsWith("::hit")) continue;
+        if (
+          !d ||
+          !d.shapeType ||
+          category(d.datum) !== "B" ||
+          String(d.key).endsWith("::hit")
+        )
+          continue;
         const b = node.getBoundingClientRect();
         const at = [b.left + b.width / 2, b.top + b.height / 2];
         if (d.shapeType === "Circle") parts.outlier = at;
         else if (d.shapeType === "Line") {
           if (!parts.whisker || at[1] < parts.whisker[1]) parts.whisker = at;
         } else if (d.width === 50 && d.height > 1) parts.box = at;
-        else if (d.width === 20 && (!parts.end || at[1] < parts.end[1])) parts.end = at;
+        else if (d.width === 20 && (!parts.end || at[1] < parts.end[1]))
+          parts.end = at;
       }
       const seen = [];
       const log = shape => d => seen.push({shape, category: category(d)});
-      draw(renderer, {"mousemove.Rect": log("Rect"), "mousemove.Line": log("Line"), "mousemove.Circle": log("Circle")}, () => {
-        const out = {};
-        for (const [part, [x, y]] of Object.entries(parts)) {
-          seen.length = 0;
-          const target = renderer === "canvas" ? el.querySelector("canvas") : document.elementFromPoint(x, y);
-          target.dispatchEvent(new MouseEvent("mousemove", {bubbles: true, clientX: x, clientY: y}));
-          out[part] = seen.slice();
-        }
-        resolve(out);
-      });
+      draw(
+        renderer,
+        {
+          "mousemove.Rect": log("Rect"),
+          "mousemove.Line": log("Line"),
+          "mousemove.Circle": log("Circle"),
+        },
+        () => {
+          const out = {};
+          for (const [part, [x, y]] of Object.entries(parts)) {
+            seen.length = 0;
+            const target =
+              renderer === "canvas"
+                ? el.querySelector("canvas")
+                : document.elementFromPoint(x, y);
+            target.dispatchEvent(
+              new MouseEvent("mousemove", {
+                bubbles: true,
+                clientX: x,
+                clientY: y,
+              }),
+            );
+            out[part] = seen.slice();
+          }
+          resolve(out);
+        },
+      );
     });
   });
 

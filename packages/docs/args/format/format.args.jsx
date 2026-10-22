@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   specifier: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "The string specifier used by the format function.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

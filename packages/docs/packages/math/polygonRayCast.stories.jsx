@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.",
+        component:
+          "Gives the two closest intersection points between a ray cast from a point inside a polygon. The two points should lie on opposite sides of the origin.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -26,7 +27,14 @@ import sourceSnippet from "../../helpers/sourceSnippet.js";
 
 const r = n => Math.round(n * 100) / 100;
 const show = p => (p ? JSON.stringify(p.map(r)) : "null");
-const poly = [[40, 30], [200, 20], [250, 100], [210, 180], [60, 170], [20, 90]];
+const poly = [
+  [40, 30],
+  [200, 20],
+  [250, 100],
+  [210, 180],
+  [60, 170],
+  [20, 90],
+];
 const origin = [130, 100];
 
 const Diagram = ({alpha = 0, alphaSource}) => {
@@ -38,7 +46,13 @@ const Diagram = ({alpha = 0, alphaSource}) => {
     <GeometryExample
       shapes={[
         {type: "polygon", points: poly},
-        {type: "segment", from: [origin[0] - dx, origin[1] - dy], to: [origin[0] + dx, origin[1] + dy], dashed: true, stroke: "#adb5bd"},
+        {
+          type: "segment",
+          from: [origin[0] - dx, origin[1] - dy],
+          to: [origin[0] + dx, origin[1] + dy],
+          dashed: true,
+          stroke: "#adb5bd",
+        },
         {type: "point", at: origin, fill: "#868e96", label: "origin"},
         ...(left ? [{type: "point", at: left, label: show(left)}] : []),
         ...(right ? [{type: "point", at: right, label: show(right)}] : []),
@@ -67,7 +81,9 @@ BasicExample.parameters = params(
   "Casts a line through a point inside the polygon and returns where it meets the edges on either side: the closest crossing to the left of the origin and the closest to the right. With the default angle of 0 the ray is horizontal, which is how a label's available width at a given height is found.",
 );
 
-export const AngledRay = () => <Diagram alpha={Math.PI / 4} alphaSource="Math.PI / 4" />;
+export const AngledRay = () => (
+  <Diagram alpha={Math.PI / 4} alphaSource="Math.PI / 4" />
+);
 AngledRay.parameters = params(
   Math.PI / 4,
   "Math.PI / 4",

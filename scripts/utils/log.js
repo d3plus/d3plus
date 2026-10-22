@@ -16,7 +16,8 @@ export const verbose = Boolean(process.env.VERBOSE);
  * @private
  */
 function quietSpinner(text) {
-  const print = (symbol, msg) => process.stderr.write(`${symbol} ${msg || spinner.text}\n`);
+  const print = (symbol, msg) =>
+    process.stderr.write(`${symbol} ${msg || spinner.text}\n`);
   const spinner = {
     text,
     start: () => spinner,
@@ -29,7 +30,9 @@ function quietSpinner(text) {
 }
 
 const createSpinner = (opts = {}) =>
-  interactive ? yoctoSpinner({color: "cyan", ...opts}) : quietSpinner(opts.text);
+  interactive
+    ? yoctoSpinner({color: "cyan", ...opts})
+    : quietSpinner(opts.text);
 
 export default function (script) {
   // Read at call time, not import time, so a script that bumps the version
@@ -67,7 +70,9 @@ export default function (script) {
 
   Logger.timer = msg => {
     if (spinner) Logger.done();
-    spinner = createSpinner({text: msg || "please pass a process name to .start()"}).start();
+    spinner = createSpinner({
+      text: msg || "please pass a process name to .start()",
+    }).start();
   };
 
   Logger.update = msg => {

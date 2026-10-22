@@ -8,12 +8,22 @@ async function offset(ctx: Parameters<BrowserCommand>[0]) {
   return {x: box?.x ?? 0, y: box?.y ?? 0};
 }
 
-const mouseMove: BrowserCommand<[number, number, MouseOptions?]> = async (ctx, x, y, options) => {
+const mouseMove: BrowserCommand<[number, number, MouseOptions?]> = async (
+  ctx,
+  x,
+  y,
+  options,
+) => {
   const o = await offset(ctx);
   await ctx.page.mouse.move(o.x + x, o.y + y, options);
 };
 
-const mouseClick: BrowserCommand<[number, number, MouseOptions?]> = async (ctx, x, y, options) => {
+const mouseClick: BrowserCommand<[number, number, MouseOptions?]> = async (
+  ctx,
+  x,
+  y,
+  options,
+) => {
   const o = await offset(ctx);
   await ctx.page.mouse.click(o.x + x, o.y + y, options);
 };

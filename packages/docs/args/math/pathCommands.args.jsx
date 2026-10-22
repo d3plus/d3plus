@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   d: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "An SVG path string (the `d` attribute of a `<path>`).",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

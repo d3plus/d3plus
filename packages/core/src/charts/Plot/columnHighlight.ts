@@ -24,14 +24,18 @@ type Predicate = (d: DataPoint, i: number) => boolean;
     tries next.
     @param viz The chart.
 */
-export function columnHighlight(viz: VizInstance): (rows: Set<DataPoint>) => Predicate {
+export function columnHighlight(
+  viz: VizInstance,
+): (rows: Set<DataPoint>) => Predicate {
   const ids = (d: DataPoint, i: number): unknown[] => {
     const id = viz._id(d, i) as unknown;
     return Array.isArray(id) ? id : [id];
   };
   return rows => {
     const plotted = new Set<DataPoint>();
-    const scenes = viz._facetPanels ? viz._facetPanels.map(panel => panel.scene) : [viz._chartScene || []];
+    const scenes = viz._facetPanels
+      ? viz._facetPanels.map(panel => panel.scene)
+      : [viz._chartScene || []];
     scenes.forEach(nodes => forEachSceneRow(nodes, row => plotted.add(row)));
     const hovered = new Set<unknown>();
     rows.forEach(row => ids(row, 0).forEach(id => hovered.add(id)));

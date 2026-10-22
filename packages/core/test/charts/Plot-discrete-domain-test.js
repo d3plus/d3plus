@@ -17,17 +17,28 @@ useJsdom();
 */
 
 const data = ["a", "b"].flatMap((id, j) =>
-  [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({id, year, value: (i + 1) * (j + 2)})),
+  [2015, 2016, 2017, 2018, 2019, 2020].map((year, i) => ({
+    id,
+    year,
+    value: (i + 1) * (j + 2),
+  })),
 );
 
 /** Runs Plot's data stage and returns the categories it kept, in order. */
 function keptYears(viz) {
   viz._preDraw();
   const ctx = runStages({viz}, [formatPlotData]);
-  return [...new Set(ctx.plotFormattedData.map(d => (d.x instanceof Date ? d.x.getFullYear() : d.x)))];
+  return [
+    ...new Set(
+      ctx.plotFormattedData.map(d =>
+        d.x instanceof Date ? d.x.getFullYear() : d.x,
+      ),
+    ),
+  ];
 }
 
-const lineChart = () => new LinePlot().data(data).groupBy("id").x("year").y("value");
+const lineChart = () =>
+  new LinePlot().data(data).groupBy("id").x("year").y("value");
 
 it("discreteDomainCategories: reads xDomain on the discrete axis", () => {
   const viz = lineChart().xDomain([2016, 2019]);
@@ -37,7 +48,9 @@ it("discreteDomainCategories: reads xDomain on the discrete axis", () => {
 });
 
 it("discreteDomainCategories: xConfig.domain wins over xDomain, like on the axis", () => {
-  const viz = lineChart().xDomain([2016, 2019]).xConfig({domain: [2017, 2018]});
+  const viz = lineChart()
+    .xDomain([2016, 2019])
+    .xConfig({domain: [2017, 2018]});
   viz._preDraw();
   runStages({viz}, [formatPlotData]);
   assert.deepStrictEqual([...discreteDomainCategories(viz)], [2017, 2018]);
@@ -55,17 +68,33 @@ it("discreteDomainCategories: null without a domain, for an empty one, or on a t
 });
 
 it("discreteDomainCategories: reads yDomain on a horizontal chart's discrete y axis", () => {
-  const viz = new BarChart().data(data).groupBy("id").discrete("y").x("value").y("year")
-    .yDomain([2017]).xDomain([0, 100]);
+  const viz = new BarChart()
+    .data(data)
+    .groupBy("id")
+    .discrete("y")
+    .x("value")
+    .y("year")
+    .yDomain([2017])
+    .xDomain([0, 100]);
   viz._preDraw();
   runStages({viz}, [formatPlotData]);
   assert.deepStrictEqual([...discreteDomainCategories(viz)], [2017]);
 });
 
 it("formatPlotData drops the rows whose category a discrete xDomain leaves out", () => {
-  assert.deepStrictEqual(keptYears(lineChart().xDomain([2016, 2019])), [2016, 2019]);
-  assert.deepStrictEqual(keptYears(lineChart().xConfig({domain: [2017, 2018, 2021]})), [2017, 2018]);
-  assert.deepStrictEqual(keptYears(lineChart()), [2015, 2016, 2017, 2018, 2019, 2020], "no domain keeps every row");
+  assert.deepStrictEqual(
+    keptYears(lineChart().xDomain([2016, 2019])),
+    [2016, 2019],
+  );
+  assert.deepStrictEqual(
+    keptYears(lineChart().xConfig({domain: [2017, 2018, 2021]})),
+    [2017, 2018],
+  );
+  assert.deepStrictEqual(
+    keptYears(lineChart()),
+    [2015, 2016, 2017, 2018, 2019, 2020],
+    "no domain keeps every row",
+  );
 });
 
 it("formatPlotData keeps every row when the x axis is a time axis", () => {
@@ -74,9 +103,20 @@ it("formatPlotData keeps every row when the x axis is a time axis", () => {
 });
 
 it("formatPlotData drops categories outside a horizontal BarChart's yDomain", () => {
-  const viz = new BarChart().data(data).groupBy("id").discrete("y").x("value").y("year").yDomain([2016, 2018]);
+  const viz = new BarChart()
+    .data(data)
+    .groupBy("id")
+    .discrete("y")
+    .x("value")
+    .y("year")
+    .yDomain([2016, 2018]);
   assert.deepStrictEqual(
-    [...new Set((viz._preDraw(), runStages({viz}, [formatPlotData])).plotFormattedData.map(d => d.y))],
+    [
+      ...new Set(
+        (viz._preDraw(),
+        runStages({viz}, [formatPlotData])).plotFormattedData.map(d => d.y),
+      ),
+    ],
     [2016, 2018],
   );
 });

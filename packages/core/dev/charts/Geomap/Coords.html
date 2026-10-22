@@ -1,48 +1,43 @@
 <!doctype html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Coords · Geomap</title>
+    <meta
+      name="description"
+      content="Point data on the US counties topojson with a timeline."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+  </head>
 
-<head>
+  <body></body>
 
-  <meta charset="utf-8">
-  <title>Coords · Geomap</title>
-  <meta name="description" content="Point data on the US counties topojson with a timeline.">
-  <script src="/umd/d3plus-core.full.js"></script>
-  <script src="/dev.js"></script>
+  <script>
+    const testData = [
+      {
+        latitude: 34.774531,
+        longitude: -96.6783449,
+        year: 2010,
+        slug: "test-point",
+      },
+      {
+        latitude: 41.0814447,
+        longitude: -81.5190053,
+        year: 2020,
+        slug: "test-point",
+      },
+    ];
 
-</head>
-
-<body>
-
-</body>
-
-<script>
-
-  const testData = [
-    {
-      "latitude": 34.774531,
-      "longitude": -96.6783449,
-      "year": 2010,
-      "slug": "test-point"
-    },
-    {
-      "latitude": 41.0814447,
-      "longitude": -81.5190053,
-      "year": 2020,
-      "slug": "test-point"
-    }
-  ];
-
-  new d3plus.Geomap()
-    .config({
-      data: testData,
-      groupBy: "slug",
-      point: d => [d.longitude, d.latitude],
-      time: "year"
-    })
-    .topojson("./County.json")
-    .projection("geoAlbersUsa")
-    .render();
-
-</script>
-
+    new d3plus.Geomap()
+      .config({
+        data: testData,
+        groupBy: "slug",
+        point: d => [d.longitude, d.latitude],
+        time: "year",
+      })
+      .topojson("./County.json")
+      .projection("geoAlbersUsa")
+      .render();
+  </script>
 </html>

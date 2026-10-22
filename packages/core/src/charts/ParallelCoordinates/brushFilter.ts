@@ -41,7 +41,10 @@ export function valuePasses(value: unknown, range: BrushRange): boolean {
 }
 
 /** Whether `row` passes every brush (brushes combine with AND). */
-export function rowPasses(row: DataPoint, brushes: BrushSelection | undefined): boolean {
+export function rowPasses(
+  row: DataPoint,
+  brushes: BrushSelection | undefined,
+): boolean {
   if (!brushes) return true;
   for (const key of Object.keys(brushes)) {
     if (!valuePasses(row[key], brushes[key])) return false;
@@ -67,7 +70,8 @@ export function brushFromPixels(
   const hi = Math.max(extent[0], extent[1]);
   if (axis.type === "numeric") {
     if (!axis.invert) return null;
-    const a = axis.invert(lo), b = axis.invert(hi);
+    const a = axis.invert(lo),
+      b = axis.invert(hi);
     if (!isNumeric(a) || !isNumeric(b)) return null;
     return a <= b ? [a, b] : [b, a];
   }
@@ -92,7 +96,8 @@ export function pixelsFromBrush(
 ): [number, number] | null {
   if (isNumericRange(range)) {
     if (axis.type !== "numeric") return null;
-    const a = axis.position(range[0]), b = axis.position(range[1]);
+    const a = axis.position(range[0]),
+      b = axis.position(range[1]);
     if (!isNumeric(a) || !isNumeric(b)) return null;
     return a <= b ? [a, b] : [b, a];
   }

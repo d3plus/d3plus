@@ -25,10 +25,18 @@ export function percentText(fraction: number, locale?: string): string {
     percentage ticks ending at 100% on the value axis while stacked to 100%, nothing
     otherwise.
 */
-export function marimekkoAxisDefaults(viz: VizInstance): {x?: Record<string, unknown>; y?: Record<string, unknown>} {
+export function marimekkoAxisDefaults(viz: VizInstance): {
+  x?: Record<string, unknown>;
+  y?: Record<string, unknown>;
+} {
   if (!viz.schema.stacked || !isExpandOffset(viz)) return {};
   // The stack tops can land a rounding error above 1; "none" keeps 100% as the top tick.
-  return {[valueAxis(viz)]: {rounding: "none", tickFormat: (v: number) => percentText(v, viz.schema.locale)}};
+  return {
+    [valueAxis(viz)]: {
+      rounding: "none",
+      tickFormat: (v: number) => percentText(v, viz.schema.locale),
+    },
+  };
 }
 
 /**
@@ -38,10 +46,17 @@ export function marimekkoAxisDefaults(viz: VizInstance): {x?: Record<string, unk
     grid's outer edge, leaving the other panels' bars the room.
 */
 export function marimekkoFacetAxes(viz: VizInstance): FacetAxes {
-  return valueAxis(viz) === "y" ? {x: "all", y: "outer"} : {x: "outer", y: "all"};
+  return valueAxis(viz) === "y"
+    ? {x: "all", y: "outer"}
+    : {x: "outer", y: "all"};
 }
 
 /** While stacked to 100%, the value axis reads 0–100% in every panel, even with independent scales. */
-export function marimekkoFixedAxes(viz: VizInstance): {x?: boolean; y?: boolean} {
-  return viz.schema.stacked && isExpandOffset(viz) ? {[valueAxis(viz)]: true} : {};
+export function marimekkoFixedAxes(viz: VizInstance): {
+  x?: boolean;
+  y?: boolean;
+} {
+  return viz.schema.stacked && isExpandOffset(viz)
+    ? {[valueAxis(viz)]: true}
+    : {};
 }

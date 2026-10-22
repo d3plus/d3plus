@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Darkens a color so that it will appear legible on a white background.",
+        component:
+          "Darkens a color so that it will appear legible on a white background.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -29,8 +30,14 @@ export const BasicExample = () => (
   <div style={{display: "flex", gap: 12, fontFamily: "sans-serif"}}>
     {colors.map(c => (
       <div key={c} style={{textAlign: "center"}}>
-        <div style={{background: c, padding: "14px 18px", borderRadius: 4}}>{c}</div>
-        <div style={{color: colorLegible(c), padding: "10px", fontWeight: "bold"}}>legible on white</div>
+        <div style={{background: c, padding: "14px 18px", borderRadius: 4}}>
+          {c}
+        </div>
+        <div
+          style={{color: colorLegible(c), padding: "10px", fontWeight: "bold"}}
+        >
+          legible on white
+        </div>
       </div>
     ))}
   </div>
@@ -45,6 +52,9 @@ BasicExample.parameters = {
         result: JSON.stringify(colorLegible(c)),
       })),
     ).docs,
-    description: {story: "Each pale input is darkened (its lightness capped, saturation clamped) to a deeper shade of the same hue that stays readable as text on a white background."},
+    description: {
+      story:
+        "Each pale input is darkened (its lightness capped, saturation clamped) to a deeper shade of the same hue that stays readable as text on a white background.",
+    },
   },
 };

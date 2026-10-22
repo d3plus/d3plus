@@ -18,7 +18,10 @@ import validateShapeConfig from "../../shapes/validateShapeConfig.js";
 
 /** The accessors `vizFields` generates, typed from their `D3plusConfig` properties. */
 type VizFieldAccessors = {
-  [K in VizFieldKey]-?: {(): D3plusConfig[K]; (value: D3plusConfig[K]): VizBase};
+  [K in VizFieldKey]-?: {
+    (): D3plusConfig[K];
+    (value: D3plusConfig[K]): VizBase;
+  };
 };
 
 // The generated accessors are installed at runtime; this declares them on the
@@ -169,8 +172,9 @@ Defaults to an empty array (`[]`).
   ): this | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])[] {
     if (!arguments.length) return this.schema.groupBy;
     this._groupByRaw = _;
-    const arr: (string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint]))[] =
-      _ instanceof Array ? _ : [_!];
+    const arr: (
+      string | ((d: DataPoint, i: number) => DataPoint[keyof DataPoint])
+    )[] = _ instanceof Array ? _ : [_!];
     return (
       (this.schema.groupBy = arr.map(
         (
@@ -388,14 +392,9 @@ Defaults to an empty array (`[]`).
       return this;
     } else return this.schema.total;
   }
-
 }
 
-resolvesReset(
-  VizBase.prototype,
-  "facetConfig",
-  "shapeConfig",
-);
+resolvesReset(VizBase.prototype, "facetConfig", "shapeConfig");
 
 export default VizBase;
 /* eslint-enable @typescript-eslint/no-unsafe-declaration-merging */

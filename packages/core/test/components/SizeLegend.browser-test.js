@@ -38,28 +38,38 @@ it("zoomSizeLegendScale: relabels so the zoomed circles fit the unzoomed box", (
     `computeSizeLegend` with the base input, and returns its value.
 */
 const inPage = body =>
-  render("<div></div>", src => {
-    const scale = (domain, range, sqrt) => {
-      const f = sqrt ? Math.sqrt : v => v;
-      const [d0, d1] = domain.map(f);
-      const s = v => range[0] + ((f(v) - d0) / (d1 - d0 || 1)) * (range[1] - range[0]);
-      s.domain = () => domain;
-      return s;
-    };
-    const base = {
-      tickFormat: v => `${v}`,
-      fontFamily: "sans-serif",
-      fontSize: 10,
-      titleFontFamily: "sans-serif",
-      titleFontSize: 11,
-      titleFontWeight: 600,
-      lineLength: 10,
-      labelPadding: 4,
-      padding: 5,
-    };
-    const layout = (s, extra = {}) => window.d3plus.computeSizeLegend({...base, scale: s, ...extra});
-    return new Function("d3plus", "scale", "layout", src)(window.d3plus, scale, layout);
-  }, body);
+  render(
+    "<div></div>",
+    src => {
+      const scale = (domain, range, sqrt) => {
+        const f = sqrt ? Math.sqrt : v => v;
+        const [d0, d1] = domain.map(f);
+        const s = v =>
+          range[0] + ((f(v) - d0) / (d1 - d0 || 1)) * (range[1] - range[0]);
+        s.domain = () => domain;
+        return s;
+      };
+      const base = {
+        tickFormat: v => `${v}`,
+        fontFamily: "sans-serif",
+        fontSize: 10,
+        titleFontFamily: "sans-serif",
+        titleFontSize: 11,
+        titleFontWeight: 600,
+        lineLength: 10,
+        labelPadding: 4,
+        padding: 5,
+      };
+      const layout = (s, extra = {}) =>
+        window.d3plus.computeSizeLegend({...base, scale: s, ...extra});
+      return new Function("d3plus", "scale", "layout", src)(
+        window.d3plus,
+        scale,
+        layout,
+      );
+    },
+    body,
+  );
 
 it("SizeLegend: circles share a bottom tangent and take their radii from the scale", async () => {
   const out = await inPage(`
@@ -67,21 +77,39 @@ it("SizeLegend: circles share a bottom tangent and take their radii from the sca
     const {circles} = layout(s);
     return {circles, expected: circles.map(c => s(c.value))};
   `);
-  assert.deepStrictEqual(out.circles.map(c => c.value), [1000, 500, 10]);
+  assert.deepStrictEqual(
+    out.circles.map(c => c.value),
+    [1000, 500, 10],
+  );
   out.circles.forEach((c, i) => assert.strictEqual(c.r, out.expected[i]));
   const bottoms = out.circles.map(c => c.cy + c.r);
-  bottoms.forEach(b => assert.ok(Math.abs(b - bottoms[0]) < 1e-9, "circles share one base"));
-  assert.ok(out.circles.every(c => c.cx === out.circles[0].cx), "circles are concentric");
+  bottoms.forEach(b =>
+    assert.ok(Math.abs(b - bottoms[0]) < 1e-9, "circles share one base"),
+  );
+  assert.ok(
+    out.circles.every(c => c.cx === out.circles[0].cx),
+    "circles are concentric",
+  );
 });
 
 it("SizeLegend: every label sits in a column right of the circles, on a leader line", async () => {
   const out = await inPage("return layout(scale([10, 1000], [4, 40], true));");
   const right = out.circles[0].cx + out.circles[0].r;
-  out.labels.forEach(l => assert.ok(l.x > right, `${l.text} is right of the circles`));
-  assert.strictEqual(out.lines.length, out.labels.length, "one leader line per label");
+  out.labels.forEach(l =>
+    assert.ok(l.x > right, `${l.text} is right of the circles`),
+  );
+  assert.strictEqual(
+    out.lines.length,
+    out.labels.length,
+    "one leader line per label",
+  );
   out.lines.forEach(line => {
     const c = out.circles.find(circle => circle.value === line.value);
-    assert.deepStrictEqual(line.points[0], [c.cx, c.cy - c.r], "leader starts at the circle's top");
+    assert.deepStrictEqual(
+      line.points[0],
+      [c.cx, c.cy - c.r],
+      "leader starts at the circle's top",
+    );
   });
 });
 
@@ -92,9 +120,14 @@ it("SizeLegend: labels never overlap, even when small circles crowd them", async
   const box = l => ({x0: l.x, x1: l.x + l.width, y0: l.y - 6, y1: l.y + 6});
   for (let i = 0; i < labels.length; i++)
     for (let j = i + 1; j < labels.length; j++) {
-      const a = box(labels[i]), b = box(labels[j]);
-      const overlap = a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 - 1e-9 && b.y0 < a.y1 - 1e-9;
-      assert.ok(!overlap, `labels ${labels[i].text} and ${labels[j].text} don't overlap`);
+      const a = box(labels[i]),
+        b = box(labels[j]);
+      const overlap =
+        a.x0 < b.x1 && b.x0 < a.x1 && a.y0 < b.y1 - 1e-9 && b.y0 < a.y1 - 1e-9;
+      assert.ok(
+        !overlap,
+        `labels ${labels[i].text} and ${labels[j].text} don't overlap`,
+      );
     }
 });
 
@@ -105,7 +138,10 @@ it("SizeLegend: the title is centered over the circles", async () => {
   };`);
   assert.strictEqual(out.short.title.x, out.short.circles[0].cx);
   const {title, width, circles} = out.long;
-  assert.ok(title.x - title.width / 2 >= 0 && title.x + title.width / 2 <= width, "a wide title stays in the box");
+  assert.ok(
+    title.x - title.width / 2 >= 0 && title.x + title.width / 2 <= width,
+    "a wide title stays in the box",
+  );
   assert.strictEqual(circles[0].cx, title.x, "and the circles center under it");
 });
 
@@ -113,10 +149,19 @@ it("SizeLegend: honors explicit values and tickFormat, and sizes its box to fit"
   const out = await inPage(
     'return layout(scale([0, 50], [0, 20]), {values: [50, 25], tickFormat: v => v + " units", title: "Weight"});',
   );
-  assert.deepStrictEqual(out.labels.map(l => l.text), ["50 units", "25 units"]);
+  assert.deepStrictEqual(
+    out.labels.map(l => l.text),
+    ["50 units", "25 units"],
+  );
   assert.strictEqual(out.title.text, "Weight");
-  assert.ok(out.width >= Math.max(...out.labels.map(l => l.x + l.width)), "box spans the widest label");
-  assert.ok(out.height >= Math.max(...out.circles.map(c => c.cy + c.r)), "box spans the largest circle");
+  assert.ok(
+    out.width >= Math.max(...out.labels.map(l => l.x + l.width)),
+    "box spans the widest label",
+  );
+  assert.ok(
+    out.height >= Math.max(...out.circles.map(c => c.cy + c.r)),
+    "box spans the largest circle",
+  );
 });
 
 it("SizeLegend: a single-value domain draws nothing; maxRadius drops outsized values", async () => {
@@ -126,7 +171,10 @@ it("SizeLegend: a single-value domain draws nothing; maxRadius drops outsized va
   };`);
   assert.strictEqual(out.single.circles.length, 0);
   assert.strictEqual(out.single.width, 0);
-  assert.deepStrictEqual(out.capped.circles.map(c => c.value), [50, 10]);
+  assert.deepStrictEqual(
+    out.capped.circles.map(c => c.value),
+    [50, 10],
+  );
 });
 
 it("SizeLegend component: lays out from config and emits non-interactive scene nodes", async () => {
@@ -144,8 +192,14 @@ it("SizeLegend component: lays out from config and emits non-interactive scene n
   assert.strictEqual(count("circle"), 3);
   assert.strictEqual(count("line"), 3);
   assert.strictEqual(count("text"), 4);
-  assert.strictEqual(out.scene.children.find(c => c.type === "circle").paint.stroke, "red");
-  assert.ok(out.scene.children.every(c => c.interactive === false), "legend chrome ignores pointer hits");
+  assert.strictEqual(
+    out.scene.children.find(c => c.type === "circle").paint.stroke,
+    "red",
+  );
+  assert.ok(
+    out.scene.children.every(c => c.interactive === false),
+    "legend chrome ignores pointer hits",
+  );
 });
 
 it("SizeLegend component: renders standalone into its container", async () => {

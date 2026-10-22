@@ -14,23 +14,48 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a bullet graph from an array of data: one compact bar per row\nreading its value against qualitative bands, with a target marker,\nan optional forecast bar, and a value axis. Rows stack top to bottom,\nor side by side with orient(\"vertical\").",
+        component:
+          'Creates a bullet graph from an array of data: one compact bar per row\nreading its value against qualitative bands, with a target marker,\nan optional forecast bar, and a value axis. Rows stack top to bottom,\nor side by side with orient("vertical").',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Bullet config={configify(args, argTypes)} />;
-  
+const Template = args => <Bullet config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
 const kpis = [
-  {id: "Revenue", unit: "US$, in thousands", value: 270, target: 250, ranges: [150, 225, 300]},
+  {
+    id: "Revenue",
+    unit: "US$, in thousands",
+    value: 270,
+    target: 250,
+    ranges: [150, 225, 300],
+  },
   {id: "Profit", unit: "%", value: 22.5, target: 27, ranges: [20, 25, 30]},
-  {id: "Order Size", unit: "US$, average", value: 410, target: 550, ranges: [350, 500, 600]},
-  {id: "New Customers", unit: "count", value: 1650, target: 2100, ranges: [1400, 2000, 2500]},
-  {id: "Satisfaction", unit: "out of 5", value: 4.5, target: 4.2, ranges: [3.5, 4.25, 5]},
+  {
+    id: "Order Size",
+    unit: "US$, average",
+    value: 410,
+    target: 550,
+    ranges: [350, 500, 600],
+  },
+  {
+    id: "New Customers",
+    unit: "count",
+    value: 1650,
+    target: 2100,
+    ranges: [1400, 2000, 2500],
+  },
+  {
+    id: "Satisfaction",
+    unit: "out of 5",
+    value: 4.5,
+    target: 4.2,
+    ranges: [3.5, 4.25, 5],
+  },
 ];
 
 export const BasicExample = Template.bind({});
@@ -43,16 +68,35 @@ BasicExample.args = {
   bands: [50, 75],
   domain: [0, 100],
 };
-BasicExample.parameters = {controls: {include: ["bands", "domain", "bulletSize", "measureSize"]}, docs: {description: {story: "Each row becomes a bullet: its `value` as a bar, its `target` as a marker across the band, and `bands` as shades behind them. Threshold values split the domain into bands that step from the strongest shade to the lightest."}}};
+BasicExample.parameters = {
+  controls: {include: ["bands", "domain", "bulletSize", "measureSize"]},
+  docs: {
+    description: {
+      story:
+        "Each row becomes a bullet: its `value` as a bar, its `target` as a marker across the band, and `bands` as shades behind them. Threshold values split the domain into bands that step from the strongest shade to the lightest.",
+    },
+  },
+};
 
 export const KeyPerformanceIndicators = Template.bind({});
 KeyPerformanceIndicators.args = {
   data: kpis,
   bands: funcify(d => d.ranges.slice(0, -1), "d => d.ranges.slice(0, -1)"),
-  domain: funcify(d => [0, d.ranges[d.ranges.length - 1]], "d => [0, d.ranges[d.ranges.length - 1]]"),
+  domain: funcify(
+    d => [0, d.ranges[d.ranges.length - 1]],
+    "d => [0, d.ranges[d.ranges.length - 1]]",
+  ),
   subLabel: "unit",
 };
-KeyPerformanceIndicators.parameters = {controls: {include: ["bands", "domain", "subLabel", "ticks"]}, docs: {description: {story: "Stephen Few's classic set of KPIs. `bands` and `domain` can be functions of the row, so each measure gets its own qualitative ranges and scale, and `subLabel` adds the unit under each name."}}};
+KeyPerformanceIndicators.parameters = {
+  controls: {include: ["bands", "domain", "subLabel", "ticks"]},
+  docs: {
+    description: {
+      story:
+        "Stephen Few's classic set of KPIs. `bands` and `domain` can be functions of the row, so each measure gets its own qualitative ranges and scale, and `subLabel` adds the unit under each name.",
+    },
+  },
+};
 
 export const SharedDomainWithForecast = Template.bind({});
 SharedDomainWithForecast.args = {
@@ -68,7 +112,15 @@ SharedDomainWithForecast.args = {
   tickFormat: funcify(d => `${d}%`, "d => `${d}%`"),
   valueFormat: funcify(d => `${d}%`, "d => `${d}%`"),
 };
-SharedDomainWithForecast.parameters = {controls: {include: ["sharedDomain", "forecast", "forecastConfig"]}, docs: {description: {story: "`sharedDomain` reads every bullet against one scale, labeled by a single axis. A `forecast` (or any comparative measure) draws as a wider, paler bar behind the measure."}}};
+SharedDomainWithForecast.parameters = {
+  controls: {include: ["sharedDomain", "forecast", "forecastConfig"]},
+  docs: {
+    description: {
+      story:
+        "`sharedDomain` reads every bullet against one scale, labeled by a single axis. A `forecast` (or any comparative measure) draws as a wider, paler bar behind the measure.",
+    },
+  },
+};
 
 export const Vertical = Template.bind({});
 Vertical.args = {
@@ -82,7 +134,15 @@ Vertical.args = {
   domain: [0, 100],
   orient: "vertical",
 };
-Vertical.parameters = {controls: {include: ["orient", "bulletSize"]}, docs: {description: {story: "`orient(\"vertical\")` lines the bullets up as columns, with values growing upward and each name above its bullet."}}};
+Vertical.parameters = {
+  controls: {include: ["orient", "bulletSize"]},
+  docs: {
+    description: {
+      story:
+        '`orient("vertical")` lines the bullets up as columns, with values growing upward and each name above its bullet.',
+    },
+  },
+};
 
 export const ColoredBands = Template.bind({});
 ColoredBands.args = {
@@ -91,12 +151,24 @@ ColoredBands.args = {
     {id: "Memory", value: 81, target: 75},
     {id: "Disk", value: 37, target: 75},
   ],
-  bands: [{max: 60, color: "#2b8a3e"}, {max: 85, color: "#e67700"}, {color: "#c92a2a"}],
+  bands: [
+    {max: 60, color: "#2b8a3e"},
+    {max: 85, color: "#e67700"},
+    {color: "#c92a2a"},
+  ],
   domain: [0, 100],
   shapeConfig: {fill: "#f1f3f5"},
   targetConfig: {stroke: "#1f2328"},
 };
-ColoredBands.parameters = {controls: {include: ["bands", "shapeConfig", "targetConfig"]}, docs: {description: {story: "Bands take the same `{min, max, color}` objects as Gauge's. With colored bands, a neutral measure and a dark target read best; each measure is outlined in the background color so it separates from the band behind it."}}};
+ColoredBands.parameters = {
+  controls: {include: ["bands", "shapeConfig", "targetConfig"]},
+  docs: {
+    description: {
+      story:
+        "Bands take the same `{min, max, color}` objects as Gauge's. With colored bands, a neutral measure and a dark target read best; each measure is outlined in the background color so it separates from the band behind it.",
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -116,7 +188,15 @@ SmallMultiples.args = {
   bands: funcify(d => d.ranges, "d => d.ranges"),
   facet: "region",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "With `facet`, each panel draws its own stack of bullets, and each measure reads against the same domain in every panel, so Revenue in one region compares directly with Revenue in another."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "With `facet`, each panel draws its own stack of bullets, and each measure reads against the same domain in every panel, so Revenue in one region compares directly with Revenue in another.",
+    },
+  },
+};
 
 export const Compact = Template.bind({});
 Compact.args = {
@@ -132,40 +212,84 @@ Compact.args = {
   target: 90,
   ticks: false,
 };
-Compact.parameters = {controls: {include: ["bulletSize", "target", "ticks"]}, docs: {description: {story: "`ticks(false)` drops the axes for a compact sparkline-style list, and a number for `target` gives every row the same goal."}}};
+Compact.parameters = {
+  controls: {include: ["bulletSize", "target", "ticks"]},
+  docs: {
+    description: {
+      story:
+        "`ticks(false)` drops the axes for a compact sparkline-style list, and a number for `target` gives every row the same goal.",
+    },
+  },
+};
 
 export const ClassicFewStyle = Template.bind({});
 ClassicFewStyle.storyName = "Classic (Few) style";
 ClassicFewStyle.args = {
   data: kpis,
   bands: funcify(d => d.ranges.slice(0, -1), "d => d.ranges.slice(0, -1)"),
-  domain: funcify(d => [0, d.ranges[d.ranges.length - 1]], "d => [0, d.ranges[d.ranges.length - 1]]"),
+  domain: funcify(
+    d => [0, d.ranges[d.ranges.length - 1]],
+    "d => [0, d.ranges[d.ranges.length - 1]]",
+  ),
   subLabel: "unit",
   shapeConfig: {fill: "#333333"},
 };
-ClassicFewStyle.parameters = {controls: {include: ["shapeConfig", "bands", "targetConfig"]}, docs: {description: {story: "Measures take the palette's colors by row by default. Stephen Few's original design draws every measure in one dark neutral over gray bands: a single `shapeConfig.fill` gives that look."}}};
+ClassicFewStyle.parameters = {
+  controls: {include: ["shapeConfig", "bands", "targetConfig"]},
+  docs: {
+    description: {
+      story:
+        "Measures take the palette's colors by row by default. Stephen Few's original design draws every measure in one dark neutral over gray bands: a single `shapeConfig.fill` gives that look.",
+    },
+  },
+};
 
 export const TallBullet = Template.bind({});
 TallBullet.args = {
-  data: [{id: "Revenue", unit: "US$, in thousands", value: 270, target: 250, forecast: 290}],
+  data: [
+    {
+      id: "Revenue",
+      unit: "US$, in thousands",
+      value: 270,
+      target: 250,
+      forecast: 290,
+    },
+  ],
   bands: [150, 225],
   domain: [0, 300],
   subLabel: "unit",
   bulletSize: 160,
 };
-TallBullet.parameters = {controls: {include: ["bulletSize", "measureSize", "forecastConfig", "targetConfig"]}, docs: {description: {story: "Bullets are at most `bulletSize` pixels thick (40 by default) and centered in the space they're given, so a chart with few rows keeps them compact. Raise `bulletSize` to let a bullet fill more of a tall chart; the measure, forecast, and target scale with it."}}};
+TallBullet.parameters = {
+  controls: {
+    include: ["bulletSize", "measureSize", "forecastConfig", "targetConfig"],
+  },
+  docs: {
+    description: {
+      story:
+        "Bullets are at most `bulletSize` pixels thick (40 by default) and centered in the space they're given, so a chart with few rows keeps them compact. Raise `bulletSize` to let a bullet fill more of a tall chart; the measure, forecast, and target scale with it.",
+    },
+  },
+};
 
 /** A horizontal gradient as an inline SVG data URI. */
-const gradient = (a, b) => `data:image/svg+xml,${encodeURIComponent(
-  `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="20"><linearGradient id="g"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><rect width="400" height="20" fill="url(#g)"/></svg>`,
-)}`;
+const gradient = (a, b) =>
+  `data:image/svg+xml,${encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="400" height="20"><linearGradient id="g"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient><rect width="400" height="20" fill="url(#g)"/></svg>`,
+  )}`;
 
 export const TexturesAndImages = Template.bind({});
 TexturesAndImages.args = {
   data: [
     {id: "Lines", value: 64, target: 75, forecast: 80, texture: "lines"},
     {id: "Crosses", value: 81, target: 75, texture: "crosses"},
-    {id: "Gradient", value: 58, target: 70, forecast: 66, colors: ["#1c7ed6", "#e64980"]},
+    {
+      id: "Gradient",
+      value: 58,
+      target: 70,
+      forecast: 66,
+      colors: ["#1c7ed6", "#e64980"],
+    },
     {id: "Plain", value: 47, target: 60},
   ],
   bands: [50, 75],
@@ -175,8 +299,16 @@ TexturesAndImages.args = {
     texture: funcify(d => d.texture || false, "d => d.texture || false"),
     backgroundImage: funcify(
       d => (d.colors ? gradient(...d.colors) : false),
-      "d => (d.colors ? gradient(...d.colors) : false)"
+      "d => (d.colors ? gradient(...d.colors) : false)",
     ),
   },
 };
-TexturesAndImages.parameters = {controls: {include: ["shapeConfig", "forecastConfig", "measureSize"]}, docs: {description: {story: "Measure bars take `shapeConfig.texture` and `shapeConfig.backgroundImage` like any other Rect. The forecast bar follows the measure's texture unless `forecastConfig.texture` sets its own, and takes its own `forecastConfig.backgroundImage`."}}};
+TexturesAndImages.parameters = {
+  controls: {include: ["shapeConfig", "forecastConfig", "measureSize"]},
+  docs: {
+    description: {
+      story:
+        "Measure bars take `shapeConfig.texture` and `shapeConfig.backgroundImage` like any other Rect. The forecast bar follows the measure's texture unless `forecastConfig.texture` sets its own, and takes its own `forecastConfig.backgroundImage`.",
+    },
+  },
+};

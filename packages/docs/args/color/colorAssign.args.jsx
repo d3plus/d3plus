@@ -3,23 +3,21 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   c: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "A valid CSS color string.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | boolean | null | undefined"
-    }
+      summary: "string | boolean | null | undefined",
+    },
   },
   u: {
     control: {},
@@ -27,12 +25,12 @@ export const argTypes = {
     description: "An object containing overrides of the default colors.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "partial"
-    }
-  }
+      summary: "partial",
+    },
+  },
 };

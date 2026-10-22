@@ -105,7 +105,6 @@ export default class Line extends Shape {
     return lines;
   }
 
-
   /**
       Returns the line geometry as a "d" string built by the same line generator
       render() uses, with the center offset baked into the accessors so it pairs

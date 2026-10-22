@@ -6,245 +6,251 @@ import {argTypes as vizArgTypes} from "./Viz.args.jsx";
 import {assign} from "@d3plus/dom";
 
 import {Rings as D3plusRings} from "@d3plus/react";
-export const Rings = ({ config }) => <D3plusRings config={config} />;
+export const Rings = ({config}) => <D3plusRings config={config} />;
 
 export const argTypes = assign(
-
   /**
    * Filters out unused argTypes from the Viz primitive and
    * overrides any defaults that have been changed in Rings
    */
-  Object.keys(vizArgTypes)
-    .reduce((obj, k) => (obj[k] = vizArgTypes[k], obj), {}),
+  Object.keys(vizArgTypes).reduce(
+    (obj, k) => ((obj[k] = vizArgTypes[k]), obj),
+    {},
+  ),
 
   /**
    * Rings-specific methods
    */
-  
+
   {
     arrowSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to three times the link's stroke width (at least 6).",
+      description:
+        "The arrowhead size in pixels, or an accessor function returning one per link. Defaults to three times the link's stroke width (at least 6).",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     arrows: {
       control: {
-        type: "select"
+        type: "select",
       },
       defaultValue: false,
-      description: "Draws arrowheads on the links: `true` (or `\"target\"`) at each link's target end, `\"source\"` at its source end, `\"both\"`, or `false` for none. Also accepts an accessor function returning one of those per link.",
-      options: [
-        true,
-        false,
-        "target",
-        "source",
-        "both"
-      ],
+      description:
+        'Draws arrowheads on the links: `true` (or `"target"`) at each link\'s target end, `"source"` at its source end, `"both"`, or `false` for none. Also accepts an accessor function returning one of those per link.',
+      options: [true, false, "target", "source", "both"],
       table: {
         defaultValue: {
-          summary: "false"
-        }
+          summary: "false",
+        },
       },
       type: {
         required: false,
-        summary: "boolean | \"target\" | \"source\" | \"both\" | function"
-      }
+        summary: 'boolean | "target" | "source" | "both" | function',
+      },
     },
     center: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The `id` of the node drawn at the center, with the nodes linked to it on the inner ring and their other links on the outer ring. Clicking a node re-centers the chart on it.",
+      description:
+        "The `id` of the node drawn at the center, with the nodes linked to it on the inner ring and their other links on the outer ring. Clicking a node re-centers the chart on it.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | number"
-      }
+        summary: "string | number",
+      },
     },
     linkSize: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The thickness of each link: a pixel number used for every link, or an accessor function whose values are scaled between `linkSizeMin` and the smallest node radius (see `linkSizeScale`).",
+      description:
+        "The thickness of each link: a pixel number used for every link, or an accessor function whose values are scaled between `linkSizeMin` and the smallest node radius (see `linkSizeScale`).",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number | function"
-      }
+        summary: "number | function",
+      },
     },
     linkSizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 1,
       description: "The minimum pixel stroke width used when sizing links.",
       table: {
         defaultValue: {
-          summary: "1"
-        }
+          summary: "1",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     linkSizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "sqrt",
-      description: "The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size links (e.g. `\"linear\"`, `\"sqrt\"`, `\"log\"`).",
+      description:
+        'The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size links (e.g. `"linear"`, `"sqrt"`, `"log"`).',
       table: {
         defaultValue: {
-          summary: "sqrt"
-        }
+          summary: "sqrt",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
+        summary: "string",
+      },
     },
     links: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: [],
-      description: "The edges that connect the `nodes`. The `source` and `target` of each link refer to a node by its `id`, by the node object itself (matched by its `id`), or by its index in the `nodes` array. Links to a node that doesn't exist are dropped.\n\nAccepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
+      description:
+        "The edges that connect the `nodes`. The `source` and `target` of each link refer to a node by its `id`, by the node object itself (matched by its `id`), or by its index in the `nodes` array. Links to a node that doesn't exist are dropped.\n\nAccepts an array of links, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final links array.",
       table: {
         defaultValue: {
-          summary: "[]"
-        }
+          summary: "[]",
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     noDataMessage: {
       defaultValue: false,
       table: {
         defaultValue: {
-          summary: "false"
-        }
-      }
+          summary: "false",
+        },
+      },
     },
     nodeGroupBy: {
       control: {
-        type: "object"
+        type: "object",
       },
-      description: "The key(s) or accessor(s) that identify each object passed to `nodes`, one per `groupBy` depth. When unset, nodes are identified by `groupBy`.",
+      description:
+        "The key(s) or accessor(s) that identify each object passed to `nodes`, one per `groupBy` depth. When unset, nodes are identified by `groupBy`.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function | (string | function)[]"
-      }
+        summary: "string | function | (string | function)[]",
+      },
     },
     nodes: {
       control: {
-        type: "object"
+        type: "object",
       },
       defaultValue: [],
-      description: "The nodes to draw. When empty, the nodes are the unique `source` and `target` values in `links`. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
+      description:
+        "The nodes to draw. When empty, the nodes are the unique `source` and `target` values in `links`. Accepts an array of node objects, or a URL/filepath string to load them from. An optional formatting function can be passed as a second argument; it receives the loaded data and returns the final nodes array.",
       table: {
         defaultValue: {
-          summary: "[]"
-        }
+          summary: "[]",
+        },
       },
       type: {
         required: false,
-        summary: "object[] | string"
-      }
+        summary: "object[] | string",
+      },
     },
     shape: {
       table: {
         defaultValue: {
-          summary: "\"Circle\""
-        }
-      }
+          summary: '"Circle"',
+        },
+      },
     },
     size: {
       control: {
-        type: "text"
+        type: "text",
       },
-      description: "Sizes each node, the center included: a data key or an accessor function whose values are scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset, each ring draws its nodes at one fixed size.",
+      description:
+        "Sizes each node, the center included: a data key or an accessor function whose values are scaled between `sizeMin` and `sizeMax` (see `sizeScale`). When unset, each ring draws its nodes at one fixed size.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "string | function"
-      }
+        summary: "string | function",
+      },
     },
     sizeMax: {
       control: {
-        type: "number"
+        type: "number",
       },
-      description: "The maximum pixel radius of a node. Defaults to the largest radius that keeps neighboring nodes from overlapping.",
+      description:
+        "The maximum pixel radius of a node. Defaults to the largest radius that keeps neighboring nodes from overlapping.",
       table: {
         defaultValue: {
-          summary: "undefined"
-        }
+          summary: "undefined",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeMin: {
       control: {
-        type: "number"
+        type: "number",
       },
       defaultValue: 5,
       description: "The minimum pixel radius of a node.",
       table: {
         defaultValue: {
-          summary: "5"
-        }
+          summary: "5",
+        },
       },
       type: {
         required: false,
-        summary: "number"
-      }
+        summary: "number",
+      },
     },
     sizeScale: {
       control: {
-        type: "text"
+        type: "text",
       },
       defaultValue: "sqrt",
-      description: "The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size nodes by `size` (e.g. `\"linear\"`, `\"sqrt\"`, `\"log\"`).",
+      description:
+        'The type of [continuous d3-scale](https://github.com/d3/d3-scale#continuous-scales) used to size nodes by `size` (e.g. `"linear"`, `"sqrt"`, `"log"`).',
       table: {
         defaultValue: {
-          summary: "sqrt"
-        }
+          summary: "sqrt",
+        },
       },
       type: {
         required: false,
-        summary: "string"
-      }
-    }
-  }
+        summary: "string",
+      },
+    },
+  },
 );

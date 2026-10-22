@@ -15,8 +15,7 @@ function _elementSize(
     ["BODY", "HTML"].indexOf((element as HTMLElement).tagName) >= 0
   ) {
     const key = `inner${s.charAt(0).toUpperCase() + s.slice(1)}` as
-      | "innerWidth"
-      | "innerHeight";
+      "innerWidth" | "innerHeight";
     let val = window[key];
     const elem = select(element);
 

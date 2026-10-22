@@ -3,7 +3,10 @@
   <head>
     <meta charset="utf-8" />
     <title>ColorDefaults · utils</title>
-    <meta name="description" content="Toggle colorDefaults on Treemap, BarChart, colorScale and Pie charts.">
+    <meta
+      name="description"
+      content="Toggle colorDefaults on Treemap, BarChart, colorScale and Pie charts."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
     <style>
@@ -107,7 +110,9 @@
       charts.forEach(function (c) {
         c.config({colorDefaults: applied ? overrides : d3plus.RESET}).render();
       });
-      this.textContent = applied ? "Reset colorDefaults" : "Apply colorDefaults";
+      this.textContent = applied
+        ? "Reset colorDefaults"
+        : "Apply colorDefaults";
       document.getElementById("state").textContent = applied
         ? "overrides: " + JSON.stringify(overrides)
         : "library defaults";

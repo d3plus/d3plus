@@ -37,10 +37,35 @@ it("geom/largestRect", () => {
     "angle option",
   );
 
-  assert.strictEqual(largestRect([[0, 0], [1, 1]]), null, "less than 3 points");
-  assert.strictEqual(largestRect([[0, 0], [1, 1]], {verbose: true}), null, "less than 3 points verbose");
+  assert.strictEqual(
+    largestRect([
+      [0, 0],
+      [1, 1],
+    ]),
+    null,
+    "less than 3 points",
+  );
+  assert.strictEqual(
+    largestRect(
+      [
+        [0, 0],
+        [1, 1],
+      ],
+      {verbose: true},
+    ),
+    null,
+    "less than 3 points verbose",
+  );
 
-  assert.strictEqual(largestRect([[0, 0], [0, 0], [0, 0]]), null, "zero area polygon");
+  assert.strictEqual(
+    largestRect([
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ]),
+    null,
+    "zero area polygon",
+  );
 
   rect = largestRect(poly, {angle: "45"});
   assert.ok(rect && rect.area > 0, "string angle option");
@@ -54,7 +79,12 @@ it("geom/largestRect", () => {
   rect = largestRect(poly, {origin: [40, 40]});
   assert.ok(rect && rect.area > 0, "single origin point");
 
-  rect = largestRect(poly, {origin: [[40, 40], [30, 30]]});
+  rect = largestRect(poly, {
+    origin: [
+      [40, 40],
+      [30, 30],
+    ],
+  });
   assert.ok(rect && rect.area > 0, "multiple origin points");
 
   rect = largestRect(poly, {events: true, cache: false});
@@ -88,5 +118,9 @@ it("geom/largestRect is deterministic", () => {
     Math.random = random;
   }
   assert.ok(first && first.area > 0, "finds a rectangle");
-  assert.deepStrictEqual(second, first, "the same polygon yields the same rectangle");
+  assert.deepStrictEqual(
+    second,
+    first,
+    "the same polygon yields the same rectangle",
+  );
 });

@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a dumbbell (range dot) chart from an array of data with one row per\ncategory and series, such as a country's value in 2010 and in 2020. Each\ncategory, read from the axis named by discrete (\"y\" by default, for\nhorizontal dumbbells), draws a circle per row at its value, colored by\ngroupBy, with a connector between the category's smallest and largest\nvalues. Circles are styled by shapeConfig.Circle and connectors by\nshapeConfig.Line; gapSort orders the categories by the size of their\ngap.",
+        component:
+          "Creates a dumbbell (range dot) chart from an array of data with one row per\ncategory and series, such as a country's value in 2010 and in 2020. Each\ncategory, read from the axis named by discrete (\"y\" by default, for\nhorizontal dumbbells), draws a circle per row at its value, colored by\ngroupBy, with a connector between the category's smallest and largest\nvalues. Circles are styled by shapeConfig.Circle and connectors by\nshapeConfig.Line; gapSort orders the categories by the size of their\ngap.",
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Dumbbell config={configify(args, argTypes)} />;
-  
+const Template = args => <Dumbbell config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -53,7 +54,15 @@ BasicExample.args = {
   x: "Life Expectancy",
   y: "country",
 };
-BasicExample.parameters = {controls: {include: ["groupBy", "x", "y"]}, docs: {description: {story: "Give the chart one row per category and series: here a country's life expectancy in 2000 and in 2021. `groupBy` names the series, which color the dots and fill the legend, and a connector spans each country's two values. Hover a country to compare both years in one tooltip."}}};
+BasicExample.parameters = {
+  controls: {include: ["groupBy", "x", "y"]},
+  docs: {
+    description: {
+      story:
+        "Give the chart one row per category and series: here a country's life expectancy in 2000 and in 2021. `groupBy` names the series, which color the dots and fill the legend, and a connector spans each country's two values. Hover a country to compare both years in one tooltip.",
+    },
+  },
+};
 
 export const SortedByGap = Template.bind({});
 SortedByGap.args = {
@@ -63,7 +72,15 @@ SortedByGap.args = {
   y: "country",
   gapSort: "descending",
 };
-SortedByGap.parameters = {controls: {include: ["gapSort"]}, docs: {description: {story: "`gapSort` orders the categories by their gap, the distance between each one's smallest and largest value. `\"descending\"` puts the widest gap at the top; `\"ascending\"` the narrowest."}}};
+SortedByGap.parameters = {
+  controls: {include: ["gapSort"]},
+  docs: {
+    description: {
+      story:
+        '`gapSort` orders the categories by their gap, the distance between each one\'s smallest and largest value. `"descending"` puts the widest gap at the top; `"ascending"` the narrowest.',
+    },
+  },
+};
 
 export const StyledConnectors = Template.bind({});
 StyledConnectors.args = {
@@ -72,9 +89,20 @@ StyledConnectors.args = {
   x: "Life Expectancy",
   y: "country",
   gapSort: "ascending",
-  shapeConfig: {Circle: {r: 7}, Line: {stroke: "#adb5bd", strokeWidth: 8, strokeLinecap: "round"}},
+  shapeConfig: {
+    Circle: {r: 7},
+    Line: {stroke: "#adb5bd", strokeWidth: 8, strokeLinecap: "round"},
+  },
 };
-StyledConnectors.parameters = {controls: {include: ["shapeConfig"]}, docs: {description: {story: "Connectors are styled through `shapeConfig.Line` and dots through `shapeConfig.Circle`."}}};
+StyledConnectors.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Connectors are styled through `shapeConfig.Line` and dots through `shapeConfig.Circle`.",
+    },
+  },
+};
 
 export const VerticalRanges = Template.bind({});
 VerticalRanges.args = {
@@ -93,10 +121,18 @@ VerticalRanges.args = {
   y: "°C",
   color: funcify(
     d => ({Low: "#4c6ef5", Mean: "#868e96", High: "#f03e3e"})[d.stat],
-    "d => ({Low: \"#4c6ef5\", Mean: \"#868e96\", High: \"#f03e3e\"})[d.stat]",
+    'd => ({Low: "#4c6ef5", Mean: "#868e96", High: "#f03e3e"})[d.stat]',
   ),
 };
-VerticalRanges.parameters = {controls: {include: ["discrete"]}, docs: {description: {story: "Set `discrete` to `\"x\"` for vertical dumbbells. A category can hold any number of points; the connector spans its lowest to its highest."}}};
+VerticalRanges.parameters = {
+  controls: {include: ["discrete"]},
+  docs: {
+    description: {
+      story:
+        'Set `discrete` to `"x"` for vertical dumbbells. A category can hold any number of points; the connector spans its lowest to its highest.',
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -108,4 +144,12 @@ SmallMultiples.args = {
   y: "country",
   gapSort: "descending",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws a panel per continent. With independent scales, each panel lists only its own countries, sorted by its own gaps."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws a panel per continent. With independent scales, each panel lists only its own countries, sorted by its own gaps.",
+    },
+  },
+};

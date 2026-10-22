@@ -82,14 +82,20 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
       : axis.schema.shape === "Rect"
         ? axis.schema.shapeConfig[width]
         : axis.schema.shapeConfig.strokeWidth;
-  const tickGet =
-    typeof tickValue !== "function" ? () => tickValue : tickValue;
+  const tickGet = typeof tickValue !== "function" ? () => tickValue : tickValue;
 
-  const margin: Record<string, number> = (axis._margin = {top: 0, right: 0, bottom: 0, left: 0});
+  const margin: Record<string, number> = (axis._margin = {
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+  });
   resetAxisDates(axis);
   axis._scaleData = axisScaleData(axis);
 
-  let labels: unknown[] = [], range: number[] = [], ticks: unknown[] = [];
+  let labels: unknown[] = [],
+    range: number[] = [],
+    ticks: unknown[] = [];
 
   const tickFormat = buildTickFormat(axis, timeLocaleObj, () => ticks);
   axis._labelFormat = tickFormat;
@@ -97,7 +103,12 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // Rebuilds the scale (over `newRange`, else the configured range) and
   // keeps the ticks the formatter reads in step with it.
   const rescale = (newRange?: number[]) =>
-    ({range, ticks, labels} = setAxisScale(axis, rangeOuter, tickGet, newRange));
+    ({range, ticks, labels} = setAxisScale(
+      axis,
+      rangeOuter,
+      tickGet,
+      newRange,
+    ));
   axis._labelSet = 0;
   rescale();
 
@@ -108,8 +119,19 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   // Labels at given values naming things (one per variable-width bar) wrap
   // within their own share of the axis, so a wide bar's label lies flat
   // across it while a narrow one's wraps (see `fitOwnSpaces`).
-  const ownSpace = horizontal && !isDiscreteScale(axis.schema.scale) && rotatesLabels(axis, labels, tickFormat);
-  const labelCtx = {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace};
+  const ownSpace =
+    horizontal &&
+    !isDiscreteScale(axis.schema.scale) &&
+    rotatesLabels(axis, labels, tickFormat);
+  const labelCtx = {
+    rangeOuter,
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    rescale,
+    ownSpace,
+  };
   const setting = axis._labelRotationSetting;
   axis._labelRotation = setting ?? false;
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
@@ -121,44 +143,33 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     textData = layoutLabels(axis, rescale(), labelCtx);
   }
 
-  // Left to decide, a horizontal axis of categories rotates its labels when
-  // that leaves fewer of them cut short or hidden. Dates and numbers thin
-  // instead, and rotate only when even their first label alone can't lie
-  // flat on one line.
-  if (setting === undefined && horizontal) {
-    const rotate = rotatesLabels(axis, labels, tickFormat)
-      ? (data: AxisTextDatum[]) => labelMisses(data)
-      : wholeLineLabels(axis, labels)
-        ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
-        : undefined;
-    const misses = rotate ? rotate(textData) : 0;
-    // Labels in their own shares rotate only as a last resort: a label that
-    // can't fit is hidden, and the rest stay flat (each with its share line,
-    // which a rotated label leaves out) unless half or more are hidden.
-    if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
-      axis._labelRotation = true;
-      textData = layoutLabels(axis, rescale(), labelCtx);
-      if (rotate(textData) >= misses) {
-        axis._labelRotation = false;
-        textData = layoutLabels(axis, rescale(), labelCtx);
-      }
-    }
-  }
+  if (setting === undefined && horizontal)
+    textData = autoRotateLabels(axis, textData, {
+      labels,
+      tickFormat,
+      ownSpace,
+      relayout: () => layoutLabels(axis, rescale(), labelCtx),
+    });
 
-  // The ticks whose labels the layout hides no longer count as visible.
-  const hidden = new Set(textData.filter((t: AxisTextDatum) => t.truncated).map((t: AxisTextDatum) => t.d));
-  if (hidden.size) axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
+  hideTruncatedTicks(axis, textData, ticks);
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 
-  const globalOffset = axis.schema.labelOffset
-    ? max(textData, (d: AxisTextDatum) => d.offset || 0)
-    : 0;
-  textData.forEach(
-    (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
-  );
+  alignLabelOffsets(axis, textData);
 
-  const bounds = computeAxisBounds(axis, {textData, rangeOuter, hBuff, horizontal, p, width, height, x, y, opposite, margin});
+  const bounds = computeAxisBounds(axis, {
+    textData,
+    rangeOuter,
+    hBuff,
+    horizontal,
+    p,
+    width,
+    height,
+    x,
+    y,
+    opposite,
+    margin,
+  });
 
   return {
     ticks,
@@ -172,6 +183,72 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     labelHeight,
     bounds,
   };
+}
+
+/** The ticks whose labels the layout hides no longer count as visible. */
+function hideTruncatedTicks(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ticks: unknown[],
+): void {
+  const hidden = new Set(
+    textData
+      .filter((t: AxisTextDatum) => t.truncated)
+      .map((t: AxisTextDatum) => t.d),
+  );
+  if (hidden.size)
+    axis._visibleTicks = ticks.filter((t: unknown) => !hidden.has(t));
+}
+
+/**
+    Moves every offset label to the same offset (the largest), or back in
+    line when `labelOffset` is off.
+*/
+function alignLabelOffsets(axis: Axis, textData: AxisTextDatum[]): void {
+  const globalOffset = axis.schema.labelOffset
+    ? max(textData, (d: AxisTextDatum) => d.offset || 0)
+    : 0;
+  textData.forEach(
+    (datum: AxisTextDatum) => (datum.offset = datum.offset ? globalOffset : 0),
+  );
+}
+
+/**
+    Left to decide, a horizontal axis of categories rotates its labels when
+    that leaves fewer of them cut short or hidden. Dates and numbers thin
+    instead, and rotate only when even their first label alone can't lie
+    flat on one line. Sets `axis._labelRotation` and returns the labels laid
+    out as they end up.
+*/
+function autoRotateLabels(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: {
+    labels: unknown[];
+    tickFormat: (d: unknown) => string;
+    ownSpace: boolean;
+    relayout: () => AxisTextDatum[];
+  },
+): AxisTextDatum[] {
+  const {labels, tickFormat, ownSpace, relayout} = ctx;
+  const rotate = rotatesLabels(axis, labels, tickFormat)
+    ? (data: AxisTextDatum[]) => labelMisses(data)
+    : wholeLineLabels(axis, labels)
+      ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
+      : undefined;
+  const misses = rotate ? rotate(textData) : 0;
+  // Labels in their own shares rotate only as a last resort: a label that
+  // can't fit is hidden, and the rest stay flat (each with its share line,
+  // which a rotated label leaves out) unless half or more are hidden.
+  if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
+    axis._labelRotation = true;
+    textData = relayout();
+    if (rotate(textData) >= misses) {
+      axis._labelRotation = false;
+      textData = relayout();
+    }
+  }
+  return textData;
 }
 
 /**
@@ -196,11 +273,28 @@ function layoutLabels(
   const {rangeOuter, horizontal, hBuff, p, tickFormat, rescale, ownSpace} = ctx;
   let {labels} = scale;
 
-  let textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace});
+  let textData = createTextData(axis, {
+    labels,
+    rangeOuter,
+    horizontal,
+    hBuff,
+    p,
+    tickFormat,
+    ownSpace,
+  });
   const offsetEnabled =
     axis.schema.labelOffset && textData.some((d: AxisTextDatum) => d.truncated);
   if (offsetEnabled)
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: 2});
+    textData = createTextData(axis, {
+      labels,
+      rangeOuter,
+      horizontal,
+      hBuff,
+      p,
+      tickFormat,
+      ownSpace,
+      offset: 2,
+    });
 
   // Narrowing the range can change which labels a time axis draws (its ticks
   // follow the range); a new first or last label is measured again, a few
@@ -223,7 +317,8 @@ function layoutLabels(
 
     const newRange = [first + spillovers[0], last - spillovers[1]];
     if (axis.schema.range) {
-      if (axis.schema.range[0] !== undefined) newRange[0] = axis.schema.range[0];
+      if (axis.schema.range[0] !== undefined)
+        newRange[0] = axis.schema.range[0];
       if (axis.schema.range[axis.schema.range.length - 1] !== undefined)
         newRange[1] = axis.schema.range[axis.schema.range.length - 1];
     }
@@ -232,7 +327,16 @@ function layoutLabels(
     const ends = endLabels(textData);
     [first, last] = newRange;
     ({labels} = rescale(newRange));
-    textData = createTextData(axis, {labels, rangeOuter, horizontal, hBuff, p, tickFormat, ownSpace, offset: offsetEnabled ? 2 : 1});
+    textData = createTextData(axis, {
+      labels,
+      rangeOuter,
+      horizontal,
+      hBuff,
+      p,
+      tickFormat,
+      ownSpace,
+      offset: offsetEnabled ? 2 : 1,
+    });
     if (endLabels(textData) === ends) break;
   }
 
@@ -243,7 +347,11 @@ function layoutLabels(
 function endLabels(textData: AxisTextDatum[]): string {
   const shown = textData.filter((t: AxisTextDatum) => !t.truncated);
   const ends = [shown[0], shown[shown.length - 1]];
-  return ends.map((t?: AxisTextDatum) => (t ? `${t.d instanceof Date ? +t.d : t.d}` : "")).join(",");
+  return ends
+    .map((t?: AxisTextDatum) =>
+      t ? `${t.d instanceof Date ? +t.d : t.d}` : "",
+    )
+    .join(",");
 }
 
 /**
@@ -260,8 +368,11 @@ export function rotatesLabels(
 ): boolean {
   const named = (d: unknown) => !(d instanceof Date) && isNaN(d as number);
   if (isDiscreteScale(axis.schema.scale)) return labels.some(named);
-  return Array.isArray(axis.schema.labels) && !!tickFormat &&
-    labels.some((d: unknown) => named(tickFormat(d)));
+  return (
+    Array.isArray(axis.schema.labels) &&
+    !!tickFormat &&
+    labels.some((d: unknown) => named(tickFormat(d)))
+  );
 }
 
 /** How many labels don't fit whole, or are hidden to make room for others. */

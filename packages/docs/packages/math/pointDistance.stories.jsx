@@ -15,9 +15,9 @@ export default {
         component: "Calculates the pixel distance between two points.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -32,7 +32,13 @@ const call = `pointDistance(${JSON.stringify(p1)}, ${JSON.stringify(p2)})`;
 export const BasicExample = () => (
   <GeometryExample
     shapes={[
-      {type: "segment", from: p1, to: p2, dashed: true, label: String(distance)},
+      {
+        type: "segment",
+        from: p1,
+        to: p2,
+        dashed: true,
+        label: String(distance),
+      },
       {type: "point", at: p1, label: JSON.stringify(p1)},
       {type: "point", at: p2, label: JSON.stringify(p2)},
     ]}
@@ -41,9 +47,12 @@ export const BasicExample = () => (
 );
 BasicExample.parameters = {
   docs: {
-    ...sourceSnippet("math", "pointDistance", [{call, result: String(distance)}]).docs,
+    ...sourceSnippet("math", "pointDistance", [
+      {call, result: String(distance)},
+    ]).docs,
     description: {
-      story: "The straight-line (Euclidean) distance between two `[x, y]` points, in whatever units the coordinates use. A 160 by 120 offset gives the classic 200.",
+      story:
+        "The straight-line (Euclidean) distance between two `[x, y]` points, in whatever units the coordinates use. A 160 by 120 offset gives the classic 200.",
     },
   },
 };

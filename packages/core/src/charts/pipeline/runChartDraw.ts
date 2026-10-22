@@ -59,10 +59,10 @@ export function runChartDraw(
   if (isPaintDriven(def)) {
     throw new Error(
       `runChartDraw cannot drive ${def.name} — it's a paint-driven chart ` +
-      "(ChartDefinition.paintDriven=true). Paint-driven charts (BarChart, " +
-      "AreaPlot, LinePlot, BumpChart, StackedArea, BoxWhisker, Plot) rely " +
-      "on Plot._paint to populate _chartScene imperatively; their _draw " +
-      "should NOT call runChartDraw.",
+        "(ChartDefinition.paintDriven=true). Paint-driven charts (BarChart, " +
+        "AreaPlot, LinePlot, BumpChart, StackedArea, BoxWhisker, Plot) rely " +
+        "on Plot._paint to populate _chartScene imperatively; their _draw " +
+        "should NOT call runChartDraw.",
     );
   }
   // Reset _chartScene BEFORE the stage so its body has a known starting
@@ -78,8 +78,8 @@ export function runChartDraw(
     // axis/grid nodes.
     throw new Error(
       `runChartDraw: stage for ${def.name} replaced viz._chartScene with ` +
-      `a non-array value (got ${typeof viz._chartScene}). Stages should ` +
-      "use `(v._chartScene ||= []).push(...)` rather than reassigning.",
+        `a non-array value (got ${typeof viz._chartScene}). Stages should ` +
+        "use `(v._chartScene ||= []).push(...)` rather than reassigning.",
     );
   }
   const stagePushed = viz._chartScene.slice();

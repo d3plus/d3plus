@@ -53,7 +53,11 @@ function mergeInto(
       else target[k] = cloneConfig(fallback);
     } else if (isPlainObject(value)) {
       const current = target[k];
-      target[k] = mergeInto(isPlainObject(current) ? current : {}, value, fallback);
+      target[k] = mergeInto(
+        isPlainObject(current) ? current : {},
+        value,
+        fallback,
+      );
     } else target[k] = cloneConfig(value);
   }
   return target;
@@ -74,7 +78,11 @@ export function mergeConfig(
   patch: Record<string, unknown>,
   defaults?: unknown,
 ): Record<string, unknown> {
-  return mergeInto(cloneConfig(base) as Record<string, unknown>, patch, defaults);
+  return mergeInto(
+    cloneConfig(base) as Record<string, unknown>,
+    patch,
+    defaults,
+  );
 }
 
 /**
@@ -190,14 +198,19 @@ export function mergeConfigBag(
   patch: unknown,
   current?: unknown,
 ): Record<string, unknown> {
-  const defaults = containsReset(patch) ? host._defaultConfig?.()[key] : undefined;
-  if (patch === RESET) return isPlainObject(defaults) ? mergeConfig({}, defaults) : {};
+  const defaults = containsReset(patch)
+    ? host._defaultConfig?.()[key]
+    : undefined;
+  if (patch === RESET)
+    return isPlainObject(defaults) ? mergeConfig({}, defaults) : {};
   const bag = arguments.length > 3 ? current : host.schema[key];
   const base = isPlainObject(bag) ? bag : {};
   return mergeConfig(base, isPlainObject(patch) ? patch : {}, defaults);
 }
 
-type ResetResolver = ((...args: never[]) => unknown) & {[RESOLVES_RESET]?: boolean};
+type ResetResolver = ((...args: never[]) => unknown) & {
+  [RESOLVES_RESET]?: boolean;
+};
 
 /**
     Tags hand-written setters that resolve `RESET` themselves (typically via
@@ -207,16 +220,24 @@ type ResetResolver = ((...args: never[]) => unknown) & {[RESOLVES_RESET]?: boole
     @param proto The class prototype that defines the setters.
     @param keys The setter names.
 */
-export function resolvesReset<T extends object>(proto: T, ...keys: (keyof T & string)[]): void {
+export function resolvesReset<T extends object>(
+  proto: T,
+  ...keys: (keyof T & string)[]
+): void {
   for (const key of keys) {
     const setter = proto[key];
-    if (typeof setter !== "function") throw new Error(`resolvesReset: "${key}" is not a method`);
+    if (typeof setter !== "function")
+      throw new Error(`resolvesReset: "${key}" is not a method`);
     (setter as ResetResolver)[RESOLVES_RESET] = true;
   }
 }
 
 /** A config-bag field's new value: `RESET` restores its default, anything else merges like `mergeConfigBag`. */
-function mergeFieldValue(host: FluentHost, key: string, value: unknown): unknown {
+function mergeFieldValue(
+  host: FluentHost,
+  key: string,
+  value: unknown,
+): unknown {
   if (value === RESET) return cloneConfig(host._defaultConfig?.()[key]);
   return mergeConfigBag(host, key, value);
 }
@@ -240,7 +261,11 @@ export function isFluentAccessor(value: unknown): boolean {
     `Object.prototype`) to anything other than a generated accessor.
 */
 function isHandWritten(proto: object, key: string): boolean {
-  for (let p: object | null = proto; p && p !== Object.prototype; p = Object.getPrototypeOf(p)) {
+  for (
+    let p: object | null = proto;
+    p && p !== Object.prototype;
+    p = Object.getPrototypeOf(p)
+  ) {
     const descriptor = Object.getOwnPropertyDescriptor(p, key);
     if (descriptor) return !isFluentAccessor(descriptor.value);
   }
@@ -302,7 +327,9 @@ export function installFluent(
 
     if (fieldHasSeed) {
       const raw =
-        "default" in field ? field.default : (field.factory as (v: typeof target) => unknown)(target);
+        "default" in field
+          ? field.default
+          : (field.factory as (v: typeof target) => unknown)(target);
       let value = coerceValue(field, raw);
       if (field.decorate) value = field.decorate(target, value);
       const existing = target.schema[key];

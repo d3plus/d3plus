@@ -16,7 +16,10 @@ it("back renders as a button in the shared top-left panel only with drill-down h
     '<div id="a" style="width:400px;height:300px;"></div><div id="b" style="width:400px;height:300px;"></div>',
     () =>
       new Promise(resolve => {
-        const data = [{id: "A", value: 10}, {id: "B", value: 20}];
+        const data = [
+          {id: "A", value: 10},
+          {id: "B", value: 20},
+        ];
         const noHistory = new window.d3plus.Treemap()
           .select("#a")
           .data(data)
@@ -32,11 +35,18 @@ it("back renders as a button in the shared top-left panel only with drill-down h
         withHistory._history = [{depth: 0}];
         noHistory.render(() =>
           withHistory.render(() => {
-            const btn = document.querySelector("#b .d3plus-top-left-controls-item .back-control");
+            const btn = document.querySelector(
+              "#b .d3plus-top-left-controls-item .back-control",
+            );
             resolve({
-              noHistoryPanel: document.querySelectorAll("#a .d3plus-top-left-controls-item .back-control").length,
-              noHistoryBack: document.querySelectorAll("#a .back-control").length,
-              withHistoryPanel: document.querySelectorAll("#b .d3plus-top-left-controls-item .back-control").length,
+              noHistoryPanel: document.querySelectorAll(
+                "#a .d3plus-top-left-controls-item .back-control",
+              ).length,
+              noHistoryBack:
+                document.querySelectorAll("#a .back-control").length,
+              withHistoryPanel: document.querySelectorAll(
+                "#b .d3plus-top-left-controls-item .back-control",
+              ).length,
               isButton: btn ? btn.tagName.toLowerCase() === "button" : false,
               hasIcon: btn ? !!btn.querySelector("svg") : false,
               withHistoryText: document.querySelector("#b").textContent,
@@ -48,12 +58,29 @@ it("back renders as a button in the shared top-left panel only with drill-down h
   );
 
   assert.strictEqual(out.noHistoryPanel, 0, "no back button without history");
-  assert.strictEqual(out.noHistoryBack, 0, "no back control anywhere without history");
-  assert.strictEqual(out.withHistoryPanel, 1, "back button present with history");
-  assert.ok(out.isButton, "back control is a real <button>, not a scene text node");
+  assert.strictEqual(
+    out.noHistoryBack,
+    0,
+    "no back control anywhere without history",
+  );
+  assert.strictEqual(
+    out.withHistoryPanel,
+    1,
+    "back button present with history",
+  );
+  assert.ok(
+    out.isButton,
+    "back control is a real <button>, not a scene text node",
+  );
   assert.ok(out.hasIcon, "back arrow SVG icon present");
-  assert.ok(out.withHistoryText.toLowerCase().includes("back"), "back label rendered");
-  assert.ok(out.marginTopEqual, "back claims zero margin — history doesn't change margin.top");
+  assert.ok(
+    out.withHistoryText.toLowerCase().includes("back"),
+    "back label rendered",
+  );
+  assert.ok(
+    out.marginTopEqual,
+    "back claims zero margin — history doesn't change margin.top",
+  );
 });
 
 it("clicking the back button pops history and re-renders", async function () {
@@ -63,19 +90,29 @@ it("clicking the back button pops history and re-renders", async function () {
       new Promise(resolve => {
         const viz = new window.d3plus.Treemap()
           .select("#s")
-          .data([{id: "A", value: 10}, {id: "B", value: 20}])
+          .data([
+            {id: "A", value: 10},
+            {id: "B", value: 20},
+          ])
           .groupBy("id")
           .sum("value")
           .duration(0);
         viz._history = [{depth: 0}];
         viz.render(() => {
           document.querySelector("#s .back-control").click();
-          window.setTimeout(() => resolve({historyLength: viz._history.length}), 50);
+          window.setTimeout(
+            () => resolve({historyLength: viz._history.length}),
+            50,
+          );
         });
       }),
   );
 
-  assert.strictEqual(out.historyLength, 0, "history popped after clicking back");
+  assert.strictEqual(
+    out.historyLength,
+    0,
+    "history popped after clicking back",
+  );
 });
 
 it("a centered title avoids overlapping the top-left controls panel", async function () {
@@ -86,15 +123,22 @@ it("a centered title avoids overlapping the top-left controls panel", async func
         const viz = new window.d3plus.Treemap()
           .select("#s")
           .title("A Reasonably Long Title For This Chart")
-          .data([{id: "A", value: 10}, {id: "B", value: 20}])
+          .data([
+            {id: "A", value: 10},
+            {id: "B", value: 20},
+          ])
           .groupBy("id")
           .sum("value")
           .zoom(true)
           .duration(0);
         viz._history = [{depth: 0}];
         viz.render(() => {
-          const backRect = document.querySelector("#s .back-control").getBoundingClientRect();
-          const titleRect = document.querySelector('#s [data-key="viz-title"]').getBoundingClientRect();
+          const backRect = document
+            .querySelector("#s .back-control")
+            .getBoundingClientRect();
+          const titleRect = document
+            .querySelector('#s [data-key="viz-title"]')
+            .getBoundingClientRect();
           const overlaps = !(
             titleRect.left >= backRect.right ||
             titleRect.right <= backRect.left ||

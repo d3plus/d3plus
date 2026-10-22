@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   family: {
     control: {
-      type: "text"
+      type: "text",
     },
     description: "A font family name or array of font family names.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string | array.&lt;string&gt;"
-    }
-  }
+      summary: "string | array.&lt;string&gt;",
+    },
+  },
 };

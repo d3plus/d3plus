@@ -40,7 +40,11 @@ it("findWeekStart resolves 2-letter language codes through findLocale", () => {
   assert.strictEqual(findWeekStart("zh"), 0, "zh → zh-CN");
   assert.strictEqual(findWeekStart("de"), 1, "de → de-DE");
   assert.strictEqual(findWeekStart("fr"), 1, "fr → fr-FR");
-  assert.strictEqual(findWeekStart("zh-Hans"), 0, "script only → language default");
+  assert.strictEqual(
+    findWeekStart("zh-Hans"),
+    0,
+    "script only → language default",
+  );
 });
 
 it("findWeekStart falls back to Monday", () => {

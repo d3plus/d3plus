@@ -32,7 +32,8 @@ export const boxWhiskerDef: ChartDefinition = {
             d = d.data as DataPoint;
             i = d.i as number;
           }
-          const labelFn = viz.schema.label as ((d: DataPoint, i: number) => string) | undefined;
+          const labelFn = viz.schema.label as
+            ((d: DataPoint, i: number) => string) | undefined;
           if (labelFn) return labelFn(d, i);
           const l = viz._ids(d, i).slice(0, viz._drawDepth);
           return l[l.length - 1];

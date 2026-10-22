@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   locale: {
     control: {
-      type: "text"
+      type: "text",
     },
-    description: "A 2-letter language code (e.g., \"en\", \"fr\").",
+    description: 'A 2-letter language code (e.g., "en", "fr").',
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

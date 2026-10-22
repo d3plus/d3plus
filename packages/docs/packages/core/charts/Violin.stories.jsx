@@ -14,14 +14,15 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Creates a violin plot from an array of raw observations: the value of\neach row is summarized per group as a kernel density estimate, drawn as a\nmirrored curve around the group's category. Set discrete(\"y\") for\nhorizontal violins, inner for the overlay inside each violin, and\ndensityScale for how widths compare across violins.",
+        component:
+          'Creates a violin plot from an array of raw observations: the value of\neach row is summarized per group as a kernel density estimate, drawn as a\nmirrored curve around the group\'s category. Set discrete("y") for\nhorizontal violins, inner for the overlay inside each violin, and\ndensityScale for how widths compare across violins.',
       },
     },
-  }
+  },
 };
 
-const Template = (args) => <Violin config={configify(args, argTypes)} />;
-  
+const Template = args => <Violin config={configify(args, argTypes)} />;
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -73,7 +74,15 @@ BasicExample.args = {
   groupBy: "species",
   value: "Petal Length",
 };
-BasicExample.parameters = {controls: {include: ["value", "inner", "densityScale", "densityConfig"]}, docs: {description: {story: "Each group's `value`s become a kernel density estimate, mirrored around the group's category: the violin is widest where observations are densest. A narrow box plot inside marks the quartiles, the median (the light line), and the whiskers. Hover a violin for its observation count and quartiles."}}};
+BasicExample.parameters = {
+  controls: {include: ["value", "inner", "densityScale", "densityConfig"]},
+  docs: {
+    description: {
+      story:
+        "Each group's `value`s become a kernel density estimate, mirrored around the group's category: the violin is widest where observations are densest. A narrow box plot inside marks the quartiles, the median (the light line), and the whiskers. Hover a violin for its observation count and quartiles.",
+    },
+  },
+};
 
 export const Horizontal = Template.bind({});
 Horizontal.args = {
@@ -83,7 +92,15 @@ Horizontal.args = {
   inner: "quartiles",
   value: "Petal Length",
 };
-Horizontal.parameters = {controls: {include: ["discrete", "inner"]}, docs: {description: {story: "`discrete: \"y\"` lays the categories down the y axis for horizontal violins. `inner: \"quartiles\"` swaps the box plot for a solid line at each median and dashed lines at the quartiles."}}};
+Horizontal.parameters = {
+  controls: {include: ["discrete", "inner"]},
+  docs: {
+    description: {
+      story:
+        '`discrete: "y"` lays the categories down the y axis for horizontal violins. `inner: "quartiles"` swaps the box plot for a solid line at each median and dashed lines at the quartiles.',
+    },
+  },
+};
 
 export const SwarmedPoints = Template.bind({});
 SwarmedPoints.args = {
@@ -93,7 +110,15 @@ SwarmedPoints.args = {
   inner: "points",
   value: "Petal Length",
 };
-SwarmedPoints.parameters = {controls: {include: ["inner", "innerConfig", "densityScale"]}, docs: {description: {story: "`inner: \"points\"` packs every observation into a swarm along the violin's center, each point hoverable on its own. By default (`densityScale: \"area\"`) every violin has the same area, so a tight distribution draws narrow and tall; `\"width\"` stretches every violin to the full width so their shapes are easier to compare."}}};
+SwarmedPoints.parameters = {
+  controls: {include: ["inner", "innerConfig", "densityScale"]},
+  docs: {
+    description: {
+      story:
+        '`inner: "points"` packs every observation into a swarm along the violin\'s center, each point hoverable on its own. By default (`densityScale: "area"`) every violin has the same area, so a tight distribution draws narrow and tall; `"width"` stretches every violin to the full width so their shapes are easier to compare.',
+    },
+  },
+};
 
 export const SideBySide = Template.bind({});
 SideBySide.args = {
@@ -102,7 +127,15 @@ SideBySide.args = {
   groupBy: ["day", "sex"],
   value: "Total Bill",
 };
-SideBySide.parameters = {controls: {include: ["groupBy", "color"]}, docs: {description: {story: "With two `groupBy` levels, the first places each violin along the axis and the second sets violins side by side within it. The weekend's two humps (lunch and dinner) show up in the curves where a box plot would hide them."}}};
+SideBySide.parameters = {
+  controls: {include: ["groupBy", "color"]},
+  docs: {
+    description: {
+      story:
+        "With two `groupBy` levels, the first places each violin along the axis and the second sets violins side by side within it. The weekend's two humps (lunch and dinner) show up in the curves where a box plot would hide them.",
+    },
+  },
+};
 
 export const SplitViolins = Template.bind({});
 SplitViolins.args = {
@@ -113,7 +146,15 @@ SplitViolins.args = {
   split: true,
   value: "Total Bill",
 };
-SplitViolins.parameters = {controls: {include: ["split", "inner"]}, docs: {description: {story: "`split: true` draws a category holding exactly two groups as the two halves of one violin, putting the distributions back to back."}}};
+SplitViolins.parameters = {
+  controls: {include: ["split", "inner"]},
+  docs: {
+    description: {
+      story:
+        "`split: true` draws a category holding exactly two groups as the two halves of one violin, putting the distributions back to back.",
+    },
+  },
+};
 
 export const CountScaled = Template.bind({});
 CountScaled.args = {
@@ -124,7 +165,15 @@ CountScaled.args = {
   medianSort: "descending",
   value: "Income (k$)",
 };
-CountScaled.parameters = {controls: {include: ["densityScale", "densityConfig", "medianSort"]}, docs: {description: {story: "`densityScale: \"count\"` weights each violin by its number of observations. `densityConfig` picks the kernel (`\"gaussian\"` or `\"epanechnikov\"`), the `bandwidth` (Silverman's rule of thumb by default), how many `points` each curve samples, and how far it runs past the data (`cut`, in bandwidths). `medianSort` orders the violins by median."}}};
+CountScaled.parameters = {
+  controls: {include: ["densityScale", "densityConfig", "medianSort"]},
+  docs: {
+    description: {
+      story:
+        '`densityScale: "count"` weights each violin by its number of observations. `densityConfig` picks the kernel (`"gaussian"` or `"epanechnikov"`), the `bandwidth` (Silverman\'s rule of thumb by default), how many `points` each curve samples, and how far it runs past the data (`cut`, in bandwidths). `medianSort` orders the violins by median.',
+    },
+  },
+};
 
 export const SmallMultiples = Template.bind({});
 SmallMultiples.args = {
@@ -133,4 +182,12 @@ SmallMultiples.args = {
   groupBy: "area",
   value: "Income (k$)",
 };
-SmallMultiples.parameters = {controls: {include: ["facet", "facetConfig"]}, docs: {description: {story: "`facet` draws one panel per region, with every panel sharing the value axis and the violins sharing one width scale."}}};
+SmallMultiples.parameters = {
+  controls: {include: ["facet", "facetConfig"]},
+  docs: {
+    description: {
+      story:
+        "`facet` draws one panel per region, with every panel sharing the value axis and the violins sharing one width scale.",
+    },
+  },
+};

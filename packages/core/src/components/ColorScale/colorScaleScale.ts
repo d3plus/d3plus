@@ -40,9 +40,12 @@ interface ScaleResult {
 }
 
 /** The scale's poles, with unset ones taken from its `colorDefaults`. */
-const colorMin = (cs: ColorScale): string => cs.schema.colorMin ?? cs.schema.colorDefaults.off;
-const colorMid = (cs: ColorScale): string => cs.schema.colorMid ?? cs.schema.colorDefaults.light;
-const colorMax = (cs: ColorScale): string => cs.schema.colorMax ?? cs.schema.colorDefaults.sequential;
+const colorMin = (cs: ColorScale): string =>
+  cs.schema.colorMin ?? cs.schema.colorDefaults.off;
+const colorMid = (cs: ColorScale): string =>
+  cs.schema.colorMid ?? cs.schema.colorDefaults.light;
+const colorMax = (cs: ColorScale): string =>
+  cs.schema.colorMax ?? cs.schema.colorDefaults.sequential;
 
 /** Builds the jenks (ckmeans) threshold scale and assigns it to the instance. */
 function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
@@ -74,10 +77,8 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
         .filter((d: number) => d >= cs.schema.midpoint);
       const positivesDeviation = deviation(positives);
 
-      const isNegativeMax =
-        negativesDeviation! > positivesDeviation! ? 1 : 0;
-      const isPositiveMax =
-        positivesDeviation! > negativesDeviation! ? 1 : 0;
+      const isNegativeMax = negativesDeviation! > positivesDeviation! ? 1 : 0;
+      const isPositiveMax = positivesDeviation! > negativesDeviation! ? 1 : 0;
 
       const negativeJenks = ckmeans(
         negatives,
@@ -102,11 +103,7 @@ function computeJenksScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
 
   if (!colors) {
     if (diverging) {
-      const base: string[] = [
-        colorMin(cs),
-        colorMid(cs),
-        colorMax(cs),
-      ];
+      const base: string[] = [colorMin(cs), colorMid(cs), colorMax(cs)];
       const negatives = ticks
         .slice(0, buckets)
         .filter(
@@ -164,9 +161,7 @@ function resolveDivergingLinear(
   const negativeColors = range(0, half, 1).map((i: number) =>
     negativeColorScale(i / half),
   );
-  const spanningColors = (numBuckets % 2 ? [0] : []).map(
-    () => colorMid(cs),
-  );
+  const spanningColors = (numBuckets % 2 ? [0] : []).map(() => colorMid(cs));
   const positiveColorScale = interpolateRgb.gamma(2.2)(
     colorMax(cs),
     colorMid(cs),
@@ -318,10 +313,11 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
     x = horizontal ? "x" : "y",
     y = horizontal ? "y" : "x";
 
-  const allValues = (cs._data
-    .map(cs.schema.value)
-    .filter((d: unknown) => d !== null && typeof d === "number") as number[])
-    .sort((a: number, b: number) => a - b);
+  const allValues = (
+    cs._data
+      .map(cs.schema.value)
+      .filter((d: unknown) => d !== null && typeof d === "number") as number[]
+  ).sort((a: number, b: number) => a - b);
 
   const domain = (cs.schema.domain || extent(allValues)) as number[];
   const negative = domain[0] < cs.schema.midpoint;

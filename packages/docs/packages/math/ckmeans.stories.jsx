@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.",
+        component:
+          "Clusters one-dimensional numeric data into a specified number of groups using the Ckmeans dynamic programming algorithm, minimizing within-group sum-of-squared-deviations.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -38,9 +39,26 @@ const Strip = ({data, k}) => {
       height={90}
       domain={{x: [lo - pad, hi + pad], y: [0, 1]}}
       shapes={[
-        {type: "segment", from: [lo - pad, 0.5], to: [hi + pad, 0.5], stroke: "#dee2e6"},
-        ...clusters.flatMap((cluster, c) => cluster.map(v => ({type: "point", at: [v, 0.5], r: 6, fill: palette[c % palette.length]}))),
-        ...clusters.map((cluster, c) => ({type: "point", at: [cluster[0], 0.5], r: 0, label: `cluster ${c + 1}`})),
+        {
+          type: "segment",
+          from: [lo - pad, 0.5],
+          to: [hi + pad, 0.5],
+          stroke: "#dee2e6",
+        },
+        ...clusters.flatMap((cluster, c) =>
+          cluster.map(v => ({
+            type: "point",
+            at: [v, 0.5],
+            r: 6,
+            fill: palette[c % palette.length],
+          })),
+        ),
+        ...clusters.map((cluster, c) => ({
+          type: "point",
+          at: [cluster[0], 0.5],
+          r: 0,
+          label: `cluster ${c + 1}`,
+        })),
       ]}
       output={`ckmeans(${JSON.stringify(data)}, ${k})\n// → ${JSON.stringify(clusters)}`}
     />
@@ -52,7 +70,10 @@ const params = (sets, story) => ({
     ...sourceSnippet(
       "math",
       "ckmeans",
-      sets.map(([data, k]) => ({call: `ckmeans(${JSON.stringify(data)}, ${k})`, result: JSON.stringify(ckmeans(data, k))})),
+      sets.map(([data, k]) => ({
+        call: `ckmeans(${JSON.stringify(data)}, ${k})`,
+        result: JSON.stringify(ckmeans(data, k)),
+      })),
     ).docs,
     description: {story},
   },
@@ -62,7 +83,7 @@ const grouped = [1, 2, 3, 10, 11, 12, 20, 21, 22];
 export const BasicExample = () => <Strip data={grouped} k={3} />;
 BasicExample.parameters = params(
   [[grouped, 3]],
-  "Splits a list of numbers into `k` groups so that values within a group are as close together as possible (the Ckmeans algorithm, an exact 1-D k-means). Three obvious clumps come back as three clusters. This is the \"jenks\" option of a chart's `colorScale`.",
+  'Splits a list of numbers into `k` groups so that values within a group are as close together as possible (the Ckmeans algorithm, an exact 1-D k-means). Three obvious clumps come back as three clusters. This is the "jenks" option of a chart\'s `colorScale`.',
 );
 
 export const ClusterCount = () => (
@@ -72,7 +93,10 @@ export const ClusterCount = () => (
   </div>
 );
 ClusterCount.parameters = params(
-  [[grouped, 2], [grouped, 4]],
+  [
+    [grouped, 2],
+    [grouped, 4],
+  ],
   "The number of clusters is yours to choose; the algorithm finds the best split for that count. Asking for two merges the nearest clumps, asking for four splits one of them. `k` cannot exceed the number of values.",
 );
 

@@ -36,17 +36,32 @@ it("Marimekko axis: marimekkoAxisDefaults formats the value axis while expanded"
   assert.deepStrictEqual(Object.keys(horizontal), ["x"]);
 
   assert.deepStrictEqual(marimekkoAxisDefaults(fakeViz("none")), {});
-  assert.deepStrictEqual(marimekkoAxisDefaults(fakeViz("expand", {stacked: false})), {});
+  assert.deepStrictEqual(
+    marimekkoAxisDefaults(fakeViz("expand", {stacked: false})),
+    {},
+  );
 });
 
 it("Marimekko axis: small multiples label the categories on every panel, the value axis on the outer edge", () => {
-  assert.deepStrictEqual(marimekkoFacetAxes(fakeViz("expand")), {x: "all", y: "outer"});
-  assert.deepStrictEqual(marimekkoFacetAxes(fakeViz("expand", {discrete: "y"})), {x: "outer", y: "all"});
+  assert.deepStrictEqual(marimekkoFacetAxes(fakeViz("expand")), {
+    x: "all",
+    y: "outer",
+  });
+  assert.deepStrictEqual(
+    marimekkoFacetAxes(fakeViz("expand", {discrete: "y"})),
+    {x: "outer", y: "all"},
+  );
 });
 
 it("Marimekko axis: the value axis reads 0–100% in every panel only while stacked to 100%", () => {
   assert.deepStrictEqual(marimekkoFixedAxes(fakeViz("expand")), {y: true});
-  assert.deepStrictEqual(marimekkoFixedAxes(fakeViz("expand", {discrete: "y"})), {x: true});
+  assert.deepStrictEqual(
+    marimekkoFixedAxes(fakeViz("expand", {discrete: "y"})),
+    {x: true},
+  );
   assert.deepStrictEqual(marimekkoFixedAxes(fakeViz("none")), {});
-  assert.deepStrictEqual(marimekkoFixedAxes(fakeViz("expand", {stacked: false})), {});
+  assert.deepStrictEqual(
+    marimekkoFixedAxes(fakeViz("expand", {stacked: false})),
+    {},
+  );
 });

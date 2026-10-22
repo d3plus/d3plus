@@ -3,35 +3,34 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   data: {
     control: {},
     description: "input data, as an array of number values",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;number&gt;"
-    }
+      summary: "array.&lt;number&gt;",
+    },
   },
   nClusters: {
     control: {
-      type: "number"
+      type: "number",
     },
-    description: "number of desired classes. This cannot be greater than the number of values in the data array.",
+    description:
+      "number of desired classes. This cannot be greater than the number of values in the data array.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

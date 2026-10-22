@@ -79,8 +79,7 @@ function geometryFor(
 
 export const treeEmit: ChartEmit = ({viz}) => {
   const linksData = viz.ctx.linksData as
-    | (DataPoint & {depth?: number; i?: number})[]
-    | undefined;
+    (DataPoint & {depth?: number; i?: number})[] | undefined;
   const linkD = viz.ctx.linkD as ((d: DataPoint) => string) | undefined;
   const shapeGroups = viz.ctx.shapeGroups as ShapeGroup[] | undefined;
   const chartShapeConfig = viz.ctx.shapeConfig as TreeShapeConfig | undefined;
@@ -121,7 +120,13 @@ export const treeEmit: ChartEmit = ({viz}) => {
     // Chart-specific shapeConfig overrides (label, labelBounds, etc.).
     const merged = {...vizShapeConfig, ...chartShapeConfig};
 
-    type Node = DataPoint & {x?: number; y?: number; data?: DataPoint; i?: number; depth?: number};
+    type Node = DataPoint & {
+      x?: number;
+      y?: number;
+      data?: DataPoint;
+      i?: number;
+      depth?: number;
+    };
     const nodes: Node[] = values as unknown as Node[];
     const images: SceneNode[] = [];
 
@@ -149,8 +154,8 @@ export const treeEmit: ChartEmit = ({viz}) => {
     const labelNodes = emitLabels({
       data: nodes as DataPoint[],
       label: (d, i) => chartShapeConfig.label(d, i),
-      x: d => ((d as Node).x ?? 0),
-      y: d => ((d as Node).y ?? 0),
+      x: d => (d as Node).x ?? 0,
+      y: d => (d as Node).y ?? 0,
       aes: d => geometryFor(shapeKind, d as Node, merged)?.aes ?? {},
       rotate: constant(0),
       id: (d, i) => chartShapeConfig.id(d, i),

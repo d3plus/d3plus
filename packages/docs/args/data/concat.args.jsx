@@ -3,36 +3,35 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   arrayOfArrays: {
     control: {},
     description: "Array of elements",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;array.&lt;datapoint&gt; | record&gt;"
-    }
+      summary: "array.&lt;array.&lt;datapoint&gt; | record&gt;",
+    },
   },
   data: {
     control: {
-      type: "text"
+      type: "text",
     },
     defaultValue: "data",
-    description: "The key in each element that contains the sub-array to concatenate.",
+    description:
+      "The key in each element that contains the sub-array to concatenate.",
     table: {
       defaultValue: {
-        summary: "data"
-      }
+        summary: "data",
+      },
     },
     type: {
       required: false,
-      summary: "string"
-    }
-  }
+      summary: "string",
+    },
+  },
 };

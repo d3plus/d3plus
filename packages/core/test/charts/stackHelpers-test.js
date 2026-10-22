@@ -17,20 +17,43 @@ import {captureWarnings} from "~test/helpers.js";
 const mkSeries = (key, points) => Object.assign(points.slice(), {key});
 
 it("charts/stackHelpers stackSum totals the upper bounds, ignoring non-numbers", () => {
-  assert.strictEqual(stackSum([[0, 2], [1, 4], [4, 0]]), 6, "0 contributes nothing");
-  assert.strictEqual(stackSum([[0, 2], [2, "x"]]), 2, "non-numeric segments are skipped");
+  assert.strictEqual(
+    stackSum([
+      [0, 2],
+      [1, 4],
+      [4, 0],
+    ]),
+    6,
+    "0 contributes nothing",
+  );
+  assert.strictEqual(
+    stackSum([
+      [0, 2],
+      [2, "x"],
+    ]),
+    2,
+    "non-numeric segments are skipped",
+  );
 });
 
 it("charts/stackHelpers stackOrderTotal* orders by summed value", () => {
   const series = [
-    mkSeries("a", [[0, 1]]),  // sum 1
-    mkSeries("b", [[0, 5]]),  // sum 5
-    mkSeries("c", [[0, 3]]),  // sum 3
+    mkSeries("a", [[0, 1]]), // sum 1
+    mkSeries("b", [[0, 5]]), // sum 5
+    mkSeries("c", [[0, 3]]), // sum 3
   ];
   // Ascending: smallest total (a) first → on the bottom of the stack.
-  assert.deepStrictEqual(stackOrderTotalAscending(series), [0, 2, 1], "ascending by sum");
+  assert.deepStrictEqual(
+    stackOrderTotalAscending(series),
+    [0, 2, 1],
+    "ascending by sum",
+  );
   // Descending: largest total (b) first.
-  assert.deepStrictEqual(stackOrderTotalDescending(series), [1, 2, 0], "descending by sum");
+  assert.deepStrictEqual(
+    stackOrderTotalDescending(series),
+    [1, 2, 0],
+    "descending by sum",
+  );
 });
 
 it("charts/stackHelpers stackOrderKey* orders alphabetically by series key", () => {
@@ -46,26 +69,38 @@ it("charts/stackHelpers stackOrderKey* orders alphabetically by series key", () 
 
 it("charts/stackHelpers stackOrderKey breaks key ties by ascending sum", () => {
   // Both keys share the prefix "g" (split on \"_\"), so the sum tie-break wins.
-  const series = [
-    mkSeries("g_1", [[0, 10]]),
-    mkSeries("g_2", [[0, 3]]),
-  ];
-  assert.deepStrictEqual(stackOrderKey(series), [1, 0], "smaller sum first on a key tie");
+  const series = [mkSeries("g_1", [[0, 10]]), mkSeries("g_2", [[0, 3]])];
+  assert.deepStrictEqual(
+    stackOrderKey(series),
+    [1, 0],
+    "smaller sum first on a key tie",
+  );
 });
 
 it("charts/stackHelpers stackOrderField ranks series by an aggregate of a data field", () => {
   // Each stacked point carries `.data` = the discrete group's rows; each row
   // has an `id` (the series key) and its original `data`.
-  const g0 = [{id: "a", data: {v: 10}}, {id: "b", data: {v: 1}}];
-  const g1 = [{id: "a", data: {v: 20}}, {id: "b", data: {v: 2}}];
-  const withData = (point, group) => Object.assign(point.slice(), {data: group});
+  const g0 = [
+    {id: "a", data: {v: 10}},
+    {id: "b", data: {v: 1}},
+  ];
+  const g1 = [
+    {id: "a", data: {v: 20}},
+    {id: "b", data: {v: 2}},
+  ];
+  const withData = (point, group) =>
+    Object.assign(point.slice(), {data: group});
   const series = [
     mkSeries("a", [withData([0, 10], g0), withData([0, 20], g1)]), // field total 30
-    mkSeries("b", [withData([0, 1], g0), withData([0, 2], g1)]),   // field total 3
+    mkSeries("b", [withData([0, 1], g0), withData([0, 2], g1)]), // field total 3
   ];
   const value = d => d.v;
   // Default descending: largest field total (a) first.
-  assert.deepStrictEqual(stackOrderField(value)(series), [0, 1], "descending field total");
+  assert.deepStrictEqual(
+    stackOrderField(value)(series),
+    [0, 1],
+    "descending field total",
+  );
   assert.deepStrictEqual(
     stackOrderField(value, "ascending")(series),
     [1, 0],
@@ -75,7 +110,10 @@ it("charts/stackHelpers stackOrderField ranks series by an aggregate of a data f
 
 it("charts/stackHelpers resolveStackOrder maps every input shape", () => {
   // Named orders resolve to the corresponding tagged comparator.
-  assert.strictEqual(resolveStackOrder("descending"), stackOrderTotalDescending);
+  assert.strictEqual(
+    resolveStackOrder("descending"),
+    stackOrderTotalDescending,
+  );
   assert.strictEqual(resolveStackOrder("ascending"), stackOrderTotalAscending);
   assert.strictEqual(resolveStackOrder("key"), stackOrderKey);
   assert.strictEqual(resolveStackOrder("keyReverse"), stackOrderKeyReverse);
@@ -92,38 +130,58 @@ it("charts/stackHelpers resolveStackOrder maps every input shape", () => {
   assert.strictEqual(fromConfig.__d3plusStackOrder, true);
 
   // An already-resolved comparator passes through (config() reset round-trip).
-  assert.strictEqual(resolveStackOrder(stackOrderTotalAscending), stackOrderTotalAscending);
+  assert.strictEqual(
+    resolveStackOrder(stackOrderTotalAscending),
+    stackOrderTotalAscending,
+  );
 });
 
 it("charts/stackHelpers resolveStackOrder warns and falls back on an unknown name", () => {
   const warnings = captureWarnings(() => {
-    assert.strictEqual(resolveStackOrder("acsending"), stackOrderTotalDescending);
+    assert.strictEqual(
+      resolveStackOrder("acsending"),
+      stackOrderTotalDescending,
+    );
   });
-  assert.ok(/Unknown stackOrder "acsending"/.test(warnings.at(-1)), "warns with the bad value");
+  assert.ok(
+    /Unknown stackOrder "acsending"/.test(warnings.at(-1)),
+    "warns with the bad value",
+  );
 });
 
 it("charts/stackHelpers resolveStackOffset maps names, passes functions, warns on unknown", () => {
   assert.strictEqual(resolveStackOffset("diverging"), stackOffsetDiverging);
   const custom = () => {};
-  assert.strictEqual(resolveStackOffset(custom), custom, "functions pass through");
-  assert.strictEqual(typeof resolveStackOffset("expand"), "function", "d3 offset by name");
+  assert.strictEqual(
+    resolveStackOffset(custom),
+    custom,
+    "functions pass through",
+  );
+  assert.strictEqual(
+    typeof resolveStackOffset("expand"),
+    "function",
+    "d3 offset by name",
+  );
 
   const warnings = captureWarnings(() => {
     assert.strictEqual(resolveStackOffset("expnd"), stackOffsetDiverging);
   });
-  assert.ok(/Unknown stackOffset "expnd"/.test(warnings.at(-1)), "warns with the bad value");
+  assert.ok(
+    /Unknown stackOffset "expnd"/.test(warnings.at(-1)),
+    "warns with the bad value",
+  );
 });
 
 it("charts/stackHelpers stackOffsetDiverging stacks positives up and negatives down from zero", () => {
   const series = [
-    [[0, 3]],   // +3
-    [[0, 2]],   // +2
-    [[0, -1]],  // -1
+    [[0, 3]], // +3
+    [[0, 2]], // +2
+    [[0, -1]], // -1
   ];
   stackOffsetDiverging(series, [0, 1, 2]);
   assert.deepStrictEqual(series, [
-    [[0, 3]],   // first positive: 0 → 3
-    [[3, 5]],   // second positive: stacks on top, 3 → 5
-    [[-1, 0]],  // negative: stacks below zero, -1 → 0
+    [[0, 3]], // first positive: 0 → 3
+    [[3, 5]], // second positive: stacks on top, 3 → 5
+    [[-1, 0]], // negative: stacks below zero, -1 → 0
   ]);
 });

@@ -31,47 +31,67 @@ const UPDATE = inject("updateSnapshots");
 // UN-selected viz; the in-page routine adds `.duration(0).select(...)` and
 // renders it, so geometry is final (no mid-transition values).
 const charts = [
-  ["bar-chart", `lib => new lib.BarChart()
+  [
+    "bar-chart",
+    `lib => new lib.BarChart()
     .groupBy("group")
     .data([
       {group: "Alpha", x: "Q1", y: 35}, {group: "Alpha", x: "Q2", y: 50},
       {group: "Alpha", x: "Q3", y: 25}, {group: "Alpha", x: "Q4", y: 40},
       {group: "Beta",  x: "Q1", y: 20}, {group: "Beta",  x: "Q2", y: 30},
       {group: "Beta",  x: "Q3", y: 45}, {group: "Beta",  x: "Q4", y: 35},
-    ]).x("x").y("y")`],
-  ["line-plot", `lib => new lib.LinePlot()
+    ]).x("x").y("y")`,
+  ],
+  [
+    "line-plot",
+    `lib => new lib.LinePlot()
     .groupBy("group")
     .data([
       {group: "S1", x: 1, y: 10}, {group: "S1", x: 2, y: 22}, {group: "S1", x: 3, y: 15},
       {group: "S1", x: 4, y: 28}, {group: "S1", x: 5, y: 35},
       {group: "S2", x: 1, y: 25}, {group: "S2", x: 2, y: 18}, {group: "S2", x: 3, y: 32},
       {group: "S2", x: 4, y: 26}, {group: "S2", x: 5, y: 38},
-    ]).x("x").y("y")`],
-  ["stacked-area", `lib => new lib.StackedArea()
+    ]).x("x").y("y")`,
+  ],
+  [
+    "stacked-area",
+    `lib => new lib.StackedArea()
     .groupBy("group")
     .data([
       {group: "A", x: 1, y: 10}, {group: "A", x: 2, y: 20}, {group: "A", x: 3, y: 15},
       {group: "A", x: 4, y: 25}, {group: "A", x: 5, y: 30},
       {group: "B", x: 1, y: 5},  {group: "B", x: 2, y: 12}, {group: "B", x: 3, y: 18},
       {group: "B", x: 4, y: 14}, {group: "B", x: 5, y: 20},
-    ]).x("x").y("y")`],
-  ["box-whisker", `lib => new lib.BoxWhisker()
+    ]).x("x").y("y")`,
+  ],
+  [
+    "box-whisker",
+    `lib => new lib.BoxWhisker()
     .groupBy("group")
     .data([
       {group: "A", x: "A", y: 10}, {group: "A", x: "A", y: 15}, {group: "A", x: "A", y: 20},
       {group: "A", x: "A", y: 25}, {group: "A", x: "A", y: 30}, {group: "A", x: "A", y: 35},
       {group: "B", x: "B", y: 12}, {group: "B", x: "B", y: 18}, {group: "B", x: "B", y: 24},
       {group: "B", x: "B", y: 28}, {group: "B", x: "B", y: 38}, {group: "B", x: "B", y: 45},
-    ]).x("x").y("y")`],
-  ["pie", `lib => new lib.Pie().data([
+    ]).x("x").y("y")`,
+  ],
+  [
+    "pie",
+    `lib => new lib.Pie().data([
       {id: "Alpha", value: 30}, {id: "Beta", value: 22}, {id: "Gamma", value: 18},
       {id: "Delta", value: 15}, {id: "Epsilon", value: 10}, {id: "Zeta", value: 5},
-    ])`],
-  ["donut", `lib => new lib.Donut().data([
+    ])`,
+  ],
+  [
+    "donut",
+    `lib => new lib.Donut().data([
       {id: "Alpha", value: 30}, {id: "Beta", value: 22}, {id: "Gamma", value: 18},
       {id: "Delta", value: 15}, {id: "Epsilon", value: 10}, {id: "Zeta", value: 5},
-    ])`],
-  ["treemap", `lib => new lib.Treemap()
+    ])`,
+  ],
+  [
+    "treemap",
+    `lib => new lib.Treemap()
     .groupBy(["group", "id"])
     .data([
       {group: "Tech", id: "Alpha", value: 30}, {group: "Tech", id: "Beta", value: 25},
@@ -79,16 +99,22 @@ const charts = [
       {group: "Health", id: "Epsilon", value: 22}, {group: "Health", id: "Zeta", value: 16},
       {group: "Health", id: "Eta", value: 10}, {group: "Energy", id: "Theta", value: 14},
       {group: "Energy", id: "Iota", value: 8},
-    ]).sum("value")`],
-  ["pack", `lib => new lib.Pack()
+    ]).sum("value")`,
+  ],
+  [
+    "pack",
+    `lib => new lib.Pack()
     .groupBy(["group", "id"])
     .data([
       {group: "A", id: "1", value: 10}, {group: "A", id: "2", value: 20},
       {group: "A", id: "3", value: 15}, {group: "A", id: "4", value: 25},
       {group: "B", id: "5", value: 8},  {group: "B", id: "6", value: 18},
       {group: "B", id: "7", value: 12}, {group: "B", id: "8", value: 22},
-    ]).sum("value")`],
-  ["sunburst", `lib => new lib.Sunburst()
+    ]).sum("value")`,
+  ],
+  [
+    "sunburst",
+    `lib => new lib.Sunburst()
     .groupBy(["group", "sub", "id"])
     .data([
       {group: "Tech", sub: "Hardware", id: "Alpha", value: 30}, {group: "Tech", sub: "Hardware", id: "Beta", value: 25},
@@ -96,8 +122,11 @@ const charts = [
       {group: "Health", sub: "Care", id: "Epsilon", value: 22}, {group: "Health", sub: "Care", id: "Zeta", value: 16},
       {group: "Health", sub: "Pharma", id: "Eta", value: 10}, {group: "Energy", sub: "Power", id: "Theta", value: 14},
       {group: "Energy", sub: "Power", id: "Iota", value: 8},
-    ]).sum("value")`],
-  ["icicle", `lib => new lib.Icicle()
+    ]).sum("value")`,
+  ],
+  [
+    "icicle",
+    `lib => new lib.Icicle()
     .groupBy(["group", "sub", "id"])
     .data([
       {group: "Tech", sub: "Hardware", id: "Alpha", value: 30}, {group: "Tech", sub: "Hardware", id: "Beta", value: 25},
@@ -105,18 +134,24 @@ const charts = [
       {group: "Health", sub: "Care", id: "Epsilon", value: 22}, {group: "Health", sub: "Care", id: "Zeta", value: 16},
       {group: "Health", sub: "Pharma", id: "Eta", value: 10}, {group: "Energy", sub: "Power", id: "Theta", value: 14},
       {group: "Energy", sub: "Power", id: "Iota", value: 8},
-    ]).sum("value")`],
+    ]).sum("value")`,
+  ],
   // `groupBy` must name both cell-identity dimensions — without it, every
   // row shares the global default nest key (`id`, absent here) and the
   // data-prep rollup merges all 9 rows into a single degenerate cell.
-  ["matrix", `lib => new lib.Matrix().groupBy(["row", "column"]).data([
+  [
+    "matrix",
+    `lib => new lib.Matrix().groupBy(["row", "column"]).data([
       {row: "R1", column: "C1", value: 10}, {row: "R1", column: "C2", value: 25},
       {row: "R1", column: "C3", value: 15}, {row: "R2", column: "C1", value: 30},
       {row: "R2", column: "C2", value: 20}, {row: "R2", column: "C3", value: 5},
       {row: "R3", column: "C1", value: 18}, {row: "R3", column: "C2", value: 12},
       {row: "R3", column: "C3", value: 28},
-    ])`],
-  ["tree", `lib => new lib.Tree()
+    ])`,
+  ],
+  [
+    "tree",
+    `lib => new lib.Tree()
     .groupBy(["parent", "id"])
     .data([
       {parent: "Group 1", id: "alpha"},
@@ -124,8 +159,11 @@ const charts = [
       {parent: "Group 1", id: "gamma"},
       {parent: "Group 2", id: "delta"},
       {parent: "Group 2", id: "eta"},
-    ])`],
-  ["radar", `lib => new lib.Radar()
+    ])`,
+  ],
+  [
+    "radar",
+    `lib => new lib.Radar()
     .groupBy("id")
     .metric("axis")
     .value("number")
@@ -142,8 +180,11 @@ const charts = [
       {id: "beta",  axis: "Everton",    number: 110},
       {id: "beta",  axis: "Picton",     number: 40},
       {id: "beta",  axis: "Riverside",  number: 110},
-    ])`],
-  ["bump-chart", `lib => new lib.BumpChart()
+    ])`,
+  ],
+  [
+    "bump-chart",
+    `lib => new lib.BumpChart()
     .groupBy("fruit")
     .discrete("x")
     .x("year")
@@ -153,8 +194,11 @@ const charts = [
       {fruit: "banana", year: 1, rank: 2}, {fruit: "banana", year: 2, rank: 4}, {fruit: "banana", year: 3, rank: 3},
       {fruit: "cherry", year: 1, rank: 4}, {fruit: "cherry", year: 2, rank: 3}, {fruit: "cherry", year: 3, rank: 2},
       {fruit: "orange", year: 1, rank: 3}, {fruit: "orange", year: 2, rank: 1}, {fruit: "orange", year: 3, rank: 4},
-    ])`],
-  ["sankey", `lib => new lib.Sankey()
+    ])`,
+  ],
+  [
+    "sankey",
+    `lib => new lib.Sankey()
     .links([
       {source: "alpha", target: "beta"},
       {source: "alpha", target: "gamma"},
@@ -163,8 +207,11 @@ const charts = [
       {source: "zeta",  target: "gamma"},
       {source: "theta", target: "gamma"},
       {source: "eta",   target: "gamma"},
-    ])`],
-  ["rings", `lib => new lib.Rings()
+    ])`,
+  ],
+  [
+    "rings",
+    `lib => new lib.Rings()
     .center("alpha")
     .links([
       {source: "alpha", target: "beta"},
@@ -174,10 +221,13 @@ const charts = [
       {source: "zeta",  target: "gamma"},
       {source: "theta", target: "gamma"},
       {source: "eta",   target: "gamma"},
-    ])`],
+    ])`,
+  ],
   // Inline topojson (two squares) keeps the map fully offline — no remote
   // topojson/tile fetches — so the fingerprint stays deterministic in CI.
-  ["geomap", `lib => new lib.Geomap()
+  [
+    "geomap",
+    `lib => new lib.Geomap()
     .groupBy("geo")
     .colorScale("value")
     .tiles(false)
@@ -196,18 +246,24 @@ const charts = [
     .data([
       {geo: "a", value: 10},
       {geo: "b", value: 20},
-    ])`],
-  ["area-plot", `lib => new lib.AreaPlot()
+    ])`,
+  ],
+  [
+    "area-plot",
+    `lib => new lib.AreaPlot()
     .groupBy("group")
     .data([
       {group: "A", x: 1, y: 10}, {group: "A", x: 2, y: 20}, {group: "A", x: 3, y: 15},
       {group: "A", x: 4, y: 25}, {group: "A", x: 5, y: 30},
       {group: "B", x: 1, y: 5},  {group: "B", x: 2, y: 12}, {group: "B", x: 3, y: 18},
       {group: "B", x: 4, y: 14}, {group: "B", x: 5, y: 20},
-    ]).x("x").y("y")`],
+    ]).x("x").y("y")`,
+  ],
   // Explicit node x/y so the force layout is fixed and the fingerprint stays
   // deterministic (no simulation jitter).
-  ["network", `lib => new lib.Network()
+  [
+    "network",
+    `lib => new lib.Network()
     .nodes([
       {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0},
       {id: "C", x: 0, y: -50}, {id: "D", x: 0, y: 50},
@@ -218,8 +274,11 @@ const charts = [
       {source: "A", target: "D"}, {source: "B", target: "D"},
       {source: "C", target: "B"}, {source: "E", target: "A"},
       {source: "F", target: "B"},
-    ])`],
-  ["priestley", `lib => new lib.Priestley()
+    ])`,
+  ],
+  [
+    "priestley",
+    `lib => new lib.Priestley()
     .groupBy("group")
     .data([
       {id: "Era 1", start: 1900, end: 1925, group: "Period A"},
@@ -228,8 +287,11 @@ const charts = [
       {id: "Era 4", start: 1965, end: 1990, group: "Period B"},
       {id: "Era 5", start: 1985, end: 2010, group: "Period A"},
       {id: "Era 6", start: 2005, end: 2025, group: "Period B"},
-    ])`],
-  ["radial-matrix", `lib => new lib.RadialMatrix()
+    ])`,
+  ],
+  [
+    "radial-matrix",
+    `lib => new lib.RadialMatrix()
     .groupBy(["row", "column"])
     .column("column")
     .row("row")
@@ -241,8 +303,11 @@ const charts = [
       {row: "Middle", column: "C", value: 28}, {row: "Middle", column: "D", value: 12},
       {row: "Outer", column: "A", value: 30}, {row: "Outer", column: "B", value: 16},
       {row: "Outer", column: "C", value: 24}, {row: "Outer", column: "D", value: 8},
-    ])`],
-  ["chord", `lib => new lib.Chord()
+    ])`,
+  ],
+  [
+    "chord",
+    `lib => new lib.Chord()
     .value("value")
     .links([
       {source: "alpha", target: "beta",  value: 5},
@@ -250,44 +315,62 @@ const charts = [
       {source: "beta",  target: "gamma", value: 2},
       {source: "gamma", target: "alpha", value: 4},
       {source: "delta", target: "alpha", value: 6},
-    ])`],
+    ])`,
+  ],
   // Fixed node positions keep the force layout deterministic; `.arrows("both")`
   // locks in the shared edge-arrow geometry.
-  ["network-arrows", `lib => new lib.Network()
+  [
+    "network-arrows",
+    `lib => new lib.Network()
     .arrows("both")
     .nodes([
       {id: "A", x: -50, y: 0}, {id: "B", x: 50, y: 0}, {id: "C", x: 0, y: -50},
     ])
     .links([
       {source: "A", target: "B"}, {source: "A", target: "C"}, {source: "B", target: "C"},
-    ])`],
-  ["beeswarm", `lib => new lib.Beeswarm()
+    ])`,
+  ],
+  [
+    "beeswarm",
+    `lib => new lib.Beeswarm()
     .groupBy("id")
     .data(Array.from({length: 40}, (_, i) => ({id: "p" + i, group: ["Low", "High"][i % 2], value: (i * 37) % 23 + (i % 2) * 8})))
     .color("group")
-    .x("value")`],
-  ["bullet", `lib => new lib.Bullet()
+    .x("value")`,
+  ],
+  [
+    "bullet",
+    `lib => new lib.Bullet()
     .data([
       {id: "Revenue", value: 270, target: 250, unit: "USD (thousands)"},
       {id: "Profit", value: 22, target: 26, unit: "%"},
     ])
     .bands(d => (d.id === "Revenue" ? [150, 225, 300] : [10, 20, 30]))
-    .subLabel("unit")`],
-  ["calendar", `lib => new lib.Calendar()
+    .subLabel("unit")`,
+  ],
+  [
+    "calendar",
+    `lib => new lib.Calendar()
     .data(Array.from({length: 60}, (_, k) => {
       const d = new Date(2024, 2, 1 + k);
       const pad = v => String(v).padStart(2, "0");
       return {date: d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()), value: (k % 7) + 1};
-    }))`],
-  ["candlestick", `lib => new lib.Candlestick()
+    }))`,
+  ],
+  [
+    "candlestick",
+    `lib => new lib.Candlestick()
     .data([
       ["2024-01-02", 100, 104, 99, 103], ["2024-01-03", 103, 105, 101, 102],
       ["2024-01-04", 102, 103, 97, 98], ["2024-01-05", 98, 101, 96, 100],
       ["2024-01-08", 100, 106, 100, 105], ["2024-01-09", 105, 107, 103, 104],
       ["2024-01-10", 104, 104, 99, 100], ["2024-01-11", 100, 103, 98, 102],
     ].map(([date, open, high, low, close]) => ({symbol: "ACME", date, open, high, low, close})))
-    .groupBy("symbol")`],
-  ["dumbbell", `lib => new lib.Dumbbell()
+    .groupBy("symbol")`,
+  ],
+  [
+    "dumbbell",
+    `lib => new lib.Dumbbell()
     .data([
       {country: "Brazil", year: 2000, value: 70}, {country: "Brazil", year: 2020, value: 76},
       {country: "India", year: 2000, value: 63}, {country: "India", year: 2020, value: 70},
@@ -295,8 +378,11 @@ const charts = [
     ])
     .groupBy("year")
     .x("value")
-    .y("country")`],
-  ["fan-chart", `lib => new lib.FanChart()
+    .y("country")`,
+  ],
+  [
+    "fan-chart",
+    `lib => new lib.FanChart()
     .data(Array.from({length: 10}, (_, t) => {
       const row = {id: "CPI", year: 2000 + t, value: 10 + t};
       if (t >= 5) {
@@ -309,29 +395,44 @@ const charts = [
     .x("year")
     .y("value")
     .confidence([["p5", "p95", "90%"], ["p25", "p75", "50%"]])
-    .legend(false)`],
-  ["funnel", `lib => new lib.Funnel()
+    .legend(false)`,
+  ],
+  [
+    "funnel",
+    `lib => new lib.Funnel()
     .data([
       {id: "Visited", value: 12400}, {id: "Pricing", value: 6900}, {id: "Trial", value: 3100},
       {id: "Activated", value: 1850}, {id: "Subscribed", value: 760},
-    ])`],
-  ["gauge", `lib => new lib.Gauge()
+    ])`,
+  ],
+  [
+    "gauge",
+    `lib => new lib.Gauge()
     .data([{id: "Speed", value: 72}])
     .domain([0, 100])
-    .bands([{value: 50, label: "Low"}, {value: 80, label: "Medium"}, {value: 100, label: "High"}])`],
-  ["histogram", `lib => new lib.Histogram()
+    .bands([{value: 50, label: "Low"}, {value: 80, label: "Medium"}, {value: 100, label: "High"}])`,
+  ],
+  [
+    "histogram",
+    `lib => new lib.Histogram()
     .data(Array.from({length: 60}, (_, i) => ({id: i, group: ["Low", "High"][i % 2], value: (i * 37) % 23 + (i % 2) * 8})))
     .groupBy("group")
-    .value("value")`],
-  ["lollipop", `lib => new lib.Lollipop()
+    .value("value")`,
+  ],
+  [
+    "lollipop",
+    `lib => new lib.Lollipop()
     .data([
       {country: "Finland", kg: 12}, {country: "Norway", kg: 9.9}, {country: "Iceland", kg: 9},
       {country: "Denmark", kg: 8.7}, {country: "Sweden", kg: 8.2},
     ])
     .groupBy("country")
     .x("country")
-    .y("kg")`],
-  ["marimekko", `lib => new lib.Marimekko()
+    .y("kg")`,
+  ],
+  [
+    "marimekko",
+    `lib => new lib.Marimekko()
     .data([
       {Region: "North", Brand: "Acme", Revenue: 40}, {Region: "North", Brand: "Bolt", Revenue: 25},
       {Region: "South", Brand: "Acme", Revenue: 15}, {Region: "South", Brand: "Bolt", Revenue: 35},
@@ -339,8 +440,11 @@ const charts = [
     ])
     .groupBy("Brand")
     .x("Region")
-    .y("Revenue")`],
-  ["parallel-coordinates", `lib => new lib.ParallelCoordinates()
+    .y("Revenue")`,
+  ],
+  [
+    "parallel-coordinates",
+    `lib => new lib.ParallelCoordinates()
     .data([
       {name: "Alpha", origin: "USA", cylinders: 8, hp: 190, weight: 4300, mpg: 13},
       {name: "Bravo", origin: "USA", cylinders: 6, hp: 110, weight: 3200, mpg: 20},
@@ -348,41 +452,62 @@ const charts = [
       {name: "Echo", origin: "Japan", cylinders: 4, hp: 95, weight: 2400, mpg: 30},
       {name: "Foxtrot", origin: "Europe", cylinders: 4, hp: 78, weight: 2300, mpg: 31},
     ])
-    .groupBy(["origin", "name"])`],
-  ["polar-area", `lib => new lib.PolarArea()
+    .groupBy(["origin", "name"])`,
+  ],
+  [
+    "polar-area",
+    `lib => new lib.PolarArea()
     .data(["Jan", "Feb", "Mar", "Apr", "May", "Jun"].flatMap((month, i) => [
       {cause: "Disease", month, deaths: 40 + i * 12},
       {cause: "Wounds", month, deaths: 10 + i * 4},
     ]))
     .groupBy("cause")
     .metric("month")
-    .value("deaths")`],
-  ["pyramid", `lib => new lib.Pyramid()
+    .value("deaths")`,
+  ],
+  [
+    "pyramid",
+    `lib => new lib.Pyramid()
     .data(["Male", "Female"].flatMap((sex, s) => ["0-9", "10-19", "20-29", "30-39"].map((age, b) => ({sex, age, population: 900 - b * 150 + s * 40}))))
     .groupBy("sex")
     .y("age")
-    .x("population")`],
-  ["radial-bar", `lib => new lib.RadialBar()
+    .x("population")`,
+  ],
+  [
+    "radial-bar",
+    `lib => new lib.RadialBar()
     .data([
       {id: "Safari", value: 20}, {id: "Chrome", value: 64}, {id: "Edge", value: 5}, {id: "Firefox", value: 15},
-    ])`],
-  ["ridgeline", `lib => new lib.Ridgeline()
+    ])`,
+  ],
+  [
+    "ridgeline",
+    `lib => new lib.Ridgeline()
     .data([["low", 2], ["mid", 5], ["high", 8]].flatMap(([id, mean]) =>
       Array.from({length: 30}, (_, i) => ({id, v: mean + ((i * 7) % 11 - 5) / 4}))))
     .groupBy("id")
-    .value("v")`],
-  ["violin", `lib => new lib.Violin()
+    .value("v")`,
+  ],
+  [
+    "violin",
+    `lib => new lib.Violin()
     .data([["low", 2], ["mid", 5], ["high", 8]].flatMap(([id, mean]) =>
       Array.from({length: 30}, (_, i) => ({id, v: mean + ((i * 7) % 11 - 5) / 4}))))
     .groupBy("id")
-    .value("v")`],
-  ["waffle", `lib => new lib.Waffle()
+    .value("v")`,
+  ],
+  [
+    "waffle",
+    `lib => new lib.Waffle()
     .data([
       {source: "Car", value: 48}, {source: "Bus", value: 22}, {source: "Bike", value: 12}, {source: "Walk", value: 18},
     ])
     .groupBy("source")
-    .sum("value")`],
-  ["waterfall", `lib => new lib.Waterfall()
+    .sum("value")`,
+  ],
+  [
+    "waterfall",
+    `lib => new lib.Waterfall()
     .data([
       {item: "Revenue", amount: 420, sub: true}, {item: "Cost of Goods", amount: -180},
       {item: "Gross Profit", sub: true}, {item: "Marketing", amount: -45},
@@ -390,7 +515,8 @@ const charts = [
     ])
     .x("item")
     .y("amount")
-    .subtotal("sub")`],
+    .subtotal("sub")`,
+  ],
 ];
 
 // Runs in-page: build + render the chart, then walk the rendered SVG and
@@ -408,7 +534,14 @@ const fingerprintFn = builderSrc =>
           const svgBox = svg.getBoundingClientRect();
           const r = n => Math.round(n);
           const shapeTags = new Set([
-            "rect", "circle", "ellipse", "line", "path", "polygon", "polyline", "image",
+            "rect",
+            "circle",
+            "ellipse",
+            "line",
+            "path",
+            "polygon",
+            "polyline",
+            "image",
           ]);
           const counts = {};
           const shapes = [];
@@ -443,7 +576,12 @@ const fingerprintFn = builderSrc =>
               s: el.getAttribute("stroke") || "",
             });
           }
-          resolve({counts, shapes, texts, chartScene: (viz._chartScene || []).length});
+          resolve({
+            counts,
+            shapes,
+            texts,
+            chartScene: (viz._chartScene || []).length,
+          });
         } catch (err) {
           reject(err);
         }
@@ -472,31 +610,49 @@ async function compare(name, actual) {
     return;
   }
   const saved = await commands.readFile(file).catch(() => null);
-  assert.ok(saved !== null, `no baseline for "${name}" — generate with \`vitest run -u\``);
+  assert.ok(
+    saved !== null,
+    `no baseline for "${name}" — generate with \`vitest run -u\``,
+  );
   const expected = JSON.parse(saved);
   const hint = " If intended, regenerate with `vitest run -u`.";
 
   // A changed per-tag count, tspan/label, or text anchor is a structural
   // regression — match those exactly.
   assert.deepStrictEqual(
-    actual.counts, expected.counts,
+    actual.counts,
+    expected.counts,
     `visual snapshot count mismatch for "${name}".${hint}`,
   );
   assert.deepStrictEqual(
-    actual.texts, expected.texts,
+    actual.texts,
+    expected.texts,
     `visual snapshot text mismatch for "${name}".${hint}`,
   );
 
   // Shapes: same sequence and same tag/fill/stroke; geometry within GEOM_TOL px.
   assert.strictEqual(
-    actual.shapes.length, expected.shapes.length,
+    actual.shapes.length,
+    expected.shapes.length,
     `visual snapshot shape-count mismatch for "${name}".${hint}`,
   );
   actual.shapes.forEach((a, i) => {
     const e = expected.shapes[i];
-    assert.strictEqual(a.t, e.t, `shape ${i} tag mismatch for "${name}".${hint}`);
-    assert.strictEqual(a.f, e.f, `shape ${i} fill mismatch for "${name}".${hint}`);
-    assert.strictEqual(a.s, e.s, `shape ${i} stroke mismatch for "${name}".${hint}`);
+    assert.strictEqual(
+      a.t,
+      e.t,
+      `shape ${i} tag mismatch for "${name}".${hint}`,
+    );
+    assert.strictEqual(
+      a.f,
+      e.f,
+      `shape ${i} fill mismatch for "${name}".${hint}`,
+    );
+    assert.strictEqual(
+      a.s,
+      e.s,
+      `shape ${i} stroke mismatch for "${name}".${hint}`,
+    );
     for (const k of ["x", "y", "w", "h"]) {
       assert.ok(
         Math.abs(a[k] - e[k]) <= GEOM_TOL,

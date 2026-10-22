@@ -19,7 +19,12 @@ export function getCommentText(comment) {
   if (!comment) return "";
   const desc = getTag(comment, "desc") || getTag(comment, "description");
   if (desc) return desc.trim();
-  return comment.summary?.map(c => c.text).join("").trim() || "";
+  return (
+    comment.summary
+      ?.map(c => c.text)
+      .join("")
+      .trim() || ""
+  );
 }
 
 /**
@@ -28,7 +33,10 @@ export function getCommentText(comment) {
  * with its wrapped lines joined. Pipes are escaped for the markdown table.
  */
 export function tocSummary(text) {
-  const para = (text || "").trim().split(/\n\s*\n/)[0].replace(/\s*\n\s*/g, " ");
+  const para = (text || "")
+    .trim()
+    .split(/\n\s*\n/)[0]
+    .replace(/\s*\n\s*/g, " ");
   const sentence = /^.*?(?<!\b(?:e\.g|i\.e))\.(?=\s|$)/.exec(para);
   return (sentence ? sentence[0] : para).replace(/\|/g, "\\|");
 }
@@ -134,7 +142,9 @@ export function resolveParentNames(reflection) {
   const extendedTypes = reflection.extendedTypes || [];
   // A parent the package doesn't export (an internal base class) isn't documented.
   const exported = new Set(
-    (reflection.parent?.children || []).filter(s => s.kind === ReflectionKind.Class).map(s => s.name),
+    (reflection.parent?.children || [])
+      .filter(s => s.kind === ReflectionKind.Class)
+      .map(s => s.name),
   );
   return extendedTypes
     .map(t => {
@@ -142,16 +152,24 @@ export function resolveParentNames(reflection) {
       if (t._target?.fileName) {
         const targetFile = t._target.fileName;
         const siblings = reflection.parent?.children || [];
-        const match = siblings.find(s =>
-          s.kind === ReflectionKind.Class &&
-          s.name !== reflection.name &&
-          s.sources?.[0]?.fullFileName === targetFile
+        const match = siblings.find(
+          s =>
+            s.kind === ReflectionKind.Class &&
+            s.name !== reflection.name &&
+            s.sources?.[0]?.fullFileName === targetFile,
         );
         if (match) return match.name;
       }
       return t.name;
     })
-    .filter(n => n && n !== "Object" && n !== "any" && n !== "default" && exported.has(n));
+    .filter(
+      n =>
+        n &&
+        n !== "Object" &&
+        n !== "any" &&
+        n !== "default" &&
+        exported.has(n),
+    );
 }
 
 /**
@@ -159,14 +177,22 @@ export function resolveParentNames(reflection) {
  */
 export function reflectionKindToString(kind) {
   switch (kind) {
-    case ReflectionKind.Class: return "class";
-    case ReflectionKind.Function: return "function";
-    case ReflectionKind.Variable: return "member";
-    case ReflectionKind.Enum: return "constant";
-    case ReflectionKind.Interface: return "typedef";
-    case ReflectionKind.Namespace: return "namespace";
-    case ReflectionKind.Method: return "function";
-    default: return "member";
+    case ReflectionKind.Class:
+      return "class";
+    case ReflectionKind.Function:
+      return "function";
+    case ReflectionKind.Variable:
+      return "member";
+    case ReflectionKind.Enum:
+      return "constant";
+    case ReflectionKind.Interface:
+      return "typedef";
+    case ReflectionKind.Namespace:
+      return "namespace";
+    case ReflectionKind.Method:
+      return "function";
+    default:
+      return "member";
   }
 }
 
@@ -191,14 +217,17 @@ export function reflectionToJsdoc(reflection, folder) {
     name: p.name,
     type: {names: typeToNames(p.type)},
     optional: p.flags?.isOptional || p.defaultValue !== undefined,
-    defaultvalue: p.defaultValue ? p.defaultValue.replace(/^["']|["']$/g, "") : undefined,
+    defaultvalue: p.defaultValue
+      ? p.defaultValue.replace(/^["']|["']$/g, "")
+      : undefined,
     description: getCommentText(p.comment),
   }));
 
   let metaPath = "";
   let metaFilename = "";
   if (source) {
-    const fullPath = source.fullFileName || path.resolve(folder, source.fileName);
+    const fullPath =
+      source.fullFileName || path.resolve(folder, source.fileName);
     metaPath = path.dirname(fullPath);
     metaFilename = path.basename(fullPath);
   }
@@ -229,9 +258,10 @@ export function methodsToJsdoc(reflection, folder) {
   if (reflection.kind !== ReflectionKind.Class) return [];
   const children = reflection.children || [];
   return children
-    .filter(child =>
-      child.kind === ReflectionKind.Method ||
-      child.kind === ReflectionKind.Property
+    .filter(
+      child =>
+        child.kind === ReflectionKind.Method ||
+        child.kind === ReflectionKind.Property,
     )
     .map(child => {
       const doc = reflectionToJsdoc(child, folder);

@@ -12,12 +12,13 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.",
+        component:
+          "Based on the defined styles and dimensions, breaks a string into an array of strings for each line of text.",
       },
     },
-  }
+  },
 };
-  
+
 // WARNING: do not edit above this line of code directly, it is generated
 // from the source code. Stories below this line can be modified.
 
@@ -59,11 +60,25 @@ const WrapBox = ({config, text = sentence}) => {
   const lineHeight = config.lineHeight || Math.ceil(fontSize * 1.4);
   const centered = shape === "circle";
   return (
-    <div style={{display: "flex", gap: 16, alignItems: "flex-start", flexWrap: "wrap", fontSize: 12}}>
+    <div
+      style={{
+        display: "flex",
+        gap: 16,
+        alignItems: "flex-start",
+        flexWrap: "wrap",
+        fontSize: 12,
+      }}
+    >
       <svg
         width={width + 2}
         height={height + 2}
-        style={{flex: "0 0 auto", overflow: "visible", border: "1px solid #dee2e6", borderRadius: 6, background: "#fff"}}
+        style={{
+          flex: "0 0 auto",
+          overflow: "visible",
+          border: "1px solid #dee2e6",
+          borderRadius: 6,
+          background: "#fff",
+        }}
       >
         <g transform="translate(1,1)">
           {centered ? (
@@ -76,7 +91,13 @@ const WrapBox = ({config, text = sentence}) => {
               strokeDasharray="4 3"
             />
           ) : (
-            <rect width={width} height={height} fill="none" stroke="#adb5bd" strokeDasharray="4 3" />
+            <rect
+              width={width}
+              height={height}
+              fill="none"
+              stroke="#adb5bd"
+              strokeDasharray="4 3"
+            />
           )}
           {result.lines.map((line, i) => (
             <text
@@ -135,7 +156,7 @@ const circle = {shape: "circle", width: 220, height: 220, fontSize: 14};
 export const CircleShape = () => <WrapBox config={circle} />;
 CircleShape.parameters = params(
   circle,
-  "`shape(\"circle\")` limits each line to the chord of the circle at that line's height, so lines near the top and bottom are shorter than those through the middle. This is how labels fit inside Pack and Pie shapes.",
+  '`shape("circle")` limits each line to the chord of the circle at that line\'s height, so lines near the top and bottom are shorter than those through the middle. This is how labels fit inside Pack and Pie shapes.',
 );
 
 const styled = {width: 240, fontSize: 18, fontWeight: 700, fontFamily: "Inter"};

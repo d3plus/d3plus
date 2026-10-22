@@ -3,34 +3,32 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   bounds: {
     control: {},
     description: "The region to search, such as a chart's plot area.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "bounds"
-    }
+      summary: "bounds",
+    },
   },
   obstacles: {
     control: {},
     description: "The bounding boxes of the marks drawn inside `bounds`.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "array.&lt;bounds&gt;"
-    }
+      summary: "array.&lt;bounds&gt;",
+    },
   },
   options: {
     control: {},
@@ -38,12 +36,12 @@ export const argTypes = {
     description: "Padding and minimum-size options.",
     table: {
       defaultValue: {
-        summary: "{}"
-      }
+        summary: "{}",
+      },
     },
     type: {
       required: false,
-      summary: "negativespaceoptions"
-    }
-  }
+      summary: "negativespaceoptions",
+    },
+  },
 };

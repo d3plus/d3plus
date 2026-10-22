@@ -64,8 +64,14 @@ export default class Circle extends Shape {
   _applyPosition(elem: D3Selection): void {
     (elem as unknown as Selection<BaseType, DataPoint, BaseType, unknown>)
       .attr("r", (d: DataPoint, i: number) => this.schema.r(d, i))
-      .attr("x", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2)
-      .attr("y", (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2);
+      .attr(
+        "x",
+        (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2,
+      )
+      .attr(
+        "y",
+        (d: DataPoint, i: number) => -(this.schema.r(d, i) as number) / 2,
+      );
   }
 
   // v4: render() is inherited from Shape — the scene path handles drawing.
@@ -82,7 +88,9 @@ export default class Circle extends Shape {
       cy: 0,
       r: Number(this.schema.r(d, i)),
       ...(this.schema.trail ? {trail: true} : {}),
-      ...(this.schema.trailPersist ? {trailPersist: this.schema.trailPersist} : {}),
+      ...(this.schema.trailPersist
+        ? {trailPersist: this.schema.trailPersist}
+        : {}),
     };
   }
 

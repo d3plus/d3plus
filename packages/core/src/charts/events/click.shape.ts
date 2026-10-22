@@ -37,8 +37,10 @@ export default function (
     if (r && this._bodyRect && this._bodyRect.width && this._bodyRect.height) {
       const b = this._bodyRect;
       this._pendingEnterOrigin = {
-        fx: (r.x - b.x) / b.width, fy: (r.y - b.y) / b.height,
-        fw: r.width / b.width, fh: r.height / b.height,
+        fx: (r.x - b.x) / b.width,
+        fy: (r.y - b.y) / b.height,
+        fw: r.width / b.width,
+        fh: r.height / b.height,
         key: pickedNode.key,
         parentStartAngle: pickedNode.startAngle,
         parentEndAngle: pickedNode.endAngle,

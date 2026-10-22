@@ -12,4 +12,8 @@ export type {RasterRenderOptions} from "./src/renderToStaticPNG.js";
 export type {ServerCanvas, NapiBackendOptions} from "./src/napiBackend.js";
 export {installDom, withDom} from "./src/env.js";
 export type {DomEnv, DomEnvOptions} from "./src/env.js";
-export type {RenderableViz, StaticRenderOptions, GeomapTileOptions} from "./src/types.js";
+export type {
+  RenderableViz,
+  StaticRenderOptions,
+  GeomapTileOptions,
+} from "./src/types.js";

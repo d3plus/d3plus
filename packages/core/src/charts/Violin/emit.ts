@@ -9,7 +9,12 @@ import {densityMeta, densityShapeId} from "../helpers/densityChart.js";
 import {growFromLine} from "../helpers/densityEnter.js";
 import {genericEmit, type ShapeEmitter} from "../features/shapeEmit.js";
 import {emitInner, type PlacedViolin} from "./inner.js";
-import {categoryStep, violinEdges, violinOutline, violinSlots} from "./violinLayout.js";
+import {
+  categoryStep,
+  violinEdges,
+  violinOutline,
+  violinSlots,
+} from "./violinLayout.js";
 
 /** The category axis's outer padding, in steps. */
 export const VIOLIN_PADDING = 0.5;
@@ -31,23 +36,41 @@ export const violinEmit: ShapeEmitter = (ctx, key) => {
   const domain = (vertical ? xDomain : yDomain) as unknown[];
 
   const positions = domain.map(c => category(c, axis)).sort((a, b) => a - b);
-  let step = categoryStep(range[range.length - 1] - range[0], domain.length, VIOLIN_PADDING);
-  for (let i = 1; i < positions.length; i++) step = Math.min(step, positions[i] - positions[i - 1]);
+  let step = categoryStep(
+    range[range.length - 1] - range[0],
+    domain.length,
+    VIOLIN_PADDING,
+  );
+  for (let i = 1; i < positions.length; i++)
+    step = Math.min(step, positions[i] - positions[i - 1]);
 
   const rows = values.filter(d => densityMeta(d));
-  const slots = violinSlots(rows.map(d => `${d[axis]}`), {
-    position: c => category(c, axis),
-    step,
-    gap: viz._groupPadding ?? 0,
-    split: Boolean(viz.schema.split),
-  });
-  const placed: PlacedViolin[] = rows.map((row, i) => ({row, meta: densityMeta(row)!, slot: slots[i]}));
+  const slots = violinSlots(
+    rows.map(d => `${d[axis]}`),
+    {
+      position: c => category(c, axis),
+      step,
+      gap: viz._groupPadding ?? 0,
+      split: Boolean(viz.schema.split),
+    },
+  );
+  const placed: PlacedViolin[] = rows.map((row, i) => ({
+    row,
+    meta: densityMeta(row)!,
+    slot: slots[i],
+  }));
 
   const outline: OutlineDatum[] = [];
   placed.forEach(({row, meta, slot}) => {
     violinOutline(meta.summary.curve, meta.scale, slot.half).forEach(p => {
       const [low, high] = violinEdges(slot, p.extent);
-      outline.push({...row, id: densityShapeId(row), __pos: value(p.value), __low: low, __high: high});
+      outline.push({
+        ...row,
+        id: densityShapeId(row),
+        __pos: value(p.value),
+        __low: low,
+        __high: high,
+      });
     });
   });
 
@@ -58,7 +81,14 @@ export const violinEmit: ShapeEmitter = (ctx, key) => {
     ? {x: low, x0: low, x1: high, y: pos, y0: pos, y1: null}
     : {x: pos, x0: pos, x1: null, y: high, y0: high, y1: low};
 
-  const nodes: SceneNode[] = genericEmit({...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}}, key);
-  growFromLine(nodes, axis, new Map(placed.map(({row, slot}) => [densityShapeId(row), slot.center])));
+  const nodes: SceneNode[] = genericEmit(
+    {...ctx, values: outline, shapeConfig: {...ctx.shapeConfig, ...geometry}},
+    key,
+  );
+  growFromLine(
+    nodes,
+    axis,
+    new Map(placed.map(({row, slot}) => [densityShapeId(row), slot.center])),
+  );
   return nodes.concat(emitInner(ctx, placed, {vertical, value: v => value(v)}));
 };

@@ -50,7 +50,9 @@ const SQRT_5 = Math.sqrt(5);
     @param u The scaled distance from an observation.
 */
 export function epanechnikovKernel(u: number): number {
-  return Math.abs(u) < SQRT_5 ? (0.75 / SQRT_5) * Math.max(0, 1 - (u * u) / 5) : 0;
+  return Math.abs(u) < SQRT_5
+    ? (0.75 / SQRT_5) * Math.max(0, 1 - (u * u) / 5)
+    : 0;
 }
 
 const kernels: Record<KernelName, Kernel> = {
@@ -60,7 +62,9 @@ const kernels: Record<KernelName, Kernel> = {
 
 /** The finite numbers in `values`. */
 const finite = (values: readonly unknown[]): number[] =>
-  values.filter((v): v is number => typeof v === "number" && Number.isFinite(v));
+  values.filter(
+    (v): v is number => typeof v === "number" && Number.isFinite(v),
+  );
 
 /**
     Silverman's rule-of-thumb bandwidth for a gaussian kernel density estimate:
@@ -75,7 +79,10 @@ export function silvermanBandwidth(values: readonly number[]): number {
   const n = v.length;
   if (!n) return NaN;
   const sd = n > 1 ? (deviation(v) as number) : 0;
-  const iqr = ((quantileSorted(v, 0.75) as number) - (quantileSorted(v, 0.25) as number)) / 1.34;
+  const iqr =
+    ((quantileSorted(v, 0.75) as number) -
+      (quantileSorted(v, 0.25) as number)) /
+    1.34;
   let spread = sd && iqr ? Math.min(sd, iqr) : sd || iqr;
   if (!spread) spread = Math.abs(mean(v) as number) / 10 || 1;
   return 0.9 * spread * Math.pow(n, -0.2);
@@ -85,7 +92,9 @@ export function silvermanBandwidth(values: readonly number[]): number {
 function grid(lo: number, hi: number, count: number): number[] {
   if (lo === hi) return [lo];
   const step = (hi - lo) / (count - 1);
-  return Array.from({length: count}, (_, i) => (i === count - 1 ? hi : lo + i * step));
+  return Array.from({length: count}, (_, i) =>
+    i === count - 1 ? hi : lo + i * step,
+  );
 }
 
 /**
@@ -106,13 +115,18 @@ export default function kernelDensity(
   const n = v.length;
   if (!n) return [];
 
-  const kernel = typeof options.kernel === "function"
-    ? options.kernel
-    : kernels[options.kernel ?? "gaussian"] ?? gaussianKernel;
-  const requested = typeof options.bandwidth === "function" ? options.bandwidth(v) : options.bandwidth;
-  const h = requested !== undefined && requested > 0 && Number.isFinite(requested)
-    ? requested
-    : silvermanBandwidth(v);
+  const kernel =
+    typeof options.kernel === "function"
+      ? options.kernel
+      : (kernels[options.kernel ?? "gaussian"] ?? gaussianKernel);
+  const requested =
+    typeof options.bandwidth === "function"
+      ? options.bandwidth(v)
+      : options.bandwidth;
+  const h =
+    requested !== undefined && requested > 0 && Number.isFinite(requested)
+      ? requested
+      : silvermanBandwidth(v);
 
   let lo: number, hi: number;
   if (options.extent) [lo, hi] = extent(options.extent) as [number, number];

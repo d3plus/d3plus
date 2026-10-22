@@ -11,7 +11,8 @@ let instances: Record<string, object> | undefined;
 function shapeInstances(): Record<string, object> {
   if (!instances) {
     instances = {};
-    for (const [name, Cls] of Object.entries(shapeClasses)) instances[name] = new Cls();
+    for (const [name, Cls] of Object.entries(shapeClasses))
+      instances[name] = new Cls();
   }
   return instances;
 }
@@ -50,7 +51,9 @@ export default function validateShapeConfig(
 ): void {
   const label = `${owner}.${scope.method ?? "shapeConfig"}()`;
   const all = shapeInstances();
-  const names = scope.shapes ?? Object.fromEntries(Object.keys(all).map(name => [name, name]));
+  const names =
+    scope.shapes ??
+    Object.fromEntries(Object.keys(all).map(name => [name, name]));
   const extra = scope.extra ?? {};
   const styled = Object.values(names).map(name => all[name]);
   for (const key of Object.keys(config)) {
@@ -58,9 +61,13 @@ export default function validateShapeConfig(
     if (nested) {
       if (!isObject(config[key])) continue;
       for (const k of Object.keys(config[key] as object)) {
-        if (!(k in nested) && !extra[key]?.includes(k)) warnUnknownConfig(label, `${key}.${k}`);
+        if (!(k in nested) && !extra[key]?.includes(k))
+          warnUnknownConfig(label, `${key}.${k}`);
       }
-    } else if (!extra[""]?.includes(key) && !styled.some(shape => key in shape)) {
+    } else if (
+      !extra[""]?.includes(key) &&
+      !styled.some(shape => key in shape)
+    ) {
       warnUnknownConfig(label, key);
     }
   }

@@ -1,23 +1,23 @@
 # @d3plus/ssr API Reference
 
-| Functions | Description |
-| --- | --- |
-| [`installDom`](#installdom) | Stands up a headless DOM and mirrors its globals onto `globalThis` so d3plus can render. |
-| [`renderToCanvas`](#rendertocanvas) | Renders a d3plus chart to a native canvas in Node using `@napi-rs/canvas`, with no browser. |
-| [`renderToStaticPNG`](#rendertostaticpng) | Renders a d3plus chart to a PNG `Buffer` in Node, with no browser. |
-| [`renderToStaticSVG`](#rendertostaticsvg) | Renders a d3plus chart to a standalone SVG string in Node, with no browser. |
-| [`withDom`](#withdom) | Runs `fn` with a headless DOM installed, tearing it down afterward even if `fn` throws. |
+| Functions                                 | Description                                                                                 |
+| ----------------------------------------- | ------------------------------------------------------------------------------------------- |
+| [`installDom`](#installdom)               | Stands up a headless DOM and mirrors its globals onto `globalThis` so d3plus can render.    |
+| [`renderToCanvas`](#rendertocanvas)       | Renders a d3plus chart to a native canvas in Node using `@napi-rs/canvas`, with no browser. |
+| [`renderToStaticPNG`](#rendertostaticpng) | Renders a d3plus chart to a PNG `Buffer` in Node, with no browser.                          |
+| [`renderToStaticSVG`](#rendertostaticsvg) | Renders a d3plus chart to a standalone SVG string in Node, with no browser.                 |
+| [`withDom`](#withdom)                     | Runs `fn` with a headless DOM installed, tearing it down afterward even if `fn` throws.     |
 
-| Interfaces | Description |
-| --- | --- |
-| [`DomEnv`](#domenv) | A live headless DOM whose globals are currently mirrored onto `globalThis`. |
-| [`DomEnvOptions`](#domenvoptions) | Options controlling the headless DOM `installDom` stands up. |
-| [`GeomapTileOptions`](#geomaptileoptions) | Server-side basemap tile fetching options, applied when rendering a `Geomap` with tiles enabled. |
-| [`NapiBackendOptions`](#napibackendoptions) | Raster-specific options for the native canvas backend. |
-| [`RasterRenderOptions`](#rasterrenderoptions) | Options for the raster (canvas/PNG) helpers. |
-| [`RenderableViz`](#renderableviz) | The structural surface `@d3plus/ssr` drives on a chart. |
-| [`ServerCanvas`](#servercanvas) | The subset of a native (`@napi-rs/canvas`) canvas the raster helpers expose, so the public API doesn't leak the optional peer's types to consumers who haven't installed it. |
-| [`StaticRenderOptions`](#staticrenderoptions) | Options shared by the static render helpers. |
+| Interfaces                                    | Description                                                                                                                                                                  |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`DomEnv`](#domenv)                           | A live headless DOM whose globals are currently mirrored onto `globalThis`.                                                                                                  |
+| [`DomEnvOptions`](#domenvoptions)             | Options controlling the headless DOM `installDom` stands up.                                                                                                                 |
+| [`GeomapTileOptions`](#geomaptileoptions)     | Server-side basemap tile fetching options, applied when rendering a `Geomap` with tiles enabled.                                                                             |
+| [`NapiBackendOptions`](#napibackendoptions)   | Raster-specific options for the native canvas backend.                                                                                                                       |
+| [`RasterRenderOptions`](#rasterrenderoptions) | Options for the raster (canvas/PNG) helpers.                                                                                                                                 |
+| [`RenderableViz`](#renderableviz)             | The structural surface `@d3plus/ssr` drives on a chart.                                                                                                                      |
+| [`ServerCanvas`](#servercanvas)               | The subset of a native (`@napi-rs/canvas`) canvas the raster helpers expose, so the public API doesn't leak the optional peer's types to consumers who haven't installed it. |
+| [`StaticRenderOptions`](#staticrenderoptions) | Options shared by the static render helpers.                                                                                                                                 |
 
 ## Functions
 
@@ -37,15 +37,15 @@ Prefer [withDom](#withdom) unless you need to manage the lifecycle yourself.
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `opts` | [`DomEnvOptions`](#domenvoptions) |
+| Parameter | Type                              |
+| --------- | --------------------------------- |
+| `opts?`   | [`DomEnvOptions`](#domenvoptions) |
 
 #### Returns
 
 `Promise`\<[`DomEnv`](#domenv)\>
 
-***
+---
 
 <a id="rendertocanvas"></a>
 
@@ -53,7 +53,7 @@ Prefer [withDom](#withdom) unless you need to manage the lifecycle yourself.
 
 > **renderToCanvas**(`viz`: [`RenderableViz`](#renderableviz), `opts?`: [`RasterRenderOptions`](#rasterrenderoptions)): `Promise`\<[`ServerCanvas`](#servercanvas)\>
 
-Defined in: [renderToStaticPNG.ts:34](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L34)
+Defined in: [renderToStaticPNG.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L33)
 
 Renders a d3plus chart to a native canvas in Node using `@napi-rs/canvas`,
 with no browser. Returns the canvas so callers can encode to any supported
@@ -63,16 +63,16 @@ Prefer [renderToStaticPNG](#rendertostaticpng) when you just want PNG bytes.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `viz` | [`RenderableViz`](#renderableviz) | A configured chart instance (data + accessors already set). |
-| `opts` | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options. |
+| Parameter | Type                                          | Description                                                 |
+| --------- | --------------------------------------------- | ----------------------------------------------------------- |
+| `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set). |
+| `opts?`   | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
 
 #### Returns
 
 `Promise`\<[`ServerCanvas`](#servercanvas)\>
 
-***
+---
 
 <a id="rendertostaticpng"></a>
 
@@ -80,16 +80,16 @@ Prefer [renderToStaticPNG](#rendertostaticpng) when you just want PNG bytes.
 
 > **renderToStaticPNG**(`viz`: [`RenderableViz`](#renderableviz), `opts?`: [`RasterRenderOptions`](#rasterrenderoptions)): `Promise`\<`Uint8Array`\<`ArrayBufferLike`\>\>
 
-Defined in: [renderToStaticPNG.ts:103](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L103)
+Defined in: [renderToStaticPNG.ts:102](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L102)
 
 Renders a d3plus chart to a PNG `Buffer` in Node, with no browser.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `viz` | [`RenderableViz`](#renderableviz) | A configured chart instance (data + accessors already set). |
-| `opts` | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options. |
+| Parameter | Type                                          | Description                                                 |
+| --------- | --------------------------------------------- | ----------------------------------------------------------- |
+| `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set). |
+| `opts?`   | [`RasterRenderOptions`](#rasterrenderoptions) | Output size, pixelRatio, fonts, and DOM options.            |
 
 #### Returns
 
@@ -104,14 +104,15 @@ extends so consumers don't need `@types/node`).
 import {Treemap} from "@d3plus/core";
 import {renderToStaticPNG} from "@d3plus/ssr";
 import {writeFileSync} from "node:fs";
-const png = await renderToStaticPNG(
-  new Treemap().data(data).groupBy("id"),
-  {width: 600, height: 400, pixelRatio: 2},
-);
+const png = await renderToStaticPNG(new Treemap().data(data).groupBy("id"), {
+  width: 600,
+  height: 400,
+  pixelRatio: 2,
+});
 writeFileSync("chart.png", png);
 ```
 
-***
+---
 
 <a id="rendertostaticsvg"></a>
 
@@ -132,10 +133,10 @@ before this resolves — no globals are left mutated.
 
 #### Parameters
 
-| Parameter | Type | Description |
-| ------ | ------ | ------ |
-| `viz` | [`RenderableViz`](#renderableviz) | A configured chart instance (data + accessors already set). |
-| `opts` | [`StaticRenderOptions`](#staticrenderoptions) | Output size (required here or on the chart) and DOM options. |
+| Parameter | Type                                          | Description                                                  |
+| --------- | --------------------------------------------- | ------------------------------------------------------------ |
+| `viz`     | [`RenderableViz`](#renderableviz)             | A configured chart instance (data + accessors already set).  |
+| `opts?`   | [`StaticRenderOptions`](#staticrenderoptions) | Output size (required here or on the chart) and DOM options. |
 
 #### Returns
 
@@ -148,13 +149,13 @@ The serialized `<svg>` markup.
 ```js
 import {Treemap} from "@d3plus/core";
 import {renderToStaticSVG} from "@d3plus/ssr";
-const svg = await renderToStaticSVG(
-  new Treemap().data(data).groupBy("id"),
-  {width: 600, height: 400},
-);
+const svg = await renderToStaticSVG(new Treemap().data(data).groupBy("id"), {
+  width: 600,
+  height: 400,
+});
 ```
 
-***
+---
 
 <a id="withdom"></a>
 
@@ -162,23 +163,23 @@ const svg = await renderToStaticSVG(
 
 > **withDom**\<`T`\>(`opts`: [`DomEnvOptions`](#domenvoptions), `fn`: (`env`: [`DomEnv`](#domenv)) => `T` \| `Promise`\<`T`\>): `Promise`\<`T`\>
 
-Defined in: [env.ts:143](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L143)
+Defined in: [env.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L144)
 
 Runs `fn` with a headless DOM installed, tearing it down afterward even if
 `fn` throws. The `DomEnv` is passed to `fn` for access to `window`/`document`.
 
 #### Type Parameters
 
-| Type Parameter |
-| ------ |
-| `T` |
+| Type Parameter                    |
+| --------------------------------- |
+| <a id="type-parameter-t"></a> `T` |
 
 #### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `opts` | [`DomEnvOptions`](#domenvoptions) |
-| `fn` | (`env`: [`DomEnv`](#domenv)) => `T` \| `Promise`\<`T`\> |
+| Parameter | Type                                                    |
+| --------- | ------------------------------------------------------- |
+| `opts`    | [`DomEnvOptions`](#domenvoptions)                       |
+| `fn`      | (`env`: [`DomEnv`](#domenv)) => `T` \| `Promise`\<`T`\> |
 
 #### Returns
 
@@ -213,12 +214,12 @@ Restores every global `installDom` overrode to its prior value.
 
 #### Properties
 
-| Property | Type | Defined in |
-| ------ | ------ | ------ |
+| Property                                  | Type  | Defined in                                                                          |
+| ----------------------------------------- | ----- | ----------------------------------------------------------------------------------- |
 | <a id="property-document"></a> `document` | `any` | [env.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L25) |
-| <a id="property-window"></a> `window` | `any` | [env.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L24) |
+| <a id="property-window"></a> `window`     | `any` | [env.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L24) |
 
-***
+---
 
 <a id="domenvoptions"></a>
 
@@ -230,12 +231,12 @@ Options controlling the headless DOM `installDom` stands up.
 
 #### Properties
 
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-html"></a> `html?` | `string` | HTML used to seed a freshly-created jsdom document. | [env.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L16) |
-| <a id="property-window-1"></a> `window?` | `any` | A ready-made `window` to render into (e.g. from `linkedom` for fast SVG-only rendering). When omitted, a fresh `jsdom` window is created — `jsdom` must then be installed (it is an optional peer dependency). | [env.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L14) |
+| Property                                 | Type     | Description                                                                                                                                                                                                    | Defined in                                                                          |
+| ---------------------------------------- | -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| <a id="property-html"></a> `html?`       | `string` | HTML used to seed a freshly-created jsdom document.                                                                                                                                                            | [env.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L16) |
+| <a id="property-window-1"></a> `window?` | `any`    | A ready-made `window` to render into (e.g. from `linkedom` for fast SVG-only rendering). When omitted, a fresh `jsdom` window is created — `jsdom` must then be installed (it is an optional peer dependency). | [env.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/env.ts#L14) |
 
-***
+---
 
 <a id="geomaptileoptions"></a>
 
@@ -252,20 +253,20 @@ with tiles enabled. Ignored for other charts.
 
 #### Properties
 
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-fetchtile"></a> `fetchTile?` | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45) |
-| <a id="property-tileconcurrency"></a> `tileConcurrency?` | `number` | Max tiles to fetch concurrently. Default 8. | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29) |
-| <a id="property-tiletimeout"></a> `tileTimeout?` | `number` | Per-tile fetch timeout in milliseconds. Default 15000. | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31) |
-| <a id="property-tileuseragent"></a> `tileUserAgent?` | `string` | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set. | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37) |
+| Property                                                 | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                  | Defined in                                                                              |
+| -------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| <a id="property-fetchtile"></a> `fetchTile?`             | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45) |
+| <a id="property-tileconcurrency"></a> `tileConcurrency?` | `number`                                                                                       | Max tiles to fetch concurrently. Default 8.                                                                                                                                                                                                                                                                                                                                  | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29) |
+| <a id="property-tiletimeout"></a> `tileTimeout?`         | `number`                                                                                       | Per-tile fetch timeout in milliseconds. Default 15000.                                                                                                                                                                                                                                                                                                                       | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31) |
+| <a id="property-tileuseragent"></a> `tileUserAgent?`     | `string`                                                                                       | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set.                                                                                                                                                                 | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37) |
 
-***
+---
 
 <a id="napibackendoptions"></a>
 
 ### NapiBackendOptions
 
-Defined in: [napiBackend.ts:22](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L22)
+Defined in: [napiBackend.ts:25](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L25)
 
 Raster-specific options for the native canvas backend.
 
@@ -275,12 +276,12 @@ Raster-specific options for the native canvas backend.
 
 #### Properties
 
-| Property | Type | Description | Defined in |
-| ------ | ------ | ------ | ------ |
-| <a id="property-fonts"></a> `fonts?` | `string`[] | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge. | [napiBackend.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L30) |
-| <a id="property-imagetimeout"></a> `imageTimeout?` | `number` | Milliseconds to wait for one image/tile decode before skipping it. Default 15000. | [napiBackend.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L24) |
+| Property                                           | Type       | Description                                                                                                                                                                                                           | Defined in                                                                                          |
+| -------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+| <a id="property-fonts"></a> `fonts?`               | `string`[] | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge. | [napiBackend.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L33) |
+| <a id="property-imagetimeout"></a> `imageTimeout?` | `number`   | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                     | [napiBackend.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L27) |
 
-***
+---
 
 <a id="rasterrenderoptions"></a>
 
@@ -292,25 +293,26 @@ Options for the raster (canvas/PNG) helpers.
 
 #### Extends
 
-- [`StaticRenderOptions`](#staticrenderoptions).[`NapiBackendOptions`](#napibackendoptions)
+- [`StaticRenderOptions`](#staticrenderoptions)
+- [`NapiBackendOptions`](#napibackendoptions)
 
 #### Properties
 
-| Property | Type | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ |
-| <a id="property-fetchtile-1"></a> `fetchTile?` | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [`StaticRenderOptions`](#staticrenderoptions).[`fetchTile`](#property-fetchtile-2) | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45) |
-| <a id="property-fonts-1"></a> `fonts?` | `string`[] | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge. | [`NapiBackendOptions`](#napibackendoptions).[`fonts`](#property-fonts) | [napiBackend.ts:30](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L30) |
-| <a id="property-height"></a> `height?` | `number` | Output height in pixels. Falls back to the chart's configured `height()`. | [`StaticRenderOptions`](#staticrenderoptions).[`height`](#property-height-2) | [types.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L60) |
-| <a id="property-html-1"></a> `html?` | `string` | HTML used to seed a freshly-created jsdom document. | [`StaticRenderOptions`](#staticrenderoptions).[`html`](#property-html-2) | [types.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L67) |
-| <a id="property-imagetimeout-1"></a> `imageTimeout?` | `number` | Milliseconds to wait for one image/tile decode before skipping it. Default 15000. | [`NapiBackendOptions`](#napibackendoptions).[`imageTimeout`](#property-imagetimeout) | [napiBackend.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L24) |
-| <a id="property-pixelratio"></a> `pixelRatio?` | `number` | Device-pixel ratio (backing-store scale) for the output. Higher values yield sharper, larger rasters. Defaults to 2. | - | [renderToStaticPNG.ts:21](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L21) |
-| <a id="property-tileconcurrency-1"></a> `tileConcurrency?` | `number` | Max tiles to fetch concurrently. Default 8. | [`StaticRenderOptions`](#staticrenderoptions).[`tileConcurrency`](#property-tileconcurrency-2) | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29) |
-| <a id="property-tiletimeout-1"></a> `tileTimeout?` | `number` | Per-tile fetch timeout in milliseconds. Default 15000. | [`StaticRenderOptions`](#staticrenderoptions).[`tileTimeout`](#property-tiletimeout-2) | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31) |
-| <a id="property-tileuseragent-1"></a> `tileUserAgent?` | `string` | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set. | [`StaticRenderOptions`](#staticrenderoptions).[`tileUserAgent`](#property-tileuseragent-2) | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37) |
-| <a id="property-width"></a> `width?` | `number` | Output width in pixels. Falls back to the chart's configured `width()`. Required (here or on the chart): without an explicit size a headless DOM has no layout to measure and the chart would silently size to the jsdom window (1024×768). | [`StaticRenderOptions`](#staticrenderoptions).[`width`](#property-width-2) | [types.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L58) |
-| <a id="property-window-2"></a> `window?` | `any` | A ready-made `window` to render into (e.g. from `linkedom`). Defaults to a fresh `jsdom` window (the optional `jsdom` peer dependency must be present). | [`StaticRenderOptions`](#staticrenderoptions).[`window`](#property-window-3) | [types.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L65) |
+| Property                                                   | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                  | Inherited from                                                                                 | Defined in                                                                                                      |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| <a id="property-fetchtile-1"></a> `fetchTile?`             | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [`StaticRenderOptions`](#staticrenderoptions).[`fetchTile`](#property-fetchtile-2)             | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45)                         |
+| <a id="property-fonts-1"></a> `fonts?`                     | `string`[]                                                                                     | Font files (`.ttf`/`.otf`/`.woff2`) to register before rendering, so canvas text matches the chart's font families. Without registration native canvas falls back to its built-in fonts and text metrics can diverge.                                                                                                                                                        | [`NapiBackendOptions`](#napibackendoptions).[`fonts`](#property-fonts)                         | [napiBackend.ts:33](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L33)             |
+| <a id="property-height"></a> `height?`                     | `number`                                                                                       | Output height in pixels. Falls back to the chart's configured `height()`.                                                                                                                                                                                                                                                                                                    | [`StaticRenderOptions`](#staticrenderoptions).[`height`](#property-height-2)                   | [types.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L60)                         |
+| <a id="property-html-1"></a> `html?`                       | `string`                                                                                       | HTML used to seed a freshly-created jsdom document.                                                                                                                                                                                                                                                                                                                          | [`StaticRenderOptions`](#staticrenderoptions).[`html`](#property-html-2)                       | [types.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L67)                         |
+| <a id="property-imagetimeout-1"></a> `imageTimeout?`       | `number`                                                                                       | Milliseconds to wait for one image/tile decode before skipping it. Default 15000.                                                                                                                                                                                                                                                                                            | [`NapiBackendOptions`](#napibackendoptions).[`imageTimeout`](#property-imagetimeout)           | [napiBackend.ts:27](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L27)             |
+| <a id="property-pixelratio"></a> `pixelRatio?`             | `number`                                                                                       | Device-pixel ratio (backing-store scale) for the output. Higher values yield sharper, larger rasters. Defaults to 2.                                                                                                                                                                                                                                                         | -                                                                                              | [renderToStaticPNG.ts:20](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/renderToStaticPNG.ts#L20) |
+| <a id="property-tileconcurrency-1"></a> `tileConcurrency?` | `number`                                                                                       | Max tiles to fetch concurrently. Default 8.                                                                                                                                                                                                                                                                                                                                  | [`StaticRenderOptions`](#staticrenderoptions).[`tileConcurrency`](#property-tileconcurrency-2) | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29)                         |
+| <a id="property-tiletimeout-1"></a> `tileTimeout?`         | `number`                                                                                       | Per-tile fetch timeout in milliseconds. Default 15000.                                                                                                                                                                                                                                                                                                                       | [`StaticRenderOptions`](#staticrenderoptions).[`tileTimeout`](#property-tiletimeout-2)         | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31)                         |
+| <a id="property-tileuseragent-1"></a> `tileUserAgent?`     | `string`                                                                                       | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set.                                                                                                                                                                 | [`StaticRenderOptions`](#staticrenderoptions).[`tileUserAgent`](#property-tileuseragent-2)     | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37)                         |
+| <a id="property-width"></a> `width?`                       | `number`                                                                                       | Output width in pixels. Falls back to the chart's configured `width()`. Required (here or on the chart): without an explicit size a headless DOM has no layout to measure and the chart would silently size to the jsdom window (1024×768).                                                                                                                                  | [`StaticRenderOptions`](#staticrenderoptions).[`width`](#property-width-2)                     | [types.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L58)                         |
+| <a id="property-window-2"></a> `window?`                   | `any`                                                                                          | A ready-made `window` to render into (e.g. from `linkedom`). Defaults to a fresh `jsdom` window (the optional `jsdom` peer dependency must be present).                                                                                                                                                                                                                      | [`StaticRenderOptions`](#staticrenderoptions).[`window`](#property-window-3)                   | [types.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L65)                         |
 
-***
+---
 
 <a id="renderableviz"></a>
 
@@ -338,9 +340,9 @@ Defined in: [types.ts:14](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `boolean` |
+| Parameter | Type      |
+| --------- | --------- |
+| `v`       | `boolean` |
 
 ###### Returns
 
@@ -356,9 +358,9 @@ Defined in: [types.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `number` |
+| Parameter | Type     |
+| --------- | -------- |
+| `v`       | `number` |
 
 ###### Returns
 
@@ -386,9 +388,9 @@ Defined in: [types.ts:13](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `number` |
+| Parameter | Type     |
+| --------- | -------- |
+| `v`       | `number` |
 
 ###### Returns
 
@@ -404,9 +406,9 @@ Defined in: [types.ts:17](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `cb?` | () => `void` |
+| Parameter | Type         |
+| --------- | ------------ |
+| `cb?`     | () => `void` |
 
 ###### Returns
 
@@ -422,9 +424,9 @@ Defined in: [types.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `"svg"` \| `"canvas"` |
+| Parameter | Type                  |
+| --------- | --------------------- |
+| `v`       | `"svg"` \| `"canvas"` |
 
 ###### Returns
 
@@ -440,9 +442,9 @@ Defined in: [types.ts:9](https://github.com/d3plus/d3plus/blob/main/packages/ssr
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `el` | `any` |
+| Parameter | Type  |
+| --------- | ----- |
+| `el`      | `any` |
 
 ###### Returns
 
@@ -494,15 +496,15 @@ Defined in: [types.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/ss
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `v` | `number` |
+| Parameter | Type     |
+| --------- | -------- |
+| `v`       | `number` |
 
 ###### Returns
 
 `any`
 
-***
+---
 
 <a id="servercanvas"></a>
 
@@ -528,10 +530,10 @@ Encode the surface to an image buffer (async). Resolves to a Node `Buffer`.
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `format` | `"png"` \| `"jpeg"` \| `"webp"` \| `"avif"` |
-| `quality?` | `number` |
+| Parameter  | Type                                        |
+| ---------- | ------------------------------------------- |
+| `format`   | `"png"` \| `"jpeg"` \| `"webp"` \| `"avif"` |
+| `quality?` | `number`                                    |
 
 ###### Returns
 
@@ -543,16 +545,16 @@ Encode the surface to an image buffer (async). Resolves to a Node `Buffer`.
 
 > **toBuffer**(`mime`: `"image/png"` \| `"image/jpeg"`, ...`args`: `any`[]): `Uint8Array`
 
-Defined in: [napiBackend.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L16)
+Defined in: [napiBackend.ts:19](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L19)
 
 Encode the surface to an image buffer (sync). Returns a Node `Buffer`.
 
 ###### Parameters
 
-| Parameter | Type |
-| ------ | ------ |
-| `mime` | `"image/png"` \| `"image/jpeg"` |
-| ...`args` | `any`[] |
+| Parameter | Type                            |
+| --------- | ------------------------------- |
+| `mime`    | `"image/png"` \| `"image/jpeg"` |
+| ...`args` | `any`[]                         |
 
 ###### Returns
 
@@ -560,12 +562,12 @@ Encode the surface to an image buffer (sync). Returns a Node `Buffer`.
 
 #### Properties
 
-| Property | Modifier | Type | Defined in |
-| ------ | ------ | ------ | ------ |
+| Property                                | Modifier   | Type     | Defined in                                                                                          |
+| --------------------------------------- | ---------- | -------- | --------------------------------------------------------------------------------------------------- |
 | <a id="property-height-1"></a> `height` | `readonly` | `number` | [napiBackend.ts:12](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L12) |
-| <a id="property-width-1"></a> `width` | `readonly` | `number` | [napiBackend.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L11) |
+| <a id="property-width-1"></a> `width`   | `readonly` | `number` | [napiBackend.ts:11](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/napiBackend.ts#L11) |
 
-***
+---
 
 <a id="staticrenderoptions"></a>
 
@@ -585,13 +587,13 @@ Options shared by the static render helpers.
 
 #### Properties
 
-| Property | Type | Description | Inherited from | Defined in |
-| ------ | ------ | ------ | ------ | ------ |
-| <a id="property-fetchtile-2"></a> `fetchTile?` | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [`GeomapTileOptions`](#geomaptileoptions).[`fetchTile`](#property-fetchtile) | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45) |
-| <a id="property-height-2"></a> `height?` | `number` | Output height in pixels. Falls back to the chart's configured `height()`. | - | [types.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L60) |
-| <a id="property-html-2"></a> `html?` | `string` | HTML used to seed a freshly-created jsdom document. | - | [types.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L67) |
-| <a id="property-tileconcurrency-2"></a> `tileConcurrency?` | `number` | Max tiles to fetch concurrently. Default 8. | [`GeomapTileOptions`](#geomaptileoptions).[`tileConcurrency`](#property-tileconcurrency) | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29) |
-| <a id="property-tiletimeout-2"></a> `tileTimeout?` | `number` | Per-tile fetch timeout in milliseconds. Default 15000. | [`GeomapTileOptions`](#geomaptileoptions).[`tileTimeout`](#property-tiletimeout) | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31) |
-| <a id="property-tileuseragent-2"></a> `tileUserAgent?` | `string` | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set. | [`GeomapTileOptions`](#geomaptileoptions).[`tileUserAgent`](#property-tileuseragent) | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37) |
-| <a id="property-width-2"></a> `width?` | `number` | Output width in pixels. Falls back to the chart's configured `width()`. Required (here or on the chart): without an explicit size a headless DOM has no layout to measure and the chart would silently size to the jsdom window (1024×768). | - | [types.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L58) |
-| <a id="property-window-3"></a> `window?` | `any` | A ready-made `window` to render into (e.g. from `linkedom`). Defaults to a fresh `jsdom` window (the optional `jsdom` peer dependency must be present). | - | [types.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L65) |
+| Property                                                   | Type                                                                                           | Description                                                                                                                                                                                                                                                                                                                                                                  | Inherited from                                                                           | Defined in                                                                              |
+| ---------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| <a id="property-fetchtile-2"></a> `fetchTile?`             | (`url`: `string`) => `Promise`\<`ArrayBuffer` \| `Uint8Array`\<`ArrayBufferLike`\> \| `null`\> | Custom tile fetcher — return the raw image bytes (or `null`/throw to skip) for a tile URL. Use this to add a cache, an API key, or a proxy. Defaults to the global `fetch`. The caller owns the network request made here: d3plus does not apply SSRF filtering to this path, so a `fetchTile` can reach internal/private hosts (e.g. a self-hosted tile server) on purpose. | [`GeomapTileOptions`](#geomaptileoptions).[`fetchTile`](#property-fetchtile)             | [types.ts:45](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L45) |
+| <a id="property-height-2"></a> `height?`                   | `number`                                                                                       | Output height in pixels. Falls back to the chart's configured `height()`.                                                                                                                                                                                                                                                                                                    | -                                                                                        | [types.ts:60](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L60) |
+| <a id="property-html-2"></a> `html?`                       | `string`                                                                                       | HTML used to seed a freshly-created jsdom document.                                                                                                                                                                                                                                                                                                                          | -                                                                                        | [types.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L67) |
+| <a id="property-tileconcurrency-2"></a> `tileConcurrency?` | `number`                                                                                       | Max tiles to fetch concurrently. Default 8.                                                                                                                                                                                                                                                                                                                                  | [`GeomapTileOptions`](#geomaptileoptions).[`tileConcurrency`](#property-tileconcurrency) | [types.ts:29](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L29) |
+| <a id="property-tiletimeout-2"></a> `tileTimeout?`         | `number`                                                                                       | Per-tile fetch timeout in milliseconds. Default 15000.                                                                                                                                                                                                                                                                                                                       | [`GeomapTileOptions`](#geomaptileoptions).[`tileTimeout`](#property-tiletimeout)         | [types.ts:31](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L31) |
+| <a id="property-tileuseragent-2"></a> `tileUserAgent?`     | `string`                                                                                       | User-Agent sent with each tile request by the default fetcher. Defaults to one naming d3plus; set it to identify your app, as tile providers such as OpenStreetMap require. Ignored when `fetchTile` is set.                                                                                                                                                                 | [`GeomapTileOptions`](#geomaptileoptions).[`tileUserAgent`](#property-tileuseragent)     | [types.ts:37](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L37) |
+| <a id="property-width-2"></a> `width?`                     | `number`                                                                                       | Output width in pixels. Falls back to the chart's configured `width()`. Required (here or on the chart): without an explicit size a headless DOM has no layout to measure and the chart would silently size to the jsdom window (1024×768).                                                                                                                                  | -                                                                                        | [types.ts:58](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L58) |
+| <a id="property-window-3"></a> `window?`                   | `any`                                                                                          | A ready-made `window` to render into (e.g. from `linkedom`). Defaults to a fresh `jsdom` window (the optional `jsdom` peer dependency must be present).                                                                                                                                                                                                                      | -                                                                                        | [types.ts:65](https://github.com/d3plus/d3plus/blob/main/packages/ssr/src/types.ts#L65) |

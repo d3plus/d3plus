@@ -14,8 +14,18 @@ import {render} from "~test/browser/render.js";
 */
 
 const cities = [
-  "Tokyo", "Delhi", "Shanghai", "São Paulo", "Mexico City", "Dhaka",
-  "Cairo", "New York", "Buenos Aires", "Lagos", "Kinshasa", "Luanda",
+  "Tokyo",
+  "Delhi",
+  "Shanghai",
+  "São Paulo",
+  "Mexico City",
+  "Dhaka",
+  "Cairo",
+  "New York",
+  "Buenos Aires",
+  "Lagos",
+  "Kinshasa",
+  "Luanda",
 ];
 
 /**
@@ -28,7 +38,9 @@ const probe = ([setup, width, height, renderer, axisKey]) =>
     el.style.width = `${width}px`;
     el.style.height = `${height}px`;
     const viz = new Function("d3plus", `return ${setup}`)(window.d3plus)
-      .renderer(renderer).duration(0).select("#viz");
+      .renderer(renderer)
+      .duration(0)
+      .select("#viz");
     viz.render(() => {
       const axis = axisKey === "x" ? viz._xAxis : viz._yAxis;
       const painted = {};
@@ -52,7 +64,13 @@ const probe = ([setup, width, height, renderer, axisKey]) =>
   });
 
 const run = (setup, width, height = 260, renderer = "svg", axisKey = "x") =>
-  render('<div id="viz"></div>', probe, [setup, width, height, renderer, axisKey]);
+  render('<div id="viz"></div>', probe, [
+    setup,
+    width,
+    height,
+    renderer,
+    axisKey,
+  ]);
 
 const cityBars = `new d3plus.BarChart()
   .data(${JSON.stringify(cities.map((city, i) => ({city, pop: 38 - i * 2.5})))})
@@ -66,13 +84,31 @@ const cityBars = `new d3plus.BarChart()
 const assertHonest = (r, names, context) => {
   names.forEach(name => {
     const visible = r.visible.includes(name);
-    if (visible) assert.strictEqual(r.painted[name], name, `${context}: "${name}" paints whole (${r.painted[name]})`);
-    else assert.ok(!(name in r.painted), `${context}: thinned "${name}" paints nothing`);
+    if (visible)
+      assert.strictEqual(
+        r.painted[name],
+        name,
+        `${context}: "${name}" paints whole (${r.painted[name]})`,
+      );
+    else
+      assert.ok(
+        !(name in r.painted),
+        `${context}: thinned "${name}" paints nothing`,
+      );
   });
-  const shown = names.map((n, i) => r.visible.includes(n) ? i : -1).filter(i => i >= 0);
-  assert.ok(shown.length >= 2, `${context}: shows labels (${r.visible.join(", ")})`);
+  const shown = names
+    .map((n, i) => (r.visible.includes(n) ? i : -1))
+    .filter(i => i >= 0);
+  assert.ok(
+    shown.length >= 2,
+    `${context}: shows labels (${r.visible.join(", ")})`,
+  );
   const steps = new Set(shown.slice(1).map((d, i) => d - shown[i]));
-  assert.strictEqual(steps.size, 1, `${context}: thins evenly (${r.visible.join(", ")})`);
+  assert.strictEqual(
+    steps.size,
+    1,
+    `${context}: thins evenly (${r.visible.join(", ")})`,
+  );
   assert.strictEqual(shown[0], 0, `${context}: starts with the first label`);
 };
 
@@ -81,7 +117,11 @@ it("category labels — every width paints whole labels or thins evenly", async 
     for (const width of [900, 600, 480, 360]) {
       const r = await run(cityBars, width, 260, renderer);
       assertHonest(r, cities, `${renderer} ${width}px`);
-      assert.strictEqual(r.visible.length, 12, `${renderer} ${width}px: all 12 labels show`);
+      assert.strictEqual(
+        r.visible.length,
+        12,
+        `${renderer} ${width}px: all 12 labels show`,
+      );
     }
   }
 });
@@ -89,7 +129,11 @@ it("category labels — every width paints whole labels or thins evenly", async 
 it("category labels — side by side at 900px, rotated once they no longer fit", async () => {
   const wide = await run(cityBars, 900);
   assert.strictEqual(wide.rotated, false, "900px keeps labels flat");
-  assert.strictEqual(wide.painted["Buenos Aires"], "Buenos Aires", "wraps a two-word label");
+  assert.strictEqual(
+    wide.painted["Buenos Aires"],
+    "Buenos Aires",
+    "wraps a two-word label",
+  );
   for (const width of [600, 480, 360]) {
     const r = await run(cityBars, width);
     assert.strictEqual(r.rotated, true, `${width}px rotates`);
@@ -104,15 +148,23 @@ it("category labels — a mid-word break counts as not fitting", async () => {
 });
 
 it("category labels — the axis decides again on every render", async () => {
-  const r = await render('<div id="viz" style="width:360px;height:260px"></div>', setup =>
-    new Promise(resolve => {
-      const viz = new Function("d3plus", `return ${setup}`)(window.d3plus).duration(0).select("#viz");
-      viz.render(() => {
-        const narrow = viz._xAxis._labelRotation;
-        document.querySelector("#viz").style.width = "900px";
-        viz.width(900).render(() => resolve({narrow, wide: viz._xAxis._labelRotation}));
-      });
-    }), cityBars);
+  const r = await render(
+    '<div id="viz" style="width:360px;height:260px"></div>',
+    setup =>
+      new Promise(resolve => {
+        const viz = new Function("d3plus", `return ${setup}`)(window.d3plus)
+          .duration(0)
+          .select("#viz");
+        viz.render(() => {
+          const narrow = viz._xAxis._labelRotation;
+          document.querySelector("#viz").style.width = "900px";
+          viz
+            .width(900)
+            .render(() => resolve({narrow, wide: viz._xAxis._labelRotation}));
+        });
+      }),
+    cityBars,
+  );
   assert.deepStrictEqual(r, {narrow: true, wide: false});
 });
 
@@ -121,19 +173,29 @@ for (const renderer of ["svg", "canvas"]) {
     const setup = `${cityBars}.xConfig({tickFormat: d => d + "\\n12.5%", rotatedTickFormat: d => d})`;
     const wide = await run(setup, 900, 260, renderer);
     assert.strictEqual(wide.rotated, false, "900px keeps labels flat");
-    assert.strictEqual(wide.painted.Tokyo, "Tokyo 12.5%", "flat labels keep their second line");
+    assert.strictEqual(
+      wide.painted.Tokyo,
+      "Tokyo 12.5%",
+      "flat labels keep their second line",
+    );
     const narrow = await run(setup, 480, 260, renderer);
     assert.strictEqual(narrow.rotated, true, "480px rotates");
     const painted = Object.values(narrow.painted);
-    assert.ok(painted.length >= 2 && painted.every(t => !t.includes("%")), `rotated: names alone (${painted})`);
+    assert.ok(
+      painted.length >= 2 && painted.every(t => !t.includes("%")),
+      `rotated: names alone (${painted})`,
+    );
     assert.strictEqual(narrow.painted.Tokyo, "Tokyo");
   });
 }
 
 it("category labels — too many to fit even rotated thin evenly", async () => {
-  const codes = Array.from({length: 60}, (_, i) => `C${String(i + 1).padStart(2, "0")}`);
+  const codes = Array.from(
+    {length: 60},
+    (_, i) => `C${String(i + 1).padStart(2, "0")}`,
+  );
   const setup = `new d3plus.BarChart()
-    .data(${JSON.stringify(codes.map((code, i) => ({code, value: 10 + (i * 7) % 23})))})
+    .data(${JSON.stringify(codes.map((code, i) => ({code, value: 10 + ((i * 7) % 23)})))})
     .groupBy("code").x("code").y("value").legend(false).shapeConfig({Bar: {label: false}})`;
   const r = await run(setup, 360);
   assert.strictEqual(r.rotated, true);
@@ -151,15 +213,29 @@ it("category labels — labelRotation(false) keeps them flat and thins evenly", 
 
 it("category labels — a dot plot names every country", async () => {
   const countries = [
-    "Switzerland", "Norway", "Iceland", "Hong Kong", "Denmark", "Sweden",
-    "Germany", "Ireland", "Singapore", "Australia", "Netherlands", "Belgium",
+    "Switzerland",
+    "Norway",
+    "Iceland",
+    "Hong Kong",
+    "Denmark",
+    "Sweden",
+    "Germany",
+    "Ireland",
+    "Singapore",
+    "Australia",
+    "Netherlands",
+    "Belgium",
   ];
   const setup = `new d3plus.Plot()
     .data(${JSON.stringify(countries.map((country, i) => ({country, score: 0.97 - i * 0.008, population: 5 + i})))})
     .groupBy("country").discrete("x").x("country").y("score").size("population")
     .shapeConfig({label: false}).legend(false)`;
   const r = await run(setup, 520, 320);
-  assert.strictEqual(r.visible.length, 12, `shows every country (${r.visible.join(", ")})`);
+  assert.strictEqual(
+    r.visible.length,
+    12,
+    `shows every country (${r.visible.join(", ")})`,
+  );
   assertHonest(r, countries, "dot plot");
 });
 

@@ -1,11 +1,12 @@
 <!doctype html>
 <html>
-
   <head>
-
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
     <title>LinkedCharts · Viz</title>
-    <meta name="description" content="Linked Treemap, BarChart and LinePlot sharing hover and highlight.">
+    <meta
+      name="description"
+      content="Linked Treemap, BarChart and LinePlot sharing hover and highlight."
+    />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
 
@@ -27,15 +28,17 @@
         height: 360px;
       }
     </style>
-
   </head>
 
   <body>
-
     <div class="controls">
       Renderer:
-      <label><input type="radio" name="renderer" value="svg" checked> SVG</label>
-      <label><input type="radio" name="renderer" value="canvas"> Canvas</label>
+      <label
+        ><input type="radio" name="renderer" value="svg" checked /> SVG</label
+      >
+      <label
+        ><input type="radio" name="renderer" value="canvas" /> Canvas</label
+      >
       <button id="highlight">Highlight Europe</button>
       <button id="clear">Clear highlight</button>
     </div>
@@ -46,7 +49,6 @@
     </div>
 
     <script>
-
       const regions = {
         Americas: ["Brazil", "Chile", "Mexico"],
         Europe: ["France", "Germany", "Spain"],
@@ -56,7 +58,12 @@
       Object.entries(regions).forEach(([region, countries], ri) => {
         countries.forEach((country, ci) => {
           for (let year = 2018; year <= 2024; year++) {
-            data.push({region, country, year, revenue: 8 + ri * 4 + ci * 9 + (year - 2018) * (ci + ri + 1)});
+            data.push({
+              region,
+              country,
+              year,
+              revenue: 8 + ri * 4 + ci * 9 + (year - 2018) * (ci + ri + 1),
+            });
           }
         });
       });
@@ -92,18 +99,23 @@
           .link({group: "dev-dashboard", by: "country"}),
       ];
 
-      const draw = renderer => charts.forEach(c => c.renderer(renderer).render());
+      const draw = renderer =>
+        charts.forEach(c => c.renderer(renderer).render());
       draw("svg");
 
-      document.querySelectorAll("input[name=renderer]").forEach(input =>
-        input.addEventListener("change", () => draw(input.value)));
-      document.querySelector("#highlight").addEventListener("click", () =>
-        charts[0].highlight(d => d.region === "Europe"));
-      document.querySelector("#clear").addEventListener("click", () =>
-        charts[0].highlight(false));
-
+      document
+        .querySelectorAll("input[name=renderer]")
+        .forEach(input =>
+          input.addEventListener("change", () => draw(input.value)),
+        );
+      document
+        .querySelector("#highlight")
+        .addEventListener("click", () =>
+          charts[0].highlight(d => d.region === "Europe"),
+        );
+      document
+        .querySelector("#clear")
+        .addEventListener("click", () => charts[0].highlight(false));
     </script>
-
   </body>
-
 </html>

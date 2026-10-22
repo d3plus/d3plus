@@ -1,9 +1,15 @@
 import {it} from "vitest";
 import assert from "assert";
-import {default as studentTQuantile, studentTCdf} from "../src/studentTQuantile.ts";
+import {
+  default as studentTQuantile,
+  studentTCdf,
+} from "../src/studentTQuantile.ts";
 
 const close = (actual, expected, tol, msg) =>
-  assert.ok(Math.abs(actual - expected) < tol, `${msg}: ${actual} vs ${expected}`);
+  assert.ok(
+    Math.abs(actual - expected) < tol,
+    `${msg}: ${actual} vs ${expected}`,
+  );
 
 it("studentTQuantile", () => {
   close(studentTQuantile(0.975, 1), 12.7062, 1e-3, "df=1");

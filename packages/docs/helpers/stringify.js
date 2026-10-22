@@ -14,7 +14,8 @@ export default function (config, indent = 2) {
   const replacer = function (key, value) {
     const raw = this[key];
     if (typeof raw === "function") return placeholder(String(raw));
-    if (value && typeof value.__source === "string") return placeholder(value.__source);
+    if (value && typeof value.__source === "string")
+      return placeholder(value.__source);
     if (
       !["annotations"].includes(key) &&
       value instanceof Array &&
@@ -32,7 +33,9 @@ export default function (config, indent = 2) {
       .replace(/([^\s]):([^\s^/])/g, "$1: $2")
       .replace(/([^\s]),([^\s])/g, "$1, $2")
       .replace(/\[([^\]^{]+)\]/g, str =>
-        str.includes("__d3plus_row_") ? str : str.replace(/ /gm, "").replace(/\n/gm, " "),
+        str.includes("__d3plus_row_")
+          ? str
+          : str.replace(/ /gm, "").replace(/\n/gm, " "),
       )
 
       // remove parentheses from keys
@@ -59,7 +62,10 @@ const inline = value => {
     if (typeof value.toJSON === "function") return inline(value.toJSON());
     const entries = Object.entries(value).filter(([, v]) => v !== undefined);
     return `{${entries
-      .map(([k, v]) => `${identifier.test(k) ? k : JSON.stringify(k)}: ${inline(v)}`)
+      .map(
+        ([k, v]) =>
+          `${identifier.test(k) ? k : JSON.stringify(k)}: ${inline(v)}`,
+      )
       .join(", ")}}`;
   }
   return value === undefined ? "undefined" : JSON.stringify(value);

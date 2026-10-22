@@ -51,10 +51,10 @@ setGlobalConfig({locale: "es-ES"});
 
 ## API Reference
 
-| Export | Description |
-| --- | --- |
-| `defineElements(prefix?)` | Registers a custom element for every d3plus class. Idempotent; a no-op where `customElements` is unavailable (SSR). Returns a map of class name → tag name. |
-| `D3plusElement` | Base `HTMLElement` subclass. Set its static `viz` to a d3plus class to make a custom element. |
-| `CLASSES` | Map of PascalCase class name → d3plus class, the source of the registered tags. |
-| `setGlobalConfig(config?)` | Replaces the global config merged into every element. |
-| `globalConfig` | The current global config object. |
+| Export                     | Description                                                                                                                                                 |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `defineElements(prefix?)`  | Registers a custom element for every d3plus class. Idempotent; a no-op where `customElements` is unavailable (SSR). Returns a map of class name → tag name. |
+| `D3plusElement`            | Base `HTMLElement` subclass. Set its static `viz` to a d3plus class to make a custom element.                                                               |
+| `CLASSES`                  | Map of PascalCase class name → d3plus class, the source of the registered tags.                                                                             |
+| `setGlobalConfig(config?)` | Replaces the global config merged into every element.                                                                                                       |
+| `globalConfig`             | The current global config object.                                                                                                                           |

@@ -481,10 +481,14 @@ export function textVisualCenter(node: TextNode): [number, number] {
   if (!lines || !lines.length)
     return [(node.width ?? 0) / 2, (node.height ?? 0) / 2];
   const anchor = node.font?.anchor;
-  let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    maxX = -Infinity,
+    minY = Infinity,
+    maxY = -Infinity;
   for (const ln of lines) {
     const w = ln.width || 0;
-    const left = anchor === "middle" ? ln.x - w / 2 : anchor === "end" ? ln.x - w : ln.x;
+    const left =
+      anchor === "middle" ? ln.x - w / 2 : anchor === "end" ? ln.x - w : ln.x;
     if (left < minX) minX = left;
     if (left + w > maxX) maxX = left + w;
     if (ln.y < minY) minY = ln.y;
@@ -551,10 +555,7 @@ export interface HtmlOverlayNode extends NodeBase {
           ".zoom-out": {click: e => viz.zoomOut()},
         }
   */
-  events?: Record<
-    string,
-    Partial<Record<string, (e: Event) => void>>
-  >;
+  events?: Record<string, Partial<Record<string, (e: Event) => void>>>;
   /**
       Optional callback fired ONCE after the overlay's host `<div>` is
       first created — AFTER `innerHTML` / `style` / `dimensions` are

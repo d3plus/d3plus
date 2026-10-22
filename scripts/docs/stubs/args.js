@@ -1,8 +1,8 @@
-import fs from "node:fs";
 import path from "node:path";
-import {parseSync, printSync} from "@swc/core";
+import {printSync} from "@swc/core";
 
 import {applyColorControl} from "./colorControl.js";
+import {constructorExpressions} from "./constructorDefaults.js";
 
 // Inherited config each chart fixes for itself, left out of its args. Each
 // entry is matched against the whole key (it may be a regex, e.g. "zoom.*").
@@ -195,7 +195,9 @@ function lineage(name, stories) {
 export function configInterfaceDocs(name, stories, interfaceDocs) {
   const byName = interfaceDocs.byName || {};
   if (byName[`${name}Config`]) return byName[`${name}Config`];
-  return lineage(name, stories).includes("Viz") ? byName.D3plusConfig || {} : {};
+  return lineage(name, stories).includes("Viz")
+    ? byName.D3plusConfig || {}
+    : {};
 }
 
 // A paragraph that opens with documented class names and a colon
@@ -265,20 +267,13 @@ export default function (
   }
 
   // A class's default overrides come from the `this.method(value)` calls in
-  // its constructor; a makeChart chart has no constructor (its overrides are
+  // its constructor (and in helpers it hands `this` to); a makeChart chart has no constructor (its overrides are
   // def fields, handled below).
   if (parentClass && !story.chartDef) {
     const storyPath = path.join(story.meta.path, story.meta.filename);
-    const fileContent = fs.readFileSync(storyPath, {encoding: "utf8"});
-    const {body} = parseSync(fileContent, {
-      syntax: "typescript",
-    });
-    const statements = body
-      .find(d => d.type === "ExportDefaultDeclaration")
-      .decl.body.find(d => d.type === "Constructor")
-      .body.stmts.filter(d => d.type === "ExpressionStatement")
-      .map(d => d.expression)
-      .filter(d => d.type !== "CallExpression" || d.arguments.length);
+    const statements = constructorExpressions(storyPath).filter(
+      d => d.type !== "CallExpression" || d.arguments.length,
+    );
 
     let ancestor = story,
       parentMethods = [];
@@ -644,12 +639,17 @@ function chartArgTypes(
   const ownConfig = configDefaults[story.name] || {};
   const parentName = hasParent(story);
   const parentConfig = (parentName && configDefaults[parentName]) || {};
-  const typed = (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
+  const typed =
+    (interfaceDocs.byName && interfaceDocs.byName.D3plusConfig) || {};
   const merged = interfaceDocs.merged || {};
   const byName = name => stories.find(d => d.name === name);
   const chartDoc = (s, key) => {
     const field = s.chartDef.fields.find(f => f.key === key);
-    return (field && field.description) || (s.chartDef.accessors[key] || {}).description || "";
+    return (
+      (field && field.description) ||
+      (s.chartDef.accessors[key] || {}).description ||
+      ""
+    );
   };
   // Whether a class's parent (or an ancestor) has `key`: an installFluent
   // accessor, a documented method, or a chart's own config.
@@ -659,7 +659,8 @@ function chartArgTypes(
     if (key in (configDefaults[parent.name] || {})) return true;
     for (let a = parent; a; a = byName(hasParent(a))) {
       if (a.chartDef && a.chartDef.fields.some(f => f.key === key)) return true;
-      if (allMethods.some(d => d.memberof === a.name && d.name === key)) return true;
+      if (allMethods.some(d => d.memberof === a.name && d.name === key))
+        return true;
     }
     return false;
   };
@@ -674,16 +675,21 @@ function chartArgTypes(
       const inherited = describe(parent, key);
       return own ? [inherited, own].filter(Boolean).join("\n\n") : inherited;
     }
-    const method = allMethods.find(d => d.memberof === s.name && d.name === key);
+    const method = allMethods.find(
+      d => d.memberof === s.name && d.name === key,
+    );
     if (method && method.description) return method.description;
     const parent = byName(hasParent(s));
     return parent ? describe(parent, key) : sharedDoc(key);
   };
   const sharedDoc = key =>
-    (scopedDoc(typed[key] || merged[key], story.name, stories) || {}).description || "";
+    (scopedDoc(typed[key] || merged[key], story.name, stories) || {})
+      .description || "";
 
   const fieldsByKey = Object.fromEntries(fields.map(f => [f.key, f]));
-  const keys = [...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)])];
+  const keys = [
+    ...new Set([...fields.map(f => f.key), ...Object.keys(ownConfig)]),
+  ];
   const out = {};
   for (const key of keys) {
     if (hideRe && hideRe.test(key)) continue;
@@ -871,6 +877,7 @@ const formatAst = ast => {
       const properties = ast.properties.map(formatAst);
       return `{${properties.length === 1 ? properties[0] : properties.join(", ")}}`;
     }
+    case "FunctionBody":
     case "BlockStatement":
       return `{\n  ${printAst(ast.stmts).replaceAll(/\n(?=.*\n)/g, "\n  ")}}`;
     case "KeyValueProperty":

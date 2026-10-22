@@ -3,22 +3,20 @@
 
 import React from "react";
 
-
-
 export const argTypes = {
   u: {
     control: {
-      type: "number"
+      type: "number",
     },
     description: "The scaled distance from an observation.",
     table: {
       defaultValue: {
-        summary: "undefined"
-      }
+        summary: "undefined",
+      },
     },
     type: {
       required: true,
-      summary: "number"
-    }
-  }
+      summary: "number",
+    },
+  },
 };

@@ -175,29 +175,42 @@ export const FACET_ASPECT = 4 / 3;
 */
 export function coerceFacet(value: unknown): FacetAccessor | undefined {
   if (typeof value === "function") return value as FacetAccessor;
-  if (typeof value === "string" && value) return accessor(value) as FacetAccessor;
+  if (typeof value === "string" && value)
+    return accessor(value) as FacetAccessor;
   return undefined;
 }
 
 /** `facetConfig` with defaults filled in. */
-export function resolveFacetConfig(config: FacetConfig | undefined): ResolvedFacetConfig {
+export function resolveFacetConfig(
+  config: FacetConfig | undefined,
+): ResolvedFacetConfig {
   const c = config ?? {};
   const count = (n: unknown): number | undefined =>
-    typeof n === "number" && Number.isFinite(n) && n >= 1 ? Math.floor(n) : undefined;
+    typeof n === "number" && Number.isFinite(n) && n >= 1
+      ? Math.floor(n)
+      : undefined;
   return {
     columns: count(c.columns),
     rows: count(c.rows),
-    padding: typeof c.padding === "number" && c.padding >= 0 ? c.padding : FACET_PADDING,
+    padding:
+      typeof c.padding === "number" && c.padding >= 0
+        ? c.padding
+        : FACET_PADDING,
     sort: c.sort ?? "ascending",
-    scales: c.scales === "shared" || c.scales === "independent" ? c.scales : undefined,
+    scales:
+      c.scales === "shared" || c.scales === "independent"
+        ? c.scales
+        : undefined,
     axes: resolveFacetAxes(c.axes),
-    title: c.title === false || typeof c.title === "function" ? c.title : undefined,
+    title:
+      c.title === false || typeof c.title === "function" ? c.title : undefined,
     titleConfig: {...FACET_TITLE_DEFAULTS, ...(c.titleConfig ?? {})},
   };
 }
 
 /** Whether `value` is an axes mode. */
-const isAxesMode = (value: unknown): value is FacetAxesMode => value === "outer" || value === "all";
+const isAxesMode = (value: unknown): value is FacetAxesMode =>
+  value === "outer" || value === "all";
 
 /** A `facetConfig.axes` value with invalid modes dropped (an object keeps its valid axes). */
 export function resolveFacetAxes(value: unknown): FacetAxes | undefined {
@@ -211,7 +224,10 @@ export function resolveFacetAxes(value: unknown): FacetAxes | undefined {
 }
 
 /** `axis`'s mode in a `FacetAxes` value, if it sets one. */
-function axisMode(value: FacetAxes | undefined, axis: "x" | "y"): FacetAxesMode | undefined {
+function axisMode(
+  value: FacetAxes | undefined,
+  axis: "x" | "y",
+): FacetAxesMode | undefined {
   return typeof value === "object" ? value[axis] : value;
 }
 
@@ -230,7 +246,9 @@ export function facetOuterAxes(
   const chart = typeof hooks.axes === "function" ? hooks.axes(viz) : hooks.axes;
   const fixed = hooks.fixedAxes ? hooks.fixedAxes(viz) : {};
   const outer = (axis: "x" | "y") =>
-    (axisMode(config.axes, axis) ?? axisMode(chart, axis) ?? "outer") === "outer" && (shared || !!fixed[axis]);
+    (axisMode(config.axes, axis) ?? axisMode(chart, axis) ?? "outer") ===
+      "outer" &&
+    (shared || !!fixed[axis]);
   return {x: outer("x"), y: outer("y")};
 }
 

@@ -10,7 +10,7 @@ function lnGamma(z: number): number {
   tmp -= (x + 0.5) * Math.log(tmp);
   let ser = 1.000000000190015;
   for (const coef of c) ser += coef / ++y;
-  x = Math.log(2.5066282746310002 * ser / z);
+  x = Math.log((2.5066282746310002 * ser) / z);
   return x - tmp;
 }
 
@@ -18,20 +18,20 @@ function lnGamma(z: number): number {
 function betaContinuedFraction(x: number, a: number, b: number): number {
   const tiny = 1e-30;
   let c = 1;
-  let d = 1 - (a + b) * x / (a + 1);
+  let d = 1 - ((a + b) * x) / (a + 1);
   if (Math.abs(d) < tiny) d = tiny;
   d = 1 / d;
   let h = d;
   for (let m = 1; m <= 200; m++) {
     const m2 = 2 * m;
-    let aa = m * (b - m) * x / ((a + m2 - 1) * (a + m2));
+    let aa = (m * (b - m) * x) / ((a + m2 - 1) * (a + m2));
     d = 1 + aa * d;
     if (Math.abs(d) < tiny) d = tiny;
     c = 1 + aa / c;
     if (Math.abs(c) < tiny) c = tiny;
     d = 1 / d;
     h *= d * c;
-    aa = -(a + m) * (a + b + m) * x / ((a + m2) * (a + m2 + 1));
+    aa = (-(a + m) * (a + b + m) * x) / ((a + m2) * (a + m2 + 1));
     d = 1 + aa * d;
     if (Math.abs(d) < tiny) d = tiny;
     c = 1 + aa / c;
@@ -49,11 +49,15 @@ function incompleteBeta(x: number, a: number, b: number): number {
   if (x <= 0) return 0;
   if (x >= 1) return 1;
   const front = Math.exp(
-    lnGamma(a + b) - lnGamma(a) - lnGamma(b) + a * Math.log(x) + b * Math.log(1 - x),
+    lnGamma(a + b) -
+      lnGamma(a) -
+      lnGamma(b) +
+      a * Math.log(x) +
+      b * Math.log(1 - x),
   );
   return x < (a + 1) / (a + b + 2)
-    ? front * betaContinuedFraction(x, a, b) / a
-    : 1 - front * betaContinuedFraction(1 - x, b, a) / b;
+    ? (front * betaContinuedFraction(x, a, b)) / a
+    : 1 - (front * betaContinuedFraction(1 - x, b, a)) / b;
 }
 
 /**

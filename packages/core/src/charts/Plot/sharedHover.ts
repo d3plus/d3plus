@@ -11,7 +11,11 @@ import {nodeColor, ownerNode, visibleColor} from "../features/tooltipSwatch.js";
 import {facetPanelAt} from "../facet/facetPanel.js";
 import {linkAs} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
-import {renderSharedTooltip, renderSingleTooltip, restoreTooltip} from "./sharedTooltip.js";
+import {
+  renderSharedTooltip,
+  renderSingleTooltip,
+  restoreTooltip,
+} from "./sharedTooltip.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
 import {renderTrendTooltip} from "./trendTooltip.js";
 
@@ -65,7 +69,10 @@ type Wrapped = DataPoint & {data?: DataPoint; i?: number; id?: unknown};
     the `viz-zoom` group's `_zoomTransform`, then the `viz-chart-body` group's
     `_chartTransform`.
 */
-export function contentPoint(viz: VizInstance, point: [number, number]): [number, number] {
+export function contentPoint(
+  viz: VizInstance,
+  point: [number, number],
+): [number, number] {
   const t = viz._zoomTransform;
   const scale = t && t.scale ? t.scale : 1;
   const c = viz._chartTransform;
@@ -74,7 +81,6 @@ export function contentPoint(viz: VizInstance, point: [number, number]): [number
     (point[1] - (t?.y ?? 0)) / scale - (c?.y ?? 0),
   ];
 }
-
 
 const discreteKey = (v: unknown): string =>
   v instanceof Date ? String(v.getTime()) : String(v);
@@ -117,7 +123,9 @@ export function hasSharedMarks(viz: VizInstance): boolean {
   const walk = (node: ShapeNode): boolean => {
     if (node.interactionGroup || node.interactive === false) return false;
     if (sharedMark(viz, node)) return true;
-    return !!node.children && node.children.some(child => walk(child as ShapeNode));
+    return (
+      !!node.children && node.children.some(child => walk(child as ShapeNode))
+    );
   };
   return (viz._chartScene || []).some(node => walk(node as ShapeNode));
 }
@@ -137,12 +145,23 @@ function collectColumns(
 ): Map<string, Column> {
   const columns = new Map<string, Column>();
   const position = axis === "x" ? viz._xFunc : viz._yFunc;
-  const add = (wrapped: Wrapped, px: number, color?: string, shape?: string): Column | null => {
+  const add = (
+    wrapped: Wrapped,
+    px: number,
+    color?: string,
+    shape?: string,
+  ): Column | null => {
     if (!wrapped || !Number.isFinite(px)) return null;
     const key = discreteKey(wrapped[axis]);
     let column = columns.get(key);
     if (!column) {
-      column = {px, value: wrapped[axis], members: new Map(), bars: new Set(), markers: []};
+      column = {
+        px,
+        value: wrapped[axis],
+        members: new Map(),
+        bars: new Set(),
+        markers: [],
+      };
       columns.set(key, column);
     }
     if (shape === "Bar") {
@@ -174,8 +193,10 @@ function collectColumns(
           column.markers.push({datum: p.datum, x: p.x, y: p.y});
         }
       }
-    }
-    else if (position && !(node.datum as {__d3plusShape__?: boolean}).__d3plusShape__) {
+    } else if (
+      position &&
+      !(node.datum as {__d3plusShape__?: boolean}).__d3plusShape__
+    ) {
       const wrapped = node.datum as Wrapped;
       add(wrapped, position(wrapped[axis] as DataPoint), color, node.shapeType);
     }
@@ -210,7 +231,12 @@ function addProjectedColumns(
         columns.set(key, column);
       }
       const wrapped = (fit.row || {}) as Wrapped;
-      column.members.set(`${fit.id}::projected`, {wrapped, color: fit.color, shape: "Line", trend: {fit, sample}});
+      column.members.set(`${fit.id}::projected`, {
+        wrapped,
+        color: fit.color,
+        shape: "Line",
+        trend: {fit, sample},
+      });
     }
   }
 }
@@ -228,7 +254,16 @@ function memberRow(
     if (!Number.isFinite(value)) return null;
     const name = String(fit.label);
     const datum = (fit.row || {}) as DataPoint;
-    return {id, name, value, color: member.color, shape: "Line", datum, index: 0, projected: {lci: sample.lci, hci: sample.hci}};
+    return {
+      id,
+      name,
+      value,
+      color: member.color,
+      shape: "Line",
+      datum,
+      index: 0,
+      projected: {lci: sample.lci, hci: sample.hci},
+    };
   }
   const valueOf = axis === "x" ? viz._y : viz._x;
   const datum = (member.wrapped.data || member.wrapped) as DataPoint;
@@ -236,37 +271,68 @@ function memberRow(
   const value = valueOf ? Number(valueOf(datum, index)) : NaN;
   if (!Number.isFinite(value) || !viz.schema.tooltip(datum, index)) return null;
   const name = String(viz._drawLabel(datum, index));
-  return {id, name, value, color: member.color, shape: member.shape, datum, index};
+  return {
+    id,
+    name,
+    value,
+    color: member.color,
+    shape: member.shape,
+    datum,
+    index,
+  };
 }
 
 /** The column nearest a discrete-axis pixel, optionally only those holding `id`. */
-function nearestColumn(columns: Map<string, Column>, target: number, id?: string): Column | null {
+function nearestColumn(
+  columns: Map<string, Column>,
+  target: number,
+  id?: string,
+): Column | null {
   let best: Column | null = null;
   for (const column of columns.values()) {
     if (id !== undefined && !column.members.has(id)) continue;
-    if (!best || Math.abs(column.px - target) < Math.abs(best.px - target)) best = column;
+    if (!best || Math.abs(column.px - target) < Math.abs(best.px - target))
+      best = column;
   }
   return best;
 }
 
 /** A scene node's center along the discrete axis (a side-by-side bar's own center). */
 function nodeCenter(node: ShapeNode, axis: "x" | "y"): number {
-  const n = node as ShapeNode & {x?: number; y?: number; width?: number; height?: number; cx?: number; cy?: number; transform?: {x?: number; y?: number}};
+  const n = node as ShapeNode & {
+    x?: number;
+    y?: number;
+    width?: number;
+    height?: number;
+    cx?: number;
+    cy?: number;
+    transform?: {x?: number; y?: number};
+  };
   const offset = n.transform?.[axis] ?? 0;
-  if (n.type === "rect") return offset + (n[axis] ?? 0) + ((axis === "x" ? n.width : n.height) ?? 0) / 2;
+  if (n.type === "rect")
+    return (
+      offset + (n[axis] ?? 0) + ((axis === "x" ? n.width : n.height) ?? 0) / 2
+    );
   if (n.type === "circle") return offset + ((axis === "x" ? n.cx : n.cy) ?? 0);
   return NaN;
 }
 
 /** Whether a picked node is a chart data mark (not chrome, a legend swatch, or inert). */
 const isMark = (node?: ShapeNode): node is ShapeNode =>
-  !!node && !!node.shapeType && !!node.datum && !node.interactionGroup && node.interactive !== false;
+  !!node &&
+  !!node.shapeType &&
+  !!node.datum &&
+  !node.interactionGroup &&
+  node.interactive !== false;
 
 /**
     The mark a picked shape label belongs to (a label's record carries its
     mark's datum as `data`), so hovering a label reads as hovering its mark.
 */
-export function labeledMark(viz: VizInstance, node?: ShapeNode): ShapeNode | undefined {
+export function labeledMark(
+  viz: VizInstance,
+  node?: ShapeNode,
+): ShapeNode | undefined {
   const owner = (node?.datum as Wrapped | undefined)?.data;
   if (!owner || isMark(node)) return undefined;
   let found: ShapeNode | undefined;
@@ -304,12 +370,22 @@ function resolveHover(
   const picked = event.pick ? (event.pick.node as ShapeNode) : undefined;
   const pick = labeledMark(viz, picked) ?? picked;
   const onMark = isMark(pick) && pick.shapeType !== "Box";
-  const single = (column: Column | null, id: string, px: number, wrapped?: Wrapped): SharedHover | null => {
-    const member = column?.members.get(id)
-      ?? (wrapped ? {wrapped, color: nodeColor(viz, pick), shape: pick?.shapeType} : undefined);
+  const single = (
+    column: Column | null,
+    id: string,
+    px: number,
+    wrapped?: Wrapped,
+  ): SharedHover | null => {
+    const member =
+      column?.members.get(id) ??
+      (wrapped
+        ? {wrapped, color: nodeColor(viz, pick), shape: pick?.shapeType}
+        : undefined);
     const row = member ? memberRow(viz, axis, id, member) : null;
     if (!row || !Number.isFinite(px)) return null;
-    const markers = column ? column.markers.filter(m => String(m.datum.id) === id) : [];
+    const markers = column
+      ? column.markers.filter(m => String(m.datum.id) === id)
+      : [];
     const value = column ? column.value : member!.wrapped[axis];
     return {mode: "single", axis, px, value, rows: [row], markers, layer};
   };
@@ -323,10 +399,22 @@ function resolveHover(
       });
       if (rows.length >= 2 || rows.some(r => r.projected)) {
         sortRows(viz, axis, rows);
-        const stack = best.bars.size ? {rows: best.bars, bars: found.bars} : undefined;
-        return {mode: "shared", axis, px: best.px, value: best.value, rows, markers: best.markers, layer, stack};
+        const stack = best.bars.size
+          ? {rows: best.bars, bars: found.bars}
+          : undefined;
+        return {
+          mode: "shared",
+          axis,
+          px: best.px,
+          value: best.value,
+          rows,
+          markers: best.markers,
+          layer,
+          stack,
+        };
       }
-      if (rows.length === 1 && !onMark) return single(best, rows[0].id, best.px);
+      if (rows.length === 1 && !onMark)
+        return single(best, rows[0].id, best.px);
     }
   }
   if (!onMark) return null;
@@ -337,7 +425,12 @@ function resolveHover(
     return column ? single(column, id, column.px) : null;
   }
   // A bar's error bar snaps to the bar's own center.
-  return single(null, id, nodeCenter(ownerNode(viz, pick) ?? pick, axis), wrapped);
+  return single(
+    null,
+    id,
+    nodeCenter(ownerNode(viz, pick) ?? pick, axis),
+    wrapped,
+  );
 }
 
 /**
@@ -370,21 +463,34 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
   if (event.type === "mousemove" || event.type === "mouseenter") {
     // Repainting mid-transition would snap it to its end (see `_routeSceneEvent`).
     if (viz._transitionEndsAt && Date.now() < viz._transitionEndsAt) return;
-    const pick = event.pick && (event.pick.node as {interactionGroup?: string; trendFit?: TrendFit});
+    const pick =
+      event.pick &&
+      (event.pick.node as {interactionGroup?: string; trendFit?: TrendFit});
     if (pick && pick.trendFit) {
       handleTrendHover(viz, pick.trendFit, event);
       return;
     }
-    if (area && Array.isArray(event.point) && !(pick && pick.interactionGroup === "legend")) {
+    if (
+      area &&
+      Array.isArray(event.point) &&
+      !(pick && pick.interactionGroup === "legend")
+    ) {
       const [cx, cy] = contentPoint(viz, event.point);
       const inside =
-        cx >= area.x && cx <= area.x + area.width && cy >= area.y && cy <= area.y + area.height;
+        cx >= area.x &&
+        cx <= area.x + area.width &&
+        cy >= area.y &&
+        cy <= area.y + area.height;
       hover = resolveHover(viz, event, [cx, cy], inside);
     }
   }
   // Only leaving the whole surface clears; a node-to-node hand-off also
   // dispatches "mouseleave" (from a native mousemove) and is followed by a move.
-  else if (event.type !== "mouseleave" || (event.nativeEvent && event.nativeEvent.type !== "mouseleave")) return;
+  else if (
+    event.type !== "mouseleave" ||
+    (event.nativeEvent && event.nativeEvent.type !== "mouseleave")
+  )
+    return;
   const prev = viz._sharedHoverState;
   if (hover) {
     viz._sharedHoverActive = true;
@@ -397,8 +503,7 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
       sharedHighlight(viz, hover, prev?.mode);
       viz._scheduleSceneRepaint();
     }
-  }
-  else if (viz._sharedHoverActive) {
+  } else if (viz._sharedHoverActive) {
     viz._sharedHoverActive = false;
     viz._sharedHoverState = null;
     viz._tooltipClass!.data([]).render();
@@ -412,14 +517,21 @@ export function handleSharedHover(viz: VizInstance, event: SceneEvent): void {
     Hovering a trend line: its own tooltip replaces any snapped hover, and the
     crosshair clears. The leave path in `handleSharedHover` tears it down.
 */
-function handleTrendHover(viz: VizInstance, trend: TrendFit, event: SceneEvent): void {
+function handleTrendHover(
+  viz: VizInstance,
+  trend: TrendFit,
+  event: SceneEvent,
+): void {
   const prev = viz._sharedHoverState;
   viz._sharedHoverActive = true;
   viz._sharedHoverState = null;
-  const cursor = Array.isArray(event.point) ? contentPoint(viz, event.point) : undefined;
+  const cursor = Array.isArray(event.point)
+    ? contentPoint(viz, event.point)
+    : undefined;
   renderTrendTooltip(viz, trend, event, cursor);
   if (prev) {
-    if (prev.mode === "shared" && typeof viz._hover === "function") viz.hover!(false);
+    if (prev.mode === "shared" && typeof viz._hover === "function")
+      viz.hover!(false);
     viz._scheduleSceneRepaint();
   }
 }
@@ -432,7 +544,11 @@ function handleTrendHover(viz: VizInstance, trend: TrendFit, event: SceneEvent):
     chart with its own column emphasis (`_plotColumnHighlight`) highlights the
     hovered column in either mode, unless `hoverOpacity` turns dimming off.
 */
-function sharedHighlight(viz: VizInstance, hover: SharedHover, prevMode?: string): void {
+function sharedHighlight(
+  viz: VizInstance,
+  hover: SharedHover,
+  prevMode?: string,
+): void {
   const stack = hover.stack;
   const clear = (): void => {
     if (typeof viz._hover === "function") viz.hover!(false);
@@ -443,15 +559,12 @@ function sharedHighlight(viz: VizInstance, hover: SharedHover, prevMode?: string
     const rows = new Set(hover.rows.map(row => row.datum));
     linkAs(viz, (d: DataPoint) => rows.has(d));
     viz.hover!(column(rows));
-  }
-  else if (hover.mode === "single") {
+  } else if (hover.mode === "single") {
     if (prevMode === "shared") clear();
-  }
-  else if (stack) {
+  } else if (stack) {
     // Non-bar marks stay bright in the column hover, but only the stack's
     // own rows are what linked charts should match.
     linkAs(viz, (d: DataPoint) => stack.rows.has(d));
     viz.hover!((d: DataPoint) => stack.rows.has(d) || !stack.bars.has(d));
-  }
-  else clear();
+  } else clear();
 }

@@ -35,7 +35,11 @@ export interface FacetGridOptions {
     How large a chart of `aspect` can draw in a `width` × `height` box: the
     area of the biggest `aspect`-shaped rect that fits.
 */
-export function fittedArea(width: number, height: number, aspect: number): number {
+export function fittedArea(
+  width: number,
+  height: number,
+  aspect: number,
+): number {
   if (width <= 0 || height <= 0) return 0;
   const w = Math.min(width, height * aspect);
   return w * (w / aspect);
@@ -55,24 +59,38 @@ export function facetDimensions(
 ): {columns: number; rows: number} {
   if (count <= 0) return {columns: 0, rows: 0};
   const {columns, rows} = opts;
-  if (columns) return {columns: Math.min(columns, count), rows: Math.max(rows ?? 0, Math.ceil(count / columns))};
+  if (columns)
+    return {
+      columns: Math.min(columns, count),
+      rows: Math.max(rows ?? 0, Math.ceil(count / columns)),
+    };
   if (rows) {
     const cols = Math.ceil(count / rows);
     return {columns: cols, rows: Math.ceil(count / cols)};
   }
   const gutter = opts.gutter ?? {left: 0, right: 0, bottom: 0};
   let best = {columns: 1, rows: count};
-  let bestScore = -1, bestEmpty = Infinity, bestShape = Infinity;
+  let bestScore = -1,
+    bestEmpty = Infinity,
+    bestShape = Infinity;
   for (let c = 1; c <= count; c++) {
     const r = Math.ceil(count / c);
-    const w = (area.width - gutter.left - gutter.right - (c - 1) * (opts.columnPadding ?? opts.padding)) / c;
-    const h = (area.height - gutter.bottom - (r - 1) * opts.padding) / r - opts.titleHeight;
+    const w =
+      (area.width -
+        gutter.left -
+        gutter.right -
+        (c - 1) * (opts.columnPadding ?? opts.padding)) /
+      c;
+    const h =
+      (area.height - gutter.bottom - (r - 1) * opts.padding) / r -
+      opts.titleHeight;
     const score = fittedArea(w, h, opts.aspect);
     const empty = c * r - count;
     const shape = h > 0 ? Math.abs(Math.log(w / h / opts.aspect)) : Infinity;
     const better =
       score > bestScore * 1.01 ||
-      (score >= bestScore * 0.99 && (empty < bestEmpty || (empty === bestEmpty && shape < bestShape)));
+      (score >= bestScore * 0.99 &&
+        (empty < bestEmpty || (empty === bestEmpty && shape < bestShape)));
     if (better) {
       best = {columns: c, rows: r};
       bestScore = Math.max(score, bestScore);
@@ -91,22 +109,41 @@ export function facetDimensions(
     panels that draw axis labels the others skip keep the same plot area. A
     bottom-edge panel above an empty cell reaches into that cell's space.
 */
-export function facetGrid(count: number, area: FacetArea, opts: FacetGridOptions): FacetCell[] {
+export function facetGrid(
+  count: number,
+  area: FacetArea,
+  opts: FacetGridOptions,
+): FacetCell[] {
   const {columns, rows} = facetDimensions(count, area, opts);
   if (!columns) return [];
   const gutter = opts.gutter ?? {left: 0, right: 0, bottom: 0};
-  const pad = opts.padding, padX = opts.columnPadding ?? pad;
-  const cellW = Math.max(0, (area.width - gutter.left - gutter.right - (columns - 1) * padX) / columns);
-  const cellH = Math.max(0, (area.height - gutter.bottom - (rows - 1) * pad) / rows);
+  const pad = opts.padding,
+    padX = opts.columnPadding ?? pad;
+  const cellW = Math.max(
+    0,
+    (area.width - gutter.left - gutter.right - (columns - 1) * padX) / columns,
+  );
+  const cellH = Math.max(
+    0,
+    (area.height - gutter.bottom - (rows - 1) * pad) / rows,
+  );
   const cells: FacetCell[] = [];
   for (let index = 0; index < count; index++) {
-    const row = Math.floor(index / columns), column = index % columns;
+    const row = Math.floor(index / columns),
+      column = index % columns;
     const below = index + columns < count;
     const x = area.x + column * (cellW + padX) + (column ? gutter.left : 0);
     const y = area.y + row * (cellH + pad);
     cells.push({
-      index, row, column, x, y,
-      width: cellW + (column ? 0 : gutter.left) + (column === columns - 1 ? gutter.right : 0),
+      index,
+      row,
+      column,
+      x,
+      y,
+      width:
+        cellW +
+        (column ? 0 : gutter.left) +
+        (column === columns - 1 ? gutter.right : 0),
       height: cellH + (below ? 0 : gutter.bottom),
       edges: {
         top: row === 0,

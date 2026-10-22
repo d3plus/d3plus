@@ -25,10 +25,10 @@ publicHoistPattern:
   - "*typescript*"
   - "*storybook*"
 overrides:
-  browserslist: '>=4.28.7'
+  browserslist: ">=4.28.7"
 allowBuilds:
-  '@parcel/watcher': true
-  '@swc/core': true
+  "@parcel/watcher": true
+  "@swc/core": true
   core-js-pure: true
   esbuild: true
   lmdb: true

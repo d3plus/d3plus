@@ -32,7 +32,9 @@ export function parallelDimensionKeys(viz: VizInstance): string[] {
   const set = viz.schema.dimensions;
   if (Array.isArray(set)) return set.map(String);
   const raw = (viz as VizInstance & {_groupByRaw?: unknown})._groupByRaw;
-  const groupBy = (Array.isArray(raw) ? raw : [raw]).filter((k): k is string => typeof k === "string");
+  const groupBy = (Array.isArray(raw) ? raw : [raw]).filter(
+    (k): k is string => typeof k === "string",
+  );
   return detectDimensions((viz._data ?? []) as DataPoint[], ["id", ...groupBy]);
 }
 
@@ -62,8 +64,20 @@ export function brushTarget(
     alongStart: axis.start,
   };
   return orient === "horizontal"
-    ? {...base, x: margin.left + axis.offset - width / 2, y: margin.top + axis.start, width, height: along}
-    : {...base, x: margin.left + axis.start, y: margin.top + axis.offset - width / 2, width: along, height: width};
+    ? {
+        ...base,
+        x: margin.left + axis.offset - width / 2,
+        y: margin.top + axis.start,
+        width,
+        height: along,
+      }
+    : {
+        ...base,
+        x: margin.left + axis.start,
+        y: margin.top + axis.offset - width / 2,
+        width: along,
+        height: width,
+      };
 }
 
 export const applyParallelLayout: TransformStage = ({viz}) => {
@@ -74,22 +88,34 @@ export const applyParallelLayout: TransformStage = ({viz}) => {
   viz.ctx.axisNodes = [];
   if (!rows.length || !keys.length) return {shapeData: []};
 
-  const config = (viz.schema.dimensionConfig ?? {}) as Record<string, DimensionOptions | undefined>;
-  const shared = viz.ctx.sharedDomains as Record<string, (number | string)[]> | undefined;
+  const config = (viz.schema.dimensionConfig ?? {}) as Record<
+    string,
+    DimensionOptions | undefined
+  >;
+  const shared = viz.ctx.sharedDomains as
+    Record<string, (number | string)[]> | undefined;
   const dims = resolveDimensions(keys, rows, config, shared);
   viz.ctx.dimensions = dims;
 
   const orient = parallelOrient(viz.schema.orient);
-  const curve = (viz.schema.curve === "bump" ? "bump" : "linear") as ParallelCurve;
+  const curve = (
+    viz.schema.curve === "bump" ? "bump" : "linear"
+  ) as ParallelCurve;
   const {width, height} = chartBounds(viz);
   const layout = layoutAxes(viz, dims, width, height, orient);
   viz.ctx.axisNodes = layout.nodes;
 
   const brushConfig = (viz.schema.brushConfig ?? {}) as {width?: number};
-  const stripWidth = typeof brushConfig.width === "number" ? brushConfig.width : BRUSH_WIDTH;
-  for (const axis of layout.axes) queue.push(brushTarget(axis, orient, viz._margin, stripWidth));
+  const stripWidth =
+    typeof brushConfig.width === "number" ? brushConfig.width : BRUSH_WIDTH;
+  for (const axis of layout.axes)
+    queue.push(brushTarget(axis, orient, viz._margin, stripWidth));
 
-  const lineAxes = layout.axes.map(a => ({key: a.dim.key, offset: a.offset, position: a.position}));
+  const lineAxes = layout.axes.map(a => ({
+    key: a.dim.key,
+    offset: a.offset,
+    position: a.position,
+  }));
   const seen = new Map<string, number>();
   const lines: ParallelLine[] = rows.map((row, i) => {
     const base = `${viz._id(row, i)}`;

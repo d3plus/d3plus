@@ -26,6 +26,7 @@ import {
   titleFeature,
   totalFeature,
 } from "../features/features.js";
+import type {FeatureModule} from "../features/features.js";
 import {reserveBottomRight} from "../drawSteps/bottomRightControls.js";
 import {
   bottomRightControlsRightShortfall,
@@ -43,6 +44,26 @@ export interface VizDrawResult {
   featurePanels: SceneNode[];
   legendPosition?: string | false;
   colorScalePosition?: string | false;
+}
+
+type MarginSides = VizDrawResult["marginDelta"];
+
+/**
+    Lay out one margin-claiming feature against the `running` margin, and add
+    its claim on `sides` to both the draw's `delta` and `running`.
+*/
+function claimSides(
+  viz: Viz,
+  feature: FeatureModule,
+  running: MarginSides,
+  delta: MarginSides,
+  sides: (keyof MarginSides)[],
+): void {
+  const claim = runLayout({viz}, [feature], running);
+  for (const side of sides) {
+    delta[side] += claim.margin[side];
+    running[side] += claim.margin[side];
+  }
 }
 
 export function vizDraw(viz: Viz): VizDrawResult {
@@ -71,8 +92,14 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // take the resolved config as their argument, so a single snapshot
   // reflects config once instead of twice.
   const spec = resolveSpec(viz);
-  const legendPosition = sanitizePosition(viz.schema.legendPosition.bind(viz)(spec), viz);
-  const colorScalePosition = sanitizePosition(viz.schema.colorScalePosition.bind(viz)(spec), viz);
+  const legendPosition = sanitizePosition(
+    viz.schema.legendPosition.bind(viz)(spec),
+    viz,
+  );
+  const colorScalePosition = sanitizePosition(
+    viz.schema.colorScalePosition.bind(viz)(spec),
+    viz,
+  );
   out.legendPosition = legendPosition;
   out.colorScalePosition = colorScalePosition;
 
@@ -94,11 +121,11 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // zero-margin contribution to the shared top-left controls panel
   // (`topLeftControlsFeature`, registered post-draw in `runVizPipeline`),
   // the same way zoom's buttons float rather than claim margin.
-  const topBlocks = runLayout({viz}, [
-    titleFeature,
-    subtitleFeature,
-    totalFeature,
-  ], running);
+  const topBlocks = runLayout(
+    {viz},
+    [titleFeature, subtitleFeature, totalFeature],
+    running,
+  );
   viz._featurePanels.push(...topBlocks.panels);
   out.marginDelta.top += topBlocks.margin.top;
   running.top += topBlocks.margin.top;
@@ -123,22 +150,17 @@ export function vizDraw(viz: Viz): VizDrawResult {
     legendPosition === "right" ||
     legendPosition === false
   ) {
-    const claim = runLayout({viz}, [legendFeature], running);
-    out.marginDelta.left += claim.margin.left;
-    out.marginDelta.right += claim.margin.right;
-    running.left += claim.margin.left;
-    running.right += claim.margin.right;
+    claimSides(viz, legendFeature, running, out.marginDelta, ["left", "right"]);
   }
   if (
     colorScalePosition === "left" ||
     colorScalePosition === "right" ||
     colorScalePosition === false
   ) {
-    const claim = runLayout({viz}, [colorScaleFeature], running);
-    out.marginDelta.left += claim.margin.left;
-    out.marginDelta.right += claim.margin.right;
-    running.left += claim.margin.left;
-    running.right += claim.margin.right;
+    claimSides(viz, colorScaleFeature, running, out.marginDelta, [
+      "left",
+      "right",
+    ]);
   }
 
   // A right-side bottom-right panel (the size legend's default) shares the
@@ -150,18 +172,13 @@ export function vizDraw(viz: Viz): VizDrawResult {
 
   // Top/bottom legend + colorScale.
   if (legendPosition === "top" || legendPosition === "bottom") {
-    const claim = runLayout({viz}, [legendFeature], running);
-    out.marginDelta.top += claim.margin.top;
-    out.marginDelta.bottom += claim.margin.bottom;
-    running.top += claim.margin.top;
-    running.bottom += claim.margin.bottom;
+    claimSides(viz, legendFeature, running, out.marginDelta, ["top", "bottom"]);
   }
   if (colorScalePosition === "top" || colorScalePosition === "bottom") {
-    const claim = runLayout({viz}, [colorScaleFeature], running);
-    out.marginDelta.top += claim.margin.top;
-    out.marginDelta.bottom += claim.margin.bottom;
-    running.top += claim.margin.top;
-    running.bottom += claim.margin.bottom;
+    claimSides(viz, colorScaleFeature, running, out.marginDelta, [
+      "top",
+      "bottom",
+    ]);
   }
 
   // A bottom-side panel: the chart body must end above it, so if the bottom
@@ -177,7 +194,10 @@ export function vizDraw(viz: Viz): VizDrawResult {
   // buttons plus an equal gap above and below), top margin.top up to it,
   // so the body's top edge — a Treemap's top row, a y-axis's max label —
   // never sits against the buttons.
-  const topShortfall = Math.max(0, cornerControlsHeight(viz) - out.marginDelta.top);
+  const topShortfall = Math.max(
+    0,
+    cornerControlsHeight(viz) - out.marginDelta.top,
+  );
   out.marginDelta.top += topShortfall;
   running.top += topShortfall;
 

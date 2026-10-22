@@ -51,9 +51,12 @@ export function parallelPath(
   curve: ParallelCurve = "linear",
   orient: ParallelOrient = "horizontal",
 ): string {
-  const factory = curve === "bump"
-    ? orient === "horizontal" ? curveBumpX : curveBumpY
-    : curveLinear;
+  const factory =
+    curve === "bump"
+      ? orient === "horizontal"
+        ? curveBumpX
+        : curveBumpY
+      : curveLinear;
   const gen = line<[number, number] | null>()
     .defined(p => p !== null)
     .x(p => (p as [number, number])[0])
