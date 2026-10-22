@@ -368,8 +368,11 @@ write access to every package, and a new trust expires unless it publishes
 within 2 days, so set it up right before a release:
 
 ```bash
-for pkg in $(node -e 'for (const d of require("fs").readdirSync("packages")) {
-  const p = require(`./packages/${d}/package.json`);
+for pkg in $(node -e 'const fs = require("fs");
+for (const d of fs.readdirSync("packages")) {
+  const file = `./packages/${d}/package.json`;
+  if (!fs.existsSync(file)) continue;
+  const p = require(file);
   if (!p.private) console.log(p.name);
 }'); do
   npm trust github "$pkg" --repo d3plus/d3plus --file publish.yml --allow-publish --yes
