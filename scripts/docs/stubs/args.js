@@ -187,6 +187,17 @@ function lineage(name, stories) {
   return names;
 }
 
+/**
+ * The config interface that documents a class's generated accessors: its own
+ * (`Axis` → `AxisConfig`), or for `Viz` and the classes built on it, the chart
+ * config `D3plusConfig`. Keys it lacks fall back to the cross-interface merge.
+ */
+export function configInterfaceDocs(name, stories, interfaceDocs) {
+  const byName = interfaceDocs.byName || {};
+  if (byName[`${name}Config`]) return byName[`${name}Config`];
+  return lineage(name, stories).includes("Viz") ? byName.D3plusConfig || {} : {};
+}
+
 // A paragraph that opens with documented class names and a colon
 // ("Bullet: …", "BarChart/Marimekko with `barWidth`: …", "Matrix and
 // Calendar: …") documents those classes' option.
@@ -422,8 +433,7 @@ export default function (
   // Prefer this class's own config interface (Axis → AxisConfig) so shared key
   // names like `title` read the right meaning; fall back to the cross-interface
   // merge for inherited/universal keys (shape configs, D3plusConfig).
-  const ifaceSpecific =
-    (interfaceDocs.byName && interfaceDocs.byName[`${name}Config`]) || {};
+  const ifaceSpecific = configInterfaceDocs(name, stories, interfaceDocs);
   const ifaceMerged = interfaceDocs.merged || {};
   const hideRe = disabledMethods.length
     ? new RegExp(`^(${disabledMethods.join("|")})$`)

@@ -224,7 +224,7 @@ export const argTypes = assign(
       }
     },
     tooltipConfig: {
-      description: "Configuration object for the tooltip.\n\nAdds a \"Value\" row with the day's `colorScale` value to the tooltip."
+      description: "Configuration for the tooltip component.\n\nAdds a \"Value\" row with the day's `colorScale` value to the tooltip."
     },
     weekStart: {
       control: {

@@ -257,7 +257,7 @@ export const argTypes = assign(
       }
     },
     tooltipConfig: {
-      description: "Configuration object for the tooltip.\n\nLists each row's Value, Target, and Forecast in the tooltip body.",
+      description: "Configuration for the tooltip component.\n\nLists each row's Value, Target, and Forecast in the tooltip body.",
       table: {
         defaultValue: {
           summary: "{tbody: (d: DataPoint, i: number) => bulletTooltipRows(viz, d, i)}"

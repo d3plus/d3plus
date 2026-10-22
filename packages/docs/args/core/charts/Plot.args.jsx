@@ -35,19 +35,6 @@ export const argTypes = assign(
         summary: "false | function"
       }
     },
-    aggs: {
-      control: {},
-      description: "Custom aggregation methods for each data key.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
     annotations: {
       control: {},
       defaultValue: "unknown",
@@ -60,19 +47,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "unknown"
-      }
-    },
-    attributionStyle: {
-      control: {},
-      description: "Configuration object for the attribution style.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
       }
     },
     axisPersist: {
@@ -167,21 +141,6 @@ export const argTypes = assign(
         summary: "boolean | record"
       }
     },
-    color: {
-      control: {
-        type: "text"
-      },
-      description: "Defines the main color to be used for each data point in a visualization. Can be either an accessor function or a string key to reference in each data point. If a color value is returned, it will be used as is. If a string is returned, a unique color will be assigned based on the string.\n\nWhen the color is a category that isn't one of the `groupBy` levels (for example, points grouped by `\"country\"` and colored by `\"region\"`), the legend shows one entry per category, labelled by the category. Clicking, shift+clicking, or hovering an entry hides, solos, or highlights every item in that category.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | false | function"
-      }
-    },
     colorDefaults: {
       control: {},
       description: "Overrides the default colors used when assigning fills from data and choosing legible text colors: `dark` and `light` (the text colors picked for contrast against a background), `missing` (null/undefined values), `on`/`off` (`true`/`false` values), `sequential` (the anchor hue for magnitude ramps), and `scale` (the categorical palette, given as a d3 ordinal scale or an array of colors). Keys are merged into the current defaults, and a Viz passes its overrides down to the shapes and components it draws.",
@@ -193,64 +152,6 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "colordefaultsconfig"
-      }
-    },
-    colorScale: {
-      control: {
-        type: "text"
-      },
-      description: "Defines the value to be used for a color scale. Can be either an accessor function or a string key to reference in each data point.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | false | function"
-      }
-    },
-    colorScaleConfig: {
-      control: {},
-      description: "A pass-through to the config method of ColorScale.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    colorScalePadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the colorScale whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the colorScale appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    colorScalePosition: {
-      control: {
-        type: "text"
-      },
-      description: "Defines which side of the visualization to anchor the color scale. Acceptable values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false`. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the color scale there. A `false` value will cause the color scale to not be displayed, but will still color shapes based on the scale.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | boolean | function"
       }
     },
     confidence: {
@@ -475,36 +376,6 @@ export const argTypes = assign(
         summary: "number"
       }
     },
-    hiddenColor: {
-      control: {
-        type: "color"
-      },
-      description: "Defines the color used for legend shapes when the corresponding grouping is hidden from display (by clicking on the legend).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
-    hiddenOpacity: {
-      control: {
-        type: "number"
-      },
-      description: "Defines the opacity used for legend labels when the corresponding grouping is hidden from display (by clicking on the legend).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "number | function"
-      }
-    },
     highlight: {
       control: {},
       description: "Persistently emphasizes the data points matching the given predicate: the\nmatching marks keep their color while every other mark is de-emphasized to\na neutral gray (the \"emphasis\" form — highlight one series, gray the rest).\nUnlike `hover`/`active` (transient, opacity-based), `highlight` is a\nstanding state that survives pointer movement. Pass `false` to clear it.",
@@ -529,21 +400,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "false | function"
-      }
-    },
-    label: {
-      control: {
-        type: "text"
-      },
-      description: "Accessor function, or a constant string applied to every data point's\nlabel (unlike `value`/`nodeId`/etc., a string here is not treated as a\nper-datum object key — pass a function for that).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
       }
     },
     labelConnectorConfig: {
@@ -574,105 +430,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | function"
-      }
-    },
-    legend: {
-      control: {
-        type: "boolean"
-      },
-      description: "Whether to display the legend. By default, the legend shows when it has more than one entry and each entry stands for a single group (or two groups at most), or when the entries are colored by a category that isn't a `groupBy` level (see `color`), in which case each entry is labelled by its category. Pass `false` to hide it, `true` to always show it, or a `(config, data) => boolean` function to decide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendConfig: {
-      control: {},
-      description: "Configuration object passed to the legend's config method.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    legendFilterInvert: {
-      control: {
-        type: "boolean"
-      },
-      description: "Defines the click functionality of categorical legend squares. When set to false, clicking will hide that category and shift+clicking will solo that category. When set to true, clicking with solo that category and shift+clicking will hide that category.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendInsetConfig: {
-      control: {},
-      description: "Style of the box drawn behind a legend placed inside the chart (see `legendInset`): `fill` (defaults to the chart's background color), `fillOpacity` (0.85), `stroke` (defaults to a faint contrasting line), `strokeWidth` (1), `rx` (corner radius, 4), `margin` (space between the box's edge and the legend, 6), and `padding` (space kept between the box and the chart's marks and edges, 10).",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    legendPadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the legend whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the legend appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    legendPosition: {
-      control: {
-        type: "text"
-      },
-      description: "Defines which side of the visualization to anchor the legend. Expected values are `\"auto\"` (the default), `\"top\"`, `\"bottom\"`, `\"left\"`, `\"right\"`, and `false` to hide it. `\"auto\"` lets the chart choose: inside the chart when it fits there (see `legendInset`), otherwise the right side of charts more than 1.5 times as wide as they are tall and the bottom of all others. Any other side keeps the legend there.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
-    legendTooltip: {
-      control: {},
-      description: "Configuration object for the legend tooltip.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
       }
     },
     lineLabels: {
@@ -721,21 +478,6 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
-    loadingHTML: {
-      control: {
-        type: "text"
-      },
-      description: "The inner HTML of the status message displayed when loading AJAX requests and displaying errors. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
     locale: {
       control: {
         type: "object"
@@ -749,34 +491,6 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "string | object"
-      }
-    },
-    messageStyle: {
-      control: {},
-      description: "Defines the CSS style properties for the status message that is displayed when loading AJAX requests and displaying errors.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    noDataHTML: {
-      control: {
-        type: "text"
-      },
-      description: "The inner HTML of the status message displayed when no data is supplied to the visualization. Must be a valid HTML string or a function that, when passed this Viz instance, returns a valid HTML string.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
       }
     },
     on: {
@@ -854,21 +568,6 @@ export const argTypes = assign(
         summary: "string | htmlelement"
       }
     },
-    shape: {
-      control: {
-        type: "text"
-      },
-      description: "Changes the primary shape used to represent each data point in a visualization. Not all visualizations support changing shapes, this method can be provided the String name of a D3plus shape class (for example, \"Rect\" or \"Circle\"), or an accessor Function that returns the String class name to be used for each individual data point.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
     shapeConfig: {
       control: {},
       description: "Configuration object with key/value pairs applied as method calls on each shape.",
@@ -906,34 +605,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "false | plotaccessorarg"
-      }
-    },
-    sizeLegend: {
-      control: {
-        type: "boolean"
-      },
-      description: "Whether to display the size legend: a nested-circle key, in the chart's bottom-right corner, for charts that size their marks with a `size` accessor (bubble plots, Geomap points via `pointSize`, Network, Rings). By default it shows whenever marks are sized by more than one value, unless it would take up more than a third of the chart's width or height. Pass `true` to always show it, `false` to hide it, or a function that receives the resolved chart config, the radius scale, and the legend's measured `{width, height, availableWidth, availableHeight}`, and returns a boolean.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    sizeLegendConfig: {
-      control: {},
-      description: "Configuration object passed to the size legend's config method: `values` (an array of values to draw, or how many to pick), `tickFormat`, `title` (defaults to the `size` key when `size` is set to a string), `shapeConfig`, `lineConfig`, `labelConfig`, `titleConfig`, `padding`, `lineLength`, and `labelPadding`.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
       }
     },
     sizeMax: {
@@ -1029,49 +700,6 @@ export const argTypes = assign(
         summary: "boolean"
       }
     },
-    subtitle: {
-      control: {
-        type: "text"
-      },
-      description: "Accessor function or string for the visualization's subtitle.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
-    subtitleConfig: {
-      control: {},
-      description: "Configuration object for the subtitle.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    subtitlePadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the subtitle whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the subtitle appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
     swarm: {
       control: {
         type: "radio"
@@ -1138,21 +766,6 @@ export const argTypes = assign(
         summary: "string | function"
       }
     },
-    thresholdName: {
-      control: {
-        type: "text"
-      },
-      description: "The label displayed for bucketed threshold items.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
     time: {
       control: {
         type: "text"
@@ -1168,19 +781,6 @@ export const argTypes = assign(
         summary: "string | false | function"
       }
     },
-    timelineConfig: {
-      control: {},
-      description: "Configuration object for the timeline.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
     timelineDefault: {
       control: {
         type: "text"
@@ -1194,92 +794,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | date | array.&lt;string | date&gt;"
-      }
-    },
-    timelinePadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the timeline whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the timeline appears centered underneath the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    title: {
-      control: {
-        type: "text"
-      },
-      description: "Accessor function or string for the visualization's title.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "string | function"
-      }
-    },
-    titleConfig: {
-      control: {},
-      description: "Configuration object for the title.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    titlePadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the title whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the title appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    tooltip: {
-      control: {
-        type: "boolean"
-      },
-      description: "Whether to display tooltips on hover.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
-      }
-    },
-    tooltipConfig: {
-      control: {},
-      description: "Configuration object for the tooltip.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
       }
     },
     tooltipShared: {
@@ -1311,34 +825,6 @@ export const argTypes = assign(
       type: {
         required: false,
         summary: "string | boolean | function"
-      }
-    },
-    totalConfig: {
-      control: {},
-      description: "Configuration object for the total bar.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "record"
-      }
-    },
-    totalPadding: {
-      control: {
-        type: "boolean"
-      },
-      description: "Tells the total whether or not to use the internal padding defined by the visualization in it's positioning. For example, d3plus-plot will add padding on the left so that the total appears centered above the x-axis. By default, this padding is only applied on screens larger than 600 pixels wide.",
-      table: {
-        defaultValue: {
-          summary: "undefined"
-        }
-      },
-      type: {
-        required: false,
-        summary: "boolean | function"
       }
     },
     translate: {

@@ -488,9 +488,13 @@ export const argTypes = assign(
     },
     shape: {
       control: {
-        type: "text"
+        type: "radio"
       },
-      description: "The shape type used for each legend entry.",
+      description: "The outline text wraps within, `\"square\"` or `\"circle\"`, or a `(datum, index)` accessor.",
+      options: [
+        "circle",
+        "square"
+      ],
       table: {
         defaultValue: {
           summary: "undefined"
@@ -498,7 +502,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "\"circle\" | \"square\" | function"
       }
     },
     shapeConfig: {

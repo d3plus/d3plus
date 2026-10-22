@@ -681,10 +681,15 @@ export const argTypes = assign(
     },
     shape: {
       control: {
-        type: "text"
+        type: "radio"
       },
       defaultValue: "Line",
-      description: "The shape type used for each legend entry.",
+      description: "The shape drawn at each tick: `\"Line\"` (the default), `\"Rect\"`, or `\"Circle\"`.",
+      options: [
+        "Line",
+        "Circle",
+        "Rect"
+      ],
       table: {
         defaultValue: {
           summary: "Line"
@@ -692,7 +697,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "string | function"
+        summary: "\"line\" | \"circle\" | \"rect\""
       }
     },
     shapeConfig: {

@@ -1,7 +1,7 @@
 import {it} from "vitest";
 import assert from "assert";
 
-import VizBaseConfig from "../../src/charts/viz/VizBaseConfig.ts";
+import VizBase from "../../src/charts/viz/VizBase.ts";
 import {shapeHoverEnabled} from "../../src/charts/viz/shapeHover.ts";
 import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts";
 
@@ -13,7 +13,7 @@ import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts"
     fix schedules a repaint whenever a bucket hover is active, even at
     `hoverOpacity: 1`, while keeping single-region hover a no-op on such charts.
 */
-const hover = VizBaseConfig.prototype.hover;
+const hover = VizBase.prototype.hover;
 
 function fakeViz(hoverOpacity, hoverBucket) {
   let repaints = 0;

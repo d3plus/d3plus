@@ -421,6 +421,21 @@ async function generateMarkdown() {
       }
     });
 
+    // The generated accessors' typed declaration (a mapped type over
+    // `D3plusConfig`, see VizBase) gives class members with no source; the
+    // "Config accessors" tables document those keys, so they aren't repeated
+    // as undocumented properties.
+    app.converter.on(Converter.EVENT_RESOLVE_END, context => {
+      for (const reflection of Object.values(context.project.reflections)) {
+        if (
+          reflection.kind === ReflectionKind.Property &&
+          reflection.parent?.kind === ReflectionKind.Class &&
+          !reflection.sources?.length
+        )
+          context.project.removeReflection(reflection);
+      }
+    });
+
     const project = await app.convert();
     if (!project) {
       log.fail(`TypeDoc conversion failed for ${name}`);

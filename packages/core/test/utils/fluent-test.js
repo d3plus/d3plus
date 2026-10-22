@@ -339,17 +339,10 @@ describe("exported classes", () => {
   */
   const SEED_ONLY = {
     baseline: "identity seeds the chart's own baseline (where bars start); Plot.baseline stores the user's apart from it, as a value-domain bound",
-    colorScale: "seeds an accessor function, the form VizBaseConfig.colorScale stores a key as",
-    groupBy: "seeds an array of accessor functions, the form VizBaseConfig.groupBy stores keys as",
-    label: "coerce \"const\" matches VizBaseConfig.label (function, else constant)",
-    legend: "coerce \"const\" matches VizBaseConfig.legend (function, else constant)",
-    legendConfig: "merge seeds the bag; VizBaseConfig.legendConfig deep-merges sets",
-    legendTooltip: "merge seeds the bag; VizBaseConfig.legendTooltip deep-merges sets",
+    groupBy: "seeds an array of accessor functions, the form VizBase.groupBy stores keys as",
     noDataMessage: "identity matches VizBase.noDataMessage",
     on: "merge seeds the handler map; BaseClass.on registers on(typename, fn) and merges on({…})",
-    shape: "coerce \"const\" matches VizBase.shape (function, else constant)",
     shapeConfig: "merge seeds the bag; VizBase.shapeConfig validates and deep-merges sets",
-    tooltipConfig: "merge seeds the bag; VizBase.tooltipConfig deep-merges sets",
   };
 
   const classes = Object.entries(core).filter(
@@ -384,6 +377,32 @@ describe("exported classes", () => {
     }
     assert.ok(classes.length > 40, `walked ${classes.length} classes`);
     assert.deepStrictEqual(shadows, []);
+  });
+
+  it("chart def fields on Viz field keys coerce and merge like the Viz field", async () => {
+    const {vizFields} = await import("../../src/charts/viz/vizFields.ts");
+    const viz = Object.fromEntries(vizFields.map(f => [f.key, f]));
+    const charts = classes.filter(([, C]) => C.prototype instanceof core.Viz && C !== core.Plot);
+    const differ = [];
+    const sample = ["key", "", 0, false, () => 1, {a: 1}];
+    for (const [name] of charts) {
+      const module = await import(`../../src/charts/${name}/index.ts`);
+      const def = module[`${name[0].toLowerCase()}${name.slice(1)}Def`];
+      for (const field of def.fields ?? []) {
+        const base = viz[field.key];
+        if (!base) continue;
+        if (Boolean(field.merge) !== Boolean(base.merge)) differ.push(`${name}.${field.key}: merge`);
+        // Compare what each coercion stores for a range of inputs.
+        const store = (f, v) => {
+          const c = f.coerce;
+          const out = typeof c === "function" ? c(v) : c === "const" ? (typeof v === "function" ? v : () => v) : c === "accessor" ? (typeof v === "function" ? v : typeof v === "string" ? d => d[v] : () => v) : v;
+          return typeof out === "function" ? (out === v ? "same fn" : String(out({key: "k"}))) : JSON.stringify(out);
+        };
+        for (const v of sample)
+          if (store(field, v) !== store(base, v)) differ.push(`${name}.${field.key}: ${JSON.stringify(String(v))}`);
+      }
+    }
+    assert.deepStrictEqual(differ, []);
   });
 
   it("chart def fields on hand-written keys are reviewed and declare no onSet", async () => {
