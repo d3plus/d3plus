@@ -22331,7 +22331,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `topojsonId`        | `accessor(…)`    |
 | `shapeConfig`       | —                |
 
-Defined in: [charts/Geomap/index.ts:695](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L695)
+Defined in: [charts/Geomap/index.ts:699](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L699)
 
 Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
 

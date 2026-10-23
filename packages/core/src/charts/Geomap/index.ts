@@ -467,9 +467,13 @@ function setupGeomapTopojsonFluent(viz: VizInstance): void {
       : this.schema.topojsonFill;
   };
   /**
-      Hides topojson features: a single feature id to remove, an array of ids, or
-      a filter function that keeps the features it returns true for. Defaults to
-      hiding Antarctica (id `"010"`).
+      Limits which topojson features are drawn: a single feature id or an array
+      of ids keeps only those features, and a filter function keeps the
+      features it returns true for. To draw only the areas that have data,
+      filter on the ids in your data (e.g.
+      `const ids = new Set(data.map(d => d.id));` then
+      `f => ids.has(f.id)`). Defaults to a filter that hides Antarctica (id
+      `"010"`).
       @type {string | string[] | ((feature: object) => boolean)}
   */
   v.topojsonFilter = function (this: VizInstance, _?: unknown) {

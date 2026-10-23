@@ -158,3 +158,30 @@ BackgroundImages.parameters = {
     },
   },
 };
+
+export const ClickToOpenLink = Template.bind({});
+ClickToOpenLink.args = {
+  data: [
+    {id: "Wikipedia", value: 60, url: "https://www.wikipedia.org"},
+    {id: "OpenStreetMap", value: 25, url: "https://www.openstreetmap.org"},
+    {id: "Project Gutenberg", value: 10, url: "https://www.gutenberg.org"},
+    {id: "Internet Archive", value: 30, url: "https://archive.org"},
+  ],
+  groupBy: "id",
+  on: {
+    "click.shape": funcify(
+      d => window.open(d.url, "_blank", "noopener"),
+      'd => window.open(d.url, "_blank", "noopener")',
+    ),
+  },
+  sum: "value",
+};
+ClickToOpenLink.parameters = {
+  controls: {include: ["on"]},
+  docs: {
+    description: {
+      story:
+        'Click a tile to open its site. `on` maps event names to handlers: `"click.shape"` runs for clicks on the chart\'s tiles (`"click.legend"` for legend entries), with the clicked row as its first argument, so each row\'s `url` field opens in a new tab.',
+    },
+  },
+};

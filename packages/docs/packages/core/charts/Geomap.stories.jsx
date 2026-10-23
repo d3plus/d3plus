@@ -102,7 +102,32 @@ ChangingProjection.parameters = {
   docs: {
     description: {
       story:
-        'Any d3-geo projection name can be passed to `projection`; `"geoMercator"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== "ata"`).',
+        'Any d3-geo projection name can be passed to `projection`; `"geoMercator"` gives the familiar cylindrical world view, while `topojsonFilter` drops Antarctica (`id !== "010"`).',
+    },
+  },
+};
+
+export const OnlyAreasWithData = Template.bind({});
+OnlyAreasWithData.args = {
+  data: [
+    {id: "840", country: "United States", value: 10},
+    {id: "124", country: "Canada", value: 4},
+    {id: "484", country: "Mexico", value: 7},
+    {id: "076", country: "Brazil", value: 9},
+    {id: "032", country: "Argentina", value: 3},
+  ],
+  colorScale: "value",
+  groupBy: "id",
+  label: funcify(d => d.country, "d => d.country"),
+  topojson: "/data/countries-110m.json",
+  topojsonFilter: ["840", "124", "484", "076", "032"],
+};
+OnlyAreasWithData.parameters = {
+  controls: {include: ["topojsonFilter"]},
+  docs: {
+    description: {
+      story:
+        "An array of ids passed to `topojsonFilter` keeps only those features, so the map draws just the areas with data and zooms to fit them. For data that changes, pass a function over the features instead: `const ids = new Set(data.map(d => d.id))`, then `topojsonFilter: f => ids.has(f.id)`.",
     },
   },
 };
