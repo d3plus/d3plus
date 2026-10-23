@@ -13,7 +13,7 @@ import type Viz from "../viz/Viz.js";
 import {saveChart} from "./saveChart.js";
 import {
   paintSaveButton,
-  SAVE_ITEM_FOCUS_BACKGROUND,
+  paintSaveMenuItem,
   SAVE_MENU_OPEN_STYLE,
   SAVE_MENU_STYLE,
   saveButtonStyles,
@@ -52,7 +52,7 @@ function setMenuOpen(viz: Viz, root: HTMLElement, open: boolean): void {
   btn.classList.toggle("active", open);
   paintSaveButton(viz, btn, btn.matches(":hover"));
   const style = open ? SAVE_MENU_OPEN_STYLE : SAVE_MENU_STYLE;
-  menu.style.setProperty("display", style.display);
+  menu.style.setProperty("display", String(style.display));
 }
 
 /** Closes the menu inside `root`, returning focus to its button when `refocus`. */
@@ -154,12 +154,9 @@ function focusItem(e: Event): void {
   (e.target as Element).closest<HTMLElement>(".save-menu-item")?.focus();
 }
 
-function paintItem(e: Event, focused: boolean): void {
+function paintItem(viz: Viz, e: Event, focused: boolean): void {
   const item = (e.target as Element).closest<HTMLElement>(".save-menu-item");
-  item?.style.setProperty(
-    "background",
-    focused ? SAVE_ITEM_FOCUS_BACKGROUND : "none",
-  );
+  if (item) paintSaveMenuItem(viz, item, focused);
 }
 
 export function saveContribution(viz: Viz): Contribution | null {
@@ -177,8 +174,8 @@ export function saveContribution(viz: Viz): Contribution | null {
       ".save-menu-item": {
         click: (e: Event) => onItemClick(viz, e),
         mouseover: (e: Event) => focusItem(e),
-        focusin: (e: Event) => paintItem(e, true),
-        focusout: (e: Event) => paintItem(e, false),
+        focusin: (e: Event) => paintItem(viz, e, true),
+        focusout: (e: Event) => paintItem(viz, e, false),
       },
       ".save-root": {focusout: (e: Event) => onRootFocusout(viz, e)},
     },

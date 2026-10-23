@@ -949,10 +949,12 @@ export {tableViewContribution} from "./src/charts/drawSteps/tableViewControl.js"
 export {searchContribution} from "./src/charts/drawSteps/searchControls.js";
 export {saveContribution} from "./src/charts/drawSteps/saveControl.js";
 export {
+  canvasTooCoarse,
   resolveSaveConfig,
   saveChart,
   saveFilename,
   saveFormats,
+  savePixelRatio,
   svgForSave,
 } from "./src/charts/drawSteps/saveChart.js";
 export {

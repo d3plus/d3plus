@@ -161,6 +161,66 @@ export function svgForSave(
   return svg as SVGSVGElement;
 }
 
+/** The pixel density a PNG or JPG is drawn at: `pixelRatio`, else the screen's. */
+export function savePixelRatio(renderOptions: Record<string, unknown>): number {
+  const ratio = renderOptions.pixelRatio;
+  if (typeof ratio === "number" && ratio > 0) return ratio;
+  return typeof devicePixelRatio === "number" && devicePixelRatio > 0
+    ? devicePixelRatio
+    : 1;
+}
+
+/**
+    Whether a canvas has fewer backing pixels per CSS pixel than
+    `pixelRatio`, so drawing an image from it would come out blurry.
+*/
+export function canvasTooCoarse(
+  canvas: {width: number; getBoundingClientRect(): {width: number}},
+  pixelRatio: number,
+): boolean {
+  const cssWidth = canvas.getBoundingClientRect().width;
+  return cssWidth > 0 && canvas.width / cssWidth < pixelRatio - 0.01;
+}
+
+/**
+    Rasterizes the scene re-rendered as SVG, for a Canvas chart whose canvas
+    is too coarse for the requested density. The copy is mounted off-screen
+    while it renders, since html-to-image measures and styles live nodes.
+*/
+function saveFromVector(
+  viz: Viz,
+  canvas: HTMLElement | SVGElement,
+  options: {filename: string; type: SaveFormat},
+  renderOptions: Record<string, unknown>,
+  done: (error?: Error) => void,
+): boolean {
+  const backgroundColor = renderOptions.backgroundColor;
+  const svg = svgForSave(
+    viz,
+    typeof backgroundColor === "string" ? backgroundColor : false,
+  );
+  const doc = canvas.ownerDocument;
+  if (!svg || !doc.body) return false;
+  const holder = doc.createElement("div");
+  holder.setAttribute("aria-hidden", "true");
+  holder.style.cssText = "position:fixed;left:-100000px;top:0;";
+  const copy = doc.importNode(svg, true);
+  holder.appendChild(copy);
+  doc.body.appendChild(holder);
+  saveElement(
+    copy,
+    {
+      ...options,
+      callback: error => {
+        holder.remove();
+        done(error);
+      },
+    },
+    renderOptions,
+  );
+  return true;
+}
+
 /**
     Saves the chart as a `format` file, named and styled by
     `saveControlConfig`. Errors go to its `callback`, or to the console.
@@ -186,9 +246,15 @@ export function saveChart(viz: Viz, format: SaveFormat): void {
   // A JPG has no transparency: without a background its empty pixels are black.
   const backgroundColor =
     background || (format === "jpg" ? pageBackground(viz) : undefined);
-  saveElement(
-    target,
-    {filename, type: format, callback: done},
-    {...renderOptions, backgroundColor},
-  );
+  const raster = {...renderOptions, backgroundColor};
+  const options = {filename, type: format};
+  // A Canvas chart's pixels are fixed at its own density, so a sharper
+  // image comes from the scene re-rendered as SVG.
+  if (
+    viz._renderer === "canvas" &&
+    canvasTooCoarse(target as HTMLCanvasElement, savePixelRatio(raster)) &&
+    saveFromVector(viz, target, options, raster, done)
+  )
+    return;
+  saveElement(target, {...options, callback: done}, raster);
 }

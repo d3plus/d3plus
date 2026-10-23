@@ -618,6 +618,33 @@ export const saveControlStyleActiveDefault = {
 export const saveControlStyleHoverDefault = false as const;
 
 /**
+    Default inline styles for the download menu and its items: the theme
+    (colors, border, spacing, font) on top of the fixed layout in
+    `saveControlMarkup.ts`. Setting `saveControlMenuClassName` drops them.
+    @private
+*/
+export const saveControlMenuStyleDefault = {
+  background: "Canvas",
+  border: "1px solid rgba(128, 128, 128, 0.5)",
+  "border-radius": "3px",
+  "box-shadow": "0 2px 6px rgba(0, 0, 0, 0.2)",
+  color: "CanvasText",
+  "margin-top": "4px",
+  padding: "2px 0",
+};
+export const saveControlMenuItemStyleDefault = {
+  background: "none",
+  border: "none",
+  color: "inherit",
+  font: `12px/1.2 ${fontFamilyStringify(fontFamily)}`,
+  margin: 0,
+  padding: "4px 10px",
+};
+export const saveControlMenuItemStyleHoverDefault = {
+  background: "rgba(128, 128, 128, 0.2)",
+};
+
+/**
     Download button defaults.
     @private
 */
@@ -625,6 +652,11 @@ function initSaveControlDefaults(viz: Viz): void {
   viz.schema.saveControl = true;
   viz.schema.saveControlClassName = undefined;
   viz.schema.saveControlConfig = {};
+  viz.schema.saveControlMenuClassName = undefined;
+  viz.schema.saveControlMenuItemStyle = saveControlMenuItemStyleDefault;
+  viz.schema.saveControlMenuItemStyleHover =
+    saveControlMenuItemStyleHoverDefault;
+  viz.schema.saveControlMenuStyle = saveControlMenuStyleDefault;
   viz.schema.saveControlStyle = saveControlStyleDefault;
   viz.schema.saveControlStyleActive = saveControlStyleActiveDefault;
   viz.schema.saveControlStyleHover = saveControlStyleHoverDefault;

@@ -5,7 +5,7 @@
     <title>SaveControl · Viz</title>
     <meta
       name="description"
-      content="Top-left download button: PNG/SVG/JPG menu, single-format button, filename, background, locale and opting out."
+      content="Top-left download button: PNG/SVG/JPG menu, single-format button, filename, background, locale, menu theming and opting out."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -30,6 +30,27 @@
         background: #1e1e24;
       }
 
+      .dark-menu {
+        background: #222;
+        color: #eee;
+        border-radius: 6px;
+        padding: 4px;
+      }
+
+      .dark-menu .save-menu-item {
+        background: none;
+        border: 0;
+        border-radius: 4px;
+        color: inherit;
+        font: 13px sans-serif;
+        padding: 6px 12px;
+      }
+
+      .dark-menu .save-menu-item:focus {
+        background: #444;
+        outline: none;
+      }
+
       #log {
         width: 400px;
         font:
@@ -47,6 +68,7 @@
     <div class="viz" id="dark"></div>
     <div class="viz" id="locale"></div>
     <div class="viz" id="off"></div>
+    <div class="viz" id="themed"></div>
     <div id="log">Saved files are logged here.</div>
   </body>
 
@@ -88,7 +110,8 @@
       .render();
 
     // A fixed filename, a background color, a callback and an html-to-image
-    // option (pixelRatio) for the raster formats.
+    // option (pixelRatio) for the raster formats. On Canvas, a pixelRatio
+    // above the screen's draws the image from the scene re-rendered as SVG.
     new d3plus.Treemap()
       .select("#config")
       .title("Custom filename and background")
@@ -131,6 +154,17 @@
       .select("#off")
       .title("saveControl(false)")
       .saveControl(false)
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+
+    // The menu themed by the page's own CSS: a class name drops the inline
+    // menu styles.
+    new d3plus.Treemap()
+      .select("#themed")
+      .title("Themed menu")
+      .saveControlMenuClassName("dark-menu")
       .data(data)
       .groupBy(["parent", "id"])
       .sum("value")

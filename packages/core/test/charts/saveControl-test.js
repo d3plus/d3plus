@@ -4,19 +4,23 @@ import {select} from "d3-selection";
 import {useJsdom} from "~test/jsdom.js";
 import {Treemap} from "../../index.ts";
 import {
+  canvasTooCoarse,
   resolveSaveConfig,
   SAVE_FORMATS,
   saveChart,
   saveFilename,
   saveFormats,
+  savePixelRatio,
   saveTarget,
   svgForSave,
 } from "../../src/charts/drawSteps/saveChart.ts";
 import {
   paintSaveButton,
+  paintSaveMenuItem,
   SAVE_FORMAT_LABELS,
   saveButtonStyles,
   saveControlHtml,
+  saveMenuStyles,
   showsSaveControl,
 } from "../../src/charts/drawSteps/saveControlMarkup.ts";
 import {
@@ -247,4 +251,80 @@ it("saveContribution contributes the button unless saveControl is off", () => {
   assert.ok(contribution.html.includes("save-toggle"));
   assert.ok(contribution.events[".save-toggle"].click);
   assert.strictEqual(saveContribution(new Treemap().saveControl(false)), null);
+});
+
+it("savePixelRatio is pixelRatio, else the screen's density", () => {
+  assert.strictEqual(savePixelRatio({pixelRatio: 3}), 3);
+  const screen = window.devicePixelRatio || 1;
+  assert.strictEqual(savePixelRatio({}), screen);
+  assert.strictEqual(savePixelRatio({pixelRatio: 0}), screen);
+});
+
+it("canvasTooCoarse compares a canvas's backing density with the requested one", () => {
+  const canvas = (width, cssWidth) => ({
+    width,
+    getBoundingClientRect: () => ({width: cssWidth}),
+  });
+  assert.strictEqual(canvasTooCoarse(canvas(400, 400), 1), false);
+  assert.strictEqual(canvasTooCoarse(canvas(400, 400), 2), true);
+  assert.strictEqual(canvasTooCoarse(canvas(800, 400), 2), false);
+  assert.strictEqual(canvasTooCoarse(canvas(800, 400), 1.5), false);
+  assert.strictEqual(canvasTooCoarse(canvas(0, 0), 2), false, "unmounted");
+});
+
+it("saveMenuStyles resolves the menu styles, dropping the defaults for a class name", () => {
+  const styles = saveMenuStyles(new Treemap());
+  assert.strictEqual(styles.menu.background, "Canvas");
+  assert.strictEqual(styles.item.padding, "4px 10px");
+  assert.ok(styles.itemHover.background);
+
+  const custom = {background: "black"};
+  const themed = saveMenuStyles(
+    new Treemap()
+      .saveControlMenuClassName("menu")
+      .saveControlMenuItemStyleHover(custom),
+  );
+  assert.deepStrictEqual(themed.menu, {});
+  assert.deepStrictEqual(themed.item, {});
+  assert.deepStrictEqual(themed.itemHover, custom, "a custom style stays");
+  assert.deepStrictEqual(
+    saveMenuStyles(new Treemap().saveControlMenuStyle(false)).menu,
+    {},
+  );
+});
+
+it("saveControlHtml applies the menu class name and styles", () => {
+  const viz = new Treemap()
+    .saveControlMenuClassName("my-menu")
+    .saveControlMenuStyle({background: "navy", borderRadius: "8px"})
+    .saveControlMenuItemStyle({color: "white"});
+  const div = document.createElement("div");
+  div.innerHTML = saveControlHtml(viz);
+  const menu = div.querySelector(".d3plus-save-menu");
+  const item = div.querySelector(".save-menu-item");
+  assert.ok(menu.classList.contains("my-menu"));
+  assert.strictEqual(menu.style.background, "navy");
+  assert.strictEqual(menu.style.borderRadius, "8px");
+  assert.strictEqual(menu.style.position, "absolute", "layout stays inline");
+  assert.strictEqual(item.style.color, "white");
+  assert.strictEqual(item.style.padding, "", "the default item style is gone");
+  assert.strictEqual(item.style.cursor, "pointer");
+
+  const bare = document.createElement("div");
+  bare.innerHTML = saveControlHtml(new Treemap().saveControlMenuClassName("m"));
+  assert.strictEqual(
+    bare.querySelector(".d3plus-save-menu").style.background,
+    "",
+    "a class name alone drops the inline theme",
+  );
+});
+
+it("paintSaveMenuItem adds the hover style while an item has focus", () => {
+  const viz = new Treemap().saveControlMenuItemStyleHover({color: "red"});
+  const item = document.createElement("button");
+  paintSaveMenuItem(viz, item, true);
+  assert.strictEqual(item.style.color, "red");
+  assert.strictEqual(item.style.cursor, "pointer");
+  paintSaveMenuItem(viz, item, false);
+  assert.strictEqual(item.style.color, "inherit");
 });

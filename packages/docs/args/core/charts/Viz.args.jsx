@@ -1085,6 +1085,70 @@ export const argTypes = {
       summary: "savecontrolconfig",
     },
   },
+  saveControlMenuClassName: {
+    control: {
+      type: "text",
+    },
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the download menu, alongside its fixed `d3plus-save-menu` class (each item has the fixed `save-menu-item` class). Setting this automatically disables d3plus's built-in inline `saveControlMenuStyle`/`saveControlMenuItemStyle`/`saveControlMenuItemStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own menu styling applies through the cascade. The menu's position and open/closed display stay inline.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "string",
+    },
+  },
+  saveControlMenuItemStyle: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style each item in the download menu. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlMenuItemStyleHover: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download menu item under the pointer or keyboard focus. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlMenuStyle: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download menu: its background, border, shadow, and spacing. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
   saveControlStyle: {
     control: {
       type: "object",

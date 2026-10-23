@@ -9,8 +9,6 @@
 
     @module
 */
-import {fontFamily, fontFamilyStringify} from "@d3plus/text";
-
 import type {SaveFormat} from "../../utils/D3plusConfig.js";
 import type Viz from "../viz/Viz.js";
 import {
@@ -18,11 +16,17 @@ import {
   escapeHtml,
   kebab,
   paintControlButton,
+  resolveControlStyle,
   type ControlButtonStyles,
+  type ControlStyleValue,
+  type StyleObject,
 } from "./controlButtonStyle.js";
 import {saveFormats} from "./saveChart.js";
 import {DOWNLOAD_ICON} from "./tableViewMarkup.js";
 import {
+  saveControlMenuItemStyleDefault,
+  saveControlMenuItemStyleHoverDefault,
+  saveControlMenuStyleDefault,
   saveControlStyleActiveDefault,
   saveControlStyleDefault,
   saveControlStyleHoverDefault,
@@ -78,45 +82,77 @@ const ROOT_STYLE: Record<string, string> = {
   "align-items": "center",
 };
 
-/** The menu while closed; `SAVE_MENU_OPEN_STYLE` shows it. */
-export const SAVE_MENU_STYLE: Record<string, string> = {
+/** The menu's fixed layout while closed; `SAVE_MENU_OPEN_STYLE` shows it. */
+export const SAVE_MENU_STYLE: StyleObject = {
   position: "absolute",
   top: "100%",
   left: "0",
   "z-index": "1",
   display: "none",
   "flex-direction": "column",
-  "margin-top": "4px",
-  padding: "2px 0",
   "min-width": "max-content",
-  background: "Canvas",
-  color: "CanvasText",
-  border: "1px solid rgba(128, 128, 128, 0.5)",
-  "border-radius": "3px",
-  "box-shadow": "0 2px 6px rgba(0, 0, 0, 0.2)",
 };
-export const SAVE_MENU_OPEN_STYLE: Record<string, string> = {display: "flex"};
+export const SAVE_MENU_OPEN_STYLE: StyleObject = {display: "flex"};
 
-const ITEM_STYLE: Record<string, string> = {
+/** Each menu item's fixed layout. */
+const ITEM_STYLE: StyleObject = {
   display: "block",
   width: "100%",
-  margin: "0",
-  padding: "4px 10px",
-  border: "none",
-  background: "none",
-  color: "inherit",
-  font: `12px/1.2 ${fontFamilyStringify(fontFamily)}`,
   "text-align": "start",
   "white-space": "nowrap",
   cursor: "pointer",
 };
 
-/** The background of the focused (or hovered) menu item. */
-export const SAVE_ITEM_FOCUS_BACKGROUND = "rgba(128, 128, 128, 0.2)";
+/** The menu's and its items' resolved theme styles. */
+export interface SaveMenuStyles {
+  menu: StyleObject;
+  item: StyleObject;
+  itemHover: StyleObject;
+}
 
-function styleAttr(style: Record<string, string>): string {
-  return Object.entries(style)
-    .map(([k, v]) => `${kebab(k)}:${v}`)
+/**
+    Resolves `saveControlMenuStyle`, `saveControlMenuItemStyle`, and
+    `saveControlMenuItemStyleHover`, with `saveControlMenuClassName`
+    dropping whichever are still the defaults.
+*/
+export function saveMenuStyles(viz: Viz): SaveMenuStyles {
+  const className = Boolean(viz.schema.saveControlMenuClassName);
+  const style = (key: string, fallback: ControlStyleValue): StyleObject =>
+    resolveControlStyle(
+      viz.schema[key] as ControlStyleValue,
+      fallback,
+      className,
+    );
+  return {
+    menu: style("saveControlMenuStyle", saveControlMenuStyleDefault),
+    item: style("saveControlMenuItemStyle", saveControlMenuItemStyleDefault),
+    itemHover: style(
+      "saveControlMenuItemStyleHover",
+      saveControlMenuItemStyleHoverDefault,
+    ),
+  };
+}
+
+/** Paints a menu item's inline style, with the hover style while it has focus. */
+export function paintSaveMenuItem(
+  viz: Viz,
+  item: HTMLElement,
+  focused: boolean,
+): void {
+  const {item: base, itemHover: hover} = saveMenuStyles(viz);
+  paintControlButton(
+    item,
+    {base: {...base, ...ITEM_STYLE}, hover},
+    focused,
+    false,
+  );
+}
+
+function styleAttr(...styles: StyleObject[]): string {
+  return styles
+    .flatMap(style => Object.entries(style))
+    .filter(([, v]) => v !== undefined && v !== null && v !== false)
+    .map(([k, v]) => `${kebab(k)}:${escapeHtml(v)}`)
     .join(";");
 }
 
@@ -138,7 +174,11 @@ export function saveControlHtml(viz: Viz): string {
     const label = `${download} (${translate(SAVE_FORMAT_LABELS[formats[0]])})`;
     return `<span class="save-root" style="${styleAttr(ROOT_STYLE)}">${button(label, ` data-format="${formats[0]}"`)}</span>`;
   }
-  const itemStyle = styleAttr(ITEM_STYLE);
+  const styles = saveMenuStyles(viz);
+  const itemStyle = styleAttr(styles.item, ITEM_STYLE);
+  const menuClass = viz.schema.saveControlMenuClassName
+    ? ` ${escapeHtml(viz.schema.saveControlMenuClassName)}`
+    : "";
   const items = formats
     .map(
       format =>
@@ -148,7 +188,7 @@ export function saveControlHtml(viz: Viz): string {
   return (
     `<span class="save-root" style="${styleAttr(ROOT_STYLE)}">` +
     button(download, ' aria-haspopup="menu" aria-expanded="false"') +
-    `<span class="d3plus-save-menu" role="menu" aria-label="${escapeHtml(download)}" style="${styleAttr(SAVE_MENU_STYLE)}">${items}</span>` +
+    `<span class="d3plus-save-menu${menuClass}" role="menu" aria-label="${escapeHtml(download)}" style="${styleAttr(styles.menu, SAVE_MENU_STYLE)}">${items}</span>` +
     `</span>`
   );
 }

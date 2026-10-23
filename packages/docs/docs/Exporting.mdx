@@ -25,6 +25,9 @@ when it has none.
 | `saveControlConfig` | `{}` | Options for the saved file, below. |
 | `saveControlClassName` | — | Extra class name(s) for the button, for your own styling. Setting it drops the built-in inline styles. |
 | `saveControlStyle` | structural | Inline styles for the button; `saveControlStyleActive` applies while its menu is open, `saveControlStyleHover` on hover. |
+| `saveControlMenuClassName` | — | Extra class name(s) for the menu (its items have the `save-menu-item` class). Setting it drops the menu's built-in inline theme. |
+| `saveControlMenuStyle` | light panel | Inline styles for the menu: background, border, shadow, spacing. |
+| `saveControlMenuItemStyle` | plain text row | Inline styles for each menu item; `saveControlMenuItemStyleHover` applies to the item under the pointer or keyboard focus. |
 
 `saveControlConfig` takes:
 
@@ -51,9 +54,14 @@ new BarChart()
 ```
 
 On the SVG backend a PNG or JPG is drawn from the chart's `<svg>`, and an SVG
-file is a copy of it. On the Canvas backend a PNG or JPG is the `<canvas>`
-itself, at the screen's pixel density, and an SVG file re-renders the chart's
-scene through the SVG backend, so it is a true vector file there too.
+file is a copy of it. On the Canvas backend an SVG file re-renders the chart's
+scene through the SVG backend, so it is a true vector file there too. A PNG or
+JPG comes straight from the `<canvas>` while its pixels are dense enough for
+the requested `pixelRatio` (the screen's density by default). Above that, as
+with `pixelRatio: 2` on a standard-density screen, the scene is re-rendered as
+SVG and rasterized from that, so the image stays sharp. That costs more on a
+dense chart, the kind the Canvas backend is for, since every mark becomes an
+SVG element for the moment it takes to save.
 
 The button and its menu are translated with the chart's `locale`. The React,
 Vue, Svelte, Angular, and custom-element wrappers render the same button,

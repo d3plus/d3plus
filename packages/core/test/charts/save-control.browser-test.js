@@ -83,7 +83,17 @@ function downloads(page, count) {
       window.__downloads.map(async ({name, href}) => {
         const blob = await (await fetch(href)).blob();
         const text = blob.type.includes("svg") ? await blob.text() : "";
-        return {name, type: blob.type, size: blob.size, text};
+        const image = blob.type.includes("svg")
+          ? null
+          : await createImageBitmap(blob);
+        return {
+          name,
+          type: blob.type,
+          size: blob.size,
+          text,
+          width: image?.width,
+          height: image?.height,
+        };
       }),
     );
   }, count);
@@ -308,6 +318,91 @@ it("saveControlConfig's callback receives each save, and an error when there is 
         }),
     );
     assert.deepStrictEqual(out, ["ok", "Error"]);
+  } finally {
+    await close();
+  }
+});
+
+it("a Canvas chart saved above its own pixel density is drawn from its SVG scene", async function () {
+  const {page, close} = await chart(
+    [["saveControlConfig", {formats: ["png"], pixelRatio: 2}]],
+    "canvas",
+  );
+  try {
+    const count = () =>
+      page.evaluate(() => ({
+        svgCalls: window.__svgCalls,
+        bodyChildren: document.body.children.length,
+        density:
+          document.querySelector("#viz canvas").width /
+          document.querySelector("#viz canvas").getBoundingClientRect().width,
+      }));
+    await page.evaluate(() => {
+      const viz = window.__viz;
+      const toSVGString = viz.toSVGString.bind(viz);
+      window.__svgCalls = 0;
+      viz.toSVGString = () => {
+        window.__svgCalls++;
+        return toSVGString();
+      };
+    });
+    const before = await count();
+    assert.strictEqual(before.density, 1, "the test page's canvas is 1x");
+
+    await click(page, "#viz .save-toggle");
+    const [sharp] = await downloads(page, 1);
+    const after = await count();
+    assert.deepStrictEqual([sharp.width, sharp.height], [800, 600]);
+    assert.strictEqual(after.svgCalls, 1, "drawn from the SVG scene");
+    assert.strictEqual(
+      after.bodyChildren,
+      before.bodyChildren,
+      "the off-screen copy is removed",
+    );
+
+    // At the canvas's own density, the canvas itself is used.
+    await page.evaluate(() => window.__viz.saveControlConfig({pixelRatio: 1}));
+    await click(page, "#viz .save-toggle");
+    const files = await downloads(page, 2);
+    assert.deepStrictEqual([files[1].width, files[1].height], [400, 300]);
+    assert.strictEqual((await count()).svgCalls, 1, "no SVG re-render");
+  } finally {
+    await close();
+  }
+});
+
+it("the menu takes saveControlMenuClassName and the menu style keys", async function () {
+  const {page, close} = await chart([
+    ["saveControlMenuClassName", "my-menu"],
+    ["saveControlMenuItemStyleHover", {color: "rgb(255, 0, 0)"}],
+  ]);
+  try {
+    await click(page, "#viz .save-toggle");
+    await page.mouse.move(0, 0);
+    const {x, y} = await center(
+      page,
+      '#viz .save-menu-item[data-format="svg"]',
+    );
+    await page.mouse.move(x, y);
+    const out = await page.evaluate(() => {
+      const menu = document.querySelector("#viz .d3plus-save-menu");
+      const item = format =>
+        document.querySelector(`#viz .save-menu-item[data-format="${format}"]`);
+      return {
+        menuClass: menu.classList.contains("my-menu"),
+        menuBackground: menu.style.background,
+        position: getComputedStyle(menu).position,
+        focus: document.activeElement.dataset.format,
+        hovered: item("svg").style.color,
+        other: item("png").style.color,
+      };
+    });
+    assert.ok(out.menuClass);
+    assert.strictEqual(out.menuBackground, "", "the inline theme is dropped");
+    assert.strictEqual(out.position, "absolute", "the layout stays");
+    assert.strictEqual(out.focus, "svg", "hovering focuses the item");
+    assert.strictEqual(out.hovered, "rgb(255, 0, 0)", "with the hover style");
+    assert.strictEqual(out.other, "", "and only that item");
   } finally {
     await close();
   }
