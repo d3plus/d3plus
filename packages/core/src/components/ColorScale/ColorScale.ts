@@ -1,4 +1,4 @@
-import {max, min} from "d3-array";
+import {max} from "d3-array";
 import {select} from "d3-selection";
 import {transition} from "d3-transition";
 
@@ -20,6 +20,7 @@ import type {ConfigField} from "../../fluent.js";
 
 import Legend from "../Legend/Legend.js";
 import {formatYear, isYearLike} from "../Axis/yearValues.js";
+import {bucketBounds} from "./bucketBounds.js";
 import {computeColorScale} from "./colorScaleScale.js";
 import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
@@ -113,46 +114,13 @@ export default class ColorScale extends BaseClass {
             : formatAbbreviate
       ) as (v: number | undefined) => string;
 
-      const next = ticks[i + 1];
-      const prev = i ? ticks[i - 1] : false;
       const last = i === ticks.length - 1;
-      if (tick === next || last) {
+      if (tick === ticks[i + 1] || last) {
         const suffix = last && tick < max(allValues)! ? "+" : "";
         return `${format(tick)}${suffix}`;
-      } else {
-        const mod = next ? next / 100 : tick / 100;
-
-        const pow =
-          mod >= 1 || mod <= -1
-            ? Math.round(mod).toString().length - 1
-            : mod
-                .toString()
-                .split(".")[1]
-                .replace(/([1-9])[1-9].*$/, "$1").length * -1;
-        const ten = Math.pow(10, pow);
-
-        const prevValue =
-          prev === tick && i === 1
-            ? format(
-                min([
-                  tick + ten,
-                  allValues.find((d: number) => d > tick && d < next),
-                ] as number[]),
-              )
-            : format(tick);
-
-        const nextValue =
-          tick && i === 1
-            ? format(next)
-            : format(
-                max([
-                  next - ten,
-                  allValues.reverse().find((d: number) => d > tick && d < next),
-                ] as number[]),
-              );
-
-        return this.schema.bucketJoiner(prevValue, nextValue);
       }
+      const [lower, upper] = bucketBounds(tick, i, ticks, allValues, format);
+      return this.schema.bucketJoiner(format(lower), format(upper));
     };
     this._data = [];
     this._labelClass = new TextBox();
