@@ -89,6 +89,8 @@ function setupNetworkClickShape(viz: VizInstance, v: NetworkViz) {
         const links =
           (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
         const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
+        // An edge has no node to focus.
+        if (!node) return;
         const filterIds: string[] = [id];
         const xDomain = [node.x - node.r, node.x + node.r];
         const yDomain = [node.y - node.r, node.y + node.r];
@@ -191,6 +193,8 @@ function setupNetworkMouse(viz: VizInstance, v: NetworkViz) {
     const links =
       (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
     const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
+    // An edge has no node to focus.
+    if (!node) return;
     const filterIds: string[] = [id];
     const xDomain = [node.x - node.r, node.x + node.r];
     const yDomain = [node.y - node.r, node.y + node.r];

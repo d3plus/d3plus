@@ -33,6 +33,7 @@ import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
 import type {VizInstance} from "./vizTypes.js";
 import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
+import {reportHandlerError} from "./reportHandlerError.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -641,9 +642,8 @@ export default class Viz extends VizBase {
       if (typeof fn === "function") {
         try {
           fn.call(this, d, i, x, event.nativeEvent);
-        } catch {
-          // swallow per-event errors so one bad handler doesn't
-          // break subsequent events.
+        } catch (error) {
+          reportHandlerError(error);
         }
       }
     };
@@ -702,6 +702,9 @@ export default class Viz extends VizBase {
       i: sourceIndex,
       x: rawDatum,
     } = this._interactionDatum(pick, event);
+    // A node with no data (an inset legend's backdrop, gridlines) is not a
+    // chart shape.
+    if (sourceDatum === undefined) return;
     // Shape-class-scoped handlers (`"click.Bar"`, `"mousemove.Circle"`): the
     // node's own shape type, then any composite it is a part of (`"click.Box"`
     // on a box's whisker). On the scene path this is the only place these fire
