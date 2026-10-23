@@ -16,6 +16,7 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
+import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
 import {stampOwners} from "./shapeOwners.js";
 import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
@@ -37,11 +38,13 @@ const toAccessor = (
 const boxSchema: ConfigField[] = [
   {key: "backgroundImage", coerce: "const"},
   {key: "backgroundImageFit", coerce: "const"},
+  {key: "fill", coerce: "const"},
   {key: "id", coerce: "accessor"},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
   {key: "outlier", coerce: "const", default: accessor("outlier", "Circle")},
   {key: "rectWidth", coerce: "const", default: constant(50)},
   {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "stroke", coerce: "const"},
   {key: "texture", coerce: "const"},
   {key: "textureDefault", coerce: "identity"},
   {
@@ -52,40 +55,6 @@ const boxSchema: ConfigField[] = [
   {key: "x", coerce: toAccessor, default: accessor("x", 250)},
   {key: "y", coerce: toAccessor, default: accessor("y", 250)},
 ];
-
-/** The Box's own fill styling that its box Rect takes unless `rectConfig` sets it. */
-const boxRectKeys = [
-  "backgroundImage",
-  "backgroundImageFit",
-  "texture",
-  "textureDefault",
-];
-
-/**
-    The box Rect's config: `rectConfig`, plus the Box's own `texture`,
-    `textureDefault`, `backgroundImage`, and `backgroundImageFit` where
-    `rectConfig` leaves them unset. Accessors resolve against the box's merged
-    datum, the same one `orient` and `rectWidth` see.
-*/
-export function boxRectConfig(
-  schema: Record<string, unknown>,
-  rectConfig: Record<string, unknown>,
-): Record<string, unknown> {
-  const config: Record<string, unknown> = {};
-  for (const key of boxRectKeys) {
-    const value = schema[key];
-    if (value === undefined || key in rectConfig) continue;
-    config[key] =
-      typeof value === "function"
-        ? (d: DataPoint) =>
-            (value as (d: DataPoint, i: number) => unknown)(
-              d.data as DataPoint,
-              d.i as number,
-            )
-        : value;
-  }
-  return {...config, ...rectConfig};
-}
 
 /**
     Resolves the lower/upper whisker limits on `d` from the configured
@@ -350,7 +319,7 @@ export default class Box extends BaseClass {
   constructor() {
     super();
     installFluent(this, boxSchema);
-    this.schema.medianConfig = {fill: constant("black")};
+    this.schema.medianConfig = {};
     this.schema.outlierConfig = {
       Circle: {
         r: accessor("r", 5),
@@ -362,11 +331,7 @@ export default class Box extends BaseClass {
           this.schema.orient(d, i) === "vertical" ? 20 : 5,
       },
     };
-    this.schema.rectConfig = {
-      fill: constant("white"),
-      stroke: constant("black"),
-      strokeWidth: constant(1),
-    };
+    this.schema.rectConfig = {strokeWidth: constant(1)};
     this.schema.whiskerConfig = {};
     this._whiskerEndpoint = [];
     this._owned = new Map();
@@ -401,6 +366,14 @@ export default class Box extends BaseClass {
 
     const filteredData = computeBoxes(this, outlierData);
 
+    const rectConfig = boxRectConfig(
+      this.schema,
+      configPrep.bind(this as unknown as ConfigPrepHost)(
+        this.schema.rectConfig,
+        "shape",
+      )!,
+    );
+
     // Draw box.
     this._box = new Rect()
       .data(filteredData)
@@ -409,15 +382,7 @@ export default class Box extends BaseClass {
       .y((d: DataPoint) => d.y)
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box") as never)
-      .config(
-        boxRectConfig(
-          this.schema,
-          configPrep.bind(this as unknown as ConfigPrepHost)(
-            this.schema.rectConfig,
-            "shape",
-          )!,
-        ),
-      )
+      .config(rectConfig)
       .render();
 
     // Draw median.
@@ -431,10 +396,13 @@ export default class Box extends BaseClass {
       .renderMode(compute ? "compute" : "full")
       .select(mountInner("g.d3plus-Box-Median") as never)
       .config(
-        configPrep.bind(this as unknown as ConfigPrepHost)(
-          this.schema.medianConfig,
-          "shape",
-        )!,
+        boxMedianConfig(
+          rectConfig.fill,
+          configPrep.bind(this as unknown as ConfigPrepHost)(
+            this.schema.medianConfig,
+            "shape",
+          )!,
+        ),
       )
       .render();
 
@@ -465,11 +433,14 @@ export default class Box extends BaseClass {
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)
             .config(
-              configPrep.bind(this as unknown as ConfigPrepHost)(
-                this.schema.outlierConfig,
-                "shape",
-                shapeName as string,
-              )!,
+              boxOutlierConfig(
+                this.schema,
+                configPrep.bind(this as unknown as ConfigPrepHost)(
+                  this.schema.outlierConfig,
+                  "shape",
+                  shapeName as string,
+                )!,
+              ),
             )
             .render(),
         );
