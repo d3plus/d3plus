@@ -13,7 +13,7 @@ export default {
     docs: {
       description: {
         component:
-          'Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or an Object with "url" and "headers" keys.',
+          'Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or a request Object: a "url" plus any fetch request options (such as "headers" or "method"). An Object with any other key, like a data row that happens to have a "url" field, is not loaded.',
       },
     },
   },

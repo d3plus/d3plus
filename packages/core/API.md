@@ -9437,7 +9437,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### ColorScale
 
-Defined in: [components/ColorScale/ColorScale.ts:66](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L66)
+Defined in: [components/ColorScale/ColorScale.ts:67](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L67)
 
 Creates an SVG color scale based on an array of data.
 
@@ -9482,7 +9482,7 @@ Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()
 
 > **axisConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/ColorScale/ColorScale.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L309)
+Defined in: [components/ColorScale/ColorScale.ts:277](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L277)
 
 The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
@@ -9494,7 +9494,7 @@ The ColorScale is constructed by combining an Axis for the ticks/labels and a Re
 
 > **axisConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:310](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L310)
+Defined in: [components/ColorScale/ColorScale.ts:278](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L278)
 
 The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Axis.
 
@@ -9620,7 +9620,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [components/ColorScale/ColorScale.ts:320](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L320)
+Defined in: [components/ColorScale/ColorScale.ts:288](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L288)
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -9632,7 +9632,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L321)
+Defined in: [components/ColorScale/ColorScale.ts:289](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L289)
 
 The data array used to create shapes. A shape key will be drawn for each object in the array.
 
@@ -9654,7 +9654,7 @@ The data array used to create shapes. A shape key will be drawn for each object 
 
 > **labelConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/ColorScale/ColorScale.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L329)
+Defined in: [components/ColorScale/ColorScale.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L297)
 
 A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
@@ -9666,7 +9666,7 @@ A pass-through for the TextBox class used to style the labelMin and labelMax tex
 
 > **labelConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:330](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L330)
+Defined in: [components/ColorScale/ColorScale.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L298)
 
 A pass-through for the TextBox class used to style the labelMin and labelMax text.
 
@@ -9688,7 +9688,7 @@ A pass-through for the TextBox class used to style the labelMin and labelMax tex
 
 > **labelMax**(): `string` \| `undefined`
 
-Defined in: [components/ColorScale/ColorScale.ts:350](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L350)
+Defined in: [components/ColorScale/ColorScale.ts:318](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L318)
 
 Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
 
@@ -9700,7 +9700,7 @@ Defines a text label to be displayed off of the end of the maximum point in the 
 
 > **labelMax**(`_`: `string`): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:351](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L351)
+Defined in: [components/ColorScale/ColorScale.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L319)
 
 Defines a text label to be displayed off of the end of the maximum point in the scale (currently only available in horizontal orientation).
 
@@ -9722,7 +9722,7 @@ Defines a text label to be displayed off of the end of the maximum point in the 
 
 > **labelMin**(): `string` \| `undefined`
 
-Defined in: [components/ColorScale/ColorScale.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L341)
+Defined in: [components/ColorScale/ColorScale.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L309)
 
 Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
 
@@ -9734,7 +9734,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 > **labelMin**(`_`: `string`): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:342](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L342)
+Defined in: [components/ColorScale/ColorScale.ts:310](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L310)
 
 Defines a text label to be displayed off of the end of the minimum point in the scale (currently only available in horizontal orientation).
 
@@ -9756,7 +9756,7 @@ Defines a text label to be displayed off of the end of the minimum point in the 
 
 > **legendConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/ColorScale/ColorScale.ts:359](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L359)
+Defined in: [components/ColorScale/ColorScale.ts:327](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L327)
 
 Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
@@ -9768,7 +9768,7 @@ Configuration passed to the Legend that draws the scale when its values are rend
 
 > **legendConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L360)
+Defined in: [components/ColorScale/ColorScale.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L328)
 
 Configuration passed to the Legend that draws the scale when its values are rendered as discrete swatches instead of a continuous bar (for example a categorical or buckets scale), acting as a pass-through to that Legend's config method.
 
@@ -9995,7 +9995,7 @@ new Plot.on("click.Shape", function (d) {
 
 > **outerBounds**(): `Record`\<`string`, `number`\>
 
-Defined in: [components/ColorScale/ColorScale.ts:373](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L373)
+Defined in: [components/ColorScale/ColorScale.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L341)
 
 Returns the outer bounds of the ColorScale content. Must be called after rendering.
 
@@ -10059,7 +10059,7 @@ Parent config used by the wrapper.
 
 > **rectConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [components/ColorScale/ColorScale.ts:380](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L380)
+Defined in: [components/ColorScale/ColorScale.ts:348](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L348)
 
 The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
@@ -10071,7 +10071,7 @@ The ColorScale is constructed by combining an Axis for the ticks/labels and a Re
 
 > **rectConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:381](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L381)
+Defined in: [components/ColorScale/ColorScale.ts:349](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L349)
 
 The ColorScale is constructed by combining an Axis for the ticks/labels and a Rect for the actual color box (or multiple boxes, as in a jenks scale). Because of this, there are separate configs for the Axis class used to display the text (axisConfig) and the Rect class used to draw the color breaks (rectConfig). This method acts as a pass-through to the config method of the Rect.
 
@@ -10091,7 +10091,7 @@ The ColorScale is constructed by combining an Axis for the ticks/labels and a Re
 
 > **render**(`callback?`: (...`args`: `unknown`[]) => `unknown`): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L189)
+Defined in: [components/ColorScale/ColorScale.ts:157](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L157)
 
 Renders the current ColorScale to the page.
 
@@ -10113,7 +10113,7 @@ Renders the current ColorScale to the page.
 
 > **select**(): `Selection`
 
-Defined in: [components/ColorScale/ColorScale.ts:391](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L391)
+Defined in: [components/ColorScale/ColorScale.ts:359](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L359)
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -10125,7 +10125,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement`): `this`
 
-Defined in: [components/ColorScale/ColorScale.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L392)
+Defined in: [components/ColorScale/ColorScale.ts:360](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L360)
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -10187,7 +10187,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [components/ColorScale/ColorScale.ts:262](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L262)
+Defined in: [components/ColorScale/ColorScale.ts:230](https://github.com/d3plus/d3plus/blob/main/packages/core/src/components/ColorScale/ColorScale.ts#L230)
 
 Produces a backend-agnostic scene graph for this ColorScale with no DOM
 dependency. The discrete variant (jenks/buckets/quantile) delegates to the
@@ -13387,7 +13387,7 @@ Defined in: [charts/viz/VizBase.ts:77](https://github.com/d3plus/d3plus/blob/mai
 
 The primary data array used to draw the visualization. The value passed should be an _Array_ of objects or a _String_ representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
-If your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.
+If your data URL needs specific headers to be set, an Object with a "url" and "headers" (or any other `fetch` request option) may also be passed. An Object with any other key is a data row, not a request.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.
 
@@ -13416,7 +13416,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: [charts/viz/Viz.ts:752](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L752)
+Defined in: [charts/viz/Viz.ts:762](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L762)
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -13985,7 +13985,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [charts/viz/Viz.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L298)
+Defined in: [charts/viz/Viz.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L308)
 
 Draws the visualization given the specified configuration.
 
@@ -14011,7 +14011,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: [charts/viz/Viz.ts:330](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L330)
+Defined in: [charts/viz/Viz.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L340)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14029,7 +14029,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: [charts/viz/Viz.ts:331](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L331)
+Defined in: [charts/viz/Viz.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L341)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -14293,7 +14293,7 @@ The starting time or range for the timeline. Can be a single Date/String, or an 
 
 > **toCanvas**(): `unknown`
 
-Defined in: [charts/viz/Viz.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L319)
+Defined in: [charts/viz/Viz.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L329)
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -14334,7 +14334,7 @@ renders fully — geometry and axes — through the @d3plus/render backends.
 
 > **toSVGString**(): `string`
 
-Defined in: [charts/viz/Viz.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L309)
+Defined in: [charts/viz/Viz.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L319)
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -20220,7 +20220,7 @@ Defined in: [charts/viz/VizBase.ts:77](https://github.com/d3plus/d3plus/blob/mai
 
 The primary data array used to draw the visualization. The value passed should be an _Array_ of objects or a _String_ representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
-If your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.
+If your data URL needs specific headers to be set, an Object with a "url" and "headers" (or any other `fetch` request option) may also be passed. An Object with any other key is a data row, not a request.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.
 
@@ -20249,7 +20249,7 @@ Defaults to an empty array (`[]`).
 
 > **destroy**(): `this`
 
-Defined in: [charts/viz/Viz.ts:752](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L752)
+Defined in: [charts/viz/Viz.ts:762](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L762)
 
 Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
 
@@ -20694,7 +20694,7 @@ Parent config used by the wrapper.
 
 > **render**(`callback?`: () => `void`): `this`
 
-Defined in: [charts/viz/Viz.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L298)
+Defined in: [charts/viz/Viz.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L308)
 
 Draws the visualization given the specified configuration.
 
@@ -20716,7 +20716,7 @@ Draws the visualization given the specified configuration.
 
 > **renderer**(): `"svg"` \| `"canvas"`
 
-Defined in: [charts/viz/Viz.ts:330](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L330)
+Defined in: [charts/viz/Viz.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L340)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -20730,7 +20730,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **renderer**(`_`: `boolean` \| `"svg"` \| `"canvas"`): `this`
 
-Defined in: [charts/viz/Viz.ts:331](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L331)
+Defined in: [charts/viz/Viz.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L341)
 
 Selects which @d3plus/render backend paints the visible output.
 `"svg"` = SvgRenderer (default), `"canvas"` = CanvasRenderer.
@@ -20914,7 +20914,7 @@ The starting time or range for the timeline. Can be a single Date/String, or an 
 
 > **toCanvas**(): `unknown`
 
-Defined in: [charts/viz/Viz.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L319)
+Defined in: [charts/viz/Viz.ts:329](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L329)
 
 Returns the underlying canvas element of the most recent render when the
 canvas backend is active (`renderer("canvas")`), or `undefined` otherwise.
@@ -20951,7 +20951,7 @@ by the most recent render. Combines:
 
 > **toSVGString**(): `string`
 
-Defined in: [charts/viz/Viz.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L309)
+Defined in: [charts/viz/Viz.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/Viz.ts#L319)
 
 Serializes the most recently rendered output to an SVG string. Returns
 `""` if the chart has not been rendered yet. Both backends support this:
@@ -22326,7 +22326,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `topojsonId`        | `accessor(…)`    |
 | `shapeConfig`       | —                |
 
-Defined in: [charts/Geomap/index.ts:692](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L692)
+Defined in: [charts/Geomap/index.ts:695](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Geomap/index.ts#L695)
 
 Creates a geographical map with zooming, panning, image tiles, and the ability to layer choropleth paths and coordinate points.
 

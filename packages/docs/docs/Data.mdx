@@ -57,6 +57,22 @@ renders when it arrives:
 }} />
 ```
 
+When the request needs headers or other `fetch` options, pass an object with a
+`url` and those options:
+
+```jsx
+<LinePlot config={{
+  data: {url: "https://example.com/api/data.json", headers: {Authorization: token}},
+  groupBy: "series",
+  x: "year",
+  y: "value"
+}} />
+```
+
+Only an object holding nothing but `url` and `fetch` options (`headers`,
+`method`, `body`, `credentials`, …) is fetched. Data rows with a `url` field,
+like `{id: "alpha", value: 29, url: "https://…"}`, are drawn as data.
+
 Use `dataFormat` to reshape a non-standard response before the chart reads it:
 
 ```jsx

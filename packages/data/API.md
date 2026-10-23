@@ -97,9 +97,9 @@ Given a JSON object where the data values and headers have been split into separ
 
 > **isData**(`dataItem`: `unknown`): `boolean`
 
-Defined in: [isData.ts:5](https://github.com/d3plus/d3plus/blob/main/packages/data/src/isData.ts#L5)
+Defined in: [isData.ts:24](https://github.com/d3plus/d3plus/blob/main/packages/data/src/isData.ts#L24)
 
-Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or an Object with "url" and "headers" keys.
+Returns true/false whether the argument provided to the function should be loaded using an internal XHR request. Valid data can either be a string URL or a request Object: a "url" plus any `fetch` request options (such as "headers" or "method"). An Object with any other key, like a data row that happens to have a "url" field, is not loaded.
 
 #### Parameters
 
