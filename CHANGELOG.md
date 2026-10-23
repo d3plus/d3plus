@@ -2,60 +2,68 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
-## Unreleased
+## 4.9.0
+
+4.9 is a maintenance release that makes d3plus lighter to install and cleans up its API. `@d3plus/core` installs at a third of its former size, its minified bundle is a third smaller, several dependencies are gone, and the `es/` builds are modern ES2022. A few methods that did nothing are removed, and Geomap accepts only its built-in projection names. Behind the scenes, tests run on Vitest, the docs site on Vite, Prettier formats the repo, and releases publish to npm from CI. Most charts need no changes; see the breaking changes.
 
 ### Added
 
-- **`colorGray`** (`@d3plus/color`): the gray scale d3plus uses for neutral ink, keyed 50–900.
-- `finite`, `clamp`, and `pathCommands` in `@d3plus/math`, `colorGrayscale` in `@d3plus/color`, and `softHyphen` in `@d3plus/text`. [finite ↗](https://d3plus.org/?path=/docs/math-finite--d3plus) · [clamp ↗](https://d3plus.org/?path=/docs/math-clamp--d3plus) · [pathCommands ↗](https://d3plus.org/?path=/docs/math-pathcommands--d3plus) · [colorGrayscale ↗](https://d3plus.org/?path=/docs/color-colorgrayscale--d3plus) · [softHyphen ↗](https://d3plus.org/?path=/docs/text-softhyphen--d3plus)
+- **`colorGray`** in `@d3plus/color`: the gray scale d3plus uses for neutral ink, keyed 50–900. (#988)
+- `finite`, `clamp`, and `pathCommands` in `@d3plus/math`, `colorGrayscale` in `@d3plus/color`, and `softHyphen` in `@d3plus/text`. (#989) [finite ↗](https://d3plus.org/?path=/docs/math-finite--d3plus) · [clamp ↗](https://d3plus.org/?path=/docs/math-clamp--d3plus) · [pathCommands ↗](https://d3plus.org/?path=/docs/math-pathcommands--d3plus) · [colorGrayscale ↗](https://d3plus.org/?path=/docs/color-colorgrayscale--d3plus) · [softHyphen ↗](https://d3plus.org/?path=/docs/text-softhyphen--d3plus)
 
 ### Changed
 
-- **Smaller installs.** Published packages no longer include source maps, and each package's README links to its full API reference (`API.md` on GitHub) instead of embedding it. `@d3plus/core` drops from ~8.3 MB to ~2.8 MB gzipped. The CDN entry (`jsdelivr`/`unpkg`) now serves the minified `.full.min.js` bundle; the `browser` field is gone.
-- **Fewer dependencies.** `open-color` and `file-saver` are no longer dependencies, and `@d3plus/data`, `@d3plus/render`, and `@d3plus/text` drop dependencies they didn't use. `@d3plus/export` loads `html-to-image` only when saving an HTML element. `@d3plus/types` re-exports types only.
-- **`findLocale`** resolves from a 122-entry table instead of the full LCID and ISO 639 lists (~8,400 lines). Chechen (`ce`) now resolves to `ce-RU`.
-- **`unique`** keeps one `NaN` instead of dropping every `NaN`.
-- **`strip`** keeps the base letter of any accented letter (`Č` → `C`, `ğ` → `g`); it used to drop letters outside Latin-1. Its output for Latin-1 is unchanged.
-- **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape.
-- **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time.
-- **No Node `engines` requirement on the browser packages.** Only `@d3plus/ssr`, which runs in Node, declares `node >= 22`.
-- **ES2022 modules.** The `es/` builds are compiled to ES2022 instead of ES5, so they keep classes, `?.` and `??` as written instead of shipping down-leveled helpers. The UMD bundles were already modern. A bundler that targets older browsers must transpile `@d3plus/*`.
-- **Smaller minified bundles.** The `.min.js` bundles keep license comments only: `d3plus-core.full.min.js` goes from 2.19 MB to 1.38 MB (425 KB gzipped).
-- **Text no longer breaks after `/` before a letter** (`USA/Canada`, `and/or`), matching Chrome and Safari. `@d3plus/dom` and `@d3plus/text` measure and segment text with `@chenglou/pretext` 1.0.
-- **Dependencies:** `@d3plus/core` uses `d3-composite-projections` 2 (same projections, now with TypeScript types).
+- **Smaller installs.** Published packages no longer include source maps, and each package's README links to its full API reference (`API.md` on GitHub) instead of embedding it. `@d3plus/core` drops from ~8.3 MB to ~2.8 MB gzipped. The CDN entry (`jsdelivr`/`unpkg`) now serves the minified `.full.min.js` bundle; the `browser` field is gone. (#988)
+- **Smaller minified bundles.** The `.min.js` bundles keep license comments only: `d3plus-core.full.min.js` goes from 2.19 MB to 1.38 MB (425 KB gzipped). (#988)
+- **ES2022 modules.** The `es/` builds are compiled to ES2022 instead of ES5, so they keep classes, `?.` and `??` as written instead of shipping down-leveled helpers. The UMD bundles were already modern. (#987)
+- **Fewer dependencies.** `open-color`, `file-saver`, `d3-sankey`, and `undici` are no longer dependencies, and `@d3plus/data`, `@d3plus/render`, and `@d3plus/text` drop dependencies they didn't use. `@d3plus/export` loads `html-to-image` only when saving an HTML element. `@d3plus/types` re-exports types only. (#988)
+- **Text no longer breaks after `/` before a letter** (`USA/Canada`, `and/or`), matching Chrome and Safari. `@d3plus/dom` and `@d3plus/text` measure and segment text with `@chenglou/pretext` 1.0. (#999)
+- **Sankey** lays out with a TypeScript port of d3-sankey, so `d3-sankey` and its older copies of `d3-array`, `d3-shape`, and `d3-path` are no longer installed. Layouts are identical; link paths are written with 3 decimal places, like every other d3plus shape. (#988)
+- **`findLocale`** resolves from a 122-entry table instead of the full LCID and ISO 639 lists (~8,400 lines). Chechen (`ce`) now resolves to `ce-RU`. (#988)
+- **`strip`** keeps the base letter of any accented letter (`Č` → `C`, `ğ` → `g`); it used to drop letters outside Latin-1. Its output for Latin-1 is unchanged. (#988)
+- **`unique`** keeps one `NaN` instead of dropping every `NaN`. (#988)
+- **`@d3plus/ssr`** fetches map tiles with Node's `http`/`https` modules instead of `undici`. Private and loopback addresses are still refused at connect time. (#988)
+- **No Node `engines` requirement on the browser packages.** Only `@d3plus/ssr`, which runs in Node, declares `node >= 22`. (#990)
+- `@d3plus/core` uses `d3-composite-projections` 2 (same projections, now with TypeScript types). (#999)
 
 ### Fixed
 
-- `flattenPath` in `@d3plus/render` reads compact arc flags (`a1 1 0 011 1`) as two flags instead of one number.
-- The standalone (non-`.full`) UMD bundles read their dependencies from the globals those libraries define (`d3` for the `d3-*` modules, `d3plus` for `@d3plus/*`, `topojson`, `FloatingUIDOM`, …). They looked for names like `d3Color` that nothing defines.
-- A Plot too small for its title, timeline, axes or facet panels no longer draws bars, hover areas and forecast regions with negative sizes.
-- Shape background images in a Plot stay above the circles they belong to; clipping them to the plot area had moved them below.
-- On d3plus.org, the examples that set `fill`, `stroke` or `color` to an accessor function (Area, Line, TextBox) render again, and the Geomap, Matrix, RadialMatrix and shape-background-image examples load their data.
+- The standalone (non-`.full`) UMD bundles read their dependencies from the globals those libraries define (`d3` for the `d3-*` modules, `d3plus` for `@d3plus/*`, `topojson`, `FloatingUIDOM`, …). They looked for names like `d3Color` that nothing defines. (#987)
+- A Plot too small for its title, timeline, axes, or facet panels no longer draws bars, hover areas, and forecast regions with negative sizes. (#993)
+- Shape background images in a Plot stay above the circles they belong to; clipping them to the plot area had moved them below. (#993)
+- `flattenPath` in `@d3plus/render` reads compact arc flags (`a1 1 0 011 1`) as two flags instead of one number. (#989)
 
-### Removed
+### Documentation
 
-- **Geomap projection names outside the built-in set.** `projection` accepts the d3-geo projections plus `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson`, and `geoWinkel3` by name; pass any other projection as a function (e.g. `.projection(geoBertin1953())`). An unknown name warns and falls back to Mercator.
-- `Viz.renderScene()` and `Viz.renderMode()`. Use `select(target).renderer("svg" | "canvas").render(callback)` instead.
-- `backConfig()`, which had no effect. Style the back button with `backControlStyle` and `backControlClassName`.
-- `domToScene` from `@d3plus/render`.
+- API.md documents every class's generated config accessors in a "Config accessors" table with type, default, and description, including the 26 Viz accessors (`duration`, `width`, `zoomFactor`, …) and the shape and component accessors it didn't list before. Storybook args show their real defaults, including ones set in a constructor's helpers. (#989, #994, #1001)
+- The Area, Line, and TextBox examples that set `fill`, `stroke`, or `color` to an accessor function render again. (#993)
+- The Geomap, Matrix, RadialMatrix, and shape-background-image examples load their data again: oec.world now blocks scripted requests, so their data is inline and the world map is served with the site. (#993)
 
 ### Developer & tooling
 
-- **Tests run on Vitest.** `pnpm test` lints, then runs every package's tests in one Vitest run against the TypeScript source, so nothing is built first. Core's browser tests run in Vitest browser mode (Playwright Chromium), and node tests measure text with `@napi-rs/canvas` instead of node-canvas. `pnpm test:built` checks the built `es/` output, and the release script runs it.
-- **Pull requests test only what they affect.** CI runs the tests and coverage of the packages a pull request changes plus their dependents, or of every package when it changes shared config, test helpers, scripts or the lockfile. Pushes to `main` test everything. Node 22, 24 and 26 all gate merges, and `.nvmrc` pins 26.
-- **Prettier formats the repo.** `pnpm format` rewrites and `pnpm format:check` (run in CI) verifies; the docs generator formats what it writes. `.git-blame-ignore-revs` lets `git blame` skip the formatting commit (`git config blame.ignoreRevsFile .git-blame-ignore-revs`). The files and functions Prettier's wrapping took past ESLint's `max-lines` limits are split into smaller modules and steps.
-- **Storybook runs on Vite** (`@storybook/react-vite` instead of `@storybook/nextjs`), which drops Next.js and webpack from the install. Shared dependency ranges live in a pnpm catalog. ESLint 10 runs once over the repo (`pnpm lint`, including `scripts/`), on TypeScript 6 and Vite 8. Dependabot opens grouped monthly updates; TypeScript 7 waits until typescript-eslint and TypeDoc support it.
-- **Release script.** `pnpm run release` checks that `main` is clean and in sync with origin and that `gh` and npm are logged in before changing anything, validates the version, always rebuilds, prints one line per step (a failing step prints its output), publishes prereleases under the `next` dist-tag, creates the GitHub release with `gh`, and restores the working tree when it stops before the commit.
-- **Quieter scripts.** Builds print one line per package under `pnpm -r` or CI (`VERBOSE=1` prints every file), and the docs generator prints TypeDoc warnings only and fails when a package fails.
-- The `.full` UMD bundles compile sibling packages from source, and a package with no dependencies (`@d3plus/locales`) writes its `.full` bundles as copies of the standalone ones instead of building them twice.
-- Viz's const-wrapped and deep-merged config accessors (`title`, `legend`, `tooltip`, `tooltipConfig`, `legendConfig`, …, 36 in all) are generated from `vizFields.ts` too, so `VizBaseConfig` folds into `VizBase`, which keeps only the setters with real logic. The generated accessors are typed from `D3plusConfig` on `VizBase` (they were `any`), which adds the keys it was missing (`color`, `shape`, `messageStyle`, `subtitleConfig`, `timelineConfig`, `totalConfig`) and types Axis and TextBox `shape`.
-- Viz's 42 config accessors that store their value as given (`zoomControlStyle`, `detectResize`, `attribution`, …) are generated from `charts/viz/vizFields.ts` instead of hand-written, with their descriptions and types on `D3plusConfig`, which now types 22 keys it was missing.
-- API.md documents every class's generated config accessors in a "Config accessors" table with type, default and description, including the 26 Viz accessors (`duration`, `width`, `zoomFactor`, …) and the shape and component accessors it didn't list before. Storybook args show their real defaults.
-- `@d3plus/render` exports `arcPath` and `FULL_TURN`, and `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels.
-- `@d3plus/core/internal` drops `createFluent` and `FluentInstance` (use `installFluent`), `vizPreDrawPure` and `vizDrawPure` (use `vizPreDraw` and `vizDraw`), `polarLegend` (use `rowLegend`), ParallelCoordinates' `grayscale` (use `colorGrayscale`), and `sunburstShadeAmount` (use `partitionShadeAmount`). Its `VizContext` type is the pipeline stage context.
-- `ChartDefinition` drops its unread `features` field.
-- **npm publishing runs in CI.** Publishing a GitHub release (which `pnpm run release` does) runs the "Publish to npm" workflow, which publishes every package through npm trusted publishing (OIDC, no npm token) with provenance, dependencies first. `pnpm run release` no longer needs an npm login.
-- **Dev server** (`pnpm --filter @d3plus/<pkg> run dev`) serves a package's `dev/` pages through Vite instead of a hand-written HTTP server, and reloads through Vite's client instead of an injected Server-Sent Events snippet. URLs, port (`DEV_PORT`), the generated index, and per-page reloads are unchanged; `chokidar` is no longer a dependency.
+- **Tests run on Vitest.** `pnpm test` lints, then runs every package's tests in one Vitest run against the TypeScript source, so nothing is built first. Core's browser tests run in Vitest browser mode (Playwright Chromium), and node tests measure text with `@napi-rs/canvas` instead of node-canvas. `pnpm test:built` checks the built `es/` output, and the release script runs it. Duplicated tests are merged and table-driven, and the visual-regression suite fingerprints the charts added since 4.0. (#991, #992)
+- **Pull requests test only what they affect.** CI runs the tests and coverage of the packages a pull request changes plus their dependents, or of every package when it changes shared config, test helpers, scripts, or the lockfile. Pushes to `main` test everything. Node 22, 24, and 26 all gate merges, and `.nvmrc` pins 26. (#1000, #1002)
+- **Releases publish from CI.** Publishing a GitHub release runs the "Publish to npm" workflow, which publishes every package through npm trusted publishing (OIDC, no npm token) with provenance, dependencies first, and prereleases under the `next` dist-tag. `pnpm run release` no longer publishes or needs an npm login: it checks that `main` is clean and in sync with origin and that `gh` is logged in, validates the version, always rebuilds, prints one line per step (a failing step prints its output), titles this file's `Unreleased` section with the new version and uses it as the release notes, and restores the working tree when it stops before the commit. (#987, #1003)
+- **Prettier formats the repo.** `pnpm format` rewrites and `pnpm format:check` (run in CI) verifies; the docs generator formats what it writes. `.git-blame-ignore-revs` lets `git blame` skip the formatting commit (`git config blame.ignoreRevsFile .git-blame-ignore-revs`). The files and functions Prettier's wrapping took past ESLint's `max-lines` limits are split into smaller modules and steps. (#1001)
+- **Storybook runs on Vite** (`@storybook/react-vite` instead of `@storybook/nextjs`), which drops Next.js and webpack from the install. Shared dependency ranges live in a pnpm catalog. ESLint 10 runs once over the repo (`pnpm lint`, including `scripts/`), on TypeScript 6 and Vite 8. Dependabot opens grouped monthly updates; TypeScript 7 waits until typescript-eslint and TypeDoc support it. (#990, #998)
+- **The dev server runs on Vite.** `pnpm --filter @d3plus/<pkg> run dev` serves a package's `dev/` pages through Vite instead of a hand-written HTTP server, and reloads through Vite's client instead of an injected Server-Sent Events snippet. URLs, port (`DEV_PORT`), the generated index, and per-page reloads are unchanged; `chokidar` is no longer a dependency. (#1004)
+- **Quieter scripts.** Builds print one line per package under `pnpm -r` or CI (`VERBOSE=1` prints every file), and the docs generator prints TypeDoc warnings only and fails when a package fails. (#987)
+- The `.full` UMD bundles compile sibling packages from source, and a package with no dependencies (`@d3plus/locales`) writes its `.full` bundles as copies of the standalone ones instead of building them twice. (#990, #1002)
+- Viz's config accessors are generated from `charts/viz/vizFields.ts` instead of hand-written: the 42 that store their value as given (`zoomControlStyle`, `detectResize`, `attribution`, …) and the 36 const-wrapped and deep-merged ones (`title`, `legend`, `tooltip`, `tooltipConfig`, `legendConfig`, …). `VizBaseConfig` folds into `VizBase`, which keeps only the setters with real logic. The generated accessors are typed from `D3plusConfig` (they were `any`), with their descriptions on it. `D3plusConfig` gains the keys it was missing: 22 of the plain accessors' keys, plus `color`, `shape`, `messageStyle`, `subtitleConfig`, `timelineConfig`, and `totalConfig`, and it types Axis and TextBox `shape`. (#989, #994)
+- `@d3plus/render` exports `arcPath` and `FULL_TURN`, and draws motion-trail hulls with `d3-polygon`. `@d3plus/core/internal` adds `rowLegend`, `shareRow`, and the `VizDrawResult` type; `vizDraw` returns the margin it claimed and its panels. (#989, #1002)
+- `@d3plus/core/internal` drops `createFluent` and `FluentInstance` (use `installFluent`), `vizPreDrawPure` and `vizDrawPure` (use `vizPreDraw` and `vizDraw`), `polarLegend` (use `rowLegend`), ParallelCoordinates' `grayscale` (use `colorGrayscale`), and `sunburstShadeAmount` (use `partitionShadeAmount`). Its `VizContext` type is the pipeline stage context. `ChartDefinition` drops its unread `features` field. (#989)
+
+### Breaking changes
+
+Most charts upgrade with no code changes. These affect code that calls the removed methods, Geomap projections set by name, bundlers that target older browsers, and tests that compare exact output.
+
+- **`renderScene()` and `renderMode()` are removed** from every chart. Use `select(target).renderer("svg" | "canvas").render(callback)` instead. (#989)
+- **`backConfig()` is removed.** It had no effect; passing it to `config()` now logs an unknown-property warning. Style the Back button with `backControlStyle` and `backControlClassName`. (#989)
+- **`domToScene` is removed** from `@d3plus/render`. (#989)
+- **Geomap `projection` accepts only built-in names:** the d3-geo projections plus `geoAlbersUsaTerritories`, `geoMiller`, `geoRobinson`, and `geoWinkel3`. Pass any other projection as a function (e.g. `.projection(geoBertin1953())`). An unknown name warns and falls back to Mercator. (#988)
+- **The `es/` builds are ES2022.** A bundler that targets older browsers must transpile `@d3plus/*`. (#987)
+- **Package contents change:** source maps are no longer published, the `browser` field is gone (bundlers resolve through `exports`), and the bare CDN URL serves `.full.min.js` instead of `.full.js`. (#988)
+- **Output shifts:** text no longer breaks after `/` before a letter, Sankey link paths are rounded to 3 decimal places, `strip` keeps base letters outside Latin-1, `unique` keeps one `NaN`, and `findLocale("ce")` returns `ce-RU`. Visual-regression snapshots with wrapped slashes or Sankey links will change. (#988, #999)
 
 ## 4.8.0
 
