@@ -167,7 +167,7 @@ it("ColorScale — bucket labels print years in full", () => {
   const years = [1990, 1995, 2000, 2005, 2010, 2015, 2020];
   const format = new ColorScale().bucketFormat();
   assert.strictEqual(format(2020, 2, [1990, 2005, 2020], years), "2020");
-  assert.strictEqual(format(1990, 0, [1990, 2005, 2020], years), "1990 - 2000");
+  assert.strictEqual(format(1990, 0, [1990, 2005, 2020], years), "1990 - 2004");
 
   const counts = [1200, 1500, 1800, 2400];
   assert.strictEqual(
