@@ -28,6 +28,7 @@ import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {BarSpanLayout} from "../Plot/barWidth.js";
 import type {ConfidenceBand} from "../Plot/confidenceBands.js";
 import type {PlotFacetScales} from "../Plot/facetScales.js";
+import type {AxisHoverState} from "../Plot/axisHover.js";
 import type {ZoomControlIconKey} from "../drawSteps/zoomControlsMarkup.js";
 import type {BottomRightBox} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {ZoomTransform} from "d3-zoom";
@@ -391,6 +392,8 @@ export interface VizInstance {
     /** The small-multiples panel the hover is in, by key. */
     panel?: string;
   } | null;
+  /** The hovered point's axis guides and badges (`axisHover`), if any. */
+  _axisHoverState?: AxisHoverState | null;
   /** True while the shared multi-series tooltip owns the tooltip. */
   _sharedHoverActive?: boolean;
   /** The tooltip's own `arrow`/`thead`/`tbody`, held while the shared tooltip replaces them. */

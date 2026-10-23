@@ -1,0 +1,188 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AxisHover · Plot</title>
+    <meta
+      name="description"
+      content="Hovering a mark draws dashed guides to its axes and a value badge on each axis (issue #782)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: grid;
+        font-family: sans-serif;
+        gap: 20px;
+        grid-template-columns: repeat(2, 560px);
+        margin: 10px;
+      }
+
+      h3 {
+        font-size: 13px;
+        margin: 0 0 4px;
+      }
+
+      .viz {
+        height: 320px;
+        width: 560px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div>
+      <h3>Plot (scatter / bubble)</h3>
+      <div class="viz" id="scatter"></div>
+    </div>
+    <div>
+      <h3>LinePlot (discrete x, shared tooltip)</h3>
+      <div class="viz" id="line"></div>
+    </div>
+    <div>
+      <h3>LinePlot (continuous x)</h3>
+      <div class="viz" id="continuous"></div>
+    </div>
+    <div>
+      <h3>LinePlot (secondary y2 axis)</h3>
+      <div class="viz" id="secondary"></div>
+    </div>
+    <div>
+      <h3>BarChart (vertical)</h3>
+      <div class="viz" id="bar"></div>
+    </div>
+    <div>
+      <h3>BarChart (horizontal)</h3>
+      <div class="viz" id="barh"></div>
+    </div>
+    <div>
+      <h3>StackedArea</h3>
+      <div class="viz" id="area"></div>
+    </div>
+    <div>
+      <h3>Plot (axisHover: false)</h3>
+      <div class="viz" id="off"></div>
+    </div>
+  </body>
+
+  <script>
+    var countries = ["Brazil", "Canada", "Germany"];
+    var series = [];
+    countries.forEach(function (country, c) {
+      for (var year = 2015; year <= 2024; year++) {
+        var t = year - 2015;
+        series.push({
+          country: country,
+          year: year,
+          exports: Math.round(
+            (40 + c * 18 + t * (3 + c) + 8 * Math.sin(t + c)) * 1e7,
+          ),
+        });
+      }
+    });
+
+    var points = [];
+    for (var i = 0; i < 24; i++) {
+      points.push({
+        id: "point " + i,
+        group: ["North", "South", "East"][i % 3],
+        gdp: Math.round(800 + 120 * i + 300 * Math.sin(i)),
+        life: Math.round((62 + i * 0.6 + 3 * Math.cos(i)) * 10) / 10,
+        population: Math.round(5 + 40 * Math.abs(Math.sin(i * 1.7))),
+      });
+    }
+
+    new d3plus.Plot()
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("gdp")
+      .y("life")
+      .size("population")
+      .select("#scatter")
+      .render();
+
+    new d3plus.LinePlot()
+      .data(series)
+      .groupBy("country")
+      .x("year")
+      .discrete("x")
+      .y("exports")
+      .select("#line")
+      .render();
+
+    var continuous = [];
+    for (var d = 0; d < 40; d++) {
+      continuous.push({
+        id: "signal",
+        t: d * 0.25,
+        value: Math.round(50 + 30 * Math.sin(d / 5) + d) / 10,
+      });
+    }
+    new d3plus.LinePlot()
+      .data(continuous)
+      .groupBy("id")
+      .x("t")
+      .y("value")
+      .select("#continuous")
+      .render();
+
+    var secondary = [
+      {id: "alpha", year: 2004, alphaY: 7},
+      {id: "alpha", year: 2005, alphaY: 25},
+      {id: "alpha", year: 2006, alphaY: 13},
+      {id: "alpha", year: 2007, alphaY: 10},
+      {id: "beta", year: 2004, betaY: 300},
+      {id: "beta", year: 2005, betaY: 850},
+      {id: "beta", year: 2006, betaY: 420},
+      {id: "beta", year: 2007, betaY: 900},
+    ];
+    new d3plus.LinePlot()
+      .data(secondary)
+      .groupBy("id")
+      .x("year")
+      .y("alphaY")
+      .y2("betaY")
+      .tooltipShared(false)
+      .select("#secondary")
+      .render();
+
+    new d3plus.BarChart()
+      .data(series)
+      .groupBy("country")
+      .x("year")
+      .y("exports")
+      .select("#bar")
+      .render();
+
+    new d3plus.BarChart()
+      .data(
+        series.filter(function (d) {
+          return d.year >= 2021;
+        }),
+      )
+      .groupBy("country")
+      .discrete("y")
+      .y("year")
+      .x("exports")
+      .select("#barh")
+      .render();
+
+    new d3plus.StackedArea()
+      .data(series)
+      .groupBy("country")
+      .x("year")
+      .y("exports")
+      .select("#area")
+      .render();
+
+    new d3plus.Plot()
+      .data(points)
+      .groupBy(["group", "id"])
+      .x("gdp")
+      .y("life")
+      .axisHover(false)
+      .select("#off")
+      .render();
+  </script>
+</html>

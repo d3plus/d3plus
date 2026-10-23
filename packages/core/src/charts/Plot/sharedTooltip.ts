@@ -46,7 +46,7 @@ export function axisName(viz: VizInstance, k: Axis): string {
 */
 function timeValue(
   viz: VizInstance,
-  k: Axis,
+  k: Axis | "x2" | "y2",
   value: unknown,
 ): string | undefined {
   if (!viz[`_${k}Time`]) return undefined;
@@ -66,7 +66,11 @@ function timeValue(
     axis of years, matching its tick labels), and anything else (e.g. a numeric
     year on the discrete axis) as-is.
 */
-export function axisValue(viz: VizInstance, k: Axis, value: unknown): string {
+export function axisValue(
+  viz: VizInstance,
+  k: Axis | "x2" | "y2",
+  value: unknown,
+): string {
   const config = viz[`_${k}Config`] as
     {tickFormat?: (d: unknown) => string} | undefined;
   if (config && typeof config.tickFormat === "function")

@@ -1,7 +1,7 @@
 /**
     Scene nodes for Plot's shared tooltip (#779): the transparent hover surface,
     the crosshair (drawn as a Line annotation), and markers on the hovered Line
-    points.
+    points; and the axis hover's guides and badges (#782).
 */
 import type {DataPoint} from "@d3plus/data";
 import type {Scene, SceneNode} from "@d3plus/render";
@@ -14,6 +14,8 @@ import {
 import {PLOT_ZOOM_CONTENT_KEY, type PlotAxisFn} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {hasSharedMarks, type ShapeNode} from "./sharedHover.js";
+import type {AxisHoverState} from "./axisHover.js";
+import {axisHoverNodes} from "./axisHoverScene.js";
 import {isDomainClip} from "./domainClip.js";
 import type {FacetPanelState} from "../facet/facetConfig.js";
 import {withFacetPanel} from "../facet/facetPanel.js";
@@ -104,49 +106,56 @@ const isMark = (node: SceneNode): boolean => {
 };
 
 /**
-    Places the crosshair behind the first data mark ("back") or after every
-    mark ("front"), then the markers on top. Returns a fresh array — `nodes` may
-    be `_chartScene` itself, which must not accumulate per-paint nodes.
+    Places the guides (the crosshair and any axis-hover guides) behind the
+    first data mark ("back") or after every mark ("front"), then the markers
+    on top. Returns a fresh array — `nodes` may be `_chartScene` itself, which
+    must not accumulate per-paint nodes.
 */
 function layer(
   nodes: SceneNode[],
-  crosshair: SceneNode | null,
+  guides: SceneNode[],
   markers: SceneNode[],
   side: "back" | "front",
 ): SceneNode[] {
   const out = [...nodes];
-  if (crosshair) {
+  if (guides.length) {
     const first = out.findIndex(
       n =>
         isMark(n) || (isDomainClip(n) && (n as Parent).children!.some(isMark)),
     );
-    if (side === "back" && first >= 0) out.splice(first, 0, crosshair);
-    else out.push(crosshair);
+    if (side === "back" && first >= 0) out.splice(first, 0, ...guides);
+    else out.push(...guides);
   }
   out.push(...markers);
   return out;
 }
 
 /**
-    The hover nodes for one chart body's children: with `tooltipShared`, a
-    transparent hover surface behind the marks, so the SVG backend receives
-    pointer events over empty plot space; and — while a hover is active — the
-    crosshair and the hovered Line markers, inside the zoom-clipped plot
-    content when the chart is zoomable. `key` maps a node key to its key in
-    this body (small-multiples panels prefix theirs).
+    The hover nodes for one chart body's children: with `tooltipShared` on a
+    chart with a discrete axis, a transparent hover surface behind the marks,
+    so the SVG backend receives pointer events over empty plot space; and —
+    while a hover is active — the crosshair, the hovered Line markers, and the
+    axis hover's guides, inside the zoom-clipped plot content when the chart
+    is zoomable, with its badges over the axes. `key` maps a node key to its
+    key in this body (small-multiples panels prefix theirs).
 */
 function decorateBody(
   viz: VizInstance,
   nodes: SceneNode[],
-  state: HoverState | null | undefined,
+  hover: {
+    state: HoverState | null | undefined;
+    axis: AxisHoverState | null | undefined;
+  },
   key: (k: string) => string,
 ): SceneNode[] {
   const area = viz._plotArea;
   if (!area) return nodes;
+  const {state, axis} = hover;
+  const discrete = viz.schema.discrete === "x" || viz.schema.discrete === "y";
   // The surface is only needed for shared hovers over empty space; a single
   // hover (tooltipShared off) needs the pointer on a mark anyway.
   const surface =
-    viz.schema.tooltipShared && hasSharedMarks(viz)
+    discrete && viz.schema.tooltipShared && hasSharedMarks(viz)
       ? [
           {
             type: "rect",
@@ -158,11 +167,18 @@ function decorateBody(
         ]
       : [];
   let children = nodes;
-  if (state) {
-    const rekey = (n: SceneNode | null): SceneNode | null =>
-      n && prefixKeys([n], key)[0];
-    const crosshair = rekey(crosshairAnnotation(viz, state));
-    const markers = prefixKeys(hoverMarkers(viz, state), key);
+  const crosshair = state && discrete ? crosshairAnnotation(viz, state) : null;
+  const axisNodes = axis ? axisHoverNodes(viz, axis) : null;
+  const guides = prefixKeys(
+    [...(crosshair ? [crosshair] : []), ...(axisNodes ? axisNodes.guides : [])],
+    key,
+  );
+  const markers = prefixKeys(
+    state && discrete ? hoverMarkers(viz, state) : [],
+    key,
+  );
+  if (guides.length || markers.length) {
+    const side = state ? state.layer : "back";
     const content = children.findIndex(
       n => n.key === key(PLOT_ZOOM_CONTENT_KEY),
     );
@@ -171,11 +187,12 @@ function decorateBody(
       children = [...children];
       children[content] = {
         ...group,
-        children: layer(group.children || [], crosshair, markers, state.layer),
+        children: layer(group.children || [], guides, markers, side),
       } as SceneNode;
-    } else children = layer(children, crosshair, markers, state.layer);
+    } else children = layer(children, guides, markers, side);
   }
-  return [...surface, ...children];
+  const badges = axisNodes ? prefixKeys(axisNodes.badges, key) : [];
+  return [...surface, ...children, ...badges];
 }
 
 /**
@@ -194,11 +211,15 @@ function decoratePanel(
   const body = cells && cells.children && (cells.children[0] as Parent);
   if (!cells || !body || !body.children) return group;
   const state = viz._sharedHoverState;
+  const axis = viz._axisHoverState;
   const children = withFacetPanel(viz, panel, () =>
     decorateBody(
       viz,
       body.children!,
-      state && state.panel === panel.key ? state : null,
+      {
+        state: state && state.panel === panel.key ? state : null,
+        axis: axis && axis.panel === panel.key ? axis : null,
+      },
       k => `${panel.key}/${k}`,
     ),
   );
@@ -211,13 +232,13 @@ function decoratePanel(
 }
 
 /**
-    Adds the snapped hover's scene nodes (see `decorateBody`) to the chart
-    body group (content space, so they track zoom) — to each panel's body
-    when the chart is drawn as small multiples.
+    Adds the hover's scene nodes (see `decorateBody`) to the chart body group
+    (content space, so they track zoom) — to each panel's body when the chart
+    is drawn as small multiples.
 */
 export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
   const discrete = viz.schema.discrete;
-  if (discrete !== "x" && discrete !== "y") return;
+  if (discrete !== "x" && discrete !== "y" && !viz._axisHoverState) return;
   const cells = (scene.root.children as Parent[]).find(
     n => n.key === "viz-chart-cells",
   );
@@ -234,7 +255,7 @@ export function appendSharedHoverNodes(viz: VizInstance, scene: Scene): void {
     body.children = decorateBody(
       viz,
       body.children,
-      viz._sharedHoverState,
+      {state: viz._sharedHoverState, axis: viz._axisHoverState},
       k => k,
     );
 }

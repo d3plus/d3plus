@@ -504,6 +504,32 @@ export interface D3plusConfig {
     shapeConfig?: Record<string, unknown>;
   };
   /**
+      Whether hovering a Plot's mark draws a dashed guide from its point to
+      each axis and a badge on that axis with the point's value there,
+      formatted as the tooltip formats that axis's values (the axis's
+      `tickFormat` when set). `"x"` or `"y"` draws them for that direction
+      only (each including its secondary axis). A bar is badged on its value
+      axis only. With a discrete axis, the shared tooltip's crosshair is that
+      axis's guide, and the value axis follows the hovered series' point (or
+      the one nearest the pointer). Defaults to `true` (`"x"` on BumpChart,
+      whose y axes label series rather than values).
+  */
+  axisHover?: boolean | "x" | "y";
+  /**
+      Styles the `axisHover` guides and badges. `guideConfig` takes `stroke`
+      (the hovered mark's color by default), `strokeWidth` (default `1`),
+      `strokeDasharray` (default `"4 3"`), and `strokeOpacity`. `badgeConfig`
+      takes `fill` (the hovered mark's color by default), `fontColor` (a
+      color contrasting the fill by default), `fontFamily`, `fontSize`
+      (default `12`), `fontWeight` (default `400`), `padding` around the text
+      (default `4`), and `rx` corner radius (default `2`). Each is a value or
+      a `(d, i) => value` accessor of the hovered data row.
+  */
+  axisHoverConfig?: {
+    guideConfig?: Record<string, unknown>;
+    badgeConfig?: Record<string, unknown>;
+  };
+  /**
       Sets text to be shown positioned absolute on top of the visualization in the bottom-right corner. This is most often used in Geomaps to display the copyright of map tiles. The text is rendered as HTML, so any valid HTML string will render as expected (eg. anchor links work).
   */
   attribution?: string | boolean;

@@ -75,6 +75,35 @@ BubbleChart.parameters = {
   },
 };
 
+export const AxisHoverGuides = Template.bind({});
+AxisHoverGuides.args = {
+  data: [
+    {id: "alpha", gdp: 1200, life: 64.2, population: 12},
+    {id: "beta", gdp: 2400, life: 70.8, population: 40},
+    {id: "gamma", gdp: 3100, life: 68.1, population: 22},
+    {id: "delta", gdp: 4600, life: 75.4, population: 31},
+    {id: "epsilon", gdp: 5200, life: 72.9, population: 8},
+  ],
+  groupBy: "id",
+  size: "population",
+  x: "gdp",
+  y: "life",
+  axisHover: true,
+  axisHoverConfig: {
+    guideConfig: {strokeDasharray: "4 3", strokeWidth: 1},
+    badgeConfig: {fontSize: 12, padding: 4},
+  },
+};
+AxisHoverGuides.parameters = {
+  controls: {include: ["axisHover", "axisHoverConfig"]},
+  docs: {
+    description: {
+      story:
+        'Hover a bubble: a dashed guide runs from its center to each axis, and a badge in the bubble\'s color shows its value where the guide meets the axis, formatted as the tooltip formats that axis. **On by default** on every Plot chart — on a chart with a discrete axis the shared tooltip\'s crosshair is that axis\'s guide, and a bar is badged on its value axis only. Set `axisHover: false` to turn it off (or `"x"`/`"y"` for one direction), and style the guides and badges with `axisHoverConfig.guideConfig` and `axisHoverConfig.badgeConfig`.',
+    },
+  },
+};
+
 export const TimelineMotionTrails = Template.bind({});
 TimelineMotionTrails.args = {
   data: [

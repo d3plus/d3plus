@@ -27,6 +27,29 @@ their contents and styling with `tooltipConfig` (a
 }} />
 ```
 
+## Axis guides
+
+Hovering a mark on a Plot chart (LinePlot, BarChart, AreaPlot, a scatter or
+bubble Plot, and the rest of the family) draws a dashed guide from its point to
+each axis, with a badge on the axis showing the point's value there in the
+mark's color. On a chart with a discrete axis, the shared tooltip's crosshair is
+that axis's guide, and the value axis follows the hovered series (or the one
+nearest the pointer); a bar is badged on its value axis only. Turn it off with
+`axisHover: false`, keep one direction with `"x"` or `"y"`, and style it with
+`axisHoverConfig`:
+
+```jsx
+<LinePlot config={{
+  data, groupBy: "region", x: "year", y: "revenue",
+  axisHoverConfig: {
+    guideConfig: {stroke: "#999", strokeDasharray: "2 2"},
+    badgeConfig: {fontSize: 11, padding: 3}
+  }
+}} />
+```
+
+See the [axis guides example](/docs/core-charts-plot--d3plus#axis-hover-guides).
+
 ## Pointer events
 
 Register handlers through the `on` config key. Event names mirror
