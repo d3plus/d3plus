@@ -2,6 +2,7 @@ import type {DataPoint} from "@d3plus/data";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
+import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -39,8 +40,16 @@ export default function (
       this.schema.on["click.shape"] &&
       this.schema.on["click.shape"].toString() === defaultClick;
 
-    // can the viz show deeper data?
-    const hasDeeperLevel = this._drawDepth < this.schema.groupBy.length - 1;
+    // can the viz show deeper data? A group row zooms into its group.
+    const groupDepth = groupDepthOf(d);
+    const hasDeeperLevel =
+      groupDepth === undefined
+        ? this._drawDepth < this.schema.groupBy.length - 1
+        : groupNarrows(
+            this.schema.groupBy,
+            groupPath(this.schema.groupBy, d, groupDepth),
+            this._filteredData ?? [],
+          );
 
     // only show the hand cursor when the shape has a click event
     this._select.style(

@@ -22,6 +22,38 @@ export const argTypes = assign(
    */
 
   {
+    groupLabelConfig: {
+      control: {
+        type: "object",
+      },
+      description:
+        "Treemap: style of the group header strips (see `groupLabels`). The\naccessors receive the group's merged row.",
+      table: {
+        defaultValue: {
+          summary: "{}",
+        },
+      },
+      type: {
+        required: false,
+        summary: "object",
+      },
+    },
+    groupLabels: {
+      control: {
+        type: "boolean",
+      },
+      description:
+        "Treemap: whether each group above the drawn tiles of a nested `groupBy`\ngets a header strip naming it, with its tiles below the strip. Every\nlevel above the tiles gets its own strip; a group too small for one\ngets none. Hovering a strip highlights its group, and clicking it zooms\ninto that group (Back steps out). Defaults to `true`.",
+      table: {
+        defaultValue: {
+          summary: "true",
+        },
+      },
+      type: {
+        required: false,
+        summary: "boolean",
+      },
+    },
     layoutPadding: {
       control: {
         type: "number",

@@ -18,6 +18,7 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import {computeFilteredData, computeTimeFilter} from "./preDrawData.js";
 import type {VizPreDrawResult} from "./preDrawData.js";
+import {groupDepthOf} from "../viz/groupRow.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -101,8 +102,9 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
     // subclass override) are reflected in label/aria output.
     // `viz._drawDepth ?? drawDepth` mirrors the pre-snapshot behavior.
     const liveLeaf = (viz._drawDepth as number | undefined) ?? drawDepth;
-    const effDepth = depth ?? liveLeaf;
     if (!d) return "";
+    // A group row labels at its own level (see `groupRow.ts`).
+    const effDepth = depth ?? groupDepthOf(d) ?? liveLeaf;
     while (d.__d3plus__ && d.data) {
       d = d.data as DataPoint;
       i = d.i as number;
