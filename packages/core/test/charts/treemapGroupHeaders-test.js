@@ -21,7 +21,10 @@ import {
   groupStripHeight,
 } from "../../src/charts/Treemap/groupHeaders.ts";
 import {treemapDef} from "../../src/charts/Treemap/index.ts";
-import {GROUP_DEPTH_KEY} from "../../src/charts/viz/groupRow.ts";
+import {
+  GROUP_DEPTH_KEY,
+  GROUP_LABEL_KEY,
+} from "../../src/charts/viz/groupRow.ts";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -92,6 +95,12 @@ describe("groupLabelStyle", () => {
       fontFamily: "Inter",
       fontSize: 14,
     });
+  });
+
+  it("passes a label accessor through", () => {
+    const label = d => d.name;
+    const viz = {schema: {groupLabelConfig: {label}}};
+    assert.strictEqual(groupLabelStyle(viz).label, label);
   });
 
   it("is null when groupLabels is false", () => {
@@ -201,6 +210,39 @@ describe("attachGroupHeaders", () => {
     attachGroupHeaders(new Map([[group, 20]]), {aggs: {}, total: 1});
     assert.strictEqual(group.groupHeader.y1, 25);
     assert.strictEqual(group.groupHeader.id, "A");
+  });
+
+  it("stamps the label groupLabelConfig.label gives the merged row", () => {
+    const rows = [
+      {sector: "T", name: "Tech", value: 1},
+      {sector: "T", name: "Tech", value: 2},
+    ];
+    const root = hierarchy({children: [{key: "T", children: rows}]})
+      .sum(d => d.value || 0)
+      .each(n => Object.assign(n, {x0: 0, x1: 50, y0: 0, y1: 50}));
+    const group = root.children[0];
+    const seen = [];
+    attachGroupHeaders(new Map([[group, 20]]), {
+      aggs: {},
+      label: d => {
+        seen.push(d);
+        return `${d.name} (${d.value})`;
+      },
+      total: 3,
+    });
+    assert.strictEqual(seen[0], group.groupHeader.data, "given the merged row");
+    assert.strictEqual(group.groupHeader.data[GROUP_LABEL_KEY], "Tech (3)");
+  });
+
+  it("stamps no label when groupLabelConfig.label gives none", () => {
+    for (const label of [undefined, () => undefined, () => "", () => false]) {
+      const root = hierarchy({children: [{key: "A", children: [{value: 1}]}]})
+        .sum(d => d.value || 0)
+        .each(n => Object.assign(n, {x0: 0, x1: 50, y0: 0, y1: 50}));
+      const group = root.children[0];
+      attachGroupHeaders(new Map([[group, 20]]), {aggs: {}, label, total: 1});
+      assert.ok(!(GROUP_LABEL_KEY in group.groupHeader.data));
+    }
   });
 });
 

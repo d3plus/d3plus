@@ -18,7 +18,7 @@ import {formatAbbreviate} from "@d3plus/format";
 
 import {computeFilteredData, computeTimeFilter} from "./preDrawData.js";
 import type {VizPreDrawResult} from "./preDrawData.js";
-import {groupDepthOf} from "../viz/groupRow.js";
+import {GROUP_LABEL_KEY, groupDepthOf} from "../viz/groupRow.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -104,11 +104,14 @@ function buildLabelClosures(viz: Viz, drawDepth: number): LabelClosures {
     const liveLeaf = (viz._drawDepth as number | undefined) ?? drawDepth;
     if (!d) return "";
     // A group row labels at its own level (see `groupRow.ts`).
-    const effDepth = depth ?? groupDepthOf(d) ?? liveLeaf;
+    const groupDepth = groupDepthOf(d);
+    const effDepth = depth ?? groupDepth ?? liveLeaf;
     while (d.__d3plus__ && d.data) {
       d = d.data as DataPoint;
       i = d.i as number;
     }
+    if (effDepth === groupDepth && typeof d[GROUP_LABEL_KEY] === "string")
+      return d[GROUP_LABEL_KEY] as string;
     // ColorScale range buckets carry their label in `id` and have no groupBy
     // fields, so the groupBy resolution below would yield "undefined".
     if (d._isColorScaleBucket) return `${d.id}`;

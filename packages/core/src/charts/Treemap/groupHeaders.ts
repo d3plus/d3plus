@@ -15,7 +15,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {stampShare} from "../features/shareKey.js";
-import {GROUP_DEPTH_KEY} from "../viz/groupRow.js";
+import {GROUP_DEPTH_KEY, GROUP_LABEL_KEY} from "../viz/groupRow.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Accessor<T> = T | ((d: DataPoint, i: number) => T);
@@ -24,6 +24,7 @@ type Accessor<T> = T | ((d: DataPoint, i: number) => T);
 export interface GroupLabelStyle {
   fill?: Accessor<string>;
   fontColor?: Accessor<string>;
+  label?: (d: DataPoint, i: number) => unknown;
   fontFamily?: string | string[];
   fontSize: number;
   fontWeight: number | string;
@@ -133,11 +134,15 @@ function groupId(node: GroupNode): string {
 /**
     Stamps each group that reserved a strip with its header: the strip's box
     (in the group's final, rounded position) and the group's merged row,
-    carrying its share of `total`.
+    carrying its share of `total` and, when `label` gives one, its own label.
 */
 export function attachGroupHeaders(
   strips: GroupStrips,
-  opts: {aggs: Parameters<typeof merge>[1]; total: number},
+  opts: {
+    aggs: Parameters<typeof merge>[1];
+    label?: GroupLabelStyle["label"];
+    total: number;
+  },
 ): void {
   for (const [node, height] of strips) {
     const rows = node.leaves().map(leaf => leaf.data as DataPoint);
@@ -146,6 +151,9 @@ export function attachGroupHeaders(
     delete data._isAggregation;
     delete data._threshold;
     data[GROUP_DEPTH_KEY] = node.depth - 1;
+    const text = opts.label ? opts.label(data, 0) : undefined;
+    if (text !== undefined && text !== null && text !== false && text !== "")
+      data[GROUP_LABEL_KEY] = `${text}`;
     stampShare(data, (node.value ?? 0) / opts.total);
     node.groupHeader = {
       __d3plus__: true,

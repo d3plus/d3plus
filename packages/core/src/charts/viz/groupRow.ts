@@ -10,6 +10,9 @@ import type {DataPoint} from "@d3plus/data";
 /** The row key holding a group row's `groupBy` level. */
 export const GROUP_DEPTH_KEY = "__d3plusGroupDepth";
 
+/** The row key holding a group row's own label, when its chart sets one. */
+export const GROUP_LABEL_KEY = "__d3plusGroupLabel";
+
 type Wrapped = DataPoint & {__d3plus__?: boolean; data?: DataPoint};
 type GroupKey = (d: DataPoint, i: number) => unknown;
 

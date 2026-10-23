@@ -943,6 +943,15 @@ export interface D3plusConfig {
     fontSize?: number;
     /** Font weight. Defaults to `600`. */
     fontWeight?: number | string;
+    /**
+        The strip's text, given the group's merged row (the same row the
+        strip's hover and click handlers receive). Its tooltip title uses it
+        too. Unset, or returning nothing, the strip shows the group's
+        `groupBy` value at its level; the chart's own `label` names only the
+        tiles, since on a merged row it can't tell a group-level field from a
+        tile-level one.
+    */
+    label?: (d: DataPoint, i: number) => string;
     /** Space around the text inside the strip, in pixels. Defaults to `3`. */
     padding?: number;
   };

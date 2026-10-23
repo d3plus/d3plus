@@ -375,3 +375,83 @@ it("group headers: every small-multiple panel gets its own strips", async () => 
     await close();
   }
 });
+
+it("group headers: groupLabelConfig.label sets a strip's text and its tooltip title", async () => {
+  const {page, close} = await chart([
+    ["data", market.map(d => ({...d, sectorName: `${d.sector} sector`}))],
+    ["groupBy", ["sector", "company"]],
+    ["sum", "value"],
+  ]);
+  try {
+    // An accessor can't cross into the page as JSON, so it's set there.
+    await page.evaluate(
+      () =>
+        new Promise(resolve => {
+          window.__received = [];
+          window.__viz
+            .groupLabelConfig({
+              label: d => {
+                window.__received.push(d);
+                return `${d.sectorName}: ${d.value}`;
+              },
+            })
+            .render(resolve);
+        }),
+    );
+    const s = await scene(page);
+    assert.deepStrictEqual(s.names.sort(), [
+      "Energy sector: 22",
+      "Health sector: 38",
+      "Tech sector: 73",
+    ]);
+    const handled = await page.evaluate(() => {
+      const viz = window.__viz;
+      const strip = viz._chartScene.find(n => n.key === "treemap-group-Tech");
+      return {
+        same: window.__received.includes(strip.datum),
+        title: viz._drawLabel(strip.datum, 0),
+        aria: strip.aria.label,
+      };
+    });
+    assert.ok(handled.same, "the accessor gets the strip's own datum");
+    assert.strictEqual(handled.title, "Tech sector: 73");
+    assert.match(handled.aria, /^Tech sector: 73, 73,/);
+
+    const point = await headerPoint(page, "Tech");
+    await page.mouse.move(5, 5);
+    await page.mouse.move(point[0], point[1], {steps: 3});
+    await page.waitForTimeout(120);
+    const tooltip = await page.evaluate(() =>
+      document.querySelector(".d3plus-tooltip")?.innerText.trim(),
+    );
+    assert.match(tooltip, /^Tech sector: 73\b/);
+  } finally {
+    await close();
+  }
+});
+
+it("group headers: the chart's label names the tiles only", async () => {
+  const {page, close} = await chart([
+    ["data", market],
+    ["groupBy", ["sector", "company"]],
+    ["sum", "value"],
+  ]);
+  try {
+    await page.evaluate(
+      () =>
+        new Promise(resolve => {
+          window.__viz.label(d => `Co. ${d.company}`).render(resolve);
+        }),
+    );
+    const s = await scene(page);
+    assert.deepStrictEqual(s.names.sort(), ["Energy", "Health", "Tech"]);
+    const tile = await page.evaluate(() => {
+      const viz = window.__viz;
+      const node = viz._chartScene.find(n => n.key === "treemap-Alpha");
+      return viz._drawLabel(node.datum, 0);
+    });
+    assert.strictEqual(tile, "Co. Alpha");
+  } finally {
+    await close();
+  }
+});

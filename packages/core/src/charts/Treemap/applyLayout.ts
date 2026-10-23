@@ -72,13 +72,11 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   }
   const padding = viz.schema.layoutPadding as number;
   const strips: GroupStrips = new Map();
+  const style = groupLabelStyle(viz);
   const built = (viz.ctx.treemap as TreemapGenerator)
     .padding(padding)
     .paddingTop(
-      groupPaddingTop(
-        {drawDepth: viz._drawDepth, padding, style: groupLabelStyle(viz)},
-        strips,
-      ),
+      groupPaddingTop({drawDepth: viz._drawDepth, padding, style}, strips),
     )
     .size([width, height])
     .tile(viz.schema.tile);
@@ -131,6 +129,7 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   const total = tmapData.value as number;
   attachGroupHeaders(strips, {
     aggs: viz.schema.aggs as Parameters<typeof merge>[1],
+    label: style?.label,
     total,
   });
   const sumFn = viz.schema.sum as (d: DataPoint) => number;

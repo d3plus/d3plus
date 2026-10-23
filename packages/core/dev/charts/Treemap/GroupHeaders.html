@@ -5,7 +5,7 @@
     <title>Group Headers · Treemap</title>
     <meta
       name="description"
-      content="Nested Treemaps label each group with a header strip (issue #363): two and three levels, a colorScale, drill-down, threshold, small multiples, a dark page, and groupLabels(false)."
+      content="Nested Treemaps label each group with a header strip (issue #363): two and three levels, a colorScale, drill-down, threshold, small multiples, a dark page, a label accessor, and groupLabels(false)."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -53,7 +53,7 @@
         <div class="viz" id="drill"></div>
       </div>
       <div>
-        <h3>threshold(0.05), custom groupLabelConfig</h3>
+        <h3>threshold(0.05), groupLabelConfig with a label accessor</h3>
         <div class="viz" id="threshold"></div>
       </div>
       <div>
@@ -107,7 +107,12 @@
           .select("#threshold")
           .data(market)
           .groupBy(["sector", "company"])
-          .groupLabelConfig({fill: "#333", fontSize: 13, padding: 4})
+          .groupLabelConfig({
+            fill: "#333",
+            fontSize: 13,
+            label: d => `${d.sector.toUpperCase()} · ${d.marketCap.toFixed(0)}`,
+            padding: 4,
+          })
           .threshold(0.05)
           .sum("marketCap")
           .render();
