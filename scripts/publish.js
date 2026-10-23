@@ -69,6 +69,32 @@ function published(name, version) {
   return result.status === 0 && result.stdout.trim() === version;
 }
 
+const sleep = ms =>
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+
+/**
+ * Publishes a tarball, retrying when npm fails but the version still isn't on
+ * npm: fetching the workflow's OIDC identity token from GitHub fails now and
+ * then (`IDENTITY_TOKEN_READ_ERROR`).
+ */
+function publish(pkg, version, tarball, attempts = 3) {
+  for (let attempt = 1; ; attempt++) {
+    try {
+      execFileSync(
+        "npm",
+        ["publish", tarball, "--access", "public", "--tag", distTag(version)],
+        {stdio: "inherit"},
+      );
+      return;
+    } catch (err) {
+      if (published(pkg.name, version)) return;
+      if (attempt === attempts) throw err;
+      console.log(`retrying ${pkg.name}@${version} (attempt ${attempt + 1})`);
+      sleep(15000 * attempt);
+    }
+  }
+}
+
 if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(process.argv[1]).href
@@ -93,11 +119,6 @@ if (
       cwd: pkg.dir,
       encoding: "utf8",
     });
-    const tarball = out.trim().split("\n").pop();
-    execFileSync(
-      "npm",
-      ["publish", tarball, "--access", "public", "--tag", distTag(version)],
-      {stdio: "inherit"},
-    );
+    publish(pkg, version, out.trim().split("\n").pop());
   }
 }
