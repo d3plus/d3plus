@@ -57,6 +57,12 @@ interface ChartDefinitionBase {
   */
   insetRegion?: (viz: VizInstance) => InsetRegion | null;
   /**
+      Optional shape a colorScale row draws as, when it isn't the row's
+      `shape`: the `shapeConfig` key the colorScale's bucket swatches take
+      their stroke and opacity from (a Geomap row drawn as a topojson Path).
+  */
+  colorScaleShape?: (viz: VizInstance, d: DataPoint, i: number) => string;
+  /**
       Optional small-multiples hooks (see `facet/facetConfig.ts`): the panel
       aspect the chart reads best at, and for charts with scales, how panels
       share them. A chart without any still draws as small multiples, each

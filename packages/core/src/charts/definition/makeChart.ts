@@ -5,14 +5,16 @@
     The class is identical for every chart: its constructor runs
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
-    `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` delegate to
-    `def.thresholdFunction` / `def.sizeLegendScale` / `def.insetRegion` if
+    `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` /
+    `_colorScaleShape` delegate to `def.thresholdFunction` /
+    `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` if
     present, `_facetHooks` layers `def.facet` over the base chart's, and
     `toScene` passes the base chart's scene through `def.decorateScene`.
 
     A chart's `index.ts` becomes literally `export default makeChart(def)`.
 */
 
+import type {DataPoint} from "@d3plus/data";
 import type {Scene} from "@d3plus/render";
 
 import {applyDefinition} from "./applyDefinition.js";
@@ -73,6 +75,12 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       return def.insetRegion
         ? def.insetRegion(this as unknown as VizInstance)
         : super._insetRegion();
+    }
+
+    _colorScaleShape(d: DataPoint, i: number) {
+      return def.colorScaleShape
+        ? def.colorScaleShape(this as unknown as VizInstance, d, i)
+        : super._colorScaleShape(d, i);
     }
 
     _facetHooks() {
