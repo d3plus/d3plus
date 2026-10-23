@@ -19,6 +19,7 @@ import {defaultBuffers} from "../plotBuffers/defaultBuffers.js";
 import {linkedColorDefaults} from "../viz/linkGroup.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type Plot from "./index.js";
+import {axisHoverDefaults} from "./axisHoverScene.js";
 import {fillBetweenDefaults} from "./fillBetween.js";
 import {forecastDefaults} from "./forecast.js";
 import {plotDef} from "./pipeline.js";
@@ -33,6 +34,8 @@ import {
     the instance's prototype alongside vizSchema's accessors.
 */
 export const plotSchema = [
+  {key: "axisHover", coerce: "identity" as const, default: true},
+  {key: "axisHoverConfig", merge: true, factory: axisHoverDefaults},
   {key: "barPadding", coerce: "identity" as const},
   {key: "baselineBreak", coerce: "identity" as const},
   {key: "fillBetween", coerce: "identity" as const, default: false},

@@ -27,6 +27,7 @@ import {
 } from "./confidenceBands.js";
 import {trendLineDefaults, type TrendLineType} from "./trendLines.js";
 import {contentPoint, handleSharedHover} from "./sharedHover.js";
+import {handleAxisHover} from "./axisHover.js";
 import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
 import {plotInsetRegion} from "./insetRegion.js";
@@ -269,10 +270,12 @@ export default class Plot extends Viz {
       inside the plot area, snaps to the nearest discrete position and, when
       two or more series share it, shows them all in one tooltip (suppressing
       the single-shape tooltip). Clears on leaving the plot area or the chart.
+      Then tracks the hovered point's axis guides and badges (`axisHover`).
       @private
 */
   _sharedHover(event: SceneEvent): void {
     handleSharedHover(this as unknown as VizInstance, event);
+    handleAxisHover(this as unknown as VizInstance, event);
   }
 
   /**

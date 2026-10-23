@@ -274,6 +274,8 @@ function makePlotLineLabelMeasure(
 }
 
 export function drawPlot(viz: VizInstance, callback?: () => void) {
+  // The axis hover's positions belong to the previous layout.
+  viz._axisHoverState = null;
   // A small-multiples chrome pass lays out the chrome only.
   if (
     viz._facetStep === "chrome" ||

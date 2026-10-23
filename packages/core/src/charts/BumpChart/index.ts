@@ -79,6 +79,8 @@ export const bumpChartDef: ChartDefinition = {
   ctx: {},
 
   fields: [
+    // The y axes label each rank with a series, so only the x axis is badged.
+    {key: "axisHover", default: "x"},
     {key: "discrete", default: "x"},
     {key: "shape", default: constant("Line"), coerce: "const"},
   ],
