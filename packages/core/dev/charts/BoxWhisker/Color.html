@@ -1,0 +1,52 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxWhisker Color</title>
+    <meta
+      name="description"
+      content="BoxWhisker boxes colored by a field, matching the legend, with a contrasting median on dark fills."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    var values = [300, 150, 155, 145, 20, 180, 40, 170, 125, 74, 80, 95];
+    var data = [];
+    [
+      {id: "alpha", region: "North"},
+      {id: "beta", region: "South"},
+      {id: "gamma", region: "North"},
+      {id: "delta", region: "Night"},
+    ].forEach(function (group, k) {
+      values.forEach(function (value, n) {
+        data.push({
+          id: group.id,
+          region: group.region,
+          n: n,
+          value: value + k * 15,
+        });
+      });
+    });
+
+    new d3plus.BoxWhisker()
+      .data(data)
+      .groupBy(["id", "n"])
+      .x("id")
+      .y("value")
+      .color(function (d) {
+        return d.region === "Night" ? "#1a1b4b" : d.region;
+      })
+      .render();
+  </script>
+</html>

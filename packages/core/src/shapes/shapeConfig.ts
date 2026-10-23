@@ -259,6 +259,8 @@ export interface BoxConfig {
   /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
   backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
   data?: DataPoint[];
+  /** Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it. */
+  fill?: ConstOrAccessor<string>;
   /** Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value. */
   id?: ConstOrAccessor<string | number>;
   medianConfig?: Record<string, unknown>;
@@ -270,6 +272,8 @@ export interface BoxConfig {
   rectConfig?: Record<string, unknown>;
   rectWidth?: ConstOrAccessor<number>;
   select?: string | HTMLElement | SVGElement | null;
+  /** Each box's outline color, resolved against its merged datum (black when unset); `rectConfig.stroke` overrides it. */
+  stroke?: ConstOrAccessor<string>;
   /** Texture (per textures.js) filling each box; `rectConfig.texture` overrides it. */
   texture?: ConstOrAccessor<string | Record<string, unknown>>;
   /** Default texture config merged into the box's texture. */

@@ -105,6 +105,20 @@ export const argTypes = assign(
         summary: "array.&lt;datapoint&gt;",
       },
     },
+    fill: {
+      control: {},
+      description:
+        "Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor",
+      },
+    },
     hover: {
       control: {},
       description: "The hover highlight state for all sub-shapes in this Box.",
@@ -283,6 +297,20 @@ export const argTypes = assign(
       type: {
         required: true,
         summary: "d3plusconfig",
+      },
+    },
+    stroke: {
+      control: {},
+      description:
+        "Each box's outline color, resolved against its merged datum (black when unset); `rectConfig.stroke` overrides it.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "constoraccessor",
       },
     },
     texture: {

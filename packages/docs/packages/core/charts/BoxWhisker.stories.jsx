@@ -243,3 +243,46 @@ HorizontalChart.parameters = {
     },
   },
 };
+
+export const ColoringBoxes = Template.bind({});
+ColoringBoxes.args = {
+  data: [
+    {id: "alpha", region: "North", value: 300},
+    {id: "alpha", region: "North", value: 20},
+    {id: "alpha", region: "North", value: 180},
+    {id: "alpha", region: "North", value: 40},
+    {id: "alpha", region: "North", value: 170},
+    {id: "alpha", region: "North", value: 125},
+    {id: "alpha", region: "North", value: 74},
+    {id: "alpha", region: "North", value: 80},
+    {id: "beta", region: "South", value: 180},
+    {id: "beta", region: "South", value: 30},
+    {id: "beta", region: "South", value: 120},
+    {id: "beta", region: "South", value: 50},
+    {id: "beta", region: "South", value: 140},
+    {id: "beta", region: "South", value: 115},
+    {id: "beta", region: "South", value: 14},
+    {id: "beta", region: "South", value: 30},
+    {id: "gamma", region: "North", value: 210},
+    {id: "gamma", region: "North", value: 95},
+    {id: "gamma", region: "North", value: 160},
+    {id: "gamma", region: "North", value: 130},
+    {id: "gamma", region: "North", value: 110},
+    {id: "gamma", region: "North", value: 145},
+    {id: "gamma", region: "North", value: 60},
+    {id: "gamma", region: "North", value: 120},
+  ],
+  color: "region",
+  groupBy: ["id", "value"],
+  x: "id",
+  y: "value",
+};
+ColoringBoxes.parameters = {
+  controls: {include: ["color", "shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Boxes fill with the chart's color like any other shape, so `color` (or `shapeConfig.fill`) colors them to match the legend, and their outliers take the same color. The median line turns white over a dark fill; set `shapeConfig.Box.rectConfig.fill` to color the boxes on their own.",
+    },
+  },
+};
