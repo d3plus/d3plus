@@ -26,6 +26,25 @@ export function handlerDatum(raw: unknown, index: number): HandlerDatum {
   };
 }
 
+/** The shape class of a mark a chart emits as a bare scene node, without a `shapeType`. */
+const nodeShapes: Record<string, string> = {
+  area: "Area",
+  circle: "Circle",
+  line: "Line",
+  path: "Path",
+  rect: "Rect",
+};
+
+/**
+    A picked node's shape class: its stamped `shapeType`, else the shape its
+    node type draws (a Treemap tile is a `"Rect"`, a Geomap region a
+    `"Path"`). Text, images, and groups have none.
+*/
+export function nodeShapeType(node: SceneNode): string | undefined {
+  if (typeof node.shapeType === "string") return node.shapeType;
+  return nodeShapes[node.type];
+}
+
 /**
     The shape classes a picked chart node fires `"<event>.<shapeType>"`
     handlers for: the shape that drew it, with the pick's own `(d, i, x)`, then
@@ -38,8 +57,8 @@ export function shapeClassTargets(
   own: HandlerDatum,
 ): ShapeClassTarget[] {
   const targets: ShapeClassTarget[] = [];
-  if (typeof node.shapeType === "string")
-    targets.push({shapeType: node.shapeType, ...own});
+  const shapeType = nodeShapeType(node);
+  if (shapeType) targets.push({shapeType, ...own});
   for (const owner of node.owners ?? []) {
     if (targets.some(t => t.shapeType === owner.shapeType)) continue;
     targets.push({

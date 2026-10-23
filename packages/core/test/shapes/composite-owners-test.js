@@ -4,6 +4,7 @@ import {useJsdom} from "~test/jsdom.js";
 import {BarChart, Box, Whisker} from "../../index.ts";
 import {
   handlerDatum,
+  nodeShapeType,
   shapeClassTargets,
 } from "../../src/charts/viz/shapeClassTargets.ts";
 import {stampOwners} from "../../src/shapes/shapeOwners.ts";
@@ -226,9 +227,27 @@ it("shapeClassTargets: the node's own class, then each owner once, innermost fir
   ]);
   assert.deepStrictEqual(
     shapeClassTargets({type: "rect", key: "k"}, own),
-    [],
-    "no shapeType, no owners: nothing",
+    [{shapeType: "Rect", d: "row", i: 1, x: "raw"}],
+    "no shapeType: the class its node type draws",
   );
+  assert.deepStrictEqual(
+    shapeClassTargets({type: "text", key: "k"}, own),
+    [],
+    "a text node with no shapeType or owners: nothing",
+  );
+});
+
+it("nodeShapeType: the stamped shapeType, else the node type's shape class", () => {
+  assert.strictEqual(nodeShapeType({type: "path", shapeType: "Link"}), "Link");
+  assert.strictEqual(nodeShapeType({type: "rect", shapeType: "Bar"}), "Bar");
+  assert.strictEqual(nodeShapeType({type: "rect"}), "Rect");
+  assert.strictEqual(nodeShapeType({type: "circle"}), "Circle");
+  assert.strictEqual(nodeShapeType({type: "path"}), "Path");
+  assert.strictEqual(nodeShapeType({type: "area"}), "Area");
+  assert.strictEqual(nodeShapeType({type: "line"}), "Line");
+  assert.strictEqual(nodeShapeType({type: "text"}), undefined);
+  assert.strictEqual(nodeShapeType({type: "image"}), undefined);
+  assert.strictEqual(nodeShapeType({type: "group"}), undefined);
 });
 
 // ---- bridge ----------------------------------------------------------------
