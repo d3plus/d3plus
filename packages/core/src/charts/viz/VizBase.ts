@@ -65,7 +65,7 @@ class VizBase extends BaseClass {
   /**
       The primary data array used to draw the visualization. The value passed should be an *Array* of objects or a *String* representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
-If your data URL needs specific headers to be set, an Object with "url" and "headers" keys may also be passed.
+If your data URL needs specific headers to be set, an Object with a "url" and "headers" (or any other `fetch` request option) may also be passed. An Object with any other key is a data row, not a request.
 
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.
 
