@@ -34,6 +34,7 @@ export interface TranslationStrings {
   Low: string;
   "Lower Bound": string;
   "Lower Quartile": string;
+  "Lower Whisker": string;
   Match: string;
   Matches: string;
   Maximum: string;
@@ -68,6 +69,7 @@ export interface TranslationStrings {
   "Trend Line": string;
   "Upper Bound": string;
   "Upper Quartile": string;
+  "Upper Whisker": string;
   Value: string;
   Values: string;
   Volume: string;
@@ -130,6 +132,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u062f\u0646\u0649",
     "Lower Quartile":
       "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u062f\u0646\u0649",
+    "Lower Whisker":
+      "\u0627\u0644\u0634\u0627\u0631\u0628 \u0627\u0644\u0633\u0641\u0644\u064a",
     "No Data":
       "\u0644\u0627 \u062a\u0648\u062c\u062f \u0628\u064a\u0627\u0646\u0627\u062a",
     "No Data Available":
@@ -178,6 +182,8 @@ const translateLocale: Record<string, TranslationStrings> = {
       "\u0627\u0644\u062d\u062f \u0627\u0644\u0623\u0639\u0644\u0649",
     "Upper Quartile":
       "\u0627\u0644\u0631\u0628\u064a\u0639 \u0627\u0644\u0623\u0639\u0644\u0649",
+    "Upper Whisker":
+      "\u0627\u0644\u0634\u0627\u0631\u0628 \u0627\u0644\u0639\u0644\u0648\u064a",
     Value: "\u0627\u0644\u0642\u064a\u0645\u0629",
     Values: "\u0627\u0644\u0642\u064a\u0645",
     Volume: "\u062d\u062c\u0645 \u0627\u0644\u062a\u062f\u0627\u0648\u0644",
@@ -221,6 +227,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Low: "M\u00ednimo",
     "Lower Bound": "L\u00edmite Inferior",
     "Lower Quartile": "Cuartil Inferior",
+    "Lower Whisker": "Bigote Inferior",
     Match: "Coincidencia",
     Matches: "Coincidencias",
     Maximum: "M\u00e1ximo",
@@ -255,6 +262,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Trend Line": "L\u00ednea de Tendencia",
     "Upper Bound": "L\u00edmite Superior",
     "Upper Quartile": "Cuartil Superior",
+    "Upper Whisker": "Bigote Superior",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volumen",
@@ -298,6 +306,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Low: "M\u00ednima",
     "Lower Bound": "Limite Inferior",
     "Lower Quartile": "Quartil Inferior",
+    "Lower Whisker": "Bigode Inferior",
     Match: "Correspond\u00eancia",
     Matches: "Correspond\u00eancias",
     Maximum: "M\u00e1ximo",
@@ -332,6 +341,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Trend Line": "Linha de Tend\u00eancia",
     "Upper Bound": "Limite Superior",
     "Upper Quartile": "Quartil Superior",
+    "Upper Whisker": "Bigode Superior",
     Value: "Valor",
     Values: "Valores",
     Volume: "Volume",
@@ -378,6 +388,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Low: "\u6700\u4f4e",
     "Lower Bound": "\u4e0b\u9650",
     "Lower Quartile": "\u4e0b\u56db\u5206\u4f4d\u6570",
+    "Lower Whisker": "\u4e0b\u987b",
     Match: "\u5339\u914d\u9879",
     Matches: "\u5339\u914d\u9879",
     Maximum: "\u6700\u5927\u503c",
@@ -412,6 +423,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Trend Line": "\u8d8b\u52bf\u7ebf",
     "Upper Bound": "\u4e0a\u9650",
     "Upper Quartile": "\u4e0a\u56db\u5206\u4f4d\u6570",
+    "Upper Whisker": "\u4e0a\u987b",
     Value: "\u503c",
     Values: "\u503c",
     Volume: "\u6210\u4ea4\u91cf",

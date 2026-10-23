@@ -301,35 +301,51 @@ it("BoxWhisker precomputed: color, legend, hover, highlight, and facets", async 
   assert.strictEqual(out.keys.length, 3 * 2 + 2 * 2, out.keys.join());
 });
 
-/** Hovers the alpha box on a real page and reads the tooltip. */
-async function hoverTooltip(renderer, at) {
+/**
+    Draws precomputed boxes (or, with `raw`, the same boxes from
+    observations) on a real page, hovers `part` (at `at`, or its SVG
+    center), and reads the tooltip.
+*/
+async function hoverTooltip(renderer, {raw: fromRaw, config, part, at} = {}) {
   const {page, close} = await openPage(
     '<div id="viz" style="width:600px;height:400px;font-family:sans-serif;"></div>',
   );
   try {
     const center = await page.evaluate(
-      ([summary, renderer]) =>
+      ([summary, raw, renderer, fromRaw, config, part]) =>
         new Promise(resolve => {
           const viz = new window.d3plus.BoxWhisker()
-            .data(summary)
             .x("id")
-            .boxMin("min")
-            .boxQ1("q1")
-            .boxMedian("med")
-            .boxQ3("q3")
-            .boxMax("max")
-            .boxOutliers("out")
             .renderer(renderer)
             .duration(0)
             .select("#viz");
+          if (fromRaw) viz.data(raw).groupBy(["id", "n"]).y("value");
+          else
+            viz
+              .data(summary)
+              .boxMin("min")
+              .boxQ1("q1")
+              .boxMedian("med")
+              .boxQ3("q3")
+              .boxMax("max")
+              .boxOutliers("out");
+          // Parsed in the page, so its objects are the page's own plain objects.
+          if (config) viz.config(JSON.parse(config));
           viz.render(() => {
             const r = document
-              .querySelector("#viz [data-key$='alpha-box']")
+              .querySelector(`#viz [data-key$='${part}']`)
               ?.getBoundingClientRect();
             resolve(r ? [r.left + r.width / 2, r.top + r.height / 2] : null);
           });
         }),
-      [summary, renderer],
+      [
+        summary,
+        raw,
+        renderer,
+        fromRaw,
+        config && JSON.stringify(config),
+        part || "alpha-box",
+      ],
     );
     const [x, y] = at || center;
     await page.mouse.move(5, 5);
@@ -345,16 +361,26 @@ async function hoverTooltip(renderer, at) {
   }
 }
 
+/** Hovers on SVG, then at the same spot on Canvas; returns both tooltips. */
+async function bothTooltips(options) {
+  const svg = await hoverTooltip("svg", options);
+  assert.ok(svg.center, "part drawn");
+  const canvas = await hoverTooltip("canvas", {...options, at: svg.center});
+  return [svg.text, canvas.text];
+}
+
+const hasAll = (text, parts) => {
+  assert.ok(text, "tooltip opens");
+  for (const part of parts)
+    assert.ok(text.includes(part), `tooltip has ${part}: ${text}`);
+};
+
 it(
   "BoxWhisker precomputed: the tooltip lists the given statistics (SVG and Canvas)",
   {timeout: 60000},
   async function () {
-    const svg = await hoverTooltip("svg");
-    assert.ok(svg.center, "alpha box drawn");
-    const canvas = await hoverTooltip("canvas", svg.center);
-    for (const {text} of [svg, canvas]) {
-      assert.ok(text, "tooltip opens");
-      for (const part of [
+    for (const text of await bothTooltips())
+      hasAll(text, [
         "alpha",
         "Maximum",
         "314",
@@ -366,8 +392,52 @@ it(
         "78.5",
         "Minimum",
         "20",
-      ])
-        assert.ok(text.includes(part), `tooltip has ${part}: ${text}`);
+      ]);
+  },
+);
+
+it(
+  "BoxWhisker raw: the tooltip lists the computed statistics (SVG and Canvas)",
+  {timeout: 60000},
+  async function () {
+    for (const text of await bothTooltips({raw: true})) {
+      hasAll(text, [
+        "Upper Whisker",
+        "314",
+        "Upper Quartile",
+        "173",
+        "Median",
+        "145",
+        "Lower Quartile",
+        "78.5",
+        "Lower Whisker",
+        "20",
+      ]);
+      assert.ok(!text.includes("Maximum"), "a Tukey whisker isn't the maximum");
+      assert.ok(
+        text.indexOf("Upper Whisker") < text.indexOf("Lower Whisker"),
+        "largest first",
+      );
     }
+    const extent = {shapeConfig: {Box: {whiskerMode: "extent"}}};
+    for (const text of await bothTooltips({raw: true, config: extent}))
+      hasAll(text, ["Maximum", "900", "Minimum", "20"]);
+  },
+);
+
+it(
+  "BoxWhisker raw: a user tbody wins, and an outlier lists no statistics",
+  {timeout: 60000},
+  async function () {
+    const config = {tooltipConfig: {tbody: [["Custom", "row"]]}};
+    for (const text of await bothTooltips({raw: true, config})) {
+      hasAll(text, ["Custom", "row"]);
+      assert.ok(!text.includes("Quartile"), text);
+    }
+    for (const text of await bothTooltips({
+      raw: true,
+      part: "alpha-outlier-11",
+    }))
+      assert.ok(text && !text.includes("Quartile"), `outlier: ${text}`);
   },
 );

@@ -1,4 +1,4 @@
-import {groups, max, min, quantile} from "d3-array";
+import {groups} from "d3-array";
 import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
@@ -16,6 +16,7 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
+import {boxStats, whiskerPair} from "./boxStats.js";
 import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
 import {
   computeSummaryBoxes,
@@ -61,42 +62,12 @@ const boxSchema: ConfigField[] = [
   {key: "textureDefault", coerce: "identity"},
   {
     key: "whiskerMode",
-    coerce: v => (Array.isArray(v) ? v : [v, v]),
+    coerce: whiskerPair,
     default: ["tukey", "tukey"],
   },
   {key: "x", coerce: toAccessor, default: accessor("x", 250)},
   {key: "y", coerce: toAccessor, default: accessor("y", 250)},
 ];
-
-/**
-    Resolves the lower/upper whisker limits on `d` from the configured
-    whiskerMode (tukey/extent/quantile) and the sorted group values.
-*/
-function applyWhiskerLimits(
-  d: DataPoint,
-  values: number[],
-  mode: (string | number)[],
-): void {
-  if (mode[0] === "tukey") {
-    (d as Record<string, unknown>).lowerLimit =
-      (d.first as number) - ((d.third as number) - (d.first as number)) * 1.5;
-    if ((d.lowerLimit as number) < min(values)!)
-      (d as Record<string, unknown>).lowerLimit = min(values);
-  } else if (mode[0] === "extent")
-    (d as Record<string, unknown>).lowerLimit = min(values);
-  else if (typeof mode[0] === "number")
-    (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
-
-  if (mode[1] === "tukey") {
-    (d as Record<string, unknown>).upperLimit =
-      (d.third as number) + ((d.third as number) - (d.first as number)) * 1.5;
-    if ((d.upperLimit as number) > max(values)!)
-      (d as Record<string, unknown>).upperLimit = max(values);
-  } else if (mode[1] === "extent")
-    (d as Record<string, unknown>).upperLimit = max(values);
-  else if (typeof mode[1] === "number")
-    (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
-}
 
 /** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
 function collectOutliers(
@@ -169,12 +140,13 @@ function computeBoxGroup(
   ) as unknown as number[];
   values.sort((a: number, b: number) => a - b);
 
-  (d as Record<string, unknown>).first = quantile(values, 0.25);
-  (d as Record<string, unknown>).median = quantile(values, 0.5);
-  (d as Record<string, unknown>).third = quantile(values, 0.75);
-
-  const mode = box.schema.whiskerMode;
-  applyWhiskerLimits(d, values, mode);
+  const {first, median, third, lowerLimit, upperLimit} = boxStats(
+    values,
+    box.schema.whiskerMode,
+  );
+  Object.assign(d, {first, median, third});
+  if (lowerLimit !== undefined) Object.assign(d, {lowerLimit});
+  if (upperLimit !== undefined) Object.assign(d, {upperLimit});
 
   // The group key is this same accessor evaluated on each member; the
   // merged datum can't be re-read because `merge` sums numeric fields.

@@ -15,11 +15,11 @@ import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   boxAxisValues,
-  boxTooltipRows,
   boxWhiskerBuffer,
   boxWhiskerEmit,
   precomputedBoxes,
 } from "./summary.js";
+import {boxTooltipRows} from "./tooltip.js";
 
 export const boxWhiskerDef: ChartDefinition = {
   name: "BoxWhisker",

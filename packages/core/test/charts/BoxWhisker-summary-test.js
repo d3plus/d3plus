@@ -10,12 +10,12 @@ import {
 } from "../../src/charts/Plot/pipeline.ts";
 import {
   boxAxisValues,
-  boxTooltipRows,
   boxValueAxis,
   boxWhiskerBuffer,
   boxWhiskerEmit,
   precomputedBoxes,
 } from "../../src/charts/BoxWhisker/summary.ts";
+import {boxTooltipRows} from "../../src/charts/BoxWhisker/tooltip.ts";
 
 useJsdom();
 

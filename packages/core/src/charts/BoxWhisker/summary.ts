@@ -2,18 +2,15 @@
     BoxWhisker's precomputed boxes: with `boxMin`, `boxQ1`, `boxMedian`,
     `boxQ3`, and `boxMax` set, each row is one box drawn from its own
     statistics. These hooks place those statistics on the value axis, pad
-    the axis around them, hand them to the Box shape in pixels, and list
-    them in the tooltip.
+    the axis around them, and hand them to the Box shape in pixels.
 */
 
 import type {DataPoint} from "@d3plus/data";
-import {formatAbbreviate} from "@d3plus/format";
 
 import {
   boxStatKeys,
   boxSummaryValues,
   hasBoxStats,
-  readBoxSummary,
 } from "../../shapes/boxSummary.js";
 import type {D3Scale} from "../../utils/index.js";
 import {genericEmit} from "../features/shapeEmit.js";
@@ -21,6 +18,7 @@ import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
 import boxBuffer from "../plotBuffers/Box.js";
 import type Plot from "../Plot/index.js";
+import {noteDrawnBoxes} from "./tooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Row = Record<string, unknown>;
@@ -94,11 +92,12 @@ function inPixels(fn: RowFn, scale: PlotAxisFn) {
 
 /**
     Draws Box rows: precomputed boxes take their statistics in pixels on the
-    value axis; otherwise Plot's own Box path.
+    value axis; otherwise Plot's own Box path, noting each box it draws for
+    the tooltip.
 */
 export const boxWhiskerEmit: ShapeEmitter = (ctx, key) => {
   const {viz} = ctx;
-  if (!precomputedBoxes(viz)) return genericEmit(ctx, key);
+  if (!precomputedBoxes(viz)) return noteDrawnBoxes(genericEmit(ctx, key));
   const scale = boxValueAxis(viz) === "y" ? ctx.y : ctx.x;
   const stats: Row = {};
   for (const stat of [...boxStatKeys, "boxOutliers"]) {
@@ -110,32 +109,3 @@ export const boxWhiskerEmit: ShapeEmitter = (ctx, key) => {
     key,
   );
 };
-
-/** A hovered datum's source row and its index, through Plot's and Box's wrappers. */
-function sourceRow(d: DataPoint, i: number): [DataPoint, number] {
-  while (d.__d3plus__ && d.data) {
-    i = d.i as number;
-    d = d.data as DataPoint;
-  }
-  return [d, i];
-}
-
-/** The tooltip rows of a precomputed box: its statistics, largest first. */
-export function boxTooltipRows(
-  viz: VizInstance,
-  d: DataPoint,
-  i: number,
-): [string, string][] {
-  if (!d || !precomputedBoxes(viz)) return [];
-  const s = readBoxSummary(viz.schema, ...sourceRow(d, i));
-  if (!s) return [];
-  const fmt = (n: number) => formatAbbreviate(n, viz.schema.locale);
-  const t = (str: string) => viz.schema.translate(str) as string;
-  return [
-    [t("Maximum"), fmt(s.max)],
-    [t("Upper Quartile"), fmt(s.q3)],
-    [t("Median"), fmt(s.median)],
-    [t("Lower Quartile"), fmt(s.q1)],
-    [t("Minimum"), fmt(s.min)],
-  ];
-}
