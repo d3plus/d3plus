@@ -10,11 +10,63 @@ to SVG or PNG on a server with no browser at all. The first two are covered
 here. The third has its own guide,
 [Server-Side Rendering](?path=/docs/guides-server-side-rendering--docs).
 
-## Saving an image or SVG
+## The download button
 
-Image export lives in its own package,
-[`@d3plus/export`](https://www.npmjs.com/package/@d3plus/export), so charts
-that never need it do not carry the rasterizer:
+Every chart has a download button in its top-left corner, beside the table
+view and search buttons. It opens a menu of file types: PNG image, SVG vector,
+and JPG image. Choosing one saves the chart as the reader sees it, with its
+title, legend, and color scale, but without the control buttons, the open
+menu, or a tooltip. The file is named after the chart's title, or `download`
+when it has none.
+
+| Config | Default | Description |
+| --- | --- | --- |
+| `saveControl` | `true` | Shows the download button. |
+| `saveControlConfig` | `{}` | Options for the saved file, below. |
+| `saveControlClassName` | — | Extra class name(s) for the button, for your own styling. Setting it drops the built-in inline styles. |
+| `saveControlStyle` | structural | Inline styles for the button; `saveControlStyleActive` applies while its menu is open, `saveControlStyleHover` on hover. |
+
+`saveControlConfig` takes:
+
+| Option | Default | Description |
+| --- | --- | --- |
+| `filename` | the title, else `"download"` | Name of the saved file, without its extension. |
+| `formats` | `["png", "svg", "jpg"]` | The file types offered, in menu order. With a single format the button saves it in one click, with no menu. |
+| `background` | the page color behind the chart | Color painted behind the chart, so a JPG never comes out black. `false` keeps PNG and SVG files transparent. |
+| `callback` | — | Called once the file is handed to the browser, or with the `Error` when it could not be saved. Without it, errors are logged to the console. |
+
+Any other option goes to html-to-image when saving a PNG or JPG, such as
+`pixelRatio` for a sharper image or `quality` for a JPG:
+
+```js
+new BarChart()
+  .select("#chart")
+  .data(data)
+  .groupBy("region")
+  .x("quarter")
+  .y("revenue")
+  .title("Quarterly revenue")
+  .saveControlConfig({formats: ["png", "svg"], pixelRatio: 2})
+  .render();
+```
+
+On the SVG backend a PNG or JPG is drawn from the chart's `<svg>`, and an SVG
+file is a copy of it. On the Canvas backend a PNG or JPG is the `<canvas>`
+itself, at the screen's pixel density, and an SVG file re-renders the chart's
+scene through the SVG backend, so it is a true vector file there too.
+
+The button and its menu are translated with the chart's `locale`. The React,
+Vue, Svelte, Angular, and custom-element wrappers render the same button,
+since it is part of the chart, and `saveControl: false` in their `config`
+removes it.
+
+## Saving an image or SVG yourself
+
+The download button saves through `saveElement` from
+[`@d3plus/export`](https://www.npmjs.com/package/@d3plus/export), which you
+can call from your own buttons. `@d3plus/core` depends on it, and the
+rasterizer behind it loads only the first time something is rasterized, so
+a chart nobody saves never downloads it. Install it to import it directly:
 
 ```bash
 npm install @d3plus/export

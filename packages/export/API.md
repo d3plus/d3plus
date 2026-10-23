@@ -1,8 +1,8 @@
 # @d3plus/export API Reference
 
-| Functions                     | Description                                      |
-| ----------------------------- | ------------------------------------------------ |
-| [`saveElement`](#saveelement) | Downloads an HTML Element as a bitmap PNG image. |
+| Functions                     | Description                                                  |
+| ----------------------------- | ------------------------------------------------------------ |
+| [`saveElement`](#saveelement) | Downloads an HTML or SVG element as a PNG, JPG, or SVG file. |
 
 ## Functions
 
@@ -14,7 +14,7 @@
 
 Defined in: [saveElement.ts:80](https://github.com/d3plus/d3plus/blob/main/packages/export/src/saveElement.ts#L80)
 
-Downloads an HTML Element as a bitmap PNG image.
+Downloads an HTML or SVG element as a PNG, JPG, or SVG file.
 
 #### Parameters
 

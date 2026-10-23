@@ -12,7 +12,8 @@ export default {
   parameters: {
     docs: {
       description: {
-        component: "Downloads an HTML Element as a bitmap PNG image.",
+        component:
+          "Downloads an HTML or SVG element as a PNG, JPG, or SVG file.",
       },
     },
   },

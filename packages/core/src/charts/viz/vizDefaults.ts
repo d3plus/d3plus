@@ -594,6 +594,43 @@ function initSearchDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the download button, the same structural values
+    as the other top-left controls, as their own objects so setting
+    `saveControlClassName` can detect an untouched default by reference.
+    @private
+*/
+export const saveControlStyleDefault = {
+  "align-items": "center",
+  "box-sizing": "border-box",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  margin: 0,
+  padding: 0,
+  width: "20px",
+};
+export const saveControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const saveControlStyleHoverDefault = false as const;
+
+/**
+    Download button defaults.
+    @private
+*/
+function initSaveControlDefaults(viz: Viz): void {
+  viz.schema.saveControl = true;
+  viz.schema.saveControlClassName = undefined;
+  viz.schema.saveControlConfig = {};
+  viz.schema.saveControlStyle = saveControlStyleDefault;
+  viz.schema.saveControlStyleActive = saveControlStyleActiveDefault;
+  viz.schema.saveControlStyleHover = saveControlStyleHoverDefault;
+}
+
+/**
     Seeds a fresh Viz instance's schema defaults and installs the identity-coerce
     fluent accessors. Extracted from the constructor so the seeding logic stays
     readable and the constructor stays under the per-function line budget.
@@ -619,4 +656,5 @@ export function initVizDefaults(viz: Viz): void {
   initMinimapDefaults(viz);
   initBackDefaults(viz);
   initSearchDefaults(viz);
+  initSaveControlDefaults(viz);
 }

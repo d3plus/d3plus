@@ -37,6 +37,7 @@ const titleLayout = (title, renderer) =>
           .title(title)
           .tableView(true)
           .search(true)
+          .saveControl(false)
           .renderer(renderer)
           .duration(0);
         viz.render(() => {
@@ -167,6 +168,7 @@ it("cornerControlsHeight is the taller corner panel's height, and 0 with no pane
           .y("y")
           .tableView(true)
           .search(true)
+          .saveControl(false)
           .duration(0);
         const hidden = new window.d3plus.Plot()
           .select("#b")
@@ -177,6 +179,7 @@ it("cornerControlsHeight is the taller corner panel's height, and 0 with no pane
           .zoom(false)
           .tableView(false)
           .search(false)
+          .saveControl(false)
           .duration(0);
         shown.render(() =>
           hidden.render(() => {

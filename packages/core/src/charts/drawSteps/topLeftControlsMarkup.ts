@@ -191,7 +191,7 @@ export function buildTopLeftPanel(
     The shared top-left panel's rendered size (padding included) as it will
     render in the chart's page, so top-positioned content can leave room for
     it — the same measure-a-hidden-probe technique `zoomControlsBox` uses,
-    generalized to whichever mix of controls (back / table-view / search)
+    generalized to whichever mix of controls (back / table-view / save / search)
     is currently contributing, and to each contribution's OWN resolved
     button styling (not just its markup). Returns null when nothing is
     contributing.

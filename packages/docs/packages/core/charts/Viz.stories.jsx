@@ -384,3 +384,75 @@ SmallMultiplesMatrix.parameters = {
     },
   },
 };
+
+export const SaveControl = () => (
+  <div style={linkedRow}>
+    <div style={linkedCell}>
+      <Treemap
+        config={{
+          data: linkedData,
+          groupBy: ["region", "country"],
+          sum: "revenue",
+          title: "Revenue share",
+        }}
+      />
+    </div>
+    <div style={linkedCell}>
+      <BarChart
+        config={{
+          data: linkedData,
+          groupBy: "country",
+          x: "country",
+          y: "revenue",
+          color: "region",
+          title: "Revenue by country",
+          saveControlConfig: {
+            filename: "revenue",
+            formats: ["png"],
+            background: "#f8f9fa",
+            pixelRatio: 2,
+          },
+        }}
+      />
+    </div>
+  </div>
+);
+SaveControl.parameters = {
+  docs: {
+    source: {
+      code: `import {BarChart, Treemap} from "@d3plus/core";
+
+// Every chart has the download button: its menu saves a PNG, SVG, or JPG
+// named after the title ("Revenue share.png").
+new Treemap()
+  .select("#share")
+  .data(data)
+  .groupBy(["region", "country"])
+  .sum("revenue")
+  .title("Revenue share")
+  .render();
+
+// One format saves in one click. Other keys go to html-to-image.
+new BarChart()
+  .select("#bars")
+  .data(data)
+  .groupBy("country")
+  .x("country")
+  .y("revenue")
+  .color("region")
+  .title("Revenue by country")
+  .saveControlConfig({
+    filename: "revenue",
+    formats: ["png"],
+    background: "#f8f9fa",
+    pixelRatio: 2
+  })
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        "The download button in each chart's top-left corner saves the chart as the reader sees it, title and legend included, without the controls or tooltip. With several `formats` it opens a menu; with one, it saves straight away. `filename` defaults to the title, `background` to the page color behind the chart, and `saveControl: false` removes the button.",
+    },
+  },
+};

@@ -274,6 +274,9 @@ importers:
       '@d3plus/dom':
         specifier: workspace:*
         version: link:../dom
+      '@d3plus/export':
+        specifier: workspace:*
+        version: link:../export
       '@d3plus/format':
         specifier: workspace:*
         version: link:../format

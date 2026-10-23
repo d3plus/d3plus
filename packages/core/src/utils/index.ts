@@ -9,6 +9,8 @@ export type {
   ConfidenceBandSetting,
   ConfidenceBound,
   LegendConfig,
+  SaveControlConfig,
+  SaveFormat,
   SizeLegendConfig,
   TextBoxConfig,
   TimelineConfig,
