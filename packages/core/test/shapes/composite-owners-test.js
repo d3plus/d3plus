@@ -366,3 +366,13 @@ it("bridge fires no owner classes for a legend node", () => {
     ["click.legend", "click"],
   );
 });
+
+it("bridge fires nothing for a node with no datum (an inset legend's backdrop, a gridline)", () => {
+  const fired = [];
+  const handler = bridgeHandler(newChart(fired));
+  const backdrop = {type: "rect", key: "viz-inset-background", index: 0};
+  handler(syntheticEvent("mouseenter", backdrop));
+  handler(syntheticEvent("click", backdrop));
+  handler(syntheticEvent("mouseleave", null));
+  assert.deepStrictEqual(fired, [], "no handler ran");
+});

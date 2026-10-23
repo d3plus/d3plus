@@ -179,6 +179,8 @@ export const ringsDef: ChartDefinition = {
       const links =
         (viz.ctx.linkLookup as Record<string, NodeRecord[]>)[id] ?? [];
       const node = (viz.ctx.nodeLookup as Record<string, NodeRecord>)[id];
+      // An edge has no node to focus.
+      if (!node) return;
       const filterIds = [node.id];
       const xDomain = [node.x - node.r, node.x + node.r];
       const yDomain = [node.y - node.r, node.y + node.r];
