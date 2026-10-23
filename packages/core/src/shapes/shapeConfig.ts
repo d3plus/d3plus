@@ -258,6 +258,25 @@ export interface BoxConfig {
   backgroundImage?: ConstOrAccessor<string>;
   /** How the box's `backgroundImage` fits it: `"cover"` (default) or `"contain"`. */
   backgroundImageFit?: ConstOrAccessor<"cover" | "contain">;
+  /** Precomputed boxes: each row's upper whisker end, a data key or accessor in the same units as the value axis's `x` or `y`. See `boxMedian`. */
+  boxMax?: string | ((d: DataPoint, i: number) => number);
+  /**
+      Precomputed boxes: each row's median, a data key or accessor in the
+      same units as the value axis's `x` or `y`. Setting it, `boxMin`,
+      `boxQ1`, `boxQ3`, or `boxMax` makes each row one box drawn from those
+      values, with nothing computed and `whiskerMode` unused. All five are
+      needed (a warning names any left unset), and a row whose values aren't
+      all numbers draws no box.
+  */
+  boxMedian?: string | ((d: DataPoint, i: number) => number);
+  /** Precomputed boxes: each row's lower whisker end. See `boxMedian`. */
+  boxMin?: string | ((d: DataPoint, i: number) => number);
+  /** Precomputed boxes: each row's outliers, a data key or accessor returning an array of values drawn past the whiskers. See `boxMedian`. */
+  boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
+  /** Precomputed boxes: each row's lower quartile, where the box starts. See `boxMedian`. */
+  boxQ1?: string | ((d: DataPoint, i: number) => number);
+  /** Precomputed boxes: each row's upper quartile, where the box ends. See `boxMedian`. */
+  boxQ3?: string | ((d: DataPoint, i: number) => number);
   data?: DataPoint[];
   /** Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it. */
   fill?: ConstOrAccessor<string>;

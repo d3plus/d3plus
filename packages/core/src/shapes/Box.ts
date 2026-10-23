@@ -17,6 +17,12 @@ import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
 import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
+import {
+  computeSummaryBoxes,
+  hasBoxStats,
+  placeBox,
+  toStatAccessor,
+} from "./boxSummary.js";
 import {stampOwners} from "./shapeOwners.js";
 import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
@@ -38,6 +44,12 @@ const toAccessor = (
 const boxSchema: ConfigField[] = [
   {key: "backgroundImage", coerce: "const"},
   {key: "backgroundImageFit", coerce: "const"},
+  {key: "boxMax", coerce: toStatAccessor},
+  {key: "boxMedian", coerce: toStatAccessor},
+  {key: "boxMin", coerce: toStatAccessor},
+  {key: "boxOutliers", coerce: toStatAccessor},
+  {key: "boxQ1", coerce: toStatAccessor},
+  {key: "boxQ3", coerce: toStatAccessor},
   {key: "fill", coerce: "const"},
   {key: "id", coerce: "accessor"},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
@@ -164,29 +176,9 @@ function computeBoxGroup(
   const mode = box.schema.whiskerMode;
   applyWhiskerLimits(d, values, mode);
 
-  const rectLength = (d.third as number) - (d.first as number);
-
-  // Compute values for vertical orientation.
-  if (d.orient === "vertical") {
-    (d as Record<string, unknown>).height = rectLength;
-    (d as Record<string, unknown>).width = box.schema.rectWidth(
-      d.data as DataPoint,
-      d.i as number,
-    );
-    // The group key is this same accessor evaluated on each member; the
-    // merged datum can't be re-read because `merge` sums numeric fields.
-    (d as Record<string, unknown>).x = key;
-    (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
-  } else if (d.orient === "horizontal") {
-    // Compute values for horizontal orientation.
-    (d as Record<string, unknown>).height = box.schema.rectWidth(
-      d.data as DataPoint,
-      d.i as number,
-    );
-    (d as Record<string, unknown>).width = rectLength;
-    (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-    (d as Record<string, unknown>).y = key;
-  }
+  // The group key is this same accessor evaluated on each member; the
+  // merged datum can't be re-read because `merge` sums numeric fields.
+  placeBox(d, key, box.schema.rectWidth(d.data as DataPoint, d.i as number));
 
   // Compute data for outliers.
   collectOutliers(box, d, outlierData);
@@ -364,7 +356,9 @@ export default class Box extends BaseClass {
 
     const outlierData: DataPoint[] = [];
 
-    const filteredData = computeBoxes(this, outlierData);
+    const filteredData = hasBoxStats(this.schema)
+      ? computeSummaryBoxes(this, outlierData)
+      : computeBoxes(this, outlierData);
 
     const rectConfig = boxRectConfig(
       this.schema,

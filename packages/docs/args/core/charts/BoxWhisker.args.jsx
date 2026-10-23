@@ -22,6 +22,102 @@ export const argTypes = assign(
    */
 
   {
+    boxMax: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's upper whisker end. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxMedian: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's median. Setting it, `boxMin`, `boxQ1`, `boxQ3`, or `boxMax` draws boxes from statistics you already have: each row is one box (placed by its `x`, or `y` when `discrete` is `\"y\"`) drawn from those values, with nothing computed and `whiskerMode` unused. All five are needed (a warning names any left unset), and a row whose values aren't all numbers draws no box. The value axis spans every row's statistics and outliers, and the tooltip lists them.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxMin: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's lower whisker end. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxOutliers: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxQ1: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxQ3: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
     discrete: {
       defaultValue: "x",
       table: {

@@ -97,7 +97,9 @@ function plotBarLabels(
         ? barConfig.label
         : () => barConfig.label
       : viz._drawLabel;
+  // A Box draws no label, so its rows never make a tick redundant.
   return axisData
+    .filter((d: Record<string, unknown>) => d.shape !== "Box")
     .map((d: Record<string, unknown>) => barLabelFunction(d.data, d.i))
     .filter((d: unknown) => typeof d === "number" || d)
     .map(String);

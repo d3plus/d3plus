@@ -465,6 +465,16 @@ export interface VizInstance {
     x?: Record<string, unknown>;
     y?: Record<string, unknown>;
   };
+  /**
+      Values a chart adds to an axis's values, given the plotted rows and the
+      axis (`"x"`, `"x2"`, `"y"`, or `"y2"`), so its domain covers marks that
+      reach past each row's own value (e.g. BoxWhisker's precomputed whiskers
+      and outliers).
+  */
+  _plotAxisValues?: (
+    rows: Record<string, unknown>[],
+    axis: string,
+  ) => unknown[];
   /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
   _plotShapeEmitters?: Record<string, ShapeEmitter>;
   /**
