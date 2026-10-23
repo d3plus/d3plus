@@ -51,6 +51,40 @@ export const argTypes = assign(
         summary: "unknown",
       },
     },
+    axisHover: {
+      control: {
+        type: "radio",
+      },
+      defaultValue: true,
+      description:
+        "Whether hovering a Plot's mark draws a dashed guide from its point to\neach axis and a badge on that axis with the point's value there,\nformatted as the tooltip formats that axis's values (the axis's\n`tickFormat` when set). `\"x\"` or `\"y\"` draws them for that direction\nonly (each including its secondary axis). A bar is badged on its value\naxis only. With a discrete axis, the shared tooltip's crosshair is that\naxis's guide, and the value axis follows the hovered series' point (or\nthe one nearest the pointer). Defaults to `true` (`\"x\"` on BumpChart,\nwhose y axes label series rather than values).",
+      options: ["x", "y"],
+      table: {
+        defaultValue: {
+          summary: "true",
+        },
+      },
+      type: {
+        required: false,
+        summary: 'boolean | "x" | "y"',
+      },
+    },
+    axisHoverConfig: {
+      control: {
+        type: "object",
+      },
+      description:
+        "Styles the `axisHover` guides and badges. `guideConfig` takes `stroke`\n(the hovered mark's color by default), `strokeWidth` (default `1`),\n`strokeDasharray` (default `\"4 3\"`), and `strokeOpacity`. `badgeConfig`\ntakes `fill` (the hovered mark's color by default), `fontColor` (a\ncolor contrasting the fill by default), `fontFamily`, `fontSize`\n(default `12`), `fontWeight` (default `400`), `padding` around the text\n(default `4`), and `rx` corner radius (default `2`). Each is a value or\na `(d, i) => value` accessor of the hovered data row.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "object",
+      },
+    },
     axisPersist: {
       control: {
         type: "boolean",

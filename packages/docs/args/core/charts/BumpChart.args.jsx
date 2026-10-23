@@ -22,6 +22,14 @@ export const argTypes = assign(
    */
 
   {
+    axisHover: {
+      defaultValue: "x",
+      table: {
+        defaultValue: {
+          summary: "x",
+        },
+      },
+    },
     discrete: {
       defaultValue: "x",
       table: {
