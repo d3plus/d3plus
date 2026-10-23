@@ -68,7 +68,31 @@ entries:
 ```
 
 Supported events include `click`, `mouseenter`, `mouseleave`, and `mousemove`.
-The handler receives the datum; `this` is bound to the rendered element.
+A handler is called as `(d, i, x, event)`: the hovered or clicked data row, its
+index, the shape's own datum (with the layout values d3plus added), and the
+browser's pointer event. `this` is the chart, so a handler can reconfigure and
+redraw it. An unscoped name (`"click"`) fires for both shapes and legend
+entries. On charts that mix shape types, a shape type scopes a handler to one
+kind of mark: `"click.Bar"`, `"click.Circle"`, or `"click.Box"` on a
+BoxWhisker's box, median, and whiskers.
+
+A common use is opening a page for the clicked mark:
+
+```jsx
+<Treemap config={{
+  data: [
+    {id: "Wikipedia", value: 60, url: "https://www.wikipedia.org"},
+    {id: "OpenStreetMap", value: 25, url: "https://www.openstreetmap.org"},
+  ],
+  groupBy: "id",
+  sum: "value",
+  on: {
+    "click.shape": d => window.open(d.url, "_blank", "noopener")
+  }
+}} />
+```
+
+See the [Treemap click example](/docs/core-charts-treemap--d3plus#click-to-open-link).
 
 ## Highlighting a series
 
