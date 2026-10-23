@@ -20,6 +20,8 @@ import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
 import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey} from "../facet/facetData.js";
+import {colorScaleBucketRows} from "./colorScaleBucket.js";
+import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -51,6 +53,43 @@ function colorScaleData(viz: VizInstance): MergedDataPoint[] {
     const c = viz.schema.colorScale(d as unknown as DataPoint, i);
     return c !== undefined && c !== null;
   });
+}
+
+/** The paint a bucket swatch takes from the chart's shapes: all but its fill. */
+const SWATCH_STYLES = [
+  "fillOpacity",
+  "opacity",
+  "stroke",
+  "strokeDasharray",
+  "strokeLinecap",
+  "strokeOpacity",
+  "strokeWidth",
+];
+
+/**
+    The `shapeConfig` that styles the colorScale's bucket swatches like the
+    chart's shapes, the way the legend's swatches are: each style resolves
+    from the chart's `shapeConfig` for the first row in the swatch's bucket
+    (any row, for a bucket without one), so a swatch's stroke is its shapes'
+    stroke. A Line row's swatch takes the shared styles, not the Line's own.
+*/
+function bucketSwatchConfig(viz: VizInstance): Record<string, unknown> {
+  // Read on first use: the buckets exist once the ColorScale builds its scale.
+  let rows: ReturnType<typeof colorScaleBucketRows> | undefined;
+  const configs = new Map<string, Record<string, unknown>>();
+  const style = (bucket: DataPoint, key: string): unknown => {
+    if (rows === undefined) rows = colorScaleBucketRows(viz);
+    const source = rows?.get(bucket.color) ?? rows?.values().next().value;
+    if (!source) return undefined;
+    const {row, i} = source;
+    const shape = viz._colorScaleShape!(row, i);
+    const nest = shape === "Line" ? "" : shape;
+    if (!configs.has(nest)) configs.set(nest, shapeConfigFor(viz, nest));
+    return resolveAccessor(configs.get(nest)![key], row, i);
+  };
+  return Object.fromEntries(
+    SWATCH_STYLES.map(key => [key, (d: DataPoint) => style(d, key)]),
+  );
 }
 
 /**
@@ -91,6 +130,7 @@ function paintColorScale(
     .select(scaleGroup)
     .value(viz.schema.colorScale)
     .width(frame.width)
+    .legendConfig({shapeConfig: bucketSwatchConfig(viz)})
     .config(viz.schema.colorScaleConfig)
     .render();
 }

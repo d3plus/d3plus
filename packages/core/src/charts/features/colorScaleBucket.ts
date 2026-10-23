@@ -131,3 +131,21 @@ export function activeBucketColors(
   });
   return colors;
 }
+
+/**
+    The first of the colorScale's rows in each bucket, keyed by bucket color,
+    with its index: the row a bucket's swatch takes the chart's shape styles
+    from. Null without a colorScale to read.
+*/
+export function colorScaleBucketRows(
+  viz: VizInstance,
+): Map<unknown, {row: DataPoint; i: number}> | null {
+  const ctx = bucketCtx(viz);
+  if (!ctx) return null;
+  const rows = new Map<unknown, {row: DataPoint; i: number}>();
+  ctx.rows.forEach((row, i) => {
+    const color = ctx.colorOf(row, i);
+    if (!rows.has(color)) rows.set(color, {row, i});
+  });
+  return rows;
+}

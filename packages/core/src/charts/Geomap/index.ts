@@ -528,6 +528,9 @@ export const geomapDef: ChartDefinition = {
   },
   emit: geomapEmit,
   insetRegion: sceneInsetRegion,
+  // A row without a coordinate point draws as its topojson Path.
+  colorScaleShape: (viz, d, i) =>
+    viz.schema.point(d, i) instanceof Array ? viz.schema.shape(d, i) : "Path",
 
   // Clip the geography to the map rectangle — the same box as the ocean rect and
   // the imperative inner <svg> viewport — so projected paths and points can't

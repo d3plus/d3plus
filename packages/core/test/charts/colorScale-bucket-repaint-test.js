@@ -3,7 +3,10 @@ import assert from "assert";
 
 import VizBase from "../../src/charts/viz/VizBase.ts";
 import {shapeHoverEnabled} from "../../src/charts/viz/shapeHover.ts";
-import {colorScaleBucketOf} from "../../src/charts/features/colorScaleBucket.ts";
+import {
+  colorScaleBucketOf,
+  colorScaleBucketRows,
+} from "../../src/charts/features/colorScaleBucket.ts";
 
 /**
     Regression guard for the colorScale-bucket hover fix. Geomap disables
@@ -106,5 +109,25 @@ it("colorScaleBucketOf unwraps wrapped bucket data and ignores non-buckets", () 
     colorScaleBucketOf({__d3plus__: true, data: {x: 1}}),
     null,
     "wrapped non-bucket -> null",
+  );
+});
+
+it("colorScaleBucketRows: the first row in each bucket, keyed by bucket color", () => {
+  const rows = [{v: 1}, {v: 5}, {v: 2}, {v: 9}];
+  const viz = {
+    _colorScaleClass: {
+      _data: rows,
+      _colorScale: v => (v < 4 ? "low" : "high"),
+    },
+    schema: {colorScale: d => d.v},
+  };
+  const buckets = colorScaleBucketRows(viz);
+  assert.deepStrictEqual([...buckets.keys()], ["low", "high"]);
+  assert.deepStrictEqual(buckets.get("low"), {row: rows[0], i: 0});
+  assert.deepStrictEqual(buckets.get("high"), {row: rows[1], i: 1});
+  assert.strictEqual(
+    colorScaleBucketRows({_colorScaleClass: {}, schema: {}}),
+    null,
+    "null without a colorScale",
   );
 });
