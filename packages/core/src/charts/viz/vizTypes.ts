@@ -579,6 +579,8 @@ export interface VizInstance {
   }): SizeLegendScale | null;
   /** The region chart chrome may be drawn inside, with the chart's marks as obstacles (see `ChartDefinition.insetRegion`). */
   _insetRegion?(): InsetRegion | null;
+  /** The shape a colorScale row draws as (see `ChartDefinition.colorScaleShape`). */
+  _colorScaleShape?(d: DataPoint, i: number): string;
   /** The chart's small-multiple hooks (see `ChartDefinition.facet`). */
   _facetHooks?(): FacetHooks;
   toScene?(): SceneNode;

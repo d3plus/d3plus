@@ -253,6 +253,16 @@ export default class Viz extends VizBase {
   }
 
   /**
+      The shape a colorScale row draws as (see
+      `ChartDefinition.colorScaleShape`): the row's `shape`, unless the chart
+      draws it as something else.
+      @private
+  */
+  _colorScaleShape(d: DataPoint, i: number): string {
+    return this.schema.shape(d, i) as string;
+  }
+
+  /**
    * Applies the threshold algorithm according to the type of chart used.
    * @param {Array} data The data to process.
    * @private
