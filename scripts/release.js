@@ -220,7 +220,11 @@ try {
   );
   dirty = false;
   await run("tagging release", `git tag v${version}`);
-  await run("pushing commit and tag", "git push origin --follow-tags");
+  // --follow-tags skips lightweight tags, so push the tag by name.
+  await run(
+    "pushing commit and tag",
+    `git push --atomic origin main v${version}`,
+  );
   // Publishing the release starts the "Publish to npm" workflow.
   await run(
     "creating GitHub release",
