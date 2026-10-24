@@ -356,6 +356,8 @@ function sceneInput(viz: VizInstance): PyramidSceneInput {
 export const pyramidDef: ChartDefinition = {
   name: "Pyramid",
   paintDriven: true,
+  // Its two sides are stacks of their own, so `threshold` folds nothing.
+  thresholdFunction: (_viz, data) => data,
   defaults: {groupPadding: 1},
 
   setup: viz => {

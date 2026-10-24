@@ -8,7 +8,7 @@
     `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` /
     `_colorScaleShape` delegate to `def.thresholdFunction` /
     `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` if
-    present, `_facetHooks` layers `def.facet` over the base chart's, and
+    present (else to the base chart's), `_facetHooks` layers `def.facet` over the base chart's, and
     `toScene` passes the base chart's scene through `def.decorateScene`.
 
     A chart's `index.ts` becomes literally `export default makeChart(def)`.
@@ -89,10 +89,10 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
         : super._facetHooks();
     }
 
-    _thresholdFunction(data: unknown[]) {
+    _thresholdFunction(data: unknown[], tree?: unknown, all?: unknown[]) {
       return def.thresholdFunction
-        ? def.thresholdFunction(this as unknown as VizInstance, data)
-        : data;
+        ? def.thresholdFunction(this as unknown as VizInstance, data, all)
+        : super._thresholdFunction(data, tree, all);
     }
   }
   Object.defineProperty(Chart, "name", {value: def.name});

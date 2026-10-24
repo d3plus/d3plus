@@ -176,6 +176,8 @@ function initLegendDefaults(viz: Viz): void {
   viz.schema.legend = (config: Record<string, unknown>, arr: DataPoint[]) => {
     if (viz._legendCategories) return arr.length > 1;
     const maxGrouped = max(arr, (d: DataPoint, i: number) => {
+      // A threshold bucket is one entry, however many groups it holds.
+      if (d._isAggregation) return 1;
       const id = viz.schema.groupBy[viz._legendDepth].bind(viz)(d, i);
       return id instanceof Array ? id.length : 1;
     });

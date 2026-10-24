@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Threshold</title>
+    <meta
+      name="description"
+      content="StackedArea and stacked BarChart with threshold: series under 5% of the chart's total fold into one band, plus a drillable bucket."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 5px;
+        font-family: sans-serif;
+      }
+      .viz {
+        height: 380px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="area" class="viz"></div>
+    <div id="bars" class="viz"></div>
+    <div id="nested" class="viz"></div>
+  </body>
+
+  <script>
+    var sizes = {
+      Alpha: 40,
+      Bravo: 30,
+      Charlie: 25,
+      Delta: 20,
+      Echo: 15,
+      Fox: 1.2,
+      Golf: 0.8,
+      Hotel: 0.6,
+      India: 0.9,
+      Juliet: 0.4,
+    };
+    var data = [];
+    Object.keys(sizes).forEach(function (id, s) {
+      for (var year = 2015; year <= 2024; year++) {
+        // Golf has no 2018 row; the bucket still draws one band.
+        if (id === "Golf" && year === 2018) continue;
+        data.push({
+          region: s < 3 ? "North" : "South",
+          id: id,
+          year: year,
+          value: +(sizes[id] * (1 + 0.15 * Math.sin(year + s))).toFixed(2),
+        });
+      }
+    });
+
+    new d3plus.StackedArea()
+      .select("#area")
+      .data(data)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .title("StackedArea, threshold 5%")
+      .threshold(0.05)
+      .render();
+
+    new d3plus.BarChart()
+      .select("#bars")
+      .data(data)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .stacked(true)
+      .title("Stacked BarChart, threshold 5%")
+      .threshold(0.05)
+      .render();
+
+    // Click the bucket to open it onto its series.
+    new d3plus.StackedArea()
+      .select("#nested")
+      .data(data)
+      .groupBy(["region", "id"])
+      .depth(0)
+      .x("year")
+      .y("value")
+      .title("Nested groupBy, threshold 45%: click the bucket")
+      .threshold(0.45)
+      .render();
+  </script>
+</html>
