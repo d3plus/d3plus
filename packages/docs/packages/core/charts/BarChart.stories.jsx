@@ -883,3 +883,26 @@ CategoryLabels.parameters = {
     },
   },
 };
+
+export const HoverAreas = Template.bind({});
+HoverAreas.args = {
+  data: [
+    {region: "North", sales: 42},
+    {region: "South", sales: 58},
+    {region: "East", sales: 0.6},
+    {region: "West", sales: 51},
+    {region: "Online", sales: 64},
+  ],
+  groupBy: "region",
+  x: "region",
+  y: "sales",
+};
+HoverAreas.parameters = {
+  controls: {include: ["shapeConfig"]},
+  docs: {
+    description: {
+      story:
+        "Side-by-side bars answer the pointer anywhere in their slot, from one edge of the plot to the other, so East's tiny bar shows its tooltip and takes clicks when you hover high above it. Grouped bars each own their column of the slot; stacked bars already fill theirs. `shapeConfig: {Bar: {hitArea: false}}` limits hovering to the bars themselves.",
+    },
+  },
+};

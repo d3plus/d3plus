@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>HitArea · BarChart</title>
+    <meta
+      name="description"
+      content="Bar hit areas: hovering anywhere in a bar's slot (vertical, horizontal, grouped, negative, zoomed) shows that bar's tooltip, and hitArea: false turns it off."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 340px;
+      }
+      #log {
+        padding: 0 16px;
+        font-size: 12px;
+        color: #555;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>One tiny bar: hover above it</h3>
+        <div class="viz" id="tiny"></div>
+      </section>
+      <section>
+        <h3>Horizontal bars</h3>
+        <div class="viz" id="horizontal"></div>
+      </section>
+      <section>
+        <h3>Grouped bars with negative values</h3>
+        <div class="viz" id="grouped"></div>
+      </section>
+      <section>
+        <h3>Zoomable (scroll to zoom): hit areas clip to the plot</h3>
+        <div class="viz" id="zoom"></div>
+      </section>
+      <section>
+        <h3>shapeConfig: {Bar: {hitArea: false}}: only the bars</h3>
+        <div class="viz" id="off"></div>
+      </section>
+    </div>
+    <p id="log">Click a slot to log the bar it belongs to.</p>
+
+    <script>
+      const sales = [
+        {region: "North", sales: 42},
+        {region: "South", sales: 58},
+        {region: "East", sales: 0.6},
+        {region: "West", sales: 51},
+        {region: "Online", sales: 64},
+      ];
+
+      const teams = [
+        {team: "Design", hours: 64},
+        {team: "Support", hours: 1},
+        {team: "Platform", hours: 71},
+        {team: "Sales", hours: 47},
+      ];
+
+      const change = [
+        {quarter: "Q1", unit: "Retail", change: 12},
+        {quarter: "Q1", unit: "Wholesale", change: -4},
+        {quarter: "Q2", unit: "Retail", change: 0.4},
+        {quarter: "Q2", unit: "Wholesale", change: 9},
+        {quarter: "Q3", unit: "Retail", change: -11},
+        {quarter: "Q3", unit: "Wholesale", change: -0.5},
+        {quarter: "Q4", unit: "Retail", change: 7},
+        {quarter: "Q4", unit: "Wholesale", change: 14},
+      ];
+
+      const days = Array.from({length: 30}, (_, i) => ({
+        day: i + 1,
+        visits: i % 7 === 3 ? 2 : 20 + ((i * 13) % 31),
+      }));
+
+      const log = document.getElementById("log");
+      const onClick = {
+        "click.shape": d => (log.textContent = `Clicked: ${JSON.stringify(d)}`),
+      };
+
+      new d3plus.BarChart()
+        .select("#tiny")
+        .data(sales)
+        .groupBy("region")
+        .x("region")
+        .y("sales")
+        .on(onClick)
+        .render();
+
+      new d3plus.BarChart()
+        .select("#horizontal")
+        .data(teams)
+        .groupBy("team")
+        .discrete("y")
+        .x("hours")
+        .y("team")
+        .on(onClick)
+        .render();
+
+      new d3plus.BarChart()
+        .select("#grouped")
+        .data(change)
+        .groupBy("unit")
+        .x("quarter")
+        .y("change")
+        .on(onClick)
+        .render();
+
+      new d3plus.BarChart()
+        .select("#zoom")
+        .data(days)
+        .groupBy("day")
+        .x("day")
+        .y("visits")
+        .zoom(true)
+        .on(onClick)
+        .render();
+
+      new d3plus.BarChart()
+        .select("#off")
+        .data(sales)
+        .groupBy("region")
+        .x("region")
+        .y("sales")
+        .shapeConfig({Bar: {hitArea: false}})
+        .on(onClick)
+        .render();
+    </script>
+  </body>
+</html>

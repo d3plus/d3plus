@@ -106,10 +106,24 @@ export interface BaseShapeConfig {
   /** Style overrides for hovered data points. */
   hoverStyle?: Record<string, unknown>;
 
-  /** Hit-area shape: function returning bounds or static bounds. */
+  /**
+      An invisible hover and click target drawn behind each mark: bounds
+      (`x`, `y`, `width`, `height`, relative to the mark's position), or a
+      function returning them per datum. A Line takes a wide transparent
+      stroke along its path. Side-by-side bars in a Plot (a BarChart that
+      isn't stacked, or a Histogram) fill their whole slot by default, from
+      one edge of the plot to the other, so a short bar is as easy to hover
+      as a tall one; `shapeConfig: {Bar: {hitArea: false}}` limits them to
+      the bars themselves.
+  */
   hitArea?:
-    | ((d: DataPoint, i: number, aes: unknown) => Record<string, unknown>)
-    | Record<string, unknown>;
+    | ((
+        d: DataPoint,
+        i: number,
+        aes: unknown,
+      ) => Record<string, unknown> | false | null)
+    | Record<string, unknown>
+    | false;
 
   /** Unique-id accessor per datum (used for keyed enter/update/exit). */
   id?: AccessorFn;

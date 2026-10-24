@@ -45,7 +45,7 @@ const draw = ([kind, config, rows, hoverKey]) =>
     viz.render(() => {
       const bars = [
         ...el.querySelectorAll(
-          "g[data-key='plot-zoom-content'] rect.d3plus-render-rect",
+          "g[data-key='plot-zoom-content'] rect.d3plus-render-rect:not([data-key$='::hit'])",
         ),
       ]
         .filter(r => /^[ab]_/.test(r.getAttribute("data-key") || ""))
@@ -79,7 +79,11 @@ const draw = ([kind, config, rows, hoverKey]) =>
       const sceneRects = [];
       for (const node of sceneNodes(viz._chartScene || [])) {
         if (!node) continue;
-        if (node.type === "rect" && node.shapeType === "Bar")
+        if (
+          node.type === "rect" &&
+          node.shapeType === "Bar" &&
+          !String(node.key).endsWith("::hit")
+        )
           sceneRects.push({
             key: node.key,
             width: node.width,

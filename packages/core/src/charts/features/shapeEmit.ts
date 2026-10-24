@@ -31,6 +31,7 @@ import {emitBarConfidence} from "../Plot/barConfidence.js";
 import {emitLineBands} from "../Plot/lineBands.js";
 import {clampBarConfig, valueAxis} from "../Plot/baselineBreak.js";
 import {barSeries, seriesSlot} from "../Plot/barWidth.js";
+import {applyBarHitArea, hitColumn} from "../Plot/barHitArea.js";
 import {rowSpan} from "../Plot/discreteSpan.js";
 import {emitFillBetween} from "../Plot/fillBetween.js";
 import {applyStackShareLabels} from "../Plot/stackShareLabels.js";
@@ -313,6 +314,7 @@ const barEmit: ShapeEmitter = emitCtx => {
     }, Infinity);
   } else if (vals.length > 1) space = scale(vals[1]) - scale(vals[0]);
   else space = range[range.length - 1] - range[0];
+  const step = space;
   if (viz._groupPadding! < space) space -= viz._groupPadding!;
 
   let barSize = space || 1;
@@ -333,6 +335,8 @@ const barEmit: ShapeEmitter = emitCtx => {
     d: PlotDatum,
     i: number,
   ) => number;
+  let column: (d: PlotDatum) => [number, number] = () =>
+    hitColumn(step, 1, 0, 0);
   if (max(barGroups.map(([, innerEntries]) => innerEntries.length)) === 1) {
     s[discreteKey]((d: PlotDatum, i: number) => discreteFn(d, i));
   } else {
@@ -351,10 +355,13 @@ const barEmit: ShapeEmitter = emitCtx => {
       (d: PlotDatum, i: number) =>
         discreteFn(d, i) + xMod(uniqueIds.indexOf(d.group)),
     );
+    column = (d: PlotDatum) =>
+      hitColumn(step, uniqueIds.length, uniqueIds.indexOf(d.group), offset);
   }
 
   s.width(barSize);
   s.height(barSize);
+  barHits(ctx, s, column);
 
   return finishShape(ctx, "Bar", s);
 };
@@ -378,11 +385,16 @@ function spanBarEmit(
       Math.abs(scale(end) - scale(start)) - viz._groupPadding!,
     );
   };
+  const step = (d: PlotDatum) => {
+    const [start, end] = rowSpan(viz, d);
+    return Math.abs(scale(end) - scale(start));
+  };
   const axis = viz.schema.discrete as "x" | "y";
   const series = viz._barSpans ? barSeries(values as PlotDatum[], axis) : [];
   if (series.length < 2) {
     s.width(space);
     s.height(space);
+    barHits(ctx, s, (d: PlotDatum) => hitColumn(step(d), 1, 0, 0));
     return finishShape(ctx, "Bar", s);
   }
   const slot = (d: PlotDatum) =>
@@ -396,7 +408,31 @@ function spanBarEmit(
   s[axis]((d: PlotDatum, i: number) => position(d, i) + slot(d).offset);
   s.width((d: PlotDatum) => slot(d).size);
   s.height((d: PlotDatum) => slot(d).size);
+  barHits(ctx, s, (d: PlotDatum) =>
+    hitColumn(
+      step(d),
+      series.length,
+      series.indexOf(d.group),
+      Math.max(0, space(d) - slot(d).size) / 2,
+    ),
+  );
   return finishShape(ctx, "Bar", s);
+}
+
+/** Side-by-side bars' hit areas (see `Plot/barHitArea.ts`); stacked bars take none. */
+function barHits(
+  ctx: ShapeEmitContext,
+  s: Shape,
+  column: (d: PlotDatum, i: number) => [number, number],
+): void {
+  const {viz} = ctx;
+  if (viz.schema.stacked) return;
+  applyBarHitArea(
+    s,
+    viz.schema.discrete === "y" ? "y" : "x",
+    ctx.valueExtent,
+    column as (d: DataPoint, i: number) => [number, number],
+  );
 }
 
 /** Line — duration, optional confidence band, end-labels, and point markers. */
