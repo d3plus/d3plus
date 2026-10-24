@@ -3,6 +3,7 @@ import assert from "assert";
 import {Timeline, Treemap} from "../../index.ts";
 import {
   brushSpan,
+  fitBrush,
   growFrom,
   nearestIndex,
   spanIndices,
@@ -107,14 +108,18 @@ async function timeline(config) {
   return tl;
 }
 
-/** Releases a brush from `from` to `to`, with the pointer at `at`. */
+/**
+    Releases a brush over the years `from` to `to` (or, with `from` null, a
+    click), with the pointer at `at`. Its pixel edges run left to right,
+    which on a reversed timeline is latest first.
+*/
 function release(tl, from, to, at) {
-  const px = y => tl._d3Scale(new Date(`${y}/01/01`));
+  const px = y => tl._d3Scale(years[y - 2010]);
   tl._brushEnd({
     type: "end",
     target: tl._brush,
     sourceEvent: {clientX: px(at), clientY: 0},
-    selection: [px(from), px(to)],
+    selection: from === null ? null : [px(from), px(to)].sort((a, b) => a - b),
   });
   return [].concat(tl.selection()).map(year);
 }
@@ -250,17 +255,7 @@ async function buttons(config) {
   return tl;
 }
 
-/** Releases a buttons brush from `from` to `to` (years), the pointer at `at`. */
-function releaseButtons(tl, from, to, at) {
-  const px = y => tl._d3Scale.range()[y - 2010];
-  tl._brushEnd({
-    type: "end",
-    target: tl._brush,
-    sourceEvent: {clientX: px(at), clientY: 0},
-    selection: from === null ? null : [px(from), px(to)],
-  });
-  return [].concat(tl.selection()).map(year);
-}
+const releaseButtons = release;
 
 it("Timeline brushMin (buttons): a narrow drag keeps the dragged end", async () => {
   const tl = await buttons({brushMin: 3});
@@ -333,4 +328,64 @@ it("computeTimeFilter: a chart starts on its latest brushMin periods", () => {
     rows(treemap({timeline: false, timelineConfig: {brushMin: 3}})),
     [2020],
   );
+});
+
+for (const mode of ["ticks", "buttons"]) {
+  const reversed = config =>
+    (mode === "ticks" ? timeline : buttons)({...config, reverse: true});
+
+  it(`reversed Timeline (${mode}): periods run latest first on screen`, async () => {
+    const tl = await reversed({});
+    const px = y => tl._d3Scale(years[y - 2010]);
+    assert.ok(px(2020) < px(2011), `${px(2020)} < ${px(2011)}`);
+  });
+
+  it(`reversed Timeline brushMax (${mode}): a wide brush keeps the end being dragged`, async () => {
+    const tl = await reversed({brushMax: 3});
+    assert.deepStrictEqual(release(tl, 2011, 2018, 2018), [2016, 2018]);
+    assert.deepStrictEqual(release(tl, 2011, 2018, 2011), [2011, 2013]);
+    assert.deepStrictEqual(release(tl, 2014, 2015, 2015), [2014, 2015]);
+  });
+
+  it(`reversed Timeline brushMin (${mode}): a narrow brush or a click widens`, async () => {
+    const tl = await reversed({brushMin: 3});
+    if (mode === "buttons") {
+      // The dragged end stays put.
+      assert.deepStrictEqual(release(tl, 2014, 2015, 2015), [2013, 2015]);
+      assert.deepStrictEqual(release(tl, 2014, 2015, 2014), [2014, 2016]);
+      // At an edge it grows the other way.
+      assert.deepStrictEqual(release(tl, 2010, 2011, 2011), [2010, 2012]);
+    } else {
+      // Ticks grow from the earlier end.
+      assert.deepStrictEqual(release(tl, 2014, 2015, 2015), [2014, 2016]);
+    }
+    // A click selects the clicked period and the ones after it.
+    assert.deepStrictEqual(release(tl, null, null, 2014), [2014, 2016]);
+    assert.deepStrictEqual(release(tl, null, null, 2021), [2019, 2021]);
+  });
+
+  it(`reversed Timeline (${mode}): a starting selection keeps its latest periods`, async () => {
+    const wide = await reversed({
+      brushMax: 3,
+      selection: [years[0], years[11]],
+    });
+    assert.deepStrictEqual(wide.selection().map(year), [2019, 2021]);
+    const one = await reversed({brushMin: 3, selection: [years[5]]});
+    assert.deepStrictEqual(one.selection().map(year), [2013, 2015]);
+  });
+}
+
+it("fitBrush: works in period order whichever way the edges run", () => {
+  const span = {min: 1, max: 3};
+  // Left edge on period 8, right on 1 (a reversed timeline); dragging the
+  // right edge keeps period 1.
+  assert.deepStrictEqual(fitBrush([8, 1], 10, span, "hi"), [1, 3]);
+  assert.deepStrictEqual(fitBrush([8, 1], 10, span, "lo"), [6, 8]);
+  assert.deepStrictEqual(fitBrush([1, 8], 10, span, "hi"), [6, 8]);
+  // Growing: ticks keep the first period, buttons the dragged one.
+  const min = {min: 3, max: Infinity};
+  assert.deepStrictEqual(fitBrush([5, 4], 10, min, "lo"), [4, 6]);
+  assert.deepStrictEqual(fitBrush([5, 4], 10, min, "lo", true), [3, 5]);
+  assert.deepStrictEqual(fitBrush([5, 4], 10, min, "hi", true), [4, 6]);
+  assert.deepStrictEqual(fitBrush([4, 4], 10, min, "hi", true), [4, 6]);
 });

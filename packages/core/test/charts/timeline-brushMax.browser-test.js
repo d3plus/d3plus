@@ -49,13 +49,15 @@ async function draw({renderer, timelineConfig}) {
   });
 }
 
-/** A year's position on the brush (its tick, or its button's middle), in page pixels. */
+/**
+    A year's position on the brush (its tick, or its button's middle), in
+    page pixels; a reversed timeline places the latest year first.
+*/
 function brushX(year) {
   const tl = window.__viz._timelineClass;
   const ticksMode = tl._buttonBehaviorCurrent === "ticks";
   const periods = ticksMode ? tl._availableTicks : tl.schema.ticks;
-  const i = years(periods).indexOf(year);
-  const px = ticksMode ? tl._d3Scale(periods[i]) : tl._d3Scale.range()[i];
+  const px = tl._d3Scale(periods[years(periods).indexOf(year)]);
   const m = document.querySelector("#viz .brushGroup").getScreenCTM();
   return m.a * px + m.e;
 }
@@ -203,3 +205,53 @@ it("brushMax: a time-axis chart starts on its latest periods, and playback keeps
   assert.deepStrictEqual(years(tl.selection()), [2013, 2015]);
   assert.deepStrictEqual(pageErrors(), []);
 });
+
+for (const renderer of ["svg", "canvas"]) {
+  for (const buttonBehavior of ["ticks", "buttons"]) {
+    it(`reversed timeline (${renderer}, ${buttonBehavior}): brushMax keeps the dragged end, brushMin widens`, async function () {
+      await draw({
+        renderer,
+        timelineConfig: {brushMax: 3, buttonBehavior, reverse: true},
+      });
+      assert.ok(brushX(2020) < brushX(2011), "latest first on screen");
+      // Dragged from 2011 (right) leftward to 2018: 2018 stays put.
+      const toLater = await drag(2011, 2018);
+      assert.deepStrictEqual(toLater.selection, [2016, 2018]);
+      assert.deepStrictEqual(toLater.filtered, range(2016, 2018));
+      // Dragged from 2019 rightward to 2012: 2012 stays put.
+      const toEarlier = await drag(2019, 2012);
+      assert.deepStrictEqual(toEarlier.selection, [2012, 2014]);
+
+      await draw({
+        renderer,
+        timelineConfig: {brushMin: 3, buttonBehavior, reverse: true},
+      });
+      // A click selects the clicked period and the ones after it, which a
+      // reversed timeline shows to its left.
+      const one = await click(2012);
+      assert.deepStrictEqual(one.selection, [2012, 2014]);
+      assert.deepStrictEqual(one.filtered, range(2012, 2014));
+      // At the latest period it grows the other way.
+      assert.deepStrictEqual((await click(2021)).selection, [2019, 2021]);
+      if (buttonBehavior === "buttons") {
+        // A narrow drag keeps the dragged end: dragged to 2015, 2015 stays.
+        assert.deepStrictEqual(
+          (await drag(2014, 2015)).selection,
+          [2013, 2015],
+        );
+        // Dragged to 2016 (from outside the selection), 2016 stays.
+        assert.deepStrictEqual(
+          (await drag(2017, 2016)).selection,
+          [2016, 2018],
+        );
+      } else {
+        // Ticks grow from the earlier end.
+        assert.deepStrictEqual(
+          (await drag(2015, 2014)).selection,
+          [2014, 2016],
+        );
+      }
+      assert.deepStrictEqual(pageErrors(), []);
+    });
+  }
+}

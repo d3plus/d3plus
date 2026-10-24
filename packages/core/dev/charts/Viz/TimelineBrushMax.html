@@ -5,7 +5,7 @@
     <title>Timeline BrushMax</title>
     <meta
       name="description"
-      content="timelineConfig.brushMax caps a timeline selection at 3 periods (ticks and buttons Treemaps, a LinePlot starting on its latest 3 years), brushMin: 3 widens a buttons selection, and brushMin above brushMax wins."
+      content="timelineConfig.brushMax caps a timeline selection at 3 periods (ticks and buttons Treemaps, a LinePlot starting on its latest 3 years), brushMin: 3 widens a buttons selection, both hold on a reversed timeline, and brushMin above brushMax wins."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -51,6 +51,10 @@
         <div class="viz" id="min-buttons"></div>
       </div>
       <div>
+        <h3>reverse: true, brushMin: 2, brushMax: 3, buttons</h3>
+        <div class="viz" id="reversed"></div>
+      </div>
+      <div>
         <h3>brushMin: 4 above brushMax: 2 (brushMin wins)</h3>
         <div class="viz" id="conflict"></div>
       </div>
@@ -93,6 +97,12 @@
       .timelineConfig({brushMax: 3})
       .render();
     treemap("#min-buttons", {brushMin: 3, buttonBehavior: "buttons"});
+    treemap("#reversed", {
+      brushMin: 2,
+      brushMax: 3,
+      buttonBehavior: "buttons",
+      reverse: true,
+    });
     treemap("#conflict", {brushMin: 4, brushMax: 2, buttonBehavior: "ticks"});
   </script>
 </html>
