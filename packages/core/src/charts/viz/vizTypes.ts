@@ -153,6 +153,13 @@ export interface VizInstance {
   _filteredData: DataPoint[];
   _formattedData?: DataPoint[];
   _legendData: DataPoint[];
+  /**
+      The rows a chart's threshold weighs: every row of the whole chart (all
+      small-multiple panels), legend-hidden ones included.
+  */
+  _thresholdRows?: DataPoint[];
+  /** Formats a threshold bucket member's value in tooltips (default: abbreviated). */
+  _thresholdMemberFormat?: (value: number) => string;
   _hidden: (string | number)[];
   _solo: (string | number)[];
   /**
@@ -594,7 +601,12 @@ export interface VizInstance {
   _drawSceneToTarget(durationOverride?: number): void;
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
-  _thresholdFunction?(data: DataPoint[], tree?: unknown): DataPoint[];
+  _thresholdLegend?(legendData: DataPoint[]): DataPoint[];
+  _thresholdFunction?(
+    data: DataPoint[],
+    tree?: unknown,
+    all?: DataPoint[],
+  ): DataPoint[];
   /** The chart's size-legend radius scale, estimated before layout for the given chart area (see `ChartDefinition.sizeLegendScale`). */
   _sizeLegendScale?(available: {
     width: number;

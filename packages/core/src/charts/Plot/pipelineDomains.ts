@@ -29,6 +29,7 @@ import type {TransformStage, VizContext} from "../pipeline/stages.js";
 import {stampShare} from "../features/shareKey.js";
 import {stackedConfidenceValues} from "./barConfidence.js";
 import {isSpanAxis, spanDomain} from "./discreteSpan.js";
+import {orderLast} from "./stackHelpers.js";
 import {trendDomainValues} from "./trendLines.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -162,12 +163,14 @@ function sortStackedAxisData(
 /**
     Runs d3-stack over the discrete groups with the configured order and
     offset. Sorts `stackKeys` in place when the order is an explicit key array.
+    A threshold bucket (see `stackThreshold.ts`) stacks last, on top.
 */
 function runStack(
   viz: VizInstance,
   stackKeys: unknown[],
   stackGroupsData: Row[][],
   opp: string | undefined,
+  bucketKeys: Set<string>,
 ): number[][][] {
   const order = viz._stackOrder;
 
@@ -176,6 +179,7 @@ function runStack(
   // reranks the series d3-stack builds, so `stackKeys` is left in input order.
   if (Array.isArray(order))
     stackKeys.sort((a, b) => order.indexOf(a) - order.indexOf(b));
+  const stackOrder = Array.isArray(order) ? d3Shape.stackOrderNone : order;
 
   // d3-stack's generics don't model d3plus's dynamically-keyed rows; the
   // order/offset/value accessors are cast (`as never`) at the boundary, and
@@ -185,7 +189,11 @@ function runStack(
       .stack()
       .keys(stackKeys as string[])
       .offset(viz._stackOffset as never)
-      .order((Array.isArray(order) ? d3Shape.stackOrderNone : order) as never)
+      .order(
+        (bucketKeys.size
+          ? orderLast(stackOrder as Parameters<typeof orderLast>[0], bucketKeys)
+          : stackOrder) as never,
+      )
       .value(((group: Row[], key: string) => {
         const d = group.filter((g: Row) => g.id === key);
         return d.length ? (d[0][opp as string] as number) : 0;
@@ -232,7 +240,12 @@ function computeStackedDomains(
     );
   }
 
-  const stackData = runStack(viz, stackKeys, stackGroupsData, opp);
+  const bucketKeys = new Set(
+    axisData
+      .filter((d: Row) => (d.data as DataPoint | undefined)?._isAggregation)
+      .map((d: Row) => d.id as string),
+  );
+  const stackData = runStack(viz, stackKeys, stackGroupsData, opp, bucketKeys);
 
   const discreteData = (
     viz.schema.discrete === "x" ? xData : yData

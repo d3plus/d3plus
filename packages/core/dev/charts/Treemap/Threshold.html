@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Threshold</title>
+    <meta
+      name="description"
+      content="Treemap and Waffle with threshold: items under 5% merge into one bucket that lists them in its tooltips; a lone small item stays as itself."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 5px;
+        font-family: sans-serif;
+      }
+      .viz {
+        height: 380px;
+        margin-bottom: 16px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="treemap" class="viz"></div>
+    <div id="waffle" class="viz"></div>
+    <div id="lone" class="viz"></div>
+  </body>
+
+  <script>
+    var sizes = {
+      Alpha: 40,
+      Bravo: 30,
+      Charlie: 25,
+      Delta: 20,
+      Echo: 15,
+      Fox: 1.2,
+      Golf: 0.8,
+      Hotel: 0.6,
+      India: 0.9,
+      Juliet: 0.4,
+    };
+    var data = Object.keys(sizes).map(function (id) {
+      return {id: id, value: sizes[id]};
+    });
+
+    new d3plus.Treemap()
+      .select("#treemap")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .title("Treemap, threshold 5%: hover the bucket")
+      .threshold(0.05)
+      .render();
+
+    new d3plus.Waffle()
+      .select("#waffle")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .title("Waffle, threshold 5%: hover the bucket's legend entry")
+      .threshold(0.05)
+      .render();
+
+    // Only Fox is under 5%: a bucket needs two items, so it stays as itself.
+    new d3plus.Treemap()
+      .select("#lone")
+      .data(
+        data.filter(function (d) {
+          return ["Golf", "Hotel", "India", "Juliet"].indexOf(d.id) < 0;
+        }),
+      )
+      .groupBy("id")
+      .sum("value")
+      .title("One item under 5%: not grouped")
+      .threshold(0.05)
+      .render();
+  </script>
+</html>

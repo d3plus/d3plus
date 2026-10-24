@@ -60,6 +60,7 @@ export const waffleDef: DataDrivenChartDefinition = {
       ) => DataPoint[keyof DataPoint])[],
       threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
       thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
+      label: (d: DataPoint, i: number) => viz._drawLabel(d, i),
     }),
 
   // The default 10 × 10 grid is square.

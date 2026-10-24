@@ -1507,7 +1507,16 @@ export interface D3plusConfig {
   target?: string | number | ((d: DataPoint, i: number) => number) | false;
   /** Bullet: the target marker's `size` (a fraction of the band's thickness), `stroke`, and `strokeWidth`, each a value or a `(d, i)` accessor. */
   targetConfig?: Record<string, unknown>;
-  /** Threshold value for grouping small slices. */
+  /**
+      Threshold value for grouping small slices, as a share of the total
+      (`0.05` is 5%). On a stacked Plot (StackedArea, or an AreaPlot,
+      BarChart, or LinePlot with `stacked`), the series whose summed value
+      across every position is under that share of the whole chart's total
+      merge into one series, labelled by `thresholdName` and stacked on top.
+      A bucket needs at least two items (a lone small item stays as
+      itself), and its tooltips list the items it holds with their values.
+      Off by default on Plot charts.
+  */
   threshold?: number;
   /** Label for the threshold group, or a `(datum, index)` accessor. */
   thresholdName?: string | ((d: DataPoint, i: number) => string);

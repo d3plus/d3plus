@@ -3,6 +3,7 @@ import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import clickShape from "./click.shape.js";
 import {groupDepthOf, groupNarrows, groupPath} from "../viz/groupRow.js";
+import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import type Viz from "../viz/Viz.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -90,6 +91,12 @@ export default function (
           this.schema.tooltipConfig,
         ),
       );
+    // A threshold bucket lists what it holds.
+    appendThresholdMembers(
+      this._tooltipClass,
+      this as unknown as VizInstance,
+      tooltipDatum,
+    );
     // The title leads with a swatch of the hovered mark, as in the legend.
     leadTitleWithSwatch(
       this._tooltipClass,

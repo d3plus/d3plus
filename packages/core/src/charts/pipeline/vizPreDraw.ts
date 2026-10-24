@@ -3,7 +3,7 @@
     onto the viz:
       1. `_drawDepth` and the `_id` / `_ids` / `_drawLabel` closures;
       2. `_filteredData` (time filter, `filter`, rollup, hide/solo, then the
-         chart's `_thresholdFunction`) and `_legendData`;
+         chart's `_thresholdFunction`) and `_legendData` (through `_thresholdLegend`);
       3. the hover/duration override past `dataCutoff`;
     and mounts the no-data message when nothing is left to draw.
 
@@ -207,6 +207,7 @@ export function vizPreDraw(viz: Viz): void {
   viz._ids = ids;
   viz._drawLabel = drawLabel;
   if (out.legendData !== undefined) viz._legendData = out.legendData;
+  viz._thresholdRows = out.legendData;
 
   // A persistent trail only stays coherent with fixed axes (so committed
   // segments don't drift as the domain shifts) and a single-period timeline (so
@@ -224,7 +225,13 @@ export function vizPreDraw(viz: Viz): void {
   // the chart's instance method, so it runs after the writes above.
   let filteredData = out.filteredData || [];
   if (viz._data.length && out._thresholdTree) {
-    filteredData = viz._thresholdFunction!(filteredData, out._thresholdTree);
+    filteredData = viz._thresholdFunction!(
+      filteredData,
+      out._thresholdTree,
+      viz._thresholdRows,
+    );
+    if (viz._thresholdLegend && out.legendData)
+      viz._legendData = viz._thresholdLegend(out.legendData);
   }
   viz._filteredData = filteredData;
 

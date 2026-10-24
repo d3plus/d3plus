@@ -139,7 +139,7 @@ SmallDataThreshold.parameters = {
   docs: {
     description: {
       story:
-        "`threshold: 0.03` merges the files below 3% of the total within each module into one bucket labeled by `thresholdName`, keeping slivers from cluttering the outer ring.",
+        "`threshold: 0.03` merges the files below 3% of the total within each module into one bucket labeled by `thresholdName`, keeping slivers from cluttering the outer ring. A module with only one such file keeps it as itself, and hovering a bucket lists the files it holds.",
     },
   },
 };

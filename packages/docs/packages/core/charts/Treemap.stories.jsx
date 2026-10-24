@@ -160,7 +160,7 @@ SmallDataThreshold.parameters = {
   docs: {
     description: {
       story:
-        '`threshold: 0.0025` merges every state below 0.25% of the total sum into one catch-all rectangle labeled by `thresholdName` ("States"), keeping tiny slivers from cluttering the layout.',
+        '`threshold: 0.0025` merges every state below 0.25% of the total sum into one catch-all rectangle labeled by `thresholdName` ("States"), keeping tiny slivers from cluttering the layout. Hover it to see the states it holds, largest first. A bucket needs at least two states: a lone small state stays as itself.',
     },
   },
 };

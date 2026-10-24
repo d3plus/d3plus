@@ -12,6 +12,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import {SHARE_KEY} from "../features/shareKey.js";
+import {MEMBERS_KEY} from "../features/thresholdMembers.js";
 
 /** A `groupBy` accessor. */
 export type PartitionKey = (d: DataPoint, i: number) => unknown;
@@ -163,6 +164,7 @@ export function mergeBranch(
   const merged = merge(rows.map(withoutStampedShare), aggs) as DataPoint;
   delete merged._isAggregation;
   delete merged._threshold;
+  delete merged[MEMBERS_KEY];
   return merged;
 }
 

@@ -24,6 +24,7 @@ import {fillBetweenDefaults} from "./fillBetween.js";
 import {forecastDefaults} from "./forecast.js";
 import {plotDef} from "./pipeline.js";
 import {plotShapeDefaults} from "./shapeDefaults.js";
+import {axisValue} from "./sharedTooltip.js";
 import {
   stackOffsetDiverging,
   stackOrderTotalDescending,
@@ -126,6 +127,14 @@ export function initPlotDefaults(viz: Plot): void {
   viz.schema.sizeScale = "sqrt";
   viz._stackOffset = stackOffsetDiverging;
   viz._stackOrder = stackOrderTotalDescending;
+  // Off until set: a stacked Plot's threshold folds whole series.
+  viz.schema.threshold = constant(0);
+  viz._thresholdMemberFormat = (v: number) =>
+    axisValue(
+      viz as unknown as VizInstance,
+      viz.schema.discrete === "y" ? "x" : "y",
+      v,
+    );
   viz.schema.timelineConfig = assign(viz.schema.timelineConfig, {
     brushMin: () =>
       viz._xTime || viz._yTime || viz._x2Time || viz._y2Time ? 2 : 1,

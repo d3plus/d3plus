@@ -8,7 +8,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
 import {colorScaleBucketShare} from "../features/colorScaleBucket.js";
-import {summedShare} from "../features/shareKey.js";
+import {shareOfRows, summedShare, unwrapRow} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Row = Record<string, unknown>;
@@ -32,7 +32,13 @@ export function formatShare(
 export function waffleShare(viz: VizInstance, x: Row): number | null {
   const sum = viz.schema.sum as (d: DataPoint, i: number) => number;
   if (x._isColorScaleBucket) return colorScaleBucketShare(viz, x.color, sum);
-  return summedShare(x);
+  const row = unwrapRow(x);
+  const share = summedShare(row);
+  // A legend entry the layout hasn't stamped (a threshold bucket) reads its
+  // share of every legend row's value.
+  return Number.isFinite(share)
+    ? share
+    : shareOfRows(row, viz._legendData || [], d => sum(d as DataPoint, 0));
 }
 
 /** The `[label, value]` tooltip rows: the summed value, then its share. */

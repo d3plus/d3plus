@@ -8,6 +8,11 @@ import {group, sum} from "d3-array";
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {
+  MEMBERS_KEY,
+  thresholdMemberList,
+} from "../features/thresholdMembers.js";
+
 export interface ThresholdInputs {
   /** Per-key aggregation overrides used by `merge` to bucket removed items. */
   aggs: Record<string, (leaves: DataPoint[]) => unknown>;
@@ -19,19 +24,22 @@ export interface ThresholdInputs {
   threshold: (branchData: DataPoint[]) => number;
   /** Per-datum value accessor compared against `threshold * totalSum`. */
   thresholdKey: (d: DataPoint) => number;
+  /** Names each bucketed item in the bucket's member list (default: its id). */
+  label?: (d: DataPoint, i: number) => string;
 }
 
 /**
     Walks `data` to `drawDepth` and merges entries whose `thresholdKey`
     value falls below `threshold(branchData) * totalSum` into a single
-    aggregated row at that depth. Returns the kept set; original `data`
-    is not mutated.
+    aggregated row at that depth, listing them (largest first) under
+    `MEMBERS_KEY`. A lone entry under the threshold stays as itself: a
+    bucket needs two. Returns the kept set; original `data` is not mutated.
 */
 export function thresholdFunction(
   data: DataPoint[],
   inputs: ThresholdInputs,
 ): DataPoint[] {
-  const {aggs, drawDepth, groupBy, threshold, thresholdKey} = inputs;
+  const {aggs, drawDepth, groupBy, label, threshold, thresholdKey} = inputs;
   const totalSum = sum(data, thresholdKey);
 
   if (!threshold || !thresholdKey) return data;
@@ -70,15 +78,21 @@ export function thresholdFunction(
         else kept.push(datum);
       }
 
-      if (removedItems.length > 0) {
-        const mergedItem = merge(
-          removedItems,
-          aggs as unknown as Parameters<typeof merge>[1],
-        );
-        mergedItem._isAggregation = true;
-        mergedItem._threshold = thresholdPercent;
-        kept.push(mergedItem as unknown as DataPoint);
-      }
+      if (removedItems.length < 2) return branchData;
+
+      const mergedItem = merge(
+        removedItems,
+        aggs as unknown as Parameters<typeof merge>[1],
+      );
+      mergedItem._isAggregation = true;
+      mergedItem._threshold = thresholdPercent;
+      mergedItem[MEMBERS_KEY] = thresholdMemberList(
+        removedItems,
+        (_d, i) => i,
+        label ?? (d => groupBy[depth](d) as string),
+        thresholdKey,
+      ) as unknown as (typeof mergedItem)[string];
+      kept.push(mergedItem as unknown as DataPoint);
 
       return kept;
     }

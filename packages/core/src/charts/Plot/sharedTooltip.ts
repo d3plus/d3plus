@@ -19,6 +19,7 @@ import {
   tooltipSwatch,
   withSwatch,
 } from "../features/tooltipSwatch.js";
+import {thresholdMemberRows} from "../features/thresholdMembers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
   confidenceRows,
@@ -189,11 +190,18 @@ function markProjected(
 }
 
 /**
+    How many of a threshold bucket's series the shared tooltip lists under
+    its row: fewer than a single-mark tooltip, since every other series has
+    a row of its own beside them.
+*/
+export const SHARED_MEMBER_LIMIT = 5;
+
+/**
     The shared tooltip: title from the continuous axis, a header row naming
     the hovered discrete value, then one `[name, value]` row per series, the
     name led by a swatch in its series stroke and the value followed by its
-    `confidence` range. User `tooltipConfig` styles apply first; the shared
-    title/rows win.
+    `confidence` range, and a threshold bucket's series listed under its row.
+    User `tooltipConfig` styles apply first; the shared title/rows win.
 */
 export function renderSharedTooltip(
   viz: VizInstance,
@@ -212,9 +220,13 @@ export function renderSharedTooltip(
     .title(() => axisName(viz, cont))
     .thead(header)
     .tbody(
-      hover.rows.map((r, i) => [
-        withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
-        `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
+      hover.rows.flatMap((r, i) => [
+        [
+          withSwatch(tooltipSwatch(r.color, r.shape), names[i]),
+          `${axisValue(viz, cont, r.value)}${bounds(viz, cont, r)}`,
+        ],
+        // A threshold bucket's series, under its row.
+        ...thresholdMemberRows(viz, r.datum, SHARED_MEMBER_LIMIT),
       ]),
     )
     .footer(false)
@@ -227,7 +239,8 @@ export function renderSharedTooltip(
     The single-mark tooltip (one series, `tooltipShared(false)`, or a
     side-by-side bar): the default title (the mark's label, unless
     `tooltipConfig` sets one), its x and y values, its `confidence` bounds,
-    then any rows the chart's `tooltipConfig` adds.
+    then any rows the chart's `tooltipConfig` adds, and a threshold bucket's
+    series.
 */
 export function renderSingleTooltip(
   viz: VizInstance,
@@ -264,6 +277,7 @@ export function renderSingleTooltip(
             axisValue(viz, other(hover.axis), v),
           )),
       ...(Array.isArray(extra) ? extra : []),
+      ...thresholdMemberRows(viz, row.datum),
     ])
     .arrow(false)
     .position(snappedPosition(viz, hover, event))

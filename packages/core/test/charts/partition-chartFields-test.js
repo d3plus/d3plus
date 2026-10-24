@@ -32,6 +32,7 @@ function mockViz(extra = {}) {
     },
     _filteredData: [{value: 1}, {value: 2}],
     _drawDepth: 1,
+    _drawLabel: d => d.item,
     ctx: {},
     ...extra,
   };
@@ -46,7 +47,21 @@ it("partition chartFields: partitionThreshold buckets small branches", () => {
   ];
   const out = partitionThreshold(viz, data);
   assert.ok(out.length < data.length, "the small items merged");
-  assert.ok(out.some(d => d._isAggregation));
+  const bucket = out.find(d => d._isAggregation);
+  assert.ok(bucket);
+  assert.deepStrictEqual(bucket.__d3plusMembers, [
+    {label: "a2", value: 5},
+    {label: "a3", value: 5},
+  ]);
+});
+
+it("partition chartFields: partitionThreshold leaves a lone small branch as itself", () => {
+  const viz = mockViz();
+  const data = [
+    {group: "A", item: "a1", value: 90},
+    {group: "A", item: "a2", value: 10},
+  ];
+  assert.deepStrictEqual(partitionThreshold(viz, data), data);
 });
 
 it("partition chartFields: partitionDefaultSort and partitionSortDecorate order largest first, bucket last", () => {

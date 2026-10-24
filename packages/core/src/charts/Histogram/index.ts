@@ -128,6 +128,8 @@ function binBeforePreDraw(viz: VizInstance) {
 export const histogramDef: ChartDefinition = {
   name: "Histogram",
   paintDriven: true,
+  // Its stacks are bins, not series, so `threshold` folds nothing.
+  thresholdFunction: (_viz, data) => data,
   defaults: {groupPadding: 1},
 
   setup: viz => {

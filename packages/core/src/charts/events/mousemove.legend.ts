@@ -2,6 +2,7 @@ import {merge} from "d3-array";
 import type {DataPoint} from "@d3plus/data";
 import clickLegend from "./click.legend.js";
 import {legendLabel} from "../features/legendLabel.js";
+import {appendThresholdMembers} from "../features/thresholdMembers.js";
 import {leadTitleWithSwatch, pickSwatch} from "../features/tooltipSwatch.js";
 import {configPrep} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
@@ -106,6 +107,12 @@ export default function (
           this.schema.legendTooltip,
         ),
       );
+    // A threshold bucket's entry lists what it holds.
+    appendThresholdMembers(
+      this._tooltipClass,
+      this as unknown as VizInstance,
+      d,
+    );
     // The title leads with the hovered entry's swatch, as on the chart.
     leadTitleWithSwatch(
       this._tooltipClass,

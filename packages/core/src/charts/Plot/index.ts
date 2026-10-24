@@ -32,6 +32,10 @@ import {appendSharedHoverNodes} from "./sharedHoverScene.js";
 import Viz from "../viz/Viz.js";
 import {plotInsetRegion} from "./insetRegion.js";
 import {plotFacetHooks} from "./plotFacet.js";
+import {
+  plotStackThreshold,
+  plotStackThresholdLegend,
+} from "./stackThreshold.js";
 
 import type {
   InteractionPoint,
@@ -114,6 +118,28 @@ export default class Plot extends Viz {
     });
 
     super._preDraw();
+  }
+
+  /**
+      The legend rows with a stacked chart's threshold bucket folded into
+      one entry (see `stackThreshold.ts`).
+      @private
+*/
+  _thresholdLegend(legendData: DataPoint[]): DataPoint[] {
+    return plotStackThresholdLegend(this as unknown as VizInstance, legendData);
+  }
+
+  /**
+      Folds a stacked chart's small series into one threshold bucket (see
+      `stackThreshold.ts`).
+      @private
+*/
+  _thresholdFunction(
+    data: DataPoint[],
+    _tree?: unknown,
+    all?: DataPoint[],
+  ): DataPoint[] {
+    return plotStackThreshold(this as unknown as VizInstance, data, all);
   }
 
   /**

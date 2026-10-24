@@ -89,10 +89,14 @@ export default function (
       groupDepth: this._drawDepth,
     });
 
+    // A threshold bucket's id lists the groups it holds; it opens onto them.
+    const inGroup = Array.isArray(filterId)
+      ? (v: unknown) => filterId.includes(v as DataPoint[keyof DataPoint])
+      : (v: unknown) => v === filterId;
     this.config({
       depth: this._drawDepth + 1,
       filter: (f: DataPoint, x: number) =>
-        (!oldFilter || oldFilter(f, x)) && filterGroup(f, x) === filterId,
+        (!oldFilter || oldFilter(f, x)) && inGroup(filterGroup(f, x)),
     }).render();
   }
 }
