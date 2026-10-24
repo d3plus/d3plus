@@ -91,12 +91,22 @@ export default class Axis extends BaseClass {
   _scaleData: unknown[] = [];
   /** Whether the last layout pass rotated the labels (see `labelRotation`). */
   _labelRotation: boolean | undefined;
+  /** The angle the last layout pass rotated the labels by (0 when flat). */
+  _labelAngle = 0;
+  /** Whether the last layout pass slanted the labels (see `settingTurn`). */
+  _labelSlant = false;
   /** The configured `labelRotation`: `undefined` lets the layout decide. */
-  _labelRotationSetting: boolean | undefined;
+  _labelRotationSetting: boolean | number | undefined;
   _margin: Record<string, number>;
   _outerBounds: Record<string, number>;
   /** The measured size of the tick-label/title space, before margins (see `fixedSize`). */
   _labelSpace?: number;
+  /**
+      How far slanted labels reach past the start and end of the range, set
+      by the layout pass (see `labelRotation`). A Plot makes room for them
+      when its range is fixed.
+  */
+  _labelOverflow: [number, number] = [0, 0];
   _position!: {
     horizontal: boolean;
     width: string;
@@ -484,15 +494,27 @@ export default class Axis extends BaseClass {
   }
 
   /**
-      Whether to rotate horizontal axis labels -90 degrees. Left `undefined`
-      (the default), a horizontal axis of categories rotates its labels when
-      any label would not fit its share of the axis whole (a word dropped,
-      cut off, or broken across lines) or would overlap its neighbor. Labels
-      that still overlap once rotated are thinned evenly.
+      Whether to rotate the axis labels, and by how much. `true` rotates
+      them -90 degrees and `false` keeps them flat. Left `undefined` (the
+      default), a horizontal axis of categories rotates its labels when any
+      label would not fit its share of the axis whole (a word dropped, cut
+      off, or broken across lines) or would overlap its neighbor: they
+      slant 30 degrees (-30 on a bottom axis, 30 on a top one), or stand at
+      -90 when even slanted they would leave more labels cut short or
+      hidden. A vertical axis never rotates its labels on its own. A number
+      rotates them by that many degrees (clockwise, so `-45` rises to the
+      right): each label hangs off the axis from the end of its text
+      nearest the axis, which sits across from its tick, so on a bottom
+      axis a negative angle ends each label at its tick and a positive one
+      starts it there. Angles outside -90 to 90 turn a half turn to read
+      left to right (`135` draws as `-45`), and `0` keeps the labels flat.
+      Slanted labels wrap between words onto up to three lines, as many as
+      fit between neighboring labels, so they reach less far from the
+      axis. Labels that still overlap once rotated are thinned evenly.
 */
-  labelRotation(): boolean | undefined;
-  labelRotation(_: boolean | undefined): this;
-  labelRotation(_?: boolean): boolean | undefined | this {
+  labelRotation(): boolean | number | undefined;
+  labelRotation(_: boolean | number | undefined): this;
+  labelRotation(_?: boolean | number): boolean | number | undefined | this {
     return arguments.length
       ? ((this._labelRotationSetting = _), this)
       : this._labelRotationSetting;

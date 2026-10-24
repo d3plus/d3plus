@@ -113,6 +113,10 @@ function setupAxisTransforms(
   });
 }
 
+/** The rotation a test axis settled on, to draw its axis with: its angle, or `false`. */
+const testRotation = (test: Axis): number | false =>
+  test._labelRotation ? test._labelAngle : false;
+
 /**
     Render the production x/x2 axes against `xRange`, queue their scenes, and
     build the `viz._xFunc` position accessor.
@@ -144,7 +148,7 @@ function renderXAxes(
     .ticks(xTicks)
     .width(width)
     // Rotate the labels as the test axis did when it claimed their height.
-    .labelRotation(pCtx.xTest._labelRotation)
+    .labelRotation(testRotation(pCtx.xTest))
     .config({...UNZOOMED_AXIS, ...xC})
     .config(plotAxisConfig(viz, "x"))
     .config(pCtx.zoomAxes?.x ?? {})
@@ -171,7 +175,7 @@ function renderXAxes(
       .range(xRange)
       .ticks(x2Ticks)
       .width(width)
-      .labelRotation(pCtx.x2Test._labelRotation)
+      .labelRotation(testRotation(pCtx.x2Test))
       .config({...UNZOOMED_AXIS, ...xC})
       .config(defaultX2Config)
       .config(viz._x2Config)

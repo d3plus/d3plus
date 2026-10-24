@@ -350,11 +350,11 @@ export const argTypes = assign(
     },
     labelRotation: {
       control: {
-        type: "boolean",
+        type: "number",
       },
       defaultValue: false,
       description:
-        "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
+        "Whether to rotate the axis labels, and by how much. `true` rotates\nthem -90 degrees and `false` keeps them flat. Left `undefined` (the\ndefault), a horizontal axis of categories rotates its labels when any\nlabel would not fit its share of the axis whole (a word dropped, cut\noff, or broken across lines) or would overlap its neighbor: they\nslant 30 degrees (-30 on a bottom axis, 30 on a top one), or stand at\n-90 when even slanted they would leave more labels cut short or\nhidden. A vertical axis never rotates its labels on its own. A number\nrotates them by that many degrees (clockwise, so `-45` rises to the\nright): each label hangs off the axis from the end of its text\nnearest the axis, which sits across from its tick, so on a bottom\naxis a negative angle ends each label at its tick and a positive one\nstarts it there. Angles outside -90 to 90 turn a half turn to read\nleft to right (`135` draws as `-45`), and `0` keeps the labels flat.\nSlanted labels wrap between words onto up to three lines, as many as\nfit between neighboring labels, so they reach less far from the\naxis. Labels that still overlap once rotated are thinned evenly.",
       table: {
         defaultValue: {
           summary: false,
@@ -362,7 +362,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "boolean | undefined",
+        summary: "number | boolean | undefined",
       },
     },
     labels: {

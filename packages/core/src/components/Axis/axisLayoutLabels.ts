@@ -11,6 +11,8 @@ import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
+import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
+import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
   thinEvenly,
@@ -38,6 +40,10 @@ export interface AxisTextDatum {
   lineHeight: number;
   position: number;
   rotate?: boolean;
+  /** The degrees a rotated label turns (see `labelRotation`), 0 when flat. */
+  angle?: number;
+  /** Whether the label is laid out at its angle (see `settingTurn`). */
+  slant?: boolean;
   space: number;
   lines: string[];
   widths: number[];
@@ -65,6 +71,22 @@ interface LabelLayoutCtx {
       `ownLabelSpaces`) rather than the widest share any label has.
   */
   ownSpace?: boolean;
+  /** The width slanted labels wrap at (see `slantedLineWidth`). */
+  slantWidth?: number;
+}
+
+/** How far labels may reach out from the axis, past its ticks and margins. */
+function labelRoom(
+  axis: Axis,
+  horizontal: boolean,
+  hBuff: number,
+  p: number,
+): number {
+  const wSize = min([axis.schema.maxSize, axis.schema.width])!;
+  const hSize = min([axis.schema.maxSize, axis.schema.height])!;
+  return horizontal
+    ? hSize - hBuff - p - axis._margin.top - axis._margin.bottom
+    : wSize - hBuff - p - axis._margin.left - axis._margin.right;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
@@ -138,7 +160,7 @@ function calculateLabelSize(
   cache?: Map<string, LabelSize>,
 ): LabelSize {
   const {horizontal, hBuff, p, tickFormat} = ctx;
-  const {d, i, fF, fP, fS, rotate, space} = datum;
+  const {d, i, fF, fP, fS, rotate, space, angle, slant} = datum;
   const h = rotate ? "width" : "height",
     w = rotate ? "height" : "width";
 
@@ -146,8 +168,30 @@ function calculateLabelSize(
     ? axis.schema.shapeConfig.lineHeight(d, i)
     : undefined;
   const text = tickFormat(d);
+  const wSize = min([axis.schema.maxSize, axis.schema.width]);
+  const depth = labelRoom(axis, horizontal, hBuff, p);
+  const slanted = slant
+    ? slantedWrapSize(
+        angle!,
+        horizontal,
+        depth,
+        space,
+        lineHeight ?? Math.ceil(fS * 1.4),
+      )
+    : undefined;
   const key =
-    cache && JSON.stringify([text, fF, fP, fS, lineHeight, rotate, space]);
+    cache &&
+    JSON.stringify([
+      text,
+      fF,
+      fP,
+      fS,
+      lineHeight,
+      rotate,
+      slant && angle,
+      slant && ctx.slantWidth,
+      space,
+    ]);
   const cached = key ? cache!.get(key) : undefined;
   if (cached)
     return {
@@ -156,21 +200,18 @@ function calculateLabelSize(
       widths: cached.widths.slice(),
     };
 
-  const wSize = min([axis.schema.maxSize, axis.schema.width]);
-  const hSize = min([axis.schema.maxSize, axis.schema.height]);
-
   const wrap = textWrap().fontFamily(fF).fontSize(fS).lineHeight(lineHeight);
 
-  wrap[w](
-    horizontal
-      ? space
-      : wSize! - hBuff - p - axis._margin.left - axis._margin.right,
-  );
-  wrap[h](
-    horizontal
-      ? hSize! - hBuff - p - axis._margin.top - axis._margin.bottom
-      : space,
-  );
+  if (slanted) {
+    // Slanted labels wrap between words, never mid-word.
+    wrap
+      .split(wholeWordSplit)
+      .width(Math.min(slanted.width, ctx.slantWidth ?? Infinity))
+      .height(slanted.height);
+  } else {
+    wrap[w](horizontal ? space : depth);
+    wrap[h](horizontal ? depth : space);
+  }
 
   type Sized = ReturnType<typeof wrap> & {
     width: number;
@@ -257,6 +298,8 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
     axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
   const fontPadding = axis.schema.shapeConfig.labelConfig.padding;
 
+  const angle = axis._labelRotation ? axis._labelAngle : 0;
+  const slant = !!axis._labelRotation && axis._labelSlant;
   return labels.map((d: unknown, i: number) => {
     const fF =
         typeof fontFamilyConfig === "function"
@@ -279,6 +322,8 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
       lineHeight,
       position,
       rotate: axis._labelRotation,
+      angle,
+      slant,
     } as AxisTextDatum;
   });
 }
@@ -350,6 +395,10 @@ export function createTextData(
   };
   let textData = baseTextData(axis, labels);
   const maxSpace = maxLabelSpace(axis, textData, rangeOuter);
+  labelCtx.slantWidth = slantedWidth(axis, textData, {
+    ...labelCtx,
+    space: maxSpace,
+  });
 
   const spaces = ownSpace
     ? ownLabelSpaces(
@@ -413,6 +462,43 @@ export function createTextData(
 }
 
 /**
+    The width slanted labels wrap at: narrow enough to put a long label on
+    as many lines (up to three) as fit between neighbouring labels `space`
+    apart, so it reaches less far from the axis. Undefined when the labels
+    don't slant.
+*/
+function slantedWidth(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: LabelLayoutCtx & {space: number},
+): number | undefined {
+  const first = textData[0];
+  if (!first?.slant) return undefined;
+  const {horizontal, hBuff, p, tickFormat, space} = ctx;
+  const lineHeight = (d: AxisTextDatum) =>
+    axis.schema.shapeConfig.lineHeight
+      ? axis.schema.shapeConfig.lineHeight(d.d, d.i)
+      : Math.ceil(d.fS * 1.4);
+  const limit = slantedWrapSize(
+    first.angle!,
+    horizontal,
+    labelRoom(axis, horizontal, hBuff, p),
+    space - first.fP * 2,
+    lineHeight(first),
+  );
+  return slantedLineWidth(
+    textData.map((d: AxisTextDatum) => ({
+      text: tickFormat(d.d),
+      fontFamily: d.fF,
+      fontSize: d.fS,
+      lineHeight: lineHeight(d),
+    })),
+    slantedLines(limit.height, lineHeight(first)),
+    limit.width,
+  );
+}
+
+/**
     Each label's own share of an axis whose labels sit unevenly, such as one
     label per variable-width bar (see `Plot/barWidth.ts`): reaching halfway to
     the nearer of its neighbors on either side, so labels wrapped within their
@@ -456,6 +542,21 @@ export function isDiscreteScale(scale: string): boolean {
   return ["band", "ordinal", "point"].includes(scale);
 }
 
+/**
+    How far a measured label reaches out from the axis: its height when it
+    lies flat along a horizontal axis, its width when it stands out from the
+    axis, and for a slanted label, both projected across the axis (with its
+    padding on a horizontal axis, as its height holds).
+*/
+export function labelDepth(t: AxisTextDatum, horizontal: boolean): number {
+  if (t.slant)
+    return (
+      slantedDepth(t.angle!, horizontal, t.width, t.height - t.fP) +
+      (horizontal ? t.fP : 0)
+    );
+  return t[t.rotate || !horizontal ? "width" : "height"];
+}
+
 /** Derives `_outerBounds` + axis margins from the measured text data. */
 export function computeAxisBounds(
   axis: Axis,
@@ -490,9 +591,7 @@ export function computeAxisBounds(
   const bounds: Record<string, number> = (axis._outerBounds = {
     [height]:
       (max(textData, (t: AxisTextDatum) =>
-        Math.ceil(
-          t[t.rotate || !horizontal ? "width" : "height"] + (t.offset ?? 0),
-        ),
+        Math.ceil(labelDepth(t, horizontal) + (t.offset ?? 0)),
       ) || 0) + (textData.length ? p : 0),
     [width]: rangeOuter[rangeOuter.length - 1] - rangeOuter[0],
     [x]: rangeOuter[0],

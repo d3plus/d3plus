@@ -37,6 +37,9 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
+import {FLAT, autoAngle, settingTurn, slantedReach} from "./axisLabelAngle.js";
+import type {LabelTurn} from "./axisLabelAngle.js";
+import type {AxisOrient} from "./axisLabelAngle.js";
 import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
@@ -133,7 +136,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     ownSpace,
   };
   const setting = axis._labelRotationSetting;
-  axis._labelRotation = setting ?? false;
+  turnLabels(axis, settingTurn(setting, horizontal));
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
   // Given a list of label lists, the axis labels the first whose labels all
   // fit whole, else the last one, thinned.
@@ -148,10 +151,12 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
       labels,
       tickFormat,
       ownSpace,
+      rangeOuter,
       relayout: () => layoutLabels(axis, rescale(), labelCtx),
     });
 
   hideTruncatedTicks(axis, textData, ticks);
+  axis._labelOverflow = slantedOverflow(axis, textData, range);
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 
@@ -185,6 +190,34 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
   };
 }
 
+/**
+    How far the first and last slanted labels shown reach past the start and
+    end of `range`, along the axis (0 when they don't, or aren't slanted).
+*/
+export function slantedOverflow(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  range: number[],
+): [number, number] {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated && t.slant);
+  if (!shown.length) return [0, 0];
+  const lo = Math.min(range[0], range[range.length - 1]);
+  const hi = Math.max(range[0], range[range.length - 1]);
+  const reach = (t: AxisTextDatum) =>
+    slantedReach(
+      axis.schema.orient as AxisOrient,
+      t.angle!,
+      t.width,
+      t.height - t.fP,
+    );
+  const first = shown[0];
+  const last = shown[shown.length - 1];
+  return [
+    Math.max(0, reach(first)[0] - (first.position - lo)),
+    Math.max(0, reach(last)[1] - (hi - last.position)),
+  ];
+}
+
 /** The ticks whose labels the layout hides no longer count as visible. */
 function hideTruncatedTicks(
   axis: Axis,
@@ -215,10 +248,13 @@ function alignLabelOffsets(axis: Axis, textData: AxisTextDatum[]): void {
 
 /**
     Left to decide, a horizontal axis of categories rotates its labels when
-    that leaves fewer of them cut short or hidden. Dates and numbers thin
-    instead, and rotate only when even their first label alone can't lie
-    flat on one line. Sets `axis._labelRotation` and returns the labels laid
-    out as they end up.
+    that leaves fewer of them cut short or hidden: slanted 30 degrees (see
+    `autoAngle`), or upright when that leaves fewer still. Dates and numbers
+    thin instead, and rotate only when even their first label alone can't
+    lie flat on one line. A vertical axis's labels already lie across it,
+    so it never rotates them on its own. Sets `axis._labelRotation`,
+    `_labelAngle` and `_labelSlant` and returns the labels laid out as they
+    end up.
 */
 function autoRotateLabels(
   axis: Axis,
@@ -227,28 +263,55 @@ function autoRotateLabels(
     labels: unknown[];
     tickFormat: (d: unknown) => string;
     ownSpace: boolean;
+    rangeOuter: number[];
     relayout: () => AxisTextDatum[];
   },
 ): AxisTextDatum[] {
-  const {labels, tickFormat, ownSpace, relayout} = ctx;
+  const {labels, tickFormat, ownSpace, rangeOuter, relayout} = ctx;
+  const whole = wholeLineLabels(axis, labels);
   const rotate = rotatesLabels(axis, labels, tickFormat)
     ? (data: AxisTextDatum[]) => labelMisses(data)
-    : wholeLineLabels(axis, labels)
+    : whole
       ? (data: AxisTextDatum[]) => (data.length && !data[0].fits ? 1 : 0)
       : undefined;
   const misses = rotate ? rotate(textData) : 0;
   // Labels in their own shares rotate only as a last resort: a label that
   // can't fit is hidden, and the rest stay flat (each with its share line,
   // which a rotated label leaves out) unless half or more are hidden.
-  if (rotate && misses && (!ownSpace || misses * 2 >= textData.length)) {
-    axis._labelRotation = true;
-    textData = relayout();
-    if (rotate(textData) >= misses) {
-      axis._labelRotation = false;
-      textData = relayout();
-    }
+  if (!rotate || !misses || (ownSpace && misses * 2 < textData.length))
+    return textData;
+  // Slanted 30 degrees first; standing upright packs more labels side by
+  // side, so they stand when that leaves fewer cut short or hidden. Flat
+  // labels stay when neither helps.
+  let best = {turn: FLAT, misses, data: textData};
+  let last = FLAT;
+  for (const turn of [
+    {rotate: true, angle: autoAngle(axis.schema.orient), slant: true},
+    {rotate: true, angle: -90, slant: false},
+  ]) {
+    turnLabels(axis, (last = turn));
+    const data = relayout();
+    // Rotated dates must keep their first label, which carries the year,
+    // and slanted labels must fit within the axis.
+    const tried =
+      rotate(data) +
+      (whole && data[0]?.truncated ? 1 : 0) +
+      (turn.slant && slantedOverflow(axis, data, rangeOuter).some(o => o > 1)
+        ? 1
+        : 0);
+    if (tried < best.misses) best = {turn, misses: tried, data};
+    if (!tried) break;
   }
-  return textData;
+  if (best.turn === last) return best.data;
+  turnLabels(axis, best.turn);
+  return relayout();
+}
+
+/** Sets how the axis draws its labels for the next layout pass. */
+function turnLabels(axis: Axis, turn: LabelTurn): void {
+  axis._labelRotation = turn.rotate;
+  axis._labelAngle = turn.angle;
+  axis._labelSlant = turn.slant;
 }
 
 /**
@@ -309,13 +372,30 @@ function layoutLabels(
       if (!datum) return 0;
       const {height: dHeight, position, rotate, width: dWidth} = datum;
       const compPosition = index ? rangeOuter[1] : rangeOuter[0];
-      const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
+      // A slanted label reaches further to one side of its tick than the other.
+      const reach = datum.slant
+        ? slantedReach(
+            axis.schema.orient as AxisOrient,
+            datum.angle!,
+            dWidth,
+            dHeight - datum.fP,
+          )[index]
+        : (rotate || !horizontal ? dHeight : dWidth) / 2;
       // Room between the label's tick and the end of the range it faces.
       const room = index ? compPosition - position : position - compPosition;
-      return room >= halfSpace ? 0 : halfSpace - room;
+      return room >= reach ? 0 : reach - room;
     });
 
-    const newRange = [first + spillovers[0], last - spillovers[1]];
+    // Slanted labels can reach far past an end: keep at least half the axis
+    // for the scale, however far they reach.
+    const room = last - first - (rangeOuter[1] - rangeOuter[0]) / 2;
+    const reach = spillovers[0] + spillovers[1];
+    const share =
+      reach > room && shown.some(t => t.slant) ? Math.max(0, room) / reach : 1;
+    const newRange = [
+      first + spillovers[0] * share,
+      last - spillovers[1] * share,
+    ];
     if (axis.schema.range) {
       if (axis.schema.range[0] !== undefined)
         newRange[0] = axis.schema.range[0];
@@ -337,7 +417,9 @@ function layoutLabels(
       ownSpace,
       offset: offsetEnabled ? 2 : 1,
     });
-    if (endLabels(textData) === ends) break;
+    // A slanted label's reach is lopsided, so its range narrows again until
+    // the label fits; others stop once the same labels end the axis.
+    if (endLabels(textData) === ends && !textData.some(t => t.slant)) break;
   }
 
   return textData;

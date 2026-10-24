@@ -932,3 +932,32 @@ HoverAreas.parameters = {
     },
   },
 };
+
+export const AngledAxisLabels = Template.bind({});
+AngledAxisLabels.args = {
+  data: [
+    {id: "Agriculture, Forestry and Fishing", value: 20},
+    {id: "Mining and Quarrying", value: 57},
+    {id: "Manufacturing", value: 94},
+    {id: "Electricity and Gas Supply", value: 41},
+    {id: "Water Supply and Sewerage", value: 78},
+    {id: "Construction", value: 25},
+    {id: "Wholesale and Retail Trade", value: 62},
+    {id: "Transportation and Storage", value: 99},
+  ],
+  groupBy: "id",
+  legend: false,
+  shapeConfig: {Bar: {label: false}},
+  x: "id",
+  xConfig: {labelRotation: -45},
+  y: "value",
+};
+AngledAxisLabels.parameters = {
+  controls: {include: ["xConfig"]},
+  docs: {
+    description: {
+      story:
+        "An axis config's `labelRotation` takes a number of degrees as well as `true` (-90) or `false`. At `-45` each long category name rises to the right and ends at its bar's tick; a positive angle falls to the right from its tick instead. The axis claims the room the slanted labels need, and thins them when their text would touch.",
+    },
+  },
+};
