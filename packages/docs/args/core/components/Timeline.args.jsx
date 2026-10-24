@@ -77,6 +77,22 @@ export const argTypes = assign(
         summary: "function",
       },
     },
+    brushMax: {
+      control: {
+        type: "number",
+      },
+      description:
+        "The maximum number of ticks (or buttons) a selection can span; unlimited\nby default. A wider brush is pulled in to it on release, keeping the end\nbeing dragged, and a wider starting selection keeps its latest periods.\nA `brushMax` below `brushMin` rises to it.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "number",
+      },
+    },
     brushMin: {
       control: {
         type: "number",
