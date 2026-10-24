@@ -50,3 +50,11 @@ it("addToQueue keeps data rows with a url field as data", () => {
   assert.strictEqual(ctx._queue.length, 1, "request queued");
   assert.deepStrictEqual(ctx._queue[0][1], [request], "queued paths");
 });
+
+it("addToQueue stores data for a schema-managed key on the schema", () => {
+  const links = [{source: "a", target: "b"}];
+  const ctx = {_queue: [], schema: {}};
+  addToQueue.call(ctx, links, undefined, "links");
+  assert.strictEqual(ctx._queue.length, 0, "nothing queued");
+  assert.strictEqual(ctx.schema.links, links, "stored on the schema");
+});
