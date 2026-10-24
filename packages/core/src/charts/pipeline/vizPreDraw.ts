@@ -207,6 +207,7 @@ export function vizPreDraw(viz: Viz): void {
   viz._ids = ids;
   viz._drawLabel = drawLabel;
   if (out.legendData !== undefined) viz._legendData = out.legendData;
+  viz._thresholdRows = out.legendData;
 
   // A persistent trail only stays coherent with fixed axes (so committed
   // segments don't drift as the domain shifts) and a single-period timeline (so
@@ -224,7 +225,11 @@ export function vizPreDraw(viz: Viz): void {
   // the chart's instance method, so it runs after the writes above.
   let filteredData = out.filteredData || [];
   if (viz._data.length && out._thresholdTree) {
-    filteredData = viz._thresholdFunction!(filteredData, out._thresholdTree);
+    filteredData = viz._thresholdFunction!(
+      filteredData,
+      out._thresholdTree,
+      viz._thresholdRows,
+    );
   }
   viz._filteredData = filteredData;
 

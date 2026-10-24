@@ -110,7 +110,7 @@ export function facetGroups(viz: VizInstance, sort: FacetSort): FacetGroup[] {
 /**
     One panel's drawable rows: `rows` run through the same time filter,
     rollup, legend hide/solo, and threshold the chart applies to its whole
-    dataset. `timeFilter` is computed once from the whole dataset, so every
+    dataset (a threshold that weighs rows weighs the whole chart's). `timeFilter` is computed once from the whole dataset, so every
     panel shows the same period.
 */
 export function facetFilteredData(
@@ -122,7 +122,11 @@ export function facetFilteredData(
   computeFilteredData(viz, out, viz._drawDepth, viz._id, timeFilter, rows);
   let data = out.filteredData ?? [];
   if (rows.length && out._thresholdTree && viz._thresholdFunction)
-    data = viz._thresholdFunction(data, out._thresholdTree);
+    data = viz._thresholdFunction(
+      data,
+      out._thresholdTree,
+      viz._thresholdRows ?? out.legendData,
+    );
   return data;
 }
 

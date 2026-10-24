@@ -133,6 +133,21 @@ export function stackOrderField(
   });
 }
 
+/**
+    Wraps a stack order so the series in `last` sit at the top of the stack,
+    in the order `order` gives them, above every other series.
+*/
+export function orderLast(
+  order: (series: Series[]) => number[],
+  last: Set<string>,
+): (series: Series[]) => number[] {
+  return (series: Series[]) => {
+    const ranked = order(series);
+    const isLast = (i: number) => last.has(series[i].key);
+    return ranked.filter(i => !isLast(i)).concat(ranked.filter(isLast));
+  };
+}
+
 /** Named stack orders accepted by `Plot.stackOrder`. */
 const NAMED_ORDERS: Record<string, StackOrderFn> = {
   ascending: stackOrderTotalAscending,

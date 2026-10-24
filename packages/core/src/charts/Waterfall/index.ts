@@ -156,6 +156,8 @@ function configureLegend(viz: VizInstance): void {
 export const waterfallDef: ChartDefinition = {
   name: "Waterfall",
   paintDriven: true,
+  // Each bar is a step of its own, so `threshold` folds nothing.
+  thresholdFunction: (_viz, data) => data,
 
   setup: viz => {
     viz.ctx.waterfall = {
