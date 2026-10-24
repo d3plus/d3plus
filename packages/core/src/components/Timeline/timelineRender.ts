@@ -15,6 +15,7 @@ import {parseTimeValues} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
+import {brushSpan, nearestIndex} from "./brushSpan.js";
 
 /**
     Standalone paint for the Timeline's scene (axis ticks/domain line/labels
@@ -189,6 +190,32 @@ export function configureScale(
   return hiddenHandles;
 }
 
+/**
+    Holds a starting `selection` (its ends among `periods`: tick dates, or
+    button positions) to `brushMax` periods, keeping its later end, in place,
+    and stores what remains as the Timeline's selection.
+*/
+export function clampSelection(
+  tl: Timeline,
+  selection: unknown[],
+  periods: unknown[],
+): void {
+  const most = brushSpan(tl.schema.brushMin, tl.schema.brushMax).max;
+  if (most === Infinity || !periods.length) return;
+  const values = periods.map(Number);
+  const lo = nearestIndex(values, Number(selection[0]));
+  const hi = nearestIndex(values, Number(selection[selection.length - 1]));
+  if (hi - lo <= most - 1) return;
+  const from = hi - (most - 1);
+  selection[0] = periods[from];
+  selection[selection.length - 1] = periods[hi];
+  const dates =
+    tl._buttonBehaviorCurrent === "ticks" ? periods : (tl.schema.ticks ?? []);
+  tl.schema.selection = [dates[from], dates[hi]].map(d =>
+    date(d as string | number),
+  );
+}
+
 /** Builds the d3-brush, computes the active selection, and mounts the brush group. */
 export function setupBrush(
   tl: Timeline,
@@ -256,6 +283,7 @@ export function setupBrush(
           : [tl.schema.selection];
 
   if (selection.length === 1) selection.push(selection[0]);
+  clampSelection(tl, selection, defaultData);
   tl._updateBrushLimit(selection);
 
   tl._brushGroup = elem("g.brushGroup", {parent: tl._group});
