@@ -118,10 +118,15 @@ export default class Plot extends Viz {
     });
 
     super._preDraw();
-    this._legendData = plotStackThresholdLegend(
-      this as unknown as VizInstance,
-      this._legendData,
-    );
+  }
+
+  /**
+      The legend rows with a stacked chart's threshold bucket folded into
+      one entry (see `stackThreshold.ts`).
+      @private
+*/
+  _thresholdLegend(legendData: DataPoint[]): DataPoint[] {
+    return plotStackThresholdLegend(this as unknown as VizInstance, legendData);
   }
 
   /**

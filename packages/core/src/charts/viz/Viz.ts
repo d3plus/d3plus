@@ -278,6 +278,16 @@ export default class Viz extends VizBase {
   }
 
   /**
+   * The legend rows with the chart's threshold bucket folded in, so the
+   * legend shows the bucket rather than the items it holds.
+   * @param {Array} legendData Every legend row, legend-hidden ones included.
+   * @private
+   */
+  _thresholdLegend(legendData: DataPoint[]): DataPoint[] {
+    return legendData;
+  }
+
+  /**
    * Detects width and height and sets SVG properties
    * @private
    */

@@ -491,3 +491,47 @@ it("stackThreshold: the legend shows a bucket entry, last, however many series i
     "other entries that merge several groups still hide it",
   );
 });
+
+it("stackThreshold: a lone small series makes no bucket", () => {
+  const lone = rows.filter(d => d.id !== "d");
+  assert.strictEqual(stackThresholdBucket(lone, inputs), null);
+  const chart = new StackedArea()
+    .data(lone)
+    .groupBy("id")
+    .x("year")
+    .y("value")
+    .threshold(0.05);
+  chart._preDraw();
+  assert.ok(!chart._filteredData.some(d => d._isAggregation));
+  assert.deepStrictEqual(
+    [...new Set(chart._legendData.map(d => chart._drawLabel(d)))],
+    ["a", "b", "c"],
+  );
+});
+
+it("stackThreshold: each bucket row lists its series' values there, and the legend row their totals", () => {
+  const bucket = stackThresholdBucket(rows, inputs);
+  const folded = foldStackRows(rows, bucket, {
+    ...inputs,
+    label: d => d.id.toUpperCase(),
+  });
+  assert.deepStrictEqual(
+    folded.filter(d => d._isAggregation).map(d => d.__d3plusMembers),
+    [
+      [
+        {label: "D", value: 2},
+        {label: "C", value: 1},
+      ],
+      [{label: "D", value: 2}],
+    ],
+  );
+  const legend = foldStackRows(rows, bucket, {
+    ...inputs,
+    position: [],
+    measure: d => d.value * 10,
+  });
+  assert.deepStrictEqual(legend.find(d => d._isAggregation).__d3plusMembers, [
+    {label: "d", value: 40},
+    {label: "c", value: 10},
+  ]);
+});

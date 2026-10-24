@@ -302,7 +302,8 @@ Defaults to an empty array (`[]`).
       The threshold value for bucketing small data points together, as a
       share of the total. On a stacked Plot, the series whose summed value
       across every position is under that share of the whole chart's total
-      merge into one series, stacked on top. Off (`0`) by default on Plot
+      merge into one series, stacked on top. A bucket needs at least two
+      items, and its tooltips list them. Off (`0`) by default on Plot
       charts.
 */
   threshold(

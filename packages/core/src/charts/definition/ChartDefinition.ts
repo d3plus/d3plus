@@ -73,7 +73,8 @@ interface ChartDefinitionBase {
       Optional pure threshold algorithm (replaces the base chart's
       `_thresholdFunction`): returns the drawn rows `data` with small items
       bucketed. `all` holds every row they were drawn from, legend-hidden
-      ones included.
+      ones included. The legend's rows run through it too, so the legend
+      shows the bucket rather than the items it holds.
   */
   thresholdFunction?: (
     viz: VizInstance,

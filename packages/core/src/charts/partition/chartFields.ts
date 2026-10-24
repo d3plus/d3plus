@@ -29,6 +29,7 @@ export function partitionThreshold(
     ) => DataPoint[keyof DataPoint])[],
     threshold: viz.schema.threshold as (branchData: DataPoint[]) => number,
     thresholdKey: viz.schema.thresholdKey as (d: DataPoint) => number,
+    label: (d: DataPoint, i: number) => viz._drawLabel(d, i),
   });
 }
 

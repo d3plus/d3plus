@@ -5,7 +5,7 @@
     The class is identical for every chart: its constructor runs
     `applyDefinition(this, def)`, its `_draw` runs the shared Viz pipeline
     then the chart's own layout stage via `runChartDraw`, and its
-    `_thresholdFunction` / `_sizeLegendScale` / `_insetRegion` /
+    `_thresholdFunction` / `_thresholdLegend` / `_sizeLegendScale` / `_insetRegion` /
     `_colorScaleShape` delegate to `def.thresholdFunction` /
     `def.sizeLegendScale` / `def.insetRegion` / `def.colorScaleShape` if
     present (else to the base chart's), `_facetHooks` layers `def.facet` over the base chart's, and
@@ -87,6 +87,16 @@ export function makeChart(def: ChartDefinition, Base: VizCtor = Viz): VizCtor {
       return def.facet
         ? {...super._facetHooks(), ...def.facet}
         : super._facetHooks();
+    }
+
+    _thresholdLegend(legendData: unknown[]) {
+      return def.thresholdFunction
+        ? def.thresholdFunction(
+            this as unknown as VizInstance,
+            legendData,
+            legendData,
+          )
+        : super._thresholdLegend(legendData);
     }
 
     _thresholdFunction(data: unknown[], tree?: unknown, all?: unknown[]) {

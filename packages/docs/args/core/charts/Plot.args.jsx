@@ -812,7 +812,7 @@ export const argTypes = assign(
         type: "number",
       },
       description:
-        "The threshold value for bucketing small data points together, as a\nshare of the total. On a stacked Plot, the series whose summed value\nacross every position is under that share of the whole chart's total\nmerge into one series, stacked on top. Off (`0`) by default on Plot\ncharts.",
+        "The threshold value for bucketing small data points together, as a\nshare of the total. On a stacked Plot, the series whose summed value\nacross every position is under that share of the whole chart's total\nmerge into one series, stacked on top. A bucket needs at least two\nitems, and its tooltips list them. Off (`0`) by default on Plot\ncharts.",
       table: {
         defaultValue: {
           summary: "undefined",

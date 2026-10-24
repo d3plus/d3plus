@@ -3,7 +3,7 @@
     onto the viz:
       1. `_drawDepth` and the `_id` / `_ids` / `_drawLabel` closures;
       2. `_filteredData` (time filter, `filter`, rollup, hide/solo, then the
-         chart's `_thresholdFunction`) and `_legendData`;
+         chart's `_thresholdFunction`) and `_legendData` (through `_thresholdLegend`);
       3. the hover/duration override past `dataCutoff`;
     and mounts the no-data message when nothing is left to draw.
 
@@ -230,6 +230,8 @@ export function vizPreDraw(viz: Viz): void {
       out._thresholdTree,
       viz._thresholdRows,
     );
+    if (viz._thresholdLegend && out.legendData)
+      viz._legendData = viz._thresholdLegend(out.legendData);
   }
   viz._filteredData = filteredData;
 

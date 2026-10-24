@@ -26,7 +26,7 @@ Object.entries(sizes).forEach(([id, base], s) => {
     // Golf has no 2018 row: the bucket keeps one band anyway.
     if (id === "Golf" && year === 2018) continue;
     data.push({
-      parent: s < 3 ? "Top" : "Rest",
+      parent: s < 3 ? "Top" : s < 6 ? "Mid" : "Low",
       id,
       year,
       value: +(base * (1 + 0.15 * Math.sin(year + s))).toFixed(2),
@@ -34,6 +34,32 @@ Object.entries(sizes).forEach(([id, base], s) => {
   }
 });
 const BUCKET = "Fox,Golf,Hotel,India,Juliet";
+const SMALL = BUCKET.split(",");
+
+/** The bucket's series at `year` (or over every year), largest first. */
+function membersAt(year) {
+  const totals = new Map();
+  data
+    .filter(
+      d => SMALL.includes(d.id) && (year === undefined || d.year === year),
+    )
+    .forEach(d => totals.set(d.id, (totals.get(d.id) ?? 0) + d.value));
+  return [...totals].sort((a, b) => b[1] - a[1]).map(([id]) => id);
+}
+
+/** Asserts the tooltip lists `names`, one per row, in that order. */
+function assertListed(tooltip, names) {
+  // A name ends its cell: a tab before its value, or a line break after a
+  // swatch-led name.
+  const at = names.map(n => {
+    const tab = tooltip.indexOf(`${n}\t`);
+    return tab >= 0 ? tab : tooltip.indexOf(`${n}\n\t`);
+  });
+  assert.ok(
+    at.every((p, i) => p >= 0 && (i === 0 || p > at[i - 1])),
+    `members ${names} in order: ${JSON.stringify(tooltip)}`,
+  );
+}
 
 /** Opens a page with the chart rendered into #viz, kept as `window.__viz`. */
 async function chart(renderer, calls = []) {
@@ -108,7 +134,7 @@ function painted(page) {
       labels: legend.data().map((d, i) => legend.label()(d, i)),
       entry,
       band,
-      tooltip: document.querySelector(".d3plus-tooltip")?.textContent ?? "",
+      tooltip: document.querySelector(".d3plus-tooltip")?.innerText ?? "",
     };
   }, BUCKET);
 }
@@ -181,16 +207,60 @@ for (const renderer of ["svg", "canvas"]) {
     }
   });
 
-  it(`StackedArea threshold: hovering the bucket band names it in the tooltip (${renderer})`, async () => {
+  it(`StackedArea threshold: the bucket band's tooltip lists its series' values there (${renderer})`, async () => {
     const {page, close} = await chart(renderer, [["tooltipShared", false]]);
     try {
       const {band} = await painted(page);
       await moveTo(page, [band[0], band[1] - 1]);
+      const {tooltip} = await painted(page);
+      assert.ok(tooltip.includes("Values < 5%"), `tooltip: ${tooltip}`);
+      // The band's 8th point is 2022 (Golf skips 2018 only).
+      assertListed(tooltip, ["Share", ...membersAt(2022)]);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`StackedArea threshold: the shared tooltip lists the bucket's series under its row (${renderer})`, async () => {
+    const {page, close} = await chart(renderer);
+    try {
+      const {band} = await painted(page);
+      await moveTo(page, [band[0], band[1] - 1]);
+      const {tooltip} = await painted(page);
+      assertListed(tooltip, ["Echo", "Values < 5%", ...membersAt(2022)]);
+    } finally {
+      await close();
+    }
+  });
+
+  it(`StackedArea threshold: the legend entry's tooltip lists each series' total (${renderer})`, async () => {
+    const {page, close} = await chart(renderer);
+    try {
+      const {entry} = await painted(page);
+      await moveTo(page, entry);
+      const {tooltip} = await painted(page);
+      assert.ok(tooltip.includes("Values < 5%"), `tooltip: ${tooltip}`);
+      assertListed(tooltip, membersAt());
+    } finally {
+      await close();
+    }
+  });
+
+  it(`StackedArea threshold: a lone small series is not grouped (${renderer})`, async () => {
+    const lone = data.filter(d => !SMALL.slice(1).includes(d.id));
+    const {page, close} = await chart(renderer, [["data", lone]]);
+    try {
       const result = await painted(page);
-      assert.ok(
-        result.tooltip.includes("Values < 5%"),
-        `tooltip: ${result.tooltip}`,
-      );
+      assert.deepStrictEqual(result.bands.map(b => b.key).sort(), [
+        "Alpha",
+        "Bravo",
+        "Charlie",
+        "Delta",
+        "Echo",
+        "Fox",
+      ]);
+      assert.ok(result.labels.includes("Fox"), "Fox keeps its legend entry");
+      assert.ok(!result.labels.some(l => l.startsWith("Values")));
     } finally {
       await close();
     }
@@ -224,7 +294,7 @@ it("StackedArea threshold: clicking the bucket opens onto the groups it holds", 
         }),
     );
     const opened = await labels();
-    assert.ok(opened.includes("Delta"), `opened onto Rest: ${opened}`);
+    assert.ok(opened.includes("Delta"), `opened onto Mid and Low: ${opened}`);
     assert.ok(!opened.includes("Alpha"), "Top's series stay out");
   } finally {
     await close();

@@ -252,7 +252,7 @@ GroupingSmallSeries.parameters = {
   docs: {
     description: {
       story:
-        'Set `threshold` to merge the series too small to read into one band. Each series whose summed value, across every year, is under that share of the whole chart\'s total (here 5%) joins the bucket, so a series is in it at every year or at none. The bucket stacks on top, labelled by `thresholdName` ("Values < 5%"), with one legend entry that highlights and hides it.',
+        'Set `threshold` to merge the series too small to read into one band. Each series whose summed value, across every year, is under that share of the whole chart\'s total (here 5%) joins the bucket, so a series is in it at every year or at none. The bucket stacks on top, labelled by `thresholdName` ("Values < 5%"), with one legend entry that highlights and hides it. Its tooltips list the series it holds with their values, and a lone small series is never grouped.',
     },
   },
 };

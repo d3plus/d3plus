@@ -158,6 +158,8 @@ export interface VizInstance {
       small-multiple panels), legend-hidden ones included.
   */
   _thresholdRows?: DataPoint[];
+  /** Formats a threshold bucket member's value in tooltips (default: abbreviated). */
+  _thresholdMemberFormat?: (value: number) => string;
   _hidden: (string | number)[];
   _solo: (string | number)[];
   /**
@@ -599,6 +601,7 @@ export interface VizInstance {
   _drawSceneToTarget(durationOverride?: number): void;
   _scheduleSceneRepaint(): void;
   _sceneRepaintRAF?: number;
+  _thresholdLegend?(legendData: DataPoint[]): DataPoint[];
   _thresholdFunction?(
     data: DataPoint[],
     tree?: unknown,

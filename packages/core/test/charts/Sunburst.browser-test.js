@@ -446,28 +446,49 @@ it("Sunburst: renders on Canvas and hit-tests a real click into a zoom", async f
   assert.strictEqual(out.center, 0, "Frontend is the center disc");
 });
 
-it("Sunburst: buckets the leaves under the threshold into one arc per parent", async function () {
+it("Sunburst: leaves a lone leaf under the threshold as itself", async function () {
   const out = await page(async () => {
     const chart = await window.build({
       config: {threshold: 0.05, thresholdName: "Files"},
+    });
+    return window
+      .arcs(chart)
+      .filter(n => n.datum && n.datum._isAggregation)
+      .map(n => n.key);
+  });
+  assert.deepStrictEqual(
+    out,
+    [],
+    "Button, Email, and Theming (<5%) are each alone in their module",
+  );
+});
+
+it("Sunburst: buckets the leaves under the threshold into one arc per parent", async function () {
+  const out = await page(async () => {
+    const chart = await window.build({
+      groupBy: ["area", "file"],
+      config: {threshold: 0.08, thresholdName: "Files"},
     });
     const buckets = window
       .arcs(chart)
       .filter(n => n.datum && n.datum._isAggregation);
     return {
-      buckets: buckets.map(n => n.key),
+      buckets: buckets.length,
       label: buckets.length ? chart._drawLabel(buckets[0].datum, 0) : "",
-      jobs: window.arcFor(chart, ["Backend", "Jobs"]).datum._isAggregation,
+      members: buckets.length
+        ? buckets[0].datum.__d3plusMembers.map(m => [m.label, m.value])
+        : [],
+      frontend: window.arcFor(chart, ["Frontend"]).datum._isAggregation,
     };
   });
+  assert.strictEqual(out.buckets, 1, "Button and Settings (<8%) share one");
+  assert.ok(out.label.startsWith("Files < 8"), out.label);
+  assert.deepStrictEqual(out.members, [
+    ["Settings", 180],
+    ["Button", 120],
+  ]);
   assert.strictEqual(
-    out.buckets.length,
-    3,
-    "Button, Email, and Theming (<5%) each bucket within their own module",
-  );
-  assert.ok(out.label.startsWith("Files < 5"), out.label);
-  assert.strictEqual(
-    out.jobs,
+    out.frontend,
     undefined,
     "the bucket's parent is not itself a bucket",
   );

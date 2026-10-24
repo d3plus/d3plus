@@ -5,7 +5,7 @@
     <title>Threshold</title>
     <meta
       name="description"
-      content="StackedArea and stacked BarChart with threshold: series under 5% of the chart's total fold into one band, plus a drillable bucket."
+      content="StackedArea and stacked BarChart with threshold: series under 5% of the chart's total fold into one band that lists them in its tooltips, plus a drillable bucket and a lone small series left as itself."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -26,6 +26,7 @@
     <div id="area" class="viz"></div>
     <div id="bars" class="viz"></div>
     <div id="nested" class="viz"></div>
+    <div id="lone" class="viz"></div>
   </body>
 
   <script>
@@ -86,6 +87,21 @@
       .y("value")
       .title("Nested groupBy, threshold 45%: click the bucket")
       .threshold(0.45)
+      .render();
+
+    // Only Fox is under 5%: a bucket needs two series, so it stays as itself.
+    new d3plus.StackedArea()
+      .select("#lone")
+      .data(
+        data.filter(function (d) {
+          return ["Golf", "Hotel", "India", "Juliet"].indexOf(d.id) < 0;
+        }),
+      )
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .title("One series under 5%: not grouped")
+      .threshold(0.05)
       .render();
   </script>
 </html>

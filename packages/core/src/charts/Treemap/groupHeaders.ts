@@ -16,6 +16,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import {stampShare} from "../features/shareKey.js";
 import {GROUP_DEPTH_KEY, GROUP_LABEL_KEY} from "../viz/groupRow.js";
+import {MEMBERS_KEY} from "../features/thresholdMembers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Accessor<T> = T | ((d: DataPoint, i: number) => T);
@@ -150,6 +151,7 @@ export function attachGroupHeaders(
     // A group holding the threshold bucket is still a real group.
     delete data._isAggregation;
     delete data._threshold;
+    delete data[MEMBERS_KEY];
     data[GROUP_DEPTH_KEY] = node.depth - 1;
     const text = opts.label ? opts.label(data, 0) : undefined;
     if (text !== undefined && text !== null && text !== false && text !== "")

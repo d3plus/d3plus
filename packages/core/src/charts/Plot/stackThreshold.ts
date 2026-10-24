@@ -7,6 +7,10 @@
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
+import {
+  MEMBERS_KEY,
+  thresholdMemberList,
+} from "../features/thresholdMembers.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 type Accessor = (d: DataPoint, i: number) => unknown;
@@ -24,6 +28,10 @@ export interface StackThresholdInputs {
   threshold: (rows: DataPoint[]) => number;
   /** The value a row adds to its series' total. */
   value: Accessor;
+  /** Names a series in the bucket's member list (default: its id). */
+  label?: Accessor;
+  /** The value a member lists in tooltips (default: `value`). */
+  measure?: Accessor;
 }
 
 /** The series one bucket folds together. */
@@ -86,7 +94,8 @@ export function seriesIdentity(
 /**
     The bucket for `rows`: the series whose summed absolute `value` is under
     `threshold` of the summed absolute value of every row. Null when the
-    threshold is off (0 or not a number) or no series falls under it.
+    threshold is off (0 or not a number) or fewer than two series fall
+    under it: a lone small series stays as itself.
 */
 export function stackThresholdBucket(
   rows: DataPoint[],
@@ -114,7 +123,7 @@ export function stackThresholdBucket(
   totals.forEach((total, key) => {
     if (total < percent * grand) members.add(key);
   });
-  if (!members.size) return null;
+  if (members.size < 2) return null;
 
   const identity = seriesIdentity(
     Array.from(members, key => series.get(key)!),
@@ -127,15 +136,21 @@ export function stackThresholdBucket(
 /**
     Replaces the rows of the bucket's series with one bucket row per
     position: their merged values at that position, the bucket's
-    series-level fields, and the `_isAggregation` / `_threshold` flags the
-    threshold label reads. The bucket rows come after every kept row.
+    series-level fields, the `_isAggregation` / `_threshold` flags the
+    threshold label reads, and its series' values there (largest first,
+    under `MEMBERS_KEY`). The bucket rows come after every kept row.
 */
 export function foldStackRows(
   rows: DataPoint[],
   bucket: StackThresholdBucket,
-  inputs: Pick<StackThresholdInputs, "aggs" | "id" | "position">,
+  inputs: Pick<
+    StackThresholdInputs,
+    "aggs" | "id" | "label" | "measure" | "position" | "value"
+  >,
 ): DataPoint[] {
   const {aggs, id, position} = inputs;
+  const label = inputs.label ?? id;
+  const measure = inputs.measure ?? inputs.value;
   const kept: DataPoint[] = [];
   const folded = new Map<string, DataPoint[]>();
   rows.forEach((d, i) => {
@@ -163,7 +178,8 @@ export function foldStackRows(
       ...bucket.identity,
       _isAggregation: true,
       _threshold: bucket.percent,
-    } as DataPoint;
+      [MEMBERS_KEY]: thresholdMemberList(group, id, label, measure),
+    } as unknown as DataPoint;
   });
   return kept.concat(merged);
 }
@@ -177,6 +193,8 @@ export function plotStackInputs(viz: VizInstance): StackThresholdInputs {
   return {
     aggs: viz.schema.aggs as Aggs,
     id: viz._id as Accessor,
+    label: viz._drawLabel as Accessor,
+    measure: viz[`_${opp}`] as Accessor,
     position,
     threshold: viz.schema.threshold as (rows: DataPoint[]) => number,
     value: (viz.schema.thresholdKey ?? viz[`_${opp}`]) as Accessor,

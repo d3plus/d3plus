@@ -1513,6 +1513,8 @@ export interface D3plusConfig {
       BarChart, or LinePlot with `stacked`), the series whose summed value
       across every position is under that share of the whole chart's total
       merge into one series, labelled by `thresholdName` and stacked on top.
+      A bucket needs at least two items (a lone small item stays as
+      itself), and its tooltips list the items it holds with their values.
       Off by default on Plot charts.
   */
   threshold?: number;
