@@ -73,6 +73,15 @@ function menuState(page) {
   });
 }
 
+/**
+ * Sorts saved files by name: rasterized formats finish asynchronously, so
+ * saves started back to back can land in any order.
+ * @param {Object[]} files
+ */
+function byName(files) {
+  return files.slice().sort((a, b) => a.name.localeCompare(b.name));
+}
+
 /** Waits for `count` downloads and reads each file's name, type, and (SVG) text. */
 function downloads(page, count) {
   return page.evaluate(async count => {
@@ -208,20 +217,20 @@ it("each menu item saves its format under the chart's title, without the control
       await click(page, "#viz .save-toggle");
       await click(page, `#viz .save-menu-item[data-format="${format}"]`);
     }
-    const files = await downloads(page, 3);
+    const files = byName(await downloads(page, 3));
     assert.deepStrictEqual(
       files.map(f => [f.name, f.type]),
       [
-        ["Fruit sales.svg", "image/svg+xml;charset=utf-8"],
-        ["Fruit sales.png", "image/png"],
         ["Fruit sales.jpg", "image/jpeg"],
+        ["Fruit sales.png", "image/png"],
+        ["Fruit sales.svg", "image/svg+xml;charset=utf-8"],
       ],
     );
     assert.ok(
       files.every(f => f.size > 1000),
       "every file has content",
     );
-    const svg = files[0].text;
+    const svg = files[2].text;
     assert.ok(svg.startsWith("<svg"), "a plain svg root");
     assert.ok(svg.includes("Apple"), "the chart's labels are saved");
     assert.ok(svg.includes("d3plus-save-background"), "with a background");
@@ -284,19 +293,19 @@ it("a Canvas chart saves its canvas as PNG and its scene as SVG", async function
       await click(page, "#viz .save-toggle");
       await click(page, `#viz .save-menu-item[data-format="${format}"]`);
     }
-    const files = await downloads(page, 2);
+    const files = byName(await downloads(page, 2));
     assert.deepStrictEqual(
       files.map(f => [f.name, f.type]),
       [
-        ["Canvas fruit.svg", "image/svg+xml;charset=utf-8"],
         ["Canvas fruit.png", "image/png"],
+        ["Canvas fruit.svg", "image/svg+xml;charset=utf-8"],
       ],
     );
-    const svg = files[0].text;
+    const svg = files[1].text;
     assert.ok(svg.includes("<rect"), "the scene is re-rendered as svg shapes");
     assert.ok(svg.includes("Banana"), "with its labels");
     assert.ok(!svg.includes("save-toggle"), "and no controls");
-    assert.ok(files[1].size > 1000);
+    assert.ok(files[0].size > 1000);
   } finally {
     await close();
   }
