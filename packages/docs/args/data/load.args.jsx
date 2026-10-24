@@ -6,7 +6,8 @@ import React from "react";
 export const argTypes = {
   callback: {
     control: {},
-    description: "Optional function called with the error and loaded data.",
+    description:
+      "Optional function called with the error and loaded data. Without one, a failed request is logged to the console.",
     table: {
       defaultValue: {
         summary: "undefined",

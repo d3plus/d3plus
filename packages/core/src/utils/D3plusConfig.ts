@@ -846,6 +846,10 @@ export interface D3plusConfig {
   /** Maximum number of data points to render before downsampling. */
   dataCutoff?: number;
   /**
+      When `data` is loaded from a URL (or a request object, or an Array holding one), re-fetches it every this many milliseconds and redraws with a transition when it changes, keeping hover, zoom, legend toggles, and the timeline selection. Each poll uses the same request and `data` formatter as the first load, and a response identical to the drawn data is not redrawn. Polling waits while the browser tab is hidden or, with `detectVisible`, while the chart is scrolled out of view, and catches up as soon as it is visible again. A failed request keeps the last data, logs one warning per run of failures, and tries again on the next tick. `destroy()`, setting this to `false`, or passing new `data` stops polling. Only `data` is polled, not `links`, `nodes`, or `topojson`. Defaults to `false` (load once).
+  */
+  dataPollingInterval?: number | false;
+  /**
       Calendar: the day each row falls on, as a data key or accessor returning
       a `Date`, a millisecond timestamp, or a date string (a bare
       `"YYYY-MM-DD"` is read as that local day). Defaults to the row's `date`,

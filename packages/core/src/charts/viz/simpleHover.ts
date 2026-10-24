@@ -6,9 +6,11 @@ import type {VizInstance} from "./vizTypes.js";
     (Chord, Network, Rings, Sankey): stores the predicate, hands it to the
     legend, schedules a repaint so the scene's interaction-opacity pass
     re-reads it, and broadcasts it to linked charts.
+    With no argument, returns the current predicate.
     @param _ The hover predicate, or `false` to clear it.
 */
-export function simpleHover(this: VizInstance, _: unknown): VizInstance {
+export function simpleHover(this: VizInstance, _?: unknown): unknown {
+  if (!arguments.length) return this._hover;
   this._hover = _ as VizInstance["_hover"];
   if (this.schema.legend && this._legendClass) this._legendClass.hover(_);
   if (this._sceneRenderer) this._scheduleSceneRepaint();

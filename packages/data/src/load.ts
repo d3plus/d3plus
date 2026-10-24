@@ -129,7 +129,7 @@ function applyFormatter(
   @param path The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped.
   @param formatter Optional function to transform the loaded data.
   @param key The key in the `this` context to save the resulting data to.
-  @param callback Optional function called with the error and loaded data.
+  @param callback Optional function called with the error and loaded data. Without one, a failed request is logged to the console.
 */
 export default function (
   this: VizContext,
@@ -195,8 +195,8 @@ export default function (
         }
       })
       .catch((err: Error) => {
-        console.error(err);
         if (callback) callback(err, undefined);
+        else console.error(err);
       });
   });
 

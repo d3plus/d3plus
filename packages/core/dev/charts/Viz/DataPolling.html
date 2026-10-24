@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>DataPolling · Viz</title>
+    <meta
+      name="description"
+      content="A BarChart re-fetching its data URL every 2 seconds with dataPollingInterval, from an in-page endpoint whose values change on each request."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+        padding: 16px;
+      }
+      #controls {
+        align-items: center;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-bottom: 8px;
+      }
+      #viz {
+        height: 400px;
+        max-width: 800px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="controls">
+      <button id="toggle">Stop polling</button>
+      <label><input type="checkbox" id="fail" /> Fail requests</label>
+      <span id="status"></span>
+    </div>
+    <div id="viz"></div>
+
+    <script>
+      // A static page can't serve changing data, so this stub answers
+      // "live/sales.json" itself: each request returns the next reading.
+      const url = "live/sales.json";
+      const regions = ["North", "South", "East", "West"];
+      let requests = 0;
+      let failing = false;
+      const nativeFetch = window.fetch.bind(window);
+      window.fetch = (input, init) => {
+        if (!String(input).endsWith(url)) return nativeFetch(input, init);
+        requests++;
+        document.getElementById("status").textContent = `Requests: ${requests}`;
+        if (failing)
+          return Promise.resolve(new Response("down", {status: 503}));
+        const rows = regions.map((region, i) => ({
+          region,
+          sales: Math.round(50 + 40 * Math.sin(requests * 0.7 + i * 1.7)),
+        }));
+        return Promise.resolve(new Response(JSON.stringify(rows)));
+      };
+
+      const viz = new d3plus.BarChart()
+        .select("#viz")
+        .data(url)
+        .groupBy("region")
+        .x("region")
+        .y("sales")
+        .title("Sales by region (refreshes every 2 seconds)")
+        .dataPollingInterval(2000)
+        .render();
+
+      let polling = true;
+      document.getElementById("toggle").addEventListener("click", e => {
+        polling = !polling;
+        viz.dataPollingInterval(polling ? 2000 : false);
+        e.target.textContent = polling ? "Stop polling" : "Start polling";
+      });
+      document.getElementById("fail").addEventListener("change", e => {
+        failing = e.target.checked;
+      });
+    </script>
+  </body>
+</html>

@@ -15,6 +15,7 @@ import {
   observeVisibility,
   syncUnloadObserver,
 } from "./vizVisibility.js";
+import {recordDataSignature, syncDataPolling} from "./vizDataPolling.js";
 
 /**
     Whether the chart counts as on-screen for this render. `_forceVisible` is set
@@ -266,8 +267,9 @@ function queuePromises(viz: Viz): Promise<void>[] {
       if (!cache) {
         promises.push(
           new Promise<void>(resolve => {
-            p[0](p[1], p[2], p[3], (err: unknown) => {
+            p[0](p[1], p[2], p[3], (err: unknown, data: unknown) => {
               if (err) console.error(err);
+              else if (p[3] === "data") recordDataSignature(viz, data);
               resolve();
             });
           }),
@@ -346,6 +348,7 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   runVizPipeline(viz as unknown as VizInstance);
   viz._instantNextDraw = false;
   syncUnloadObserver(viz);
+  syncDataPolling(viz);
 
   if (
     viz._messageClass._isVisible &&

@@ -131,7 +131,7 @@ Loads data from a filepath or URL, converts it to a valid JSON object, and retur
 | `path`       | `string` \| [`DataPoint`](#datapoint)[] \| (`string` \| [`DataPoint`](#datapoint)[] \| `LoadRequestConfig`)[]                              | The path to the file or url to be loaded. Also support array of paths strings. If an Array of objects is passed, the xhr request logic is skipped. |
 | `formatter?` | `DataFormatter`                                                                                                                            | Optional function to transform the loaded data.                                                                                                    |
 | `key?`       | `string`                                                                                                                                   | The key in the `this` context to save the resulting data to.                                                                                       |
-| `callback?`  | (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void` | Optional function called with the error and loaded data.                                                                                           |
+| `callback?`  | (`error`: `Error` \| `null` \| `undefined`, `data`: [`DataPoint`](#datapoint)[] \| [`DataPoint`](#datapoint)[][] \| `undefined`) => `void` | Optional function called with the error and loaded data. Without one, a failed request is logged to the console.                                   |
 
 #### Returns
 

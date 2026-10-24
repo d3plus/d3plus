@@ -2,6 +2,8 @@ import type {ConfigField} from "../../fluent.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import accessor from "../../utils/accessor.js";
 import {registerLink} from "./linkGroup.js";
+import {onDataPollingIntervalSet} from "./vizDataPolling.js";
+import type Viz from "./Viz.js";
 import type {VizInstance} from "./vizTypes.js";
 
 /** A falsy value (no color) is stored as given, a key string read from each datum. */
@@ -34,6 +36,10 @@ const fields = {
   colorScalePadding: {coerce: "const"},
   colorScalePosition: {coerce: "const"},
   dataCutoff: {},
+  dataPollingInterval: {
+    onSet: (viz: VizInstance) =>
+      onDataPollingIntervalSet(viz as unknown as Viz),
+  },
   depth: {},
   detectResize: {},
   detectResizeDelay: {},

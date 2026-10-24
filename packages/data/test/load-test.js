@@ -191,13 +191,13 @@ it("load: with caching on, the loaded result is cached by key and URL", async ()
   );
 });
 
-it("load: a failed fetch logs the error and hands it to the callback", async () => {
+it("load: a failed fetch hands the error to the callback without logging it", async () => {
   stubFetch();
   const logged = vi.spyOn(console, "error").mockImplementation(() => {});
   const [error, data] = await run(context(), "missing.json");
   assert.ok(error instanceof Error);
   assert.strictEqual(data, undefined);
-  assert.strictEqual(logged.mock.calls.length, 1);
+  assert.strictEqual(logged.mock.calls.length, 0);
 });
 
 it("load: without a callback, arrays and fetched URLs still store their data", async () => {
