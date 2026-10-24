@@ -199,3 +199,48 @@ it("load: a failed fetch logs the error and hands it to the callback", async () 
   assert.strictEqual(data, undefined);
   assert.strictEqual(logged.mock.calls.length, 1);
 });
+
+it("load: without a callback, arrays and fetched URLs still store their data", async () => {
+  const ctx = context({_data: []});
+  const rows = [{id: "a"}];
+  load.call(ctx, rows, undefined, "data");
+  assert.deepStrictEqual(ctx._data, rows, "array stored with no callback");
+
+  stubFetch();
+  const fetched = context({_data: []});
+  load.call(fetched, "rows.json", undefined, "data");
+  await vi.waitFor(() => assert.strictEqual(fetched._data.length, 1));
+});
+
+it("load: without a key, nothing is stored and the callback still gets the data", async () => {
+  const ctx = context();
+  const [, data] = await run(ctx, [{id: "a"}]);
+  assert.deepStrictEqual(data, [{id: "a"}]);
+  assert.ok(!("_undefined" in ctx));
+});
+
+it("load: a key with no slot or schema on the context stores nothing", async () => {
+  stubFetch();
+  const ctx = context();
+  const [, data] = await run(ctx, "rows.json", undefined, "nodes");
+  assert.strictEqual(data.length, 1);
+  assert.ok(!("_nodes" in ctx) && !("schema" in ctx));
+});
+
+it("load: a formatter that returns nothing yields an empty array", async () => {
+  stubFetch();
+  const [, data] = await run(
+    context({schema: {}}),
+    "rows.json",
+    () => undefined,
+    "links",
+  );
+  assert.deepStrictEqual(data, []);
+});
+
+it("load: a failed fetch without a callback only logs the error", async () => {
+  stubFetch();
+  const logged = vi.spyOn(console, "error").mockImplementation(() => {});
+  load.call(context(), "missing.json");
+  await vi.waitFor(() => assert.strictEqual(logged.mock.calls.length, 1));
+});
