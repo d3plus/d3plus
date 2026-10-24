@@ -476,6 +476,22 @@ export type ConfidenceBandSetting =
   | [ConfidenceBound, ConfidenceBound, string]
   | {lower?: ConfidenceBound; upper?: ConfidenceBound; label?: string};
 
+/** A file type the top-left download button can save the chart as. */
+export type SaveFormat = "png" | "svg" | "jpg";
+
+export interface SaveControlConfig {
+  /** The saved file's name, without its extension. Defaults to the chart's title, or `"download"` when it has none. */
+  filename?: string;
+  /** The file types offered, in menu order. With a single format, the button saves that format in one click, with no menu. Defaults to `["png", "svg", "jpg"]`. */
+  formats?: SaveFormat[];
+  /** The color painted behind the chart. Defaults to the page color behind the chart, so a JPG never comes out black. `false` leaves PNG and SVG files transparent. */
+  background?: string | false;
+  /** Called once the file is handed to the browser, or with the `Error` when the chart could not be saved. Without it, errors are logged to the console. */
+  callback?: (error?: Error) => void;
+  /** Other options are passed to html-to-image when saving a PNG or JPG, such as `pixelRatio` or `quality`. */
+  [key: string]: unknown;
+}
+
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
@@ -1234,6 +1250,42 @@ export interface D3plusConfig {
   radialScale?: "sqrt" | "linear";
   /** Row key for matrix-style layouts. */
   row?: string;
+  /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */
+  saveControl?: boolean;
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the download button, alongside the fixed `save-control`/`save-toggle` classes. Setting this automatically disables d3plus's built-in inline `saveControlStyle`/`saveControlStyleActive`/`saveControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.
+  */
+  saveControlClassName?: string;
+  /** Options for the download button: the saved file's `filename`, the `formats` it offers, the `background` painted behind the chart, a `callback`, and html-to-image options for PNG and JPG files. */
+  saveControlConfig?: SaveControlConfig;
+  /**
+      An additional CSS class name (or space-separated list of class names) applied to the download menu, alongside its fixed `d3plus-save-menu` class (each item has the fixed `save-menu-item` class). Setting this automatically disables d3plus's built-in inline `saveControlMenuStyle`/`saveControlMenuItemStyle`/`saveControlMenuItemStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own menu styling applies through the cascade. The menu's position and open/closed display stay inline.
+  */
+  saveControlMenuClassName?: string;
+  /**
+      An object containing CSS key/value pairs that is used to style each item in the download menu. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlMenuItemStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the download menu item under the pointer or keyboard focus. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlMenuItemStyleHover?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the download menu: its background, border, shadow, and spacing. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlMenuStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the download button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlStyle?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the download button while its menu is open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlStyleActive?: Record<string, unknown> | false;
+  /**
+      An object containing CSS key/value pairs that is used to style the download button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.
+  */
+  saveControlStyleHover?: Record<string, unknown> | false;
   /**
       If using scroll or visibility detection, this method allow a custom override of the element to which the scroll detection function gets attached.
   */

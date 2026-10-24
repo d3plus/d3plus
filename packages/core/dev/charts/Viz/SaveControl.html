@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SaveControl · Viz</title>
+    <meta
+      name="description"
+      content="Top-left download button: PNG/SVG/JPG menu, single-format button, filename, background, locale, menu theming and opting out."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+        padding: 24px;
+      }
+
+      .viz {
+        width: 400px;
+        height: 300px;
+        border: 1px solid #ddd;
+      }
+
+      #dark {
+        background: #1e1e24;
+      }
+
+      .dark-menu {
+        background: #222;
+        color: #eee;
+        border-radius: 6px;
+        padding: 4px;
+      }
+
+      .dark-menu .save-menu-item {
+        background: none;
+        border: 0;
+        border-radius: 4px;
+        color: inherit;
+        font: 13px sans-serif;
+        padding: 6px 12px;
+      }
+
+      .dark-menu .save-menu-item:focus {
+        background: #444;
+        outline: none;
+      }
+
+      #log {
+        width: 400px;
+        font:
+          12px/1.6 ui-monospace,
+          monospace;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="default"></div>
+    <div class="viz" id="single"></div>
+    <div class="viz" id="config"></div>
+    <div class="viz" id="dark"></div>
+    <div class="viz" id="locale"></div>
+    <div class="viz" id="off"></div>
+    <div class="viz" id="themed"></div>
+    <div id="log">Saved files are logged here.</div>
+  </body>
+
+  <script>
+    var data = [
+      {parent: "Fruit", id: "Apple", value: 29, growth: 0.12},
+      {parent: "Fruit", id: "Banana", value: 10, growth: -0.04},
+      {parent: "Fruit", id: "Cherry", value: 6, growth: 0.2},
+      {parent: "Vegetable", id: "Carrot", value: 21, growth: 0.05},
+      {parent: "Vegetable", id: "Leek", value: 14, growth: -0.1},
+      {parent: "Vegetable", id: "Pea", value: 8, growth: 0.01},
+    ];
+
+    function log(message) {
+      var el = document.getElementById("log");
+      el.textContent += "\n" + message;
+    }
+
+    // The download button sits top-left, beside table view and search. Its
+    // menu saves the chart (title, legend and all) as PNG, SVG or JPG, named
+    // after the title.
+    new d3plus.Treemap()
+      .select("#default")
+      .title("Produce sales")
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+
+    // One format: the button saves it in one click, with no menu.
+    new d3plus.BarChart()
+      .select("#single")
+      .title("SVG only")
+      .data(data)
+      .groupBy("id")
+      .x("id")
+      .y("value")
+      .saveControlConfig({formats: ["svg"]})
+      .render();
+
+    // A fixed filename, a background color, a callback and an html-to-image
+    // option (pixelRatio) for the raster formats. On Canvas, a pixelRatio
+    // above the screen's draws the image from the scene re-rendered as SVG.
+    new d3plus.Treemap()
+      .select("#config")
+      .title("Custom filename and background")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .colorScale("growth")
+      .saveControlConfig({
+        filename: "produce-growth",
+        background: "#fff8e7",
+        pixelRatio: 2,
+        callback: function (error) {
+          log(error ? "error: " + error.message : "saved produce-growth");
+        },
+      })
+      .render();
+
+    // On a dark page the saved file keeps the dark background, so its light
+    // text stays readable.
+    new d3plus.Pie()
+      .select("#dark")
+      .title("Dark page")
+      .data(data)
+      .groupBy("id")
+      .value("value")
+      .render();
+
+    // The button's label and menu items are translated.
+    new d3plus.Treemap()
+      .select("#locale")
+      .locale("es-ES")
+      .title("Ventas")
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+
+    // Opting out removes just the download button.
+    new d3plus.Treemap()
+      .select("#off")
+      .title("saveControl(false)")
+      .saveControl(false)
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+
+    // The menu themed by the page's own CSS: a class name drops the inline
+    // menu styles.
+    new d3plus.Treemap()
+      .select("#themed")
+      .title("Themed menu")
+      .saveControlMenuClassName("dark-menu")
+      .data(data)
+      .groupBy(["parent", "id"])
+      .sum("value")
+      .render();
+  </script>
+</html>

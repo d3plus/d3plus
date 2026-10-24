@@ -27,6 +27,7 @@ export interface TranslationStrings {
   Forecast: string;
   High: string;
   Increase: string;
+  "JPG image": string;
   Linear: string;
   "Loading Visualization": string;
   Logarithmic: string;
@@ -47,6 +48,7 @@ export interface TranslationStrings {
   "of previous": string;
   Open: string;
   "Percent of Total": string;
+  "PNG image": string;
   Polynomial: string;
   Power: string;
   "Powered by D3plus": string;
@@ -60,6 +62,7 @@ export interface TranslationStrings {
   "Share of Parent": string;
   "Shift+Click to Hide": string;
   "Shift+Click to Highlight": string;
+  "SVG vector": string;
   Target: string;
   Total: string;
   "Trend Line": string;
@@ -117,6 +120,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u062a\u0648\u0642\u0639\u0627\u062a",
     High: "\u0627\u0644\u0623\u0639\u0644\u0649",
     Increase: "\u0632\u064a\u0627\u062f\u0629",
+    "JPG image": "\u0635\u0648\u0631\u0629 JPG",
     Linear: "\u062e\u0637\u064a",
     "Loading Visualization":
       "\u062c\u0627\u0631\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u062a\u0635\u0648\u064a\u0631 \u0627\u0644\u0628\u064a\u0627\u0646\u064a",
@@ -144,6 +148,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Open: "\u0627\u0644\u0627\u0641\u062a\u062a\u0627\u062d",
     "Percent of Total":
       "\u0627\u0644\u0646\u0633\u0628\u0629 \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a",
+    "PNG image": "\u0635\u0648\u0631\u0629 PNG",
     Polynomial:
       "\u0645\u062a\u0639\u062f\u062f \u0627\u0644\u062d\u062f\u0648\u062f",
     Power: "\u0642\u0648\u0629",
@@ -165,6 +170,7 @@ const translateLocale: Record<string, TranslationStrings> = {
       "Shift+\u0627\u0646\u0642\u0631 \u0644\u0644\u0625\u062e\u0641\u0627\u0621",
     "Shift+Click to Highlight":
       "Shift + \u0644\u0644\u062a\u062d\u062f\u064a\u062f \u0627\u0636\u063a\u0637",
+    "SVG vector": "\u0631\u0633\u0645 \u0645\u062a\u062c\u0647 SVG",
     Target: "\u0627\u0644\u0647\u062f\u0641",
     Total: "\u0627\u0644\u0645\u062c\u0645\u0648\u0639",
     "Trend Line": "\u062e\u0637 \u0627\u0644\u0627\u062a\u062c\u0627\u0647",
@@ -208,6 +214,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Pron\u00f3stico",
     High: "M\u00e1ximo",
     Increase: "Aumento",
+    "JPG image": "Imagen JPG",
     Linear: "Lineal",
     "Loading Visualization": "Cargando Visualizaci\u00f3n",
     Logarithmic: "Logar\u00edtmica",
@@ -228,6 +235,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of previous": "de la anterior",
     Open: "Apertura",
     "Percent of Total": "Porcentaje del Total",
+    "PNG image": "Imagen PNG",
     Polynomial: "Polin\u00f3mica",
     Power: "Potencial",
     "Powered by D3plus": "Funciona con D3plus",
@@ -241,6 +249,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentaje del Nivel Superior",
     "Shift+Click to Hide": "May\u00fas+Clic para Ocultar",
     "Shift+Click to Highlight": "May\u00fas+Clic para Resaltar",
+    "SVG vector": "Vector SVG",
     Target: "Objetivo",
     Total: "Total",
     "Trend Line": "L\u00ednea de Tendencia",
@@ -282,6 +291,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "Previs\u00e3o",
     High: "M\u00e1xima",
     Increase: "Aumento",
+    "JPG image": "Imagem JPG",
     Linear: "Linear",
     "Loading Visualization": "Carregando Visualiza\u00e7\u00e3o",
     Logarithmic: "Logar\u00edtmica",
@@ -302,6 +312,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of previous": "da anterior",
     Open: "Abertura",
     "Percent of Total": "Porcentagem do Total",
+    "PNG image": "Imagem PNG",
     Polynomial: "Polinomial",
     Power: "Pot\u00eancia",
     "Powered by D3plus": "Funciona com D3plus",
@@ -315,6 +326,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "Porcentagem do N\u00edvel Superior",
     "Shift+Click to Hide": "Shift+Clique para Ocultar",
     "Shift+Click to Highlight": "Shift+Clique para Destacar",
+    "SVG vector": "Vetor SVG",
     Target: "Meta",
     Total: "Total",
     "Trend Line": "Linha de Tend\u00eancia",
@@ -359,6 +371,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     Forecast: "\u9884\u6d4b",
     High: "\u6700\u9ad8",
     Increase: "\u589e\u52a0",
+    "JPG image": "JPG \u56fe\u7247",
     Linear: "\u7ebf\u6027",
     "Loading Visualization": "\u52a0\u8f7d\u53ef\u89c6\u5316",
     Logarithmic: "\u5bf9\u6570",
@@ -379,6 +392,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "of previous": "\u5360\u4e0a\u4e00\u9636\u6bb5",
     Open: "\u5f00\u76d8",
     "Percent of Total": "\u5360\u603b\u6570\u767e\u5206\u6bd4",
+    "PNG image": "PNG \u56fe\u7247",
     Polynomial: "\u591a\u9879\u5f0f",
     Power: "\u5e42",
     "Powered by D3plus": "\u7531 D3plus \u63d0\u4f9b\u652f\u6301",
@@ -392,6 +406,7 @@ const translateLocale: Record<string, TranslationStrings> = {
     "Share of Parent": "\u5360\u4e0a\u7ea7\u6bd4\u4f8b",
     "Shift+Click to Hide": "Shift+\u5355\u51fb\u9690\u85cf",
     "Shift+Click to Highlight": "Shift+\u5355\u51fb\u7a81\u51fa\u663e\u793a",
+    "SVG vector": "SVG \u77e2\u91cf\u56fe",
     Target: "\u76ee\u6807",
     Total: "\u603b",
     "Trend Line": "\u8d8b\u52bf\u7ebf",

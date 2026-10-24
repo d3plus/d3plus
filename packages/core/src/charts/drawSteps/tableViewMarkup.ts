@@ -136,7 +136,7 @@ const ICON_ATTRS =
 // A simple spreadsheet-style grid: outer frame + one horizontal + one vertical divider.
 const TABLE_ICON = `<svg ${ICON_ATTRS}><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="12" y1="3" x2="12" y2="21"/></svg>`;
 // A downward arrow into a tray — the conventional "download" icon.
-const DOWNLOAD_ICON = `<svg ${ICON_ATTRS}><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg>`;
+export const DOWNLOAD_ICON = `<svg ${ICON_ATTRS}><path d="M12 3v12"/><polyline points="7 11 12 16 17 11"/><path d="M4 18v1a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-1"/></svg>`;
 // Two opposing horizontal arrows — the conventional "swap/exchange" icon.
 // One constant icon regardless of state (like TABLE_ICON above): only the
 // label/aria-pressed/active-class communicate which of the two datasets is

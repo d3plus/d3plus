@@ -69,11 +69,11 @@ function serializeSvg(elem: SVGElement): Blob {
 }
 
 /**
-    Downloads an HTML Element as a bitmap PNG image.
+    Downloads an HTML or SVG element as a PNG, JPG, or SVG file.
     @param elem The DOM element or d3 selection to export.
     @param options Additional options to specify.
     @param options .filename = "download"] Filename for the downloaded file, without the extension.
-    @param options .type = "png"] File type of the saved document. Accepted values are `"png"` and `"jpg"`.
+    @param options .type = "png"] File type of the saved document. Accepted values are `"png"`, `"jpg"`, and `"svg"`.
     @param options .callback] Function to be invoked after saving is complete. Receives the error when the element could not be rendered; without a callback, the error is logged.
     @param renderOptions Custom options to be passed to the html-to-image function.
 */
@@ -112,18 +112,23 @@ export default function (
     return;
   }
 
+  const fromDataUrl = (dataUrl: string): Promise<void> =>
+    fetch(dataUrl)
+      .then(response => response.blob())
+      .then(finish);
+
   // html-to-image is only needed to rasterize (or wrap) an HTML element, so
-  // it loads on first use.
+  // it loads on first use. Its `toBlob` always encodes a PNG, so a JPG goes
+  // through `toJpeg`.
   import("html-to-image")
-    .then(({toBlob, toSvg}) =>
+    .then(({toBlob, toJpeg, toSvg}) =>
       type === "svg"
-        ? toSvg(elem as HTMLElement, renderOpts)
-            .then(dataUrl => fetch(dataUrl))
-            .then(response => response.blob())
-            .then(finish)
-        : toBlob(elem as HTMLElement, renderOpts).then(blob =>
-            blob ? finish(blob) : fail(blob),
-          ),
+        ? toSvg(elem as HTMLElement, renderOpts).then(fromDataUrl)
+        : type === "jpg"
+          ? toJpeg(elem as HTMLElement, renderOpts).then(fromDataUrl)
+          : toBlob(elem as HTMLElement, renderOpts).then(blob =>
+              blob ? finish(blob) : fail(blob),
+            ),
     )
     .catch(fail);
 }

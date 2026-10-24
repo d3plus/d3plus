@@ -32,6 +32,7 @@ function reset() {
   saved.length = 0;
   calls.length = 0;
   results.toBlob = null;
+  results.toJpeg = "";
   results.toSvg = "";
   results.error = null;
 }
@@ -93,13 +94,16 @@ it("saveElement routes png through toBlob", async () => {
   assert.strictEqual(saved[0].name, "download.png");
 });
 
-it("saveElement routes an <svg> target through toBlob for type jpg", async () => {
+it("saveElement routes jpg through toJpeg, which encodes a JPEG", async () => {
   reset();
-  results.toBlob = new Blob(["jpg"], {type: "image/jpeg"});
-  await save(svg, {filename: "chart", type: "jpg"});
-  assert.strictEqual(calls[0].fn, "toBlob");
+  results.toJpeg = "data:image/jpeg;base64,/9j/";
+  await save(svg, {filename: "chart", type: "jpg"}, {quality: 0.8});
+  assert.strictEqual(calls.length, 1);
+  assert.strictEqual(calls[0].fn, "toJpeg");
   assert.strictEqual(calls[0].node, svg);
+  assert.strictEqual(calls[0].options.quality, 0.8);
   assert.strictEqual(saved[0].name, "chart.jpg");
+  assert.strictEqual(saved[0].blob.type, "image/jpeg");
 });
 
 it("saveElement saves without a callback", async () => {
@@ -118,7 +122,7 @@ it("saveElement passes an error to the callback when toBlob yields no Blob", asy
   assert.strictEqual(saved.length, 0, "nothing is downloaded");
 });
 
-it("saveElement passes toBlob's rejection to the callback", async () => {
+it("saveElement passes toJpeg's rejection to the callback", async () => {
   reset();
   results.error = new Error("tainted canvas");
   const error = await save(container, {type: "jpg"});

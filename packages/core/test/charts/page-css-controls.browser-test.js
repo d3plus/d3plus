@@ -68,7 +68,10 @@ const layout = (css, renderer, config = {}) =>
               host: box(document.querySelector("#s .d3plus-render-overlays")),
               svg: {width: svg.width, height: svg.height},
               zoom: boxes("#s .zoom-control"),
-              topLeft: boxes("#s .d3plus-top-left-controls-item button"),
+              // The closed download menu's items have no box.
+              topLeft: boxes(
+                "#s .d3plus-top-left-controls-item button:not(.save-menu-item)",
+              ),
               titleTop: title ? title.transform.y : null,
               zoomButton: {
                 padding: getComputedStyle(zoomButton).padding,

@@ -79,6 +79,9 @@ export async function openPage(bodyHtml, {clock = false} = {}) {
   });
   const win = frame.contentWindow;
   const {errors} = setUpPage(win);
+  // Vitest rewrites each `import()` into a call on its runner, which only the
+  // tester page defines.
+  win.__vitest_browser_runner__ = {wrapDynamicImport: load => load()};
   const fake = clock
     ? FakeTimers.withGlobal(win).install({now: 0, toFake})
     : undefined;

@@ -47,6 +47,7 @@ const legendLayout = (width, renderer, {labels = regions, css = ""} = {}) =>
           .legendPosition("top")
           .tableView(true)
           .search(true)
+          .saveControl(false)
           .renderer(renderer)
           .duration(0);
         viz.render(() => {
@@ -266,6 +267,7 @@ it("cornerPlacements — tries the symmetric inset, each corner's own inset, the
           .y("y")
           .tableView(true)
           .search(true)
+          .saveControl(false)
           .duration(0);
         const hidden = new window.d3plus.Plot()
           .select("#b")
@@ -276,6 +278,7 @@ it("cornerPlacements — tries the symmetric inset, each corner's own inset, the
           .zoom(false)
           .tableView(false)
           .search(false)
+          .saveControl(false)
           .duration(0);
         shown.render(() =>
           hidden.render(() => {

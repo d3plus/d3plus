@@ -36,6 +36,7 @@ const textLayout = (text, renderer, width = 300, key = "title") =>
           .config({[key]: text})
           .tableView(true)
           .search(true)
+          .saveControl(false)
           .renderer(renderer)
           .duration(0);
         viz.render(() => {

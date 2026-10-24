@@ -594,6 +594,75 @@ function initSearchDefaults(viz: Viz): void {
 }
 
 /**
+    Default inline styles for the download button, the same structural values
+    as the other top-left controls, as their own objects so setting
+    `saveControlClassName` can detect an untouched default by reference.
+    @private
+*/
+export const saveControlStyleDefault = {
+  "align-items": "center",
+  "box-sizing": "border-box",
+  display: "inline-flex",
+  font: `900 15px/1 ${fontFamilyStringify(fontFamily)}`,
+  height: "20px",
+  "justify-content": "center",
+  margin: 0,
+  padding: 0,
+  width: "20px",
+};
+export const saveControlStyleActiveDefault = {
+  "background-color": "AccentColor",
+  "border-color": "AccentColor",
+  color: "AccentColorText",
+};
+export const saveControlStyleHoverDefault = false as const;
+
+/**
+    Default inline styles for the download menu and its items: the theme
+    (colors, border, spacing, font) on top of the fixed layout in
+    `saveControlMarkup.ts`. Setting `saveControlMenuClassName` drops them.
+    @private
+*/
+export const saveControlMenuStyleDefault = {
+  background: "Canvas",
+  border: "1px solid rgba(128, 128, 128, 0.5)",
+  "border-radius": "3px",
+  "box-shadow": "0 2px 6px rgba(0, 0, 0, 0.2)",
+  color: "CanvasText",
+  "margin-top": "4px",
+  padding: "2px 0",
+};
+export const saveControlMenuItemStyleDefault = {
+  background: "none",
+  border: "none",
+  color: "inherit",
+  font: `12px/1.2 ${fontFamilyStringify(fontFamily)}`,
+  margin: 0,
+  padding: "4px 10px",
+};
+export const saveControlMenuItemStyleHoverDefault = {
+  background: "rgba(128, 128, 128, 0.2)",
+};
+
+/**
+    Download button defaults.
+    @private
+*/
+function initSaveControlDefaults(viz: Viz): void {
+  viz.schema.saveControl = true;
+  viz.schema.saveControlClassName = undefined;
+  viz.schema.saveControlConfig = {};
+  viz.schema.saveControlMenuClassName = undefined;
+  viz.schema.saveControlMenuItemStyle = saveControlMenuItemStyleDefault;
+  viz.schema.saveControlMenuItemStyleHover =
+    saveControlMenuItemStyleHoverDefault;
+  viz.schema.saveControlMenuStyle = saveControlMenuStyleDefault;
+  viz.schema.saveControlStyle = saveControlStyleDefault;
+  viz.schema.saveControlStyleActive = saveControlStyleActiveDefault;
+  viz.schema.saveControlStyleHover = saveControlStyleHoverDefault;
+}
+
+/**
     Seeds a fresh Viz instance's schema defaults and installs the identity-coerce
     fluent accessors. Extracted from the constructor so the seeding logic stays
     readable and the constructor stays under the per-function line budget.
@@ -619,4 +688,5 @@ export function initVizDefaults(viz: Viz): void {
   initMinimapDefaults(viz);
   initBackDefaults(viz);
   initSearchDefaults(viz);
+  initSaveControlDefaults(viz);
 }

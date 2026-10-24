@@ -1038,6 +1038,166 @@ export const argTypes = {
       summary: 'boolean | "svg" | "canvas"',
     },
   },
+  saveControl: {
+    control: {
+      type: "boolean",
+    },
+    defaultValue: true,
+    description:
+      "Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart.",
+    table: {
+      defaultValue: {
+        summary: "true",
+      },
+    },
+    type: {
+      required: false,
+      summary: "boolean",
+    },
+  },
+  saveControlClassName: {
+    control: {
+      type: "text",
+    },
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the download button, alongside the fixed `save-control`/`save-toggle` classes. Setting this automatically disables d3plus's built-in inline `saveControlStyle`/`saveControlStyleActive`/`saveControlStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own button styling applies through the cascade with no other configuration needed.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "string",
+    },
+  },
+  saveControlConfig: {
+    control: {},
+    description:
+      "Options for the download button: the saved file's `filename`, the `formats` it offers, the `background` painted behind the chart, a `callback`, and html-to-image options for PNG and JPG files.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "savecontrolconfig",
+    },
+  },
+  saveControlMenuClassName: {
+    control: {
+      type: "text",
+    },
+    description:
+      "An additional CSS class name (or space-separated list of class names) applied to the download menu, alongside its fixed `d3plus-save-menu` class (each item has the fixed `save-menu-item` class). Setting this automatically disables d3plus's built-in inline `saveControlMenuStyle`/`saveControlMenuItemStyle`/`saveControlMenuItemStyleHover` defaults (as long as you haven't already customized them yourself), so a host page's own menu styling applies through the cascade. The menu's position and open/closed display stay inline.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "string",
+    },
+  },
+  saveControlMenuItemStyle: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style each item in the download menu. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlMenuItemStyleHover: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download menu item under the pointer or keyboard focus. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlMenuStyle: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download menu: its background, border, shadow, and spacing. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlMenuClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlStyle: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download button. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlStyleActive: {
+    control: {
+      type: "object",
+    },
+    description:
+      "An object containing CSS key/value pairs that is used to style the download button while its menu is open. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "undefined",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
+  saveControlStyleHover: {
+    control: {
+      type: "object",
+    },
+    defaultValue: false,
+    description:
+      "An object containing CSS key/value pairs that is used to style the download button on hover. Passing `false` will remove all default styling. Automatically skipped (as if `false`) once `.saveControlClassName(...)` is set, unless you've explicitly customized this yourself.",
+    table: {
+      defaultValue: {
+        summary: "false",
+      },
+    },
+    type: {
+      required: false,
+      summary: "false | record",
+    },
+  },
   scrollContainer: {
     control: {
       type: "text",

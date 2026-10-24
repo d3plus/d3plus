@@ -49,6 +49,7 @@
     "@d3plus/color": "workspace:*",
     "@d3plus/data": "workspace:*",
     "@d3plus/dom": "workspace:*",
+    "@d3plus/export": "workspace:*",
     "@d3plus/format": "workspace:*",
     "@d3plus/locales": "workspace:*",
     "@d3plus/math": "workspace:*",
