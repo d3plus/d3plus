@@ -11,6 +11,7 @@ import type {BaseShapeConfig} from "../../shapes/shapeConfig.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
 import {addDomainEnds, crowdsEndLabel} from "./axisEndLabels.js";
 import {configPrep} from "../../utils/index.js";
+import {wholeWordSplit} from "../../utils/wholeWords.js";
 import type {D3Scale} from "../../utils/index.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -364,6 +365,10 @@ export function configureTickShape(
     .duration(axis.schema.duration)
     .labelConfig({
       ellipsis: (d: unknown) => (d && (d as string).length ? `${d}...` : ""),
+      // Slanted labels wrap between words, as they were measured.
+      ...(axis._labelRotation && axis._labelSlant
+        ? {split: wholeWordSplit}
+        : {}),
       // The label TextBox invokes this with the laid-out label record, whose
       // tick datum (carrying `rotate`) sits on `.data`; fall back to the raw
       // datum for any path that passes it directly.

@@ -2,11 +2,13 @@ import {it} from "vitest";
 import assert from "assert";
 import {
   axisCrossing,
-  labelAngle,
+  autoAngle,
+  FLAT,
   normalizeAngle,
   rotatedTextAnchor,
   settingAngle,
   settingRotates,
+  settingTurn,
   slantedDepth,
   slantedLabelBox,
   slantedReach,
@@ -33,15 +35,12 @@ it("normalizeAngle — into [-90, 90], reading left to right", () => {
   assert.ok(Object.is(normalizeAngle(-180), 0), "no -0");
 });
 
-it("settingAngle / labelAngle / settingRotates — what a setting rotates by", () => {
+it("settingAngle / settingRotates — what a setting rotates by", () => {
   assert.strictEqual(settingAngle(true), -90);
   assert.strictEqual(settingAngle(undefined), -90, "automatic rotation");
   assert.strictEqual(settingAngle(-45), -45);
   assert.strictEqual(settingAngle(225), 45);
   assert.strictEqual(settingAngle(NaN), -90);
-  assert.strictEqual(labelAngle(false, -45), 0, "not rotated");
-  assert.strictEqual(labelAngle(true, -45), -45);
-  assert.strictEqual(labelAngle(true, true), -90);
   assert.strictEqual(settingRotates(true), true);
   assert.strictEqual(settingRotates(false), false);
   assert.strictEqual(settingRotates(undefined), false);
@@ -182,4 +181,35 @@ it("slantedWrapSize — long enough to reach the depth, thick enough for the spa
     "text along the axis",
   );
   assert.strictEqual(slantedWrapSize(-45, true, 5, 40, 17).width, 0);
+});
+
+it("settingTurn — how a setting draws the labels before the layout decides", () => {
+  assert.deepStrictEqual(settingTurn(undefined, true), FLAT);
+  assert.deepStrictEqual(settingTurn(false, true), FLAT);
+  assert.deepStrictEqual(settingTurn(0, true), FLAT);
+  assert.deepStrictEqual(settingTurn(true, true), {
+    rotate: true,
+    angle: -90,
+    slant: false,
+  });
+  assert.deepStrictEqual(settingTurn(-45, true), {
+    rotate: true,
+    angle: -45,
+    slant: true,
+  });
+  assert.deepStrictEqual(settingTurn(-90, true), {
+    rotate: true,
+    angle: -90,
+    slant: false,
+  });
+  assert.deepStrictEqual(settingTurn(90, false), {
+    rotate: true,
+    angle: 90,
+    slant: true,
+  });
+});
+
+it("autoAngle — crowded labels slant 30 degrees, mirrored on a top axis", () => {
+  assert.strictEqual(autoAngle("bottom"), -30);
+  assert.strictEqual(autoAngle("top"), 30);
 });

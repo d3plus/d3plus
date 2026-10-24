@@ -3,6 +3,7 @@ import assert from "assert";
 import {AxisBottom, AxisLeft, AxisRight, AxisTop} from "../../index.ts";
 import {labelExtent} from "../../src/components/Axis/axisLabelThinning.ts";
 import {labelDepth} from "../../src/components/Axis/axisLayoutLabels.ts";
+import {textWidth} from "@d3plus/dom";
 import {useJsdom} from "~test/jsdom.js";
 
 useJsdom();
@@ -209,4 +210,112 @@ it("_labelOverflow — how far slanted labels reach past a fixed range", () => {
     `a free range narrows so they end inside the axis: ${free._labelOverflow[1]} <= ${400 - end}`,
   );
   assert.deepStrictEqual(compute(AxisBottom, true)._labelOverflow, [0, 0]);
+});
+
+const autoAxis = (Type, domain, width) =>
+  new Type()
+    .renderMode("compute")
+    .select(null)
+    .width(width)
+    .height(300)
+    .scale("point")
+    .domain(domain)
+    .render();
+
+const industries = [
+  "Agriculture, Forestry and Fishing",
+  "Mining and Quarrying",
+  "Manufacturing",
+  "Electricity and Gas Supply",
+  "Water Supply and Sewerage",
+  "Construction",
+  "Wholesale and Retail Trade",
+  "Transportation and Storage",
+];
+
+it("left to the layout, crowded labels slant -30 on a bottom axis and 30 on a top one", () => {
+  const bottom = autoAxis(AxisBottom, industries, 500);
+  assert.strictEqual(bottom.labelRotation(), undefined, "setting untouched");
+  assert.strictEqual(bottom._labelRotation, true);
+  assert.strictEqual(bottom._labelAngle, -30);
+  assert.ok(labels(bottom).every(n => n.transform.rotate === -30));
+  assert.strictEqual(
+    bottom.schema.shapeConfig.labelConfig.textAnchor(),
+    "end",
+    "ending at their ticks",
+  );
+  const top = autoAxis(AxisTop, industries, 500);
+  assert.strictEqual(top._labelAngle, 30);
+  assert.ok(labels(top).every(n => n.transform.rotate === 30));
+  assert.strictEqual(top.schema.shapeConfig.labelConfig.textAnchor(), "end");
+  const roomy = autoAxis(AxisBottom, ["A", "B", "C"], 500);
+  assert.strictEqual(roomy._labelRotation, false, "labels that fit stay flat");
+});
+
+it("labels too crowded to slant stand upright, as `true` draws them", () => {
+  const many = Array.from({length: 40}, (_, i) => `Category ${i + 1}`);
+  const axis = autoAxis(AxisBottom, many, 500);
+  assert.strictEqual(axis._labelRotation, true);
+  assert.strictEqual(axis._labelAngle, -90);
+  assert.strictEqual(axis._labelSlant, false);
+  const upright = new AxisBottom()
+    .renderMode("compute")
+    .select(null)
+    .width(500)
+    .height(300)
+    .scale("point")
+    .domain(many)
+    .labelRotation(true)
+    .render();
+  assert.deepStrictEqual(
+    labels(axis).map(n => n.transform),
+    labels(upright).map(n => n.transform),
+  );
+});
+
+it("a vertical axis never rotates its labels on its own", () => {
+  const axis = autoAxis(AxisLeft, industries, 120);
+  assert.strictEqual(axis._labelRotation, false);
+});
+
+it("slanted labels wrap onto lines that stay in their slot, claiming less depth", () => {
+  const axis = compute(AxisBottom, -45, [700, 300]);
+  const shown = labels(axis);
+  assert.ok(
+    shown.some(n => n.lines.length > 1),
+    `some labels wrap: ${shown.map(n => n.lines.length)}`,
+  );
+  assert.ok(shown.every(n => n.lines.length <= 3));
+  const step = Math.abs(
+    axis._getPosition(names[1]) - axis._getPosition(names[0]),
+  );
+  const sin = Math.SQRT1_2;
+  // Every wrapped block is no thicker than the gap between neighbours.
+  shown.forEach(n => {
+    const thickness = n.lines.length * (n.lineHeight ?? 17);
+    assert.ok(
+      thickness <= step * sin + 1,
+      `"${n.lines.join(" ")}" (${thickness}px) fits its ${step * sin}px slot`,
+    );
+  });
+  // On one line, the longest label alone would reach further.
+  const widest = Math.max(
+    ...names.map(n =>
+      textWidth(n, {"font-family": "sans-serif", "font-size": 12}),
+    ),
+  );
+  const oneLine = (widest + 17) * sin;
+  assert.ok(
+    axis._labelSpace < oneLine,
+    `${axis._labelSpace} claimed, under one line's ${oneLine}`,
+  );
+});
+
+it("upright labels (true, -90) don't change", () => {
+  const upright = compute(AxisBottom, true, [700, 300]);
+  assert.ok(labels(upright).every(n => n.transform.rotate === -90));
+  assert.deepStrictEqual(
+    labels(compute(AxisBottom, -90, [700, 300])).map(n => n.lines),
+    labels(upright).map(n => n.lines),
+  );
 });

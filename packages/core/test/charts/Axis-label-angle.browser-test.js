@@ -41,15 +41,19 @@ const probe = ([names, renderer, rotation]) =>
         nodes.forEach(n => {
           const t = n.transform || {};
           const next = {x: o.x + (t.x || 0), y: o.y + (t.y || 0)};
-          if (n.type === "text" && names.includes(n.lines?.[0]?.text))
+          const text = (n.lines || []).map(l => l.text).join(" ");
+          if (n.type === "text" && names.includes(text))
             out.push({
-              text: n.lines[0].text,
+              angle: axis._labelAngle,
+              text,
+              lines: n.lines.length,
+              texts: n.lines.map(l => l.text),
               rotate: t.rotate || 0,
               anchor: t.rotateAnchor,
               x: next.x,
               y: next.y,
               width: n.width,
-              tick: axis._getPosition(n.lines[0].text),
+              tick: axis._getPosition(text),
             });
           if (n.children) walk(n.children, next);
         });
@@ -79,11 +83,11 @@ const probe = ([names, renderer, rotation]) =>
     });
   });
 
-const run = (renderer, rotation) =>
+const run = (renderer, rotation, labels = names, width = 700) =>
   render(
-    '<div id="viz" style="width:700px;height:420px;font-family:sans-serif"></div>',
+    `<div id="viz" style="width:${width}px;height:420px;font-family:sans-serif"></div>`,
     probe,
-    [names, renderer, rotation],
+    [labels, renderer, rotation],
   );
 
 for (const [renderer, angle] of [
@@ -115,7 +119,8 @@ for (const [renderer, angle] of [
       );
       assert.ok(ends[i].y > r.plotBottom, `${label.text} hangs below the plot`);
     });
-    const ys = ends.map(e => e.y);
+    // Labels on one line end the same distance below the axis.
+    const ys = ends.filter((_, i) => r.labels[i].lines === 1).map(e => e.y);
     assert.ok(
       Math.max(...ys) - Math.min(...ys) < 1,
       `every label ends the same distance below the axis: ${ys}`,
@@ -150,7 +155,8 @@ const verticalProbe = ([names, renderer, rotation]) =>
         nodes.forEach(n => {
           const t = n.transform || {};
           const at = {x: o.x + (t.x || 0), y: o.y + (t.y || 0)};
-          if (n.type === "text" && names.includes(n.lines?.[0]?.text)) {
+          const text = (n.lines || []).map(l => l.text).join(" ");
+          if (n.type === "text" && names.includes(text)) {
             const [ax, ay] = t.rotateAnchor || [0, 0];
             const r = ((t.rotate || 0) * Math.PI) / 180;
             const corners = [
@@ -162,7 +168,7 @@ const verticalProbe = ([names, renderer, rotation]) =>
               x: at.x + ax + (px - ax) * Math.cos(r) - (py - ay) * Math.sin(r),
               y: at.y + ay + (px - ax) * Math.sin(r) + (py - ay) * Math.cos(r),
             }));
-            labels.push({text: n.lines[0].text, rotate: t.rotate, corners});
+            labels.push({text, rotate: t.rotate, corners});
           }
           if (n.children) walk(n.children, at);
         });
@@ -185,6 +191,46 @@ for (const renderer of ["svg", "canvas"]) {
     assert.ok(
       lowest <= r.height + 5,
       `the lowest label ends inside the chart (${lowest} <= ${r.height})`,
+    );
+  });
+}
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`[${renderer}] left to the layout, crowded category labels slant -30 and end at their ticks`, async () => {
+    const r = await run(renderer, undefined, names, 520);
+    assert.strictEqual(r.rotated, true);
+    assert.ok(r.labels.length >= 4, `labels drawn: ${r.labels.length}`);
+    assert.ok(
+      r.labels.every(l => l.rotate === -30),
+      `${r.labels.map(l => l.rotate)}`,
+    );
+    const t = (-30 * Math.PI) / 180;
+    r.labels.forEach(label => {
+      const [ax] = label.anchor;
+      const end = label.x + ax + (label.width / 2) * Math.cos(t);
+      assert.ok(
+        Math.abs(end - label.tick) < 5,
+        `${label.text} ends at its tick (${end} vs ${label.tick})`,
+      );
+    });
+  });
+
+  it(`[${renderer}] labels too crowded to slant stand upright`, async () => {
+    const many = Array.from({length: 40}, (_, i) => `Category ${i + 1}`);
+    const r = await run(renderer, undefined, many, 520);
+    assert.strictEqual(r.rotated, true);
+    assert.ok(r.labels.length >= 10, `labels drawn: ${r.labels.length}`);
+    assert.ok(r.labels.every(l => l.rotate === -90));
+  });
+
+  it(`[${renderer}] slanted labels wrap between words onto up to three lines`, async () => {
+    const r = await run(renderer, -45);
+    const wrapped = r.labels.filter(l => l.lines > 1);
+    assert.ok(wrapped.length >= 3, `wrapped: ${wrapped.map(l => l.text)}`);
+    assert.ok(r.labels.every(l => l.lines <= 3));
+    assert.ok(
+      r.labels.every(l => l.texts.every(t => !t.endsWith("-"))),
+      "no word broken with a hyphen",
     );
   });
 }

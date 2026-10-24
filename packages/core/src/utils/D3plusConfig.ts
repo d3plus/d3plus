@@ -161,9 +161,11 @@ export interface AxisConfig {
       them -90 degrees, `false` keeps them flat, and a number rotates them
       by that many degrees (clockwise, so `-45` rises to the right), each
       label hanging off the axis from the end of its text nearest the axis,
-      across from its tick. Left `undefined` (the default), a horizontal
-      axis of categories rotates its labels -90 degrees when they would not
-      fit flat. See Axis's `labelRotation`.
+      across from its tick, and wrapping onto up to three lines when its
+      neighbors leave room. Left `undefined` (the default), a horizontal
+      axis of categories slants its labels 30 degrees when they would not
+      fit flat, or stands them at -90 when they are too crowded to slant.
+      See Axis's `labelRotation`.
   */
   labelRotation?: boolean | number;
   /**

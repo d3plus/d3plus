@@ -1,6 +1,7 @@
 /**
     Label angles for `labelRotation`. `true` rotates labels -90 degrees; a
-    number rotates them by that many degrees. Labels at an angle between the
+    number rotates them by that many degrees; left to the layout, crowded
+    labels slant 30 degrees (see `autoAngle`). Labels at an angle between the
     two axis directions ("slanted", e.g. -45) hang off the axis from the end
     of their text nearest it, so each one ends (or starts) at its tick.
 */
@@ -36,14 +37,39 @@ export function settingAngle(setting: unknown): number {
     : -90;
 }
 
+/** How an axis draws its labels: whether they rotate, by what angle, and whether they slant. */
+export interface LabelTurn {
+  rotate: boolean;
+  /** Degrees, 0 when flat. */
+  angle: number;
+  /** Laid out at the angle (see `slantedLabelBox`), rather than upright as `true` stands them. */
+  slant: boolean;
+}
+
+/** No rotation. */
+export const FLAT: LabelTurn = {rotate: false, angle: 0, slant: false};
+
 /**
-    The angle an axis draws its labels at: 0 unless `rotated`, else the
-    angle its `labelRotation` setting gives (see `settingAngle`).
+    How a `labelRotation` setting draws an axis's labels before the layout
+    has its say: `true` upright (-90), a number at its angle, anything else
+    flat.
 */
-export const labelAngle = (
-  rotated: boolean | undefined,
-  setting: unknown,
-): number => (rotated ? settingAngle(setting) : 0);
+export function settingTurn(setting: unknown, horizontal: boolean): LabelTurn {
+  if (!settingRotates(setting)) return FLAT;
+  return {
+    rotate: true,
+    angle: settingAngle(setting),
+    slant: slantsLabels(setting, horizontal),
+  };
+}
+
+/**
+    The angle crowded labels slant at when the layout rotates them: -30 on
+    a bottom axis (rising to the right, ending at their ticks), 30 on a top
+    axis (the mirror image).
+*/
+export const autoAngle = (orient: string): number =>
+  orient === "top" ? 30 : -30;
 
 /**
     Whether a `labelRotation` setting rotates the labels: `true`, or a

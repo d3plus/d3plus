@@ -3,12 +3,7 @@ import {backgroundColor, rtl as detectRTL} from "@d3plus/dom";
 
 import {constant} from "../../utils/index.js";
 import {gridStroke} from "./gridStroke.js";
-import {
-  labelAngle,
-  rotatedTextAnchor,
-  settingAngle,
-  slantsLabels,
-} from "./axisLabelAngle.js";
+import {rotatedTextAnchor} from "./axisLabelAngle.js";
 import type Axis from "./Axis.js";
 
 /** A color that contrasts with the background behind the axis's container. */
@@ -65,12 +60,8 @@ export function axisShapeConfig(axis: Axis): Record<string, unknown> {
       fontSize: constant(12),
       padding: 5,
       textAnchor: () => {
-        const setting = axis._labelRotationSetting;
-        if (
-          axis._labelRotation &&
-          slantsLabels(setting, axis._position.horizontal)
-        )
-          return rotatedTextAnchor(axis.schema.orient, settingAngle(setting));
+        if (axis._labelRotation && axis._labelSlant)
+          return rotatedTextAnchor(axis.schema.orient, axis._labelAngle);
         const rtl = detectRTL();
         return axis.schema.orient === "left"
           ? rtl
@@ -81,10 +72,7 @@ export function axisShapeConfig(axis: Axis): Record<string, unknown> {
               ? "end"
               : "start"
             : axis._labelRotation
-              ? rotatedTextAnchor(
-                  axis.schema.orient,
-                  labelAngle(true, axis._labelRotationSetting),
-                )
+              ? rotatedTextAnchor(axis.schema.orient, axis._labelAngle)
               : "middle";
       },
       verticalAlign: () =>

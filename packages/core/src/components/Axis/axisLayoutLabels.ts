@@ -11,12 +11,8 @@ import {fontFamily as d3plusFontFamily, textWrap} from "@d3plus/text";
 import {wholeWordFit, wholeWordSplit} from "../../utils/wholeWords.js";
 
 import type Axis from "./Axis.js";
-import {
-  labelAngle,
-  slantedDepth,
-  slantedWrapSize,
-  slantsLabels,
-} from "./axisLabelAngle.js";
+import {slantedDepth, slantedWrapSize} from "./axisLabelAngle.js";
+import {slantedLineWidth, slantedLines} from "./axisSlantWrap.js";
 import {
   fitOwnSpaces,
   thinEvenly,
@@ -46,7 +42,7 @@ export interface AxisTextDatum {
   rotate?: boolean;
   /** The degrees a rotated label turns (see `labelRotation`), 0 when flat. */
   angle?: number;
-  /** Whether the label is laid out at its angle (see `slantsLabels`). */
+  /** Whether the label is laid out at its angle (see `settingTurn`). */
   slant?: boolean;
   space: number;
   lines: string[];
@@ -75,6 +71,22 @@ interface LabelLayoutCtx {
       `ownLabelSpaces`) rather than the widest share any label has.
   */
   ownSpace?: boolean;
+  /** The width slanted labels wrap at (see `slantedLineWidth`). */
+  slantWidth?: number;
+}
+
+/** How far labels may reach out from the axis, past its ticks and margins. */
+function labelRoom(
+  axis: Axis,
+  horizontal: boolean,
+  hBuff: number,
+  p: number,
+): number {
+  const wSize = min([axis.schema.maxSize, axis.schema.width])!;
+  const hSize = min([axis.schema.maxSize, axis.schema.height])!;
+  return horizontal
+    ? hSize - hBuff - p - axis._margin.top - axis._margin.bottom
+    : wSize - hBuff - p - axis._margin.left - axis._margin.right;
 }
 
 /** Applies the axis title's wrapped height to the orient-side margin. */
@@ -157,10 +169,7 @@ function calculateLabelSize(
     : undefined;
   const text = tickFormat(d);
   const wSize = min([axis.schema.maxSize, axis.schema.width]);
-  const hSize = min([axis.schema.maxSize, axis.schema.height]);
-  const depth = horizontal
-    ? hSize! - hBuff - p - axis._margin.top - axis._margin.bottom
-    : wSize! - hBuff - p - axis._margin.left - axis._margin.right;
+  const depth = labelRoom(axis, horizontal, hBuff, p);
   const slanted = slant
     ? slantedWrapSize(
         angle!,
@@ -180,6 +189,7 @@ function calculateLabelSize(
       lineHeight,
       rotate,
       slant && angle,
+      slant && ctx.slantWidth,
       space,
     ]);
   const cached = key ? cache!.get(key) : undefined;
@@ -193,7 +203,11 @@ function calculateLabelSize(
   const wrap = textWrap().fontFamily(fF).fontSize(fS).lineHeight(lineHeight);
 
   if (slanted) {
-    wrap.width(slanted.width).height(slanted.height);
+    // Slanted labels wrap between words, never mid-word.
+    wrap
+      .split(wholeWordSplit)
+      .width(Math.min(slanted.width, ctx.slantWidth ?? Infinity))
+      .height(slanted.height);
   } else {
     wrap[w](horizontal ? space : depth);
     wrap[h](horizontal ? depth : space);
@@ -284,10 +298,8 @@ function baseTextData(axis: Axis, labels: unknown[]): AxisTextDatum[] {
     axis.schema.shapeConfig.labelConfig.fontFamily || d3plusFontFamily;
   const fontPadding = axis.schema.shapeConfig.labelConfig.padding;
 
-  const angle = labelAngle(axis._labelRotation, axis._labelRotationSetting);
-  const slant =
-    !!axis._labelRotation &&
-    slantsLabels(axis._labelRotationSetting, axis._position.horizontal);
+  const angle = axis._labelRotation ? axis._labelAngle : 0;
+  const slant = !!axis._labelRotation && axis._labelSlant;
   return labels.map((d: unknown, i: number) => {
     const fF =
         typeof fontFamilyConfig === "function"
@@ -383,6 +395,10 @@ export function createTextData(
   };
   let textData = baseTextData(axis, labels);
   const maxSpace = maxLabelSpace(axis, textData, rangeOuter);
+  labelCtx.slantWidth = slantedWidth(axis, textData, {
+    ...labelCtx,
+    space: maxSpace,
+  });
 
   const spaces = ownSpace
     ? ownLabelSpaces(
@@ -443,6 +459,43 @@ export function createTextData(
 
   if (offset > 1) calculateOffset(textData, horizontal);
   return textData;
+}
+
+/**
+    The width slanted labels wrap at: narrow enough to put a long label on
+    as many lines (up to three) as fit between neighbouring labels `space`
+    apart, so it reaches less far from the axis. Undefined when the labels
+    don't slant.
+*/
+function slantedWidth(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  ctx: LabelLayoutCtx & {space: number},
+): number | undefined {
+  const first = textData[0];
+  if (!first?.slant) return undefined;
+  const {horizontal, hBuff, p, tickFormat, space} = ctx;
+  const lineHeight = (d: AxisTextDatum) =>
+    axis.schema.shapeConfig.lineHeight
+      ? axis.schema.shapeConfig.lineHeight(d.d, d.i)
+      : Math.ceil(d.fS * 1.4);
+  const limit = slantedWrapSize(
+    first.angle!,
+    horizontal,
+    labelRoom(axis, horizontal, hBuff, p),
+    space - first.fP * 2,
+    lineHeight(first),
+  );
+  return slantedLineWidth(
+    textData.map((d: AxisTextDatum) => ({
+      text: tickFormat(d.d),
+      fontFamily: d.fF,
+      fontSize: d.fS,
+      lineHeight: lineHeight(d),
+    })),
+    slantedLines(limit.height, lineHeight(first)),
+    limit.width,
+  );
 }
 
 /**
