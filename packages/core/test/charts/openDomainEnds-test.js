@@ -247,6 +247,11 @@ it("roundOpenEnd rounds only the open end, where the axis would with no domain",
     roundOpenEnd([980, 1024], lo, "outside", "time"),
     undefined,
   );
+  assert.deepStrictEqual(
+    roundOpenEnd([980, 1024], lo, "outside", "pow"),
+    [980, 1030],
+    "a power axis rounds like a linear one",
+  );
 });
 
 it("roundPlotOpenEnds rounds the scales' open ends, honoring the axis's rounding", () => {
@@ -306,6 +311,17 @@ it("roundPlotOpenEnds rounds the scales' open ends, honoring the axis's rounding
     time.plotScales.y.domain(),
     [1024, 980],
     "a time axis",
+  );
+  const pow = roundPlotOpenEnds({
+    viz: stub(),
+    plotScales: scales(),
+    plotConfigScales: {...configScales, yConfigScale: "pow"},
+    plotOpenEnds,
+  });
+  assert.deepStrictEqual(
+    pow.plotScales.y.domain(),
+    [1030, 980],
+    "a power axis",
   );
   assert.deepStrictEqual(
     roundPlotOpenEnds({viz: stub()}),

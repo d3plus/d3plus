@@ -95,17 +95,21 @@ function roundLinear(
   return newDomain.map(fixFloat);
 }
 
+/** The axis scales whose domains round to nice values (see `roundedDomain`). */
+export const roundingScales = ["linear", "log", "pow", "sqrt"];
+
 /**
-    A linear or log axis domain rounded the way an Axis with this `rounding`
-    ("outside" or "inside") rounds it, or undefined when the axis leaves the
-    domain as given (another scale, or nothing to round).
+    A linear, log or power axis domain rounded the way an Axis with this
+    `rounding` ("outside" or "inside") rounds it, or undefined when the axis
+    leaves the domain as given (another scale, or nothing to round). A power
+    scale's domain rounds as a linear one does.
 */
 export function roundedDomain(
   initialDomain: number[],
   rounding: string,
   scale: string,
 ): number[] | undefined {
-  if (scale === "linear") {
+  if (["linear", "pow", "sqrt"].includes(scale)) {
     return roundLinear(initialDomain, rounding, scale);
   } else if (scale === "log") {
     const powDomain: number[] = [];

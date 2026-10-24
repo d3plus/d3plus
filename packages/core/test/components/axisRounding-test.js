@@ -5,6 +5,8 @@ import {
   fixFloat,
   floorPow,
   isNegative,
+  roundedDomain,
+  roundingScales,
 } from "../../src/components/Axis/axisRounding.ts";
 
 it("isNegative — catches -0", () => {
@@ -29,4 +31,22 @@ it("fixFloat — trims floating-point noise", () => {
   assert.strictEqual(fixFloat(0.19999999999999998), 0.2);
   assert.strictEqual(fixFloat(1e-17), 0, "tiny values round to 0");
   assert.strictEqual(fixFloat(2.5), 2.5, "clean values pass through");
+});
+
+it("roundedDomain — a power axis rounds like a linear one", () => {
+  const linear = roundedDomain([1000, 4400000], "outside", "linear");
+  assert.deepStrictEqual(
+    roundedDomain([1000, 4400000], "outside", "pow"),
+    linear,
+  );
+  assert.deepStrictEqual(
+    roundedDomain([1000, 4400000], "outside", "sqrt"),
+    linear,
+  );
+  assert.deepStrictEqual(
+    roundedDomain([1024, 980], "inside", "pow"),
+    roundedDomain([1024, 980], "inside", "linear"),
+  );
+  assert.strictEqual(roundedDomain([0, 10], "outside", "time"), undefined);
+  assert.deepStrictEqual(roundingScales, ["linear", "log", "pow", "sqrt"]);
 });

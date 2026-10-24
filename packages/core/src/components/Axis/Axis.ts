@@ -42,6 +42,7 @@ const axisSchema: ConfigField[] = [
   {key: "domain", coerce: "identity", default: [0, 10]},
   {key: "domainTicks", coerce: "identity", default: true},
   {key: "duration", coerce: "identity", default: 600},
+  {key: "exponent", coerce: "identity", default: 1},
   {key: "grid", coerce: "identity"},
   {key: "gridLog", coerce: "identity", default: false},
   {key: "gridSize", coerce: "identity"},

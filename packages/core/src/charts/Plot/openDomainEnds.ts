@@ -9,7 +9,10 @@
 
     @module
 */
-import {roundedDomain} from "../../components/Axis/axisRounding.js";
+import {
+  roundedDomain,
+  roundingScales,
+} from "../../components/Axis/axisRounding.js";
 import {isOneSided} from "./baselineDomain.js";
 import type {PlotOpenEnd, TransformStage} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -91,7 +94,7 @@ export const roundPlotOpenEnds: TransformStage = ({
     const open = plotOpenEnds[axis];
     const scale = plotConfigScales[`${axis}ConfigScale`];
     const rounding = axisRounding(viz, axis);
-    if (!open || !["linear", "log"].includes(scale) || rounding === "none")
+    if (!open || !roundingScales.includes(scale) || rounding === "none")
       continue;
     const current = scales[axis];
     // The y scale runs high to low.
