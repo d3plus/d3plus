@@ -47,6 +47,14 @@ function membersAt(year) {
   return [...totals].sort((a, b) => b[1] - a[1]).map(([id]) => id);
 }
 
+/** Asserts every tooltip row has a value: none ends at its name's tab. */
+function assertNoEmptyRows(tooltip) {
+  assert.ok(
+    !/\t[ \t]*$/m.test(tooltip),
+    `an empty row: ${JSON.stringify(tooltip)}`,
+  );
+}
+
 /** Asserts the tooltip lists `names`, one per row, in that order. */
 function assertListed(tooltip, names) {
   // A name ends its cell: a tab before its value, or a line break after a
@@ -240,7 +248,9 @@ for (const renderer of ["svg", "canvas"]) {
       await moveTo(page, entry);
       const {tooltip} = await painted(page);
       assert.ok(tooltip.includes("Values < 5%"), `tooltip: ${tooltip}`);
-      assertListed(tooltip, membersAt());
+      assertListed(tooltip, ["Share", ...membersAt()]);
+      assertNoEmptyRows(tooltip);
+      assert.ok(/Share\t\d.*%/.test(tooltip), `the bucket's share: ${tooltip}`);
     } finally {
       await close();
     }

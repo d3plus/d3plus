@@ -96,6 +96,14 @@ async function tooltipAt(page, point) {
   );
 }
 
+/** Asserts every tooltip row has a value: none ends at its name's tab. */
+function assertNoEmptyRows(tooltip) {
+  assert.ok(
+    !/\t[ \t]*$/m.test(tooltip),
+    `an empty row: ${JSON.stringify(tooltip)}`,
+  );
+}
+
 /** Asserts the tooltip lists `names`, one per row, in that order. */
 function assertListed(tooltip, names) {
   const at = names.map(n => tooltip.indexOf(`${n}\t`));
@@ -137,7 +145,9 @@ for (const renderer of ["svg", "canvas"]) {
       const {point} = await locate(page, true);
       const tooltip = await tooltipAt(page, point);
       assert.ok(tooltip.includes("Values < 5%"), `tooltip: ${tooltip}`);
-      assertListed(tooltip, SMALL);
+      assertListed(tooltip, ["Value", "Share", ...SMALL]);
+      assertNoEmptyRows(tooltip);
+      assert.ok(tooltip.includes("Share\t2.91%"), tooltip);
       const labels = await page.evaluate(() =>
         window.__viz._legendClass.data().map(d => window.__viz._drawLabel(d)),
       );

@@ -81,7 +81,11 @@ it("thresholdMembers: thresholdMemberRows lists the members, then how many more"
   assert.strictEqual(MEMBER_LIMIT, 10);
   assert.strictEqual(rows.length, 11);
   assert.deepStrictEqual(rows[0], [memberName("m0"), "13k"]);
-  assert.deepStrictEqual(rows[10], [memberName("+3 t:more"), ""]);
+  assert.deepStrictEqual(
+    rows[10],
+    [memberName("+3 t:more"), "6k"],
+    "the rest's summed value",
+  );
 
   const short = thresholdMemberRows(
     stubViz({_thresholdMemberFormat: v => `$${v}`}),
@@ -90,7 +94,7 @@ it("thresholdMembers: thresholdMemberRows lists the members, then how many more"
   );
   assert.deepStrictEqual(short, [
     [memberName("m0"), "$13000"],
-    [memberName("+1 t:more"), ""],
+    [memberName("+1 t:more"), "$12000"],
   ]);
   assert.deepStrictEqual(thresholdMemberRows(stubViz(), {id: "a"}), []);
 });
@@ -210,4 +214,48 @@ it("thresholdMembers: makeChart folds the legend through the def's threshold, el
 it("thresholdMembers: a stacked Plot formats member values like its value axis", () => {
   const chart = new StackedArea().yConfig({tickFormat: d => `${d} units`});
   assert.strictEqual(chart._thresholdMemberFormat(4), "4 units");
+});
+
+it("thresholdMembers: shareOfRows and unwrapRow give a legend entry its share of the whole chart", async () => {
+  const {shareOfRows, unwrapRow} =
+    await import("../../src/charts/features/shareKey.ts");
+  const row = {id: "a"};
+  assert.strictEqual(
+    unwrapRow({__d3plus__: true, data: {__d3plus__: true, data: row}}),
+    row,
+  );
+  assert.strictEqual(unwrapRow(row), row);
+  assert.strictEqual(unwrapRow(undefined), undefined);
+  const rows = [{v: 3}, {v: -1}, {v: "x"}];
+  assert.strictEqual(
+    shareOfRows({v: 2}, rows, d => d.v),
+    0.5,
+  );
+  assert.ok(Number.isNaN(shareOfRows({v: 2}, [], d => d.v)));
+});
+
+it("thresholdMembers: a stacked legend entry's Share is its share of the whole chart", () => {
+  const chart = new StackedArea().y("value");
+  chart._legendData = [
+    {value: 6},
+    {value: 2},
+    {value: 2, _isAggregation: true},
+  ];
+  const cell = chart.tooltipConfig().tbody()[0][1];
+  assert.strictEqual(
+    cell({}, 0, {__d3plus__: true, data: chart._legendData[2]}),
+    "20%",
+  );
+  assert.strictEqual(cell({}, 0, {value: 2, __d3plusShare: 0.5}), "50%");
+});
+
+it("thresholdMembers: a Waffle legend entry reads its share through its wrapper, or of every legend row", async () => {
+  const {waffleShare} = await import("../../src/charts/Waffle/tooltip.ts");
+  const chart = new Waffle().sum("value");
+  chart._legendData = [{value: 6}, {value: 4, __d3plusShare: 0.25}];
+  assert.strictEqual(
+    waffleShare(chart, {__d3plus__: true, data: chart._legendData[1]}),
+    0.25,
+  );
+  assert.strictEqual(waffleShare(chart, {value: 5}), 0.5);
 });

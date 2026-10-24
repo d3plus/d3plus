@@ -60,8 +60,8 @@ export const memberName = (label: string): string =>
 
 /**
     Tooltip rows for a bucket's members: `[name, value]` for up to `limit`
-    of them, largest first, then a "+N more" row for the rest. Empty for a
-    row that isn't a bucket.
+    of them, largest first, then a "+N more" row with the rest's summed
+    value. Empty for a row that isn't a bucket.
 */
 export function thresholdMemberRows(
   viz: VizInstance,
@@ -76,13 +76,13 @@ export function thresholdMemberRows(
   const rows = members
     .slice(0, limit)
     .map(m => [memberName(m.label), format(m.value)]);
-  const rest = members.length - limit;
-  if (rest > 0)
+  const rest = members.slice(limit);
+  if (rest.length)
     rows.push([
       memberName(
-        `+${formatAbbreviate(rest, viz.schema.locale)} ${viz.schema.translate("more")}`,
+        `+${formatAbbreviate(rest.length, viz.schema.locale)} ${viz.schema.translate("more")}`,
       ),
-      "",
+      format(rest.reduce((total, m) => total + m.value, 0)),
     ]);
   return rows;
 }

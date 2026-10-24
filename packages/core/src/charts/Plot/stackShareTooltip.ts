@@ -6,7 +6,7 @@
 import {formatAbbreviate} from "@d3plus/format";
 import type {DataPoint} from "@d3plus/data";
 
-import {shareOf} from "../features/shareKey.js";
+import {shareOf, shareOfRows, unwrapRow} from "../features/shareKey.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -17,9 +17,16 @@ export function stackShareTooltipConfig(viz: VizInstance) {
   const row = [
     () => viz.schema.translate("Share"),
     (_d: DataPoint, _i: number, x: Record<string, unknown>) => {
-      // A legend swatch aggregates a series across every discrete position,
-      // so its merged share is an array with no meaningful total.
-      const share = shareOf(x) as number;
+      const row = unwrapRow(x);
+      let share = shareOf(row) as number;
+      // A legend entry merges a series over every discrete position, so its
+      // share is of the whole chart: of every legend row's stacked value.
+      if (!Number.isFinite(share)) {
+        const value = viz[`_${viz.schema.discrete === "y" ? "x" : "y"}`] as (
+          d: Record<string, unknown>,
+        ) => unknown;
+        share = row ? shareOfRows(row, viz._legendData || [], value) : NaN;
+      }
       if (!Number.isFinite(share)) return "";
       return `${formatAbbreviate(share * 100, viz.schema.locale)}%`;
     },
