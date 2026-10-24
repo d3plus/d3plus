@@ -157,3 +157,25 @@ DivergingScale.parameters = {
     },
   },
 };
+
+const pickScale = funcify(
+  (values, [min, max]) => (max - min > 5 ? "jenks" : "linear"),
+  '(values, [min, max]) => (max - min > 5 ? "jenks" : "linear")',
+);
+
+export const ScaleFunction = Template.bind({});
+ScaleFunction.args = {
+  data: skewed,
+  scale: pickScale,
+  height: 100,
+  width: 500,
+};
+ScaleFunction.parameters = {
+  controls: {include: ["scale", "data"]},
+  docs: {
+    description: {
+      story:
+        "`scale` also accepts a function that picks the scale on every render. It receives the numeric values the scale is built from (sorted, without null or NaN) and their `[min, max]` extent, and returns a scale name. Here a range wider than 5 gets jenks buckets and a narrower one gets a linear gradient, so new data (from a timeline or a filter) can switch between them.",
+    },
+  },
+};

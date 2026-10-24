@@ -71,7 +71,7 @@ function prepareGradientAxis(
       labels: labels || ticks,
       orient: cs.schema.orient,
       padding: cs.schema.padding,
-      scale: cs.schema.scale === "log" ? "log" : "linear",
+      scale: compute.scale === "log" ? "log" : "linear",
       ticks,
       width: cs.schema.width,
     },

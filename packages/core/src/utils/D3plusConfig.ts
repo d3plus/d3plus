@@ -22,6 +22,7 @@ import type {
   SizeLegendScale,
   SizeLegendSize,
 } from "../components/SizeLegend/sizeLegendLayout.js";
+import type {ColorScaleTypeSetting} from "../components/ColorScale/colorScaleType.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -514,6 +515,17 @@ export interface ColorScaleConfig {
   ) => string;
   /** Given a bucket's minimum and maximum values, returns the full label. */
   bucketJoiner?: (min: string, max: string) => string;
+  /**
+      The kind of scale: `"linear"` or `"log"` (a continuous gradient), or
+      `"jenks"`, `"buckets"`, or `"quantile"` (discrete buckets). A function
+      picks one on each render: it receives the numeric values the scale is
+      built from (sorted, without null or NaN) and their `[min, max]` extent,
+      with the ColorScale as `this`, and returns a scale name, as in
+      `(values, [min, max]) => max - min > 5 ? "jenks" : "linear"`. An unknown
+      name logs a warning and builds a linear scale. Defaults to `"linear"`,
+      and to `"jenks"` in a chart's `colorScaleConfig`.
+  */
+  scale?: ColorScaleTypeSetting;
 }
 
 /** `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. */
@@ -783,7 +795,8 @@ export interface D3plusConfig {
     colorMin?: CssColor;
     colorMid?: CssColor;
     colorMax?: CssColor;
-    scale?: AxisScale;
+    /** The kind of scale, or a function that picks one from the colorScale values on each render (see `ColorScaleConfig.scale`). Defaults to `"jenks"`. */
+    scale?: ColorScaleTypeSetting;
   };
   /**
       The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.

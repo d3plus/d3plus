@@ -477,7 +477,8 @@ export const argTypes = assign(
         type: "text",
       },
       defaultValue: "linear",
-      description: "Scale factor (1 = identity).",
+      description:
+        'The kind of scale: `"linear"` or `"log"` (a continuous gradient), or\n`"jenks"`, `"buckets"`, or `"quantile"` (discrete buckets). A function\npicks one on each render: it receives the numeric values the scale is\nbuilt from (sorted, without null or NaN) and their `[min, max]` extent,\nwith the ColorScale as `this`, and returns a scale name, as in\n`(values, [min, max]) => max - min > 5 ? "jenks" : "linear"`. An unknown\nname logs a warning and builds a linear scale. Defaults to `"linear"`,\nand to `"jenks"` in a chart\'s `colorScaleConfig`.',
       table: {
         defaultValue: {
           summary: "linear",
@@ -485,7 +486,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "constoraccessor",
+        summary: "colorscaletypesetting",
       },
     },
     select: {
