@@ -42,6 +42,7 @@ export const argTypes = assign(
       control: {
         type: "boolean",
       },
+      defaultValue: true,
       description:
         "Treemap: whether each group above the drawn tiles of a nested `groupBy`\ngets a header strip naming it, with its tiles below the strip. Every\nlevel above the tiles gets its own strip; a group too small for one\ngets none. Hovering a strip highlights its group, and clicking it zooms\ninto that group (Back steps out). Defaults to `true`.",
       table: {
