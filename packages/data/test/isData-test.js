@@ -58,3 +58,17 @@ it("addToQueue stores data for a schema-managed key on the schema", () => {
   assert.strictEqual(ctx._queue.length, 0, "nothing queued");
   assert.strictEqual(ctx.schema.links, links, "stored on the schema");
 });
+
+it("addToQueue replaces a queued request for the same key", () => {
+  const ctx = {_queue: [], schema: {}};
+  addToQueue.call(ctx, "first.json", undefined, "data");
+  addToQueue.call(ctx, "second.json", undefined, "data");
+  assert.strictEqual(ctx._queue.length, 1, "one entry for the key");
+  assert.deepStrictEqual(ctx._queue[0][1], ["second.json"]);
+});
+
+it("addToQueue drops data with no slot or schema to hold it", () => {
+  const ctx = {_queue: []};
+  addToQueue.call(ctx, [{id: "a"}], undefined, "links");
+  assert.deepStrictEqual(Object.keys(ctx), ["_queue"]);
+});
