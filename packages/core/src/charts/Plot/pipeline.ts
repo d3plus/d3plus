@@ -301,7 +301,8 @@ export const computePlotAxisValues: TransformStage = ({
 
   function getAxisValues(axis: string) {
     const timeData = viz[`_${axis}Time`];
-    const localData = timeData ? data : axisData;
+    const rows = timeData ? data : axisData;
+    const localData = viz._plotAxisRows ? viz._plotAxisRows(rows, axis) : rows;
 
     const filteredData = localData.filter(
       (d: Record<string, unknown>) =>

@@ -7746,7 +7746,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Box
 
-Defined in: [shapes/Box.ts:265](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L265)
+Defined in: [shapes/Box.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L266)
 
 Creates SVG box-and-whisker plots based on an array of data, one per group of values.
 
@@ -7771,7 +7771,7 @@ Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()
 | `fill`               | `constoraccessor`                                    | —                   | Each box's fill, resolved against its merged datum (white when unset); `rectConfig.fill` overrides it. Outliers take it too, resolved against each observation, and the median line defaults to black or white, whichever contrasts with it.                                                                                                                                     |
 | `id`                 | `constoraccessor`                                    | —                   | Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value.                                                                                                                                                                                                                                               |
 | `orient`             | `constoraccessor`                                    | `function`          | Orientation: "vertical" or "horizontal".                                                                                                                                                                                                                                                                                                                                         |
-| `outlier`            | `constoraccessor`                                    | `function`          | Outlier accessor (per-datum predicate).                                                                                                                                                                                                                                                                                                                                          |
+| `outlier`            | `constoraccessor`                                    | `function`          | The shape each outlier draws as: `"Circle"` (default) or `"Rect"`, or `false` to draw no point. An accessor receives each outlier's observation (a precomputed box's row). In BoxWhisker, the value axis leaves out the outliers it hides and reaches only as far as the whiskers.                                                                                               |
 | `rectWidth`          | `constoraccessor`                                    | `function`          |                                                                                                                                                                                                                                                                                                                                                                                  |
 | `stroke`             | `constoraccessor`                                    | —                   | Each box's outline color, resolved against its merged datum (black when unset); `rectConfig.stroke` overrides it.                                                                                                                                                                                                                                                                |
 | `texture`            | `constoraccessor`                                    | —                   | Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.                                                                                                                                                                                                                                                                                                   |
@@ -7788,7 +7788,7 @@ Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()
 
 > **active**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `void`
 
-Defined in: [shapes/Box.ts:451](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L451)
+Defined in: [shapes/Box.ts:453](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L453)
 
 The active highlight state for all sub-shapes in this Box.
 
@@ -7872,7 +7872,7 @@ new Treemap().colorDefaults({
 
 > **config**(): [`BoxConfig`](#boxconfig-1)
 
-Defined in: [shapes/Box.ts:546](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L546)
+Defined in: [shapes/Box.ts:548](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L548)
 
 Narrowed `.config()` for Box. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -7890,7 +7890,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **config**(`_`: `Partial`\<[`BoxConfig`](#boxconfig-1)\>): `this`
 
-Defined in: [shapes/Box.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L547)
+Defined in: [shapes/Box.ts:549](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L549)
 
 Narrowed `.config()` for Box. Inherited surface from
 `BaseClass.config()`; the override exists only to surface per-shape
@@ -7918,7 +7918,7 @@ keys (e.g. `width`/`height` for Rect) in autocomplete + type checks.
 
 > **data**(): `DataPoint`[]
 
-Defined in: [shapes/Box.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L464)
+Defined in: [shapes/Box.ts:466](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L466)
 
 The data array used to create shapes.
 
@@ -7930,7 +7930,7 @@ The data array used to create shapes.
 
 > **data**(`_`: `DataPoint`[]): `this`
 
-Defined in: [shapes/Box.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L465)
+Defined in: [shapes/Box.ts:467](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L467)
 
 The data array used to create shapes.
 
@@ -7950,7 +7950,7 @@ The data array used to create shapes.
 
 > **hover**(`_`: ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `null`): `void`
 
-Defined in: [shapes/Box.ts:473](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L473)
+Defined in: [shapes/Box.ts:475](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L475)
 
 The hover highlight state for all sub-shapes in this Box.
 
@@ -8044,7 +8044,7 @@ The locale used for all text and number formatting. Supports the locales defined
 
 > **medianConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Box.ts:486](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L486)
+Defined in: [shapes/Box.ts:488](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L488)
 
 Configuration object for the median line.
 
@@ -8056,7 +8056,7 @@ Configuration object for the median line.
 
 > **medianConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Box.ts:487](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L487)
+Defined in: [shapes/Box.ts:489](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L489)
 
 Configuration object for the median line.
 
@@ -8213,7 +8213,7 @@ new Plot.on("click.Shape", function (d) {
 
 > **outlierConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Box.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L498)
+Defined in: [shapes/Box.ts:500](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L500)
 
 Configuration object for each outlier point.
 
@@ -8225,7 +8225,7 @@ Configuration object for each outlier point.
 
 > **outlierConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Box.ts:499](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L499)
+Defined in: [shapes/Box.ts:501](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L501)
 
 Configuration object for each outlier point.
 
@@ -8289,7 +8289,7 @@ Parent config used by the wrapper.
 
 > **rectConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Box.ts:510](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L510)
+Defined in: [shapes/Box.ts:512](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L512)
 
 Configuration object for the rect shape.
 
@@ -8301,7 +8301,7 @@ Configuration object for the rect shape.
 
 > **rectConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Box.ts:511](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L511)
+Defined in: [shapes/Box.ts:513](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L513)
 
 Configuration object for the rect shape.
 
@@ -8321,7 +8321,7 @@ Configuration object for the rect shape.
 
 > **render**(): `this`
 
-Defined in: [shapes/Box.ts:307](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L307)
+Defined in: [shapes/Box.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L308)
 
 Draws the Box.
 
@@ -8337,7 +8337,7 @@ Draws the Box.
 
 > **select**(): `Selection`
 
-Defined in: [shapes/Box.ts:521](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L521)
+Defined in: [shapes/Box.ts:523](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L523)
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -8349,7 +8349,7 @@ The SVG container element for this visualization. 3 selector or DOM element.
 
 > **select**(`_`: `string` \| `HTMLElement` \| `SVGElement` \| `null`): `this`
 
-Defined in: [shapes/Box.ts:522](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L522)
+Defined in: [shapes/Box.ts:524](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L524)
 
 The SVG container element for this visualization. 3 selector or DOM element.
 
@@ -8411,7 +8411,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **toScene**(): `GroupNode`
 
-Defined in: [shapes/Box.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L427)
+Defined in: [shapes/Box.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L429)
 
 Compute-mode scene aggregation. When Box is rendered with
 `renderMode("compute")`, the inner Rect/Whisker/Circle/etc.
@@ -8494,7 +8494,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **whiskerConfig**(): `Record`\<`string`, `unknown`\>
 
-Defined in: [shapes/Box.ts:532](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L532)
+Defined in: [shapes/Box.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L534)
 
 Configuration object for the whisker.
 
@@ -8506,7 +8506,7 @@ Configuration object for the whisker.
 
 > **whiskerConfig**(`_`: `Record`\<`string`, `unknown`\>): `this`
 
-Defined in: [shapes/Box.ts:533](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L533)
+Defined in: [shapes/Box.ts:535](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/Box.ts#L535)
 
 Configuration object for the whisker.
 
@@ -22037,7 +22037,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `tooltipShared` | `false` |
 | `tooltipConfig` | —       |
 
-Defined in: [charts/BoxWhisker/index.ts:105](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BoxWhisker/index.ts#L105)
+Defined in: [charts/BoxWhisker/index.ts:107](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/BoxWhisker/index.ts#L107)
 
 Creates a simple box and whisker based on an array of data.
 
@@ -23394,18 +23394,18 @@ Box-specific config (whisker + median + outliers; subset of Shape).
 | <a id="property-id-3"></a> `id?`                                 | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `number`\>                        | Each box's id, read from its first row; keys every part the box draws. Defaults to the box's x (vertical) or y (horizontal) value.                                                                                                                                                                                                                                               | [shapes/shapeConfig.ts:284](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L284) |
 | <a id="property-medianconfig"></a> `medianConfig?`               | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:285](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L285) |
 | <a id="property-orient"></a> `orient?`                           | [`ConstOrAccessor`](#constoraccessor)\<[`Orient`](#orient-6)\>                       | Orientation: "vertical" or "horizontal".                                                                                                                                                                                                                                                                                                                                         | [shapes/shapeConfig.ts:287](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L287) |
-| <a id="property-outlier"></a> `outlier?`                         | [`ConstOrAccessor`](#constoraccessor)\<`string`\>                                    | Outlier accessor (per-datum predicate).                                                                                                                                                                                                                                                                                                                                          | [shapes/shapeConfig.ts:289](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L289) |
-| <a id="property-outlierconfig"></a> `outlierConfig?`             | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:290](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L290) |
-| <a id="property-rectconfig"></a> `rectConfig?`                   | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:291](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L291) |
-| <a id="property-rectwidth"></a> `rectWidth?`                     | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:292](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L292) |
-| <a id="property-select-3"></a> `select?`                         | `string` \| `HTMLElement` \| `SVGElement` \| `null`                                  | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:293](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L293) |
-| <a id="property-stroke-3"></a> `stroke?`                         | [`ConstOrAccessor`](#constoraccessor)\<`string`\>                                    | Each box's outline color, resolved against its merged datum (black when unset); `rectConfig.stroke` overrides it.                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L295) |
-| <a id="property-texture-3"></a> `texture?`                       | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.                                                                                                                                                                                                                                                                                                   | [shapes/shapeConfig.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L297) |
-| <a id="property-texturedefault-3"></a> `textureDefault?`         | `Record`\<`string`, `unknown`\>                                                      | Default texture config merged into the box's texture.                                                                                                                                                                                                                                                                                                                            | [shapes/shapeConfig.ts:299](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L299) |
-| <a id="property-whiskerconfig"></a> `whiskerConfig?`             | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:300](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L300) |
-| <a id="property-whiskermode"></a> `whiskerMode?`                 | `string` \| `number` \| (`string` \| `number`)[]                                     | Whisker mode: single mode string/number or [low, high] pair.                                                                                                                                                                                                                                                                                                                     | [shapes/shapeConfig.ts:302](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L302) |
-| <a id="property-x-3"></a> `x?`                                   | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:303](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L303) |
-| <a id="property-y-3"></a> `y?`                                   | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:304](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L304) |
+| <a id="property-outlier"></a> `outlier?`                         | [`ConstOrAccessor`](#constoraccessor)\<`false` \| `"Circle"` \| `"Rect"`\>           | The shape each outlier draws as: `"Circle"` (default) or `"Rect"`, or `false` to draw no point. An accessor receives each outlier's observation (a precomputed box's row). In BoxWhisker, the value axis leaves out the outliers it hides and reaches only as far as the whiskers.                                                                                               | [shapes/shapeConfig.ts:295](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L295) |
+| <a id="property-outlierconfig"></a> `outlierConfig?`             | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:296](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L296) |
+| <a id="property-rectconfig"></a> `rectConfig?`                   | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L297) |
+| <a id="property-rectwidth"></a> `rectWidth?`                     | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:298](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L298) |
+| <a id="property-select-3"></a> `select?`                         | `string` \| `HTMLElement` \| `SVGElement` \| `null`                                  | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:299](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L299) |
+| <a id="property-stroke-3"></a> `stroke?`                         | [`ConstOrAccessor`](#constoraccessor)\<`string`\>                                    | Each box's outline color, resolved against its merged datum (black when unset); `rectConfig.stroke` overrides it.                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:301](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L301) |
+| <a id="property-texture-3"></a> `texture?`                       | [`ConstOrAccessor`](#constoraccessor)\<`string` \| `Record`\<`string`, `unknown`\>\> | Texture (per textures.js) filling each box; `rectConfig.texture` overrides it.                                                                                                                                                                                                                                                                                                   | [shapes/shapeConfig.ts:303](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L303) |
+| <a id="property-texturedefault-3"></a> `textureDefault?`         | `Record`\<`string`, `unknown`\>                                                      | Default texture config merged into the box's texture.                                                                                                                                                                                                                                                                                                                            | [shapes/shapeConfig.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L305) |
+| <a id="property-whiskerconfig"></a> `whiskerConfig?`             | `Record`\<`string`, `unknown`\>                                                      | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L306) |
+| <a id="property-whiskermode"></a> `whiskerMode?`                 | `string` \| `number` \| (`string` \| `number`)[]                                     | Whisker mode: single mode string/number or [low, high] pair.                                                                                                                                                                                                                                                                                                                     | [shapes/shapeConfig.ts:308](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L308) |
+| <a id="property-x-3"></a> `x?`                                   | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:309](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L309) |
+| <a id="property-y-3"></a> `y?`                                   | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                                    | -                                                                                                                                                                                                                                                                                                                                                                                | [shapes/shapeConfig.ts:310](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L310) |
 
 ---
 
@@ -24365,7 +24365,7 @@ Other Line shape config.
 
 ### WhiskerConfig
 
-Defined in: [shapes/shapeConfig.ts:310](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L310)
+Defined in: [shapes/shapeConfig.ts:316](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L316)
 
 Whisker-specific config.
 
@@ -24377,15 +24377,15 @@ Whisker-specific config.
 
 | Property                                               | Type                                                                 | Description                       | Defined in                                                                                                           |
 | ------------------------------------------------------ | -------------------------------------------------------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| <a id="property-data-10"></a> `data?`                  | `DataPoint`[]                                                        | -                                 | [shapes/shapeConfig.ts:311](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L311) |
-| <a id="property-endpoint"></a> `endpoint?`             | [`ConstOrAccessor`](#constoraccessor)\<`string`\>                    | End-cap shape name (e.g. "Rect"). | [shapes/shapeConfig.ts:313](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L313) |
-| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\>                                      | -                                 | [shapes/shapeConfig.ts:314](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L314) |
-| <a id="property-length"></a> `length?`                 | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | Whisker length in pixels.         | [shapes/shapeConfig.ts:316](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L316) |
-| <a id="property-lineconfig-1"></a> `lineConfig?`       | `Record`\<`string`, `unknown`\>                                      | -                                 | [shapes/shapeConfig.ts:317](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L317) |
-| <a id="property-orient-2"></a> `orient?`               | [`ConstOrAccessor`](#constoraccessor)\<[`SideOrient`](#sideorient)\> | Side the whisker points toward.   | [shapes/shapeConfig.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L319) |
-| <a id="property-select-9"></a> `select?`               | `string` \| `HTMLElement` \| `SVGElement` \| `null`                  | -                                 | [shapes/shapeConfig.ts:320](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L320) |
-| <a id="property-x-11"></a> `x?`                        | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | -                                 | [shapes/shapeConfig.ts:321](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L321) |
-| <a id="property-y-11"></a> `y?`                        | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | -                                 | [shapes/shapeConfig.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L322) |
+| <a id="property-data-10"></a> `data?`                  | `DataPoint`[]                                                        | -                                 | [shapes/shapeConfig.ts:317](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L317) |
+| <a id="property-endpoint"></a> `endpoint?`             | [`ConstOrAccessor`](#constoraccessor)\<`string`\>                    | End-cap shape name (e.g. "Rect"). | [shapes/shapeConfig.ts:319](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L319) |
+| <a id="property-endpointconfig"></a> `endpointConfig?` | `Record`\<`string`, `unknown`\>                                      | -                                 | [shapes/shapeConfig.ts:320](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L320) |
+| <a id="property-length"></a> `length?`                 | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | Whisker length in pixels.         | [shapes/shapeConfig.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L322) |
+| <a id="property-lineconfig-1"></a> `lineConfig?`       | `Record`\<`string`, `unknown`\>                                      | -                                 | [shapes/shapeConfig.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L323) |
+| <a id="property-orient-2"></a> `orient?`               | [`ConstOrAccessor`](#constoraccessor)\<[`SideOrient`](#sideorient)\> | Side the whisker points toward.   | [shapes/shapeConfig.ts:325](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L325) |
+| <a id="property-select-9"></a> `select?`               | `string` \| `HTMLElement` \| `SVGElement` \| `null`                  | -                                 | [shapes/shapeConfig.ts:326](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L326) |
+| <a id="property-x-11"></a> `x?`                        | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | -                                 | [shapes/shapeConfig.ts:327](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L327) |
+| <a id="property-y-11"></a> `y?`                        | [`ConstOrAccessor`](#constoraccessor)\<`number`\>                    | -                                 | [shapes/shapeConfig.ts:328](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L328) |
 
 ## Type Aliases
 
@@ -24395,7 +24395,7 @@ Whisker-specific config.
 
 > **AnyShapeConfig** = [`BaseShapeConfig`](#baseshapeconfig) \| [`RectConfig`](#rectconfig-3) \| [`CircleConfig`](#circleconfig-1) \| [`LineConfig`](#lineconfig-3) \| [`AreaConfig`](#areaconfig-1) \| [`PathConfig`](#pathconfig-1) \| [`BarConfig`](#barconfig-7) \| [`ImageConfig`](#imageconfig-1) \| [`BoxConfig`](#boxconfig-1) \| [`WhiskerConfig`](#whiskerconfig-2)
 
-Defined in: [shapes/shapeConfig.ts:332](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L332)
+Defined in: [shapes/shapeConfig.ts:338](https://github.com/d3plus/d3plus/blob/main/packages/core/src/shapes/shapeConfig.ts#L338)
 
 Union of every shape config — useful for code that composes
 transient configs at runtime without knowing the shape ahead of

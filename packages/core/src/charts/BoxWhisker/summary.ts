@@ -18,6 +18,7 @@ import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
 import boxBuffer from "../plotBuffers/Box.js";
 import type Plot from "../Plot/index.js";
+import {boxAxisRows, boxValueAxis, drawsRowOutliers} from "./outliers.js";
 import {noteDrawnBoxes} from "./tooltip.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -28,17 +29,24 @@ type RowFn = (d: DataPoint, i: number) => unknown;
 export const precomputedBoxes = (viz: VizInstance): boolean =>
   hasBoxStats(viz.schema);
 
-/** The axis a box's statistics run along: the one that isn't discrete. */
-export const boxValueAxis = (viz: VizInstance): "x" | "y" =>
-  viz.schema.discrete === "y" ? "x" : "y";
-
-/** Every statistic value a plotted row places on the value axis. */
-const rowValues = (viz: VizInstance, row: Row): number[] =>
-  boxSummaryValues(viz.schema, row.data as DataPoint, row.i as number);
+/**
+    Every statistic value each plotted row places on the value axis: its
+    outliers too, unless its `outlier` setting draws no point.
+*/
+function rowValues(viz: VizInstance): (row: Row) => number[] {
+  const outliers = drawsRowOutliers(viz);
+  return row =>
+    boxSummaryValues(
+      viz.schema,
+      row.data as DataPoint,
+      row.i as number,
+      outliers(row),
+    );
+}
 
 /**
     The values precomputed boxes add to `axis` (see `_plotAxisValues`): each
-    row's statistics and outliers, on the value axis only.
+    row's statistics and drawn outliers, on the value axis only.
 */
 export function boxAxisValues(
   viz: VizInstance,
@@ -46,7 +54,7 @@ export function boxAxisValues(
   axis: string,
 ): number[] {
   if (!precomputedBoxes(viz) || axis !== boxValueAxis(viz)) return [];
-  return rows.flatMap(row => rowValues(viz, row));
+  return rows.flatMap(rowValues(viz));
 }
 
 /** The arguments Plot hands a shape's axis buffer. */
@@ -61,7 +69,8 @@ interface BufferArgs {
 /**
     BoxWhisker's axis buffer: Box's own, which pads the value axis past each
     row's value. A precomputed box spans its statistics, so each row is
-    buffered at every one of them.
+    buffered at every one of them; a computed box, at the rows that place
+    the axis (see `boxAxisRows`).
 */
 export function boxWhiskerBuffer(
   this: VizInstance,
@@ -72,10 +81,15 @@ export function boxWhiskerBuffer(
     a: BufferArgs,
   ) => [unknown, unknown];
   const plot = this as unknown as Plot;
-  if (!precomputedBoxes(this) || args.x2) return buffer.call(plot, args);
   const key = boxValueAxis(this);
+  if (!precomputedBoxes(this)) {
+    const data = boxAxisRows(this, args.data, args.x2 ? `${key}2` : key);
+    return buffer.call(plot, {...args, data});
+  }
+  if (args.x2) return buffer.call(plot, args);
+  const values = rowValues(this);
   const data = args.data.flatMap(row =>
-    rowValues(this, row).map(v => ({...row, [key]: v})),
+    values(row).map(v => ({...row, [key]: v})),
   );
   return buffer.call(plot, {...args, data});
 }

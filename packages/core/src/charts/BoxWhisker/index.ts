@@ -19,6 +19,7 @@ import {
   boxWhiskerEmit,
   precomputedBoxes,
 } from "./summary.js";
+import {boxAxisRows} from "./outliers.js";
 import {boxTooltipRows} from "./tooltip.js";
 
 export const boxWhiskerDef: ChartDefinition = {
@@ -29,6 +30,7 @@ export const boxWhiskerDef: ChartDefinition = {
     viz._buffer = {...viz._buffer, Box: boxWhiskerBuffer};
     viz._plotShapeEmitters = {Box: boxWhiskerEmit};
     viz._plotAxisValues = (rows, axis) => boxAxisValues(viz, rows, axis);
+    viz._plotAxisRows = (rows, axis) => boxAxisRows(viz, rows, axis);
   },
 
   ctx: {},

@@ -8,9 +8,9 @@ import {
   computePlotAxisValues,
   formatPlotData,
 } from "../../src/charts/Plot/pipeline.ts";
+import {boxValueAxis} from "../../src/charts/BoxWhisker/outliers.ts";
 import {
   boxAxisValues,
-  boxValueAxis,
   boxWhiskerBuffer,
   boxWhiskerEmit,
   precomputedBoxes,

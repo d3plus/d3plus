@@ -13,8 +13,9 @@ import type {ConfigPrepHost} from "../utils/configPrep.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 
-import Circle from "./Circle.js";
+import type Circle from "./Circle.js";
 import Rect from "./Rect.js";
+import {drawsOutlier, outlierShape} from "./boxOutlierShape.js";
 import type {BoxConfig} from "./shapeConfig.js";
 import {boxStats, whiskerPair} from "./boxStats.js";
 import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
@@ -28,8 +29,6 @@ import {stampOwners} from "./shapeOwners.js";
 import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
 import Whisker from "./Whisker.js";
-
-const shapes: Record<string, typeof Circle | typeof Rect> = {Circle, Rect};
 
 // Box's x/y setters wrap every non-function (including numbers) in
 // `accessor(...)`, unlike the "accessor" coerce which would `constant(...)`
@@ -69,7 +68,10 @@ const boxSchema: ConfigField[] = [
   {key: "y", coerce: toAccessor, default: accessor("y", 250)},
 ];
 
-/** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
+/**
+    Appends an outlier DataPoint to `outlierData` for each value past a limit
+    whose `outlier` setting draws a point.
+*/
 function collectOutliers(
   box: Box,
   d: DataPoint,
@@ -86,15 +88,14 @@ function collectOutliers(
         value < (d.lowerLimit as number) ||
         value > (d.upperLimit as number)
       ) {
+        const shape = box.schema.outlier(eachValue, index);
+        if (!drawsOutlier(shape)) return;
         const dataObj: DataPoint = {} as DataPoint;
         (dataObj as Record<string, unknown>).__d3plus__ = true;
         (dataObj as Record<string, unknown>).data = eachValue;
         (dataObj as Record<string, unknown>).i = index;
         (dataObj as Record<string, unknown>).id = `${d.id}-outlier-${index}`;
-        (dataObj as Record<string, unknown>).outlier = box.schema.outlier(
-          eachValue,
-          index,
-        );
+        (dataObj as Record<string, unknown>).outlier = shape;
 
         if (d.orient === "vertical") {
           (dataObj as Record<string, unknown>).x = d.x;
@@ -393,8 +394,9 @@ export default class Box extends BaseClass {
     this._whiskerEndpoint = [];
     groups(outlierData, (d: DataPoint) => d.outlier).forEach(
       ([shapeName, values]: [DataPoint[keyof DataPoint], DataPoint[]]) => {
+        const OutlierShape = outlierShape(shapeName)!;
         this._whiskerEndpoint.push(
-          new shapes[shapeName as string]()
+          new OutlierShape()
             .data(values)
             .renderMode(compute ? "compute" : "full")
             .select(mountInner(`g.d3plus-Box-Outlier-${shapeName}`) as never)

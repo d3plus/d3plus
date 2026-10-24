@@ -302,7 +302,8 @@ export const argTypes = assign(
     },
     outlier: {
       control: {},
-      description: "Outlier accessor (per-datum predicate).",
+      description:
+        'The shape each outlier draws as: `"Circle"` (default) or `"Rect"`, or\n`false` to draw no point. An accessor receives each outlier\'s\nobservation (a precomputed box\'s row). In BoxWhisker, the value axis\nleaves out the outliers it hides and reaches only as far as the\nwhiskers.',
       table: {
         defaultValue: {
           summary: "undefined",
