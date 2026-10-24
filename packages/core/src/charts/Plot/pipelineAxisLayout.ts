@@ -8,12 +8,15 @@
       - `barLabels` (used to suppress redundant ticks)
       - `xTicks`/`yTicks`/`x2Ticks`/`y2Ticks` (null when ticks should display,
         empty array when ticks are redundant with bar labels)
+      - `barLabelCheck` (the category labels the bars carry in place of the
+        axis's ticks, which the axis measure checks they have room for)
 
     Pure compute. No DOM, no side effects on viz.
 */
 import {unique} from "@d3plus/data";
 
 import {withAxisInk} from "./axisInk.js";
+import type {BarLabelCheck} from "./barLabelFit.js";
 import {baselineBreakAxisConfig} from "./baselineBreak.js";
 import {
   hasUserDomain,
@@ -85,11 +88,11 @@ function plotYAxisConfig(
   return yC;
 }
 
-/** The Bar labels drawn for the rows, as strings — used to suppress redundant axis ticks. */
+/** The Bar labels drawn for the rows, as strings, with the rows they label. */
 function plotBarLabels(
   viz: PlotViz,
   axisData: Record<string, unknown>[],
-): string[] {
+): {labels: string[]; rows: Record<string, unknown>[]} {
   const barConfig = shapeConfigFor(viz, "Bar");
   const barLabelFunction =
     barConfig.label !== undefined
@@ -97,12 +100,17 @@ function plotBarLabels(
         ? barConfig.label
         : () => barConfig.label
       : viz._drawLabel;
+  const labels: string[] = [];
+  const rows: Record<string, unknown>[] = [];
   // A Box draws no label, so its rows never make a tick redundant.
-  return axisData
-    .filter((d: Record<string, unknown>) => d.shape !== "Box")
-    .map((d: Record<string, unknown>) => barLabelFunction(d.data, d.i))
-    .filter((d: unknown) => typeof d === "number" || d)
-    .map(String);
+  for (const d of axisData) {
+    if (d.shape === "Box") continue;
+    const label = barLabelFunction(d.data, d.i);
+    if (typeof label !== "number" && !label) continue;
+    labels.push(String(label));
+    rows.push(d);
+  }
+  return {labels, rows};
 }
 
 export const preparePlotAxisLayout: TransformStage = ({
@@ -146,15 +154,25 @@ export const preparePlotAxisLayout: TransformStage = ({
 
   const yC = plotYAxisConfig(viz, y, yData, yRounding, {showX, showY});
 
-  const barLabels = plotBarLabels(viz, axisData);
+  const bar = plotBarLabels(viz, axisData);
+  const barLabels = bar.labels;
+  let barLabelCheck: BarLabelCheck | undefined;
 
   const tickFor = (axis: string, axisScale: string) => {
     if (isSpanAxis(viz, axis)) return spanEdges(viz, axisData);
     const ticks = unique(axisData.map((d: Record<string, unknown>) => d[axis]));
-    return axisScale === "Point" && ticks.every(t => barLabels.includes(`${t}`))
-      ? []
-      : null;
+    if (axisScale !== "Point" || !ticks.every(t => barLabels.includes(`${t}`)))
+      return null;
+    // The axis measure checks that the bars have room for these labels.
+    if (axis === "x" || axis === "y")
+      if (axis === viz.schema.discrete && (axis === "x" ? showX : showY))
+        barLabelCheck = {axis, ...bar};
+    return [];
   };
+  const xTicks = tickFor("x", xScale);
+  const x2Ticks = tickFor("x2", x2Scale);
+  const yTicks = tickFor("y", yScale);
+  const y2Ticks = tickFor("y2", y2Scale);
 
   return {
     plotDefaultConfig: defaultConfig,
@@ -164,10 +182,11 @@ export const preparePlotAxisLayout: TransformStage = ({
     plotShowY: showY,
     plotYC: withAxisInk(viz, yC),
     plotBarLabels: barLabels,
-    plotXTicks: tickFor("x", xScale),
-    plotX2Ticks: tickFor("x2", x2Scale),
-    plotYTicks: tickFor("y", yScale),
-    plotY2Ticks: tickFor("y2", y2Scale),
+    plotBarLabelCheck: barLabelCheck,
+    plotXTicks: xTicks,
+    plotX2Ticks: x2Ticks,
+    plotYTicks: yTicks,
+    plotY2Ticks: y2Ticks,
     plotXDomain: xDomain,
     plotX2Domain: x2Domain,
     plotYDomain: yDomain,

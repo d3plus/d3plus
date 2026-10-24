@@ -20,6 +20,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {Axis, TextBox} from "../../components/index.js";
 import type Shape from "../../shapes/Shape.js";
 import type {D3Scale} from "../../utils/index.js";
+import type {BarLabelCheck} from "../Plot/barLabelFit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** The four configured d3 scales plus their resolved scale-type strings. */
@@ -131,6 +132,7 @@ export interface VizContext {
   plotShowY?: boolean;
   plotYC?: Record<string, unknown>;
   plotBarLabels?: string[];
+  plotBarLabelCheck?: BarLabelCheck;
   plotXTicks?: unknown[] | null;
   plotX2Ticks?: unknown[] | null;
   plotYTicks?: unknown[] | null;

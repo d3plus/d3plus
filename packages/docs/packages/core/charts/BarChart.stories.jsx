@@ -846,3 +846,40 @@ ErrorBarsStacked.parameters = {
     },
   },
 };
+
+const monthlyValues = [2022, 2023, 2024].flatMap((year, k) =>
+  [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ].map((month, i) => ({
+    month: `${month} ${year}`,
+    value: 10 + ((i * 7 + k * 5) % 13),
+  })),
+);
+
+export const CategoryLabels = Template.bind({});
+CategoryLabels.args = {
+  data: monthlyValues,
+  groupBy: "month",
+  x: "month",
+  y: "value",
+};
+CategoryLabels.parameters = {
+  controls: {include: ["data", "groupBy"]},
+  docs: {
+    description: {
+      story:
+        "Bars named by their own `groupBy` category carry that name inside the bar, and the category axis leaves its tick labels off. When the bars are too narrow for their names, as these 36 months are, the axis labels the categories instead (rotating or thinning them as any crowded axis does) and the bars drop theirs, so every bar stays named.",
+    },
+  },
+};

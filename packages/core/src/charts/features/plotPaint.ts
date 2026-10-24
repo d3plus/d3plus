@@ -169,6 +169,8 @@ export interface PlotPaintContext {
   // Paint plumbing
   opp: "x" | "y" | undefined;
   barLabels: string[];
+  /** The category axis names the bars, which drop their labels (see `Plot/barLabelFit.ts`). */
+  barLabelsOnAxis?: boolean;
   showLineLabels: boolean;
   stackGroup: unknown;
   /** How the x axis is labeled (see `plotEndLabels.ts`); "axis" when omitted. */
@@ -366,6 +368,7 @@ function emitShapeLoop(
     width,
     values: [],
     valueExtent: valueAxisExtent(viz, {x2Height: pCtx.x2Height, yOffset}),
+    barLabelsOnAxis: pCtx.barLabelsOnAxis,
     insetBottom: mCtx.insetBottom ?? 0,
     x2Height: pCtx.x2Height,
     zoomRanges: pCtx.zoomRanges,

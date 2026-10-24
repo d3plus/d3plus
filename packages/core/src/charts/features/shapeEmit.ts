@@ -89,6 +89,9 @@ export interface ShapeEmitContext {
   /** The x2 axis's height: `yRange` minus this is content space. */
   x2Height?: number;
 
+  /** The category axis names the bars, which drop their labels (see `Plot/barLabelFit.ts`). */
+  barLabelsOnAxis?: boolean;
+
   /** Where the unzoomed x/y plot ranges land in a zoom repaint (see `Plot/plotZoom.ts`). */
   zoomRanges?: Partial<Record<"x" | "y", number[]>>;
 }
@@ -160,6 +163,7 @@ function finishShape(
   if (viz.schema.shapeConfig.duration === undefined) delete userConfig.duration;
   s.config(userConfig);
   if (override) s.config(override(userConfig));
+  if (key === "Bar" && ctx.barLabelsOnAxis) s.label(false);
   if (viz.schema.stacked && key === "Bar") applyStackShareLabels(viz, s);
   s.render();
   const nodes = collectComputed(s);
