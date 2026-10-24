@@ -7,10 +7,13 @@
 
 import {max} from "d3-array";
 
+import AxisBottom from "../../components/Axis/AxisBottom.js";
 import type Axis from "../../components/Axis/Axis.js";
+import {barLabelsNeedAxis, type BarLabelCheck} from "../Plot/barLabelFit.js";
 import {plotAxisConfig} from "../Plot/baselineBreak.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {xRightInset} from "./axesFinal.js";
+import {cornerControlsHeight} from "./features.js";
 import type {AxisBounds, YAxisMeasure} from "./axesFinal.js";
 import {
   END_LABEL_AXIS_CONFIG,
@@ -70,6 +73,8 @@ export interface AxisMeasureInputs {
   xData: unknown[];
   /** `x.padding()` when the x scale is banded, else 0 — feeds the x config. */
   xScalePadding: number;
+  /** Category labels the bars carry in place of the category axis's ticks. */
+  barLabelCheck?: BarLabelCheck;
 }
 
 /** The four-side margin claim + offsets the joint solve produces. */
@@ -90,6 +95,11 @@ export interface AxisMeasureResult {
   topOffset: number;
   xHeight: number;
   xLabelMode: XLabelMode;
+  /** The category axis keeps its ticks, which the bars had no room to label. */
+  barLabelsOnAxis: boolean;
+  /** The x and y ticks the axes were measured with (see `barLabelsOnAxis`). */
+  xTicks: unknown[] | null;
+  yTicks: unknown[] | null;
 }
 
 /** Measure the y/y2 test axes and report their bounds + claimed widths. */
@@ -248,7 +258,14 @@ function measureXTestAxes(
   ends: boolean,
 ): Omit<
   AxisMeasureResult,
-  "yBounds" | "y2Bounds" | "yWidth" | "y2Width" | "xC"
+  | "yBounds"
+  | "y2Bounds"
+  | "yWidth"
+  | "y2Width"
+  | "xC"
+  | "barLabelsOnAxis"
+  | "xTicks"
+  | "yTicks"
 > {
   const {xTest, x2Test, yTest, showX, showY, x2Exists, height, width} = inputs;
 
@@ -320,10 +337,38 @@ function measureXTestAxes(
 */
 export function measureAxes(
   viz: Viz,
-  inputs: AxisMeasureInputs,
+  measureInputs: AxisMeasureInputs,
   measureLineLabels: () => LineLabelMeasurement,
 ): AxisMeasureResult {
+  let inputs = measureInputs;
+  const check = inputs.barLabelCheck;
+  // Horizontal bars: the y axis measures first, so the x axis's height
+  // comes from a throwaway measure.
+  const yOnAxis =
+    check?.axis === "y" &&
+    barLabelsNeedAxis(
+      viz,
+      check,
+      barPlot(
+        viz,
+        inputs,
+        0,
+        provisionalXHeight(viz, inputs) + provisionalTopOffset(viz, inputs),
+      ),
+    );
+  if (yOnAxis) inputs = {...inputs, yTicks: null};
+
   const {yBounds, yWidth, y2Bounds, y2Width} = measureYTestAxes(viz, inputs);
+
+  // Vertical bars: the y axes have claimed their width.
+  const xOnAxis =
+    check?.axis === "x" &&
+    barLabelsNeedAxis(
+      viz,
+      check,
+      barPlot(viz, inputs, (yWidth ?? 0) + (y2Width ?? 0), 0),
+    );
+  if (xOnAxis) inputs = {...inputs, xTicks: null};
 
   const ends = labelsXEnds(viz, inputs.showX, inputs.showY);
   const xC = buildXConfig(viz, inputs);
@@ -343,5 +388,66 @@ export function measureAxes(
   viz._padding.bottom += xResult.xHeight;
   viz._padding.top += xResult.x2Height + xResult.topOffset;
 
-  return {yBounds, y2Bounds, yWidth, y2Width, xC, ...xResult};
+  return {
+    yBounds,
+    y2Bounds,
+    yWidth,
+    y2Width,
+    xC,
+    ...xResult,
+    barLabelsOnAxis: yOnAxis || xOnAxis,
+    xTicks: inputs.xTicks,
+    yTicks: inputs.yTicks,
+  };
+}
+
+/**
+    The plot area a bar's label gets measured against: the chart area less
+    the axes' claims (`left`, `bottom`) and the corner controls' reach,
+    which the top margin always clears (a small-multiples panel's chrome is
+    already claimed).
+*/
+function barPlot(
+  viz: Viz,
+  inputs: AxisMeasureInputs,
+  left: number,
+  bottom: number,
+): {width: number; height: number} {
+  const corner = viz._facetStep === "panel" ? 0 : cornerControlsHeight(viz);
+  return {
+    width: inputs.width - left,
+    height: inputs.height - bottom - corner,
+  };
+}
+
+/**
+    The room above the plot for the y axis's top label (see
+    `measureXTestAxes`), read from the y test axis's config ahead of its
+    measure.
+*/
+function provisionalTopOffset(viz: Viz, inputs: AxisMeasureInputs): number {
+  const {yTest, yC, showY} = inputs;
+  if (showY) yTest.config(yC).config(plotAxisConfig(viz, "y"));
+  const labelConfig = yTest.shapeConfig().labelConfig as {
+    fontSize: () => number;
+  };
+  return (showY ? labelConfig.fontSize() / 2 : 0) + (viz._plotInsetTop ?? 0);
+}
+
+/** The x axis's height, from a throwaway measure ahead of the joint solve. */
+function provisionalXHeight(viz: Viz, inputs: AxisMeasureInputs): number {
+  if (!inputs.showX) return 0;
+  const axis = new AxisBottom().align("end").gridSize(0);
+  axis
+    .domain(inputs.xDomain)
+    .height(inputs.height)
+    .maxSize(inputs.height / 2)
+    .range([undefined, undefined])
+    .ticks(inputs.xTicks)
+    .width(inputs.width)
+    .config(buildXConfig(viz, inputs))
+    .config(plotAxisConfig(viz, "x"))
+    .scale(inputs.xConfigScale)
+    .measure();
+  return (axis.outerBounds() as AxisBounds).height + axis.padding();
 }

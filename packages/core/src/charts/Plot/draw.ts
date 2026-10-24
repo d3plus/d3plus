@@ -194,6 +194,7 @@ function runPlotAxisPrep(
     yTicks: prepCtx.plotYTicks!,
     y2Ticks: prepCtx.plotY2Ticks!,
     barLabels: prepCtx.plotBarLabels!,
+    barLabelCheck: prepCtx.plotBarLabelCheck,
   };
 }
 
@@ -240,6 +241,7 @@ function plotAxisMeasureInputs(
     width,
     xData,
     xScalePadding: x.padding ? x.padding() : 0,
+    barLabelCheck: prep.barLabelCheck,
   };
 }
 

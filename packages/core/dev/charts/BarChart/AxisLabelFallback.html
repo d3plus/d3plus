@@ -1,0 +1,129 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>AxisLabelFallback · BarChart</title>
+    <meta
+      name="description"
+      content="Bars labeled with their own categories: when the bars are too narrow for those labels, the category axis shows its tick labels instead (36 months, horizontal, nested groupBy, small multiples), while 12 bars keep their in-bar labels."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(640px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 380px;
+      }
+      .tall {
+        height: 520px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <section>
+        <h3>36 bars: too narrow for their labels, so the axis names them</h3>
+        <div class="viz" id="narrow"></div>
+      </section>
+      <section>
+        <h3>12 bars: the labels fit inside the bars, as before</h3>
+        <div class="viz" id="fits"></div>
+      </section>
+      <section>
+        <h3>Horizontal, 36 bars</h3>
+        <div class="viz tall" id="horizontal"></div>
+      </section>
+      <section>
+        <h3>groupBy(["year", "month"])</h3>
+        <div class="viz" id="nested"></div>
+      </section>
+      <section>
+        <h3>Small multiples by year, independent scales: 12 bars per panel</h3>
+        <div class="viz" id="facet"></div>
+      </section>
+    </div>
+
+    <script>
+      const months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
+      ];
+      const data = [2022, 2023, 2024].flatMap((year, k) =>
+        months.map((m, i) => ({
+          year,
+          month: `${m} ${year}`,
+          value: 10 + ((i * 7 + k * 5) % 13),
+        })),
+      );
+
+      new d3plus.BarChart()
+        .select("#narrow")
+        .data(data)
+        .groupBy("month")
+        .x("month")
+        .y("value")
+        .render();
+
+      new d3plus.BarChart()
+        .select("#fits")
+        .data(data.filter(d => d.year === 2024))
+        .groupBy("month")
+        .x("month")
+        .y("value")
+        .render();
+
+      new d3plus.BarChart()
+        .select("#horizontal")
+        .data(data)
+        .groupBy("month")
+        .discrete("y")
+        .x("value")
+        .y("month")
+        .render();
+
+      new d3plus.BarChart()
+        .select("#nested")
+        .data(data)
+        .groupBy(["year", "month"])
+        .x("month")
+        .y("value")
+        .render();
+
+      new d3plus.BarChart()
+        .select("#facet")
+        .data(data)
+        .groupBy("month")
+        .x("month")
+        .y("value")
+        .facet("year")
+        .facetConfig({scales: "independent"})
+        .render();
+    </script>
+  </body>
+</html>
