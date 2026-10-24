@@ -100,3 +100,26 @@ InitialSelection.parameters = {
     },
   },
 };
+
+export const LimitingTheSelection = Template.bind({});
+LimitingTheSelection.args = {
+  brushMax: 3,
+  brushing: true,
+  buttonBehavior: "ticks",
+  domain: [2010, 2021],
+  height: 100,
+  selection: [2010, 2021],
+  ticks: [
+    2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021,
+  ],
+  width: 520,
+};
+LimitingTheSelection.parameters = {
+  controls: {include: ["brushMax", "brushMin", "selection"]},
+  docs: {
+    description: {
+      story:
+        "`brushMax` caps how many ticks a selection can span. Drag across more and the brush is pulled in on release, keeping the end you dragged; a wider starting `selection` keeps its latest periods. On a chart, pass it through `timelineConfig`. When `brushMin` is larger, `brushMin` wins.",
+    },
+  },
+};

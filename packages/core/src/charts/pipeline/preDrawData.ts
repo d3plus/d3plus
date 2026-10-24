@@ -10,6 +10,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
 
+import {brushSpan} from "../../components/Timeline/brushSpan.js";
 import {discreteNestKeys} from "./stages.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -41,6 +42,23 @@ export function dataFilter(
 }
 
 /**
+    The synthesized time filter of a chart whose discrete axis is its time:
+    every period, or only the latest `timelineConfig.brushMax` of them when
+    the timeline caps its selection.
+*/
+function latestPeriods(viz: Viz, dates: Date[]): TimeFilterFn {
+  const config = (viz.schema.timelineConfig || {}) as Record<string, unknown>;
+  const most = viz.schema.timeline
+    ? brushSpan(config.brushMin, config.brushMax).max
+    : Infinity;
+  const periods = [...new Set(dates.map(Number))].sort((a, b) => a - b);
+  if (periods.length <= most) return () => true;
+  const from = periods[periods.length - most];
+  const snapTime = viz.schema.time;
+  return (d: DataPoint, i: number) => +date(snapTime(d, i))! >= from;
+}
+
+/**
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
     data exists; returns undefined otherwise.
 */
@@ -59,7 +77,7 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
         `_${viz.schema.discrete}`
       ](d, i) === viz.schema.time(d, i)
     ) {
-      computedTimeFilter = () => true;
+      computedTimeFilter = latestPeriods(viz, dates as Date[]);
     } else {
       const latestTime = +max(dates as Date[])!;
       // Snapshot `viz.schema.time` into the closure. Without this, a user

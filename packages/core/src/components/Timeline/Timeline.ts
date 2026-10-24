@@ -1,4 +1,3 @@
-import {max, min} from "d3-array";
 import type {BrushBehavior} from "d3-brush";
 import {pointers} from "d3-selection";
 
@@ -12,6 +11,7 @@ import {constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
+import {brushSpan, spanIndices} from "./brushSpan.js";
 import {initTimelineDefaults} from "./timelineConfig.js";
 import {
   configureScale,
@@ -27,6 +27,7 @@ const timelineSchema: ConfigField[] = [
   {key: "buttonPadding", coerce: "identity", default: 10},
   {key: "brushing", coerce: "identity", default: true},
   {key: "brushFilter", coerce: "identity"},
+  {key: "brushMax", coerce: "const"},
   {key: "brushMin", coerce: "const", default: constant(1)},
   {key: "buttonAlign", coerce: "identity", default: "middle"},
   {key: "buttonBehavior", coerce: "identity", default: "auto"},
@@ -343,47 +344,31 @@ export default class Timeline extends Axis {
         ? this._availableTicks.map(Number)
         : this._d3Scale!.range();
 
-    if (this._buttonBehaviorCurrent === "ticks") {
-      // find closest min and max ticks from data
-      // and their indices in the ticks Array
-      let minDomain: unknown = date(closest(domain[0] as number, ticks));
-      let minIndex = ticks.indexOf(+(minDomain as number));
-      let maxDomain: unknown = date(closest(domain[1] as number, ticks));
-      let maxIndex = ticks.indexOf(+(maxDomain as number));
+    // The end being dragged (nearest the pointer) stays put when a selection
+    // longer than `brushMax` is pulled in.
+    const brushed = event.selection as number[] | null;
+    const px = x.length ? (x[0][0] as number) : NaN;
+    const anchor =
+      brushed && Math.abs(px - brushed[0]) < Math.abs(px - brushed[1])
+        ? "lo"
+        : "hi";
+    const span = brushSpan(this.schema.brushMin, this.schema.brushMax);
 
-      // using the indices, determine if the 2 ends of the brush
-      // are too close to each other. "ticksApart" always needs to
-      // be less than the current current brushMin minus 1. For
-      // example, a brushMin of "2" means that the min and max domain
-      // values need to be "1" space apart from eachother.
-      let ticksApart = Math.abs(maxIndex - minIndex);
-      const minTicksAllowed = this.schema.brushMin() - 1;
-
-      // if the min and max are not far enough apart to satisfy
-      // brushMin, then forcibly extend the domain.
-      if (ticksApart < minTicksAllowed) {
-        // push the maxDomain out as far as possible to account for brushMin
-        maxIndex = min([
-          ticks.length - 1,
-          maxIndex + (minTicksAllowed - ticksApart),
-        ])!;
-        maxDomain = ticks[maxIndex];
-        ticksApart = Math.abs(maxIndex - minIndex);
-
-        // if the domain is still not far enough apart, extent the minDomain
-        // as far as possible to allow for brushMin
-        if (ticksApart < minTicksAllowed) {
-          minIndex = max([0, minIndex - (minTicksAllowed - ticksApart)])!;
-          minDomain = ticks[minIndex];
-        }
-      }
-
-      domain[0] = minDomain;
-      domain[1] = maxDomain;
-    } else {
-      domain[0] = closest(domain[0] as number, ticks as number[]);
-      domain[1] = closest(domain[1] as number, ticks as number[]);
-    }
+    // The closest ticks to each end, moved so the selection spans `brushMin`
+    // (ticks only) to `brushMax` ticks.
+    const ticksMode = this._buttonBehaviorCurrent === "ticks";
+    const at = (v: unknown) =>
+      ticks.indexOf(closest(v as number, ticks as number[]) as number);
+    const [lo, hi] = spanIndices(
+      at(domain[0]),
+      at(domain[1]),
+      ticks.length,
+      ticksMode ? span : {min: 1, max: span.max},
+      anchor,
+    );
+    domain = ticksMode
+      ? [date(ticks[lo]), date(ticks[hi])]
+      : [ticks[lo], ticks[hi]];
 
     // if the brush event has finished, update the current "selection" value
     const single = +(domain[0] as number) === +(domain[1] as number);
