@@ -17,6 +17,7 @@ import type {ConfigPrepHost} from "../../utils/configPrep.js";
 import type Axis from "./Axis.js";
 import {brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
+import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
@@ -134,6 +135,14 @@ export function calculateTicks(
                       : -1)
                 }`.replace(/9+/g, "1"),
             );
+  } else if (scaleClone.exponent && scaleClone.exponent() !== 1) {
+    // Labels take every other step, as the linear filter below does.
+    ticks = powTicks(
+      domain,
+      scaleClone.exponent(),
+      Math.max(1, step / 2),
+      minorTicks,
+    );
   } else {
     ticks = scaleClone.ticks!(step);
     if (

@@ -34,6 +34,10 @@ export interface D3Scale<Out = number> {
   clamp?(): boolean;
   clamp?(clamp: boolean): D3Scale<Out>;
 
+  /** Power scales only: get/set the exponent. */
+  exponent?(): number;
+  exponent?(exponent: number): D3Scale<Out>;
+
   /** Band / point scales only: width of one band. */
   bandwidth?(): number;
   /** Band / point scales only: distance between band starts. */

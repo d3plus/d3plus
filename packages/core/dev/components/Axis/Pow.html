@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Pow · Axis</title>
+    <meta
+      name="description"
+      content="Power-scale axes at several exponents, standalone and as a LinePlot's y axis."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      .axis {
+        display: block;
+        margin: 10px;
+      }
+
+      #viz {
+        height: 420px;
+        width: 720px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="axes"></div>
+    <div id="viz"></div>
+
+    <script>
+      [2, 1, 0.5, 0.3, 0.1].forEach(function (exponent, i) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.id = "axis" + i;
+        svg.setAttribute("class", "axis");
+        svg.setAttribute("width", "700px");
+        svg.setAttribute("height", "60px");
+        document.getElementById("axes").appendChild(svg);
+        new d3plus.AxisBottom()
+          .select("#axis" + i)
+          .width(700)
+          .height(60)
+          .domain([0, 1000000])
+          .config({scale: "pow", exponent: exponent})
+          .title("exponent: " + exponent)
+          .render();
+      });
+
+      var sizes = {Small: 1, Medium: 40, Large: 2000};
+      var data = [];
+      Object.keys(sizes).forEach(function (id) {
+        for (var year = 2010; year <= 2020; year++)
+          data.push({
+            id: id,
+            year: year,
+            value: sizes[id] * 1000 * (1 + (year - 2010) * 0.12),
+          });
+      });
+
+      new d3plus.LinePlot()
+        .select("#viz")
+        .data(data)
+        .groupBy("id")
+        .x("year")
+        .y("value")
+        .title('yConfig: {scale: "pow", exponent: 0.3}')
+        .yConfig({scale: "pow", exponent: 0.3, title: "Value"})
+        .render();
+    </script>
+  </body>
+</html>

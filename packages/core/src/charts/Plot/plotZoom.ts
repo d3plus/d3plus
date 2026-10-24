@@ -60,12 +60,12 @@ export interface PlotZoomBase {
 }
 
 /**
-    Whether an axis zooms: a linear axis over a continuous scale, or a time
-    axis. Point (category) axes and log axes don't.
+    Whether an axis zooms: a linear or power axis over a continuous scale, or
+    a time axis. Point (category) axes and log axes don't.
 */
 const zoomable = (plotScale: string, configScale: string): boolean =>
   configScale === "time" ||
-  (plotScale === "Linear" && configScale === "linear");
+  (plotScale === "Linear" && ["linear", "pow", "sqrt"].includes(configScale));
 
 /** Which of the plot's axes are simple linear or time axes (the zoomable ones). */
 function zoomableAxes(pCtx: PlotPaintContext): AxisName[] {

@@ -194,6 +194,16 @@ export interface AxisConfig {
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
+  /**
+      The exponent of a `"pow"` axis (`scale: "pow"`): below 1 it spreads the
+      small values out and squeezes the large ones together (`0.5` matches
+      a `"sqrt"` axis), above 1 it does the opposite. Defaults to `1`, which
+      draws like a linear axis. Only a `"pow"` axis reads it; on any other
+      scale it has no effect, and a value that isn't a positive number falls
+      back to `1`. Ticks are spaced evenly along a power axis and rounded to
+      round values.
+  */
+  exponent?: number;
   /** The shape drawn at each tick: `"Line"` (the default), `"Rect"`, or `"Circle"`. */
   shape?: "Line" | "Rect" | "Circle";
   /** Tick style of the axis. */
