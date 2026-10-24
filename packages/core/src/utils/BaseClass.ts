@@ -17,6 +17,12 @@ import {
   RESOLVES_RESET,
 } from "../fluent.js";
 import {isSharedConfig, warnUnknownConfig} from "./configWarnings.js";
+import {
+  applyClassName,
+  RENDERER_CLASSES,
+  rendererSurfaces,
+  type ElementsSource,
+} from "./className.js";
 
 /**
     Swaps every nested `RESET` in a config value for the matching entry of
@@ -210,6 +216,39 @@ export default class BaseClass {
     return arguments.length
       ? ((this.schema.locale = findLocale(_ as string)), this)
       : this.schema.locale;
+  }
+
+  /**
+      CSS classes added to the outermost element this chart or component draws
+      into, next to its fixed d3plus classes, so page CSS can target it: a
+      chart's root `<svg class="d3plus-viz">` (its `<canvas>` with the Canvas
+      renderer) and a standalone component's `<svg>`. Takes a space-separated
+      string or an array. A new value replaces the classes the previous one
+      added; unset adds none. Tooltips take their own `tooltipConfig.className`.
+
+@example
+new d3plus.BarChart().className("revenue-chart dark");
+*/
+  className(): string | string[] | undefined;
+  className(_: string | string[] | undefined): this;
+  className(
+    _?: string | string[] | undefined,
+  ): string | string[] | undefined | this {
+    if (!arguments.length) return this.schema.className;
+    this.schema.className = _;
+    applyClassName(this);
+    return this;
+  }
+
+  /**
+      The elements `className` adds its classes to, with the fixed classes
+      each one keeps: the drawing surface of the instance's scene renderer,
+      once it has rendered.
+      @private
+  */
+  _classNameTargets(): {el: Element; keep?: string[]}[] {
+    const renderer = (this as {_sceneRenderer?: ElementsSource})._sceneRenderer;
+    return rendererSurfaces(renderer).map(el => ({el, keep: RENDERER_CLASSES}));
   }
 
   /**

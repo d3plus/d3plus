@@ -1,0 +1,91 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ClassName · Viz</title>
+    <meta
+      name="description"
+      content="Two identical bar charts on a page whose CSS targets .dark-chart; className adds that class to one chart's root element, so only it turns dark."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+
+      h2 {
+        margin: 0 0 8px;
+        font-size: 14px;
+        font-weight: normal;
+      }
+
+      .viz {
+        width: 420px;
+        height: 300px;
+      }
+
+      /* Page CSS for one chart: the class className adds to its root element. */
+      .dark-chart {
+        background: #1e1f26;
+        border-radius: 6px;
+      }
+
+      .dark-chart text {
+        fill: #f1f3f5;
+      }
+
+      .dark-chart .d3plus-render-node[data-key*="grid"] {
+        stroke: #3b3d48;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section>
+      <div>
+        <h2><code>className: "dark-chart"</code></h2>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h2>no className</h2>
+        <div class="viz" id="plain"></div>
+      </div>
+    </section>
+  </body>
+
+  <script>
+    const data = [
+      {id: "North", year: 2021, value: 14},
+      {id: "North", year: 2022, value: 18},
+      {id: "North", year: 2023, value: 23},
+      {id: "South", year: 2021, value: 9},
+      {id: "South", year: 2022, value: 13},
+      {id: "South", year: 2023, value: 11},
+    ];
+    const config = {
+      data,
+      groupBy: "id",
+      x: "year",
+      y: "value",
+      discrete: "x",
+      title: "Revenue by region",
+    };
+
+    new d3plus.BarChart()
+      .select("#dark")
+      .config({...config, className: "dark-chart"})
+      .render();
+
+    new d3plus.BarChart().select("#plain").config(config).render();
+  </script>
+</html>

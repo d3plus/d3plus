@@ -90,3 +90,12 @@ it("renderToStaticSVG loads a polled URL once and leaves no poll running", async
     globalThis.fetch = native;
   }
 });
+
+it("renderToStaticSVG keeps the chart's className on the root svg", async () => {
+  const svg = await renderToStaticSVG(
+    new Treemap().data(data).groupBy("id").className("revenue-chart dark"),
+    {width: 300, height: 200},
+  );
+  const root = svg.slice(0, svg.indexOf(">") + 1);
+  assert.ok(/class="[^"]*revenue-chart dark"/.test(root), root);
+});

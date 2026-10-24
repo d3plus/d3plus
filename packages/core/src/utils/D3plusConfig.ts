@@ -257,6 +257,12 @@ export interface AxisConfig {
 export interface TooltipConfig {
   /** The inner HTML content of the arrow element, empty by default. */
   arrow?: ((d: DataPoint) => string) | string;
+  /**
+      CSS classes added to each tooltip element, beside its fixed
+      `d3plus-tooltip` class, so page CSS can style one chart's tooltips: a
+      space-separated string or an array.
+  */
+  className?: string | string[];
   /** The background color accessor for each tooltip. */
   background?: ((d: DataPoint) => CssColor) | CssColor;
   /** The border accessor for each tooltip. */
@@ -544,6 +550,15 @@ export interface SaveControlConfig {
 export interface D3plusConfig {
   /** Data array or URL string to load data from. */
   data?: DataPoint[] | string;
+  /**
+      CSS classes added to the outermost element the chart or component draws
+      into, beside its fixed classes, so page CSS can target it: a chart's root
+      `<svg class="d3plus-viz">` (and, with the Canvas renderer, its
+      `<canvas>`), the HTML layer holding its controls, and a standalone
+      component's `<svg>`. A space-separated string or an array; a new value
+      replaces the classes the previous one added.
+  */
+  className?: string | string[];
   /** Locale code used for text and number formatting. */
   locale?: string;
 

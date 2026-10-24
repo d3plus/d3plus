@@ -15,10 +15,12 @@
 import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, Scene} from "@d3plus/render";
 
-interface SceneComponent {
+import {applyClassName, type ClassNameHost} from "./className.js";
+
+interface SceneComponent extends ClassNameHost {
   _select?: {node: () => import("d3-selection").BaseType | null};
   _sceneRenderer?: SvgRenderer;
-  schema: {width?: number; height?: number};
+  schema: {width?: number; height?: number; className?: unknown};
   toScene: () => GroupNode;
 }
 
@@ -47,4 +49,5 @@ export function paintComponentScene(instance: SceneComponent): void {
     height,
   };
   instance._sceneRenderer.drawScene(scene, {duration: 0});
+  applyClassName(instance);
 }

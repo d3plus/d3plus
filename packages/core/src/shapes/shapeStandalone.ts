@@ -6,6 +6,7 @@ import {getSize} from "@d3plus/dom";
 import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
+import {applyClassName} from "../utils/className.js";
 import type Shape from "./Shape.js";
 
 /**
@@ -72,4 +73,5 @@ export function paintStandalone(shape: Shape, node: Element): void {
   renderer.mount({container: node, width, height});
   renderer.drawScene(scene);
   shape._sceneRenderer = renderer;
+  applyClassName(shape);
 }

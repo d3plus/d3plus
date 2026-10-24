@@ -129,16 +129,16 @@ export const argTypes = assign(
       control: {
         type: "text",
       },
-      defaultValue: "d3plus-tooltip",
-      description: "",
+      description:
+        "CSS classes added to each tooltip element, next to its fixed\n`d3plus-tooltip` class, so page CSS can style these tooltips (a chart\npasses its `tooltipConfig.className`). Takes a space-separated string or\nan array; a new value replaces the classes the previous one added.",
       table: {
         defaultValue: {
-          summary: "d3plus-tooltip",
+          summary: "undefined",
         },
       },
       type: {
-        required: false,
-        summary: "string",
+        required: true,
+        summary: "string | array.&lt;string&gt; | undefined",
       },
     },
     colorDefaults: {

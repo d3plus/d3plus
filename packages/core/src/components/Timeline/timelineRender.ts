@@ -11,6 +11,7 @@ import type {GroupNode} from "@d3plus/render";
 import {textWrap} from "@d3plus/text";
 
 import {configPrep} from "../../utils/index.js";
+import {applyClassName} from "../../utils/className.js";
 import {parseTimeValues} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
@@ -44,6 +45,7 @@ export function paintTimelineScene(tl: Timeline, root: GroupNode): void {
     {root: {type: "group", key: "root", children: [root]}, width, height},
     {duration: 0},
   );
+  applyClassName(tl);
 }
 
 /** Coerces ticks/data to dates and resolves the tick format. */
