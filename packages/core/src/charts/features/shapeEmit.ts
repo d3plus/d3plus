@@ -293,6 +293,9 @@ const barEmit: ShapeEmitter = emitCtx => {
         values.map((d: DataPoint) => scale(d[viz.schema.discrete as string])),
       ),
     );
+    // A reversed axis places the data from its far end.
+    if (allPositions[0] > allPositions[allPositions.length - 1])
+      allPositions.reverse();
     const first = allPositions[0] as number;
     const last = allPositions[allPositions.length - 1] as number;
     allPositions.unshift(
@@ -312,7 +315,7 @@ const barEmit: ShapeEmitter = emitCtx => {
       }
       return n;
     }, Infinity);
-  } else if (vals.length > 1) space = scale(vals[1]) - scale(vals[0]);
+  } else if (vals.length > 1) space = Math.abs(scale(vals[1]) - scale(vals[0]));
   else space = range[range.length - 1] - range[0];
   const step = space;
   if (viz._groupPadding! < space) space -= viz._groupPadding!;
@@ -488,7 +491,11 @@ const lineEmit: ShapeEmitter = ctx => {
     labelBounds: showLineLabels
       ? (d: PlotDatum, i: number, s: {points: number[][]}) => {
           const [firstX, firstY] = s.points[0];
-          const [lastX, lastY] = s.points[s.points.length - 1];
+          // The label sits past the line's right end (its first point when
+          // the x axis is reversed).
+          const [lastX, lastY] = s.points.reduce((a, b) =>
+            b[0] >= a[0] ? b : a,
+          );
           const height = viz.schema.height / 4;
           const mod = labelPositions[d.id] ? lastY - labelPositions[d.id] : 0;
           return {

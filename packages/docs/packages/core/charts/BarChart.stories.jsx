@@ -185,6 +185,32 @@ HorizontalBars.parameters = {
   },
 };
 
+export const ReversedAxis = Template.bind({});
+ReversedAxis.args = {
+  data: ["Coal", "Gas", "Solar"].flatMap((source, k) =>
+    [2018, 2019, 2020, 2021, 2022, 2023].map((year, i) => ({
+      source,
+      year,
+      value: 10 + k * 5 + i * (k + 1),
+    })),
+  ),
+  discrete: "y",
+  groupBy: "source",
+  stacked: true,
+  x: "value",
+  y: "year",
+  yConfig: {reverse: true},
+};
+ReversedAxis.parameters = {
+  controls: {include: ["yConfig"]},
+  docs: {
+    description: {
+      story:
+        "Any axis config takes `reverse: true` to flip that axis. A horizontal bar chart's categories run up from the bottom, so the latest year would sit on top; reversing the y axis reads the years down from the earliest, like a table. The bars, labels, and tooltips all follow the reversed axis.",
+    },
+  },
+};
+
 export const TrendLine = Template.bind({});
 TrendLine.args = {
   data: [

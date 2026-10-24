@@ -12,7 +12,7 @@ import {constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
-import {initTimelineDefaults} from "./timelineConfig.js";
+import {byValue, initTimelineDefaults} from "./timelineConfig.js";
 import {
   configureScale,
   measureTicksWidth,
@@ -340,7 +340,7 @@ export default class Timeline extends Axis {
 
     const ticks =
       this._buttonBehaviorCurrent === "ticks"
-        ? this._availableTicks.map(Number)
+        ? byValue(this._availableTicks).map(Number)
         : this._d3Scale!.range();
 
     if (this._buttonBehaviorCurrent === "ticks") {
@@ -378,8 +378,8 @@ export default class Timeline extends Axis {
         }
       }
 
-      domain[0] = minDomain;
-      domain[1] = maxDomain;
+      // A reversed timeline's brush starts at its later end.
+      [domain[0], domain[1]] = byValue([minDomain, maxDomain]);
     } else {
       domain[0] = closest(domain[0] as number, ticks as number[]);
       domain[1] = closest(domain[1] as number, ticks as number[]);
@@ -398,7 +398,7 @@ export default class Timeline extends Axis {
                 this._availableTicks[ticks.indexOf(domain[0] as number)] as
                   string | number | false,
               )
-            : [
+            : byValue([
                 date(
                   this._availableTicks[ticks.indexOf(domain[0] as number)] as
                     string | number | false,
@@ -407,7 +407,7 @@ export default class Timeline extends Axis {
                   this._availableTicks[ticks.indexOf(domain[1] as number)] as
                     string | number | false,
                 ),
-              ];
+              ]);
     }
 
     return domain;
@@ -421,9 +421,11 @@ export default class Timeline extends Axis {
   _updateBrushLimit(domain: unknown[]): unknown[] {
     const selection =
       this._buttonBehaviorCurrent === "ticks"
-        ? ((domain as (string | number | false | undefined)[])
-            .map(date)
-            .map(d => this._d3Scale!(d as Date)) as number[])
+        ? byValue(
+            (domain as (string | number | false | undefined)[])
+              .map(date)
+              .map(d => this._d3Scale!(d as Date)) as number[],
+          )
         : (domain as number[]);
 
     if (selection[0] === selection[1]) {
@@ -478,12 +480,12 @@ export default class Timeline extends Axis {
 
     let firstTime = true;
     const nextYear = () => {
-      const periods = (
-        this._buttonBehaviorCurrent === "ticks"
+      const periods = byValue(
+        (this._buttonBehaviorCurrent === "ticks"
           ? this._availableTicks
-          : this.schema.ticks
+          : this.schema.ticks) || [],
       ) as (string | number | false | undefined)[];
-      if (!periods || !periods.length) return;
+      if (!periods.length) return;
       let selection: unknown[] = (this.schema.selection || [
         this.schema.domain[this.schema.domain.length - 1],
       ]) as unknown[];

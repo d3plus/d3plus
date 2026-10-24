@@ -19,6 +19,21 @@ export function defaultSize(this: VizInstance, d: DataPoint): number {
 }
 
 /**
+    Whether a bar grows back along its value axis: a negative value, or a
+    positive one on a `reverse` axis (down a y axis, left along an x axis).
+*/
+export function growsBack(
+  viz: VizInstance,
+  valueAxis: string,
+  d: DataPoint,
+  i: number,
+): boolean {
+  const value = (valueAxis === "y" ? viz._y! : viz._x!)(d, i) as number;
+  const axis = valueAxis === "y" ? viz._yAxis : viz._xAxis;
+  return value < 0 !== Boolean(axis?.schema?.reverse);
+}
+
+/**
     Determines if a Bar label should be placed outside of the Bar.
 */
 export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
@@ -40,7 +55,7 @@ export function outside(this: VizInstance, d: DataPoint, i: number): boolean {
   const accessor = nonDiscrete === "y" ? this._y! : this._x!;
   const range = axis._d3Scale!.range();
   const value = accessor(d, i) as number;
-  const negative = value < 0;
+  const negative = growsBack(this, nonDiscrete, d, i);
   const zero = axis._getPosition(0);
   const space =
     nonDiscrete === "y"

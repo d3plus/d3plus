@@ -195,10 +195,7 @@ function axisEstimate(
 ): (d: unknown) => number {
   return (d: unknown): number => {
     if (configScale === "log" && d === 0)
-      d =
-        (domain[0] as number) < 0
-          ? test._d3Scale!.domain()[1]
-          : test._d3Scale!.domain()[0];
+      d = test._givenDomain()[(domain[0] as number) < 0 ? 1 : 0];
     return test._getPosition.bind(test)(d);
   };
 }

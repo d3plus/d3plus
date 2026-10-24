@@ -15,6 +15,7 @@ import {parseTimeValues} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
+import {byValue} from "./timelineConfig.js";
 
 /**
     Standalone paint for the Timeline's scene (axis ticks/domain line/labels
@@ -220,17 +221,29 @@ export function setupBrush(
     .on("brush", tl._brushBrush.bind(tl))
     .on("end", tl._brushEnd.bind(tl)));
 
-  // data Array to be used when detecting the default value
+  // The ticks from earliest to latest, to pick the default from, and a
+  // button's position.
+  const ticks = byValue(
+    (tl._buttonBehaviorCurrent === "ticks"
+      ? tl._availableTicks
+      : tl.schema.ticks) || [],
+  );
+  const button = (d: unknown): number => {
+    const tick = ticks[ticks.map(Number).indexOf(+(d as number))];
+    return tick === undefined
+      ? (undefined as never)
+      : tl._d3Scale!(tick as Date);
+  };
   const defaultData =
-    tl._buttonBehaviorCurrent === "ticks" ? tl._availableTicks : range;
+    tl._buttonBehaviorCurrent === "ticks" ? ticks : ticks.map(button);
 
   // the default selection, if needed
-  const defaultSelection = [
+  const defaultSelection = byValue([
     tl.schema.brushMin() > defaultData.length
       ? defaultData[0]
       : defaultData[defaultData.length - tl.schema.brushMin()],
     defaultData[defaultData.length - 1],
-  ];
+  ]);
 
   // the current selection, considering user input, defaults, and data
   const selection: unknown[] =
@@ -238,21 +251,10 @@ export function setupBrush(
       ? defaultSelection
       : tl.schema.selection instanceof Array
         ? tl._buttonBehaviorCurrent === "buttons"
-          ? tl.schema.selection
-              .map(date)
-              .map(
-                (d: unknown) =>
-                  range[tl.schema.ticks!.map(Number).indexOf(+(d as number))],
-              )
+          ? byValue(tl.schema.selection.map(date).map(button))
           : tl.schema.selection.map(date)
         : tl._buttonBehaviorCurrent === "buttons"
-          ? [
-              range[
-                tl.schema
-                  .ticks!.map(Number)
-                  .indexOf(+(tl.schema.selection as number))
-              ],
-            ]
+          ? [button(date(tl.schema.selection as number))]
           : [tl.schema.selection];
 
   if (selection.length === 1) selection.push(selection[0]);

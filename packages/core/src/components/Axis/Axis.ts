@@ -56,6 +56,7 @@ const axisSchema: ConfigField[] = [
   {key: "paddingOuter", coerce: "identity", default: 0.1},
   {key: "range", coerce: "identity"},
   {key: "renderMode", coerce: "identity", default: "full"},
+  {key: "reverse", coerce: "identity", default: false},
   {key: "rotatedTickFormat", coerce: "identity"},
   {key: "rounding", coerce: "identity", default: "none"},
   {key: "roundingInsideMinPrefix", coerce: "identity", default: "< "},
@@ -185,6 +186,16 @@ export default class Axis extends BaseClass {
     return (ticks[0] as number) > (ticks[1] as number)
       ? (domain as unknown[]).reverse()
       : (domain as unknown[]);
+  }
+
+  /**
+      The scale's domain (or its negative log half's, with `negative`) in the
+      order it was given, undoing `reverse`.
+      @private
+*/
+  _givenDomain(negative = false): unknown[] {
+    const domain = (negative ? this._d3ScaleNegative : this._d3Scale)!.domain();
+    return this.schema.reverse ? domain.slice().reverse() : domain;
   }
 
   /**

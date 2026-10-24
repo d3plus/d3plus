@@ -7,6 +7,15 @@ import type Timeline from "./Timeline.js";
 const colorMid = "#bbb";
 
 /**
+    A copy of `values` (dates, years or pixel positions) in ascending order.
+    A `reverse` timeline lays its ticks out from latest to earliest, but its
+    selections, defaults and playback run from earliest to latest.
+*/
+export function byValue<T>(values: T[]): T[] {
+  return values.slice().sort((a, b) => Number(a) - Number(b));
+}
+
+/**
     Builds the play/pause TextBox. The button's visual is composed into the
     scene in compute mode; its click is wired to `Timeline._togglePlay` via a
     DOM hit target in `renderPlayButton` (the scene path mounts no per-node

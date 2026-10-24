@@ -387,6 +387,11 @@ export function setAxisScale(
     if (rounded) axis._d3Scale!.domain(rounded);
   }
 
+  if (axis.schema.reverse)
+    axis._d3Scale!.domain(
+      (axis._d3Scale!.domain() as (number | string | Date)[]).slice().reverse(),
+    );
+
   if (axis._d3Scale!.padding) axis._d3Scale!.padding(axis.schema.scalePadding);
   if (axis._d3Scale!.align) axis._d3Scale!.align(axis.schema.scaleAlign);
   if (axis._d3Scale!.paddingInner)

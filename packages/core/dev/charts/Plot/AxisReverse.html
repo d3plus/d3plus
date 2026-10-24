@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Axis Reverse · Plot</title>
+    <meta
+      name="description"
+      content="Axis configs with reverse: true on a stacked bar chart's year axis, a line plot's time and value axes, and a timeline."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        display: flex;
+        flex-wrap: wrap;
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      .viz {
+        height: 400px;
+        width: 600px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="viz" id="stacked"></div>
+    <div class="viz" id="line"></div>
+    <div class="viz" id="timeline"></div>
+
+    <script>
+      var energy = [];
+      ["Coal", "Gas", "Solar", "Wind"].forEach(function (source, k) {
+        for (var year = 2014; year <= 2023; year++)
+          energy.push({
+            source: source,
+            year: year,
+            value: 12 + k * 4 + (year - 2014) * (k % 2 ? 2 : -0.5),
+          });
+      });
+
+      new d3plus.BarChart()
+        .select("#stacked")
+        .data(energy)
+        .groupBy("source")
+        .discrete("y")
+        .y("year")
+        .x("value")
+        .stacked(true)
+        .title("yConfig: {reverse: true}")
+        .yConfig({reverse: true})
+        .render();
+
+      var monthly = [];
+      for (var i = 0; i < 24; i++)
+        monthly.push({
+          id: "Sales",
+          date: new Date(2022, i, 1),
+          value: 20 + ((i * 7) % 13),
+        });
+
+      new d3plus.LinePlot()
+        .select("#line")
+        .data(monthly)
+        .groupBy("id")
+        .x("date")
+        .y("value")
+        .title("xConfig and yConfig: {reverse: true}")
+        .xConfig({reverse: true})
+        .yConfig({reverse: true})
+        .render();
+
+      new d3plus.BarChart()
+        .select("#timeline")
+        .data(energy)
+        .groupBy("source")
+        .x("source")
+        .y("value")
+        .time("year")
+        .title("timelineConfig: {reverse: true}")
+        .timelineConfig({reverse: true})
+        .render();
+    </script>
+  </body>
+</html>
