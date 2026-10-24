@@ -64,6 +64,102 @@ export const argTypes = assign(
         summary: "constoraccessor",
       },
     },
+    boxMax: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's upper whisker end, a data key or accessor in the same units as the value axis's `x` or `y`. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxMedian: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's median, a data key or accessor in the\nsame units as the value axis's `x` or `y`. Setting it, `boxMin`,\n`boxQ1`, `boxQ3`, or `boxMax` makes each row one box drawn from those\nvalues, with nothing computed and `whiskerMode` unused. All five are\nneeded (a warning names any left unset), and a row whose values aren't\nall numbers draws no box.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxMin: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's lower whisker end. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxOutliers: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's outliers, a data key or accessor returning an array of values drawn past the whiskers. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxQ1: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's lower quartile, where the box starts. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
+    boxQ3: {
+      control: {
+        type: "text",
+      },
+      description:
+        "Precomputed boxes: each row's upper quartile, where the box ends. See `boxMedian`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "string | function",
+      },
+    },
     colorDefaults: {
       control: {},
       description:

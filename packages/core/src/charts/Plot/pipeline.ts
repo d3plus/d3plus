@@ -307,7 +307,10 @@ export const computePlotAxisValues: TransformStage = ({
       (d: Record<string, unknown>) =>
         ![NaN, undefined, false].includes(d[axis] as never),
     );
-    if (!filteredData.length) return [];
+    const extra = viz._plotAxisValues
+      ? viz._plotAxisValues(localData, axis)
+      : [];
+    if (!filteredData.length) return extra;
 
     const numericValue = typeof filteredData[0][axis] === "number";
 
@@ -369,7 +372,7 @@ export const computePlotAxisValues: TransformStage = ({
       myData = myData.concat(extraBandValues(viz, localData));
     }
 
-    return myData;
+    return extra.length ? myData.concat(extra) : myData;
   }
 
   return {

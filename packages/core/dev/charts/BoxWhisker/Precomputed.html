@@ -1,0 +1,131 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxWhisker Precomputed</title>
+    <meta
+      name="description"
+      content="BoxWhisker boxes drawn from summary rows (boxMin, boxQ1, boxMedian, boxQ3, boxMax, boxOutliers), vertical and horizontal, beside the same boxes computed from raw observations."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Summary rows (boxMin … boxMax, boxOutliers)</h3>
+        <div class="viz" id="summary"></div>
+      </div>
+      <div>
+        <h3>Raw observations with the same statistics</h3>
+        <div class="viz" id="raw"></div>
+      </div>
+      <div>
+        <h3>Summary rows, horizontal</h3>
+        <div class="viz" id="summary-horizontal"></div>
+      </div>
+      <div>
+        <h3>Raw observations, horizontal</h3>
+        <div class="viz" id="raw-horizontal"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    // Observations whose Tukey statistics are the summary rows below.
+    var observations = {
+      alpha: [300, 150, 160, 140, 20, 180, 40, 170, 125, 74, 80, 900],
+      beta: [180, 30, 120, 50, 140, 115],
+      gamma: [95, 110, 120, 135, 150, 160, 175, 210, 230, -60],
+    };
+    var summary = [
+      {
+        id: "alpha",
+        min: 20,
+        q1: 78.5,
+        median: 145,
+        q3: 172.5,
+        max: 313.5,
+        outliers: [900],
+      },
+      {
+        id: "beta",
+        min: 30,
+        q1: 66.25,
+        median: 117.5,
+        q3: 135,
+        max: 180,
+        outliers: [],
+      },
+      {
+        id: "gamma",
+        min: 24.375,
+        q1: 112.5,
+        median: 142.5,
+        q3: 171.25,
+        max: 230,
+        outliers: [-60],
+      },
+    ];
+    var raw = [];
+    Object.keys(observations).forEach(function (id) {
+      observations[id].forEach(function (value, n) {
+        raw.push({id: id, n: n, value: value});
+      });
+    });
+
+    function summaryChart(select) {
+      return new d3plus.BoxWhisker()
+        .select(select)
+        .data(summary)
+        .boxMin("min")
+        .boxQ1("q1")
+        .boxMedian("median")
+        .boxQ3("q3")
+        .boxMax("max")
+        .boxOutliers("outliers");
+    }
+    function rawChart(select) {
+      return new d3plus.BoxWhisker()
+        .select(select)
+        .data(raw)
+        .groupBy(["id", "n"]);
+    }
+
+    summaryChart("#summary").x("id").render();
+    rawChart("#raw").x("id").y("value").render();
+    summaryChart("#summary-horizontal")
+      .discrete("y")
+      .y("id")
+      .shapeConfig({Box: {orient: "horizontal"}})
+      .render();
+    rawChart("#raw-horizontal")
+      .discrete("y")
+      .x("value")
+      .y("id")
+      .shapeConfig({Box: {orient: "horizontal"}})
+      .render();
+  </script>
+</html>

@@ -1,4 +1,4 @@
-import {groups, max, min, quantile} from "d3-array";
+import {groups} from "d3-array";
 import {select} from "d3-selection";
 
 import type {DataPoint} from "@d3plus/data";
@@ -16,7 +16,14 @@ import type {ConfigField} from "../fluent.js";
 import Circle from "./Circle.js";
 import Rect from "./Rect.js";
 import type {BoxConfig} from "./shapeConfig.js";
+import {boxStats, whiskerPair} from "./boxStats.js";
 import {boxMedianConfig, boxOutlierConfig, boxRectConfig} from "./boxStyle.js";
+import {
+  computeSummaryBoxes,
+  hasBoxStats,
+  placeBox,
+  toStatAccessor,
+} from "./boxSummary.js";
 import {stampOwners} from "./shapeOwners.js";
 import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
@@ -38,6 +45,12 @@ const toAccessor = (
 const boxSchema: ConfigField[] = [
   {key: "backgroundImage", coerce: "const"},
   {key: "backgroundImageFit", coerce: "const"},
+  {key: "boxMax", coerce: toStatAccessor},
+  {key: "boxMedian", coerce: toStatAccessor},
+  {key: "boxMin", coerce: toStatAccessor},
+  {key: "boxOutliers", coerce: toStatAccessor},
+  {key: "boxQ1", coerce: toStatAccessor},
+  {key: "boxQ3", coerce: toStatAccessor},
   {key: "fill", coerce: "const"},
   {key: "id", coerce: "accessor"},
   {key: "orient", coerce: "const", default: accessor("orient", "vertical")},
@@ -49,42 +62,12 @@ const boxSchema: ConfigField[] = [
   {key: "textureDefault", coerce: "identity"},
   {
     key: "whiskerMode",
-    coerce: v => (Array.isArray(v) ? v : [v, v]),
+    coerce: whiskerPair,
     default: ["tukey", "tukey"],
   },
   {key: "x", coerce: toAccessor, default: accessor("x", 250)},
   {key: "y", coerce: toAccessor, default: accessor("y", 250)},
 ];
-
-/**
-    Resolves the lower/upper whisker limits on `d` from the configured
-    whiskerMode (tukey/extent/quantile) and the sorted group values.
-*/
-function applyWhiskerLimits(
-  d: DataPoint,
-  values: number[],
-  mode: (string | number)[],
-): void {
-  if (mode[0] === "tukey") {
-    (d as Record<string, unknown>).lowerLimit =
-      (d.first as number) - ((d.third as number) - (d.first as number)) * 1.5;
-    if ((d.lowerLimit as number) < min(values)!)
-      (d as Record<string, unknown>).lowerLimit = min(values);
-  } else if (mode[0] === "extent")
-    (d as Record<string, unknown>).lowerLimit = min(values);
-  else if (typeof mode[0] === "number")
-    (d as Record<string, unknown>).lowerLimit = quantile(values, mode[0]);
-
-  if (mode[1] === "tukey") {
-    (d as Record<string, unknown>).upperLimit =
-      (d.third as number) + ((d.third as number) - (d.first as number)) * 1.5;
-    if ((d.upperLimit as number) > max(values)!)
-      (d as Record<string, unknown>).upperLimit = max(values);
-  } else if (mode[1] === "extent")
-    (d as Record<string, unknown>).upperLimit = max(values);
-  else if (typeof mode[1] === "number")
-    (d as Record<string, unknown>).upperLimit = quantile(values, mode[1]);
-}
 
 /** Appends an outlier DataPoint to `outlierData` for each value past a limit. */
 function collectOutliers(
@@ -157,36 +140,17 @@ function computeBoxGroup(
   ) as unknown as number[];
   values.sort((a: number, b: number) => a - b);
 
-  (d as Record<string, unknown>).first = quantile(values, 0.25);
-  (d as Record<string, unknown>).median = quantile(values, 0.5);
-  (d as Record<string, unknown>).third = quantile(values, 0.75);
+  const {first, median, third, lowerLimit, upperLimit} = boxStats(
+    values,
+    box.schema.whiskerMode,
+  );
+  Object.assign(d, {first, median, third});
+  if (lowerLimit !== undefined) Object.assign(d, {lowerLimit});
+  if (upperLimit !== undefined) Object.assign(d, {upperLimit});
 
-  const mode = box.schema.whiskerMode;
-  applyWhiskerLimits(d, values, mode);
-
-  const rectLength = (d.third as number) - (d.first as number);
-
-  // Compute values for vertical orientation.
-  if (d.orient === "vertical") {
-    (d as Record<string, unknown>).height = rectLength;
-    (d as Record<string, unknown>).width = box.schema.rectWidth(
-      d.data as DataPoint,
-      d.i as number,
-    );
-    // The group key is this same accessor evaluated on each member; the
-    // merged datum can't be re-read because `merge` sums numeric fields.
-    (d as Record<string, unknown>).x = key;
-    (d as Record<string, unknown>).y = (d.first as number) + rectLength / 2;
-  } else if (d.orient === "horizontal") {
-    // Compute values for horizontal orientation.
-    (d as Record<string, unknown>).height = box.schema.rectWidth(
-      d.data as DataPoint,
-      d.i as number,
-    );
-    (d as Record<string, unknown>).width = rectLength;
-    (d as Record<string, unknown>).x = (d.first as number) + rectLength / 2;
-    (d as Record<string, unknown>).y = key;
-  }
+  // The group key is this same accessor evaluated on each member; the
+  // merged datum can't be re-read because `merge` sums numeric fields.
+  placeBox(d, key, box.schema.rectWidth(d.data as DataPoint, d.i as number));
 
   // Compute data for outliers.
   collectOutliers(box, d, outlierData);
@@ -364,7 +328,9 @@ export default class Box extends BaseClass {
 
     const outlierData: DataPoint[] = [];
 
-    const filteredData = computeBoxes(this, outlierData);
+    const filteredData = hasBoxStats(this.schema)
+      ? computeSummaryBoxes(this, outlierData)
+      : computeBoxes(this, outlierData);
 
     const rectConfig = boxRectConfig(
       this.schema,

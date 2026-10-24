@@ -634,6 +634,27 @@ export interface D3plusConfig {
       ) => (number | {min?: number; max?: number; color?: string})[]);
   /** Candlestick: the share of each period's room its candle body (or OHLC ticks) spans, from 0 to 1. Defaults to `0.7`. */
   bodyWidth?: number;
+  /** BoxWhisker: accessor or data key for each summary row's upper whisker end. See `boxMedian`. */
+  boxMax?: string | ((d: DataPoint, i: number) => number);
+  /**
+      BoxWhisker: accessor or data key for each summary row's median. Setting
+      it, `boxMin`, `boxQ1`, `boxQ3`, or `boxMax` draws boxes from statistics
+      you already have: each row is one box (placed by its `x`, or `y` when
+      `discrete` is `"y"`) drawn from those values, with nothing computed and
+      `whiskerMode` unused. All five are needed (a warning names any left
+      unset), and a row whose values aren't all numbers draws no box. The
+      value axis spans every row's statistics and outliers, and the tooltip
+      lists them.
+  */
+  boxMedian?: string | ((d: DataPoint, i: number) => number);
+  /** BoxWhisker: accessor or data key for each summary row's lower whisker end. See `boxMedian`. */
+  boxMin?: string | ((d: DataPoint, i: number) => number);
+  /** BoxWhisker: accessor or data key for each summary row's outliers, an array of values drawn as points past the whiskers. Used only with the other box statistics; see `boxMedian`. */
+  boxOutliers?: string | ((d: DataPoint, i: number) => number[]);
+  /** BoxWhisker: accessor or data key for each summary row's lower quartile, where its box starts. See `boxMedian`. */
+  boxQ1?: string | ((d: DataPoint, i: number) => number);
+  /** BoxWhisker: accessor or data key for each summary row's upper quartile, where its box ends. See `boxMedian`. */
+  boxQ3?: string | ((d: DataPoint, i: number) => number);
   /**
       ParallelCoordinates: the brush strips over each axis — `width` (px), the
       selection's `fill`, `fillOpacity`, `stroke`, and `strokeWidth`, and

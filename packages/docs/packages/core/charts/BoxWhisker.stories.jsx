@@ -286,3 +286,55 @@ ColoringBoxes.parameters = {
     },
   },
 };
+
+export const PrecomputedStatistics = Template.bind({});
+PrecomputedStatistics.args = {
+  data: [
+    {
+      id: "alpha",
+      min: 20,
+      q1: 78.5,
+      median: 145,
+      q3: 172.5,
+      max: 313.5,
+      outliers: [900],
+    },
+    {
+      id: "beta",
+      min: 30,
+      q1: 66.25,
+      median: 117.5,
+      q3: 135,
+      max: 180,
+      outliers: [],
+    },
+    {
+      id: "gamma",
+      min: 24.4,
+      q1: 112.5,
+      median: 142.5,
+      q3: 171.3,
+      max: 230,
+      outliers: [-60],
+    },
+  ],
+  boxMin: "min",
+  boxQ1: "q1",
+  boxMedian: "median",
+  boxQ3: "q3",
+  boxMax: "max",
+  boxOutliers: "outliers",
+  legend: false,
+  x: "id",
+};
+PrecomputedStatistics.parameters = {
+  controls: {
+    include: ["boxMin", "boxQ1", "boxMedian", "boxQ3", "boxMax", "boxOutliers"],
+  },
+  docs: {
+    description: {
+      story:
+        "When your data already holds each box's summary (as many analytics APIs return it), name its fields with `boxMin`, `boxQ1`, `boxMedian`, `boxQ3`, and `boxMax`, plus `boxOutliers` for an array of outlying values. Each row then draws one box from those values with nothing computed, the value axis spans every whisker and outlier, and the tooltip lists the statistics.",
+    },
+  },
+};
