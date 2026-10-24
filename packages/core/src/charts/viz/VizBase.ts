@@ -11,6 +11,8 @@ import type {FacetConfig} from "../facet/facetConfig.js";
 import {groupDepthOf} from "./groupRow.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
+import {stopDataPolling} from "./vizDataPolling.js";
+import type Viz from "./Viz.js";
 import type {VizFieldKey} from "./vizFields.js";
 import type {VizInstance} from "./vizTypes.js";
 import {isPlainObject, mergeConfigBag, resolvesReset} from "../../fluent.js";
@@ -50,6 +52,7 @@ class VizBase extends BaseClass {
   active(
     _?: ((d: DataPoint, i: number) => boolean) | false,
   ): this | ((d: DataPoint, i: number) => boolean) | false {
+    if (!arguments.length) return this._active;
     this._active = _;
 
     if (this.schema.shapeConfig.activeOpacity !== 1) {
@@ -71,6 +74,8 @@ If your data URL needs specific headers to be set, an Object with a "url" and "h
 Additionally, a custom formatting function can be passed as a second argument to this method. This custom function will be passed the data that has been loaded, as long as there are no errors. This function should return the final array of obejcts to be used as the primary data array. For example, some JSON APIs return the headers split from the data values to save bandwidth. These would need be joined using a custom formatter.
 
 If you would like to specify certain configuration options based on the yet-to-be-loaded data, you can also return a full `config` object from the data formatter (including the new `data` array as a key in the object).
+
+To re-fetch a URL on an interval and redraw when its data changes, set `dataPollingInterval`; each poll runs the same formatter.
 
 Defaults to an empty array (`[]`).
     @param f The data array or a URL string to load data from.
@@ -95,6 +100,9 @@ Defaults to an empty array (`[]`).
         this._timelineSelection = false;
       }
       this._userData = _;
+      this._userDataFormat = f;
+      this._dataSignature = undefined;
+      stopDataPolling(this as unknown as Viz);
       return this;
     }
     return this._data;
@@ -203,7 +211,12 @@ Defaults to an empty array (`[]`).
   /**
       The hover callback function for highlighting shapes on mouseover.
 */
-  hover(_?: ((d: DataPoint, i: number) => boolean) | false): this {
+  hover(): ((d: DataPoint, i: number) => boolean) | false | undefined;
+  hover(_?: ((d: DataPoint, i: number) => boolean) | false): this;
+  hover(
+    _?: ((d: DataPoint, i: number) => boolean) | false,
+  ): this | ((d: DataPoint, i: number) => boolean) | false | undefined {
+    if (!arguments.length) return this._hover;
     let hoverFunction = (this._hover = _);
 
     if (this.schema.shapeConfig.hoverOpacity !== 1 && _ !== undefined) {

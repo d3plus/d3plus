@@ -456,3 +456,58 @@ new BarChart()
     },
   },
 };
+
+// Storybook is static, so this stub answers the demo URL in the page itself:
+// each request returns the next reading. Other requests pass through.
+const liveUrl = "/__d3plus-demo/live-sales.json";
+if (typeof window !== "undefined" && !window.__d3plusLiveSales) {
+  window.__d3plusLiveSales = true;
+  let reading = 0;
+  const nativeFetch = window.fetch.bind(window);
+  window.fetch = (input, init) => {
+    if (!String(input).endsWith(liveUrl)) return nativeFetch(input, init);
+    reading++;
+    const rows = ["North", "South", "East", "West"].map((region, i) => ({
+      region,
+      sales: Math.round(50 + 40 * Math.sin(reading * 0.7 + i * 1.7)),
+    }));
+    return Promise.resolve(new Response(JSON.stringify(rows)));
+  };
+}
+
+export const DataPolling = () => (
+  <div style={{height: 400}}>
+    <BarChart
+      config={{
+        data: liveUrl,
+        groupBy: "region",
+        x: "region",
+        y: "sales",
+        title: "Sales by region (refreshes every 2 seconds)",
+        dataPollingInterval: 2000,
+      }}
+    />
+  </div>
+);
+DataPolling.parameters = {
+  docs: {
+    source: {
+      code: `import {BarChart} from "@d3plus/core";
+
+new BarChart()
+  .select("#chart")
+  .data("/api/sales.json")
+  .groupBy("region")
+  .x("region")
+  .y("sales")
+  .title("Sales by region (refreshes every 2 seconds)")
+  .dataPollingInterval(2000)
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        "With a URL as `data`, `dataPollingInterval` re-fetches it every that many milliseconds and transitions to the new values, keeping hover, zoom, legend toggles, and the timeline selection. An unchanged response is not redrawn, a failed one keeps the last data and retries, and polling waits while the tab is hidden or the chart is scrolled out of view. This demo answers its URL from an in-page stub.",
+    },
+  },
+};

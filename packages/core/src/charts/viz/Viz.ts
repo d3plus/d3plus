@@ -26,6 +26,7 @@ import {
 } from "../drawSteps/zoomControls.js";
 import {initVizDefaults} from "./vizDefaults.js";
 import {unregisterLink} from "./linkGroup.js";
+import {stopDataPolling} from "./vizDataPolling.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
 import {facetPanelAt, withFacetPanel} from "../facet/facetPanel.js";
 import {vizRender} from "./vizRender.js";
@@ -775,10 +776,11 @@ export default class Viz extends VizBase {
   }
 
   /**
-      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
+      Tears down the visualization: disconnects the ResizeObserver, stops listening for web font loads and polling for data, and removes DOM event listeners. Call this when unmounting to avoid memory leaks.
   */
   destroy(): this {
     unregisterLink(this as unknown as VizInstance);
+    stopDataPolling(this);
     this._resizeObserver?.disconnect();
     this._fontsUnsubscribe?.();
     this._fontsUnsubscribe = undefined;

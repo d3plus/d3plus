@@ -68,3 +68,25 @@ it("renderToStaticSVG restores globals after rendering", async () => {
   });
   assert.strictEqual(typeof globalThis.document, "undefined");
 });
+
+it("renderToStaticSVG loads a polled URL once and leaves no poll running", async () => {
+  const native = globalThis.fetch;
+  let requests = 0;
+  globalThis.fetch = async () => {
+    requests++;
+    return new Response(JSON.stringify(data), {status: 200});
+  };
+  try {
+    const viz = new Treemap()
+      .data("https://example.com/data.json")
+      .groupBy(["parent", "id"])
+      .dataPollingInterval(50);
+    const svg = await renderToStaticSVG(viz, {width: 500, height: 350});
+    assert.ok((svg.match(/<rect/g) || []).length >= 3, "drew the loaded rows");
+    assert.strictEqual(viz._dataPollStop, undefined, "no poll was started");
+    await new Promise(r => setTimeout(r, 200));
+    assert.strictEqual(requests, 1, "fetched once");
+  } finally {
+    globalThis.fetch = native;
+  }
+});

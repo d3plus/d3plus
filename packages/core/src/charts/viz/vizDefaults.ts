@@ -153,6 +153,7 @@ function initColorDefaults(viz: Viz): void {
 function initDataDefaults(viz: Viz): void {
   viz._data = [];
   viz.schema.dataCutoff = 100;
+  viz.schema.dataPollingInterval = false;
   viz.schema.detectResize = true;
   viz.schema.detectResizeDelay = 400;
   viz.schema.detectVisible = true;
