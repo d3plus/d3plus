@@ -4,12 +4,14 @@
     Small multiples run the same steps over each panel's rows.
 */
 
-import {max, rollup} from "d3-array";
+import {rollup} from "d3-array";
 
 import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
 
+import {brushSpan} from "../../components/Timeline/brushSpan.js";
+import type {BrushSpan} from "../../components/Timeline/brushSpan.js";
 import {discreteNestKeys} from "./stages.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -41,6 +43,27 @@ export function dataFilter(
 }
 
 /**
+    The span the chart's timeline holds its selection to (see `brushSpan`):
+    any span without a timeline, and at least one period when it selects a
+    single period (`brushing: false`).
+*/
+function timelineSpan(viz: Viz): BrushSpan {
+  if (!viz.schema.timeline) return {min: 1, max: Infinity};
+  const config = (viz.schema.timelineConfig || {}) as Record<string, unknown>;
+  const span = brushSpan(config.brushMin, config.brushMax);
+  return config.brushing === false ? {...span, min: 1} : span;
+}
+
+/** A filter keeping the latest `count` of `dates`' periods, or every row. */
+function latestPeriods(viz: Viz, dates: Date[], count: number): TimeFilterFn {
+  const periods = [...new Set(dates.map(Number))].sort((a, b) => a - b);
+  if (periods.length <= count) return () => true;
+  const from = periods[periods.length - count];
+  const snapTime = viz.schema.time;
+  return (d: DataPoint, i: number) => +date(snapTime(d, i))! >= from;
+}
+
+/**
     Computes a NEW timeFilter when `time` is set but `timeFilter` isn't and
     data exists; returns undefined otherwise.
 */
@@ -59,17 +82,19 @@ export function computeTimeFilter(viz: Viz): TimeFilterFn | undefined {
         `_${viz.schema.discrete}`
       ](d, i) === viz.schema.time(d, i)
     ) {
-      computedTimeFilter = () => true;
+      // Every period, or the latest `brushMax` of them.
+      computedTimeFilter = latestPeriods(
+        viz,
+        dates as Date[],
+        timelineSpan(viz).max,
+      );
     } else {
-      const latestTime = +max(dates as Date[])!;
-      // Snapshot `viz.schema.time` into the closure. Without this, a user
-      // changing `.time(...)` after the filter is constructed would
-      // make the closure read the NEW accessor against the OLD
-      // latestTime — nonsense results. Matches the snapGroupBy /
-      // snapLabel pattern earlier in this file.
-      const snapTime = viz.schema.time;
-      computedTimeFilter = (dd: DataPoint, ii: number) =>
-        +date(snapTime(dd, ii))! === latestTime;
+      // The latest period, or the latest `brushMin` of them.
+      computedTimeFilter = latestPeriods(
+        viz,
+        dates as Date[],
+        Math.max(1, Math.ceil(timelineSpan(viz).min)),
+      );
     }
   }
   return computedTimeFilter;

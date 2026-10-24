@@ -349,9 +349,21 @@ export interface TimelineConfig {
   /** Brush event filter. */
   brushFilter?: () => boolean;
   /**
-      The minimum number of ticks that can be highlighted when using "ticks"
-      `buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time
-      periods is undesirable.
+      The maximum number of ticks (or buttons) a selection can span; unlimited
+      by default. A wider brush is pulled in to it on release, keeping the end
+      being dragged, and a wider starting selection keeps its latest periods.
+      A `brushMax` below `brushMin` rises to it.
+  */
+  brushMax?: number;
+  /**
+      The minimum number of ticks (or buttons) a selection can span. Helpful
+      for x/y plots where selecting fewer than 2 time periods is undesirable.
+      A narrower brush widens to it on release: a drag keeps the end being
+      dragged (or, with ticks, its first tick), and a click selects the
+      clicked period and the ones after it. A narrower starting selection
+      keeps its latest period, and a chart that starts on its latest period
+      starts on its latest `brushMin` instead. Either way, the selection grows the other way where the
+      timeline runs out. Unused with `brushing: false`.
   */
   brushMin?: number;
   /** Toggles the horizontal alignment of the button timeline. */

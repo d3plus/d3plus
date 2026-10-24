@@ -1,0 +1,108 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Timeline BrushMax</title>
+    <meta
+      name="description"
+      content="timelineConfig.brushMax caps a timeline selection at 3 periods (ticks and buttons Treemaps, a LinePlot starting on its latest 3 years), brushMin: 3 widens a buttons selection, both hold on a reversed timeline, and brushMin above brushMax wins."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>brushMax: 3, ticks (drag across many years)</h3>
+        <div class="viz" id="ticks"></div>
+      </div>
+      <div>
+        <h3>brushMax: 3, buttons</h3>
+        <div class="viz" id="buttons"></div>
+      </div>
+      <div>
+        <h3>LinePlot with brushMax: 3 starts on its latest 3 years</h3>
+        <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h3>brushMin: 3, buttons (click one button, or drag across two)</h3>
+        <div class="viz" id="min-buttons"></div>
+      </div>
+      <div>
+        <h3>reverse: true, brushMin: 2, brushMax: 3, buttons</h3>
+        <div class="viz" id="reversed"></div>
+      </div>
+      <div>
+        <h3>brushMin: 4 above brushMax: 2 (brushMin wins)</h3>
+        <div class="viz" id="conflict"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var data = [];
+    ["Apples", "Pears", "Plums", "Figs"].forEach(function (id, i) {
+      for (var year = 2010; year <= 2021; year++)
+        data.push({
+          id: id,
+          year: year,
+          value: 20 + ((i * 7 + (year - 2010) * 5) % 11) * 6,
+        });
+    });
+
+    function treemap(select, timelineConfig) {
+      return new d3plus.Treemap()
+        .select(select)
+        .data(data)
+        .groupBy("id")
+        .sum("value")
+        .time("year")
+        .legend(false)
+        .timelineConfig(timelineConfig)
+        .render();
+    }
+
+    treemap("#ticks", {brushMax: 3, buttonBehavior: "ticks"});
+    treemap("#buttons", {brushMax: 3, buttonBehavior: "buttons"});
+    new d3plus.LinePlot()
+      .select("#line")
+      .data(data)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .time("year")
+      .legend(false)
+      .timelineConfig({brushMax: 3})
+      .render();
+    treemap("#min-buttons", {brushMin: 3, buttonBehavior: "buttons"});
+    treemap("#reversed", {
+      brushMin: 2,
+      brushMax: 3,
+      buttonBehavior: "buttons",
+      reverse: true,
+    });
+    treemap("#conflict", {brushMin: 4, brushMax: 2, buttonBehavior: "ticks"});
+  </script>
+</html>

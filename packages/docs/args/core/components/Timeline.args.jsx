@@ -77,12 +77,28 @@ export const argTypes = assign(
         summary: "function",
       },
     },
+    brushMax: {
+      control: {
+        type: "number",
+      },
+      description:
+        "The maximum number of ticks (or buttons) a selection can span; unlimited\nby default. A wider brush is pulled in to it on release, keeping the end\nbeing dragged, and a wider starting selection keeps its latest periods.\nA `brushMax` below `brushMin` rises to it.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "number",
+      },
+    },
     brushMin: {
       control: {
         type: "number",
       },
       description:
-        'The minimum number of ticks that can be highlighted when using "ticks"\n`buttonBehavior`. Helpful for x/y plots where selecting fewer than 2 time\nperiods is undesirable.',
+        "The minimum number of ticks (or buttons) a selection can span. Helpful\nfor x/y plots where selecting fewer than 2 time periods is undesirable.\nA narrower brush widens to it on release: a drag keeps the end being\ndragged (or, with ticks, its first tick), and a click selects the\nclicked period and the ones after it. A narrower starting selection\nkeeps its latest period, and a chart that starts on its latest period\nstarts on its latest `brushMin` instead. Either way, the selection grows the other way where the\ntimeline runs out. Unused with `brushing: false`.",
       table: {
         defaultValue: {
           summary: "undefined",
