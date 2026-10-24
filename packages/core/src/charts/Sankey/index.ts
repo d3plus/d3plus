@@ -19,6 +19,7 @@ import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -194,7 +195,7 @@ export const sankeyDef: ChartDefinition = {
         ? ((this.schema.nodeId =
             typeof _ === "function"
               ? (_ as (...a: unknown[]) => unknown)
-              : accessor(_ as string)),
+              : fieldAccessor(_ as string)),
           this)
         : this.schema.nodeId;
     };
@@ -209,7 +210,7 @@ export const sankeyDef: ChartDefinition = {
       this.schema.value = (
         typeof _ === "function"
           ? (_ as (...a: unknown[]) => unknown)
-          : accessor(_ as string)
+          : fieldAccessor(_ as string)
       ) as (d: DataPoint, i: number) => number;
       return this;
     };

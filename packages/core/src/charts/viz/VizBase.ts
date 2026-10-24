@@ -5,7 +5,8 @@ import {fontFamilyStringify} from "@d3plus/text";
 import type {DataPoint} from "@d3plus/data";
 import {date} from "@d3plus/dom";
 
-import {accessor, BaseClass, constant} from "../../utils/index.js";
+import {BaseClass, constant} from "../../utils/index.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
 import {groupDepthOf} from "./groupRow.js";
@@ -200,7 +201,7 @@ Defaults to an empty array (`[]`).
                 return v.length === 1 ? v[0] : v;
               };
             }
-            return accessor(k);
+            return fieldAccessor(k);
           }
         },
       )),
@@ -344,7 +345,7 @@ Defaults to an empty array (`[]`).
       if (typeof key === "function") {
         this.schema.thresholdKey = key;
       } else {
-        this.schema.thresholdKey = accessor(key!);
+        this.schema.thresholdKey = fieldAccessor(key!);
       }
       return this;
     } else return this.schema.thresholdKey;
@@ -367,7 +368,7 @@ Defaults to an empty array (`[]`).
       if (typeof _ === "function") {
         this.schema.time = _;
       } else if (_) {
-        this.schema.time = accessor(_);
+        this.schema.time = fieldAccessor(_);
         if (!this.schema.aggs[_]) {
           this.schema.aggs[_] = (
             a: DataPoint[],
@@ -416,7 +417,7 @@ Defaults to an empty array (`[]`).
   ): this | boolean | string | ((d: DataPoint, i: number) => number) {
     if (arguments.length) {
       if (typeof _ === "function") this.schema.total = _;
-      else if (_) this.schema.total = accessor(_ as string);
+      else if (_) this.schema.total = fieldAccessor(_ as string);
       else this.schema.total = false;
       return this;
     } else return this.schema.total;

@@ -12,6 +12,7 @@ import * as d3Shape from "d3-shape";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {markField} from "../../utils/fieldAccessor.js";
 
 type Series = d3Shape.Series<Record<string, unknown>, string>;
 
@@ -188,10 +189,8 @@ export function resolveStackOrder(
   if (Array.isArray(input)) return input;
   if (input && typeof input === "object") {
     const {value, order} = input as StackOrderFieldConfig;
-    return stackOrderField(
-      typeof value === "function" ? value : accessor(value),
-      order,
-    );
+    if (typeof value === "function") return stackOrderField(value, order);
+    return markField(stackOrderField(accessor(value), order), value);
   }
   if (typeof input === "string") {
     if (input in NAMED_ORDERS) return NAMED_ORDERS[input];

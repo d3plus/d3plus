@@ -9,6 +9,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {Axis} from "../../components/index.js";
 import {colorScaleBucketOf} from "../features/colorScaleBucket.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -92,7 +93,7 @@ export const matrixDef: ChartDefinition = {
     {
       key: "column",
       default: accessor("column"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         The row each data point falls in: a key present in every data point,
@@ -103,7 +104,7 @@ export const matrixDef: ChartDefinition = {
     {
       key: "row",
       default: accessor("row"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         A manual list of column values to draw, in place of the unique

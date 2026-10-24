@@ -9,7 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import TextBox from "../../components/TextBox.js";
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
@@ -438,7 +438,7 @@ export const pyramidDef: ChartDefinition = {
       key: "comparison",
       coerce: v => {
         if (typeof v !== "string") return v || undefined;
-        const fn = accessor(v);
+        const fn = fieldAccessor(v);
         comparisonKeys.set(fn, v);
         return fn;
       },

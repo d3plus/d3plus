@@ -12,7 +12,7 @@
 import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -120,7 +120,7 @@ function installRingsAccessors(viz: VizInstance): void {
           const vv = Array.from(new Set(a.map(c)));
           return vv.length === 1 ? vv[0] : vv;
         };
-      return accessor(k);
+      return fieldAccessor(k);
     });
     return this;
   };
@@ -133,7 +133,7 @@ function installRingsAccessors(viz: VizInstance): void {
   v.size = function (this: VizInstance, _?: RingsAccessor) {
     if (!arguments.length) return this._size;
     this._size = (
-      typeof _ === "function" || !_ ? _ : accessor(_ as unknown as string)
+      typeof _ === "function" || !_ ? _ : fieldAccessor(_ as unknown as string)
     ) as VizInstance["_size"];
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;

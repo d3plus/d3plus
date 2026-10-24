@@ -15,6 +15,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
@@ -149,7 +150,7 @@ export const funnelDef: DataDrivenChartDefinition = {
         typeof v === "function"
           ? v
           : typeof v === "string"
-            ? accessor(v)
+            ? fieldAccessor(v)
             : constant(v as never),
     },
     /**

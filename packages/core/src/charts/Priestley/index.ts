@@ -9,6 +9,7 @@
 import {min, max} from "d3-array";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {Axis} from "../../components/index.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import type {DataPoint} from "@d3plus/data";
@@ -66,7 +67,7 @@ export const priestleyDef: ChartDefinition = {
     {
       key: "end",
       default: accessor("end"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
       onSet: (viz, v) => {
         // String accessor → also seed a default aggregation (max) for that key.
         const key = typeof v === "function" ? null : (v as string);
@@ -81,7 +82,7 @@ export const priestleyDef: ChartDefinition = {
     {
       key: "start",
       default: accessor("start"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
       onSet: (viz, v) => {
         const key = typeof v === "function" ? null : (v as string);
         if (key && !viz.schema.aggs[key]) viz.schema.aggs[key] = min;

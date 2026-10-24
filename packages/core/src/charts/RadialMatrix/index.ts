@@ -11,6 +11,7 @@ import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import {TextBox} from "../../components/index.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
@@ -100,7 +101,7 @@ export const radialMatrixDef: ChartDefinition = {
     {
       key: "column",
       default: accessor("column"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         The row each data point falls in (one ring): a key present in every
@@ -111,7 +112,7 @@ export const radialMatrixDef: ChartDefinition = {
     {
       key: "row",
       default: accessor("row"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         A manual list of column values to draw, in place of the unique

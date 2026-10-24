@@ -1,0 +1,148 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>MissingFieldWarnings · Viz</title>
+    <meta
+      name="description"
+      content="Config keys naming a field no row has (a misspelled groupBy or sum) warn once in the console, shown here in a console panel."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      .demo {
+        width: 720px;
+        margin-bottom: 24px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-bottom: 8px;
+        font-size: 13px;
+      }
+
+      .viz {
+        height: 300px;
+        border: 1px solid #dee2e6;
+        border-bottom: 0;
+      }
+
+      .console {
+        min-height: 26px;
+        border: 1px solid #dee2e6;
+        background: #fff;
+        font:
+          12px/18px Menlo,
+          Consolas,
+          monospace;
+      }
+
+      .console .empty {
+        padding: 4px 8px;
+        color: #868e96;
+      }
+
+      .console .warning {
+        padding: 4px 8px 4px 28px;
+        border-top: 1px solid #fff5c2;
+        border-bottom: 1px solid #fff5c2;
+        background: #fffbe5;
+        color: #5c3c00;
+        position: relative;
+      }
+
+      .console .warning::before {
+        content: "⚠";
+        position: absolute;
+        left: 9px;
+        color: #f2a600;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="demo">
+      <div class="controls">
+        <code>groupBy:</code>
+        <button data-group="regoin">"regoin"</button>
+        <button data-group="reigon">"reigon"</button>
+        <button data-group="region">"region"</button>
+        <span>(a redraw with the same typo stays quiet)</span>
+      </div>
+      <div class="viz" id="line"></div>
+      <div class="console" id="line-console"></div>
+    </div>
+    <div class="demo">
+      <div class="controls">
+        <code>groupBy: ["parent", "nme"], sum: "size"</code>
+      </div>
+      <div class="viz" id="treemap"></div>
+      <div class="console" id="treemap-console"></div>
+    </div>
+  </body>
+
+  <script>
+    // Shows each chart's missing-field warnings in its console panel instead
+    // of the browser console; any other warning still reaches the console.
+    const original = console.warn;
+    const panels = {};
+    console.warn = (...args) => {
+      const message = args.join(" ");
+      const target = panels[message.split(" ")[0]];
+      if (!target || !message.includes("no rows have"))
+        return original(...args);
+      target.querySelector(".empty")?.remove();
+      const line = document.createElement("div");
+      line.className = "warning";
+      line.textContent = message;
+      target.appendChild(line);
+    };
+    const clear = el => {
+      el.innerHTML = '<div class="empty">No console warnings</div>';
+      return el;
+    };
+
+    const sales = [
+      {year: 2020, value: 10, region: "North"},
+      {year: 2021, value: 14, region: "North"},
+      {year: 2022, value: 12, region: "North"},
+      {year: 2023, value: 17, region: "North"},
+      {year: 2020, value: 8, region: "South"},
+      {year: 2021, value: 11, region: "South"},
+      {year: 2022, value: 15, region: "South"},
+      {year: 2023, value: 13, region: "South"},
+    ];
+
+    panels.LinePlot = clear(document.getElementById("line-console"));
+    const line = new d3plus.LinePlot()
+      .select("#line")
+      .config({data: sales, groupBy: "regoin", x: "year", y: "value"});
+    line.render();
+
+    for (const button of document.querySelectorAll("button[data-group]"))
+      button.addEventListener("click", () =>
+        line.groupBy(button.dataset.group).render(),
+      );
+
+    const files = [
+      {parent: "Frontend", id: "Button", value: 120},
+      {parent: "Frontend", id: "Table", value: 410},
+      {parent: "Backend", id: "Users", value: 330},
+      {parent: "Backend", id: "Orders", value: 460},
+    ];
+    panels.Treemap = clear(document.getElementById("treemap-console"));
+    new d3plus.Treemap()
+      .select("#treemap")
+      .config({data: files, groupBy: ["parent", "nme"], sum: "size"})
+      .render();
+  </script>
+</html>

@@ -7,7 +7,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import BarChart from "../BarChart/index.js";
@@ -238,7 +238,7 @@ export const waterfallDef: ChartDefinition = {
       key: "subtotal",
       coerce: v =>
         typeof v === "string"
-          ? accessor(v)
+          ? fieldAccessor(v)
           : typeof v === "function"
             ? v
             : undefined,

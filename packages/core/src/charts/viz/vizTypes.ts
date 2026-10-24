@@ -150,6 +150,11 @@ export interface VizInstance {
 
   /* 2. Data & filtering */
   _data: DataPoint[];
+  /**
+      The user's rows, when the chart replaces `_data` with rows it derives
+      from them (Histogram's bins) before pre-draw.
+  */
+  _sourceData?: DataPoint[];
   _filteredData: DataPoint[];
   _formattedData?: DataPoint[];
   _legendData: DataPoint[];

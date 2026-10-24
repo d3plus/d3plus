@@ -14,6 +14,7 @@ import type {D3Scale} from "../../utils/index.js";
 import type {ConfigField} from "../../fluent.js";
 import type {ShapeEmitter} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {autoTitle, keyedAccessor, valueKeyOf} from "./valueTitle.js";
 import {
   densityGroups,
@@ -98,6 +99,7 @@ function groupKey(viz: VizInstance): (d: DataPoint, i: number) => string {
 export function summarizeBeforePreDraw(viz: VizInstance): void {
   const state = viz.ctx.density as DensityState;
   if (viz._data !== state.rows) state.raw = viz._data;
+  viz._sourceData = state.raw;
 
   const valueAxis = state.layout.valueAxis(viz);
   const categoryAxis = valueAxis === "x" ? "y" : "x";
@@ -283,7 +285,7 @@ export function densityAccessorFields(): ConfigField[] {
       default: keyedAccessor("value"),
       coerce: v =>
         typeof v === "string"
-          ? keyedAccessor(v)
+          ? fieldAccessor(v)
           : typeof v === "function"
             ? v
             : constant(v as never),

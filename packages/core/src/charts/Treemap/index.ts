@@ -26,6 +26,7 @@ import type {HierarchyNode} from "d3-hierarchy";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {rowLegend, shareRow} from "../features/sharedFields.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -113,7 +114,7 @@ export const treemapDef: ChartDefinition = {
     {
       key: "sum",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
       onSet: (viz, v) => {
         viz.schema.thresholdKey = v;
       },

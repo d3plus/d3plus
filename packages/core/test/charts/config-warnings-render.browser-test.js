@@ -96,7 +96,9 @@ const regional = ["east", "west"].flatMap((region, r) =>
   series.map(d => ({...d, region, y: d.y + r * 5})),
 );
 const faceted = {...plot, data: regional, facet: "region"};
+// `total` names a field of each chart's own data.
 const titled = {title: "Title", subtitle: "Subtitle", total: "y"};
+const titledBy = total => ({...titled, total});
 const population = ["0-9", "10-19", "20-29"].flatMap((age, b) =>
   [2020, 2021].flatMap(year => [
     {age, sex: "Male", area: "Urban", pop: 60 - b * 10, before: 55, year},
@@ -130,7 +132,7 @@ const charts = [
   ["AreaPlot", {...plot, confidence: ["lci", "hci"]}],
   ["BarChart", {...plot, ...titled}],
   ["Beeswarm", swarm],
-  ["Beeswarm", {...swarm, y: "group", color: "group", ...titled}],
+  ["Beeswarm", {...swarm, y: "group", color: "group", ...titledBy("value")}],
   [
     "Beeswarm",
     {
@@ -314,7 +316,7 @@ const charts = [
       end: "end",
     },
   ],
-  ["Pyramid", {...pyramid, ...titled}],
+  ["Pyramid", {...pyramid, ...titledBy("pop")}],
   ["Pyramid", {...pyramid, categoryPosition: "left"}],
   ["Pyramid", {...pyramid, groupBy: ["sex", "area"]}],
   [
@@ -412,8 +414,14 @@ const charts = [
   ],
   ["Sunburst", {...sunburst, colorScale: "size"}],
   ["Tree", {data: tree, groupBy: ["parent", "id"]}],
-  ["Treemap", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
-  ["Waffle", {data: tree, groupBy: ["parent", "id"], sum: "value", ...titled}],
+  [
+    "Treemap",
+    {data: tree, groupBy: ["parent", "id"], sum: "value", ...titledBy("value")},
+  ],
+  [
+    "Waffle",
+    {data: tree, groupBy: ["parent", "id"], sum: "value", ...titledBy("value")},
+  ],
   [
     "Waffle",
     {

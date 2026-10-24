@@ -13,6 +13,7 @@ import type {HierarchyCircularNode} from "d3-hierarchy";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
 import {rowLegend} from "../features/sharedFields.js";
@@ -99,7 +100,7 @@ export const packDef: ChartDefinition = {
     {
       key: "sum",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         The opacity of the parent circles that enclose nested circles: a number or

@@ -5,12 +5,14 @@
 */
 
 import accessor from "../../utils/accessor.js";
+import {fieldNameOf} from "../../utils/fieldAccessor.js";
 
 /** Data keys behind string `value` accessors. */
 const valueKeys = new WeakMap<object, string>();
 
 /**
-    `accessor(key)` that remembers its key (see `valueKeyOf`).
+    `accessor(key)` that remembers its key (see `valueKeyOf`), for a default
+    `value`; a user's string `value` becomes a `fieldAccessor`.
     @param key The data key to read.
 */
 export function keyedAccessor(key: string) {
@@ -20,11 +22,14 @@ export function keyedAccessor(key: string) {
 }
 
 /**
-    The data key behind an accessor built by `keyedAccessor`, if any.
+    The data key behind an accessor built by `keyedAccessor` or
+    `fieldAccessor`, if any.
     @param fn The accessor.
 */
 export function valueKeyOf(fn: unknown): string | undefined {
-  return typeof fn === "function" ? valueKeys.get(fn) : undefined;
+  return typeof fn === "function"
+    ? (valueKeys.get(fn) ?? fieldNameOf(fn))
+    : undefined;
 }
 
 /**

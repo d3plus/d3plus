@@ -16,6 +16,7 @@ import {columnHighlight} from "../Plot/columnHighlight.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {
+  defaultKeyedAccessor,
   fieldAccessor,
   installAggregation,
   keyedAccessor,
@@ -154,26 +155,42 @@ export const candlestickDef: ChartDefinition = {
         `aggs` entry on the data key, or, for a function accessor, on
         `"open"`.
     */
-    {key: "open", coerce: keyedAccessor, default: "open"},
+    {
+      key: "open",
+      coerce: keyedAccessor,
+      factory: () => defaultKeyedAccessor("open"),
+    },
     /**
         Accessor (or data key) for each period's highest value. Defaults to
         `"high"`; the high always reaches the open and close. Merged rows
         take the highest high; `aggs` overrides it as it does for `open`.
     */
-    {key: "high", coerce: keyedAccessor, default: "high"},
+    {
+      key: "high",
+      coerce: keyedAccessor,
+      factory: () => defaultKeyedAccessor("high"),
+    },
     /**
         Accessor (or data key) for each period's lowest value. Defaults to
         `"low"`; the low always reaches the open and close. Merged rows
         take the lowest low; `aggs` overrides it as it does for `open`.
     */
-    {key: "low", coerce: keyedAccessor, default: "low"},
+    {
+      key: "low",
+      coerce: keyedAccessor,
+      factory: () => defaultKeyedAccessor("low"),
+    },
     /**
         Accessor (or data key) for each period's closing value. Defaults to
         `"close"`. The close is the chart's `y`: setting `y` sets it, rows
         without one are skipped, and hover snaps to it. Merged rows take
         the last row's close; `aggs` overrides it as it does for `open`.
     */
-    {key: "close", coerce: keyedAccessor, default: "close"},
+    {
+      key: "close",
+      coerce: keyedAccessor,
+      factory: () => defaultKeyedAccessor("close"),
+    },
     /**
         Accessor (or data key) for each period's traded volume. Off by
         default; when set, a strip under the candles draws one bar per

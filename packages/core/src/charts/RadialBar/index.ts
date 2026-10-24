@@ -16,6 +16,7 @@ import {backgroundColor} from "@d3plus/dom";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -135,7 +136,7 @@ export const radialBarDef: DataDrivenChartDefinition = {
     {
       key: "value",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         RadialBar hides the legend when each row is its own entry and the

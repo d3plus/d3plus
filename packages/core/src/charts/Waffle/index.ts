@@ -13,6 +13,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
 import {sceneInsetRegion} from "../pipeline/insetPlacement.js";
@@ -140,7 +141,7 @@ export const waffleDef: DataDrivenChartDefinition = {
     {
       key: "sum",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
       onSet: (viz, v) => {
         viz.schema.thresholdKey = v;
       },

@@ -5,7 +5,8 @@
       2. `_filteredData` (time filter, `filter`, rollup, hide/solo, then the
          chart's `_thresholdFunction`) and `_legendData` (through `_thresholdLegend`);
       3. the hover/duration override past `dataCutoff`;
-    and mounts the no-data message when nothing is left to draw.
+    and mounts the no-data message when nothing is left to draw. It first
+    warns about config keys naming a field no row has (`missingFields.ts`).
 
     `Viz._preDraw()` calls it, so subclass overrides run it through
     `super._preDraw()`.
@@ -19,6 +20,7 @@ import {formatAbbreviate} from "@d3plus/format";
 import {computeFilteredData, computeTimeFilter} from "./preDrawData.js";
 import type {VizPreDrawResult} from "./preDrawData.js";
 import {GROUP_LABEL_KEY, groupDepthOf} from "../viz/groupRow.js";
+import {warnMissingFields} from "../viz/missingFields.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
@@ -182,6 +184,7 @@ export function vizPostThresholdCtx(
 }
 
 export function vizPreDraw(viz: Viz): void {
+  warnMissingFields(viz);
   // Reads the live viz rather than a `resolveSpec(viz)` snapshot:
   // `BaseClass.config()` reflects over every accessor and memoizes the
   // defaults on first call, which would freeze them to whatever

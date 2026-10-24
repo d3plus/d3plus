@@ -93,7 +93,7 @@
 | [`colorValidate`](#colorvalidate)               | Validates a chart color palette against the computable accessibility checks.                                                                                                                                                                                                                                                                 |
 | [`concat`](#concat)                             | Reduce and concat all the elements included in arrayOfArrays if they are arrays.                                                                                                                                                                                                                                                             |
 | [`configPrep`](#configprep)                     | Preps a config object for d3plus data, and optionally bubbles up a specific nested type.                                                                                                                                                                                                                                                     |
-| [`configWarnings`](#configwarnings)             | Toggles the console warnings d3plus logs when a class receives a config property it does not support (like a misspelled key passed to `.config()` or `shapeConfig`).                                                                                                                                                                         |
+| [`configWarnings`](#configwarnings)             | Toggles the console warnings d3plus logs when a class receives a config property it does not support (like a misspelled key passed to `.config()` or `shapeConfig`), or a config key names a data field that no row of the chart's data has (like `y: "vlaue"`).                                                                             |
 | [`constant`](#constant)                         | Wraps non-function variables in a simple return function.                                                                                                                                                                                                                                                                                    |
 | [`date`](#date)                                 | Parses numbers and strings into valid JavaScript Date objects, supporting years, quarters, months, and ISO 8601 formats.                                                                                                                                                                                                                     |
 | [`dateFormatter`](#dateformatter)               | Returns a function that labels any date in `dataArray` exactly as [formatDate](#formatDate) would, reading the interval and position of every date once up front, so labeling all of them takes linear time.                                                                                                                                 |
@@ -22107,12 +22107,14 @@ Preps a config object for d3plus data, and optionally bubbles up a specific nest
 
 > **configWarnings**(): `boolean`
 
-Defined in: core/types/src/utils/configWarnings.d.ts:11
+Defined in: core/types/src/utils/configWarnings.d.ts:13
 
 Toggles the console warnings d3plus logs when a class receives a config
 property it does not support (like a misspelled key passed to `.config()`
-or `shapeConfig`). Warnings are on by default and the setting applies to
-every chart on the page. With no argument, returns the current setting.
+or `shapeConfig`), or a config key names a data field that no row of the
+chart's data has (like `y: "vlaue"`). Warnings are on by default and the
+setting applies to every chart on the page. With no argument, returns the
+current setting.
 
 ##### Returns
 
@@ -22129,12 +22131,14 @@ configWarnings(false);
 
 > **configWarnings**(`_`: `boolean`): `void`
 
-Defined in: core/types/src/utils/configWarnings.d.ts:12
+Defined in: core/types/src/utils/configWarnings.d.ts:14
 
 Toggles the console warnings d3plus logs when a class receives a config
 property it does not support (like a misspelled key passed to `.config()`
-or `shapeConfig`). Warnings are on by default and the setting applies to
-every chart on the page. With no argument, returns the current setting.
+or `shapeConfig`), or a config key names a data field that no row of the
+chart's data has (like `y: "vlaue"`). Warnings are on by default and the
+setting applies to every chart on the page. With no argument, returns the
+current setting.
 
 ##### Parameters
 
@@ -23871,10 +23875,10 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 
 | Method          | Default         |
 | --------------- | --------------- |
-| `open`          | `"open"`        |
-| `high`          | `"high"`        |
-| `low`           | `"low"`         |
-| `close`         | `"close"`       |
+| `open`          | —               |
+| `high`          | —               |
+| `low`           | —               |
+| `close`         | —               |
 | `volume`        | —               |
 | `volumeConfig`  | —               |
 | `variant`       | `"candlestick"` |

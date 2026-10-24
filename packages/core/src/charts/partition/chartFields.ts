@@ -7,7 +7,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {thresholdFunction} from "../Treemap/thresholdFunction.js";
 
@@ -44,7 +44,7 @@ export function partitionSortDecorate(_viz: VizInstance, base: unknown) {
 
 /** Coerces a `sum` key into an accessor. */
 export function partitionSumCoerce(v: unknown): unknown {
-  return typeof v === "function" ? v : accessor(v as string);
+  return typeof v === "function" ? v : fieldAccessor(v as string);
 }
 
 /** Thresholds bucket by the summed value. */
