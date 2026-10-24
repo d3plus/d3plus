@@ -126,7 +126,11 @@ export function buildLegendData(viz: VizInstance): LegendData {
     ? legendCategories(entries)
     : undefined;
 
-  legendData.sort(viz.schema.legendSort);
+  // A threshold bucket's entry comes last, whatever the sort.
+  const bucket = (d: DataPoint): number => (d._isAggregation ? 1 : 0);
+  legendData.sort(
+    (a, b) => bucket(a) - bucket(b) || viz.schema.legendSort(a, b),
+  );
 
   return {legendData, legendKey, getAttr};
 }

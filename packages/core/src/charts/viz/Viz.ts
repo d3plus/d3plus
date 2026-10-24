@@ -266,9 +266,14 @@ export default class Viz extends VizBase {
   /**
    * Applies the threshold algorithm according to the type of chart used.
    * @param {Array} data The data to process.
+   * @param {Array} all Every row `data` was drawn from, legend-hidden ones included.
    * @private
    */
-  _thresholdFunction(data: DataPoint[], _tree?: unknown): DataPoint[] {
+  _thresholdFunction(
+    data: DataPoint[],
+    _tree?: unknown,
+    _all?: DataPoint[],
+  ): DataPoint[] {
     return data;
   }
 

@@ -69,8 +69,17 @@ interface ChartDefinitionBase {
       panel drawn the way the whole chart is.
   */
   facet?: FacetHooks;
-  /** Optional pure threshold algorithm (replaces `Viz._thresholdFunction`). */
-  thresholdFunction?: (viz: VizInstance, data: unknown[]) => unknown[];
+  /**
+      Optional pure threshold algorithm (replaces the base chart's
+      `_thresholdFunction`): returns the drawn rows `data` with small items
+      bucketed. `all` holds every row they were drawn from, legend-hidden
+      ones included.
+  */
+  thresholdFunction?: (
+    viz: VizInstance,
+    data: unknown[],
+    all?: unknown[],
+  ) => unknown[];
   /**
       Optional chart-specific `_chartTransform` builder. Receives the viz
       after the layout stage runs; returns the transform applied to the

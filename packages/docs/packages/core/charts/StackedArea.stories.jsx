@@ -218,3 +218,41 @@ Streamgraph.parameters = {
     },
   },
 };
+
+const thresholdSizes = {
+  Alpha: 40,
+  Bravo: 30,
+  Charlie: 25,
+  Delta: 20,
+  Echo: 15,
+  Fox: 1.2,
+  Golf: 0.8,
+  Hotel: 0.6,
+  India: 0.9,
+  Juliet: 0.4,
+};
+const thresholdData = Object.entries(thresholdSizes).flatMap(([id, base], s) =>
+  [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024].map(year => ({
+    id,
+    year,
+    value: Math.round(base * (1 + 0.15 * Math.sin(year + s)) * 100) / 100,
+  })),
+);
+
+export const GroupingSmallSeries = Template.bind({});
+GroupingSmallSeries.args = {
+  data: thresholdData,
+  groupBy: "id",
+  threshold: 0.05,
+  x: "year",
+  y: "value",
+};
+GroupingSmallSeries.parameters = {
+  controls: {include: ["threshold", "thresholdName"]},
+  docs: {
+    description: {
+      story:
+        'Set `threshold` to merge the series too small to read into one band. Each series whose summed value, across every year, is under that share of the whole chart\'s total (here 5%) joins the bucket, so a series is in it at every year or at none. The bucket stacks on top, labelled by `thresholdName` ("Values < 5%"), with one legend entry that highlights and hides it.',
+    },
+  },
+};
