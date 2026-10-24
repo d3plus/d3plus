@@ -4,10 +4,11 @@ import assert from "~test/browser/assert.js";
 import {loadD3plus, pageErrors, resetPage} from "~test/browser/render.js";
 
 /**
-    `timelineConfig.brushMax` on a chart, with a real pointer, on SVG and
-    Canvas: a brush dragged wider than brushMax ticks (or buttons) is pulled
-    in on release, keeping the end being dragged, and the chart filters to
-    what remains; a time-axis chart starts on its latest brushMax periods;
+    `timelineConfig.brushMax` and `brushMin` on a chart, with a real pointer,
+    on SVG and Canvas: a brush dragged wider than brushMax ticks (or buttons)
+    is pulled in on release, and one narrower than brushMin (buttons too)
+    widens, keeping the end being dragged, and the chart filters to what
+    remains; a time-axis chart starts on its latest brushMax periods;
     playback keeps the selection's width.
 */
 
@@ -59,6 +60,29 @@ function brushX(year) {
   return m.a * px + m.e;
 }
 
+/** The selected years, the last committed ones, and the drawn years. */
+async function settle() {
+  await commands.mouseMove(5, 5);
+  await wait(300);
+  const viz = window.__viz;
+  return {
+    selection: years(viz._timelineClass.selection()),
+    last: years(window.__ends[window.__ends.length - 1] || []),
+    filtered: [...new Set(viz._filteredData.flatMap(d => [].concat(d.year)))]
+      .map(Number)
+      .sort(),
+  };
+}
+
+/** Clicks one year's tick or button with the real mouse. */
+async function click(year) {
+  const overlay = document
+    .querySelector("#viz .brushGroup .overlay")
+    .getBoundingClientRect();
+  await commands.mouseClick(brushX(year), overlay.y + overlay.height / 2);
+  return settle();
+}
+
 /** Drags the brush from one year to another with the real mouse. */
 async function drag(from, to) {
   const overlay = document
@@ -71,16 +95,7 @@ async function drag(from, to) {
   for (let i = 1; i <= 10; i++)
     await commands.mouseMove(a + ((b - a) * i) / 10, y);
   await commands.mouseUp();
-  await commands.mouseMove(5, 5);
-  await wait(300);
-  const viz = window.__viz;
-  return {
-    selection: years(viz._timelineClass.selection()),
-    last: years(window.__ends[window.__ends.length - 1] || []),
-    filtered: [...new Set(viz._filteredData.flatMap(d => [].concat(d.year)))]
-      .map(Number)
-      .sort(),
-  };
+  return settle();
 }
 
 for (const renderer of ["svg", "canvas"]) {
@@ -103,6 +118,48 @@ for (const renderer of ["svg", "canvas"]) {
     });
   }
 }
+
+for (const renderer of ["svg", "canvas"]) {
+  it(`brushMin (${renderer}, buttons): narrow drags, clicks, and edges widen to brushMin`, async function () {
+    await draw({
+      renderer,
+      timelineConfig: {brushMin: 3, buttonBehavior: "buttons"},
+    });
+    // Dragged right to 2015: the start moves back.
+    const right = await drag(2014, 2015);
+    assert.deepStrictEqual(right.selection, [2013, 2015]);
+    assert.deepStrictEqual(right.last, [2013, 2015]);
+    assert.deepStrictEqual(right.filtered, range(2013, 2015));
+    // Dragged left to 2017 (from outside the selection, which would move
+    // it): the end moves on.
+    const left = await drag(2018, 2017);
+    assert.deepStrictEqual(left.selection, [2017, 2019]);
+    // A click selects three buttons from the one clicked.
+    const one = await click(2012);
+    assert.deepStrictEqual(one.selection, [2012, 2014]);
+    assert.deepStrictEqual(one.filtered, range(2012, 2014));
+    // At either edge it grows the other way.
+    assert.deepStrictEqual((await click(2021)).selection, [2019, 2021]);
+    assert.deepStrictEqual((await drag(2011, 2010)).selection, [2010, 2012]);
+    assert.deepStrictEqual(pageErrors(), []);
+  });
+}
+
+it("brushMin unset (buttons): a click selects one button", async function () {
+  await draw({renderer: "svg", timelineConfig: {buttonBehavior: "buttons"}});
+  // The chart hands a single period back to its Timeline as a range.
+  assert.deepStrictEqual((await click(2014)).selection, [2014, 2014]);
+});
+
+it("brushMin (buttons): a chart starts on its latest brushMin periods", async function () {
+  await draw({
+    renderer: "svg",
+    timelineConfig: {brushMin: 3, buttonBehavior: "buttons"},
+  });
+  const out = await settle();
+  assert.deepStrictEqual(out.selection, [2019, 2021]);
+  assert.deepStrictEqual(out.filtered, range(2019, 2021));
+});
 
 it("brushMax unset: a wide drag commits as it is", async function () {
   await draw({renderer: "svg", timelineConfig: {buttonBehavior: "ticks"}});

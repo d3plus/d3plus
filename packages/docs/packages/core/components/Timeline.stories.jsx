@@ -119,7 +119,7 @@ LimitingTheSelection.parameters = {
   docs: {
     description: {
       story:
-        "`brushMax` caps how many ticks a selection can span. Drag across more and the brush is pulled in on release, keeping the end you dragged; a wider starting `selection` keeps its latest periods. On a chart, pass it through `timelineConfig`. When `brushMin` is larger, `brushMin` wins.",
+        "`brushMax` caps how many ticks a selection can span. Drag across more and the brush is pulled in on release, keeping the end you dragged; a wider starting `selection` keeps its latest periods. `brushMin` sets the fewest the same way, with ticks or buttons: a narrower brush widens, and a click selects that many periods from the one clicked. On a chart, pass both through `timelineConfig`. When `brushMin` is larger, `brushMin` wins.",
     },
   },
 };

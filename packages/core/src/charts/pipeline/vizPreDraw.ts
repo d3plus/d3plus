@@ -195,6 +195,18 @@ export function vizPreDraw(viz: Viz): void {
       : viz.schema.groupBy.length - 1;
   const {id, ids, drawLabel} = buildLabelClosures(viz, drawDepth);
 
+  // A persistent trail only stays coherent with fixed axes (so committed
+  // segments don't drift as the domain shifts) and a single-period timeline (so
+  // the forward/backward step logic has one current time). Turn both on
+  // automatically when `trailPersist` is set, so callers don't have to know.
+  if (hasPersistentTrail(viz.schema.shapeConfig as Record<string, unknown>)) {
+    (viz as {_axisPersist?: boolean})._axisPersist = true;
+    viz.schema.timelineConfig = {
+      ...(viz.schema.timelineConfig || {}),
+      brushing: false,
+    };
+  }
+
   // The synthesized time filter feeds this draw's rows but is never written
   // onto `viz.schema.timeFilter`: it captures the latest time at synthesis,
   // so pinning it would make a later render with newer data skip
@@ -208,18 +220,6 @@ export function vizPreDraw(viz: Viz): void {
   viz._drawLabel = drawLabel;
   if (out.legendData !== undefined) viz._legendData = out.legendData;
   viz._thresholdRows = out.legendData;
-
-  // A persistent trail only stays coherent with fixed axes (so committed
-  // segments don't drift as the domain shifts) and a single-period timeline (so
-  // the forward/backward step logic has one current time). Turn both on
-  // automatically when `trailPersist` is set, so callers don't have to know.
-  if (hasPersistentTrail(viz.schema.shapeConfig as Record<string, unknown>)) {
-    (viz as {_axisPersist?: boolean})._axisPersist = true;
-    viz.schema.timelineConfig = {
-      ...(viz.schema.timelineConfig || {}),
-      brushing: false,
-    };
-  }
 
   // The threshold reads `this.schema.aggs`/`_drawDepth`/`_groupBy` through
   // the chart's instance method, so it runs after the writes above.

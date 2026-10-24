@@ -15,7 +15,7 @@ import {parseTimeValues} from "../Axis/timeValues.js";
 import type {ConfigPrepHost} from "../../utils/configPrep.js";
 
 import type Timeline from "./Timeline.js";
-import {brushSpan, nearestIndex} from "./brushSpan.js";
+import {nearestIndex, spanIndices, timelineBrushSpan} from "./brushSpan.js";
 import {byValue} from "./timelineConfig.js";
 
 /**
@@ -192,11 +192,11 @@ export function configureScale(
 }
 
 /**
-    Holds a starting `selection` to `brushMax` periods, keeping its later
-    end, in place, and stores what remains as the Timeline's selection.
-    `periods` are where each period sits in `selection`'s terms (tick dates,
-    or button positions) and `dates` the periods themselves, both earliest
-    first.
+    Holds a starting `selection` to `brushMin` to `brushMax` periods, in
+    place, keeping its later end (or, at the first period, its earlier one),
+    and stores what remains as the Timeline's selection. `periods` are where
+    each period sits in `selection`'s terms (tick dates, or button positions)
+    and `dates` the periods themselves, both earliest first.
 */
 export function clampSelection(
   tl: Timeline,
@@ -204,21 +204,21 @@ export function clampSelection(
   periods: unknown[],
   dates: unknown[] = periods,
 ): void {
-  const most = brushSpan(tl.schema.brushMin, tl.schema.brushMax).max;
-  if (most === Infinity || !periods.length) return;
+  const span = timelineBrushSpan(tl.schema);
+  if ((span.min <= 1 && span.max === Infinity) || !periods.length) return;
   const values = periods.map(Number);
   const ends = [selection[0], selection[selection.length - 1]].map(d =>
     nearestIndex(values, Number(d)),
   );
-  const lo = Math.min(...ends);
-  const hi = Math.max(...ends);
-  if (hi - lo <= most - 1) return;
-  const from = hi - (most - 1);
+  const first = Math.min(...ends);
+  const last = Math.max(...ends);
+  const [lo, hi] = spanIndices(first, last, values.length, span, "hi", "hi");
+  if (lo === first && hi === last) return;
   [selection[0], selection[selection.length - 1]] = byValue([
-    periods[from],
+    periods[lo],
     periods[hi],
   ]);
-  tl.schema.selection = [dates[from], dates[hi]].map(d =>
+  tl.schema.selection = [dates[lo], dates[hi]].map(d =>
     date(d as string | number),
   );
 }

@@ -5,7 +5,7 @@
     <title>Timeline BrushMax</title>
     <meta
       name="description"
-      content="timelineConfig.brushMax caps a timeline selection at 3 periods: ticks and buttons Treemaps, a LinePlot starting on its latest 3 years, and brushMin above brushMax."
+      content="timelineConfig.brushMax caps a timeline selection at 3 periods (ticks and buttons Treemaps, a LinePlot starting on its latest 3 years), brushMin: 3 widens a buttons selection, and brushMin above brushMax wins."
     />
     <script src="/umd/d3plus-core.full.js"></script>
     <script src="/dev.js"></script>
@@ -45,6 +45,10 @@
       <div>
         <h3>LinePlot with brushMax: 3 starts on its latest 3 years</h3>
         <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h3>brushMin: 3, buttons (click one button, or drag across two)</h3>
+        <div class="viz" id="min-buttons"></div>
       </div>
       <div>
         <h3>brushMin: 4 above brushMax: 2 (brushMin wins)</h3>
@@ -88,6 +92,7 @@
       .legend(false)
       .timelineConfig({brushMax: 3})
       .render();
+    treemap("#min-buttons", {brushMin: 3, buttonBehavior: "buttons"});
     treemap("#conflict", {brushMin: 4, brushMax: 2, buttonBehavior: "ticks"});
   </script>
 </html>

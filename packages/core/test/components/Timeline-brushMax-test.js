@@ -3,8 +3,10 @@ import assert from "assert";
 import {Timeline, Treemap} from "../../index.ts";
 import {
   brushSpan,
+  growFrom,
   nearestIndex,
   spanIndices,
+  timelineBrushSpan,
 } from "../../src/components/Timeline/brushSpan.ts";
 import {clampSelection} from "../../src/components/Timeline/timelineRender.ts";
 import {computeTimeFilter} from "../../src/charts/pipeline/preDrawData.ts";
@@ -14,9 +16,10 @@ import {useJsdom} from "~test/jsdom.js";
 useJsdom();
 
 /**
-    Timeline `brushMax`: the most ticks a brush selection may span. A wider
-    brush is pulled in on release, keeping the end being dragged; a wider
-    starting selection keeps its latest periods.
+    Timeline `brushMin` and `brushMax`: the fewest and most ticks (or
+    buttons) a brush selection may span. A brush outside them is moved on
+    release, keeping the end being dragged; a starting selection outside them
+    keeps its latest period.
 */
 
 const year = d => new Date(d).getFullYear();
@@ -209,4 +212,125 @@ it("computeTimeFilter: a time axis shows only the latest brushMax periods", () =
     .time("year")
     .timelineConfig({brushMax: 3});
   assert.deepStrictEqual(rows(treemap), [2020]);
+});
+
+it("spanIndices: a short selection can grow from its upper end instead", () => {
+  const span = {min: 3, max: Infinity};
+  assert.deepStrictEqual(spanIndices(5, 6, 10, span, "hi", "hi"), [4, 6]);
+  // Out of room below, the upper end moves up.
+  assert.deepStrictEqual(spanIndices(0, 0, 10, span, "hi", "hi"), [0, 2]);
+  assert.deepStrictEqual(spanIndices(9, 9, 10, span, "hi", "lo"), [7, 9]);
+});
+
+it("growFrom: a click grows from its period; a drag keeps the dragged end", () => {
+  assert.strictEqual(growFrom(4, 4, "hi"), "lo");
+  assert.strictEqual(growFrom(4, 5, "hi"), "hi");
+  assert.strictEqual(growFrom(4, 5, "lo"), "lo");
+});
+
+it("timelineBrushSpan: a single-period Timeline has no brushMin to meet", () => {
+  const schema = {brushMin: () => 3, brushMax: () => 4};
+  assert.deepStrictEqual(timelineBrushSpan(schema), {min: 3, max: 4});
+  assert.deepStrictEqual(timelineBrushSpan({...schema, brushing: false}), {
+    min: 1,
+    max: 4,
+  });
+});
+
+/** A rendered buttons-mode Timeline over 2010–2021. */
+async function buttons(config) {
+  const tl = new Timeline()
+    .domain([years[0], years[11]])
+    .ticks(years)
+    .buttonBehavior("buttons")
+    .width(600)
+    .height(100)
+    .config(config);
+  await new Promise(cb => tl.render(cb));
+  return tl;
+}
+
+/** Releases a buttons brush from `from` to `to` (years), the pointer at `at`. */
+function releaseButtons(tl, from, to, at) {
+  const px = y => tl._d3Scale.range()[y - 2010];
+  tl._brushEnd({
+    type: "end",
+    target: tl._brush,
+    sourceEvent: {clientX: px(at), clientY: 0},
+    selection: from === null ? null : [px(from), px(to)],
+  });
+  return [].concat(tl.selection()).map(year);
+}
+
+it("Timeline brushMin (buttons): a narrow drag keeps the dragged end", async () => {
+  const tl = await buttons({brushMin: 3});
+  // Dragged right to 2015: the start moves back.
+  assert.deepStrictEqual(releaseButtons(tl, 2014, 2015, 2015), [2013, 2015]);
+  // Dragged left to 2014: the end moves on.
+  assert.deepStrictEqual(releaseButtons(tl, 2014, 2015, 2014), [2014, 2016]);
+  // Wide enough already.
+  assert.deepStrictEqual(releaseButtons(tl, 2014, 2017, 2017), [2014, 2017]);
+});
+
+it("Timeline brushMin (buttons): a click selects brushMin from the clicked button", async () => {
+  const tl = await buttons({brushMin: 3});
+  assert.deepStrictEqual(releaseButtons(tl, null, null, 2014), [2014, 2016]);
+  // At the last button, it grows the other way.
+  assert.deepStrictEqual(releaseButtons(tl, null, null, 2021), [2019, 2021]);
+});
+
+it("Timeline brushMin (buttons): at an edge the selection grows the other way", async () => {
+  const tl = await buttons({brushMin: 4});
+  // Dragged right to 2011: no room before 2010, so the end moves on.
+  assert.deepStrictEqual(releaseButtons(tl, 2010, 2011, 2011), [2010, 2013]);
+  assert.deepStrictEqual(releaseButtons(tl, 2020, 2021, 2020), [2018, 2021]);
+});
+
+it("Timeline brushMin (buttons): brushMin wins over a smaller brushMax", async () => {
+  const tl = await buttons({brushMin: 3, brushMax: 2});
+  assert.deepStrictEqual(releaseButtons(tl, 2012, 2019, 2019), [2017, 2019]);
+  assert.deepStrictEqual(releaseButtons(tl, null, null, 2012), [2012, 2014]);
+});
+
+it("Timeline brushMin: unused with brushing false, and 1 by default", async () => {
+  const single = await buttons({brushMin: 3, brushing: false});
+  assert.deepStrictEqual(releaseButtons(single, null, null, 2014), [2014]);
+  const plain = await buttons({});
+  assert.deepStrictEqual(releaseButtons(plain, null, null, 2014), [2014]);
+  assert.deepStrictEqual(releaseButtons(plain, 2014, 2015, 2015), [2014, 2015]);
+});
+
+it("clampSelection: a narrow starting selection widens to brushMin", async () => {
+  const one = await buttons({brushMin: 3, selection: [years[5]]});
+  assert.deepStrictEqual(one.selection().map(year), [2013, 2015]);
+  const first = await buttons({brushMin: 3, selection: [years[0]]});
+  assert.deepStrictEqual(first.selection().map(year), [2010, 2012]);
+  const ticks = await timeline({brushMin: 3, selection: [years[5]]});
+  assert.deepStrictEqual(ticks.selection().map(year), [2013, 2015]);
+  // A single-period Timeline keeps its one period.
+  const single = await buttons({
+    brushMin: 3,
+    brushing: false,
+    selection: years[5],
+  });
+  assert.deepStrictEqual([].concat(single.selection()).map(year), [2015]);
+});
+
+it("computeTimeFilter: a chart starts on its latest brushMin periods", () => {
+  const rows = viz => yearly.filter(computeTimeFilter(viz)).map(d => d.year);
+  const treemap = config =>
+    new Treemap().data(yearly).groupBy("id").time("year").config(config);
+  assert.deepStrictEqual(rows(treemap({})), [2020]);
+  assert.deepStrictEqual(
+    rows(treemap({timelineConfig: {brushMin: 3}})),
+    [2018, 2019, 2020],
+  );
+  assert.deepStrictEqual(
+    rows(treemap({timelineConfig: {brushMin: 3, brushing: false}})),
+    [2020],
+  );
+  assert.deepStrictEqual(
+    rows(treemap({timeline: false, timelineConfig: {brushMin: 3}})),
+    [2020],
+  );
 });

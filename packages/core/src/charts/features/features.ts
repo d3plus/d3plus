@@ -622,9 +622,10 @@ export const timelineFeature: FeatureModule = {
       // First render only: default to the *filtered* extent, which the
       // synthesized default timeFilter pins to the latest period (see
       // vizPreDraw) — the historical default. `timelineDefault` overrides it.
+      // A row merged across periods holds each of their times.
       const filtered = extent(
         (viz._filteredData || [])
-          .map(viz.schema.time)
+          .flatMap((d: DataPoint, i: number) => viz.schema.time(d, i))
           .map((d: unknown) => date(d as string | number)) as Date[],
       ) as [Date, Date];
       viz._timelineSelection =

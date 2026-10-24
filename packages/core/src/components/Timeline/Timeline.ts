@@ -11,7 +11,7 @@ import {constant} from "../../utils/index.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import type {ConfigField} from "../../fluent.js";
 
-import {brushSpan, fitBrush} from "./brushSpan.js";
+import {fitBrush, timelineBrushSpan} from "./brushSpan.js";
 import {byValue, initTimelineDefaults} from "./timelineConfig.js";
 import {
   configureScale,
@@ -351,22 +351,25 @@ export default class Timeline extends Axis {
     const ticks = ticksMode ? periods : positions;
 
     // The edge being dragged (nearest the pointer) stays put when a
-    // selection longer than `brushMax` is pulled in.
+    // selection is pulled in to `brushMax`, or (buttons) pushed out to
+    // `brushMin`.
     const brushed = event.selection as number[] | null;
     const px = x.length ? (x[0][0] as number) : NaN;
     const anchor =
       brushed && Math.abs(px - brushed[0]) < Math.abs(px - brushed[1])
         ? "lo"
         : "hi";
-    const span = brushSpan(this.schema.brushMin, this.schema.brushMax);
 
     // The periods under each edge, moved so the selection spans `brushMin`
-    // (ticks only) to `brushMax` periods.
+    // to `brushMax` periods. A short ticks-mode selection grows from its
+    // first tick; a short buttons selection keeps the button being dragged,
+    // or starts at the one clicked.
     const [lo, hi] = fitBrush(
       [periodAt(pixels[0]), periodAt(pixels[1])],
       periods.length,
-      ticksMode ? span : {min: 1, max: span.max},
+      timelineBrushSpan(this.schema),
       anchor,
+      !ticksMode,
     );
     const position = (i: number) => positions[values.indexOf(periods[i])];
     const domain: unknown[] = ticksMode
