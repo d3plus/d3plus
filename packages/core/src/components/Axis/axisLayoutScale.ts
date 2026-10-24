@@ -27,6 +27,7 @@ import {
 import {axisIsYearLike, formatYear} from "./yearValues.js";
 import type {D3Scale} from "../../utils/index.js";
 import {floorPow, isNegative, roundedDomain} from "./axisRounding.js";
+import {powExponent} from "./powTicks.js";
 
 /**
     Builds the tick label formatter (user-supplied or scale-derived). With a
@@ -377,6 +378,9 @@ export function setAxisScale(
     [scale]()
     .domain(axis.schema.scale === "time" ? axisTimeDomain(axis) : initialDomain)
     .range(range);
+
+  if (axis.schema.scale === "pow" && axis._d3Scale!.exponent)
+    axis._d3Scale!.exponent(powExponent(axis.schema.exponent));
 
   if (axis.schema.rounding !== "none") {
     const rounded = roundedDomain(
