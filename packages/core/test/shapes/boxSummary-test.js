@@ -129,6 +129,13 @@ it("boxSummaryValues: the set statistics then the outliers, complete or not", ()
   assert.deepStrictEqual(boxSummaryValues({}, row, 0), []);
 });
 
+it("boxSummaryValues: leaves out the outliers when told the row draws none", () => {
+  assert.deepStrictEqual(
+    boxSummaryValues({...stats, boxOutliers: () => [900]}, row, 0, false),
+    [20, 78.5, 145, 172.5, 300],
+  );
+});
+
 it("placeBox: centers the rect between the quartiles", () => {
   const v = {orient: "vertical", first: 100, third: 160};
   placeBox(v, "alpha", 40);
@@ -213,4 +220,35 @@ it("Box: precomputed boxes draw the box, median, whiskers, and outliers", () => 
   assert.strictEqual(nodes["100-median"].transform.y, 145);
   assert.ok(nodes["100-whisker-top"] && nodes["100-whisker-bottom"]);
   assert.strictEqual(nodes["100-outlier-0"].transform.y, 500);
+});
+
+it("Box: a precomputed box draws no outliers when its outlier setting is false", () => {
+  const scene = outlier =>
+    new Box()
+      .config({...stats, boxOutliers: () => [500, 600], x: () => 100, outlier})
+      .renderMode("compute")
+      .data([row, {...row, x: 1}])
+      .render()
+      .toScene()
+      .children.map(n => n.key);
+  assert.deepStrictEqual(
+    scene(false).filter(k => k.includes("outlier")),
+    [],
+  );
+  assert.ok(scene(false).includes("100-box"), "the box still draws");
+  // An accessor decides per row.
+  const keys = new Box()
+    .config({
+      ...stats,
+      boxOutliers: () => [500],
+      x: d => d.x ?? 100,
+      outlier: d => (d.x === 1 ? false : "Rect"),
+    })
+    .renderMode("compute")
+    .data([row, {...row, x: 1}])
+    .render()
+    .toScene()
+    .children.map(n => n.key)
+    .filter(k => k.includes("outlier"));
+  assert.deepStrictEqual(keys, ["100-outlier-0"]);
 });

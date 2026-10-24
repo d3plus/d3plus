@@ -9,6 +9,7 @@ import type {DataPoint} from "@d3plus/data";
 import accessor from "../utils/accessor.js";
 import constant from "../utils/constant.js";
 import {warnConfig} from "../utils/configWarnings.js";
+import {drawsOutlier} from "./boxOutlierShape.js";
 import type {Owned} from "./shapeOwners.js";
 import {uniqueIds} from "./uniqueIds.js";
 
@@ -123,14 +124,16 @@ export function readBoxSummary(
 
 /**
     Every value a row's statistics place on the value axis, for widening its
-    domain: each set statistic that is a finite number, then the outliers.
-    An incomplete set still contributes, so the axis holds its values even
-    though the row draws no box.
+    domain: each set statistic that is a finite number, then the outliers
+    unless `outliers` is false (the row draws none). An incomplete set still
+    contributes, so the axis holds its values even though the row draws no
+    box.
 */
 export function boxSummaryValues(
   config: Record<string, unknown>,
   d: DataPoint,
   i: number,
+  outliers = true,
 ): number[] {
   const values: number[] = [];
   for (const key of boxStatKeys) {
@@ -138,7 +141,7 @@ export function boxSummaryValues(
     const v = typeof fn === "function" ? toNumber((fn as RowFn)(d, i)) : NaN;
     if (finite(v)) values.push(v);
   }
-  return values.concat(readOutliers(config, d, i));
+  return outliers ? values.concat(readOutliers(config, d, i)) : values;
 }
 
 /**
@@ -170,22 +173,20 @@ export interface SummaryBoxHost {
   _owned: Map<object, Owned>;
 }
 
-/** An outlier record drawn at `value` beside the box datum `d`. */
+/** An outlier record drawn with `shape` at `value` beside the box datum `d`. */
 function outlierRecord(
-  host: SummaryBoxHost,
   d: DataPoint,
+  shape: unknown,
   value: number,
   k: number,
 ): DataPoint {
-  const row = d.data as DataPoint;
-  const i = d.i as number;
   const vertical = d.orient === "vertical";
   return {
     __d3plus__: true,
-    data: row,
-    i,
+    data: d.data,
+    i: d.i,
     id: `${d.id}-outlier-${k}`,
-    outlier: (host.schema.outlier as RowFn)(row, i),
+    outlier: shape,
     x: vertical ? d.x : value,
     y: vertical ? value : d.y,
   } as unknown as DataPoint;
@@ -193,7 +194,7 @@ function outlierRecord(
 
 /**
     Builds one box per row from its statistics, appending its outliers to
-    `outlierData` and recording which box owns each record in `host._owned`.
+    `outlierData` (none when its `outlier` setting draws no point) and recording which box owns each record in `host._owned`.
     Rows without a complete set of statistics draw nothing.
 */
 export function computeSummaryBoxes(
@@ -236,9 +237,11 @@ export function computeSummaryBoxes(
     } as unknown as DataPoint;
     placeBox(d, keys[n], (schema.rectWidth as RowFn)(row, i) as number);
     const start = outlierData.length;
-    s.outliers.forEach((v, k) =>
-      outlierData.push(outlierRecord(host, d, v, k)),
-    );
+    const shape = (schema.outlier as RowFn)(row, i);
+    if (drawsOutlier(shape))
+      s.outliers.forEach((v, k) =>
+        outlierData.push(outlierRecord(d, shape, v, k)),
+      );
     const owned = {datum: d, index: n};
     for (const record of [d, ...outlierData.slice(start)])
       host._owned.set(record, owned);

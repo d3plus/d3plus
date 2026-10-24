@@ -104,6 +104,20 @@ ShowingOutliers.parameters = {
   },
 };
 
+export const HidingOutliers = Template.bind({});
+HidingOutliers.args = {
+  ...ShowingOutliers.args,
+  shapeConfig: {Box: {outlier: false}},
+};
+HidingOutliers.parameters = {
+  docs: {
+    description: {
+      story:
+        'Set `shapeConfig.Box.outlier` to `false` to draw no outlier points. The value axis then leaves those values out and reaches only as far as the whiskers, so a few extreme values no longer squeeze the boxes; the tooltip still lists each box\'s statistics. `outlier` can also be an accessor, returning `false` for the outliers to hide and `"Circle"` or `"Rect"` for the rest.',
+    },
+  },
+};
+
 export const ChangingEndpointShapes = Template.bind({});
 ChangingEndpointShapes.args = {
   data: [

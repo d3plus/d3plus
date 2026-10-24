@@ -75,3 +75,32 @@ it("Box.toScene() in compute mode includes both rect bodies + whiskers", () => {
     "Box scene contains rect nodes from _box / _median",
   );
 });
+
+/** The outlier keys a compute-mode Box draws from `sampleData` with `config`. */
+const outlierKeys = config =>
+  new Box()
+    .data(sampleData)
+    .x(d => d.key)
+    .y(d => d.v)
+    .config(config)
+    .renderMode("compute")
+    .render()
+    .toScene()
+    .children.map(n => n.key)
+    .filter(k => k.includes("outlier"));
+
+it("Box outlier: false draws no outlier points; an accessor decides per observation", () => {
+  assert.deepStrictEqual(outlierKeys({}), ["A-outlier-4"]);
+  assert.deepStrictEqual(outlierKeys({outlier: false}), []);
+  assert.deepStrictEqual(outlierKeys({outlier: d => d.v < 10 && "Rect"}), []);
+  assert.deepStrictEqual(outlierKeys({outlier: () => "Rect"}), ["A-outlier-4"]);
+  const box = new Box()
+    .data(sampleData)
+    .x(d => d.key)
+    .y(d => d.v)
+    .outlier(false)
+    .renderMode("compute")
+    .render();
+  assert.strictEqual(box._whiskerEndpoint.length, 0);
+  assert.ok(box._owned.size > 0, "the boxes still own their parts");
+});

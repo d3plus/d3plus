@@ -285,8 +285,14 @@ export interface BoxConfig {
   medianConfig?: Record<string, unknown>;
   /** Orientation: "vertical" or "horizontal". */
   orient?: ConstOrAccessor<Orient>;
-  /** Outlier accessor (per-datum predicate). */
-  outlier?: ConstOrAccessor<string>;
+  /**
+      The shape each outlier draws as: `"Circle"` (default) or `"Rect"`, or
+      `false` to draw no point. An accessor receives each outlier's
+      observation (a precomputed box's row). In BoxWhisker, the value axis
+      leaves out the outliers it hides and reaches only as far as the
+      whiskers.
+  */
+  outlier?: ConstOrAccessor<"Circle" | "Rect" | false>;
   outlierConfig?: Record<string, unknown>;
   rectConfig?: Record<string, unknown>;
   rectWidth?: ConstOrAccessor<number>;

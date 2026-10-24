@@ -1,0 +1,146 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>BoxWhisker Outliers</title>
+    <meta
+      name="description"
+      content="Hiding BoxWhisker outliers with shapeConfig.Box.outlier: false (raw and precomputed boxes, an accessor hiding one box's, horizontal): no points draw and the value axis tightens to the whiskers."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>Outliers drawn (default)</h3>
+        <div class="viz" id="shown"></div>
+      </div>
+      <div>
+        <h3>outlier: false</h3>
+        <div class="viz" id="hidden"></div>
+      </div>
+      <div>
+        <h3>Precomputed boxes, outlier: false</h3>
+        <div class="viz" id="summary"></div>
+      </div>
+      <div>
+        <h3>An accessor: gamma's outliers only, as Rects</h3>
+        <div class="viz" id="accessor"></div>
+      </div>
+      <div>
+        <h3>Horizontal, outlier: false</h3>
+        <div class="viz" id="horizontal"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    var observations = {
+      alpha: [300, 150, 160, 140, 20, 180, 40, 170, 125, 74, 80, 2400],
+      beta: [180, 30, 120, 50, 140, 115],
+      gamma: [95, 110, 120, 135, 150, 160, 175, 210, 230, -60],
+    };
+    var summary = [
+      {
+        id: "alpha",
+        min: 20,
+        q1: 78.5,
+        median: 145,
+        q3: 172.5,
+        max: 313.5,
+        outliers: [2400],
+      },
+      {
+        id: "beta",
+        min: 30,
+        q1: 66.25,
+        median: 117.5,
+        q3: 135,
+        max: 180,
+        outliers: [],
+      },
+      {
+        id: "gamma",
+        min: 24.375,
+        q1: 112.5,
+        median: 142.5,
+        q3: 171.25,
+        max: 230,
+        outliers: [-60],
+      },
+    ];
+    var raw = [];
+    Object.keys(observations).forEach(function (id) {
+      observations[id].forEach(function (value) {
+        raw.push({id: id, n: raw.length, value: value});
+      });
+    });
+
+    function rawChart(select) {
+      return new d3plus.BoxWhisker()
+        .select(select)
+        .data(raw)
+        .groupBy(["id", "n"])
+        .x("id")
+        .y("value");
+    }
+
+    rawChart("#shown").render();
+    rawChart("#hidden")
+      .shapeConfig({Box: {outlier: false}})
+      .render();
+    new d3plus.BoxWhisker()
+      .select("#summary")
+      .data(summary)
+      .x("id")
+      .boxMin("min")
+      .boxQ1("q1")
+      .boxMedian("median")
+      .boxQ3("q3")
+      .boxMax("max")
+      .boxOutliers("outliers")
+      .shapeConfig({Box: {outlier: false}})
+      .render();
+    rawChart("#accessor")
+      .shapeConfig({
+        Box: {
+          outlier: function (d) {
+            return d.id === "gamma" ? "Rect" : false;
+          },
+        },
+      })
+      .render();
+    new d3plus.BoxWhisker()
+      .select("#horizontal")
+      .data(raw)
+      .groupBy(["id", "n"])
+      .discrete("y")
+      .x("value")
+      .y("id")
+      .shapeConfig({Box: {orient: "horizontal", outlier: false}})
+      .render();
+  </script>
+</html>

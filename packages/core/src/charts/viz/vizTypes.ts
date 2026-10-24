@@ -475,6 +475,16 @@ export interface VizInstance {
     rows: Record<string, unknown>[],
     axis: string,
   ) => unknown[];
+  /**
+      The rows that place an axis's values, given the plotted rows and the
+      axis (`"x"`, `"x2"`, `"y"`, or `"y2"`): a chart can leave out rows its
+      marks don't draw, or add rows at values they reach (e.g. BoxWhisker's
+      hidden outliers and the whisker ends past what remains).
+  */
+  _plotAxisRows?: (
+    rows: Record<string, unknown>[],
+    axis: string,
+  ) => Record<string, unknown>[];
   /** Per-chart overrides of Plot's shape emitters, by shape key (see `emitShape`). */
   _plotShapeEmitters?: Record<string, ShapeEmitter>;
   /**
