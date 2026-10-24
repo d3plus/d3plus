@@ -441,3 +441,20 @@ it("SvgRenderer falls back to an ephemeral trail when no sequence is supplied", 
 
   renderer.destroy();
 });
+
+it("SvgRenderer.elements() lists its svg and overlay host", () => {
+  const renderer = new SvgRenderer();
+  assert.deepStrictEqual(renderer.elements(), [], "nothing before mount");
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  renderer.mount({container, width: 200, height: 100});
+  assert.deepStrictEqual(
+    renderer.elements().map(el => el.getAttribute("class")),
+    ["d3plus-render-svg", "d3plus-render-overlays"],
+  );
+  renderer.destroy();
+  assert.ok(
+    renderer.elements().every(el => !el.isConnected),
+    "nothing listed is still on the page after destroy",
+  );
+});

@@ -514,4 +514,28 @@ describe("Renderer", function () {
       "select is the component's own svg",
     );
   });
+
+  it("passes a className config key to the viz, apart from the wrapper's own className", async function () {
+    let received;
+    class TrackingViz extends MockViz {
+      config(c) {
+        received = c;
+        return this;
+      }
+    }
+    await act(async () => {
+      root.render(
+        React.createElement(Renderer, {
+          constructor: TrackingViz,
+          config: {className: "dark-chart"},
+          className: "wrapper",
+        }),
+      );
+    });
+    assert.strictEqual(received.className, "dark-chart");
+    assert.ok(
+      container.querySelector("div.wrapper"),
+      "wrapper keeps its class",
+    );
+  });
 });

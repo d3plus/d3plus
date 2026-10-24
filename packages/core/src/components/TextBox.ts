@@ -8,6 +8,7 @@ import {SvgRenderer} from "@d3plus/render";
 import type {GroupNode, SceneNode} from "@d3plus/render";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
+import {applyClassName} from "../utils/className.js";
 import {installFluent} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {computeTextBoxDatum} from "./textBoxLayout.js";
@@ -272,6 +273,7 @@ export default class TextBox extends BaseClass {
         renderer.drawScene(scene);
         (this as unknown as {_sceneRenderer?: SvgRenderer})._sceneRenderer =
           renderer;
+        applyClassName(this);
       }
     }
 

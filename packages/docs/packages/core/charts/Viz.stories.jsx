@@ -511,3 +511,56 @@ new BarChart()
     },
   },
 };
+
+const revenue = [
+  {id: "North", year: 2021, value: 14},
+  {id: "North", year: 2022, value: 18},
+  {id: "North", year: 2023, value: 23},
+  {id: "South", year: 2021, value: 9},
+  {id: "South", year: 2022, value: 13},
+  {id: "South", year: 2023, value: 11},
+];
+const revenueConfig = {
+  data: revenue,
+  groupBy: "id",
+  x: "year",
+  y: "value",
+  discrete: "x",
+  title: "Revenue by region",
+};
+const darkChartCss = `
+.dark-chart { background: #1e1f26; border-radius: 6px; }
+.dark-chart text { fill: #f1f3f5; }
+`;
+
+export const ClassName = () => (
+  <div style={{display: "flex", flexWrap: "wrap", gap: 24}}>
+    <style>{darkChartCss}</style>
+    <div style={{width: 420, height: 300}}>
+      <BarChart config={{...revenueConfig, className: "dark-chart"}} />
+    </div>
+    <div style={{width: 420, height: 300}}>
+      <BarChart config={revenueConfig} />
+    </div>
+  </div>
+);
+ClassName.parameters = {
+  docs: {
+    source: {
+      code: `/* page CSS */
+.dark-chart { background: #1e1f26; border-radius: 6px; }
+.dark-chart text { fill: #f1f3f5; }
+
+new BarChart()
+  .select("#revenue")
+  .config({data, groupBy: "id", x: "year", y: "value", discrete: "x"})
+  .className("dark-chart")
+  .render();`,
+      language: "jsx",
+    },
+    description: {
+      story:
+        '`className` adds classes to the element a chart draws on (its root `<svg class="d3plus-viz">`, or its `<canvas>` with the Canvas renderer) next to the fixed classes, so page CSS can style one chart: here only the left chart matches `.dark-chart`. It takes a space-separated string or an array, and a new value replaces the classes the last one added. Components drawn on their own (Axis, Legend, TextBox, …) take it on their `<svg>`, and `tooltipConfig.className` adds classes to a chart\'s tooltips.',
+    },
+  },
+};

@@ -160,6 +160,13 @@ export default class SvgRenderer implements Renderer {
   target(): RenderTarget | undefined {
     return this._target;
   }
+  /** The drawing surface and overlay host this renderer mounted. */
+  elements(): Element[] {
+    const out: Element[] = [];
+    if (this._svg) out.push(this._svg);
+    if (this._overlayHost) out.push(this._overlayHost);
+    return out;
+  }
 
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
     if (!this._root || !this._svg)

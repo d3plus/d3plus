@@ -124,7 +124,7 @@ a straight walk. Animation runs one requestAnimationFrame loop over interpolateS
 
 > **destroy**(): `void`
 
-Defined in: [canvas/CanvasRenderer.ts:558](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L558)
+Defined in: [canvas/CanvasRenderer.ts:565](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L565)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -142,7 +142,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [canvas/CanvasRenderer.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L159)
+Defined in: [canvas/CanvasRenderer.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L166)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -161,6 +161,24 @@ scene when `opts.duration` is positive. The single method that matters.
 ###### Implementation of
 
 [`Renderer`](#renderer).[`drawScene`](#drawscene-2)
+
+<a id="elements"></a>
+
+##### elements()
+
+> **elements**(): `Element`[]
+
+Defined in: [canvas/CanvasRenderer.ts:159](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L159)
+
+The drawing surface and overlay host this renderer mounted.
+
+###### Returns
+
+`Element`[]
+
+###### Implementation of
+
+[`Renderer`](#renderer).[`elements`](#elements-2)
 
 <a id="mount"></a>
 
@@ -192,7 +210,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [canvas/CanvasRenderer.ts:458](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L458)
+Defined in: [canvas/CanvasRenderer.ts:465](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L465)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -216,7 +234,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [canvas/CanvasRenderer.ts:442](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L442)
+Defined in: [canvas/CanvasRenderer.ts:449](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L449)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -285,7 +303,7 @@ reaching into the private `_target` slot.
 
 > **toCanvas**(): `HTMLCanvasElement`
 
-Defined in: [canvas/CanvasRenderer.ts:554](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L554)
+Defined in: [canvas/CanvasRenderer.ts:561](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L561)
 
 Rasterize the current surface to a canvas element.
 
@@ -303,7 +321,7 @@ Rasterize the current surface to a canvas element.
 
 > **toSVGString**(): `string`
 
-Defined in: [canvas/CanvasRenderer.ts:543](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L543)
+Defined in: [canvas/CanvasRenderer.ts:550](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L550)
 
 Re-renders the retained scene through the SVG backend to produce an SVG string.
 
@@ -321,7 +339,7 @@ Re-renders the retained scene through the SVG backend to produce an SVG string.
 
 > **whenSettled**(): `Promise`\<`void`\>
 
-Defined in: [canvas/CanvasRenderer.ts:429](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L429)
+Defined in: [canvas/CanvasRenderer.ts:436](https://github.com/d3plus/d3plus/blob/main/packages/render/src/canvas/CanvasRenderer.ts#L436)
 
 Resolves once all in-flight image/texture decodes settle and a final frame
 repaints. Server-side callers await this before reading pixels; the browser
@@ -377,7 +395,7 @@ across backends — that equivalence is the parity guarantee of the architecture
 
 > **destroy**(): `void`
 
-Defined in: [svg/SvgRenderer.ts:601](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L601)
+Defined in: [svg/SvgRenderer.ts:608](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L608)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -395,7 +413,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [svg/SvgRenderer.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L164)
+Defined in: [svg/SvgRenderer.ts:171](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L171)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -414,6 +432,24 @@ scene when `opts.duration` is positive. The single method that matters.
 ###### Implementation of
 
 [`Renderer`](#renderer).[`drawScene`](#drawscene-2)
+
+<a id="elements-1"></a>
+
+##### elements()
+
+> **elements**(): `Element`[]
+
+Defined in: [svg/SvgRenderer.ts:164](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L164)
+
+The drawing surface and overlay host this renderer mounted.
+
+###### Returns
+
+`Element`[]
+
+###### Implementation of
+
+[`Renderer`](#renderer).[`elements`](#elements-2)
 
 <a id="mount-1"></a>
 
@@ -445,7 +481,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [svg/SvgRenderer.ts:518](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L518)
+Defined in: [svg/SvgRenderer.ts:525](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L525)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -469,7 +505,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [svg/SvgRenderer.ts:487](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L487)
+Defined in: [svg/SvgRenderer.ts:494](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L494)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -538,7 +574,7 @@ desired one without reaching into the private `_target` field.
 
 > **toSVGString**(): `string`
 
-Defined in: [svg/SvgRenderer.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L597)
+Defined in: [svg/SvgRenderer.ts:604](https://github.com/d3plus/d3plus/blob/main/packages/render/src/svg/SvgRenderer.ts#L604)
 
 Serialize the current scene to an SVG string (Canvas backends re-render via SVG).
 
@@ -2153,7 +2189,7 @@ across backends — that equivalence is the parity guarantee of the architecture
 
 > **destroy**(): `void`
 
-Defined in: [Renderer.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L210)
+Defined in: [Renderer.ts:217](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L217)
 
 Tear down listeners, observers, and the drawing surface.
 
@@ -2167,7 +2203,7 @@ Tear down listeners, observers, and the drawing surface.
 
 > **drawScene**(`scene`: [`Scene`](#scene), `opts?`: [`DrawOptions`](#drawoptions)): [`RenderHandle`](#renderhandle)
 
-Defined in: [Renderer.ts:188](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L188)
+Defined in: [Renderer.ts:195](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L195)
 
 Reconcile the current output to `scene`, animating from the previously drawn
 scene when `opts.duration` is positive. The single method that matters.
@@ -2182,6 +2218,23 @@ scene when `opts.duration` is positive. The single method that matters.
 ###### Returns
 
 [`RenderHandle`](#renderhandle)
+
+<a id="elements-2"></a>
+
+##### elements()?
+
+> `optional` **elements**(): `Element`[]
+
+Defined in: [Renderer.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L189)
+
+The elements the renderer added to its container: its drawing surface
+(`<svg>` or `<canvas>`) and its HTML overlay host, so host code can
+tag them (such as with a chart's CSS classes). Empty before `mount` and
+for backends that mount no DOM.
+
+###### Returns
+
+`Element`[]
 
 <a id="mount-2"></a>
 
@@ -2209,7 +2262,7 @@ Attach to a target element and prepare the drawing surface.
 
 > **on**(`handler`: (`event`: [`SceneEvent`](#sceneevent)) => `void`): () => `void`
 
-Defined in: [Renderer.ts:194](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L194)
+Defined in: [Renderer.ts:201](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L201)
 
 Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
@@ -2229,7 +2282,7 @@ Subscribe to pointer events on the surface. Returns an unsubscribe function.
 
 > **pick**(`point`: \[`number`, `number`\]): [`PickResult`](#pickresult) \| `null`
 
-Defined in: [Renderer.ts:191](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L191)
+Defined in: [Renderer.ts:198](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L198)
 
 Hit-test a point in surface-local coordinates. Returns the topmost interactive node.
 
@@ -2291,7 +2344,7 @@ this method still satisfy the interface — callers must tolerate
 
 > `optional` **toCanvas**(): `HTMLCanvasElement`
 
-Defined in: [Renderer.ts:200](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L200)
+Defined in: [Renderer.ts:207](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L207)
 
 Rasterize the current surface to a canvas element.
 
@@ -2305,7 +2358,7 @@ Rasterize the current surface to a canvas element.
 
 > `optional` **toSVGString**(): `string`
 
-Defined in: [Renderer.ts:197](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L197)
+Defined in: [Renderer.ts:204](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L204)
 
 Serialize the current scene to an SVG string (Canvas backends re-render via SVG).
 
@@ -2319,7 +2372,7 @@ Serialize the current scene to an SVG string (Canvas backends re-render via SVG)
 
 > `optional` **whenSettled**(): `Promise`\<`void`\>
 
-Defined in: [Renderer.ts:207](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L207)
+Defined in: [Renderer.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/render/src/Renderer.ts#L214)
 
 Resolve once all in-flight async resources (images, texture patterns) have
 decoded and a final frame has painted. Server-side callers await this

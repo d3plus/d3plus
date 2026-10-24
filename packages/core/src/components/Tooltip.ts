@@ -9,6 +9,7 @@ import {resetInjectedBoxes} from "@d3plus/render";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {accessor, BaseClass, constant} from "../utils/index.js";
+import {setUserClasses} from "../utils/className.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../fluent.js";
 import type {ConfigField} from "../fluent.js";
 import {
@@ -20,6 +21,9 @@ import {
 } from "./tooltipDom.js";
 
 /** Tooltip's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
+/** Every tooltip element's fixed class; `className` adds classes beside it. */
+const TOOLTIP_CLASS = "d3plus-tooltip";
+
 const tooltipSchema: ConfigField[] = [
   {key: "arrow", coerce: "const", default: accessor("arrow", "")},
   {
@@ -34,7 +38,6 @@ const tooltipSchema: ConfigField[] = [
     default: constant("1px solid rgba(0, 0, 0, 0.25)"),
   },
   {key: "borderRadius", coerce: "const", default: constant("4px")},
-  {key: "className", coerce: "identity", default: "d3plus-tooltip"},
   {key: "footer", coerce: "const", default: accessor("footer", "")},
   {key: "height", coerce: "const", default: constant("auto")},
   {key: "id", coerce: "const", default: (d: DataPoint, i: number) => `${i}`},
@@ -164,7 +167,7 @@ export default class Tooltip extends BaseClass {
     const portal = resolvePortal(this);
     resetInjectedBoxes(portal.node() as Node | null, TOOLTIP_SELECTORS);
     const tooltips = portal
-      .selectAll<HTMLElement, DataPoint>(`.${this.schema.className}`)
+      .selectAll<HTMLElement, DataPoint>(`.${TOOLTIP_CLASS}`)
       .filter(function (this: HTMLElement) {
         return this.id.startsWith(ownPrefix);
       })
@@ -173,9 +176,13 @@ export default class Tooltip extends BaseClass {
     const enter = tooltips
       .enter()
       .append("div")
-      .attr("class", this.schema.className) as unknown as D3Selection;
+      .attr("class", TOOLTIP_CLASS) as unknown as D3Selection;
 
     const update = tooltips.merge(enter as never) as unknown as D3Selection;
+    update.each(function (this: unknown) {
+      if (this instanceof Element)
+        setUserClasses(this, that.schema.className, [TOOLTIP_CLASS]);
+    });
     stylize(update, this.schema.tooltipStyle);
 
     /**
@@ -205,6 +212,20 @@ export default class Tooltip extends BaseClass {
     if (callback) setTimeout(callback, 100);
 
     return this;
+  }
+
+  /**
+      CSS classes added to each tooltip element, next to its fixed
+      `d3plus-tooltip` class, so page CSS can style these tooltips (a chart
+      passes its `tooltipConfig.className`). Takes a space-separated string or
+      an array; a new value replaces the classes the previous one added.
+*/
+  className(): string | string[] | undefined;
+  className(_: string | string[] | undefined): this;
+  className(
+    _?: string | string[] | undefined,
+  ): string | string[] | undefined | this {
+    return arguments.length ? super.className(_) : super.className();
   }
 
   /**

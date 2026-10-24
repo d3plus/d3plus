@@ -8,6 +8,8 @@ import {runVizPipeline} from "../pipeline/runVizPipeline.js";
 import touchstartBody from "../events/touchstart.body.js";
 import type {VizInstance} from "./vizTypes.js";
 import {reserveContainerSize} from "./reserveContainerSize.js";
+import {applyClassName} from "../../utils/className.js";
+import {ROOT_CLASS} from "./vizClassName.js";
 import {resetChromeBoxes} from "./resetChromeBoxes.js";
 import type Viz from "./Viz.js";
 import {
@@ -127,7 +129,7 @@ function applyRootAttributes(
 ): void {
   applyRootSize(viz);
   viz._select
-    .attr("class", "d3plus-viz")
+    .attr("class", ROOT_CLASS)
     .attr("aria-hidden", viz.schema.ariaHidden)
     .attr("aria-labelledby", `${viz._uuid}-title ${viz._uuid}-desc`)
     .attr("role", "img")
@@ -142,6 +144,7 @@ function applyRootAttributes(
     // clipped. Unset with detectVisible(false), which also keeps it out of
     // static SVG/PNG output.
     .style("content-visibility", viz.schema.detectVisible ? "auto" : null);
+  applyClassName(viz);
 
   // sets "position: relative" on the SVG parent if currently undefined
   const position = parent.style("position");

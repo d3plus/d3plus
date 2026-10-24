@@ -180,6 +180,13 @@ export interface Renderer {
       `undefined` and fall back to a remount-on-change strategy.
   */
   target?(): RenderTarget | undefined;
+  /**
+      The elements the renderer added to its container: its drawing surface
+      (`<svg>` or `<canvas>`) and its HTML overlay host, so host code can
+      tag them (such as with a chart's CSS classes). Empty before `mount` and
+      for backends that mount no DOM.
+  */
+  elements?(): Element[];
 
   /**
       Reconcile the current output to `scene`, animating from the previously drawn

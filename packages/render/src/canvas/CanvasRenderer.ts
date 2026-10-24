@@ -155,6 +155,13 @@ export default class CanvasRenderer implements Renderer {
   target(): RenderTarget | undefined {
     return this._target;
   }
+  /** The drawing surface and overlay host this renderer mounted. */
+  elements(): Element[] {
+    const out: Element[] = [];
+    if (this._canvas && this._dom) out.push(this._canvas);
+    if (this._overlayHost) out.push(this._overlayHost);
+    return out;
+  }
 
   drawScene(scene: Scene, opts?: DrawOptions): RenderHandle {
     if (!this._ctx)

@@ -23,6 +23,22 @@ export const argTypes = assign(
    */
 
   {
+    className: {
+      control: {
+        type: "text",
+      },
+      description:
+        "CSS classes added to the outermost element this chart or component draws\ninto, next to its fixed d3plus classes, so page CSS can target it: a\nchart's root `<svg class=\"d3plus-viz\">` (its `<canvas>` with the Canvas\nrenderer) and a standalone component's `<svg>`. Takes a space-separated\nstring or an array. A new value replaces the classes the previous one\nadded; unset adds none. Tooltips take their own `tooltipConfig.className`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: true,
+        summary: "string | array.&lt;string&gt; | undefined",
+      },
+    },
     colorDefaults: {
       control: {},
       description:

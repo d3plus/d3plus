@@ -232,3 +232,16 @@ it("CanvasRenderer.toSVGString re-renders the scene through the SVG backend", ()
 
   renderer.destroy();
 });
+
+it("CanvasRenderer.elements() lists its canvas and overlay host", () => {
+  const renderer = new CanvasRenderer();
+  assert.deepStrictEqual(renderer.elements(), [], "nothing before mount");
+  const container = document.createElement("div");
+  document.body.appendChild(container);
+  renderer.mount({container, width: 200, height: 100});
+  assert.deepStrictEqual(
+    renderer.elements().map(el => el.getAttribute("class")),
+    ["d3plus-render-canvas", "d3plus-render-overlays"],
+  );
+  assert.ok(renderer.elements().every(el => el.parentNode === container));
+});

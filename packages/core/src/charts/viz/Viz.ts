@@ -35,6 +35,8 @@ import {vizPreDraw} from "../pipeline/vizPreDraw.js";
 import type {VizInstance} from "./vizTypes.js";
 import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
+import {vizClassNameTargets} from "./vizClassName.js";
+import {applyClassName, withRootClasses} from "../../utils/className.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -330,11 +332,13 @@ export default class Viz extends VizBase {
       Serializes the most recently rendered output to an SVG string. Returns
       `""` if the chart has not been rendered yet. Both backends support this:
       the SVG backend returns its live `<svg>`, the canvas backend re-renders the
-      retained scene through a throwaway SVG backend. Primarily used for
-      server-side rendering (see `@d3plus/ssr`).
+      retained scene through a throwaway SVG backend. Its root element carries
+      the chart's `className`. Primarily used for server-side rendering (see
+      `@d3plus/ssr`).
   */
   toSVGString(): string {
-    return this._sceneRenderer?.toSVGString?.() ?? "";
+    const markup = this._sceneRenderer?.toSVGString?.() ?? "";
+    return withRootClasses(markup, this.schema.className);
   }
 
   /**
@@ -384,6 +388,7 @@ export default class Viz extends VizBase {
     const w = this.schema.width || 400;
     const h = this.schema.height || 300;
     this._ensureSceneRenderer(kind, mountTarget, w, h);
+    applyClassName(this);
     // `durationOverride` defaults to the chart's `_duration` for normal
     // re-renders. Interaction handlers (zoomed, hover, etc.) pass 0 to
     // skip the transition machinery — animating every wheel/drag tick
@@ -537,6 +542,18 @@ export default class Viz extends VizBase {
       @private
   */
   _sharedHover(_event: SceneEvent): void {}
+
+  /**
+      The element the chart draws on: its root svg, or its canvas.
+      @private
+  */
+  _classNameTargets(): {el: Element; keep?: string[]}[] {
+    return vizClassNameTargets(
+      this._select?.node?.(),
+      this._sceneRenderer,
+      this._renderer === "canvas" ? "canvas" : "svg",
+    );
+  }
 
   /**
       The chart's small-multiple hooks (see `ChartDefinition.facet`). The base
