@@ -3,6 +3,7 @@
     passes that hide labels crowding their neighbors, and the widening of
     labels that each wrap within their own share of the axis.
 */
+import {axisCrossing} from "./axisLabelAngle.js";
 import type {AxisTextDatum} from "./axisLayoutLabels.js";
 
 /**
@@ -13,18 +14,34 @@ import type {AxisTextDatum} from "./axisLayoutLabels.js";
     The measured `height` also holds the label's padding (see
     `calculateLabelSize`) and the leading above and below the text, which this
     leaves out, so neighbors are spaced by their padding alone, as they are
-    along a horizontal axis.
+    along a horizontal axis. Slanted labels span their glyphs' thickness where
+    it crosses the axis.
 */
 export function labelExtent(
   datum: Pick<
     AxisTextDatum,
-    "fP" | "fS" | "height" | "lineHeight" | "lines" | "rotate" | "width"
+    | "angle"
+    | "slant"
+    | "fP"
+    | "fS"
+    | "height"
+    | "lineHeight"
+    | "lines"
+    | "rotate"
+    | "width"
   >,
   horizontal: boolean,
 ): number {
-  if (Boolean(datum.rotate) !== horizontal) return datum.width;
   const lines = datum.lines.length;
-  return lines ? (lines - 1) * datum.lineHeight + datum.fS : 0;
+  const glyphs = lines ? (lines - 1) * datum.lineHeight + datum.fS : 0;
+  // Slanted labels lie side by side: each one's text crosses the axis over
+  // its thickness, lengthened by the slant.
+  if (datum.slant) {
+    const sin = Math.sin(axisCrossing(datum.angle!, horizontal));
+    return sin < 1e-9 ? datum.width : glyphs / sin;
+  }
+  if (Boolean(datum.rotate) !== horizontal) return datum.width;
+  return glyphs;
 }
 
 /**

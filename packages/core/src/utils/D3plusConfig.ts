@@ -157,6 +157,16 @@ export interface AxisConfig {
   labels?: unknown[];
   labelOffset?: false | number;
   /**
+      Whether to rotate the axis labels, and by how much: `true` rotates
+      them -90 degrees, `false` keeps them flat, and a number rotates them
+      by that many degrees (clockwise, so `-45` rises to the right), each
+      label hanging off the axis from the end of its text nearest the axis,
+      across from its tick. Left `undefined` (the default), a horizontal
+      axis of categories rotates its labels -90 degrees when they would not
+      fit flat. See Axis's `labelRotation`.
+  */
+  labelRotation?: boolean | number;
+  /**
       Exact size of the space that contains the axis tick labels and title.
       Labels that need more room overflow outward instead of moving the axis
       line; zooming pins a rescaled axis this way so it doesn't shift.

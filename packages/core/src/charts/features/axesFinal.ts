@@ -135,6 +135,17 @@ function finalXHeight(
 }
 
 /**
+    How much further than the x axis's band slanted y-axis labels reach
+    below the y range (see `Axis._labelOverflow`): the room the y range
+    leaves above the x axis for them.
+*/
+function slantedLabelsBelow(pCtx: PlotPaintContext, inset: number): number {
+  const axes = [pCtx.yTest, ...(pCtx.y2Exists ? [pCtx.y2Test] : [])];
+  const reach = Math.max(0, ...axes.map(a => a._labelOverflow?.[1] ?? 0));
+  return Math.max(0, Math.ceil(reach - (pCtx.xHeight + inset)));
+}
+
+/**
     The y/y2 axes' final solve, and the plot's y range, once the chrome has
     taken its margins. A `frozen` layout (a zoom repaint) keeps the previous
     draw's axis sizes and plot rect, so changing tick labels can't make the
@@ -160,12 +171,13 @@ export function solveFinalAxes(
 } {
   const {x2Height, topOffset, height, horizontalMargin, verticalMargin} = pCtx;
   // The plot's bottom edge for an x axis `xHeight` tall, less the room a
-  // chart reserves between the value axis and the x axis.
-  const bottom = (xHeight: number) => {
+  // chart reserves between the value axis and the x axis, and `labels`
+  // more for y-axis labels that reach below the range.
+  const bottom = (xHeight: number, labels = 0) => {
     const yBottom = height - (xHeight + topOffset + verticalMargin);
     const insetBottom =
       frozen?.insetBottom ??
-      Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0);
+      Math.max(0, viz._plotInsetBottom?.(yBottom - x2Height) ?? 0) + labels;
     return {yBottom, insetBottom, yRange: [x2Height, yBottom - insetBottom]};
   };
   let fit = bottom(pCtx.xHeight);
@@ -179,6 +191,11 @@ export function solveFinalAxes(
     viz._padding.bottom += xHeight - pCtx.xHeight;
     pCtx = {...pCtx, xHeight};
     fit = bottom(xHeight);
+    solved = solveFinalYAxes(viz, pCtx, fit.yRange);
+  }
+  const below = frozen ? 0 : slantedLabelsBelow(pCtx, fit.insetBottom);
+  if (below) {
+    fit = bottom(pCtx.xHeight, below);
     solved = solveFinalYAxes(viz, pCtx, fit.yRange);
   }
   return {pCtx, ...fit, solved};

@@ -121,10 +121,10 @@ export const argTypes = assign(
     },
     labelRotation: {
       control: {
-        type: "boolean",
+        type: "number",
       },
       description:
-        "Whether to rotate horizontal axis labels -90 degrees. Left `undefined`\n(the default), a horizontal axis of categories rotates its labels when\nany label would not fit its share of the axis whole (a word dropped,\ncut off, or broken across lines) or would overlap its neighbor. Labels\nthat still overlap once rotated are thinned evenly.",
+        "Whether to rotate the axis labels, and by how much. `true` rotates\nthem -90 degrees and `false` keeps them flat. Left `undefined` (the\ndefault), a horizontal axis of categories rotates its labels -90\ndegrees when any label would not fit its share of the axis whole (a\nword dropped, cut off, or broken across lines) or would overlap its\nneighbor. A number rotates them by that many degrees (clockwise, so\n`-45` rises to the right): each label hangs off the axis from the end\nof its text nearest the axis, which sits across from its tick, so on a\nbottom axis a negative angle ends each label at its tick and a\npositive one starts it there. Angles outside -90 to 90 turn a half\nturn to read left to right (`135` draws as `-45`), and `0` keeps the\nlabels flat. Labels that still overlap once rotated are thinned\nevenly.",
       table: {
         defaultValue: {
           summary: "undefined",
@@ -132,7 +132,7 @@ export const argTypes = assign(
       },
       type: {
         required: true,
-        summary: "boolean | undefined",
+        summary: "number | boolean | undefined",
       },
     },
     locale: {

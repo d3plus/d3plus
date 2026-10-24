@@ -1,0 +1,120 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Label Angle · Axis</title>
+    <meta
+      name="description"
+      content="Numeric labelRotation angles on bottom, top, left, and right axes, standalone and in a BarChart."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      svg {
+        border: 1px solid #ddd;
+        margin: 4px;
+      }
+
+      #viz,
+      #viz2 {
+        height: 420px;
+        width: 720px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="row" id="horizontal"></div>
+    <div class="row" id="vertical"></div>
+    <div id="viz"></div>
+    <div id="viz2"></div>
+
+    <script>
+      var names = [
+        "Agriculture and Fishing",
+        "Mining",
+        "Manufacturing",
+        "Electricity and Gas",
+        "Construction",
+        "Retail Trade",
+        "Transportation",
+      ];
+
+      function axis(Type, parent, angle, w, h) {
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("width", w + "px");
+        svg.setAttribute("height", h + "px");
+        document.getElementById(parent).appendChild(svg);
+        new d3plus[Type]()
+          .select(svg)
+          .width(w)
+          .height(h)
+          .scale("point")
+          .domain(names)
+          .labelRotation(angle)
+          .title(Type + " " + angle)
+          .render();
+      }
+
+      [-45, 30, 90].forEach(function (angle) {
+        axis("AxisBottom", "horizontal", angle, 400, 200);
+        axis("AxisTop", "horizontal", angle, 400, 200);
+      });
+      [-45, 30, 90].forEach(function (angle) {
+        axis("AxisLeft", "vertical", angle, 260, 400);
+        axis("AxisRight", "vertical", angle, 260, 400);
+      });
+
+      var data = [
+        "Agriculture, Forestry and Fishing",
+        "Mining and Quarrying",
+        "Manufacturing",
+        "Electricity and Gas Supply",
+        "Water Supply and Sewerage",
+        "Construction",
+        "Wholesale and Retail Trade",
+        "Transportation and Storage",
+        "Accommodation and Food",
+        "Information and Communication",
+      ].map(function (id, i) {
+        return {id: id, value: 20 + ((i * 37) % 90)};
+      });
+
+      new d3plus.BarChart()
+        .select("#viz")
+        .data(data)
+        .groupBy("id")
+        .x("id")
+        .y("value")
+        .legend(false)
+        .shapeConfig({Bar: {label: false}})
+        .title("xConfig: {labelRotation: -45}")
+        .xConfig({labelRotation: -45})
+        .render();
+
+      new d3plus.BarChart()
+        .select("#viz2")
+        .data(data)
+        .groupBy("id")
+        .discrete("y")
+        .y("id")
+        .x("value")
+        .legend(false)
+        .shapeConfig({Bar: {label: false}})
+        .title("yConfig: {labelRotation: -30}")
+        .yConfig({labelRotation: -30})
+        .render();
+    </script>
+  </body>
+</html>

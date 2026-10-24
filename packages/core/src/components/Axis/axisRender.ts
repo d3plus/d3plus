@@ -19,6 +19,8 @@ import {brokenScaleTicks, isBrokenScale} from "./axisBreak.js";
 import {ceilPow, fixFloat, floorPow, isNegative} from "./axisRounding.js";
 import {powTicks} from "./powTicks.js";
 import {timeDataInDomain} from "./timeValues.js";
+import {slantedLabelBox} from "./axisLabelAngle.js";
+import type {AxisOrient} from "./axisLabelAngle.js";
 
 const maxTimezoneOffset = 1000 * 60 * 60 * 26;
 
@@ -190,6 +192,45 @@ export interface AxisMeasure {
   labelHeight: number;
 }
 
+/** A slanted label's box, relative to its tick (see `slantedLabelBox`). */
+function slantedBounds(
+  axis: Axis,
+  data: AxisTextDatum,
+  gap: number,
+): Record<string, number> {
+  const {x, y, width, height} = slantedLabelBox(
+    axis.schema.orient as AxisOrient,
+    data.angle!,
+    data.width,
+    data.height - data.fP,
+    data.height,
+    gap,
+  );
+  return {x, y, width, height};
+}
+
+/**
+    An upright (±90 degree) label's box, relative to its tick: centered on
+    it, reaching out from the axis by the label's length.
+*/
+function uprightBounds(
+  axis: Axis,
+  data: AxisTextDatum,
+  size: number,
+): Record<string, number> {
+  const {fP, fS, lineHeight, lines, width} = data;
+  const text = lineHeight * lines.length;
+  return {
+    x: -width / 2 + ((data.angle ?? -90) > 0 ? -1 : 1) * (fS / 4),
+    y:
+      axis.schema.orient === "bottom"
+        ? size + (width - text) / 2 + fP
+        : size - (width + text) / 2 - 2 * fP,
+    width,
+    height: data.height,
+  };
+}
+
 /**
     Builds the per-tick config array consumed by the tick Shape. Extracted from
     `Axis.render` so the render method stays under the per-function line budget;
@@ -220,8 +261,6 @@ export function buildTickData(
 
       const xPos = axis._getPosition(d);
       const space = data ? data.space : 0;
-      const lines = data ? data.lines.length : 1;
-      const lineHeight = data ? data.lineHeight : 1;
       const fP = data ? data.fP : 0;
 
       const labelOffset =
@@ -247,17 +286,10 @@ export function buildTickData(
 
       const tickConfig: Record<string, unknown> = {
         id: d,
-        labelBounds:
-          rotated && data
-            ? {
-                x: -data.width / 2 + data.fS / 4,
-                y:
-                  axis.schema.orient === "bottom"
-                    ? size + (data.width - lineHeight * lines) / 2 + fP
-                    : size - (data.width + lineHeight * lines) / 2 - 2 * fP,
-                width: data.width,
-                height: data.height,
-              }
+        labelBounds: data?.slant
+          ? slantedBounds(axis, data, Math.abs(size) + (horizontal ? fP : p))
+          : rotated && data
+            ? uprightBounds(axis, data, size)
             : {
                 x: horizontal
                   ? -space / 2
@@ -273,6 +305,7 @@ export function buildTickData(
                 height: horizontal ? labelHeight : space,
               },
         rotate: data ? data.rotate : false,
+        angle: data ? data.angle : 0,
         size:
           labels.includes(d) ||
           (axis.schema.scale === "log" &&
@@ -334,8 +367,11 @@ export function configureTickShape(
       // The label TextBox invokes this with the laid-out label record, whose
       // tick datum (carrying `rotate`) sits on `.data`; fall back to the raw
       // datum for any path that passes it directly.
-      rotate: (d: DataPoint) =>
-        (d.rotate ?? (d.data as DataPoint | undefined)?.rotate) ? -90 : 0,
+      rotate: (d: DataPoint) => {
+        const datum = (d.rotate !== undefined ? d : d.data) as
+          DataPoint | undefined;
+        return datum?.rotate ? Number(datum.angle ?? -90) : 0;
+      },
     });
   // v4 scene-only: tick shape stays compute-mode; toScene() composes ticks.
   // No `g.ticks` DOM wrapper needed in the detached compute.

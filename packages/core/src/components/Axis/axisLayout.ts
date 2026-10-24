@@ -37,6 +37,8 @@ import {
 } from "./axisLayoutLabels.js";
 import type {AxisTextDatum, TickGet} from "./axisLayoutLabels.js";
 import {buildTickFormat, labelSets, setAxisScale} from "./axisLayoutScale.js";
+import {settingRotates, slantedReach} from "./axisLabelAngle.js";
+import type {AxisOrient} from "./axisLabelAngle.js";
 import {axisScaleData, axisTimeLocale, resetAxisDates} from "./timeValues.js";
 
 /**
@@ -133,7 +135,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     ownSpace,
   };
   const setting = axis._labelRotationSetting;
-  axis._labelRotation = setting ?? false;
+  axis._labelRotation = setting === undefined ? false : settingRotates(setting);
   let textData = layoutLabels(axis, {range, labels}, labelCtx);
   // Given a list of label lists, the axis labels the first whose labels all
   // fit whole, else the last one, thinned.
@@ -152,6 +154,7 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     });
 
   hideTruncatedTicks(axis, textData, ticks);
+  axis._labelOverflow = slantedOverflow(axis, textData, range);
 
   const labelHeight = max(textData, (t: AxisTextDatum) => t.height) || 0;
 
@@ -183,6 +186,34 @@ export function measureAxis(axis: Axis): AxisLayoutResult {
     labelHeight,
     bounds,
   };
+}
+
+/**
+    How far the first and last slanted labels shown reach past the start and
+    end of `range`, along the axis (0 when they don't, or aren't slanted).
+*/
+export function slantedOverflow(
+  axis: Axis,
+  textData: AxisTextDatum[],
+  range: number[],
+): [number, number] {
+  const shown = textData.filter((t: AxisTextDatum) => !t.truncated && t.slant);
+  if (!shown.length) return [0, 0];
+  const lo = Math.min(range[0], range[range.length - 1]);
+  const hi = Math.max(range[0], range[range.length - 1]);
+  const reach = (t: AxisTextDatum) =>
+    slantedReach(
+      axis.schema.orient as AxisOrient,
+      t.angle!,
+      t.width,
+      t.height - t.fP,
+    );
+  const first = shown[0];
+  const last = shown[shown.length - 1];
+  return [
+    Math.max(0, reach(first)[0] - (first.position - lo)),
+    Math.max(0, reach(last)[1] - (hi - last.position)),
+  ];
 }
 
 /** The ticks whose labels the layout hides no longer count as visible. */
@@ -309,10 +340,18 @@ function layoutLabels(
       if (!datum) return 0;
       const {height: dHeight, position, rotate, width: dWidth} = datum;
       const compPosition = index ? rangeOuter[1] : rangeOuter[0];
-      const halfSpace = (rotate || !horizontal ? dHeight : dWidth) / 2;
+      // A slanted label reaches further to one side of its tick than the other.
+      const reach = datum.slant
+        ? slantedReach(
+            axis.schema.orient as AxisOrient,
+            datum.angle!,
+            dWidth,
+            dHeight - datum.fP,
+          )[index]
+        : (rotate || !horizontal ? dHeight : dWidth) / 2;
       // Room between the label's tick and the end of the range it faces.
       const room = index ? compPosition - position : position - compPosition;
-      return room >= halfSpace ? 0 : halfSpace - room;
+      return room >= reach ? 0 : reach - room;
     });
 
     const newRange = [first + spillovers[0], last - spillovers[1]];
