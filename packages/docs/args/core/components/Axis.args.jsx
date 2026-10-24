@@ -224,6 +224,23 @@ export const argTypes = assign(
         summary: "number",
       },
     },
+    exponent: {
+      control: {
+        type: "number",
+      },
+      defaultValue: 1,
+      description:
+        'The exponent of a `"pow"` axis (`scale: "pow"`): below 1 it spreads the\nsmall values out and squeezes the large ones together (`0.5` matches\na `"sqrt"` axis), above 1 it does the opposite. Defaults to `1`, which\ndraws like a linear axis. Only a `"pow"` axis reads it; on any other\nscale it has no effect, and a value that isn\'t a positive number falls\nback to `1`. Ticks are spaced evenly along a power axis and rounded to\nround values.',
+      table: {
+        defaultValue: {
+          summary: "1",
+        },
+      },
+      type: {
+        required: false,
+        summary: "number",
+      },
+    },
     fixedSize: {
       control: {
         type: "number",

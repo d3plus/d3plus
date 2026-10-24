@@ -195,6 +195,16 @@ export interface AxisConfig {
   /** Scale of the axis. */
   scale?: AxisScale;
   /**
+      The exponent of a `"pow"` axis (`scale: "pow"`): below 1 it spreads the
+      small values out and squeezes the large ones together (`0.5` matches
+      a `"sqrt"` axis), above 1 it does the opposite. Defaults to `1`, which
+      draws like a linear axis. Only a `"pow"` axis reads it; on any other
+      scale it has no effect, and a value that isn't a positive number falls
+      back to `1`. Ticks are spaced evenly along a power axis and rounded to
+      round values.
+  */
+  exponent?: number;
+  /**
       Whether to flip the axis's direction, so its values run the other
       way: a horizontal axis from right to left, a vertical one from top to
       bottom (a Plot's y axis, categories included, normally runs bottom to

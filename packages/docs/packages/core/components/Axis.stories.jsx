@@ -60,6 +60,25 @@ LogScale.parameters = {
   },
 };
 
+export const PowScale = Template.bind({});
+PowScale.args = {
+  domain: [0, 1000000],
+  exponent: 0.3,
+  height: 120,
+  scale: "pow",
+  title: "Power scale, exponent 0.3",
+  width: 600,
+};
+PowScale.parameters = {
+  controls: {include: ["scale", "exponent", "domain"]},
+  docs: {
+    description: {
+      story:
+        '`scale: "pow"` with an `exponent` below 1 spreads the small values out and squeezes the large ones together, so values that span several orders of magnitude, including `0`, share one axis. The ticks are spaced evenly along it and rounded. Above 1 the effect reverses; the default of `1` draws like a linear axis.',
+    },
+  },
+};
+
 export const TimeScale = Template.bind({});
 TimeScale.args = {
   domain: [new Date(2020, 0, 1), new Date(2024, 11, 31)],
