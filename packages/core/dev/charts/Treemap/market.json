@@ -1,0 +1,345 @@
+[
+  {
+    "sector": "Technology",
+    "industry": "Software",
+    "company": "Northwind Cloud",
+    "marketCap": 59.1,
+    "change": 2.94
+  },
+  {
+    "sector": "Technology",
+    "industry": "Software",
+    "company": "Bluefin Systems",
+    "marketCap": 30.6,
+    "change": 1.78
+  },
+  {
+    "sector": "Technology",
+    "industry": "Software",
+    "company": "Quanta Labs",
+    "marketCap": 7.5,
+    "change": -0.52
+  },
+  {
+    "sector": "Technology",
+    "industry": "Software",
+    "company": "Orbit Apps",
+    "marketCap": 101.6,
+    "change": 1.03
+  },
+  {
+    "sector": "Technology",
+    "industry": "Software",
+    "company": "Pixelworks",
+    "marketCap": 45.4,
+    "change": 2.17
+  },
+  {
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "company": "Silicon Ridge",
+    "marketCap": 194.5,
+    "change": 2.49
+  },
+  {
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "company": "Nanocore",
+    "marketCap": 24.0,
+    "change": -4.22
+  },
+  {
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "company": "Lumen Devices",
+    "marketCap": 64.7,
+    "change": -2.93
+  },
+  {
+    "sector": "Technology",
+    "industry": "Semiconductors",
+    "company": "Gatewise",
+    "marketCap": 29.4,
+    "change": 3.85
+  },
+  {
+    "sector": "Technology",
+    "industry": "Hardware",
+    "company": "Ferro Computing",
+    "marketCap": 10.3,
+    "change": -1.03
+  },
+  {
+    "sector": "Technology",
+    "industry": "Hardware",
+    "company": "Arcadia Devices",
+    "marketCap": 60.2,
+    "change": -0.86
+  },
+  {
+    "sector": "Technology",
+    "industry": "Hardware",
+    "company": "Nimbus Hardware",
+    "marketCap": 23.1,
+    "change": 1.17
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Pharmaceuticals",
+    "company": "Helix Pharma",
+    "marketCap": 10.9,
+    "change": -1.2
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Pharmaceuticals",
+    "company": "Medora",
+    "marketCap": 27.8,
+    "change": 2.08
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Pharmaceuticals",
+    "company": "Cura Biologics",
+    "marketCap": 43.6,
+    "change": -1.87
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Pharmaceuticals",
+    "company": "Vantage Rx",
+    "marketCap": 127.3,
+    "change": -1.71
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "company": "Pulse Medical",
+    "marketCap": 144.8,
+    "change": 1.53
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "company": "Stride Ortho",
+    "marketCap": 86.9,
+    "change": 0.41
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Medical Devices",
+    "company": "Clearview Imaging",
+    "marketCap": 11.6,
+    "change": 2.08
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Biotechnology",
+    "company": "GeneVista",
+    "marketCap": 19.3,
+    "change": -1.07
+  },
+  {
+    "sector": "Healthcare",
+    "industry": "Biotechnology",
+    "company": "Cellara",
+    "marketCap": 59.0,
+    "change": 0.06
+  },
+  {
+    "sector": "Financial",
+    "industry": "Banks",
+    "company": "First Harbor",
+    "marketCap": 48.3,
+    "change": -0.51
+  },
+  {
+    "sector": "Financial",
+    "industry": "Banks",
+    "company": "Granite Bank",
+    "marketCap": 142.9,
+    "change": 0.73
+  },
+  {
+    "sector": "Financial",
+    "industry": "Banks",
+    "company": "Union Crest",
+    "marketCap": 72.7,
+    "change": 0.27
+  },
+  {
+    "sector": "Financial",
+    "industry": "Banks",
+    "company": "Meridian Trust",
+    "marketCap": 32.6,
+    "change": 0.72
+  },
+  {
+    "sector": "Financial",
+    "industry": "Insurance",
+    "company": "Shield Mutual",
+    "marketCap": 101.9,
+    "change": 2.59
+  },
+  {
+    "sector": "Financial",
+    "industry": "Insurance",
+    "company": "Keystone Assurance",
+    "marketCap": 160.3,
+    "change": 0.28
+  },
+  {
+    "sector": "Financial",
+    "industry": "Insurance",
+    "company": "Beacon Life",
+    "marketCap": 32.5,
+    "change": -2.53
+  },
+  {
+    "sector": "Financial",
+    "industry": "Asset Management",
+    "company": "Summit Capital",
+    "marketCap": 27.5,
+    "change": 2.69
+  },
+  {
+    "sector": "Financial",
+    "industry": "Asset Management",
+    "company": "Larkspur Partners",
+    "marketCap": 47.7,
+    "change": -2.76
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Retail",
+    "company": "Maple Market",
+    "marketCap": 85.5,
+    "change": -0.46
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Retail",
+    "company": "Cartwheel",
+    "marketCap": 25.3,
+    "change": 1.98
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Retail",
+    "company": "Brightway Stores",
+    "marketCap": 47.7,
+    "change": 0.89
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Restaurants",
+    "company": "Ember Grill",
+    "marketCap": 29.7,
+    "change": -0.04
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Restaurants",
+    "company": "Noodle Lane",
+    "marketCap": 40.8,
+    "change": 2.48
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Apparel",
+    "company": "Threadline",
+    "marketCap": 12.4,
+    "change": 1.22
+  },
+  {
+    "sector": "Consumer",
+    "industry": "Apparel",
+    "company": "Wildpine Outfitters",
+    "marketCap": 17.9,
+    "change": 1.4
+  },
+  {
+    "sector": "Energy",
+    "industry": "Oil & Gas",
+    "company": "Basin Petroleum",
+    "marketCap": 31.4,
+    "change": -1.49
+  },
+  {
+    "sector": "Energy",
+    "industry": "Oil & Gas",
+    "company": "Redrock Energy",
+    "marketCap": 24.3,
+    "change": 0.33
+  },
+  {
+    "sector": "Energy",
+    "industry": "Oil & Gas",
+    "company": "Tidewater Oil",
+    "marketCap": 67.9,
+    "change": 3.07
+  },
+  {
+    "sector": "Energy",
+    "industry": "Renewables",
+    "company": "Solstice Power",
+    "marketCap": 34.5,
+    "change": 1.53
+  },
+  {
+    "sector": "Energy",
+    "industry": "Renewables",
+    "company": "Windward",
+    "marketCap": 39.3,
+    "change": -0.42
+  },
+  {
+    "sector": "Industrials",
+    "industry": "Aerospace",
+    "company": "Skyforge",
+    "marketCap": 42.6,
+    "change": -1.97
+  },
+  {
+    "sector": "Industrials",
+    "industry": "Aerospace",
+    "company": "Aerolite",
+    "marketCap": 96.0,
+    "change": 0.47
+  },
+  {
+    "sector": "Industrials",
+    "industry": "Machinery",
+    "company": "Ironclad Works",
+    "marketCap": 87.7,
+    "change": 0.4
+  },
+  {
+    "sector": "Industrials",
+    "industry": "Machinery",
+    "company": "Gearhart",
+    "marketCap": 36.9,
+    "change": -0.36
+  },
+  {
+    "sector": "Industrials",
+    "industry": "Logistics",
+    "company": "Pallet Express",
+    "marketCap": 130.4,
+    "change": 1.41
+  },
+  {
+    "sector": "Utilities",
+    "industry": "Electric",
+    "company": "Riverbend Electric",
+    "marketCap": 21.8,
+    "change": 3.26
+  },
+  {
+    "sector": "Utilities",
+    "industry": "Electric",
+    "company": "Statewide Power",
+    "marketCap": 253.4,
+    "change": -2.2
+  }
+]

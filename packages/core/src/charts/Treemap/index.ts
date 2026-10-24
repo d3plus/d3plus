@@ -5,6 +5,8 @@
       - `applyLayout.ts` — chart-specific `TransformStage`.
       - `emit.ts` — rect + label scene nodes from the laid-out data.
       - `thresholdFunction.ts` — pure threshold-merge algorithm.
+      - `groupHeaders.ts` / `emitGroupHeaders.ts` — the header strip above
+        each group of a nested `groupBy`.
 
     The default export is the chart class via `makeChart(def)`; the named
     export is the def itself.
@@ -84,6 +86,8 @@ export const treemapDef: ChartDefinition = {
         rectangles.
     */
     {key: "layoutPadding", default: 1},
+    {key: "groupLabels", default: true},
+    {key: "groupLabelConfig", default: {}, merge: true},
     /**
         Comparator for sibling rectangles, given two d3-hierarchy nodes. Defaults to
         descending by summed value, with any threshold bucket last.

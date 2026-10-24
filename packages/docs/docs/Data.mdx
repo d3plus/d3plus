@@ -43,6 +43,11 @@ deeper keys drive drill-down and nested layouts:
 <Treemap config={{data, groupBy: ["sector", "company"], sum: "value"}} />
 ```
 
+A nested Treemap names each group in a header strip across its top, with the
+group's tiles below it; hovering a strip highlights the group and clicking it
+zooms in. Style the strips with `groupLabelConfig`, or turn them off with
+`groupLabels: false`.
+
 ## Loading from a URL
 
 `data` accepts a URL string. D3plus fetches JSON (or CSV/TSV by extension) and

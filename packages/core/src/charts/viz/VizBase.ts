@@ -8,6 +8,7 @@ import {date} from "@d3plus/dom";
 import {accessor, BaseClass, constant} from "../../utils/index.js";
 import {coerceFacet} from "../facet/facetConfig.js";
 import type {FacetConfig} from "../facet/facetConfig.js";
+import {groupDepthOf} from "./groupRow.js";
 import {broadcastLink} from "./linkGroup.js";
 import {shapeHoverEnabled} from "./shapeHover.js";
 import type {VizFieldKey} from "./vizFields.js";
@@ -222,9 +223,18 @@ Defaults to an empty array (`[]`).
           }
         });
 
+        // A group row (see `groupRow.ts`) matches by its ids down to its
+        // own level, so it stays bright while any row in its group does.
         if (activeIds.size)
-          hoverFunction = (d: DataPoint, i: number) =>
-            activeIds.has(JSON.stringify(this._ids(d, i)));
+          hoverFunction = (d: DataPoint, i: number) => {
+            const ids = this._ids(d, i);
+            const depth = groupDepthOf(d);
+            return activeIds.has(
+              JSON.stringify(
+                depth === undefined ? ids : ids.slice(0, depth + 1),
+              ),
+            );
+          };
       }
 
       if (this.schema.legend) this._legendClass.hover(hoverFunction);

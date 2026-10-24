@@ -12,6 +12,13 @@ import type {TransformStage} from "../pipeline/stages.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import {stampShare} from "../features/shareKey.js";
 
+import {
+  attachGroupHeaders,
+  groupLabelStyle,
+  groupPaddingTop,
+} from "./groupHeaders.js";
+import type {GroupStrips} from "./groupHeaders.js";
+
 /** A laid-out treemap leaf node (carries `share` + `rank` populated below). */
 export type TreemapShapeNode = Omit<
   HierarchyRectangularNode<DataPoint>,
@@ -56,12 +63,21 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
   // d3-hierarchy treemap is a fluent builder; configure then invoke on root.
   interface TreemapGenerator {
     padding: (n: number) => TreemapGenerator;
+    paddingTop: (
+      fn: (n: HierarchyRectangularNode<unknown>) => number,
+    ) => TreemapGenerator;
     size: (s: [number, number]) => TreemapGenerator;
     tile: (t: unknown) => TreemapGenerator;
     (n: HierarchyNode<Branch>): HierarchyRectangularNode<Branch>;
   }
+  const padding = viz.schema.layoutPadding as number;
+  const strips: GroupStrips = new Map();
+  const style = groupLabelStyle(viz);
   const built = (viz.ctx.treemap as TreemapGenerator)
-    .padding(viz.schema.layoutPadding as number)
+    .padding(padding)
+    .paddingTop(
+      groupPaddingTop({drawDepth: viz._drawDepth, padding, style}, strips),
+    )
     .size([width, height])
     .tile(viz.schema.tile);
   const tmapData = built(root);
@@ -111,6 +127,11 @@ export const applyTreemapLayout: TransformStage = ({viz}) => {
     });
 
   const total = tmapData.value as number;
+  attachGroupHeaders(strips, {
+    aggs: viz.schema.aggs as Parameters<typeof merge>[1],
+    label: style?.label,
+    total,
+  });
   const sumFn = viz.schema.sum as (d: DataPoint) => number;
   shapeData.forEach(d => {
     const share = sumFn(d.data as DataPoint) / total;

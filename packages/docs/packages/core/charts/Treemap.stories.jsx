@@ -65,7 +65,43 @@ NestedData.parameters = {
   docs: {
     description: {
       story:
-        'A two-level `groupBy` (["parent", "id"]) nests child rectangles inside their parent groups, so each group occupies its own region of the layout.',
+        'A two-level `groupBy` (["parent", "id"]) nests child rectangles inside their parent groups, so each group occupies its own region of the layout, named in a header strip across its top. Hover a strip to highlight its group, or click it to zoom in.',
+    },
+  },
+};
+
+export const GroupHeaders = Template.bind({});
+GroupHeaders.args = {
+  data: [
+    {sector: "Technology", industry: "Software", company: "Northwind", cap: 92},
+    {sector: "Technology", industry: "Software", company: "Bluefin", cap: 61},
+    {sector: "Technology", industry: "Software", company: "Quanta", cap: 34},
+    {
+      sector: "Technology",
+      industry: "Chips",
+      company: "Silicon Ridge",
+      cap: 78,
+    },
+    {sector: "Technology", industry: "Chips", company: "Nanocore", cap: 29},
+    {sector: "Healthcare", industry: "Pharma", company: "Helix", cap: 66},
+    {sector: "Healthcare", industry: "Pharma", company: "Medora", cap: 31},
+    {sector: "Healthcare", industry: "Devices", company: "Pulse", cap: 44},
+    {sector: "Financial", industry: "Banks", company: "First Harbor", cap: 58},
+    {sector: "Financial", industry: "Banks", company: "Granite", cap: 37},
+    {sector: "Financial", industry: "Insurance", company: "Shield", cap: 41},
+    {sector: "Energy", industry: "Oil & Gas", company: "Basin", cap: 33},
+    {sector: "Energy", industry: "Renewables", company: "Solstice", cap: 21},
+  ],
+  groupBy: ["sector", "industry", "company"],
+  groupLabelConfig: {fill: "#343a40", fontSize: 12},
+  sum: "cap",
+};
+GroupHeaders.parameters = {
+  controls: {include: ["groupLabels", "groupLabelConfig"]},
+  docs: {
+    description: {
+      story:
+        "With a three-level `groupBy`, every level above the tiles gets its own header strip, nested like a market map: sectors, then industries inside them. `groupLabelConfig` styles the strips (here a dark `fill` and a 12px font); a group too small for a strip simply gets none. Set `groupLabels: false` to draw the tiles alone.",
     },
   },
 };

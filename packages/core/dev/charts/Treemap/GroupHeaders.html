@@ -1,0 +1,144 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Group Headers · Treemap</title>
+    <meta
+      name="description"
+      content="Nested Treemaps label each group with a header strip (issue #363): two and three levels, a colorScale, drill-down, threshold, small multiples, a dark page, a label accessor, and groupLabels(false)."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(520px, 1fr));
+        gap: 16px;
+        padding: 16px;
+      }
+      h3 {
+        font-size: 13px;
+        font-weight: 600;
+        margin: 0 0 4px;
+      }
+      .viz {
+        height: 420px;
+      }
+      .dark {
+        background: #1d2025;
+        color: #e8eaed;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="grid">
+      <div>
+        <h3>groupBy(["sector", "company"]): click a header to zoom in</h3>
+        <div class="viz" id="twoLevels"></div>
+      </div>
+      <div>
+        <h3>
+          groupBy(["sector", "industry", "company"]), colorScale("change")
+        </h3>
+        <div class="viz" id="threeLevels"></div>
+      </div>
+      <div>
+        <h3>depth(0): click a sector to drill into its industries</h3>
+        <div class="viz" id="drill"></div>
+      </div>
+      <div>
+        <h3>threshold(0.05), groupLabelConfig with a label accessor</h3>
+        <div class="viz" id="threshold"></div>
+      </div>
+      <div>
+        <h3>Small multiples (facet: "region")</h3>
+        <div class="viz" id="facet"></div>
+      </div>
+      <div class="dark">
+        <h3>Dark page</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h3>groupLabels(false)</h3>
+        <div class="viz" id="off"></div>
+      </div>
+    </div>
+  </body>
+
+  <script>
+    fetch("./market.json")
+      .then(r => r.json())
+      .then(market => {
+        const regional = market.map((d, i) => ({
+          ...d,
+          region: i % 2 ? "East" : "West",
+        }));
+
+        new d3plus.Treemap()
+          .select("#twoLevels")
+          .data(market)
+          .groupBy(["sector", "company"])
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#threeLevels")
+          .data(market)
+          .groupBy(["sector", "industry", "company"])
+          .colorScale("change")
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#drill")
+          .data(market)
+          .groupBy(["sector", "industry", "company"])
+          .depth(0)
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#threshold")
+          .data(market)
+          .groupBy(["sector", "company"])
+          .groupLabelConfig({
+            fill: "#333",
+            fontSize: 13,
+            label: d => `${d.sector.toUpperCase()} · ${d.marketCap.toFixed(0)}`,
+            padding: 4,
+          })
+          .threshold(0.05)
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#facet")
+          .data(regional)
+          .groupBy(["sector", "company"])
+          .facet("region")
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#dark")
+          .data(market)
+          .groupBy(["sector", "industry", "company"])
+          .sum("marketCap")
+          .render();
+
+        new d3plus.Treemap()
+          .select("#off")
+          .data(market)
+          .groupBy(["sector", "company"])
+          .groupLabels(false)
+          .sum("marketCap")
+          .render();
+      });
+  </script>
+</html>

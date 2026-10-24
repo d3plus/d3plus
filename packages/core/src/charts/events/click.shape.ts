@@ -1,6 +1,35 @@
 import type {DataPoint} from "@d3plus/data";
 import {nodeRect} from "../pipeline/drillMorph.js";
+import {
+  groupDepthOf,
+  groupNarrows,
+  groupPath,
+  inGroup,
+} from "../viz/groupRow.js";
 import type Viz from "../viz/Viz.js";
+
+/**
+    Zooms into the group a group row stands for (see `viz/groupRow.ts`):
+    filters the data to that group, keeping the drawn depth, and records the
+    previous view on the drill-down history so Back steps out. Does nothing
+    when the group is already all that's drawn.
+*/
+function zoomIntoGroup(viz: Viz, d: DataPoint, depth: number): void {
+  const groupBy = viz.schema.groupBy;
+  const path = groupPath(groupBy, d, depth);
+  if (!groupNarrows(groupBy, path, viz._filteredData ?? [])) return;
+  viz._select.style("cursor", "auto");
+  viz.hover(false);
+  viz._tooltipClass.data([]).render();
+  const oldFilter = viz.schema.filter;
+  viz._history.push({depth: viz.schema.depth, filter: oldFilter});
+  viz
+    .config({
+      filter: (f: DataPoint, x: number) =>
+        (!oldFilter || oldFilter(f, x)) && inGroup(groupBy, path, f, x),
+    })
+    .render();
+}
 
 /**
     @module clickShape
@@ -15,6 +44,12 @@ export default function (
   event: MouseEvent,
 ): void {
   event.stopPropagation();
+
+  const groupDepth = groupDepthOf(d);
+  if (groupDepth !== undefined) {
+    zoomIntoGroup(this, d, groupDepth);
+    return;
+  }
 
   if (this._drawDepth < this.schema.groupBy.length - 1) {
     this._select.style("cursor", "auto");

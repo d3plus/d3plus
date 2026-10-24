@@ -1,6 +1,7 @@
 /**
     `treemapEmit` — scene nodes for a laid-out Treemap: one rect per cell
-    plus the title + share-% text labels for each cell, both as flat data.
+    plus the title + share-% text labels for each cell, both as flat data,
+    then the group header strips above them.
 */
 
 import {colorContrast} from "@d3plus/color";
@@ -20,6 +21,8 @@ import {
 import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {TreemapShapeNode} from "./applyLayout.js";
+import {groupHeaderNodes} from "./emitGroupHeaders.js";
+import {collectGroupHeaders, groupLabelStyle} from "./groupHeaders.js";
 
 export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
   const nodes = (shapeData ?? []) as TreemapShapeNode[];
@@ -125,5 +128,10 @@ export const treemapEmit: ChartEmit = ({viz, shapeData}) => {
     nodes[k].i,
   ]);
 
-  return [...rectNodes, ...imageNodes, ...labelNodes];
+  const style = groupLabelStyle(viz);
+  const headerNodes = style
+    ? groupHeaderNodes(viz, collectGroupHeaders(nodes), style)
+    : [];
+
+  return [...rectNodes, ...imageNodes, ...labelNodes, ...headerNodes];
 };

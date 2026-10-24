@@ -928,6 +928,41 @@ export interface D3plusConfig {
     | string[]
     | ((d: DataPoint) => string | number)
     | ((d: DataPoint) => string | number)[];
+  /**
+      Treemap: style of the group header strips (see `groupLabels`). The
+      accessors receive the group's merged row.
+  */
+  groupLabelConfig?: {
+    /** Strip color. Defaults to a darker shade of the group's color, or a neutral tone when `colorScale` colors the tiles. */
+    fill?: CssColor | ((d: DataPoint, i: number) => CssColor);
+    /** Text color. Defaults to the color that contrasts with the strip. */
+    fontColor?: CssColor | ((d: DataPoint, i: number) => CssColor);
+    /** Font family. Defaults to the chart's `fontFamily`. */
+    fontFamily?: string | string[];
+    /** Font size, in pixels, which sets the strip's height. Defaults to `11`. */
+    fontSize?: number;
+    /** Font weight. Defaults to `600`. */
+    fontWeight?: number | string;
+    /**
+        The strip's text, given the group's merged row (the same row the
+        strip's hover and click handlers receive). Its tooltip title uses it
+        too. Unset, or returning nothing, the strip shows the group's
+        `groupBy` value at its level; the chart's own `label` names only the
+        tiles, since on a merged row it can't tell a group-level field from a
+        tile-level one.
+    */
+    label?: (d: DataPoint, i: number) => string;
+    /** Space around the text inside the strip, in pixels. Defaults to `3`. */
+    padding?: number;
+  };
+  /**
+      Treemap: whether each group above the drawn tiles of a nested `groupBy`
+      gets a header strip naming it, with its tiles below the strip. Every
+      level above the tiles gets its own strip; a group too small for one
+      gets none. Hovering a strip highlights its group, and clicking it zooms
+      into that group (Back steps out). Defaults to `true`.
+  */
+  groupLabels?: boolean;
   /** Padding between groups of bars in pixels. */
   groupPadding?: number;
   /** Overall height of the visualization in pixels. */

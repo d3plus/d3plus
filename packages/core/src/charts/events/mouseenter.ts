@@ -3,6 +3,7 @@ import {
   colorScaleBucketOf,
   colorScaleBucketPredicate,
 } from "../features/colorScaleBucket.js";
+import {groupDepthOf, groupPath, inGroup} from "../viz/groupRow.js";
 import {shapeHoverEnabled} from "../viz/shapeHover.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type Viz from "../viz/Viz.js";
@@ -42,6 +43,14 @@ export default function (this: Viz, d: DataPoint, i: number): void {
   // (`_plotColumnHighlight`) owns it too: it highlights the mark's column.
   if (this._sharedHoverActive && this._plotColumnHighlight) return;
   if (shapeHoverEnabled(this)) {
+    // A group row highlights every row in its group.
+    const groupDepth = groupDepthOf(d);
+    if (groupDepth !== undefined) {
+      const groupBy = this.schema.groupBy;
+      const path = groupPath(groupBy, d, groupDepth);
+      this.hover((h: DataPoint, x: number) => inGroup(groupBy, path, h, x));
+      return;
+    }
     let filterIds = this._id(d, i);
     if (!(filterIds instanceof Array)) filterIds = [filterIds];
 
