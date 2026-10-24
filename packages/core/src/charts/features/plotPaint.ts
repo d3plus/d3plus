@@ -26,6 +26,7 @@ import {collectComputed, makeShape} from "./emitHelpers.js";
 import {emitLineLabelConnectors} from "./lineLabels.js";
 import {collectAnnotationGroup, emitAnnotations} from "./plotAnnotations.js";
 import {emitShape, type ShapeEmitContext} from "./shapeEmit.js";
+import {barHitsFirst} from "../Plot/barHitArea.js";
 import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
@@ -373,9 +374,13 @@ function emitShapeLoop(
     x2Height: pCtx.x2Height,
     zoomRanges: pCtx.zoomRanges,
   };
-  shapeData.forEach(([key, values]) => {
-    out.push(...emitShape({...shapeCtx, values}, key));
-  });
+  out.push(
+    ...barHitsFirst(
+      shapeData.flatMap(([key, values]) =>
+        emitShape({...shapeCtx, values}, key),
+      ),
+    ),
+  );
 }
 
 /** Runs shape exits in compute mode and updates `viz._previousShapes`. */

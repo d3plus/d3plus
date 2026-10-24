@@ -86,7 +86,7 @@ const renderCharts = (charts, size = {width: 420, height: 150}) =>
               }));
               const shapeBoxes = [
                 ...el.querySelectorAll(
-                  "g[data-key='plot-zoom-content'] :is(path, rect, circle)",
+                  "g[data-key='plot-zoom-content'] :is(path, rect, circle):not([data-key$='::hit'])",
                 ),
               ]
                 .filter(s => !s.closest("g[data-key$='-grid']"))

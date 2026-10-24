@@ -215,7 +215,7 @@ export const argTypes = assign(
         type: "object",
       },
       description:
-        "Hit-area shape: function returning bounds or static bounds.",
+        "An invisible hover and click target drawn behind each mark: bounds\n(`x`, `y`, `width`, `height`, relative to the mark's position), or a\nfunction returning them per datum. A Line takes a wide transparent\nstroke along its path. Side-by-side bars in a Plot (a BarChart that\nisn't stacked, or a Histogram) fill their whole slot by default, from\none edge of the plot to the other, so a short bar is as easy to hover\nas a tall one; `shapeConfig: {Bar: {hitArea: false}}` limits them to\nthe bars themselves.",
       table: {
         defaultValue: {
           summary: "undefined",
@@ -223,7 +223,7 @@ export const argTypes = assign(
       },
       type: {
         required: false,
-        summary: "record | function",
+        summary: "false | record | function",
       },
     },
     hover: {

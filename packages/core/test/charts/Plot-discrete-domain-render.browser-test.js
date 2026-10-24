@@ -53,7 +53,12 @@ const draw = ([src, renderer]) =>
             d: n.d,
           }));
         const bars = nodes
-          .filter(n => n.type === "rect" && n.shapeType === "Bar")
+          .filter(
+            n =>
+              n.type === "rect" &&
+              n.shapeType === "Bar" &&
+              !String(n.key).endsWith("::hit"),
+          )
           .map(n => ({key: n.key, x: n.transform.x}));
         const numbers = nodes.flatMap(n => [
           n.x,

@@ -26,7 +26,11 @@ const probe = (src, opts = {}) =>
       const size = vertical ? "height" : "width";
       const bars = [];
       for (const n of sceneNodes(viz._chartScene)) {
-        if (n.shapeType === "Bar" && n.type === "rect") {
+        if (
+          n.shapeType === "Bar" &&
+          n.type === "rect" &&
+          !String(n.key).endsWith("::hit")
+        ) {
           const t = n.transform || {x: 0, y: 0};
           bars.push([t[along] + n[along], t[along] + n[along] + n[size]]);
         }
