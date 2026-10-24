@@ -37,7 +37,12 @@ const draw = ([src, renderer]) =>
         const axis = horizontal ? viz._yAxis : viz._xAxis;
         const year = d => new Date(+d).getFullYear();
         const bars = nodes
-          .filter(n => n.type === "rect" && n.shapeType === "Bar")
+          .filter(
+            n =>
+              n.type === "rect" &&
+              n.shapeType === "Bar" &&
+              !String(n.key).endsWith("::hit"),
+          )
           .map(n => ({
             key: `${n.datum.data.id}_${year(n.datum[horizontal ? "y" : "x"])}`,
             size: horizontal ? n.height : n.width,

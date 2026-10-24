@@ -25,7 +25,7 @@ function linkedCharts(body) {
     await new Promise(r => a.render(r));
     await new Promise(r => b.render(r));
     const frame = () => new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    const bars = () => Array.from(document.querySelectorAll("#b svg rect.d3plus-render-rect"))
+    const bars = () => Array.from(document.querySelectorAll("#b svg rect.d3plus-render-rect:not([data-key$='::hit'])"))
       .map(el => +(el.getAttribute("opacity") ?? 1)).sort();
     ${body}
   })()`),
