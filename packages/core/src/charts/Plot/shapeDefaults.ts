@@ -18,7 +18,7 @@ import {isValidDate} from "../../components/Axis/timeValues.js";
 import {constant} from "../../utils/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {outsideBaselineBreak} from "./baselineBreak.js";
-import {defaultSize, outside} from "./labelPlacement.js";
+import {defaultSize, growsBack, outside} from "./labelPlacement.js";
 import {axisValue} from "./sharedTooltip.js";
 
 /** Builds the `Area` shape config; `self` is the Plot instance. */
@@ -129,8 +129,7 @@ function barLabelConfig() {
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative =
-        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative = growsBack(this, nonDiscrete, d, i);
       const anchor = invert
         ? "middle"
         : outside.bind(this)(d, i)
@@ -155,8 +154,7 @@ function barLabelConfig() {
         this.schema.discrete.charAt(0),
         other,
       );
-      const negative =
-        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative = growsBack(this, nonDiscrete, d, i);
       return invert
         ? outside.bind(this)(d, i)
           ? negative
@@ -193,8 +191,7 @@ function barConfig() {
       const axis = nonDiscrete === "y" ? this._yAxis! : this._xAxis!;
       const range = axis._d3Scale!.range();
       const space = Math.abs(range[1] - range[0]);
-      const negative =
-        ((nonDiscrete === "y" ? this._y! : this._x!)(d, i) as number) < 0;
+      const negative = growsBack(this, nonDiscrete, d, i);
 
       if (outside.bind(this)(d, i)) {
         return {

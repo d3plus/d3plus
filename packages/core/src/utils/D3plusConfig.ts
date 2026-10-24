@@ -194,6 +194,15 @@ export interface AxisConfig {
   rounding?: "none" | "outside" | "inside";
   /** Scale of the axis. */
   scale?: AxisScale;
+  /**
+      Whether to flip the axis's direction, so its values run the other
+      way: a horizontal axis from right to left, a vertical one from top to
+      bottom (a Plot's y axis, categories included, normally runs bottom to
+      top, so reversing it lists them from the top). Everything placed on
+      the axis follows it: shapes, tick labels, gridlines, breaks, zooming,
+      and hover badges. Defaults to `false`.
+  */
+  reverse?: boolean;
   /** The shape drawn at each tick: `"Line"` (the default), `"Rect"`, or `"Circle"`. */
   shape?: "Line" | "Rect" | "Circle";
   /** Tick style of the axis. */
@@ -370,6 +379,12 @@ export interface TimelineConfig {
   playButtonInterval?: number;
   /** The current selection. Defaults to the most recent period in the timeline. */
   selection?: (Date | number)[] | Date | number | false;
+  /**
+      Whether to run the timeline from its latest period to its earliest.
+      Selections, the default selection, and playback still read from
+      earliest to latest. Defaults to `false`.
+  */
+  reverse?: boolean;
   /** Toggles the snapping value. */
   snapping?: boolean;
 }

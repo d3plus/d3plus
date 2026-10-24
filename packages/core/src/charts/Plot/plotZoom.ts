@@ -57,6 +57,8 @@ export interface PlotZoomBase {
   labelSpace: Partial<Record<AxisName, number>>;
   /** Axes drawn with a baseline break; a zoom keeps the break only on these. */
   breaks: Partial<Record<AxisName, boolean>>;
+  /** Axes drawn `reverse`d, whose scales run the other way to their domains. */
+  reversed: Partial<Record<AxisName, boolean>>;
 }
 
 /**
@@ -107,6 +109,7 @@ export function paintZoomablePlot(
   const scales: PlotZoomBase["scales"] = {};
   const labelSpace: PlotZoomBase["labelSpace"] = {};
   const breaks: PlotZoomBase["breaks"] = {};
+  const reversed: PlotZoomBase["reversed"] = {};
   for (const axis of zoomableAxes(pCtx)) {
     const axisInstance = viz[`_${axis}Axis`];
     const d3Scale = axisInstance?._d3Scale as
@@ -115,6 +118,7 @@ export function paintZoomablePlot(
       scales[axis] = d3Scale.copy();
       labelSpace[axis] = axisInstance?._labelSpace;
       breaks[axis] = Boolean(axisInstance?._baselineBreak);
+      reversed[axis] = Boolean(axisInstance?.schema.reverse);
     }
   }
   // Shape sizes for the automatic `zoomMax` come from the unzoomed paint.
@@ -129,6 +133,7 @@ export function paintZoomablePlot(
     scales,
     labelSpace,
     breaks,
+    reversed,
   };
   if (current && (current.k !== 1 || current.x || current.y)) {
     const zoomed = rescalePlot(viz, current);
@@ -162,11 +167,11 @@ function zoomedContext(
       .map(r =>
         scale.invert((r + offset + origin - shift) / t.k - origin - offset),
       );
-    // Keep the base domain's orientation.
+    // Keep the base domain's orientation, handing a reversed axis its
+    // domain the way round the axis reverses.
     const [b0, b1] = scale.domain();
-    return (+b1 - +b0) * (+domain[1] - +domain[0]) < 0
-      ? domain.reverse()
-      : domain;
+    const flip = (+b1 - +b0) * (+domain[1] - +domain[0]) < 0;
+    return flip !== Boolean(base.reversed[axis]) ? domain.reverse() : domain;
   };
 
   const zoomed: Partial<PlotPaintContext> = {};

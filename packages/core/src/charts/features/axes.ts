@@ -190,11 +190,11 @@ function renderXAxes(
   const x = (d: unknown, x?: string): number => {
     if (x === "x2") {
       if (x2ConfigScale === "log" && d === 0)
-        d = x2s._d3Scale!.domain()[x2Domain[0] < 0 ? 1 : 0];
+        d = x2s._givenDomain()[x2Domain[0] < 0 ? 1 : 0];
       return x2s._getPosition(d);
     } else {
       if (xConfigScale === "log" && d === 0)
-        d = xs._d3Scale!.domain()[xDomain[0] < 0 ? 1 : 0];
+        d = xs._givenDomain()[xDomain[0] < 0 ? 1 : 0];
       return xs._getPosition(d);
     }
   };
@@ -274,17 +274,11 @@ function renderYAxes(
   const y = (d: unknown, y?: string): number => {
     if (y === "y2") {
       if (y2ConfigScale === "log" && d === 0)
-        d =
-          y2Domain[1] < 0
-            ? y2s._d3ScaleNegative!.domain()[0]
-            : y2s._d3Scale!.domain()[1];
+        d = y2Domain[1] < 0 ? y2s._givenDomain(true)[0] : y2s._givenDomain()[1];
       return y2s._getPosition(d) - x2Height;
     } else {
       if (yConfigScale === "log" && d === 0)
-        d =
-          yDomain[1] < 0
-            ? ys._d3ScaleNegative!.domain()[0]
-            : ys._d3Scale!.domain()[1];
+        d = yDomain[1] < 0 ? ys._givenDomain(true)[0] : ys._givenDomain()[1];
       return ys._getPosition(d) - x2Height;
     }
   };

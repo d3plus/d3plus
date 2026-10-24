@@ -535,6 +535,23 @@ export const argTypes = assign(
         summary: "function",
       },
     },
+    reverse: {
+      control: {
+        type: "boolean",
+      },
+      defaultValue: false,
+      description:
+        "Whether to flip the axis's direction, so its values run the other\nway: a horizontal axis from right to left, a vertical one from top to\nbottom (a Plot's y axis, categories included, normally runs bottom to\ntop, so reversing it lists them from the top). Everything placed on\nthe axis follows it: shapes, tick labels, gridlines, breaks, zooming,\nand hover badges. Defaults to `false`.",
+      table: {
+        defaultValue: {
+          summary: "false",
+        },
+      },
+      type: {
+        required: false,
+        summary: "boolean",
+      },
+    },
     rotatedTickFormat: {
       control: {},
       description:
