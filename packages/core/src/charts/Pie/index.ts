@@ -11,6 +11,7 @@ import {backgroundColor} from "@d3plus/dom";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {centerChartTransform} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {rowLegend, shareRow} from "../features/sharedFields.js";
@@ -94,7 +95,7 @@ export const pieDef: DataDrivenChartDefinition = {
     {
       key: "value",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         A comparator function that sorts the Pie slices. Defaults to descending

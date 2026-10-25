@@ -4,7 +4,8 @@ import {zoomTransform} from "d3-zoom";
 
 import {assign} from "@d3plus/dom";
 
-import {accessor, constant} from "../../utils/index.js";
+import {constant} from "../../utils/index.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {installFluent, mergeConfigBag, resolvesReset} from "../../fluent.js";
 import {baselineValue, setBaseline} from "./baselineDomain.js";
 import {initPlotAxes, initPlotDefaults, plotSchema} from "./plotInit.js";
@@ -622,7 +623,7 @@ Stacked charts always fit one line to the stack totals.
 */
   size(_?: PlotAccessorArg | false): this | PlotAccessor {
     if (!arguments.length) return this._size;
-    this._size = typeof _ === "function" || !_ ? _ : accessor(_ as string);
+    this._size = typeof _ === "function" || !_ ? _ : fieldAccessor(_ as string);
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   }
@@ -667,7 +668,7 @@ Stacked charts always fit one line to the stack totals.
     if (arguments.length) {
       if (typeof _ === "function") this._x = _;
       else {
-        this._x = accessor(_ as string);
+        this._x = fieldAccessor(_ as string);
         this._xKey = _;
       }
       return this;
@@ -681,7 +682,7 @@ Stacked charts always fit one line to the stack totals.
     if (arguments.length) {
       if (typeof _ === "function") this._x2 = _;
       else {
-        this._x2 = accessor(_ as string);
+        this._x2 = fieldAccessor(_ as string);
         this._x2Key = _;
       }
       return this;
@@ -715,7 +716,7 @@ Stacked charts always fit one line to the stack totals.
     if (arguments.length) {
       if (typeof _ === "function") this._y = _;
       else {
-        this._y = accessor(_ as string);
+        this._y = fieldAccessor(_ as string);
         this._yKey = _;
       }
       return this;
@@ -729,7 +730,7 @@ Stacked charts always fit one line to the stack totals.
     if (arguments.length) {
       if (typeof _ === "function") this._y2 = _;
       else {
-        this._y2 = accessor(_ as string);
+        this._y2 = fieldAccessor(_ as string);
         this._y2Key = _;
       }
       return this;

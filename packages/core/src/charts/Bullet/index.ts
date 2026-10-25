@@ -15,6 +15,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
@@ -42,7 +43,7 @@ type RowFn = (d: DataPoint, i: number) => unknown;
 */
 export function rowAccessor(v: unknown): RowFn | false {
   if (typeof v === "function") return v as RowFn;
-  if (typeof v === "string") return accessor(v);
+  if (typeof v === "string") return fieldAccessor(v);
   if (typeof v === "number") return constant(v) as RowFn;
   return false;
 }

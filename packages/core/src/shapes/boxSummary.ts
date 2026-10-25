@@ -6,7 +6,7 @@
 
 import type {DataPoint} from "@d3plus/data";
 
-import accessor from "../utils/accessor.js";
+import {fieldAccessor} from "../utils/fieldAccessor.js";
 import constant from "../utils/constant.js";
 import {warnConfig} from "../utils/configWarnings.js";
 import {drawsOutlier} from "./boxOutlierShape.js";
@@ -44,7 +44,7 @@ export function toStatAccessor(value: unknown): RowFn | undefined {
   if (value === undefined || value === null || value === false)
     return undefined;
   if (typeof value === "function") return value as RowFn;
-  if (typeof value === "string") return accessor(value) as RowFn;
+  if (typeof value === "string") return fieldAccessor(value) as RowFn;
   return constant(value as never) as RowFn;
 }
 

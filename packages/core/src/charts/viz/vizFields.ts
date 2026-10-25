@@ -1,6 +1,6 @@
 import type {ConfigField} from "../../fluent.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {registerLink} from "./linkGroup.js";
 import {onDataPollingIntervalSet} from "./vizDataPolling.js";
 import type Viz from "./Viz.js";
@@ -8,7 +8,9 @@ import type {VizInstance} from "./vizTypes.js";
 
 /** A falsy value (no color) is stored as given, a key string read from each datum. */
 export const optionalAccessor = (value: unknown): unknown =>
-  !value || typeof value === "function" ? value : accessor(value as string);
+  !value || typeof value === "function"
+    ? value
+    : fieldAccessor(value as string);
 
 /**
     The config keys every chart has, as generated accessors (`viz.<key>(value)`

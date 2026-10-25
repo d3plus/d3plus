@@ -3,7 +3,7 @@
     `[lower, upper]` accessor pair, and which keys `confidenceConfig` accepts.
 */
 import validateShapeConfig from "../../shapes/validateShapeConfig.js";
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {ConfidenceAccessor, VizInstance} from "../viz/vizTypes.js";
 
 /**
@@ -43,7 +43,7 @@ export function resolveConfidence(value: unknown): VizInstance["_confidence"] {
     typeof b === "function"
       ? (b as ConfidenceAccessor)
       : typeof b === "string" && b
-        ? (accessor(b) as ConfidenceAccessor)
+        ? (fieldAccessor(b) as ConfidenceAccessor)
         : false;
   const pair: [ConfidenceAccessor | false, ConfidenceAccessor | false] =
     Array.isArray(value) ? [bound(value[0]), bound(value[1])] : [false, false];

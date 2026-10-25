@@ -14,6 +14,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -135,7 +136,7 @@ export const gaugeDef: DataDrivenChartDefinition = {
         typeof v === "function"
           ? v
           : typeof v === "string"
-            ? accessor(v)
+            ? fieldAccessor(v)
             : constant(v as never),
     },
     /**

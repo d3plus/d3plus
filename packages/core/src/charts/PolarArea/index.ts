@@ -11,6 +11,7 @@
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -88,7 +89,7 @@ export const polarAreaDef: DataDrivenChartDefinition = {
         typeof v === "function"
           ? v
           : typeof v === "string"
-            ? accessor(v)
+            ? fieldAccessor(v)
             : undefined,
     },
     /**
@@ -111,7 +112,7 @@ export const polarAreaDef: DataDrivenChartDefinition = {
     {
       key: "value",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     {key: "legend", coerce: "const", factory: rowLegend},
     /** Styles the ring value labels: `fontColor`, `fontFamily`, `fontOpacity`, `fontSize`, `fontWeight`. */

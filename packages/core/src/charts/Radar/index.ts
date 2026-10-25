@@ -11,6 +11,7 @@
 */
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import {centerChartTransform, chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -62,7 +63,7 @@ export const radarDef: ChartDefinition = {
     {
       key: "metric",
       default: accessor("metric"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     {key: "outerPadding", default: "auto"},
     {key: "shape", default: constant("Path"), coerce: "const"},
@@ -74,7 +75,7 @@ export const radarDef: ChartDefinition = {
     {
       key: "value",
       default: accessor("value"),
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     {
       key: "axisConfig",

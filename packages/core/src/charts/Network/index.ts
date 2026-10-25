@@ -13,6 +13,7 @@ import {addToQueue} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import {chartBounds} from "../features/chartGeometry.js";
 import type {ChartDefinition} from "../definition/ChartDefinition.js";
@@ -293,7 +294,7 @@ function setupNetworkFluent(v: NetworkViz) {
           return vv.length === 1 ? vv[0] : vv;
         }) as unknown as Aggregator;
       }
-      return accessor(key) as unknown as (
+      return fieldAccessor(key) as unknown as (
         d: DataPoint,
         i: number,
       ) => string | number | Date;
@@ -308,8 +309,9 @@ function setupNetworkFluent(v: NetworkViz) {
   */
   v.size = function (this: VizInstance, _?: unknown) {
     if (!arguments.length) return this._size;
-    this._size = (typeof _ === "function" || !_ ? _ : accessor(_ as string)) as
-      ((d: DataPoint, i?: number) => number) | undefined;
+    this._size = (
+      typeof _ === "function" || !_ ? _ : fieldAccessor(_ as string)
+    ) as ((d: DataPoint, i?: number) => number) | undefined;
     this._sizeKey = typeof _ === "string" ? _ : undefined;
     return this;
   };
@@ -328,7 +330,7 @@ function setupNetworkFluent(v: NetworkViz) {
       ) => string | number | Date;
     } else {
       const key = _ as string;
-      this._x = accessor(key) as unknown as (
+      this._x = fieldAccessor(key) as unknown as (
         d: DataPoint,
         i: number,
       ) => string | number | Date;
@@ -352,7 +354,7 @@ function setupNetworkFluent(v: NetworkViz) {
       ) => string | number | Date;
     } else {
       const key = _ as string;
-      this._y = accessor(key) as unknown as (
+      this._y = fieldAccessor(key) as unknown as (
         d: DataPoint,
         i: number,
       ) => string | number | Date;

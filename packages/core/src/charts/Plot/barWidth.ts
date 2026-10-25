@@ -9,7 +9,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate, formatDate} from "@d3plus/format";
 
-import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
 /** A formatted Plot row. */
@@ -66,7 +66,7 @@ export const barKey = (v: unknown): string =>
 export function barWidthAccessor(value: unknown): BarWidthAccessor | undefined {
   if (typeof value === "function") return value as BarWidthAccessor;
   if (typeof value === "string" && value) {
-    const fn = accessor(value) as BarWidthAccessor;
+    const fn = fieldAccessor(value) as BarWidthAccessor;
     accessorLabels.set(fn, {key: value});
     return fn;
   }

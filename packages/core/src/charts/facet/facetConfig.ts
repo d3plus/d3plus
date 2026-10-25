@@ -7,7 +7,7 @@
 import type {DataPoint} from "@d3plus/data";
 import type {SceneNode, Transform} from "@d3plus/render";
 
-import {accessor} from "../../utils/index.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {FacetSides} from "./facetGutter.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
@@ -176,7 +176,7 @@ export const FACET_ASPECT = 4 / 3;
 export function coerceFacet(value: unknown): FacetAccessor | undefined {
   if (typeof value === "function") return value as FacetAccessor;
   if (typeof value === "string" && value)
-    return accessor(value) as FacetAccessor;
+    return fieldAccessor(value) as FacetAccessor;
   return undefined;
 }
 

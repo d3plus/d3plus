@@ -18,6 +18,7 @@ import {merge} from "@d3plus/data";
 import type {DataPoint} from "@d3plus/data";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor as namedFieldAccessor} from "../../utils/fieldAccessor.js";
 import constant from "../../utils/constant.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {finiteValue, type OhlcAccessors} from "./ohlc.js";
@@ -49,8 +50,19 @@ const accessorKeys = new WeakMap<RowAccessor, string>();
 export function keyedAccessor(value: unknown): unknown {
   if (typeof value === "function") return value;
   if (typeof value !== "string") return constant(value as never);
-  const fn = accessor(value) as RowAccessor;
+  const fn = namedFieldAccessor(value) as RowAccessor;
   accessorKeys.set(fn, value);
+  return fn;
+}
+
+/**
+    A value field's default accessor: reads `key` and remembers it as
+    `keyedAccessor` does, without naming a field of the user's.
+    @param key The data key to read.
+*/
+export function defaultKeyedAccessor(key: string): RowAccessor {
+  const fn = accessor(key) as RowAccessor;
+  accessorKeys.set(fn, key);
   return fn;
 }
 

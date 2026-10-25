@@ -15,6 +15,7 @@ import {makeChart} from "../definition/makeChart.js";
 import {computeTimeFilter} from "../pipeline/preDrawData.js";
 import Plot from "../Plot/index.js";
 import type {VizInstance} from "../viz/vizTypes.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import {autoTitle, keyedAccessor, valueKeyOf} from "../helpers/valueTitle.js";
 import binData, {type BinNormalize, type BinRow} from "./binData.js";
 
@@ -71,6 +72,7 @@ function drawnTimeFilter(viz: VizInstance, rows: DataPoint[]) {
 function binBeforePreDraw(viz: VizInstance) {
   const state = viz.ctx.histogram as HistogramState;
   if (viz._data !== state.bins) state.raw = viz._data;
+  viz._sourceData = state.raw;
 
   const timeFilter = drawnTimeFilter(viz, state.raw);
   const filter = viz.schema.filter as
@@ -253,7 +255,7 @@ export const histogramDef: ChartDefinition = {
       default: keyedAccessor("value"),
       coerce: v =>
         typeof v === "string"
-          ? keyedAccessor(v)
+          ? fieldAccessor(v)
           : typeof v === "function"
             ? v
             : constant(v as never),

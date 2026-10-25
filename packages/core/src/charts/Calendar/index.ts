@@ -17,6 +17,7 @@ import type {DataPoint} from "@d3plus/data";
 import {formatAbbreviate} from "@d3plus/format";
 
 import accessor from "../../utils/accessor.js";
+import {fieldAccessor} from "../../utils/fieldAccessor.js";
 import type {DataDrivenChartDefinition} from "../definition/ChartDefinition.js";
 import type {D3plusConfig} from "../../utils/D3plusConfig.js";
 import {makeChart} from "../definition/makeChart.js";
@@ -80,7 +81,7 @@ export const calendarDef: DataDrivenChartDefinition = {
     {
       key: "date",
       default: defaultCalendarDate,
-      coerce: v => (typeof v === "function" ? v : accessor(v as string)),
+      coerce: v => (typeof v === "function" ? v : fieldAccessor(v as string)),
     },
     /**
         The fill of days without a value: days missing from the data, and rows

@@ -71,12 +71,12 @@
 | [`Viz`](#viz)               | The base class every d3plus chart extends.                                                                                            |
 | [`Whisker`](#whisker)       | Creates SVG whiskers based on an array of data: a line from each point in a given direction, capped with an endpoint shape.           |
 
-| Functions                           | Description                                                                                                                                                          |
-| ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [`accessor`](#accessor)             | Wraps an object key in a simple accessor function.                                                                                                                   |
-| [`configPrep`](#configprep)         | Preps a config object for d3plus data, and optionally bubbles up a specific nested type.                                                                             |
-| [`configWarnings`](#configwarnings) | Toggles the console warnings d3plus logs when a class receives a config property it does not support (like a misspelled key passed to `.config()` or `shapeConfig`). |
-| [`constant`](#constant)             | Wraps non-function variables in a simple return function.                                                                                                            |
+| Functions                           | Description                                                                                                                                                                                                                                                      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [`accessor`](#accessor)             | Wraps an object key in a simple accessor function.                                                                                                                                                                                                               |
+| [`configPrep`](#configprep)         | Preps a config object for d3plus data, and optionally bubbles up a specific nested type.                                                                                                                                                                         |
+| [`configWarnings`](#configwarnings) | Toggles the console warnings d3plus logs when a class receives a config property it does not support (like a misspelled key passed to `.config()` or `shapeConfig`), or a config key names a data field that no row of the chart's data has (like `y: "vlaue"`). |
+| [`constant`](#constant)             | Wraps non-function variables in a simple return function.                                                                                                                                                                                                        |
 
 | Variables         | Description                                                  |
 | ----------------- | ------------------------------------------------------------ |
@@ -14036,7 +14036,7 @@ return d === "Back" ? "Get outta here" : d;
 
 ### Plot
 
-Defined in: [charts/Plot/index.ts:68](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L68)
+Defined in: [charts/Plot/index.ts:69](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L69)
 
 Creates an x/y plot based on an array of data.
 
@@ -14088,7 +14088,7 @@ Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()
 
 > **active**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)
 
-Defined in: [charts/viz/VizBase.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L52)
+Defined in: [charts/viz/VizBase.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L53)
 
 The active callback function for highlighting shapes.
 
@@ -14112,7 +14112,7 @@ The active callback function for highlighting shapes.
 
 > **annotations**(`_?`: `unknown`): [`Plot`](#plot) \| `unknown`[]
 
-Defined in: [charts/Plot/index.ts:383](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L383)
+Defined in: [charts/Plot/index.ts:384](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L384)
 
 Allows drawing custom shapes to be used as annotations in the provided x/y plot. This method accepts custom config objects for the [Shape](http://d3plus.org/docs/#Shape) class, either a single config object or an array of config objects. Each config object requires an additional parameter, the "shape", which denotes which [Shape](http://d3plus.org/docs/#Shape) sub-class to use ([Rect](http://d3plus.org/docs/#Rect), [Line](http://d3plus.org/docs/#Line), etc).
 
@@ -14134,7 +14134,7 @@ Additionally, each config object can also contain an optional "layer" key, which
 
 > **axisPersist**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:392](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L392)
+Defined in: [charts/Plot/index.ts:393](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L393)
 
 Determines whether the x and y axes should have their scales persist while users filter the data, the timeline being the prime example (set this to `true` to make the axes stay consistent when the timeline changes).
 
@@ -14154,7 +14154,7 @@ Determines whether the x and y axes should have their scales persist while users
 
 > **backgroundConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:410](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L410)
+Defined in: [charts/Plot/index.ts:411](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L411)
 
 A d3plus-shape configuration Object used for styling the background rectangle of the inner x/y plot (behind all of the shapes and gridlines).
 
@@ -14174,7 +14174,7 @@ A d3plus-shape configuration Object used for styling the background rectangle of
 
 > **baseline**(`_?`: `number`): `number` \| [`Plot`](#plot) \| `undefined`
 
-Defined in: [charts/Plot/index.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L401)
+Defined in: [charts/Plot/index.ts:402](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L402)
 
 Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n)` renders exactly like `yDomain([n])` (or `xDomain([n])`). Bars, areas, and stems still grow from the chart's own `0` in the Plots that draw from one (such as BarChart, AreaPlot, Histogram, and Lollipop), so with `baselineBreak` on (their default) the axis breaks back to a `0` tick and bars run through the break, with its gap cut across them, and with it off the axis stretches down to `0`. As with `yDomain([n])`, only `n` is pinned: the far end comes from the data and is rounded where the axis would round it with no domain set (left at the data when the axis config's `rounding` is "none"), and marks for values past `n` stop at the axis's edge. When every value sits at or below `n`, it ends the axis instead, like `yDomain([undefined, n])`. A bound given in `yDomain`/`xDomain` wins. Returns the chart's own baseline when none is set.
 
@@ -14194,7 +14194,7 @@ Starts the value axis (the x axis for horizontal charts) at a value: `baseline(n
 
 > **buffer**(`_?`: `boolean` \| `Record`\<`string`, `boolean`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:427](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L427)
+Defined in: [charts/Plot/index.ts:428](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L428)
 
 Determines whether or not to add additional padding at the ends of x or y scales. The most commone use for this is in Scatter Plots, so that the shapes do not appear directly on the axis itself. The value provided can either be `true` or `false` to toggle the behavior for all shape types, or a keyed Object for each shape type (ie. `{Bar: false, Circle: true, Line: false}`).
 
@@ -14340,7 +14340,7 @@ new Treemap().colorDefaults({
 
 > **confidence**(`_?`: `unknown`): `false` \| [`Plot`](#plot) \| \[`false` \| `ConfidenceAccessor`, `false` \| `ConfidenceAccessor`\] \| `ConfidenceBand`[] \| `undefined`
 
-Defined in: [charts/Plot/index.ts:463](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L463)
+Defined in: [charts/Plot/index.ts:464](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L464)
 
 The confidence interval as an array of [lower, upper] bounds. Lines draw it as a shaded band; bars draw an error bar per bar, from the lower to the upper bound with a cap at each end (a stacked bar's bounds keep their distance from its value, measured from the bar's stacked end). Either bound may be `false` for a one-sided interval, and a row without a bound pinches the band onto its line. The value axis widens to fit the bounds, and tooltips list them (see `confidenceConfig.tooltip`). Pass `false` to turn the interval off.
 
@@ -14379,7 +14379,7 @@ var data = {id: "alpha", value: 10, lci: 9, hci: 11};
 
 > **confidenceConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:481](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L481)
+Defined in: [charts/Plot/index.ts:482](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L482)
 
 Configuration object for shapes rendered as confidence intervals. A line's band is an Area, filled with the line's color at half opacity. A bar's error bar is a Path styled by `stroke` (default a shade darker than the bar), `strokeWidth` (default `2`), `strokeDasharray`, `strokeOpacity`, and `capWidth`: the length of each end cap, in pixels or as a percentage string of the bar's thickness (default `"50%"`). Keys nested under `Area` or `Bar` apply only to that shape's interval. With several bands, `bandOpacity` sets how each band looks where it is the innermost band drawn: an array ramps from the outermost band to the innermost (default `[0.15, 0.6]`), a number gives every band that opacity, and either replaces `fillOpacity`. `tooltip` (default `true`) lists the bounds in tooltips: a "Lower Bound" and "Upper Bound" row for a single mark, and a range after each series' value in a shared tooltip; set it to `false` to leave them out. Accepted keys: any key the Area or Path shape takes at the top level, plus `bandOpacity`, `capWidth`, `tooltip`, `Area` (Area keys), and `Bar` (Path keys and `capWidth`); any other key logs a warning.
 
@@ -14447,7 +14447,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **crosshairConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:547](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L547)
+Defined in: [charts/Plot/index.ts:548](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L548)
 
 Paint for the shared tooltip's crosshair guide line (`stroke`,
 `strokeWidth`, `strokeDasharray`, `strokeOpacity`, …). Merged into the
@@ -14469,7 +14469,7 @@ current config.
 
 > **data**(`_?`: `string` \| `DataPoint`[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: `DataPoint`[]) => `Record`\<`string`, `unknown`\> \| `DataPoint`[]): [`Plot`](#plot) \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBase.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L83)
+Defined in: [charts/viz/VizBase.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L84)
 
 The primary data array used to draw the visualization. The value passed should be an _Array_ of objects or a _String_ representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -14522,7 +14522,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **discreteCutoff**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:498](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L498)
+Defined in: [charts/Plot/index.ts:499](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L499)
 
 When the width or height of the chart is less than or equal to this pixel value, the discrete axis will not be shown. This helps produce slick sparklines. Set this value to `0` to disable the behavior entirely.
 
@@ -14542,7 +14542,7 @@ When the width or height of the chart is less than or equal to this pixel value,
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L114)
+Defined in: [charts/viz/VizBase.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L115)
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -14568,7 +14568,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: [charts/viz/VizBase.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L132)
+Defined in: [charts/viz/VizBase.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L133)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 
@@ -14592,7 +14592,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: [charts/viz/VizBase.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L133)
+Defined in: [charts/viz/VizBase.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L134)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 
@@ -14624,7 +14624,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Plot`](#plot) \| `string`[]
 
-Defined in: [charts/viz/VizBase.ts:143](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L143)
+Defined in: [charts/viz/VizBase.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L144)
 
 The font family used throughout the visualization.
 
@@ -14648,7 +14648,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`) \| (`string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`))[]): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)[]
 
-Defined in: [charts/viz/VizBase.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L176)
+Defined in: [charts/viz/VizBase.ts:177](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L177)
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -14672,7 +14672,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **groupPadding**(`_?`: `number`): `number` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:507](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L507)
+Defined in: [charts/Plot/index.ts:508](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L508)
 
 The pixel space between groups of bars.
 
@@ -14692,7 +14692,7 @@ The pixel space between groups of bars.
 
 > **highlight**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:281](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L281)
+Defined in: [charts/viz/VizBase.ts:282](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L282)
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -14722,7 +14722,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(): `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L214)
+Defined in: [charts/viz/VizBase.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L215)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -14738,7 +14738,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `this`
 
-Defined in: [charts/viz/VizBase.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L215)
+Defined in: [charts/viz/VizBase.ts:216](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L216)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -14762,7 +14762,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **labelConnectorConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:516](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L516)
+Defined in: [charts/Plot/index.ts:517](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L517)
 
 The d3plus-shape config used on the Line shapes created to connect lineLabels to the end of their associated Line path.
 
@@ -14782,7 +14782,7 @@ The d3plus-shape config used on the Line shapes created to connect lineLabels to
 
 > **labelPosition**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string`)): [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string`)
 
-Defined in: [charts/Plot/index.ts:533](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L533)
+Defined in: [charts/Plot/index.ts:534](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L534)
 
 The behavior to be used when calculating the position and size of each shape's label(s). The value passed can either be the _String_ name of the behavior to be used for all shapes, or an accessor _Function_ that will be provided each data point and will be expected to return the behavior to be used for that data point. The availability and options for this method depend on the default logic for each Shape. As an example, the values "outside" or "inside" can be set for Bar shapes, whose "auto" default will calculate the best position dynamically based on the available space.
 
@@ -14802,7 +14802,7 @@ The behavior to be used when calculating the position and size of each shape's l
 
 > **lineMarkerConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:597](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L597)
+Defined in: [charts/Plot/index.ts:598](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L598)
 
 Shape config for the Circle shapes drawn by the lineMarkers method.
 
@@ -14822,7 +14822,7 @@ Shape config for the Circle shapes drawn by the lineMarkers method.
 
 > **lineMarkers**(`_?`: `boolean`): `boolean` \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:614](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L614)
+Defined in: [charts/Plot/index.ts:615](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L615)
 
 Draws circle markers on each vertex of a Line.
 
@@ -15161,7 +15161,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **select**(`_?`: `string` \| `HTMLElement`): [`Plot`](#plot) \| `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\>
 
-Defined in: [charts/viz/VizBase.ts:296](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L296)
+Defined in: [charts/viz/VizBase.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L297)
 
 The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 
@@ -15187,7 +15187,7 @@ The SVG container element as a d3 selector or DOM element. Defaults to `undefine
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: [charts/viz/VizBase.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L305)
+Defined in: [charts/viz/VizBase.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L306)
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -15203,7 +15203,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: [charts/viz/VizBase.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L306)
+Defined in: [charts/viz/VizBase.ts:307](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L307)
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -15227,7 +15227,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **size**(`_?`: `false` \| `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:623](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L623)
+Defined in: [charts/Plot/index.ts:624](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L624)
 
 Sets the size of bubbles to the given Number, data key, or function.
 
@@ -15247,7 +15247,7 @@ Sets the size of bubbles to the given Number, data key, or function.
 
 > **stackOffset**(`_?`: `string` \| `StackOffsetFn`): [`Plot`](#plot) \| `StackOffsetFn`
 
-Defined in: [charts/Plot/index.ts:637](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L637)
+Defined in: [charts/Plot/index.ts:638](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L638)
 
 Sets the vertical offset applied to stacked series. Accepts a named
 offset — `"diverging"` (default), `"none"`, `"expand"`, `"silhouette"`,
@@ -15271,7 +15271,7 @@ stack offset function.
 
 > **stackOrder**(`_?`: `StackOrderInput`): [`Plot`](#plot) \| `string`[] \| `StackOrderFn`
 
-Defined in: [charts/Plot/index.ts:657](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L657)
+Defined in: [charts/Plot/index.ts:658](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L658)
 
 Sets the order of stacked series, from the bottom of the stack upward.
 Accepts:
@@ -15303,7 +15303,7 @@ is not specified, returns the current stack order.
 
 > **threshold**(`_?`: `number` \| ((`data`: `DataPoint`[]) => `number`)): `number` \| [`Plot`](#plot) \| ((`data`: `DataPoint`[]) => `number`)
 
-Defined in: [charts/viz/VizBase.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L322)
+Defined in: [charts/viz/VizBase.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L323)
 
 The threshold value for bucketing small data points together, as a
 share of the total. On a stacked Plot, the series whose summed value
@@ -15332,7 +15332,7 @@ charts.
 
 > **thresholdKey**(`key?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBase.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L340)
+Defined in: [charts/viz/VizBase.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L341)
 
 Accessor for the value used in the threshold algorithm. A stacked Plot
 defaults to its stacked value.
@@ -15357,7 +15357,7 @@ defaults to its stacked value.
 
 > **time**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBase.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L356)
+Defined in: [charts/viz/VizBase.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L357)
 
 Accessor function or string key for the time dimension of each data point.
 
@@ -15381,7 +15381,7 @@ Accessor function or string key for the time dimension of each data point.
 
 > **timelineDefault**(`_?`: `string` \| `Date` \| (`string` \| `Date`)[]): [`Plot`](#plot) \| `Date`[]
 
-Defined in: [charts/viz/VizBase.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L401)
+Defined in: [charts/viz/VizBase.ts:402](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L402)
 
 The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -15426,7 +15426,7 @@ Server-side callers cast this to their native canvas to encode a raster
 
 > **toScene**(): `Scene`
 
-Defined in: [charts/Plot/index.ts:150](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L150)
+Defined in: [charts/Plot/index.ts:151](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L151)
 
 Composes the chart's scene graph: the native shape scenes from Viz.toScene
 (bars/lines/areas + labels) plus snapshots of the rendered axes, so a Plot
@@ -15469,7 +15469,7 @@ the chart's `className`. Primarily used for server-side rendering (see
 
 > **total**(`_?`: `string` \| `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)): `string` \| `boolean` \| [`Plot`](#plot) \| ((`d`: `DataPoint`, `i`: `number`) => `number`)
 
-Defined in: [charts/viz/VizBase.ts:414](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L414)
+Defined in: [charts/viz/VizBase.ts:415](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L415)
 
 Accessor function or string key for the total value displayed in the visualization.
 
@@ -15555,7 +15555,7 @@ return d === "Back" ? "Get outta here" : d;
 
 > **trendLine**(`_?`: `TrendLineType`): [`Plot`](#plot) \| `TrendLineType`
 
-Defined in: [charts/Plot/index.ts:562](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L562)
+Defined in: [charts/Plot/index.ts:563](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L563)
 
 Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) for a least-squares line, or one of `"exponential"`, `"logarithmic"`, `"power"`, or `"polynomial"`. By default each series gets its own line in its color; see `trendLineConfig` for grouping, a confidence band, and styling. On a chart with a discrete axis, the line runs along that axis, fitting categories by their order. Set to `false` (the default) to remove.
 
@@ -15575,7 +15575,7 @@ Draws an automatic trend line fit to the plotted data: `true` (or `"linear"`) fo
 
 > **trendLineConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:582](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L582)
+Defined in: [charts/Plot/index.ts:583](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L583)
 
 Options for the trend lines drawn by `trendLine`, merged into the current config:
 
@@ -15607,7 +15607,7 @@ Stacked charts always fit one line to the stack totals.
 
 > **x**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:666](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L666)
+Defined in: [charts/Plot/index.ts:667](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L667)
 
 Accessor function or string key for the x-axis value of each data point.
 
@@ -15627,7 +15627,7 @@ Accessor function or string key for the x-axis value of each data point.
 
 > **x2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:680](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L680)
+Defined in: [charts/Plot/index.ts:681](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L681)
 
 Accessor function or string key for the secondary x-axis value of each data point.
 
@@ -15647,7 +15647,7 @@ Accessor function or string key for the secondary x-axis value of each data poin
 
 > **x2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:704](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L704)
+Defined in: [charts/Plot/index.ts:705](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L705)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15667,7 +15667,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **xConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:694](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L694)
+Defined in: [charts/Plot/index.ts:695](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L695)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the x-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15687,7 +15687,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **y**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:714](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L714)
+Defined in: [charts/Plot/index.ts:715](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L715)
 
 Accessor function or string key for the y-axis value of each data point.
 
@@ -15707,7 +15707,7 @@ Accessor function or string key for the y-axis value of each data point.
 
 > **y2**(`_?`: `PlotAccessorArg`): [`Plot`](#plot) \| `PlotAccessor`
 
-Defined in: [charts/Plot/index.ts:728](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L728)
+Defined in: [charts/Plot/index.ts:729](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L729)
 
 Accessor function or string key for the secondary y-axis value of each data point.
 
@@ -15727,7 +15727,7 @@ Accessor function or string key for the secondary y-axis value of each data poin
 
 > **y2Config**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:759](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L759)
+Defined in: [charts/Plot/index.ts:760](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L760)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the secondary y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -15747,7 +15747,7 @@ A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config use
 
 > **yConfig**(`_?`: `Record`\<`string`, `unknown`\>): `Record`\<`string`, `unknown`\> \| [`Plot`](#plot)
 
-Defined in: [charts/Plot/index.ts:744](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L744)
+Defined in: [charts/Plot/index.ts:745](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Plot/index.ts#L745)
 
 A pass-through to the underlying [Axis](http://d3plus.org/docs/#Axis) config used for the y-axis. Includes additional functionality where passing "auto" as the value for the [scale](http://d3plus.org/docs/#Axis.scale) method will determine if the scale should be "linear" or "log" based on the provided data.
 
@@ -21604,7 +21604,7 @@ Each is a getter/setter: `.key(value)` sets it and returns the instance, `.key()
 
 > **active**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)
 
-Defined in: [charts/viz/VizBase.ts:52](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L52)
+Defined in: [charts/viz/VizBase.ts:53](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L53)
 
 The active callback function for highlighting shapes.
 
@@ -21796,7 +21796,7 @@ Methods that correspond to the key/value pairs and returns this class.
 
 > **data**(`_?`: `string` \| `DataPoint`[] \| \{ `headers`: `Record`\<`string`, `string`\>; `url`: `string`; \}, `f?`: (`data`: `DataPoint`[]) => `Record`\<`string`, `unknown`\> \| `DataPoint`[]): [`Viz`](#viz) \| `DataPoint`[]
 
-Defined in: [charts/viz/VizBase.ts:83](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L83)
+Defined in: [charts/viz/VizBase.ts:84](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L84)
 
 The primary data array used to draw the visualization. The value passed should be an _Array_ of objects or a _String_ representing a filepath or URL to be loaded. The following filetypes are supported: `csv`, `tsv`, `txt`, and `json`.
 
@@ -21845,7 +21845,7 @@ Tears down the visualization: disconnects the ResizeObserver, stops listening fo
 
 > **facet**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`)): [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `unknown`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L114)
+Defined in: [charts/viz/VizBase.ts:115](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L115)
 
 Splits the chart into small multiples: a grid of equally sized panels, one per distinct value of this data key or accessor, each drawing the chart for that value's rows. The panels share one legend, color scale, title, and timeline, color each series the same way, and hover, tooltips, and legend clicks apply across all of them. Pass `false` to draw a single chart. See `facetConfig` for the grid's layout and shared scales.
 
@@ -21871,7 +21871,7 @@ Splits the chart into small multiples: a grid of equally sized panels, one per d
 
 > **facetConfig**(): [`FacetConfig`](#facetconfig-2)
 
-Defined in: [charts/viz/VizBase.ts:132](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L132)
+Defined in: [charts/viz/VizBase.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L133)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 
@@ -21895,7 +21895,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **facetConfig**(`_`: [`FacetConfig`](#facetconfig-2)): `this`
 
-Defined in: [charts/viz/VizBase.ts:133](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L133)
+Defined in: [charts/viz/VizBase.ts:134](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L134)
 
 Configuration for small multiples (see `facet`), merged into the current config:
 
@@ -21927,7 +21927,7 @@ Configuration for small multiples (see `facet`), merged into the current config:
 
 > **fontFamily**(`_?`: `string` \| `string`[]): `string` \| [`Viz`](#viz) \| `string`[]
 
-Defined in: [charts/viz/VizBase.ts:143](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L143)
+Defined in: [charts/viz/VizBase.ts:144](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L144)
 
 The font family used throughout the visualization.
 
@@ -21951,7 +21951,7 @@ The font family used throughout the visualization.
 
 > **groupBy**(`_?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`) \| (`string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`))[]): [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)[]
 
-Defined in: [charts/viz/VizBase.ts:176](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L176)
+Defined in: [charts/viz/VizBase.ts:177](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L177)
 
 Defines the mapping between data and shape. The value can be a String matching a key in each data point (default is "id"), or an accessor Function that returns a unique value for each data point. Additionally, an Array of these values may be provided if the visualization supports nested hierarchies.
 
@@ -21975,7 +21975,7 @@ Defines the mapping between data and shape. The value can be a String matching a
 
 > **highlight**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:281](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L281)
+Defined in: [charts/viz/VizBase.ts:282](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L282)
 
 Persistently emphasizes the data points matching the given predicate: the
 matching marks keep their color while every other mark is de-emphasized to
@@ -22005,7 +22005,7 @@ standing state that survives pointer movement. Pass `false` to clear it.
 
 > **hover**(): `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`) \| `undefined`
 
-Defined in: [charts/viz/VizBase.ts:214](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L214)
+Defined in: [charts/viz/VizBase.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L215)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -22021,7 +22021,7 @@ The hover callback function for highlighting shapes on mouseover.
 
 > **hover**(`_?`: `false` \| ((`d`: `DataPoint`, `i`: `number`) => `boolean`)): `this`
 
-Defined in: [charts/viz/VizBase.ts:215](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L215)
+Defined in: [charts/viz/VizBase.ts:216](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L216)
 
 The hover callback function for highlighting shapes on mouseover.
 
@@ -22352,7 +22352,7 @@ Boolean arguments both normalize to `"svg"`.
 
 > **select**(`_?`: `string` \| `HTMLElement`): [`Viz`](#viz) \| `Selection`\<`BaseType`, `unknown`, `null`, `undefined`\>
 
-Defined in: [charts/viz/VizBase.ts:296](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L296)
+Defined in: [charts/viz/VizBase.ts:297](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L297)
 
 The SVG container element as a d3 selector or DOM element. Defaults to `undefined`.
 
@@ -22378,7 +22378,7 @@ The SVG container element as a d3 selector or DOM element. Defaults to `undefine
 
 > **shapeConfig**(): [`D3plusConfig`](#d3plusconfig)
 
-Defined in: [charts/viz/VizBase.ts:305](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L305)
+Defined in: [charts/viz/VizBase.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L306)
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -22394,7 +22394,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **shapeConfig**(`_`: [`D3plusConfig`](#d3plusconfig)): `this`
 
-Defined in: [charts/viz/VizBase.ts:306](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L306)
+Defined in: [charts/viz/VizBase.ts:307](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L307)
 
 Configuration object with key/value pairs applied as method calls on each shape.
 
@@ -22418,7 +22418,7 @@ Configuration object with key/value pairs applied as method calls on each shape.
 
 > **threshold**(`_?`: `number` \| ((`data`: `DataPoint`[]) => `number`)): `number` \| [`Viz`](#viz) \| ((`data`: `DataPoint`[]) => `number`)
 
-Defined in: [charts/viz/VizBase.ts:322](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L322)
+Defined in: [charts/viz/VizBase.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L323)
 
 The threshold value for bucketing small data points together, as a
 share of the total. On a stacked Plot, the series whose summed value
@@ -22447,7 +22447,7 @@ charts.
 
 > **thresholdKey**(`key?`: `string` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBase.ts:340](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L340)
+Defined in: [charts/viz/VizBase.ts:341](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L341)
 
 Accessor for the value used in the threshold algorithm. A stacked Plot
 defaults to its stacked value.
@@ -22472,7 +22472,7 @@ defaults to its stacked value.
 
 > **time**(`_?`: `string` \| `false` \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)): `string` \| `false` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `string` \| `number` \| `boolean` \| `DataPoint`)
 
-Defined in: [charts/viz/VizBase.ts:356](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L356)
+Defined in: [charts/viz/VizBase.ts:357](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L357)
 
 Accessor function or string key for the time dimension of each data point.
 
@@ -22496,7 +22496,7 @@ Accessor function or string key for the time dimension of each data point.
 
 > **timelineDefault**(`_?`: `string` \| `Date` \| (`string` \| `Date`)[]): [`Viz`](#viz) \| `Date`[]
 
-Defined in: [charts/viz/VizBase.ts:401](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L401)
+Defined in: [charts/viz/VizBase.ts:402](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L402)
 
 The starting time or range for the timeline. Can be a single Date/String, or an Array of 2 values representing the min and max.
 
@@ -22576,7 +22576,7 @@ the chart's `className`. Primarily used for server-side rendering (see
 
 > **total**(`_?`: `string` \| `boolean` \| ((`d`: `DataPoint`, `i`: `number`) => `number`)): `string` \| `boolean` \| [`Viz`](#viz) \| ((`d`: `DataPoint`, `i`: `number`) => `number`)
 
-Defined in: [charts/viz/VizBase.ts:414](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L414)
+Defined in: [charts/viz/VizBase.ts:415](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/viz/VizBase.ts#L415)
 
 Accessor function or string key for the total value displayed in the visualization.
 
@@ -23510,12 +23510,14 @@ Preps a config object for d3plus data, and optionally bubbles up a specific nest
 
 > **configWarnings**(): `boolean`
 
-Defined in: [utils/configWarnings.ts:15](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configWarnings.ts#L15)
+Defined in: [utils/configWarnings.ts:18](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configWarnings.ts#L18)
 
 Toggles the console warnings d3plus logs when a class receives a config
 property it does not support (like a misspelled key passed to `.config()`
-or `shapeConfig`). Warnings are on by default and the setting applies to
-every chart on the page. With no argument, returns the current setting.
+or `shapeConfig`), or a config key names a data field that no row of the
+chart's data has (like `y: "vlaue"`). Warnings are on by default and the
+setting applies to every chart on the page. With no argument, returns the
+current setting.
 
 ##### Returns
 
@@ -23532,12 +23534,14 @@ configWarnings(false);
 
 > **configWarnings**(`_`: `boolean`): `void`
 
-Defined in: [utils/configWarnings.ts:16](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configWarnings.ts#L16)
+Defined in: [utils/configWarnings.ts:19](https://github.com/d3plus/d3plus/blob/main/packages/core/src/utils/configWarnings.ts#L19)
 
 Toggles the console warnings d3plus logs when a class receives a config
 property it does not support (like a misspelled key passed to `.config()`
-or `shapeConfig`). Warnings are on by default and the setting applies to
-every chart on the page. With no argument, returns the current setting.
+or `shapeConfig`), or a config key names a data field that no row of the
+chart's data has (like `y: "vlaue"`). Warnings are on by default and the
+setting applies to every chart on the page. With no argument, returns the
+current setting.
 
 ##### Parameters
 
@@ -23721,7 +23725,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `targetConfig`   | `{…}`          |
 | `tooltipConfig`  | —              |
 
-Defined in: [charts/Bullet/index.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Bullet/index.ts#L266)
+Defined in: [charts/Bullet/index.ts:267](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Bullet/index.ts#L267)
 
 Creates a bullet graph from an array of data: one compact bar per row
 reading its `value` against qualitative `bands`, with a `target` marker,
@@ -23777,7 +23781,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig`       | —             |
 | `monthOutlineConfig`  | `{…}`         |
 
-Defined in: [charts/Calendar/index.ts:211](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Calendar/index.ts#L211)
+Defined in: [charts/Calendar/index.ts:212](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Calendar/index.ts#L212)
 
 Draws one square cell per day in a calendar grid, each colored by its
 `colorScale` value: weekdays down the side and weeks across, one block per
@@ -23793,10 +23797,10 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 
 | Method          | Default         |
 | --------------- | --------------- |
-| `open`          | `"open"`        |
-| `high`          | `"high"`        |
-| `low`           | `"low"`         |
-| `close`         | `"close"`       |
+| `open`          | —               |
+| `high`          | —               |
+| `low`           | —               |
+| `close`         | —               |
 | `volume`        | —               |
 | `volumeConfig`  | —               |
 | `variant`       | `"candlestick"` |
@@ -23811,7 +23815,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `timeline`      | `false`         |
 | `tooltipConfig` | —               |
 
-Defined in: [charts/Candlestick/index.ts:252](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Candlestick/index.ts#L252)
+Defined in: [charts/Candlestick/index.ts:269](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Candlestick/index.ts#L269)
 
 Creates a candlestick (or OHLC bar) chart of financial periods, from rows
 with a date and open, high, low, and close values. Each row's date is read
@@ -23845,7 +23849,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig`   | —             |
 | `tooltipConfig` | —             |
 
-Defined in: [charts/Chord/index.ts:265](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Chord/index.ts#L265)
+Defined in: [charts/Chord/index.ts:266](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Chord/index.ts#L266)
 
 Creates a Chord diagram based on a defined set of nodes and links.
 
@@ -23936,7 +23940,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `connectorConfig` | `{…}`         |
 | `tooltipConfig`   | —             |
 
-Defined in: [charts/Funnel/index.ts:199](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Funnel/index.ts#L199)
+Defined in: [charts/Funnel/index.ts:200](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Funnel/index.ts#L200)
 
 Creates a funnel chart from an array of data: one stage per row, in data
 order unless `sort` reorders them, drawn as a centered bar whose width encodes its value, with necks
@@ -23970,7 +23974,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `valueFormat`   | —             |
 | `zoom`          | `false`       |
 
-Defined in: [charts/Gauge/index.ts:162](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L162)
+Defined in: [charts/Gauge/index.ts:163](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Gauge/index.ts#L163)
 
 Creates a gauge (speedometer) from an array of data: a single dial that
 reads each row's `value` against its `domain`. One row shows its value
@@ -24031,7 +24035,7 @@ Extends [`Plot`](#plot) — accepts all of its configuration. Adds or overrides 
 | `value`         | `keyedAccessor(…)` |
 | `groupPadding`  | `1`                |
 
-Defined in: [charts/Histogram/index.ts:270](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Histogram/index.ts#L270)
+Defined in: [charts/Histogram/index.ts:272](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Histogram/index.ts#L272)
 
 Creates a histogram from an array of raw observations: the `value` of each
 row is binned along a linear x axis, and bar heights show each bin's
@@ -24158,7 +24162,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `columnConfig` | `{…}`         |
 | `label`        | —             |
 
-Defined in: [charts/Matrix/index.ts:148](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L148)
+Defined in: [charts/Matrix/index.ts:149](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Matrix/index.ts#L149)
 
 Creates a simple rows/columns Matrix view of any dataset.
 
@@ -24188,7 +24192,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shape`         | `"Circle"` |
 | `shapeConfig`   | —          |
 
-Defined in: [charts/Network/index.ts:507](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L507)
+Defined in: [charts/Network/index.ts:509](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Network/index.ts#L509)
 
 Creates a network visualization based on a defined set of nodes and edges.
 
@@ -24211,7 +24215,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legend`        | —             |
 | `on`            | —             |
 
-Defined in: [charts/Pack/index.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L210)
+Defined in: [charts/Pack/index.ts:211](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pack/index.ts#L211)
 
 Uses the d3 pack layout to create a Circle Packing chart based on an array of data.
 
@@ -24265,7 +24269,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig` | —             |
 | `legend`        | —             |
 
-Defined in: [charts/Pie/index.ts:153](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L153)
+Defined in: [charts/Pie/index.ts:154](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Pie/index.ts#L154)
 
 Uses the d3 pie layout to create SVG arcs based on an array of data.
 
@@ -24300,7 +24304,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `tooltipConfig`    | —             |
 | `legendTooltip`    | —             |
 
-Defined in: [charts/PolarArea/index.ts:166](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/PolarArea/index.ts#L166)
+Defined in: [charts/PolarArea/index.ts:167](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/PolarArea/index.ts#L167)
 
 Creates a polar area chart (Nightingale rose or coxcomb) from an array of
 data: every category gets an equal slice of the circle, and each wedge's
@@ -24324,7 +24328,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `start`        | `accessor(…)` |
 | `shapeConfig`  | —             |
 
-Defined in: [charts/Priestley/index.ts:112](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Priestley/index.ts#L112)
+Defined in: [charts/Priestley/index.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Priestley/index.ts#L113)
 
 Creates a Priestley timeline based on an array of data.
 
@@ -24384,7 +24388,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `value`            | `accessor(…)` |
 | `axisConfig`       | —             |
 
-Defined in: [charts/Radar/index.ts:113](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Radar/index.ts#L113)
+Defined in: [charts/Radar/index.ts:114](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Radar/index.ts#L114)
 
 Creates a radar visualization based on an array of data.
 
@@ -24423,7 +24427,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig`      | —             |
 | `tooltipConfig`    | —             |
 
-Defined in: [charts/RadialBar/index.ts:209](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialBar/index.ts#L209)
+Defined in: [charts/RadialBar/index.ts:210](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialBar/index.ts#L210)
 
 Creates a radial bar chart from an array of data: each row is a
 concentric track whose arc length shows its value, or, with
@@ -24450,7 +24454,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `columnConfig` | —             |
 | `label`        | —             |
 
-Defined in: [charts/RadialMatrix/index.ts:189](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L189)
+Defined in: [charts/RadialMatrix/index.ts:190](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/RadialMatrix/index.ts#L190)
 
 Creates a radial layout of a rows/columns Matrix of any dataset.
 
@@ -24554,7 +24558,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `shapeConfig`   | —             |
 | `tooltipConfig` | —             |
 
-Defined in: [charts/Sankey/index.ts:323](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L323)
+Defined in: [charts/Sankey/index.ts:324](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Sankey/index.ts#L324)
 
 Creates a Sankey visualization based on a defined set of nodes and links.
 
@@ -24650,7 +24654,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legendSort`       | —             |
 | `legend`           | —             |
 
-Defined in: [charts/Treemap/index.ts:174](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L174)
+Defined in: [charts/Treemap/index.ts:175](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Treemap/index.ts#L175)
 
 Uses the d3 treemap layout to create SVG rectangles based on an array of data.
 
@@ -24711,7 +24715,7 @@ Extends [`Viz`](#viz) — accepts all of its configuration. Adds or overrides th
 | `legendTooltip` | —             |
 | `legendSort`    | —             |
 
-Defined in: [charts/Waffle/index.ts:181](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waffle/index.ts#L181)
+Defined in: [charts/Waffle/index.ts:182](https://github.com/d3plus/d3plus/blob/main/packages/core/src/charts/Waffle/index.ts#L182)
 
 Draws a grid of unit cells filled in order by category, each category
 getting cells in proportion to its value. By default the grid is 10 × 10,
