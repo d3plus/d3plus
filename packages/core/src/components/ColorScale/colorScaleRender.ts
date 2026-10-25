@@ -287,6 +287,22 @@ function renderGradientRect(
   // Force internal shapes into compute mode so they populate label/scene data
   // without spinning up their own SvgRenderer (which would nest a second <svg>
   // into the page). Legend/Axis do the same.
+  const cross =
+    cs._outerBounds[y] +
+    (["top", "left"].includes(cs.schema.orient) ? axisBounds[height] : 0) +
+    offsets[y];
+  cs._barGeometry = {
+    orient: cs.schema.orient,
+    position: (v: number) => axisScale(v) + offsets[x],
+    range: [
+      (scaleRange[0] as number) + offsets[x],
+      (scaleRange[1] as number) + offsets[x],
+    ],
+    cross: [cross, cross + cs.schema.size],
+    domain: [axisDomain[0], axisDomain[axisDomain.length - 1]],
+    ...(ticks ? {ticks} : {}),
+  };
+
   cs._rectClass
     .renderMode("compute")
     .data((ticks || [0]) as unknown as DataPoint[])
@@ -375,6 +391,7 @@ export function renderLegendVariant(
   groups: ColorScaleGroups,
 ): void {
   const {horizontal, allValues, ticks, colors} = compute;
+  cs._barGeometry = undefined;
 
   elem(
     "g.d3plus-ColorScale-axis",

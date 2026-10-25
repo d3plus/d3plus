@@ -23,6 +23,7 @@ import type {
   SizeLegendSize,
 } from "../components/SizeLegend/sizeLegendLayout.js";
 import type {ColorScaleTypeSetting} from "../components/ColorScale/colorScaleType.js";
+import type {ColorScaleHoverMarkConfig} from "../components/ColorScale/colorScaleHoverMark.js";
 
 type Position = "top" | "right" | "bottom" | "left";
 /** A legend or colorScale side, or `"auto"` to let the chart choose (inside the chart when it fits, else right on wide charts and bottom otherwise). */
@@ -526,6 +527,35 @@ export interface ColorScaleConfig {
       and to `"jenks"` in a chart's `colorScaleConfig`.
   */
   scale?: ColorScaleTypeSetting;
+  /**
+      Whether hovering a chart shape marks its value on the scale: an extra
+      axis tick at the value on the color bar, and a badge reading the value
+      in the axis's tick format where that tick's label would sit, covering
+      the labels it overlaps (a value outside the domain marks the bar's
+      end). A bucketed bar (`bucketAxis`) also outlines the value's bucket.
+      A scale drawn as discrete swatches gets no mark; the value's swatch
+      stays lit and the others dim instead. On charts whose shape hover is
+      off (`hoverOpacity: 1`, as on Geomap and Calendar or past
+      `dataCutoff`), that swatch highlight comes from this option too, so
+      `false` turns it off there. Defaults to `true`.
+  */
+  hoverMark?: boolean;
+  /**
+      Styles the `hoverMark`. `tickConfig` takes `stroke` and `strokeWidth`
+      (the axis ticks' own by default) and `length` (the axis's `tickSize`
+      by default); the badge starts where the tick ends. `badgeConfig` takes `fill`
+      (the value's color by default), `stroke` (the background-legible text
+      color by default), `strokeWidth` (default `1`), `fontColor` (a color
+      contrasting the fill by default), `fontFamily`, `fontSize` (default
+      `11`), `fontWeight` (default `400`), `padding` around the text (default
+      `3`; across the bar it is padded to sit as far out as the tick
+      labels), and `rx` corner radius (default `2`). `outlineConfig`, the
+      bucket outline on a `bucketAxis` bar, takes `stroke` (the
+      background-legible text color by default) and `strokeWidth` (default
+      `2`). Each is a value or a function of the
+      hovered value.
+  */
+  hoverMarkConfig?: ColorScaleHoverMarkConfig;
 }
 
 /** `colorDefaults` input: any subset of the color defaults, with `scale` also accepting an array of colors. */
@@ -797,6 +827,10 @@ export interface D3plusConfig {
     colorMax?: CssColor;
     /** The kind of scale, or a function that picks one from the colorScale values on each render (see `ColorScaleConfig.scale`). Defaults to `"jenks"`. */
     scale?: ColorScaleTypeSetting;
+    /** Marks a hovered shape's value on the colorScale (see `ColorScaleConfig.hoverMark`). Defaults to `true`. */
+    hoverMark?: boolean;
+    /** Styles the hover mark (see `ColorScaleConfig.hoverMarkConfig`). */
+    hoverMarkConfig?: ColorScaleHoverMarkConfig;
   };
   /**
       The maximum pixel size for drawing the color scale: width for horizontal scales and height for vertical scales.

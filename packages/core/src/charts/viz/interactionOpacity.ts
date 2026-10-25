@@ -16,6 +16,7 @@ import type {DataPoint} from "@d3plus/data";
 import type {SceneNode} from "@d3plus/render";
 
 import {activeBucketColors} from "../features/colorScaleBucket.js";
+import {hoveredSwatch} from "../features/colorScaleHover.js";
 import {MARK_TYPES} from "./sceneRows.js";
 import type {VizInstance} from "./vizTypes.js";
 
@@ -104,15 +105,26 @@ function dimSettings(viz: VizInstance): {
     by its bucket COLOR, not by id/value — so this only touches those nodes and
     leaves the colorScale title/axis/gradient at full opacity. A swatch stays
     bright when its color is "active" (its range contains a datum matching the
-    current hover); every other swatch dims. No-op when nothing is hovered.
+    current hover); every other swatch dims. A chart without a hover
+    predicate of its own (shape hover off) lights the swatch of the value
+    its colorScale marks (see `hoveredSwatch`). No-op when nothing is hovered.
 */
 export function applyColorScaleBucketOpacity(
   nodes: SceneNode[],
   viz: VizInstance,
 ): SceneNode[] {
-  const settings = dimSettings(viz);
-  if (!settings) return nodes;
-  const activeColors = activeBucketColors(viz, settings.predicate);
+  const swatch = hoveredSwatch(viz);
+  let activeColors: Set<unknown> | null;
+  let dimOpacity: number;
+  if (swatch) {
+    activeColors = new Set([swatch.color]);
+    dimOpacity = swatch.dimOpacity;
+  } else {
+    const settings = dimSettings(viz);
+    if (!settings) return nodes;
+    activeColors = activeBucketColors(viz, settings.predicate);
+    dimOpacity = settings.dimOpacity;
+  }
   if (!activeColors) return nodes;
 
   const walk = (node: SceneNode): SceneNode => {
@@ -135,7 +147,7 @@ export function applyColorScaleBucketOpacity(
           : 1;
       next = {
         ...node,
-        paint: {...(node.paint ?? {}), opacity: base * settings.dimOpacity},
+        paint: {...(node.paint ?? {}), opacity: base * dimOpacity},
       };
     }
     const kids = (next as {children?: SceneNode[]}).children;
