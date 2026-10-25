@@ -209,7 +209,8 @@ output when their source changes.
 ### Dev pages
 
 Each static package's `dev/` folder holds manual test pages, and
-`http://localhost:4000/` is a generated `dev/index.html` listing them. Core's
+`http://localhost:4000/` is a generated `dev/index.html` listing them
+(gitignored; the dev server writes it). Core's
 pages mirror the source layout:
 
 ```
@@ -286,6 +287,16 @@ one project per package (core has two). Tests import TypeScript source
 pnpm run docs      # Generates markdown docs + Storybook args from TypeDoc
 ```
 
+The generated docs (each package's `API.md`, `packages/docs/args/`, and the
+generated top of each `*.stories.jsx`) are regenerated and committed by
+`pnpm run release`, and the Storybook site deploys only on a release. Don't
+regenerate them in a pull request: every PR that adds a config option touches
+the same tables, so committing them makes open PRs conflict with each other.
+The exception is a PR that adds a public class or function: run `pnpm run
+docs` and commit only the new `*.args.jsx` and `*.stories.jsx` files it
+creates, since the story imports its args file and the Storybook build fails
+without it.
+
 Pass `VERBOSE=1` to any build script for per-file output; by default piped
 (`pnpm -r`) and CI runs print one line per step.
 
@@ -333,7 +344,9 @@ To specialize an existing chart, pass a `Base` to `makeChart` (e.g.
 
 - **`es/`, `umd/`, and `types/` are gitignored.** Do not commit build output.
 - **`dev/` HTML pages are committed** as shared manual test harnesses — unlike
-  build output, they are tracked.
+  build output, they are tracked. The generated `dev/index.html` is not.
+- **Don't commit regenerated docs in a PR** — the release regenerates them
+  (see Documentation).
 - **New pipeline exports go in `internal.ts`, not `index.ts`** — keep the public
   API surface curated.
 - **Circular dependency warnings from Rollup are suppressed** in the build

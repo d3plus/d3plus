@@ -75,7 +75,7 @@ pnpm --filter @d3plus/<package_name> run dev
 
 If everything is set up correctly, `http://localhost:4000/` shows an index of every page in the package's `dev` directory, grouped by folder with a one-line description of each. The server also serves a `umd` directory with a compiled bundle (with dependencies) for you to use in your testing (this directory is in the `.gitignore`, and should never get pushed to the repo).
 
-Most packages contain HTML files to copy/modify for testing, but here is the minimum boilerplate HTML that needs to be there (the `<title>` and description feed the index page, which `pnpm run dev:index` regenerates):
+Most packages contain HTML files to copy/modify for testing, but here is the minimum boilerplate HTML that needs to be there (the `<title>` and description feed the index page, which the dev server writes to the gitignored `dev/index.html`):
 
 ```html
 <!doctype html>
@@ -97,13 +97,13 @@ The development server will recreate the `umd` directory any time the current pa
 
 ### Code Documentation
 
-All of the code documentation you see in the `README.md` file is generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To regenerate the documentation at any time, simply run:
+All of the code documentation you see in each package's `API.md` file, and the Storybook controls, are generated automatically by [TypeDoc](https://typedoc.org/) from the documentation comments within each source file. To preview them, run:
 
 ```sh
-pnpm --filter @d3plus/<package_name> run docs
+pnpm run docs
 ```
 
-> This command is run automatically during the release process.
+> The release process regenerates and commits these files, so leave them out of pull requests. A pull request that adds a public class or function is the exception: commit the new `*.args.jsx` and `*.stories.jsx` files the command creates.
 
 ### Tests
 

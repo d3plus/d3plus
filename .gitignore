@@ -11,3 +11,10 @@ types
 umd
 npm-debug.log
 .eslintcache
+# scripts/dev-index.js writes these; the framework packages' are Vite entries.
+packages/*/dev/index.html
+!packages/angular/dev/index.html
+!packages/element/dev/index.html
+!packages/react/dev/index.html
+!packages/svelte/dev/index.html
+!packages/vue/dev/index.html
