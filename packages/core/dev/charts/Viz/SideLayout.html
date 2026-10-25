@@ -1,0 +1,197 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>SideLayout · Viz</title>
+    <meta
+      name="description"
+      content="Left and right legends and color scales fit between the top and bottom chrome and start below the corner controls on their side."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        font-family: sans-serif;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      figure {
+        margin: 0 24px 24px 0;
+      }
+
+      figcaption {
+        font-size: 13px;
+        margin-bottom: 6px;
+      }
+
+      .viz {
+        width: 640px;
+        height: 420px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section>
+      <figure>
+        <figcaption>
+          Left linear color scale below a title and a top legend, above a
+          timeline
+        </figcaption>
+        <div class="viz" id="leftColorScale"></div>
+      </figure>
+      <figure>
+        <figcaption>
+          Left linear color scale below the top-left controls
+        </figcaption>
+        <div class="viz" id="leftControls"></div>
+      </figure>
+      <figure>
+        <figcaption>Right legend under a top color scale, with zoom</figcaption>
+        <div class="viz" id="rightLegend"></div>
+      </figure>
+      <figure>
+        <figcaption>
+          Right linear color scale below the zoom controls
+        </figcaption>
+        <div class="viz" id="rightColorScale"></div>
+      </figure>
+      <figure>
+        <figcaption>
+          LinePlot with a left legend and a bottom color scale
+        </figcaption>
+        <div class="viz" id="plot"></div>
+      </figure>
+      <figure>
+        <figcaption>Small multiples with a left color scale</figcaption>
+        <div class="viz" id="facet"></div>
+      </figure>
+      <figure>
+        <figcaption>Inset ("auto") legend, unaffected</figcaption>
+        <div class="viz" id="inset"></div>
+      </figure>
+    </section>
+  </body>
+
+  <script>
+    const names = Array.from(
+      {length: 16},
+      (_, i) => `Series ${String.fromCharCode(65 + i)}`,
+    );
+    const data = names.flatMap((id, i) =>
+      [2019, 2020, 2021, 2022, 2023].map((year, j) => ({
+        id,
+        region: i % 2 ? "East" : "West",
+        year,
+        value: 10 + ((i * 37 + j * 11) % 90),
+      })),
+    );
+    // Half the rows have a color scale value; the legend lists the rest.
+    const mixed = data.map(d => ({
+      ...d,
+      share: d.id < "Series E" ? d.value : undefined,
+    }));
+
+    new d3plus.Treemap()
+      .select("#leftColorScale")
+      .data(mixed)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .colorScale("share")
+      .colorScaleConfig({scale: "linear"})
+      .colorScalePosition("left")
+      .legendPosition("top")
+      .title("Values by series")
+      .tableView(true)
+      .search(true)
+      .render();
+
+    new d3plus.Treemap()
+      .select("#leftControls")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .colorScale("value")
+      .colorScaleConfig({scale: "linear"})
+      .colorScalePosition("left")
+      .tableView(true)
+      .search(true)
+      .render();
+
+    new d3plus.Treemap()
+      .select("#rightLegend")
+      .data(mixed)
+      .groupBy("id")
+      .sum("value")
+      .time("year")
+      .colorScale("share")
+      .colorScalePosition("top")
+      .legendPosition("right")
+      .legendConfig({shapeConfig: {width: 18, height: 18}})
+      .title("Right legend")
+      .render();
+
+    new d3plus.Treemap()
+      .select("#rightColorScale")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .colorScale("value")
+      .colorScaleConfig({scale: "linear"})
+      .colorScalePosition("right")
+      .render();
+
+    new d3plus.LinePlot()
+      .select("#plot")
+      .data(mixed)
+      .groupBy("id")
+      .x("year")
+      .y("value")
+      .colorScale("share")
+      .colorScalePosition("bottom")
+      .legendPosition("left")
+      .tableView(true)
+      .zoom(true)
+      .render();
+
+    new d3plus.Treemap()
+      .select("#facet")
+      .data(data)
+      .groupBy("id")
+      .sum("value")
+      .facet("region")
+      .colorScale("value")
+      .colorScaleConfig({scale: "linear"})
+      .colorScalePosition("left")
+      .tableView(true)
+      .render();
+
+    new d3plus.Plot()
+      .select("#inset")
+      .data(
+        [
+          {id: "North", x: 1, y: 9},
+          {id: "North", x: 2, y: 10},
+          {id: "South", x: 9, y: 9},
+          {id: "South", x: 10, y: 10},
+          {id: "West", x: 1, y: 1},
+          {id: "West", x: 2, y: 2},
+        ].map((d, i) => ({...d, key: i})),
+      )
+      .groupBy(["id", "key"])
+      .x("x")
+      .y("y")
+      .legendInset(true)
+      .zoom(true)
+      .tableView(true)
+      .render();
+  </script>
+</html>

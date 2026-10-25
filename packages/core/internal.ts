@@ -879,6 +879,7 @@ export {
   cornerPlacements,
   legendFeature,
   runLayout,
+  sideControlsDrop,
   subtitleFeature,
   timelineFeature,
   titleFeature,

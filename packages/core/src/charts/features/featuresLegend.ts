@@ -16,14 +16,10 @@ import type {FeatureLayout, FeatureModule, MarginClaim} from "./features.js";
 import {
   cornerPlacements,
   sanitizePosition,
-  topLeftControlsInset,
-  zoomControlsInset,
+  sideControlsDrop,
 } from "./features.js";
 import type Legend from "../../components/Legend/Legend.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
-import {zoomControlsReach} from "../drawSteps/zoomControlsMarkup.js";
-import {getTopLeftContributions} from "../drawSteps/topLeftControls.js";
-import {topLeftControlsReach} from "../drawSteps/topLeftControlsMarkup.js";
 import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizContext} from "../pipeline/stages.js";
 import type {VizInstance} from "../viz/vizTypes.js";
@@ -149,19 +145,12 @@ function legendCornerClearance(
   layoutMargin: Required<MarginClaim>,
   padding: {top: number; right: number; bottom: number; left: number},
 ): {drop: number; insetRight: number; shorten: number} {
-  const dropRight =
-    position === "right" &&
-    zoomControlsInset(viz, layoutMargin.top, layoutMargin.right)
-      ? zoomControlsReach(viz as never) - layoutMargin.top
-      : 0;
-  const dropLeft =
-    position === "left" &&
-    topLeftControlsInset(viz, layoutMargin.top, layoutMargin.left)
-      ? topLeftControlsReach(
-          viz as never,
-          getTopLeftContributions(viz as never),
-        ) - layoutMargin.top
-      : 0;
+  const drop = sideControlsDrop(
+    viz,
+    position,
+    layoutMargin.top,
+    position === "left" ? layoutMargin.left : layoutMargin.right,
+  );
   // The bottom-right corner panel (size legend): a bottom legend pulls its
   // right edge in beside it, a left/right legend stops short above it.
   const corner = bottomRightClearance(
@@ -170,11 +159,7 @@ function legendCornerClearance(
     layoutMargin.bottom + padding.bottom,
     layoutMargin.right + padding.right,
   );
-  return {
-    drop: dropRight || dropLeft,
-    insetRight: corner.inset,
-    shorten: corner.drop,
-  };
+  return {drop, insetRight: corner.inset, shorten: corner.drop};
 }
 
 /** Where and how the legend lays itself out for one render. */

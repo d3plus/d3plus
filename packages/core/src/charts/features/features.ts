@@ -275,6 +275,31 @@ export function topLeftControlsInset(
 }
 
 /**
+    How far a left or right legend/colorScale starting `top` px down the
+    chart, its outer edge `edge` px in from the chart's edge on that side,
+    must drop to start below the corner control panel on its side: the
+    top-left panel for `"left"`, the zoom controls for `"right"`. Zero when
+    that panel isn't showing, is narrower than `edge`, or ends above `top`.
+*/
+export function sideControlsDrop(
+  viz: VizInstance,
+  position: string | false,
+  top: number,
+  edge: number,
+): number {
+  if (position === "right" && zoomControlsInset(viz, top, edge))
+    return zoomControlsReach(viz as never) - top;
+  if (position === "left" && topLeftControlsInset(viz, top, edge))
+    return (
+      topLeftControlsReach(
+        viz as never,
+        getTopLeftContributions(viz as never),
+      ) - top
+    );
+  return 0;
+}
+
+/**
     The combined left+right corner-panel insets for content starting `top`
     px down the chart, plus the single symmetric amount CENTERED content
     should inset both sides by to stay centered on the full chart width even

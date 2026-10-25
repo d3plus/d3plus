@@ -1,11 +1,16 @@
 /**
     `vizDraw(viz)` — the chart-shell layout every draw runs: it lays out the
-    margin-claiming chrome (title / subtitle / total, timeline, legend,
-    colorScale, and the bottom-right corner panel) in order, adds their
-    claims to `viz._margin`, and collects their panels on
+    margin-claiming chrome in two passes, adds their claims to
+    `viz._margin`, and collects their panels on
     `viz._featurePanels`. Each FeatureModule.layout() still writes through to
     `viz` (component mounts, intra-feature state); `vizUpdate` is the
     cross-feature publishing channel.
+
+    The first pass lays out everything positioned top or bottom (title /
+    subtitle / total, timeline, the bottom-right corner panel, a top/bottom
+    legend or colorScale). The second lays out a left/right legend or
+    colorScale in the vertical band left between those claims, each starting
+    below the corner control panel on its side (see `sideControlsDrop`).
 
     The post-layout consumers (axes, chartGeometry, plotPaint, ensureZoomDom,
     attribution) read the final margin off `viz._margin`. Plot and other Viz
@@ -114,10 +119,9 @@ export function vizDraw(viz: Viz): VizDrawResult {
     left: viz._margin.left,
   };
 
-  // Top blocks first (title / subtitle / total) so the running margin.top
-  // grows BEFORE the left/right legend lays out — the legend positions
-  // against it. Title must lay out first or the left legend overlaps the
-  // title at y=0. "← Back" no longer claims margin here — it's a
+  // Everything positioned top or bottom lays out first, then the left/right
+  // legend and colorScale fit the vertical band left between them. "← Back"
+  // claims no margin here — it's a
   // zero-margin contribution to the shared top-left controls panel
   // (`topLeftControlsFeature`, registered post-draw in `runVizPipeline`),
   // the same way zoom's buttons float rather than claim margin.
@@ -142,9 +146,33 @@ export function vizDraw(viz: Viz): VizDrawResult {
     height: viz.schema.height - running.top - running.bottom,
   });
 
-  // Left/right legend + colorScale claims. Includes `=== false` (mirrors
-  // colorScale below) so a previously-rendered left/right legend tears
-  // down its DOM when the user toggles off via `.legendPosition(false)`.
+  // Top/bottom legend + colorScale, before the side ones so those fit the
+  // band between them. They lay out against the right column a right-side
+  // bottom-right panel will take, though that width is only claimed below.
+  const rightColumn = bottomRightControlsRightShortfall(viz, running.right);
+  running.right += rightColumn;
+  if (legendPosition === "top" || legendPosition === "bottom") {
+    claimSides(viz, legendFeature, running, out.marginDelta, ["top", "bottom"]);
+  }
+  if (colorScalePosition === "top" || colorScalePosition === "bottom") {
+    claimSides(viz, colorScaleFeature, running, out.marginDelta, [
+      "top",
+      "bottom",
+    ]);
+  }
+  running.right -= rightColumn;
+
+  // A bottom-side panel: the chart body must end above it, so if the bottom
+  // claims so far are shorter than it, top the bottom margin up.
+  const shortfall = bottomRightControlsShortfall(viz, running.bottom);
+  out.marginDelta.bottom += shortfall;
+  running.bottom += shortfall;
+
+  // Left/right legend + colorScale claims, within the band the top/bottom
+  // claims left (each also starts below the corner controls on its side).
+  // Includes `=== false` (mirrors colorScale below) so a previously-rendered
+  // left/right legend tears down its DOM when the user toggles off via
+  // `.legendPosition(false)`.
   if (
     legendPosition === "left" ||
     legendPosition === "right" ||
@@ -165,27 +193,10 @@ export function vizDraw(viz: Viz): VizDrawResult {
 
   // A right-side bottom-right panel (the size legend's default) shares the
   // right column: widen the right margin to it, if the left/right claims
-  // above didn't already, before the bottom blocks lay out against it.
+  // above didn't already.
   const rightShortfall = bottomRightControlsRightShortfall(viz, running.right);
   out.marginDelta.right += rightShortfall;
   running.right += rightShortfall;
-
-  // Top/bottom legend + colorScale.
-  if (legendPosition === "top" || legendPosition === "bottom") {
-    claimSides(viz, legendFeature, running, out.marginDelta, ["top", "bottom"]);
-  }
-  if (colorScalePosition === "top" || colorScalePosition === "bottom") {
-    claimSides(viz, colorScaleFeature, running, out.marginDelta, [
-      "top",
-      "bottom",
-    ]);
-  }
-
-  // A bottom-side panel: the chart body must end above it, so if the bottom
-  // claims so far are shorter than it, top the bottom margin up.
-  const shortfall = bottomRightControlsShortfall(viz, running.bottom);
-  out.marginDelta.bottom += shortfall;
-  running.bottom += shortfall;
 
   // The corner controls (zoom, back/search) float at y:0 and claim no
   // margin of their own; whatever sits above the chart body (title/
