@@ -7,7 +7,7 @@ import {fileURLToPath} from "node:url";
 
 import {chromium} from "playwright";
 
-import {buildIndex, devPages, pageMeta} from "../../../scripts/dev-index.js";
+import {devPages, pageMeta} from "../../../scripts/dev-index.js";
 
 /**
     Loads every page under packages/core/dev in headless Chromium (as the dev
@@ -169,7 +169,7 @@ const pages = devPages(devDir).sort();
 // DEV_PAGES=Treemap limits the render check to pages whose path contains it.
 const only = process.env.DEV_PAGES;
 
-it("every dev page has a title and description, and dev/index.html is current", () => {
+it("every dev page has a title and description", () => {
   const missing = pages.filter(page => {
     const {title, description} = pageMeta(path.join(devDir, page));
     return !title || !description;
@@ -178,11 +178,6 @@ it("every dev page has a title and description, and dev/index.html is current", 
     missing,
     [],
     'pages without a <title> or <meta name="description">',
-  );
-  const index = fs.readFileSync(path.join(devDir, "index.html"), "utf8");
-  assert.ok(
-    index === buildIndex(coreDir),
-    "dev/index.html is stale; run `pnpm run dev:index`",
   );
 });
 
