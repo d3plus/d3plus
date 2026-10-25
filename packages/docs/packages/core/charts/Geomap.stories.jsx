@@ -648,3 +648,24 @@ PointSizeLegend.parameters = {
     },
   },
 };
+
+export const SideColorScale = Template.bind({});
+SideColorScale.args = {
+  data: "https://api.datausa.io/tesseract/data.jsonrecords?cube=county_health_ranking&drilldowns=State&measures=Diabetes%20Prevalence&Year=2025",
+  groupBy: "State ID",
+  colorScale: "Diabetes Prevalence",
+  colorScaleConfig: {scale: "linear"},
+  colorScalePosition: "left",
+  projection: "geoAlbersUsa",
+  tableView: true,
+  topojson: "https://datausa.io/topojson/State.json",
+};
+SideColorScale.parameters = {
+  controls: {include: ["colorScalePosition", "title"]},
+  docs: {
+    description: {
+      story:
+        "A left or right `colorScalePosition` fits the scale between everything above and below the map (a title, a top legend, a timeline), and starts it below the control buttons in the corner on its side, so the buttons never cover the scale's top label.",
+    },
+  },
+};

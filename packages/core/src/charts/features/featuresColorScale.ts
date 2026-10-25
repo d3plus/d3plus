@@ -15,7 +15,7 @@ import {resolveSpec} from "../pipeline/resolveSpec.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {bottomRightClearance} from "../drawSteps/bottomRightControlsMarkup.js";
 import type {FeatureModule} from "./features.js";
-import {sanitizePosition} from "./features.js";
+import {sanitizePosition, sideControlsDrop} from "./features.js";
 import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
 import type {FacetAccessor} from "../facet/facetConfig.js";
@@ -212,6 +212,13 @@ export const colorScaleFeature: FeatureModule = {
       ? viz._padding
       : {top: 0, right: 0, bottom: 0, left: 0};
 
+    // A side colorScale starts below the corner control panel on its side.
+    const drop = sideControlsDrop(
+      viz,
+      position,
+      layoutMargin.top,
+      position === "left" ? layoutMargin.left : layoutMargin.right,
+    );
     // Share the bottom band with the bottom-right corner panel (size legend):
     // a bottom colorScale fits beside it, a side one ends above it.
     const corner = bottomRightClearance(
@@ -232,6 +239,7 @@ export const colorScaleFeature: FeatureModule = {
     const availableHeight =
       viz.schema.height -
       (layoutMargin.bottom + layoutMargin.top + padding.bottom + padding.top) -
+      drop -
       corner.drop;
     const height = !wide
       ? min([viz.schema.colorScaleMaxSize, availableHeight])!
@@ -245,7 +253,10 @@ export const colorScaleFeature: FeatureModule = {
           : layoutMargin.left,
         y: wide
           ? layoutMargin.top
-          : layoutMargin.top + padding.top + (availableHeight - height) / 2,
+          : layoutMargin.top +
+            padding.top +
+            drop +
+            (availableHeight - height) / 2,
         width,
         height,
         orient: position,
