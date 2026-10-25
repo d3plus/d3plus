@@ -179,3 +179,20 @@ ScaleFunction.parameters = {
     },
   },
 };
+
+export const HoverMark = Template.bind({});
+HoverMark.args = {
+  data: skewed,
+  hover: 2600,
+  height: 100,
+  width: 500,
+};
+HoverMark.parameters = {
+  controls: {include: ["hover", "hoverMark", "hoverMarkConfig", "scale"]},
+  docs: {
+    description: {
+      story:
+        "`hover` marks a value on the scale, as a chart does while one of its shapes is hovered: an extra axis tick marks the value on the bar, and a badge reads it where that tick's label would sit. A bucketed bar (`bucketAxis`) also outlines the value's bucket; a scale drawn as swatches draws no mark. `hoverMark(false)` turns it off; `hoverMarkConfig` styles the `tickConfig`, `badgeConfig`, and `outlineConfig`.",
+    },
+  },
+};

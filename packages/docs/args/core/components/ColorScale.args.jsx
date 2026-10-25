@@ -291,6 +291,53 @@ export const argTypes = assign(
         summary: "number",
       },
     },
+    hover: {
+      control: {
+        type: "number",
+      },
+      description:
+        "Marks a value on the scale: an extra axis tick where the value falls on the color bar and a badge reading it where that tick's label would sit, plus an outline around its bucket on a bucketed bar (`bucketAxis`). A scale drawn as discrete swatches draws no mark. A chart sets this while one of its shapes is hovered. Pass `false` to clear it. Turned off with `hoverMark(false)`.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: true,
+        summary: "number | false",
+      },
+    },
+    hoverMark: {
+      control: {
+        type: "boolean",
+      },
+      defaultValue: true,
+      description:
+        "Whether hovering a chart shape marks its value on the scale: an extra\naxis tick at the value on the color bar, and a badge reading the value\nin the axis's tick format where that tick's label would sit, covering\nthe labels it overlaps (a value outside the domain marks the bar's\nend). A bucketed bar (`bucketAxis`) also outlines the value's bucket.\nA scale drawn as discrete swatches gets no mark; the value's swatch\nstays lit and the others dim instead. On charts whose shape hover is\noff (`hoverOpacity: 1`, as on Geomap and Calendar or past\n`dataCutoff`), that swatch highlight comes from this option too, so\n`false` turns it off there. Defaults to `true`.",
+      table: {
+        defaultValue: {
+          summary: "true",
+        },
+      },
+      type: {
+        required: false,
+        summary: "boolean",
+      },
+    },
+    hoverMarkConfig: {
+      control: {},
+      description:
+        "Styles the `hoverMark`. `tickConfig` takes `stroke` and `strokeWidth`\n(the axis ticks' own by default) and `length` (the axis's `tickSize`\nby default); the badge starts where the tick ends. `badgeConfig` takes `fill`\n(the value's color by default), `stroke` (the background-legible text\ncolor by default), `strokeWidth` (default `1`), `fontColor` (a color\ncontrasting the fill by default), `fontFamily`, `fontSize` (default\n`11`), `fontWeight` (default `400`), `padding` around the text (default\n`3`; across the bar it is padded to sit as far out as the tick\nlabels), and `rx` corner radius (default `2`). `outlineConfig`, the\nbucket outline on a `bucketAxis` bar, takes `stroke` (the\nbackground-legible text color by default) and `strokeWidth` (default\n`2`). Each is a value or a function of the\nhovered value.",
+      table: {
+        defaultValue: {
+          summary: "undefined",
+        },
+      },
+      type: {
+        required: false,
+        summary: "colorscalehovermarkconfig",
+      },
+    },
     labelConfig: {
       control: {},
       description:

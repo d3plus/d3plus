@@ -102,6 +102,7 @@ export type {
   ColorScaleType,
   ColorScaleTypeSetting,
 } from "./src/components/ColorScale/colorScaleType.js";
+export type {ColorScaleHoverMarkConfig} from "./src/components/ColorScale/colorScaleHoverMark.js";
 export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
 export type {
   FunnelConversion,

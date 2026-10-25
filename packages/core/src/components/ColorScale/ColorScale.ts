@@ -25,6 +25,8 @@ import {computeColorScale} from "./colorScaleScale.js";
 import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
 import {isBucketScale} from "./colorScaleType.js";
 import type {ColorScaleType} from "./colorScaleType.js";
+import {addHoverMark, hoverMarkDefaults} from "./colorScaleHoverMark.js";
+import type {ColorScaleBarGeometry} from "./colorScaleHoverMark.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
 
 /** ColorScale's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
@@ -53,6 +55,8 @@ const colorScaleSchema: ConfigField[] = [
   {key: "domain", coerce: "identity"},
   {key: "duration", coerce: "identity", default: 600},
   {key: "height", coerce: "identity", default: 200},
+  {key: "hoverMark", coerce: "identity", default: true},
+  {key: "hoverMarkConfig", merge: true, factory: hoverMarkDefaults},
   {key: "midpoint", coerce: "identity", default: 0},
   {key: "orient", coerce: "identity", default: "bottom"},
   {key: "padding", coerce: "identity", default: 5},
@@ -85,6 +89,10 @@ export default class ColorScale extends BaseClass {
   _rectClass: Rect;
   /** The scale the last render built, with a `scale` function resolved. */
   _scaleType: ColorScaleType = "linear";
+  /** Where the color bar sits, set when the bar variant renders (see colorScaleHoverMark). */
+  _barGeometry?: ColorScaleBarGeometry;
+  /** The value marked on the scale, set with `hover()`. */
+  _hoverValue?: number | false;
   /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
   _gradientFill?: string;
   // Standalone scene renderer (used when rendered on its own, not inside a
@@ -263,12 +271,14 @@ export default class ColorScale extends BaseClass {
       }
     }
 
-    return {
+    const group: GroupNode = {
       type: "group",
       key: `ColorScale-${this._uuid.slice(0, 8)}`,
       ...(transform ? {transform} : {}),
       children,
     };
+    addHoverMark(this, group);
+    return group;
   }
 
   /**
@@ -289,6 +299,15 @@ export default class ColorScale extends BaseClass {
   data(_: DataPoint[]): this;
   data(_?: DataPoint[]): unknown {
     return arguments.length ? ((this._data = _!), this) : this._data;
+  }
+
+  /**
+      Marks a value on the scale: an extra axis tick where the value falls on the color bar and a badge reading it where that tick's label would sit, plus an outline around its bucket on a bucketed bar (`bucketAxis`). A scale drawn as discrete swatches draws no mark. A chart sets this while one of its shapes is hovered. Pass `false` to clear it. Turned off with `hoverMark(false)`.
+*/
+  hover(): number | false | undefined;
+  hover(_: number | false): this;
+  hover(_?: number | false): unknown {
+    return arguments.length ? ((this._hoverValue = _), this) : this._hoverValue;
   }
 
   /**

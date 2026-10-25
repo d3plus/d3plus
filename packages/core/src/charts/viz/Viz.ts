@@ -37,6 +37,7 @@ import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
+import {handleColorScaleHover} from "../features/colorScaleHover.js";
 
 /**
     Stamps `interactionGroup` onto a component's scene subtree so the pointer
@@ -667,6 +668,7 @@ export default class Viz extends VizBase {
     // across empty space (Plot's shared tooltip + crosshair) — and ahead of
     // the transition guard below, so leaving mid-transition still clears it.
     this._sharedHover(event);
+    handleColorScaleHover(this as unknown as VizInstance, event);
     if (this._transitionEndsAt && Date.now() < this._transitionEndsAt) return;
     const pick = event.pick;
     // Dispatch helper shared by the live-pick path and the leave path.

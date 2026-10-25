@@ -221,3 +221,31 @@ ClickToOpenLink.parameters = {
     },
   },
 };
+
+export const ColorScaleHoverMark = Template.bind({});
+ColorScaleHoverMark.args = {
+  data: [
+    {id: "Ash", value: 12},
+    {id: "Birch", value: 45},
+    {id: "Cedar", value: 23},
+    {id: "Elm", value: 67},
+    {id: "Fir", value: 89},
+    {id: "Maple", value: 34},
+    {id: "Oak", value: 150},
+    {id: "Pine", value: 56},
+  ],
+  colorScale: "value",
+  colorScaleConfig: {scale: "linear"},
+  colorScalePosition: "bottom",
+  groupBy: "id",
+  sum: "value",
+};
+ColorScaleHoverMark.parameters = {
+  controls: {include: ["colorScaleConfig"]},
+  docs: {
+    description: {
+      story:
+        "Hover a tile to mark its value on the colorScale: an extra axis tick marks the value on the color bar and a badge reads it where the tick's label would sit. With a bucketed scale drawn as swatches (`jenks`, `buckets`, `quantile`), the hover highlight already keeps the value's swatch lit, so no mark is drawn. Turn it off with `colorScaleConfig: {hoverMark: false}`, and style it with `colorScaleConfig.hoverMarkConfig`.",
+    },
+  },
+};

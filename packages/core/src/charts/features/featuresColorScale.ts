@@ -132,6 +132,7 @@ function paintColorScale(
     .width(frame.width)
     .legendConfig({shapeConfig: bucketSwatchConfig(viz)})
     .config(viz.schema.colorScaleConfig)
+    .hover(false)
     .render();
 }
 

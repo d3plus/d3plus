@@ -1,0 +1,172 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>HoverMark · ColorScale</title>
+    <meta
+      name="description"
+      content="Hovering a shape marks its value on the colorScale: a tick and value badge on a bar, plus an outlined bucket with bucketAxis, on every side and on a dark background; jenks swatches only highlight, also on Geomap."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+
+      section {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      h3 {
+        font-size: 13px;
+        font-weight: 400;
+        margin: 12px 12px 0;
+      }
+
+      .viz {
+        height: 340px;
+        margin: 0 12px 12px;
+        width: 520px;
+      }
+
+      .dark {
+        background: #1d1f23;
+        color: #eee;
+      }
+    </style>
+  </head>
+
+  <body>
+    <section>
+      <div>
+        <h3>Linear, bottom</h3>
+        <div class="viz" id="linear"></div>
+      </div>
+      <div>
+        <h3>Jenks swatches: highlight only, no mark</h3>
+        <div class="viz" id="jenks"></div>
+      </div>
+      <div>
+        <h3>Jenks with bucketAxis, right</h3>
+        <div class="viz" id="bucketAxis"></div>
+      </div>
+      <div>
+        <h3>Log, left; domain [10, 100] clamps the ends</h3>
+        <div class="viz" id="log"></div>
+      </div>
+      <div class="dark">
+        <h3>Linear, top, dark background</h3>
+        <div class="viz" id="dark"></div>
+      </div>
+      <div>
+        <h3>LinePlot, each line marked by its own value</h3>
+        <div class="viz" id="line"></div>
+      </div>
+      <div>
+        <h3>Geomap jenks: regions don't dim, the swatch still lights</h3>
+        <div class="viz" id="geomap"></div>
+      </div>
+      <div>
+        <h3>hoverMark: false</h3>
+        <div class="viz" id="off"></div>
+      </div>
+    </section>
+
+    <script>
+      const names = [
+        "Ash",
+        "Birch",
+        "Cedar",
+        "Elm",
+        "Fir",
+        "Maple",
+        "Oak",
+        "Pine",
+        "Spruce",
+        "Yew",
+      ];
+      const values = [12, 45, 23, 67, 89, 34, 150, 56, 9, 110];
+      const forest = names.map((id, i) => ({id, value: values[i]}));
+      // Ash has no value: hovering it marks nothing.
+      const rates = forest.map(d => ({
+        ...d,
+        rate: d.id === "Ash" ? null : d.value,
+      }));
+
+      const treemap = (select, position, config, data = forest) =>
+        new d3plus.Treemap()
+          .select(select)
+          .data(data)
+          .sum("value")
+          .colorScale(data === rates ? "rate" : "value")
+          .colorScalePosition(position)
+          .colorScaleConfig(config)
+          .render();
+
+      treemap("#linear", "bottom", {scale: "linear"}, rates);
+      treemap("#jenks", "bottom", {scale: "jenks"});
+      treemap("#bucketAxis", "right", {scale: "jenks", bucketAxis: true});
+      treemap("#log", "left", {scale: "log", domain: [10, 100]});
+      treemap("#dark", "top", {scale: "linear"});
+      treemap("#off", "bottom", {scale: "linear", hoverMark: false});
+
+      const square = x => [
+        [x, 0],
+        [x, 10],
+        [x + 10, 10],
+        [x + 10, 0],
+        [x, 0],
+      ];
+      new d3plus.Geomap()
+        .select("#geomap")
+        .groupBy("geo")
+        .colorScale("value")
+        .colorScalePosition("bottom")
+        .colorScaleConfig({scale: "jenks"})
+        .tiles(false)
+        .topojson({
+          type: "Topology",
+          objects: {
+            geo: {
+              type: "GeometryCollection",
+              geometries: ["a", "b", "c", "d"].map((id, i) => ({
+                type: "Polygon",
+                id,
+                arcs: [[i]],
+              })),
+            },
+          },
+          arcs: [0, 15, 30, 45].map(square),
+        })
+        .data([
+          {geo: "a", value: 10},
+          {geo: "b", value: 20},
+          {geo: "c", value: 60},
+          {geo: "d", value: 95},
+        ])
+        .render();
+
+      const lines = ["North", "South", "East"].flatMap((id, k) =>
+        [2019, 2020, 2021, 2022, 2023].map((year, i) => ({
+          id,
+          year,
+          value: 10 + i * (k + 1) * 3,
+          rate: [4, 18, 32][k],
+        })),
+      );
+      new d3plus.LinePlot()
+        .select("#line")
+        .data(lines)
+        .x("year")
+        .y("value")
+        .colorScale("rate")
+        .colorScalePosition("bottom")
+        .colorScaleConfig({scale: "linear"})
+        .render();
+    </script>
+  </body>
+</html>
