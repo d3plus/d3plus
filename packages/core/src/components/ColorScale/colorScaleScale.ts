@@ -8,9 +8,13 @@ import {ckmeans} from "@d3plus/math";
 
 import type ColorScale from "./ColorScale.js";
 import type {D3Scale} from "../../utils/index.js";
+import {resolveColorScaleType} from "./colorScaleType.js";
+import type {ColorScaleType} from "./colorScaleType.js";
 
 /** Computed values shared between the scale solve and the render branches. */
 export interface ColorScaleCompute {
+  /** The scale this render builds, with a `scale` function resolved. */
+  scale: ColorScaleType;
   allValues: number[];
   domain: number[];
   ticks: number[] | undefined;
@@ -24,6 +28,7 @@ export interface ColorScaleCompute {
 }
 
 interface ScaleContext {
+  scale: ColorScaleType;
   allValues: number[];
   domain: number[];
   negative: boolean;
@@ -195,13 +200,14 @@ function resolveNonDivergingLinear(
   ctx: ScaleContext,
   buckets: number[] | undefined,
 ): {colors: string[]; buckets: number[]} {
-  const {allValues, domain, negative, positive, diverging, numBuckets} = ctx;
+  const {allValues, domain, negative, positive, diverging, numBuckets, scale} =
+    ctx;
   let {colors} = ctx;
   if (!colors) {
     // Single-hue ramp of the relevant pole, stepped in OKLab (light→dark).
     // Negative-only scales read dark→light, so the ramp is reversed.
     const base = negative ? colorMin(cs) : colorMax(cs);
-    if (cs.schema.scale === "buckets" || cs.schema.scale === "quantile") {
+    if (scale === "buckets" || scale === "quantile") {
       const ramp = colorRamp(base, numBuckets);
       colors = positive ? ramp : ramp.slice().reverse();
     } else {
@@ -210,7 +216,7 @@ function resolveNonDivergingLinear(
     }
   }
   if (!buckets) {
-    if (cs.schema.scale === "quantile") {
+    if (scale === "quantile") {
       const step = 1 / (colors.length - 1);
       buckets = range(0, 1 + step / 2, step).map((d: number) =>
         quantile(allValues, d),
@@ -250,6 +256,7 @@ function resolveNonDivergingLinear(
 
 /** Builds the linear/log/buckets/quantile scale and assigns it to the instance. */
 function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
+  const {scale} = ctx;
   let buckets: number[] | undefined =
     cs.schema.buckets instanceof Array ? cs.schema.buckets : undefined;
   const resolved =
@@ -260,10 +267,10 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   buckets = resolved.buckets;
   let ticks: number[] | undefined;
 
-  if (cs.schema.scale === "buckets" || cs.schema.scale === "quantile") {
+  if (scale === "buckets" || scale === "quantile") {
     ticks = buckets;
     colors = [colors[0]].concat(colors);
-  } else if (cs.schema.scale === "log") {
+  } else if (scale === "log") {
     const negativeBuckets = (buckets as number[]).filter((d: number) => d < 0);
     if (negativeBuckets.length) {
       const minVal = negativeBuckets[0];
@@ -291,9 +298,7 @@ function computeLinearScale(cs: ColorScale, ctx: ScaleContext): ScaleResult {
   }
 
   const scaleFn =
-    cs.schema.scale === "buckets" || cs.schema.scale === "quantile"
-      ? scaleThreshold
-      : scaleLinear;
+    scale === "buckets" || scale === "quantile" ? scaleThreshold : scaleLinear;
   cs._colorScale = (scaleFn as unknown as () => D3Scale<string>)()
     .domain(buckets as number[])
     .range(colors);
@@ -316,8 +321,13 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
   const allValues = (
     cs._data
       .map(cs.schema.value)
-      .filter((d: unknown) => d !== null && typeof d === "number") as number[]
+      .filter(
+        (d: unknown) => typeof d === "number" && !Number.isNaN(d),
+      ) as number[]
   ).sort((a: number, b: number) => a - b);
+
+  const scale = resolveColorScaleType(cs.schema.scale, allValues, cs);
+  cs._scaleType = scale;
 
   const domain = (cs.schema.domain || extent(allValues)) as number[];
   const negative = domain[0] < cs.schema.midpoint;
@@ -328,7 +338,7 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
     cs.schema.buckets instanceof Array
       ? cs.schema.buckets.length
       : cs.schema.buckets,
-    diverging && cs.schema.scale !== "jenks"
+    diverging && scale !== "jenks"
       ? 2 * Math.floor(unique(allValues).length / 2) - 1
       : unique(allValues).length,
   ])!;
@@ -347,6 +357,7 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
   }
 
   const ctx: ScaleContext = {
+    scale,
     allValues,
     domain,
     negative,
@@ -359,13 +370,14 @@ export function computeColorScale(cs: ColorScale): ColorScaleCompute {
   };
 
   const result =
-    cs.schema.scale === "jenks"
+    scale === "jenks"
       ? computeJenksScale(cs, ctx)
       : computeLinearScale(cs, ctx);
 
   if (cs._colorScale!.clamp) cs._colorScale!.clamp(true);
 
   return {
+    scale,
     allValues,
     domain,
     ticks: result.ticks,

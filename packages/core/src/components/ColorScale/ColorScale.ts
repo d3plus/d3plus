@@ -23,6 +23,8 @@ import {formatYear, isYearLike} from "../Axis/yearValues.js";
 import {bucketBounds} from "./bucketBounds.js";
 import {computeColorScale} from "./colorScaleScale.js";
 import {renderGradient, renderLegendVariant} from "./colorScaleRender.js";
+import {isBucketScale} from "./colorScaleType.js";
+import type {ColorScaleType} from "./colorScaleType.js";
 import type {ColorScaleGroups} from "./colorScaleRender.js";
 
 /** ColorScale's fluent accessor schema. Config storage lives on `this.schema.<key>`. */
@@ -81,6 +83,8 @@ export default class ColorScale extends BaseClass {
   _legendClass: Legend;
   _outerBounds: Record<string, number>;
   _rectClass: Rect;
+  /** The scale the last render built, with a `scale` function resolved. */
+  _scaleType: ColorScaleType = "linear";
   /** Smooth-gradient fill token (`gradient:<json>`), set by renderGradientStops. */
   _gradientFill?: string;
   // Standalone scene renderer (used when rendered on its own, not inside a
@@ -169,9 +173,7 @@ export default class ColorScale extends BaseClass {
 
     const compute = computeColorScale(this);
 
-    const gradient =
-      this.schema.bucketAxis ||
-      !["buckets", "jenks", "quantile"].includes(this.schema.scale);
+    const gradient = this.schema.bucketAxis || !isBucketScale(compute.scale);
     const t = transition().duration(this.schema.duration);
     const groupParams: Record<string, unknown> = {
       enter: {opacity: 0},
@@ -229,9 +231,7 @@ export default class ColorScale extends BaseClass {
   */
   toScene(): GroupNode {
     const children: SceneNode[] = [];
-    const gradient =
-      this.schema.bucketAxis ||
-      !["buckets", "jenks", "quantile"].includes(this.schema.scale);
+    const gradient = this.schema.bucketAxis || !isBucketScale(this._scaleType);
 
     const pushScene = (cls: {toScene?: () => GroupNode} | undefined): void => {
       if (cls && typeof cls.toScene === "function") {

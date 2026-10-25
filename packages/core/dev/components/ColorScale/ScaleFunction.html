@@ -1,0 +1,72 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ScaleFunction · ColorScale</title>
+    <meta
+      name="description"
+      content="colorScaleConfig.scale as a function: the same function picks a linear gradient for a small data range and jenks buckets for a large one."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+    <style>
+      body {
+        font-family: sans-serif;
+        margin: 0;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+      }
+      .chart {
+        height: 360px;
+        width: 560px;
+      }
+      p {
+        margin: 12px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <p>
+      <code
+        >colorScaleConfig: {scale: (values, [min, max]) => max - min > 5 ?
+        "jenks" : "linear"}</code
+      >
+      <button id="swap">Swap the data</button>
+    </p>
+    <div class="row">
+      <div class="chart" id="small"></div>
+      <div class="chart" id="large"></div>
+    </div>
+
+    <script>
+      const names = ["Ash", "Birch", "Cedar", "Elm", "Fir", "Maple", "Oak"];
+      const smallRange = names.map((id, i) => ({id, value: 1 + i * 0.6}));
+      const largeRange = names.map((id, i) => ({id, value: 2 ** i * 3}));
+
+      const pickScale = (values, [min, max]) =>
+        max - min > 5 ? "jenks" : "linear";
+
+      const chart = (selector, data) =>
+        new d3plus.Treemap()
+          .select(selector)
+          .data(data)
+          .sum("value")
+          .colorScale("value")
+          .colorScalePosition("bottom")
+          .colorScaleConfig({scale: pickScale})
+          .render();
+
+      const charts = [chart("#small", smallRange), chart("#large", largeRange)];
+
+      let swapped = false;
+      document.getElementById("swap").addEventListener("click", () => {
+        swapped = !swapped;
+        charts[0].data(swapped ? largeRange : smallRange).render();
+        charts[1].data(swapped ? smallRange : largeRange).render();
+      });
+    </script>
+  </body>
+</html>

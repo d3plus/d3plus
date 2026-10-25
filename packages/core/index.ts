@@ -98,6 +98,10 @@ export type {
   TrendLineConfig,
 } from "./src/utils/index.js";
 export type {LinkConfig, LinkOption} from "./src/charts/viz/linkGroup.js";
+export type {
+  ColorScaleType,
+  ColorScaleTypeSetting,
+} from "./src/components/ColorScale/colorScaleType.js";
 export type {BulletBandInput} from "./src/charts/Bullet/bulletGeometry.js";
 export type {
   FunnelConversion,
