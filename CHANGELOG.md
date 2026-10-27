@@ -2,6 +2,104 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 4.10.0
+
+This release works through the issue backlog: it closes 23 issues, including every remaining high-priority request. Every chart gets a download button, Plot charts draw axis guides on hover, nested Treemaps label their groups, BoxWhisker takes precomputed statistics, and stacked charts fold small series into an Other band. Axes gain `reverse`, angled labels, and power-scale exponents. Charts can poll a data URL, take a `className`, and warn when a config key names a field the data doesn't have. Several new defaults change what existing charts look like; see the breaking changes.
+
+### Added
+
+- **Download button.** Every chart has a download button in its top-left controls that saves it as a PNG, SVG, or JPG, with its title, legend, and color scale but without its controls or tooltips. It is keyboard-accessible and translated, and Canvas charts save sharp images and real vector SVGs. `saveControl: false` hides it. `saveControlConfig` sets the `filename`, `formats`, `background`, `callback`, and any `saveElement` option, and `saveControlClassName`, `saveControlStyle`, and the `saveControlMenu*` keys style it. (#1015; closes #297) [Guide ↗](https://d3plus.org/?path=/docs/guides-exporting--d3plus#the-download-button) · [Example ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#save-control)
+- **Axis guides on hover.** Hovering a Plot mark draws a dashed guide from it to each axis and a badge on the axis with its value, in the mark's color. `axisHover` takes `true` (default), `false`, `"x"`, or `"y"`, and `axisHoverConfig` styles the `guideConfig` and `badgeConfig`. BumpChart badges only its x axis; BoxWhisker, Violin, and Ridgeline draw none. (#1012; closes #782) [Guide ↗](https://d3plus.org/?path=/docs/guides-interactivity--d3plus#axis-guides) · [Example ↗](https://d3plus.org/?path=/docs/core-charts-plot--d3plus#axis-hover-guides)
+- **Treemap group headers.** A nested Treemap draws a header strip with each parent group's name above its tiles, nested at three or more levels. A strip hovers, highlights, and zooms like the group it names. Set them with `groupLabels` and `groupLabelConfig`. (#1014; closes #363) [Example ↗](https://d3plus.org/?path=/docs/core-charts-treemap--d3plus#group-headers)
+- **Precomputed BoxWhisker statistics.** `boxMin`, `boxQ1`, `boxMedian`, `boxQ3`, `boxMax`, and an optional `boxOutliers` draw each box from its own row instead of computing it from raw values. Box tooltips now list the statistics, for raw-data boxes too. (#1016; closes #453) [Example ↗](https://d3plus.org/?path=/docs/core-charts-boxwhisker--d3plus#precomputed-statistics)
+- **Other band on stacked charts.** `threshold` folds series whose total falls under the given share into one "Other" band on StackedArea and on any stacked AreaPlot, BarChart, or LinePlot. The band stacks last and has one legend entry. (#1019; closes #784) [Example ↗](https://d3plus.org/?path=/docs/core-charts-stackedarea--d3plus#grouping-small-series)
+- **Threshold buckets list their members.** On every threshold chart (the stacked charts, Treemap, Waffle, Sunburst, and Icicle), the bucket's tooltip, the shared tooltip, and the legend tooltip list its members and their values, largest first. (#1019)
+- **Hiding BoxWhisker outliers.** `shapeConfig: {Box: {outlier: false}}` draws no outlier points, as a constant or per point, and the value axis tightens to the whiskers. (#1020; closes #321) [Example ↗](https://d3plus.org/?path=/docs/core-charts-boxwhisker--d3plus#hiding-outliers)
+- **`brushMax`** in `timelineConfig` caps how many periods a timeline selection spans, in ticks and buttons mode. (#1021; closes #84) [Example ↗](https://d3plus.org/?path=/docs/core-components-timeline--d3plus#limiting-the-selection)
+- **Bar hit areas.** Side-by-side bars answer hover and clicks anywhere in their slot, so a short bar is as easy to hit as a tall one. `shapeConfig: {Bar: {hitArea: false}}` turns this off. (#1022; closes #435) [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#hover-areas)
+- **`reverse`** flips any axis's direction, in `xConfig`, `yConfig`, `x2Config`, `y2Config`, a standalone `Axis`, and `timelineConfig`. Bars, labels, the crosshair, and hover badges follow it. (#1026; closes #611) [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#reversed-axis)
+- **`exponent`** sets a `"pow"` axis's exponent. Its ticks are spaced evenly along the axis and rounded to round numbers. (#1024; closes #768) [Example ↗](https://d3plus.org/?path=/docs/core-components-axis--d3plus#pow-scale)
+- **`labelRotation` takes an angle** in degrees, normalized so text reads left to right. Slanted labels hang from their tick and wrap onto up to three lines. (#1025; closes #438) [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#angled-axis-labels)
+- **Live data.** `dataPollingInterval` re-fetches a URL or request-object `data` on a timer and redraws when it changes, keeping hover, zoom, legend, timeline, and drill-down state. It pauses while the tab is hidden or a `detectVisible` chart is off-screen, and a failed fetch keeps the last good data. (#1028; closes #47) [Guide ↗](https://d3plus.org/?path=/docs/guides-data--d3plus#live-data) · [Example ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#data-polling)
+- **Missing-field warnings.** When a config key names a field no row has, the chart logs one warning naming the key, the field, and the fields the data does have: `LinePlot y: no rows have 'vlaue'; fields are: year, value, region`. `configWarnings(false)` silences it. (#1029; closes #775) [Example ↗](https://d3plus.org/?path=/docs/core-utils-configwarnings--d3plus#missing-field-warning)
+- **`className`** on every chart and component adds classes to its root element (the `<svg>`, or the `<canvas>` in Canvas mode) beside d3plus's own. Saved images and SSR output keep them. (#1030; closes #755) [Example ↗](https://d3plus.org/?path=/docs/core-charts-viz--d3plus#class-name)
+- **ColorScale hover mark.** Hovering a shape marks its value on the color scale: a tick and a value badge on a continuous bar, an outlined bucket with `bucketAxis`, and a lit swatch on discrete scales, including on charts with shape hover off (Geomap, Calendar). `colorScaleConfig.hoverMark` and `hoverMarkConfig` control it, and ColorScale's `hover()` sets it from code. (#1031; closes #770) [Example ↗](https://d3plus.org/?path=/docs/core-components-colorscale--d3plus#hover-mark) · [Treemap ↗](https://d3plus.org/?path=/docs/core-charts-treemap--d3plus#color-scale-hover-mark)
+- **`colorScaleConfig.scale` accepts a function** of the values and their `[min, max]` that returns a scale name, so a chart can pick jenks or linear per dataset. It runs on every render. New `ColorScaleType` and `ColorScaleTypeSetting` types. (#1032; closes #772) [Example ↗](https://d3plus.org/?path=/docs/core-components-colorscale--d3plus#scale-function)
+- Translations for the download menu and the "Upper Whisker" and "Lower Whisker" tooltip rows in every locale. (#1015, #1016)
+
+### Changed
+
+- **Side legends and color scales fit between the top and bottom chrome.** The title, timeline, and any top or bottom legend or color scale lay out first, and top and bottom ones now span the full width. Left and right ones then fit in the band between them, below the top-left controls and the zoom buttons. (#1033) [Example ↗](https://d3plus.org/?path=/docs/core-charts-geomap--d3plus#side-color-scale)
+- **BoxWhisker boxes take the chart's colors**: the default colors, `color()`, or `shapeConfig.fill`, matching the legend. Outlines are a darker shade of the fill, the median line contrasts with it, and outliers take their box's color. (#1011; closes #380) [Example ↗](https://d3plus.org/?path=/docs/core-charts-boxwhisker--d3plus#coloring-boxes)
+- **Crowded category labels slant at 30°** (-30° on a bottom axis, +30° on a top one) and wrap between words, instead of standing upright. A very crowded axis still stands its labels at -90° when that shows more of them. (#1025)
+- **A lone small item isn't a threshold bucket.** A bucket needs two or more members; a single small item keeps its own name, color, and legend entry. Treemap-family legends show the bucket's one entry instead of every item. (#1019)
+- **Bucketed ColorScale swatches** take their stroke, opacity, and dash from the chart's `shapeConfig`, as Legend swatches do; Geomap's take the stroke of the map paths. (#1005)
+- **ColorScale bucket labels** step by the data's precision: integer data reads `1 - 2`, `3 - 5`, `6 - 9` instead of `1 - 2.99`, `3 - 6`, `6 - 9.9`, and neighboring buckets no longer share a bound. (#1006)
+- **`brushMin` applies in buttons mode** and to starting selections. Plot charts with a time axis default `brushMin` to 2, so a click on a button timeline selects two periods. (#1021)
+- **`"sqrt"` axes** round their domains like linear ones, space their ticks evenly, and zoom in a Plot. (#1024)
+- **An unknown ColorScale `scale` name warns** through the config warnings, then draws a linear scale as before. (#1032)
+- **Errors thrown by `on()` handlers are reported** as uncaught errors, in the console and through the window's `error` event, instead of being swallowed. The chart's other handlers still run. (#1013)
+- **Rows with a `url` field are drawn as data.** An object counts as a fetch request only when it holds nothing but `url` and `fetch` options (`headers`, `method`, `body`, …), and `isData` in `@d3plus/data` follows the same rule. (#1008)
+- **`tooltipConfig.className` adds classes** beside `d3plus-tooltip` instead of replacing it. (#1030)
+- `@d3plus/core` depends on `@d3plus/export` for the download button. `d3plus-core.full.js` includes it; the standalone `d3plus-core.js` needs `d3plus-export.js` on the page to save. (#1015)
+
+### Fixed
+
+- A bar chart whose bars carry the category names falls back to axis tick labels when any bar's name wouldn't fit, instead of leaving the categories unlabeled. (#1023; closes #1007) [Example ↗](https://d3plus.org/?path=/docs/core-charts-barchart--d3plus#category-labels)
+- `"click.Rect"`, `"click.Circle"`, and `"click.Path"` handlers (and their hover counterparts) fire on marks drawn without a shape type: Treemap tiles, Network and Tree nodes, Geomap regions, Sunburst arcs, and so on. (#1010)
+- Handlers no longer fire with `d === undefined` over chrome with no data (an inset legend's backdrop, Matrix and Priestley gridlines), and hovering a Network or Rings edge no longer throws. (#1013)
+- `hover()` and `active()` no longer clear themselves on every redraw, a resize included, or push `hover(undefined)` to linked charts. (#1028)
+- Clicking a Treemap threshold bucket drills into the groups it holds instead of emptying the chart. (#1019)
+- Legend tooltips on stacked charts and Waffle fill in their Share row. (#1019)
+- `shapeConfig: {Box: {outlier: false}}` no longer crashes the render. (#1020)
+- A BoxWhisker with one row per box shows its x-axis category labels again. (#1016)
+- `saveElement(..., {type: "jpg"})` in `@d3plus/export` writes JPEG data instead of PNG. (#1015)
+- A failed `load()` with a callback logs its error once instead of twice. (#1028)
+- `NaN` values no longer reach a ColorScale's scale, and `bucketFormat` no longer reverses the values array it is given. (#1006, #1032)
+
+### Documentation
+
+- The Interactivity guide lists a handler's arguments, `(d, i, x, event)`, and says `this` is the chart. It explains unscoped event names and shape-type namespaces (`"click.Bar"`), and adds an open-a-link example and a Treemap › Click To Open Link story. (#1009; closes #760) [Guide ↗](https://d3plus.org/?path=/docs/guides-interactivity--d3plus#pointer-events) · [Example ↗](https://d3plus.org/?path=/docs/core-charts-treemap--d3plus#click-to-open-link)
+- The `topojsonFilter` docs say it keeps the given features (they said it removed them), and a Geomap › Only Areas With Data story draws only the areas that have data. (#1009; closes #753) [Example ↗](https://d3plus.org/?path=/docs/core-charts-geomap--d3plus#only-areas-with-data)
+- The Data guide shows the `{url, headers}` request form and live data, and the Exporting guide covers the download button. (#1008, #1015, #1028)
+- Every feature above has a Storybook story and a dev page.
+
+### Developer & tooling
+
+- **Generated docs regenerate only on release.** Pull requests no longer commit `API.md`, the Storybook args, or story headers; `pnpm run release` regenerates them. The Storybook site deploys when a release is published (not a prerelease) or by hand, and each package's generated `dev/index.html` is gitignored. (#1034)
+- `@d3plus/data` tests cover `load()` and `addToQueue` (99% of lines). (#1017, #1018)
+- `@d3plus/core/internal` exports `sideControlsDrop`, and `ChartDefinition` gains `colorScaleShape`, which names the shape a row draws as. `@d3plus/render` renderers gain an optional `elements()`. (#1005, #1030, #1033)
+- The download-button test compares saved files by name instead of finish order. (#1027)
+
+### Breaking changes
+
+Most charts upgrade without code changes, but several new defaults change what existing charts look like, and visual-regression snapshots will change.
+
+- **Every chart shows a download button**, which makes the top-left control panel about 24px wider. `saveControl: false` hides it. (#1015)
+- **Plot charts draw axis guides and badges on hover.** `axisHover: false` turns them off. (#1012)
+- **Nested Treemaps draw group header strips**, and their tiles move down to make room. `groupLabels: false` keeps the old look. (#1014)
+- **BoxWhisker boxes and outliers are colored**, and `shapeConfig.fill` and `stroke` restyle them. To keep white boxes:
+  ```js
+  shapeConfig: {
+    Box: {
+      rectConfig: {fill: "white", stroke: "black"},
+      outlierConfig: {Circle: {fill: "black"}},
+    },
+  }
+  ```
+  (#1011)
+- **Crowded category labels slant at 30° and may wrap.** `labelRotation: true` keeps them at -90°. (#1025)
+- **Side-by-side bars draw transparent hit areas**, which tests that count a chart's `Bar` rects will see. (#1022)
+- **Top and bottom legends and color scales span the full width**, and left and right ones start below the top chrome and corner controls. (#1033)
+- **Threshold buckets need two members**, and Treemap-family legends show the bucket's entry instead of every item. (#1019)
+- **Button timelines on time-axis Plots select two periods per click.** Set `timelineConfig: {brushMin: 1}` for one. (#1021)
+- **`"sqrt"` axes** tick, round, and zoom differently. (#1024)
+- **`tooltipConfig.className` adds instead of replacing**, and defaults to `undefined` instead of `"d3plus-tooltip"`. (#1030)
+- **Objects with a `url` and other fields are drawn, not fetched.** A request holds only `url` and `fetch` options. (#1008)
+- **Errors in `on()` handlers surface** in the console and in error trackers instead of failing silently. (#1013)
+- **ColorScale bucket labels and swatch outlines change.** (#1005, #1006)
+- **The standalone `d3plus-core.js`** needs `d3plus-export.js` on the page for the download button to save. (#1015)
+
 ## 4.9.0
 
 4.9 is a maintenance release that makes d3plus lighter to install and cleans up its API. `@d3plus/core` installs at a third of its former size, its minified bundle is a third smaller, several dependencies are gone, and the `es/` builds are modern ES2022. A few methods that did nothing are removed, and Geomap accepts only its built-in projection names. Behind the scenes, tests run on Vitest, the docs site on Vite, Prettier formats the repo, and releases publish to npm from CI. Most charts need no changes; see the breaking changes.
