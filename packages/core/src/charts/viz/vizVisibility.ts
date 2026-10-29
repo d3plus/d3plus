@@ -167,3 +167,20 @@ export function syncUnloadObserver(viz: Viz): void {
     () => vizUnload(viz),
   );
 }
+
+/**
+    Stops a chart's visibility, resize, and scroll polling and its visibility
+    observers, so a destroyed chart leaves no timer or listener holding it.
+    @private
+*/
+export function stopVisibilityWatch(viz: Viz): void {
+  if (viz._visiblePoll) viz._visiblePoll = clearInterval(viz._visiblePoll);
+  if (viz._resizePoll) viz._resizePoll = clearTimeout(viz._resizePoll);
+  if (viz._scrollPoll) viz._scrollPoll = clearTimeout(viz._scrollPoll);
+  viz._visibleUnobserve?.();
+  viz._visibleUnobserve = undefined;
+  viz._unloadUnobserve?.();
+  viz._unloadUnobserve = undefined;
+  if (viz.schema.scrollContainer)
+    select(viz.schema.scrollContainer).on(`scroll.${viz._uuid}`, null);
+}

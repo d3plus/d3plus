@@ -38,6 +38,7 @@ import {handlerDatum, shapeClassTargets} from "./shapeClassTargets.js";
 import {reportHandlerError} from "./reportHandlerError.js";
 import {vizClassNameTargets} from "./vizClassName.js";
 import {themeBackground, unwatchPageTheme} from "./vizTheme.js";
+import {stopVisibilityWatch} from "./vizVisibility.js";
 import {applyClassName, withRootClasses} from "../../utils/className.js";
 import {handleColorScaleHover} from "../features/colorScaleHover.js";
 import {
@@ -803,31 +804,12 @@ export default class Viz extends VizBase {
     this._fontsUnsubscribe = undefined;
     this._tooltipClass.data([]).render();
     select("body").on(`touchstart.${this._uuid}`, null);
-    // Clear the visibility/resize/scroll poll timers + scroll listener
-    // so a destroyed chart doesn't keep firing intervals/timeouts that
-    // hold the entire viz instance alive. Without this, an SPA that
-    // mounts/unmounts charts on tab switches leaks the scene tree +
-    // a 200ms-interval timer per leaked chart.
-    if (this._visiblePoll) {
-      this._visiblePoll = clearInterval(this._visiblePoll) as never;
-    }
-    if (this._resizePoll) {
-      this._resizePoll = clearTimeout(this._resizePoll) as never;
-    }
-    if (this._scrollPoll) {
-      this._scrollPoll = clearTimeout(this._scrollPoll) as never;
-    }
-    this._visibleUnobserve?.();
-    this._visibleUnobserve = undefined;
-    this._unloadUnobserve?.();
-    this._unloadUnobserve = undefined;
+    stopVisibilityWatch(this);
     if (this._sceneRepaintRAF != null) {
       if (typeof cancelAnimationFrame === "function")
         cancelAnimationFrame(this._sceneRepaintRAF);
       this._sceneRepaintRAF = undefined;
     }
-    if (this.schema.scrollContainer)
-      select(this.schema.scrollContainer).on(`scroll.${this._uuid}`, null);
     // Destroy the active scene renderer (clears its own pointer-rect
     // listeners, overlay host, canvas/svg DOM, timers).
     if (
