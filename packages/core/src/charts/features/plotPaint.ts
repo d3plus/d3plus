@@ -31,6 +31,7 @@ import {emitTrendLines} from "../Plot/trendScene.js";
 import {emitForecast, forecastRows} from "../Plot/forecastScene.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 import {markSharedConfig} from "../../utils/configWarnings.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** An axis position function: maps a domain value to a pixel coordinate. */
 export type PlotAxisFn = (d: unknown, axis?: string) => number;
@@ -279,7 +280,7 @@ function buildShapeConfig(
 
   return markSharedConfig({
     discrete: viz.schema.discrete,
-    duration: viz.schema.duration,
+    duration: effectiveDuration(viz),
     label: (d: PlotDatum) => viz._drawLabel(d.data, d.i),
     x: (d: PlotDatum) => (d.x2 !== undefined ? x(d.x2, "x2") : x(d.x)),
     x0:

@@ -1384,6 +1384,15 @@ export interface D3plusConfig {
       wedge's area proportional to its value; `"linear"` its radius.
   */
   radialScale?: "sqrt" | "linear";
+  /**
+      Whether the chart animates. `"auto"` (default) follows the viewer's OS
+      setting, read from the `(prefers-reduced-motion: reduce)` media query at
+      each draw (server-side rendering counts as not reduced). `true` always
+      draws without motion: shapes, axes, legends, zooms, and fades jump
+      straight to their final state. `false` always animates. `duration` keeps
+      the value you set either way.
+  */
+  reducedMotion?: "auto" | boolean;
   /** Row key for matrix-style layouts. */
   row?: string;
   /** Shows a top-left download button that saves the chart, as the reader sees it, as a PNG, SVG, or JPG file. On by default for every chart. */

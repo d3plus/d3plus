@@ -973,6 +973,15 @@ export {
 } from "./src/charts/viz/linkGroup.js";
 export type {LinkKind, ResolvedLink} from "./src/charts/viz/linkGroup.js";
 export {forEachSceneRow, MARK_TYPES} from "./src/charts/viz/sceneRows.js";
+export {
+  effectiveDuration,
+  motionReduced,
+  prefersReducedMotion,
+} from "./src/charts/viz/reducedMotion.js";
+export type {
+  MotionHost,
+  ReducedMotionSetting,
+} from "./src/charts/viz/reducedMotion.js";
 
 // ── Small multiples (`facet` / `facetConfig`) ────────────────────────────────
 export {

@@ -10,6 +10,7 @@ import {collectComputed, makeShape} from "../features/emitHelpers.js";
 import type {PlotAxisFn} from "../features/plotPaint.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import type {TrendFit, TrendSample} from "./trendLines.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** Scene-node fields the trend line stamps for hover routing. */
 export type TrendNode = SceneNode & {
@@ -69,7 +70,7 @@ function trendGroup(
   if (fit.samples[0].lci !== undefined) {
     const band = makeShape("Area")
       .renderMode("compute")
-      .duration(viz.schema.duration)
+      .duration(effectiveDuration(viz))
       .data(fit.samples)
       .config({
         id,
@@ -93,7 +94,7 @@ function trendGroup(
     if (samples.length < 2) return;
     const shape = makeShape("Line")
       .renderMode("compute")
-      .duration(viz.schema.duration)
+      .duration(effectiveDuration(viz))
       .data(samples)
       .config({...paint, id: key, label: false, stroke: fit.color})
       .config(style)

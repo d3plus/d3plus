@@ -14,6 +14,7 @@ import {
   paintMinimapStyle,
 } from "./minimapMarkup.js";
 import {showsZoomControls, zoomControlsBox} from "./zoomControlsMarkup.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 type MinimapStyles = ReturnType<typeof minimapStyles>;
 
@@ -129,16 +130,16 @@ function paint(
   // Faded (not `display:none`) so crossing the 1x threshold — via any of
   // the minimap's own gestures, a zoom button, or the wheel — animates
   // rather than popping. `pointer-events` still gates interaction while
-  // hidden. Tied to `viz.schema.duration` like the chart's other
+  // hidden. Tied to the chart's effective duration like its other
   // non-per-pixel transitions (button clicks, reset) — `0` (as every test
-  // in this suite sets) makes it an instant, assertion-friendly toggle.
+  // in this suite sets, or reduced motion) makes it an instant toggle.
   paintMinimapStyle(el, {
     position: "absolute",
     "box-sizing": "border-box",
     overflow: "hidden",
     opacity: zoomedIn ? "1" : "0",
     "pointer-events": zoomedIn ? "auto" : "none",
-    transition: `opacity ${viz.schema.duration}ms`,
+    transition: `opacity ${effectiveDuration(viz)}ms`,
   });
   if (!zoomedIn) return;
 
@@ -277,7 +278,7 @@ function viewportEvents(
       const dy = dims.y ? dir[1] * step * scaleFactor * t.k : 0;
       // A discrete step, not a per-pixel drag tick — animates like the
       // zoom buttons' own clicks rather than jumping instantly.
-      zoomTo(viz, t.k, t.x - dx, t.y - dy, viz.schema.duration);
+      zoomTo(viz, t.k, t.x - dx, t.y - dy, effectiveDuration(viz));
     },
   };
 }
@@ -307,7 +308,7 @@ function outerEvents(
         me.clientX - rect.left,
         me.clientY - rect.top,
       );
-      centerOn(viz, px, py, liveTransform(viz).k, viz.schema.duration);
+      centerOn(viz, px, py, liveTransform(viz).k, effectiveDuration(viz));
     },
     // Double-clicking anywhere on the minimap resets the chart, like the
     // zoom-reset button.

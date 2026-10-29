@@ -1,6 +1,8 @@
 import type {DataPoint} from "@d3plus/data";
 import {D3plusConfig} from "./D3plusConfig.js";
 import {markSharedConfig} from "./configWarnings.js";
+import {effectiveDuration} from "../charts/viz/reducedMotion.js";
+import type {ReducedMotionSetting} from "../charts/viz/reducedMotion.js";
 
 interface D3PlusWrapped {
   __d3plus__?: boolean;
@@ -28,6 +30,7 @@ export interface ConfigPrepHost {
   schema: {
     shapeConfig: ConfigObject;
     duration?: number;
+    reducedMotion?: ReducedMotionSetting;
     on?: Record<string, DataAccessor>;
     [key: string]: unknown;
   };
@@ -47,7 +50,7 @@ export default function configPrep(
   nest: string | false = false,
 ): ConfigObject {
   const newConfig: ConfigObject = {
-    duration: this.schema.duration,
+    duration: effectiveDuration(this),
     on: {},
   };
 

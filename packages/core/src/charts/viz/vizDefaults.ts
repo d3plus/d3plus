@@ -160,6 +160,7 @@ function initDataDefaults(viz: Viz): void {
   viz.schema.detectVisibleInterval = 1000;
   viz.schema.detectVisibleUnload = true;
   viz.schema.duration = 600;
+  viz.schema.reducedMotion = "auto";
   viz.schema.fontFamily = fontFamily;
   viz._hidden = [];
   viz.schema.hiddenColor = constant("#aaa");

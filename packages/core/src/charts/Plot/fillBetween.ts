@@ -18,6 +18,7 @@ import type {PlotDatum} from "../features/plotPaint.js";
 import type {ShapeEmitContext} from "../features/shapeEmit.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 import {curveFactory, lineCurve} from "./lineCurve.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** The `fillBetween` setting: `true`, one `[a, b]` pair of series ids, or a list of pairs. */
 export type FillBetweenSetting = boolean | unknown[];
@@ -217,7 +218,7 @@ function pairNodes(
     .config({
       ...place,
       curve: geo.curve,
-      duration: viz.schema.duration,
+      duration: effectiveDuration(viz),
       label: false,
       fill: lineColor(viz),
       strokeWidth: 0,

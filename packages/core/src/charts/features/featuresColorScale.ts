@@ -22,6 +22,7 @@ import type {FacetAccessor} from "../facet/facetConfig.js";
 import {facetKey} from "../facet/facetData.js";
 import {colorScaleBucketRows} from "./colorScaleBucket.js";
 import {resolveAccessor, shapeConfigFor} from "./emitHelpers.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /** Where and how the colorScale lays itself out for one render. */
 interface ColorScaleFrame {
@@ -122,7 +123,7 @@ function paintColorScale(
   viz
     ._colorScaleClass!.renderMode("compute")
     .align(frame.align)
-    .duration(viz.schema.duration)
+    .duration(effectiveDuration(viz))
     .data(colorScaleData(viz))
     .height(frame.height)
     .locale(viz.schema.locale)

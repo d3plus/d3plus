@@ -30,6 +30,7 @@ import {stopDataPolling} from "./vizDataPolling.js";
 import type {FacetHooks} from "../facet/facetConfig.js";
 import {facetPanelAt, withFacetPanel} from "../facet/facetPanel.js";
 import {vizRender} from "./vizRender.js";
+import {motionReduced} from "./reducedMotion.js";
 import {vizDraw} from "../pipeline/vizDraw.js";
 import {vizPreDraw} from "../pipeline/vizPreDraw.js";
 import type {VizInstance} from "./vizTypes.js";
@@ -393,9 +394,11 @@ export default class Viz extends VizBase {
     // `durationOverride` defaults to the chart's `_duration` for normal
     // re-renders. Interaction handlers (zoomed, hover, etc.) pass 0 to
     // skip the transition machinery — animating every wheel/drag tick
-    // accumulates `setTimeout(duration+10)` per event.
-    const drawDuration =
-      durationOverride !== undefined
+    // accumulates `setTimeout(duration+10)` per event. Reduced motion
+    // zeroes every draw, overrides included.
+    const drawDuration = motionReduced(this)
+      ? 0
+      : durationOverride !== undefined
         ? durationOverride
         : this._instantNextDraw
           ? 0

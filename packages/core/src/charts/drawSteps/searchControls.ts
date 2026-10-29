@@ -51,6 +51,7 @@ import {
   searchMatches,
   showsSearchControls,
 } from "./searchControlsMarkup.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 /**
     Finds this contribution's OWN node within `viz._featurePanels` — the
@@ -258,7 +259,7 @@ function panToMatch(viz: Viz, host: HTMLElement, key: unknown): void {
       [elRect.left - svgRect.left, elRect.top - svgRect.top],
       [elRect.right - svgRect.left, elRect.bottom - svgRect.top],
     ],
-    viz.schema.duration,
+    effectiveDuration(viz),
   );
 }
 

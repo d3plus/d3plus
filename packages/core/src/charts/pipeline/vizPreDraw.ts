@@ -22,6 +22,7 @@ import type {VizPreDrawResult} from "./preDrawData.js";
 import {GROUP_LABEL_KEY, groupDepthOf} from "../viz/groupRow.js";
 import {warnMissingFields} from "../viz/missingFields.js";
 import {configureOrdinalColor} from "../viz/ordinalColor.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 import type {VizInstance as Viz} from "../viz/vizTypes.js";
 
 function listify(n: DataPoint[keyof DataPoint][]): string {
@@ -261,10 +262,14 @@ export function vizPreDraw(viz: Viz): void {
   if (post.noDataMessage) {
     viz._messageClass!.render({
       container: viz._select!.node().parentNode,
+      duration: effectiveDuration(viz),
       html: viz.schema.noDataHTML(viz),
       mask: false,
       style: viz.schema.messageStyle,
     });
-    viz._select!.transition().duration(viz.schema.duration).attr("opacity", 0);
+    viz
+      ._select!.transition()
+      .duration(effectiveDuration(viz))
+      .attr("opacity", 0);
   }
 }
