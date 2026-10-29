@@ -18,6 +18,8 @@ import {backgroundImageNodes} from "../features/backgroundImageEmit.js";
 import type {ChartEmit} from "../definition/ChartDefinition.js";
 import type {VizInstance} from "../viz/vizTypes.js";
 
+import {sankeyLabels} from "./labels.js";
+
 interface SankeyLink {
   source: SankeyNode;
   target: SankeyNode;
@@ -42,6 +44,8 @@ interface SankeyCtx {
   links: SankeyLink[];
   nodeGroups: [string, SankeyNode[]][];
   pathFn: (d: SankeyLink) => string;
+  width: number;
+  height: number;
 }
 
 /**
@@ -173,6 +177,7 @@ export const sankeyEmit: ChartEmit = ({viz}) => {
           return [(d.data ?? d) as DataPoint, d.i ?? k];
         }),
       );
+      out.push(...sankeyLabels(viz, values, cfg, c.width, c.height));
     }
   }
 

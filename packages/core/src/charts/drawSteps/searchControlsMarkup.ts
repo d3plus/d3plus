@@ -16,6 +16,7 @@ import type {SceneNode} from "@d3plus/render";
 import {fontFamily, fontFamilyStringify} from "@d3plus/text";
 
 import {forEachSceneRow} from "../viz/sceneRows.js";
+import {motionReduced} from "../viz/reducedMotion.js";
 import type Viz from "../viz/Viz.js";
 import {ICON_ATTRS, kebab} from "./zoomControlsMarkup.js";
 import {
@@ -264,6 +265,7 @@ export function searchControlsHtml(viz: Viz): string {
   const inputStyle = styleAttr({
     ...SEARCH_INPUT_BASE_STYLE,
     ...(open ? SEARCH_INPUT_STYLE_OPEN : SEARCH_INPUT_STYLE_CLOSED),
+    ...(motionReduced(viz) ? {transition: "none"} : {}),
   });
   const clearStyle = styleAttr(
     hasTerm ? SEARCH_CLEAR_STYLE_SHOWN : SEARCH_CLEAR_STYLE_HIDDEN,

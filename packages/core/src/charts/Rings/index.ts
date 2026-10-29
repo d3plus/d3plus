@@ -24,6 +24,7 @@ import type {VizInstance} from "../viz/vizTypes.js";
 import {applyRingsLayout, ringsSizeLegendScale} from "./applyLayout.js";
 import {ringsEmit} from "./emit.js";
 import {simpleHover} from "../viz/simpleHover.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 type RingsAccessor = number | ((d: DataPoint, i: number) => unknown);
 
@@ -214,7 +215,7 @@ export const ringsDef: ChartDefinition = {
       // _draw() only recomputes layout/scene; paint it with the chart duration
       // so the re-centering animates (a bare _draw leaves the only repaint to
       // the coalesced duration-0 one, which snaps).
-      if (viz._sceneRenderer) viz._drawSceneToTarget(viz.schema.duration);
+      if (viz._sceneRenderer) viz._drawSceneToTarget(effectiveDuration(viz));
     };
   },
 

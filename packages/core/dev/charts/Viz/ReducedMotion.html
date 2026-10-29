@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ReducedMotion · Viz</title>
+    <meta
+      name="description"
+      content="A bar chart whose reducedMotion switches between auto (follows the OS setting), true, and false; shuffle the data to see the redraw animate or jump."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        padding: 16px;
+        font-family: sans-serif;
+      }
+
+      .controls {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+
+      #viz {
+        width: 600px;
+        max-width: 100%;
+        height: 360px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="controls">
+      <span>reducedMotion:</span>
+      <label
+        ><input type="radio" name="motion" value="auto" checked /> auto</label
+      >
+      <label><input type="radio" name="motion" value="true" /> true</label>
+      <label><input type="radio" name="motion" value="false" /> false</label>
+      <button type="button" id="shuffle">Change data</button>
+      <span id="status"></span>
+    </div>
+    <div id="viz"></div>
+  </body>
+
+  <script>
+    const regions = ["North", "South", "East", "West", "Central"];
+    const randomData = () =>
+      regions.map(region => ({
+        region,
+        value: Math.round(10 + Math.random() * 90),
+      }));
+
+    const status = document.getElementById("status");
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const showStatus = () => {
+      status.textContent = `OS prefers reduced motion: ${query.matches ? "yes" : "no"}`;
+    };
+    showStatus();
+    query.addEventListener("change", showStatus);
+
+    const viz = new d3plus.BarChart()
+      .select("#viz")
+      .data(randomData())
+      .groupBy("region")
+      .x("region")
+      .y("value")
+      .duration(800)
+      .reducedMotion("auto");
+    viz.render();
+
+    for (const input of document.querySelectorAll("input[name=motion]")) {
+      input.addEventListener("change", () => {
+        const value = input.value === "auto" ? "auto" : input.value === "true";
+        viz.reducedMotion(value).render();
+      });
+    }
+
+    document.getElementById("shuffle").addEventListener("click", () => {
+      viz.data(randomData()).render();
+    });
+  </script>
+</html>

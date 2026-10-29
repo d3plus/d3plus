@@ -11,6 +11,7 @@ import {reserveContainerSize} from "./reserveContainerSize.js";
 import {applyClassName} from "../../utils/className.js";
 import {ROOT_CLASS} from "./vizClassName.js";
 import {resetChromeBoxes} from "./resetChromeBoxes.js";
+import {effectiveDuration} from "./reducedMotion.js";
 import type Viz from "./Viz.js";
 import {
   canObserveVisibility,
@@ -111,7 +112,7 @@ function applyRootSize(viz: Viz): void {
   }
   viz._select
     .transition()
-    .duration(viz.schema.duration)
+    .duration(effectiveDuration(viz))
     .style("width", width)
     .style("height", height)
     .attr("width", width)
@@ -357,9 +358,12 @@ function finishDraw(viz: Viz, callback?: () => void): void {
     viz._messageClass._isVisible &&
     (!viz.schema.noDataMessage || viz._filteredData.length)
   ) {
-    viz._messageClass.hide();
+    viz._messageClass.hide({duration: effectiveDuration(viz)});
     if (viz._select.attr("opacity") === "0")
-      viz._select.transition().duration(viz.schema.duration).attr("opacity", 1);
+      viz._select
+        .transition()
+        .duration(effectiveDuration(viz))
+        .attr("opacity", 1);
   }
 
   // Text drawn before a web font finished loading was laid out with the
@@ -372,7 +376,7 @@ function finishDraw(viz: Viz, callback?: () => void): void {
     pending = undefined;
     if (!viz._fontsUnsubscribe) return;
     const wait = viz._callback
-      ? viz.schema.duration
+      ? effectiveDuration(viz)
       : (viz._transitionEndsAt ?? 0) - Date.now();
     if (wait > 0) pending = setTimeout(redraw, wait);
     else viz.render();
@@ -389,10 +393,13 @@ function finishDraw(viz: Viz, callback?: () => void): void {
   }
 
   if (callback)
-    setTimeout(() => {
-      callback();
-      viz._callback = undefined;
-    }, viz.schema.duration + 100);
+    setTimeout(
+      () => {
+        callback();
+        viz._callback = undefined;
+      },
+      effectiveDuration(viz) + 100,
+    );
 }
 
 /**
@@ -406,6 +413,7 @@ function loadAndDraw(viz: Viz, callback?: () => void): void {
   if (viz.schema.loadingMessage && promises.length) {
     viz._messageClass.render({
       container: viz._select.node().parentNode,
+      duration: effectiveDuration(viz),
       html: viz.schema.loadingHTML(viz),
       mask: viz._filteredData ? viz.schema.messageMask : false,
       style: viz.schema.messageStyle,

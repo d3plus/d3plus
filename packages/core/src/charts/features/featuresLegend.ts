@@ -27,6 +27,7 @@ import {insetFrame, insetOrient, isInsetPending} from "./insetState.js";
 import type {InsetOrient} from "./insetState.js";
 import {legendCategories, legendMergesIds} from "./legendCategory.js";
 import type {LegendEntry} from "./legendCategory.js";
+import {effectiveDuration} from "../viz/reducedMotion.js";
 
 interface LegendData {
   legendData: DataPoint[];
@@ -216,7 +217,7 @@ function paintLegend(
     .id(legendKey)
     .align(frame.align)
     .direction(frame.direction)
-    .duration(viz.schema.duration)
+    .duration(effectiveDuration(viz))
     .data(frame.visible ? legendData : [])
     .height(frame.height)
     .locale(viz.schema.locale)

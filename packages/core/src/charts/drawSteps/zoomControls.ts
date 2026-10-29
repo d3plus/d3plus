@@ -22,6 +22,7 @@ import {
 import {refreshBottomRightPanel} from "./bottomRightControlsMarkup.js";
 import {startsOnBrush} from "./zoomGesture.js";
 import {forgetTransform, recordTransform, showsTransform} from "./zoomShown.js";
+import {effectiveDuration, motionReduced} from "../viz/reducedMotion.js";
 
 /**
     Builds the four zoom-control buttons as an `htmlOverlay` scene-node
@@ -217,7 +218,7 @@ function ensureZoomSurface(viz: Viz): void {
       kind: "generic",
       width,
       height,
-      duration: viz.schema.duration,
+      duration: effectiveDuration(viz),
     });
   }
   if (viz._renderer !== "canvas") retargetZoom(viz, viz._select);
@@ -424,6 +425,7 @@ function zoomed(
   transform: unknown = false,
   duration: number = 0,
 ): void {
+  if (motionReduced(this)) duration = 0;
   if (this._zoomGroup) {
     if (!duration) this._zoomGroup.attr("transform", transform);
     else
@@ -505,7 +507,7 @@ export function zoomTo(
   scale: number,
   x: number,
   y: number,
-  duration: number = viz.schema.duration,
+  duration: number = effectiveDuration(viz),
 ): void {
   const [kMin, kMax] = viz._zoomBehavior.scaleExtent(),
     [[x0, y0], [x1, y1]] = viz._zoomBehavior.translateExtent(),
@@ -532,7 +534,7 @@ export function zoomTo(
 function zoomToBounds(
   this: Viz,
   bounds: number[][] | null,
-  duration: number = this.schema.duration,
+  duration: number = effectiveDuration(this),
 ): void {
   if (!bounds) return zoomTo(this, 1, 0, 0, duration);
 

@@ -113,7 +113,7 @@ export const applySankeyLayout: TransformStage = ({viz}) => {
     .size([width, height])();
 
   const nodeGroups = Array.from(groups(nodes, d => d.shape));
-  v.ctx.sankeyCtx = {links, nodeGroups, pathFn: v.ctx.path};
+  v.ctx.sankeyCtx = {links, nodeGroups, pathFn: v.ctx.path, width, height};
 
   return {shapeData: nodes as unknown as DataPoint[]};
 };

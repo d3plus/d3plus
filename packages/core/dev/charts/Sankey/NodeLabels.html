@@ -1,0 +1,54 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Sankey Node Labels</title>
+    <meta
+      name="description"
+      content="Node labels beside each node, left of the last column, hidden on nodes too thin to fit one."
+    />
+    <script src="/umd/d3plus-core.full.js"></script>
+    <script src="/dev.js"></script>
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body></body>
+
+  <script>
+    // Geothermal, Biomass, and Hydro are too thin for a label of their own.
+    var links = [
+      {source: "Coal", target: "Electricity", value: 30},
+      {source: "Natural Gas", target: "Electricity", value: 25},
+      {source: "Natural Gas", target: "Residential", value: 12},
+      {source: "Natural Gas", target: "Industrial", value: 14},
+      {source: "Nuclear", target: "Electricity", value: 18},
+      {source: "Solar", target: "Electricity", value: 6},
+      {source: "Wind", target: "Electricity", value: 9},
+      {source: "Hydro", target: "Electricity", value: 1.5},
+      {source: "Geothermal", target: "Electricity", value: 0.4},
+      {source: "Biomass", target: "Industrial", value: 0.6},
+      {source: "Petroleum", target: "Transportation", value: 35},
+      {source: "Petroleum", target: "Industrial", value: 9},
+      {source: "Electricity", target: "Residential", value: 20},
+      {source: "Electricity", target: "Commercial", value: 18},
+      {source: "Electricity", target: "Industrial", value: 12},
+      {source: "Electricity", target: "Conversion Losses", value: 38},
+      {source: "Residential", target: "Energy Services", value: 21},
+      {source: "Residential", target: "Rejected Energy", value: 11},
+      {source: "Commercial", target: "Energy Services", value: 12},
+      {source: "Commercial", target: "Rejected Energy", value: 6},
+      {source: "Industrial", target: "Energy Services", value: 24},
+      {source: "Industrial", target: "Rejected Energy", value: 11},
+      {source: "Transportation", target: "Energy Services", value: 8},
+      {source: "Transportation", target: "Rejected Energy", value: 27},
+    ];
+
+    new d3plus.Sankey().links(links).value("value").render();
+  </script>
+</html>
