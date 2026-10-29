@@ -15,7 +15,7 @@ import {merge as d3plusMerge, unique} from "@d3plus/data";
 import {extent, groups, min, rollups} from "d3-array";
 
 import discreteBufferFn from "../plotBuffers/discreteBuffer.js";
-import {applyBarWidths} from "./barWidth.js";
+import {applyBarWidths, shareAxis} from "./barWidth.js";
 import {discreteDomainCategories} from "./discreteDomain.js";
 import {extraBandValues} from "./confidenceBands.js";
 import {applySwarmLanes, resolveSwarm} from "./swarm.js";
@@ -266,12 +266,14 @@ export const formatPlotData: TransformStage = ({viz}) => {
 
   applyPlotSizeScale(viz, axisData);
 
-  const x2Exists = axisData.some(
-    (d: Record<string, unknown>) => d.x2 !== undefined,
-  );
-  const y2Exists = axisData.some(
-    (d: Record<string, unknown>) => d.y2 !== undefined,
-  );
+  // The width shares draw on a secondary axis when `barWidthShare` is "opposite".
+  const share = shareAxis(viz);
+  const x2Exists =
+    share === "x2" ||
+    axisData.some((d: Record<string, unknown>) => d.x2 !== undefined);
+  const y2Exists =
+    share === "y2" ||
+    axisData.some((d: Record<string, unknown>) => d.y2 !== undefined);
 
   return {
     plotFormattedData: formattedData,

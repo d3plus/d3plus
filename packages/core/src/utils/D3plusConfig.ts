@@ -3,6 +3,7 @@ import type {DataPoint} from "@d3plus/data";
 
 import type VizBase from "../charts/viz/VizBase.js";
 import type {LinkOption} from "../charts/viz/linkGroup.js";
+import type {BarShareInfo} from "../charts/Plot/barWidth.js";
 import type {FacetConfig} from "../charts/facet/facetConfig.js";
 import type {BrushSelection} from "../charts/ParallelCoordinates/brushFilter.js";
 import type {DimensionOptions} from "../charts/ParallelCoordinates/dimensions.js";
@@ -688,13 +689,25 @@ export interface D3plusConfig {
       a narrow bar, widening into room its neighbors leave; a label that
       still can't fit is left out, and the labels rotate, showing the name
       alone, only when half or more can't fit. The tooltip always shows the
-      share. In small
+      share. `"opposite"` moves the shares to the axis across the bars from
+      the names, above them along a horizontal axis and to their right along
+      a vertical one, leaving the names alone on their own axis; style it
+      with `x2Config` (or `y2Config`). In small
       multiples (`facet`), each panel's shares are of that panel's own total
       width and add to 100%, even when shared scales draw a smaller panel
-      narrower.
-      On for Marimekko, off for BarChart.
+      narrower. `barWidthShareFormat` changes what the label says.
+      `"opposite"` for Marimekko, off for BarChart.
   */
-  barWidthShare?: boolean;
+  barWidthShare?: boolean | "opposite";
+  /**
+      BarChart/Marimekko with `barWidthShare`: returns each bar's width-share
+      label. Called with the merge of the bar's rows' data (numbers summed
+      unless `aggs` says otherwise) and the bar's `{share, size, total,
+      text}`: its share of the total width (0–1), its width measure, every
+      bar's combined width, and the default label (such as "23%"). The
+      tooltip keeps showing the share.
+  */
+  barWidthShareFormat?: (d: DataPoint, info: BarShareInfo) => unknown;
   /**
       Starts a Plot's value axis (the x axis for horizontal charts) at a
       value: `baseline(n)` renders exactly like `yDomain([n])` (or

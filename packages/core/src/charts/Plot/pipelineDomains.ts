@@ -330,9 +330,12 @@ function computeNonStackedDomains(
           viz._swarm?.cross === "x"
         ? xData
         : extent(xData as (number | Date)[])) as DomainValue[],
-    x2: ((!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
-      ? x2Data
-      : extent(x2Data as (number | Date)[])) as DomainValue[],
+    // A variable-width axis's width shares (`barWidthShare`) line up with its bars.
+    x2: (isSpanAxis(viz, "x")
+      ? spanDomain(viz, axisData)
+      : (!x2Time && viz.schema.discrete === "x") || viz.schema.x2Sort
+        ? x2Data
+        : extent(x2Data as (number | Date)[])) as DomainValue[],
     y: (isSpanAxis(viz, "y")
       ? spanDomain(viz, axisData)
       : (!yTime && viz.schema.discrete === "y") ||
@@ -340,9 +343,11 @@ function computeNonStackedDomains(
           viz._swarm?.cross === "y"
         ? yData
         : extent(yData as (number | Date)[])) as DomainValue[],
-    y2: ((!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
-      ? y2Data
-      : extent(y2Data as (number | Date)[])) as DomainValue[],
+    y2: (isSpanAxis(viz, "y")
+      ? spanDomain(viz, axisData)
+      : (!y2Time && viz.schema.discrete === "y") || viz.schema.y2Sort
+        ? y2Data
+        : extent(y2Data as (number | Date)[])) as DomainValue[],
   };
 
   return {

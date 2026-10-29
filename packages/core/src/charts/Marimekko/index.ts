@@ -60,12 +60,14 @@ export const marimekkoDef: ChartDefinition = {
     */
     {key: "barWidth", coerce: barWidthAccessor, factory: barTotal},
     /**
-        Marimekko shows the shares by default ("Retail" over "50%"); `false`
-        shows the name alone. The tooltip always shows the share. In small
+        Marimekko shows the shares above the bars by default (`"opposite"`),
+        leaving the names alone beneath them; `true` puts each share
+        beneath its name ("Retail" over "50%"), and `false` shows the name
+        alone. The tooltip always shows the share. In small
         multiples (`facet`), each panel's shares add to 100%, even when
         shared scales (the default) draw a smaller panel narrower.
     */
-    {key: "barWidthShare", default: true},
+    {key: "barWidthShare", default: "opposite"},
     {key: "stacked", default: true},
     // Each segment's tooltip shows its own width, value, and share.
     {key: "tooltipShared", default: false},
@@ -76,7 +78,8 @@ export const marimekkoDef: ChartDefinition = {
     Creates a Marimekko (mosaic) chart from an array of data: one bar per
     discrete value (`x`), as wide as its `barWidth` (by default its total),
     with the bar's `groupBy` segments stacked to 100% of its height. Each
-    category's label shows its bar's share of the total width, and tooltips
+    category is named beneath its bar, with the bar's share of the total
+    width above it (see `barWidthShare`), and tooltips
     show each segment's value, its share of the bar, and the bar's width and
     share of the total width. Set `stackOffset("none")` to stack absolute
     values instead.

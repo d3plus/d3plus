@@ -17,6 +17,7 @@ import {unique} from "@d3plus/data";
 
 import {withAxisInk} from "./axisInk.js";
 import type {BarLabelCheck} from "./barLabelFit.js";
+import {barShareAxisConfig} from "./barWidth.js";
 import {baselineBreakAxisConfig} from "./baselineBreak.js";
 import {
   hasUserDomain,
@@ -142,11 +143,13 @@ export const preparePlotAxisLayout: TransformStage = ({
     hasUserDomain(viz, "y") || isSpanAxis(viz, "y") ? "none" : "outside";
   const defaultX2Config = {
     ...(x2Exists ? {data: x2Data} : defaultConfig),
+    ...barShareAxisConfig(viz, "x2"),
     baselineBreak: false,
     rounding: secondaryAxisRounding(viz, "x2", xAxisRounding(viz)),
   };
   const defaultY2Config = {
     ...(y2Exists ? {data: y2Data} : defaultConfig),
+    ...barShareAxisConfig(viz, "y2"),
     baselineBreak: false,
     rounding: secondaryAxisRounding(viz, "y2", yRounding),
   };

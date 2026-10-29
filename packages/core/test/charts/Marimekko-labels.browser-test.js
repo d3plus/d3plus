@@ -5,9 +5,10 @@ import {fitOwnSpaces} from "../../src/components/Axis/axisLabelThinning.ts";
 import {ownLabelSpaces} from "../../src/components/Axis/axisLayoutLabels.ts";
 
 /**
-    Marimekko's category labels at the Storybook canvas size (958 × 350): each
-    label wraps within its own bar's share of the axis, so the share line
-    shows beneath every name. A label that can't fit, even widened into its
+    Marimekko's category labels at the Storybook canvas size (958 × 350), with
+    each bar's share beneath its name (`barWidthShare(true)`): each label
+    wraps within its own bar's share of the axis, so the share line shows
+    beneath every name. A label that can't fit, even widened into its
     neighbors' unused room, hides, and the labels rotate, showing the name
     alone, only when half or more can't fit.
 */
@@ -58,6 +59,7 @@ const draw = ([config, rows]) =>
       .duration(0)
       .width(958)
       .height(350)
+      .barWidthShare(true)
       .config(config);
     viz.render(() => {
       const labels = [];

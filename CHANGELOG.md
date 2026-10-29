@@ -2,6 +2,17 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **Width shares above Marimekko bars.** `barWidthShare("opposite")` draws each bar's share of the total width on an axis across the bars from the category names: above them, or to their right when the bars run along `y`. Style that axis with `x2Config` (or `y2Config`). It works on BarCharts with `barWidth` too. [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#basic-example)
+- **`barWidthShareFormat`** writes each bar's share label. It is called with the merge of the bar's rows and `{share, size, total, text}`, so a label can show the bar's value, such as `` (d, {text}) => `$${d.Revenue}B · ${text}` ``. [Example ↗](https://d3plus.org/?path=/docs/core-charts-marimekko--d3plus#share-labels)
+
+### Breaking changes
+
+- **Marimekko draws its width shares above the bars**, leaving the category names alone beneath them, and the plot area moves down to make room. `barWidthShare: true` puts each share back beneath its name.
+
 ## 4.10.0
 
 This release works through the issue backlog: it closes 23 issues, including every remaining high-priority request. Every chart gets a download button, Plot charts draw axis guides on hover, nested Treemaps label their groups, BoxWhisker takes precomputed statistics, and stacked charts fold small series into an Other band. Axes gain `reverse`, angled labels, and power-scale exponents. Charts can poll a data URL, take a `className`, and warn when a config key names a field the data doesn't have. Several new defaults change what existing charts look like; see the breaking changes.

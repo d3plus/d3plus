@@ -76,7 +76,7 @@ BasicExample.parameters = {
   docs: {
     description: {
       story:
-        "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region's label shows its share of the market on a line beneath its name, which wraps to fit a narrow bar and can widen into room its neighbors leave. A label that still can't fit is left out, and the labels rotate, showing the name alone, only when half or more can't fit. Hover a segment for its revenue, its share of the region, and the region's total and share of the market.",
+        "Each region's bar is as wide as its total revenue, and each brand's segment fills its share of the bar's height, so every segment's area is its share of the whole market. Each region is named beneath its bar, with its share of the market above it. A name wraps to fit a narrow bar and can widen into room its neighbors leave; a label that still can't fit is left out, and the names rotate only when half or more can't fit. Hover a segment for its revenue, its share of the region, and the region's total and share of the market.",
     },
   },
 };
@@ -95,6 +95,45 @@ WithoutWidthShares.parameters = {
     description: {
       story:
         "`barWidthShare(false)` labels each region by name alone, leaving each bar's share of the total width to its tooltip.",
+    },
+  },
+};
+
+export const SharesBeneathNames = Template.bind({});
+SharesBeneathNames.args = {
+  data: sales,
+  groupBy: "Brand",
+  x: "Region",
+  y: "Revenue",
+  barWidthShare: true,
+};
+SharesBeneathNames.parameters = {
+  controls: {include: ["barWidthShare"]},
+  docs: {
+    description: {
+      story:
+        '`barWidthShare(true)` moves each region\'s share of the market from above its bar to a line beneath its name ("Retail" over "50%"). The default, `"opposite"`, keeps the names alone along the bottom and draws the shares on an axis above the bars (to their right when the bars run along `y`), styled with `x2Config` (or `y2Config`).',
+    },
+  },
+};
+
+export const ShareLabels = Template.bind({});
+ShareLabels.args = {
+  data: sales,
+  groupBy: "Brand",
+  x: "Region",
+  y: "Revenue",
+  barWidthShareFormat: funcify(
+    (d, {text}) => `$${d.Revenue}B · ${text}`,
+    "(d, {text}) => `$${d.Revenue}B · ${text}`",
+  ),
+};
+ShareLabels.parameters = {
+  controls: {include: ["barWidthShareFormat"]},
+  docs: {
+    description: {
+      story:
+        "`barWidthShareFormat` writes each bar's share label. It is called with the merge of the bar's rows (here, the region with its brands' revenue summed) and the bar's `{share, size, total, text}`: its share of the total width from 0 to 1, its width measure, every bar's combined width, and the default label. Here each region shows its revenue next to its share of the market.",
     },
   },
 };
@@ -154,7 +193,7 @@ Horizontal.parameters = {
   docs: {
     description: {
       story:
-        "With `discrete(\"y\")` the bars run horizontally: each region's row is as tall as its total, and its segments fill the width. Labels along a vertical axis never rotate, so each region's share follows its name.",
+        'With `discrete("y")` the bars run horizontally: each region\'s row is as tall as its total, and its segments fill the width. Each region is named on the left, with its share of the market on an axis to the right of its row.',
     },
   },
 };
