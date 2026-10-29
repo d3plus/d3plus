@@ -2,6 +2,12 @@
 
 All notable changes to D3plus are documented here. This project adheres to [Semantic Versioning](https://semver.org/).
 
+## Unreleased
+
+### Added
+
+- **Sankey node labels.** Each Sankey node is labeled beside it: to its right, over its outgoing flows, or to its left in the last column. A label that has no room above and below its node, before it would reach a neighbor's, is hidden. `label` sets the text, `shapeConfig.Rect.labelConfig` styles it, and `shapeConfig: {Rect: {label: false}}` turns them off. [Example ↗](https://d3plus.org/?path=/docs/core-charts-sankey--d3plus#node-labels)
+
 ## 4.10.0
 
 This release works through the issue backlog: it closes 23 issues, including every remaining high-priority request. Every chart gets a download button, Plot charts draw axis guides on hover, nested Treemaps label their groups, BoxWhisker takes precomputed statistics, and stacked charts fold small series into an Other band. Axes gain `reverse`, angled labels, and power-scale exponents. Charts can poll a data URL, take a `className`, and warn when a config key names a field the data doesn't have. Several new defaults change what existing charts look like; see the breaking changes.
